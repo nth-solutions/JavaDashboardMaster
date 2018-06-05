@@ -1,0 +1,11 @@
+
+
+Version:	3.12
+CmdLine:	E:\_Uricchio Project\Java Program\JavaDashboard\JavaDashboard_Rev-3\bin\JavaDashboard_Rev-3.exe --l4j-debug
+WOW64:		yes
+Working dir:	E:\_Uricchio Project\Java Program\JavaDashboard\JavaDashboard_Rev-3\bin\.
+Java min ver:	
+Java max ver:	
+Bundled JRE:	bin\jre1.8.0_161
+Check launcher:	E:\_Uricchio Project\Java Program\JavaDashboard\JavaDashboard_Rev-3\bin\bin\jre1.8.0_161\bin\javaw.exe (not found)
+Error msg:	This application was configured to use a bundled Java Runtime Environment but the runtime is missing or corrupted.

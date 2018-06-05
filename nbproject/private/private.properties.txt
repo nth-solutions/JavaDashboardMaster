@@ -1,0 +1,7 @@
+compile.on.save=false
+do.depend=false
+do.jar=true
+file.reference.RXTXcomm.jar-1=\\\\ELEANOR\\Documents\\_Uricchio Project\\Java Program\\Lib\\RXTX\\RXTXcomm.jar
+javac.debug=true
+javadoc.preview=true
+user.properties.file=C:\\Users\\Kinobo\\AppData\\Roaming\\NetBeans\\8.2\\build.properties

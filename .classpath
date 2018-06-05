@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="bin/commons-io-2.6.jar"/>
+	<classpathentry kind="lib" path="bin/commons-logging-1.2-javadoc.jar"/>
+	<classpathentry kind="lib" path="bin/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="bin/jna-4.0.0.jar"/>
+	<classpathentry kind="lib" path="bin/purejavacomm.jar"/>
+	<classpathentry kind="lib" path="bin/sjxlsx-1.0.0.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

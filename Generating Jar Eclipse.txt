@@ -1,0 +1,2 @@
+In order to correctly link library dependencies in a .JAR build for eclipse, you must right click on the project 
+ Run As > Run Configurations, click the classpath tab and makes sure the .jar is linked correctly in that window.
