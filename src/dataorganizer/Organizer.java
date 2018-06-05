@@ -15,7 +15,7 @@ import com.sun.javafx.collections.MappingChange.Map;
 public class Organizer {        //Class for Creating .CSV files
 	private int progress = 0;
 	
-    public boolean sortData(int[] data, int testNum, int totalNumTests, String NameOfFile, int magInterval, double period, boolean timeStamp, boolean only9Axis, String fileOutputDirectory) {
+    public boolean sortData(int[] data, int testNum, int totalNumTests, String NameOfFile, int magInterval, double period, String fileOutputDirectory) {
     //Method to create .CSV
     	Dashboard dashBoard = Dashboard.getFrameInstance();
     	LoadSettings settings = new LoadSettings();

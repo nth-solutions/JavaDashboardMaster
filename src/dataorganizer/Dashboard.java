@@ -83,6 +83,7 @@ public class Dashboard extends JFrame {
 	private JPanel templateTools;
 	private JPanel erasePanel;
 	private JPanel panel;
+	private JPanel remoteTab;
 
 	//Labels
 	private JLabel generalStatusLabel;
@@ -94,6 +95,7 @@ public class Dashboard extends JFrame {
 	private JCheckBox timedTestCheckbox;
 	private JCheckBox delayAfterStartCheckbox;
 	private JCheckBox manualCalibrationCheckbox;
+	private JCheckBox triggerOnReleaseCheckbox;
 
 	//Text Fields
 
@@ -103,6 +105,7 @@ public class Dashboard extends JFrame {
 	private JTextField magSampleRateTextField;
 	private JTextField delayAfterStartTextField;
 	private JTextField timer0TickThreshTextField;
+	private JTextField batteryTimeoutTextField;
 
 	//Read Tab
 	private JTextField prefixTextField;
@@ -129,7 +132,6 @@ public class Dashboard extends JFrame {
 	//Buttons
 	private JButton refreshPortButton;
 	private JButton disconnectButton;
-	private JButton getCurrentConfigsButton;
 	private JButton writeConfigsButton;
 	private JButton getModuleIDButton;
 	private JButton browseButton;
@@ -148,10 +150,13 @@ public class Dashboard extends JFrame {
 	private JSeparator separator;
 
 	//Test Parameter Variables and Constants
-	public static final int NUM_TEST_PARAMETERS = 13;
+	public static final int NUM_TEST_PARAMETERS = 15;
+	public static final int NUM_ID_INFO_PARAMATERS = 3;
 
 	//Test Parameters (All must be of type "int")
 	private int timedTestFlag;
+	private int triggerOnReleaseFlag;
+	private int battTimeoutLength;
 	private int testLength;      			
 	private int accelGyroSampleRate;    		
 	private int magSampleRate;          			
@@ -161,10 +166,10 @@ public class Dashboard extends JFrame {
 	private int gyroFilter;             		
 
 	//Flags
-	private boolean readMode = true;
+	//private boolean readMode = true;
 	private boolean organizeAbort = false;
-	private boolean readAbort = false;
-	private boolean paramAbort = false;
+	//private boolean readAbort = false;
+	//private boolean paramAbort = false;
 	private boolean portInitialized = false;
 	private boolean frameInitialized = false;
 	private boolean portOpened = false;
@@ -175,6 +180,7 @@ public class Dashboard extends JFrame {
 	private Thread paramThread;
 	private Thread infoThread;
 	private Thread bulkEraseThread;
+	private Thread sectorEraseThread;
 
 	//Output File Info and Variables
 	private String nameOfFile = "";     			//Sets the name of file to an empty string to start
@@ -192,6 +198,7 @@ public class Dashboard extends JFrame {
 	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static Dashboard dashboardInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
+	
 
 
 
@@ -199,7 +206,7 @@ public class Dashboard extends JFrame {
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	private Dashboard() {
-		setTitle("JavaDashboard_Rev-3 6/4/2018");
+		setTitle("JavaDashboardMaster");
 		createComponents();
 		initDataFields();
 		setVisible(true);
@@ -401,6 +408,11 @@ public class Dashboard extends JFrame {
 				getModuleIDButton.setEnabled(true);
 				readDataButton.setEnabled(true);
 				writeConfigsButton.setEnabled(true);
+				
+				//Disable COMM port combobox so the user doesn't accidentally reopen a port
+				commPortCombobox.setEnabled(false);
+				
+				//TODO: Add autocalibration sequence to dashboard and firmware
 			} 
 
 			//Executes if there was an error accessing the input and output streams of the serial dongles
@@ -418,8 +430,6 @@ public class Dashboard extends JFrame {
 		//If the disconnect button is pressed: disconnects from the serial port and resets the UI   
 		if (serialPort != null) {
 
-			//TODO: Remove this line or fix the functionality, this is supposed to close all active threads
-			stopAllThreads();
 
 			//Close the serial port
 			serialPort.close();  
@@ -437,12 +447,18 @@ public class Dashboard extends JFrame {
 			getModuleIDButton.setEnabled(false);
 			readDataButton.setEnabled(false);
 			writeConfigsButton.setEnabled(false);
+			
+			//Re-enable COMM port combobox so the user can select a new port to connect to
+			commPortCombobox.setEnabled(true);
+			
+			
 		}
 	}
 
 	/**
 	 * Stops the send test parameter thread (not working)
 	 */
+	/*
 	//TODO: Fix or remove
 	public void stopParamThread() {
 		if (paramThread != null) {
@@ -454,11 +470,13 @@ public class Dashboard extends JFrame {
 			}
 		}
 	}
+	*/
 
-
+	
 	/**
 	 * Stops the read test data thread (not working)
 	 */
+	/*
 	//TODO: Fix or remove
 	public void stopReadThread() {
 		if (readThread != null) {
@@ -470,10 +488,12 @@ public class Dashboard extends JFrame {
 			}
 		}
 	}
+	*/
 
 	/**
 	 * Stops all threads(not working)
 	 */
+	/*
 	//TODO: Fix or remove
 	public void stopAllThreads() {
 
@@ -483,6 +503,7 @@ public class Dashboard extends JFrame {
 		//Send Parameters Thread
 		stopParamThread();
 	}
+	*/
 
 	/**
 	 * Clears the input stream buffer
@@ -643,8 +664,10 @@ public class Dashboard extends JFrame {
 	 */
 	public boolean configureForHandshake() {
 		//Close the current serial port if it is open (Must be done for dashboard to work properly for some reason, do not delete)
-		//TODO: Add if to check if it is open to prevent exception
-		serialPort.close();
+		if (portInitialized) {
+			serialPort.close();
+		}
+		
 		//Reopen serial port
 		openSerialPort(serialPort.getName());
 
@@ -658,8 +681,7 @@ public class Dashboard extends JFrame {
 			//Assign the output stream variable to the serial port's output stream
 			outputStream = serialPort.getOutputStream();
 			//Assign the input stream variable to the serial port's input stream via a buffered reader so we have the option to specify the buffer size
-			//TODO: Explicitly assign buffer size, defaults to 8192 bytes
-			inputStream = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
+			inputStream = new BufferedReader(new InputStreamReader(serialPort.getInputStream()), 8192);
 			dataStreamsInitialized = true;
 		} 
 
@@ -690,8 +712,9 @@ public class Dashboard extends JFrame {
 	 */
 	public boolean configureForImport() {
 		//Close the current serial port if it is open (Must be done for dashboard to work properly for some reason, do not delete)
-		//TODO: Add if to check if it is open to prevent exception
-		serialPort.close();
+		if (portInitialized) {
+			serialPort.close();
+		}
 		//Reopen serial port
 		openSerialPort(serialPort.getName());
 
@@ -705,8 +728,7 @@ public class Dashboard extends JFrame {
 			//Assign the output stream variable to the serial port's output stream
 			outputStream = serialPort.getOutputStream();
 			//Assign the input stream variable to the serial port's input stream via a buffered reader so we have the option to specify the buffer size
-			//TODO: Explicitly assign buffer size, defaults to 8192 bytes
-			inputStream = new BufferedReader(new InputStreamReader(serialPort.getInputStream()));
+			inputStream = new BufferedReader(new InputStreamReader(serialPort.getInputStream()), 8192);
 			dataStreamsInitialized = true;
 		} 
 
@@ -778,8 +800,7 @@ public class Dashboard extends JFrame {
 				
 				//Executes if the byte just read is the expected echo value
 				if (temp == (int)modeDelimiter) {
-					//Set flag so while loop knows the mode has been selected
-					//TODO: Delete, no longer used
+					//Set flag so while loop knows the mode has been selected, no longer used, but legacy there for future code development
 					modeSelected = true;
 					//Exit method
 					return true;
@@ -838,6 +859,23 @@ public class Dashboard extends JFrame {
 	}
 
 	/**
+	 * Handles the button press of the Exit UART Mode Button. This is an action event which must handled before the rest of the program resumes. 
+	 * This method sets the necessary flags on the module so it will only listen to the PB or the Remote so it doesn't hang up on the serin2 listener (Temporary fix until pullup is added)
+	 */
+	//TODO: Add pullup or come up with more intuitive solution so this is not needed
+	public boolean sendExitCommand() {
+		
+		//Tell the module to exit UART listening mode so it will only listen to the PB or Remote, exit if this routine fails
+		if(!selectMode('Q')) {
+			return false;
+		}
+
+		//Notify the user that the 
+		generalStatusLabel.setText("UART Mode Exited; Hold PB or 'B' Button until LED is GRN+BLUE to re-enter UART Mode");
+		return true;
+	}
+	
+	/**
 	 * Handles the button press of the bulk erase button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
 	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume.
 	 */
@@ -847,14 +885,14 @@ public class Dashboard extends JFrame {
 			public void run() {
 				//Disable buttons that should not be used in the middle of a sequence
 				bulkEraseButton.setEnabled(false);
-				//sectorEraseButton.setEnabled(false);
+				sectorEraseButton.setEnabled(false);
 				
 				//Bulk erase the module, will stay in this method until bulk erase completes
 				bulkEraseModule();
 				
 				//Enable buttons that can now be used since the bulk erase completed
 				bulkEraseButton.setEnabled(true);
-				//sectorEraseButton.setEnabled(true);
+				sectorEraseButton.setEnabled(true);
 			}
 		};
 		
@@ -894,29 +932,61 @@ public class Dashboard extends JFrame {
 
 	}
 
-	/**
-	 * Handles the button press of the Exit UART Mode Button. This is an action event which must handled before the rest of the program resumes. 
-	 * This method sets the necessary flags on the module so it will only listen to the PB or the Remote so it doesn't hang up on the serin2 listener (Temporary fix until pullup is added)
-	 */
-	//TODO: Add pullup or come up with more intuitive solution so this is not needed
-	public boolean sendExitCommand() {
-		
-		//Tell the module to exit UART listening mode so it will only listen to the PB or Remote, exit if this routine fails
-		if(!selectMode('Q')) {
-			return false;
-		}
-
-		//Notify the user that the 
-		generalStatusLabel.setText("UART Mode Exited; Hold PB or 'B' Button until LED is GRN+BLUE to re-enter UART Mode");
-		return true;
-	}
 
 	/**
 	 * Handles the button press of the sector erase button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
 	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume.
 	 */
-	public void sectorEraseModule() {
-
+	public void sectorEraseHandler() {
+		//Specify new operation that can be run in a separate thread
+		Runnable sectorEraseOperation = new Runnable() {
+			public void run() {
+				//Disable buttons that should not be used in the middle of a sequence
+				bulkEraseButton.setEnabled(false);
+				sectorEraseButton.setEnabled(false);
+				
+				//Bulk erase the module, will stay in this method until bulk erase completes
+				sectorEraseModule();
+				
+				//Enable buttons that can now be used since the bulk erase completed
+				bulkEraseButton.setEnabled(true);
+				sectorEraseButton.setEnabled(true);
+			}
+		};
+		
+		//Define a new thread to run the operation previously defined
+		sectorEraseThread = new Thread(sectorEraseOperation);
+		//Start the thread
+		sectorEraseThread.start();
+	}
+	
+	/**
+	 * Sets the module into sector erase mode and waits until it receives a 'sector erase complete handshake'.
+	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
+	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
+	 */
+	public boolean sectorEraseModule() {
+		
+		//Notify the user that the bulk erase sequence has began
+		generalStatusLabel.setText("Sector Erasing...");
+		progressBar.setValue(0);
+		progressBar.setForeground(new Color(51, 204, 51));
+		
+		//Put the module in bulk erase mode, exit if that routine fails
+		if(!selectMode('S')) {
+			return false;
+		}
+		
+		//Wait for '4321' (in binary, not ascii) as a handshake so the dashboard knows the erase has completed
+		waitForPostamble(4 , 1);
+		
+		//Notify the user that the sequence has completed
+		generalStatusLabel.setText("Sector Erase Complete");
+		progressBar.setValue(100);
+		progressBar.setForeground(new Color(51, 204, 51));
+		
+		//Return true to exit the method and notify the caller that the method was successful
+		return true;
 	}
 
 
@@ -974,13 +1044,13 @@ public class Dashboard extends JFrame {
 				int idCounter = 0;
 				//Initialize temporary ID parameter array
 				//TODO: Define size based on easy to find constant
-				int [] moduleInfo = new int[3];
+				int [] moduleInfo = new int[NUM_ID_INFO_PARAMATERS];
 				
 				//Initialize start time so timeout can be used on subsequent while loop
 				long startTime = System.currentTimeMillis();
 				
 				//Executes while it is still receiving ID info and a timeout has not occured
-				while (idCounter < 3 && (System.currentTimeMillis() - startTime) < 1500) {
+				while (idCounter < moduleInfo.length && (System.currentTimeMillis() - startTime) < 1500) {
 
 					//Wait for a preamble, exits method if the preamble times out
 					if(!waitForPreamble(1,4)) {
@@ -1021,7 +1091,7 @@ public class Dashboard extends JFrame {
 								}
 							}
 							//If the 3rd parameter has been read, set success flag and exit loop
-							if (idCounter == 3) {
+							if (idCounter == NUM_ID_INFO_PARAMATERS) {
 								infoReceived = true;
 								break;
 							}
@@ -1069,9 +1139,6 @@ public class Dashboard extends JFrame {
 	 */
 	private void writeButtonHandler() {
 		
-		//TODO: Remove, unused
-		stopAllThreads();
-		
 		//Define no operation that can be run in a thread
 		Runnable sendParamOperation = new Runnable() {
 			public void run() {
@@ -1108,7 +1175,7 @@ public class Dashboard extends JFrame {
 
 		try {
 			//Executes if the data streams have been initialized and the thread has not been told to abort
-			if (dataStreamsInitialized && !paramAbort) {
+			if (dataStreamsInitialized) {
 				
 				//Put the module in save new test parameter mode, exit if that routine fails
 				if(!selectMode('P')) {
@@ -1122,6 +1189,14 @@ public class Dashboard extends JFrame {
 				else {
 					timedTestFlag = 0;
 				}
+				
+				if (triggerOnReleaseCheckbox.isSelected()) {
+					triggerOnReleaseFlag = 1;
+				}
+				else {
+					triggerOnReleaseFlag = 0;
+				}
+				
 
 				//Define new array to store the test parameters so they can be quickly iterated through while sending the data
 				int[] writeData = new int[NUM_TEST_PARAMETERS];
@@ -1129,17 +1204,19 @@ public class Dashboard extends JFrame {
 				//Assign each parameter to an index of the array
 				writeData[0] = 0;			//Serial Number
 				writeData[1] = 5;			//Module ID (Hardware Version)
-				writeData[2] = 17;			//Firmware ID 
+				writeData[2] = 18;			//Firmware ID 
 				writeData[3] = getTickThreshold(Integer.parseInt(accelGyroSampleRateTextField.getText()));		//Timer0 Tick Threshold (Interrupt)
 				writeData[4] = 0;			//Delay After Start
-				writeData[5] = timedTestFlag;			//Timed Test Flag
-				writeData[6] = Integer.parseInt(testLengthTextField.getText());     //Test Duration
-				writeData[7] = Integer.parseInt(accelGyroSampleRateTextField.getText());//Accel Gyro Sample Rate
-				writeData[8] = Integer.parseInt(magSampleRateTextField.getText());    //Mag Sample Rate
-				writeData[9] = Integer.parseInt(accelSensitivityCombobox.getSelectedItem().toString());  //Accel Sensitivity
-				writeData[10] = Integer.parseInt(gyroSensitivityCombobox.getSelectedItem().toString());   //Gyro Sensitivity
-				writeData[11] = Integer.parseInt(accelFilterCombobox.getSelectedItem().toString());  //Accel Filter
-				writeData[12] = Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString());  //Gyro Filter
+				writeData[5] = Integer.parseInt(batteryTimeoutTextField.getText());  //Battery timeout length
+				writeData[6] = timedTestFlag;			//Timed Test Flag
+				writeData[7] = triggerOnReleaseFlag;	//Trigger on realease flag
+				writeData[8] = Integer.parseInt(testLengthTextField.getText());     //Test Duration
+				writeData[9] = Integer.parseInt(accelGyroSampleRateTextField.getText());//Accel Gyro Sample Rate
+				writeData[10] = Integer.parseInt(magSampleRateTextField.getText());    //Mag Sample Rate
+				writeData[11] = Integer.parseInt(accelSensitivityCombobox.getSelectedItem().toString());  //Accel Sensitivity
+				writeData[12] = Integer.parseInt(gyroSensitivityCombobox.getSelectedItem().toString());   //Gyro Sensitivity
+				writeData[13] = Integer.parseInt(accelFilterCombobox.getSelectedItem().toString());  //Accel Filter
+				writeData[14] = Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString());  //Gyro Filter
 
 				//Iterates through each parameter in the array
 				for (int paramNum = 0; paramNum < writeData.length; paramNum++) {
@@ -1190,8 +1267,8 @@ public class Dashboard extends JFrame {
 							attemptCounter++;
 						}
 
-						//Executes after 3 failed attempts
-						if (attemptCounter == 3) {
+						//Executes after 5 failed attempts
+						if (attemptCounter == 5) {
 							//Notify the user
 							generalStatusLabel.setText("Module not Echoing Properly, Check Connections");
 							progressBar.setValue(100);
@@ -1200,21 +1277,9 @@ public class Dashboard extends JFrame {
 							return false;
 						}
 						//Executes if the thread was told to abort externally
-						if (paramAbort) {
-							return false;
-						}
 					}
 				}
 
-			}
-			
-			//Executes if the thread was told to abort externally
-			else if (paramAbort){
-				generalStatusLabel.setText("Write Aborted");
-				progressBar.setValue(100);
-				progressBar.setForeground(new Color(255,0,0));
-				//Exit method, communication failed
-				return false;
 			}
 			
 			//Executes if the port has not been opened yet
@@ -1226,10 +1291,9 @@ public class Dashboard extends JFrame {
 				return false;
 			}
 		}
-		//Executes if ther is an error communicating with the dongle
+		//Executes if there is an error communicating with the dongle
 		catch (IOException e) {                                         
 			generalStatusLabel.setText("Data Not Sent, Error Communicating with Dongle");    
-			Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, e);
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255,0,0));
 			//Exit method, communication failed
@@ -1238,7 +1302,6 @@ public class Dashboard extends JFrame {
 		//Executes if the port has not been opened yet
 		catch (NullPointerException e) {                                 
 			generalStatusLabel.setText("Data Not Sent, No Port Selected");  
-			Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, e);
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255,0,0));
 			//Exit method, communication failed
@@ -1294,7 +1357,7 @@ public class Dashboard extends JFrame {
 		}
 		
 		//Executes if the data streams are initialized and the program was not aborted externally
-		if (dataStreamsInitialized && !readAbort) {
+		if (dataStreamsInitialized) {
 			try {
 				
 
@@ -1350,22 +1413,19 @@ public class Dashboard extends JFrame {
 								paramNum++;
 							}
 							
-							//Executes if the method was externally aborted
-							if (readAbort) {
-								return false;
-							}
 						}
 
 
 						//Assign local variables to their newly received values from the module
-						timedTestFlag = testParameters.get(5);
-						testLength = testParameters.get(6);
-						accelGyroSampleRate = testParameters.get(7);
-						magSampleRate = testParameters.get(8);
-						accelSensitivity = testParameters.get(9);
-						gyroSensitivity = testParameters.get(10);
-						accelFilter = testParameters.get(11);
-						gyroFilter = testParameters.get(12);					
+						timedTestFlag = testParameters.get(6);
+						//Trigger on release is 7
+						testLength = testParameters.get(8);
+						accelGyroSampleRate = testParameters.get(9);
+						magSampleRate = testParameters.get(10);
+						accelSensitivity = testParameters.get(11);
+						gyroSensitivity = testParameters.get(12);
+						accelFilter = testParameters.get(13);
+						gyroFilter = testParameters.get(14);					
 
 
 						//Populate dashboard with the parameters sent by the module
@@ -1440,10 +1500,6 @@ public class Dashboard extends JFrame {
 									generalStatusLabel.setText("Found the Stop Condition For Test " + testNum + ".");    
 								}
 								
-								//Executes if the thread was aborted externally
-								if (readAbort) {
-									return false;
-								} 
 							}
 
 							//Executes if the stop condition was found
@@ -1463,10 +1519,6 @@ public class Dashboard extends JFrame {
 								finalData[j] = testData.get(j);
 								j++;
 
-								//Executes if thread is externally aborted
-								if (readAbort) {
-									return false;
-								}
 							}
 							
 							//Set the last value of the array as -1 so organizer knows that this is the end of test
@@ -1486,8 +1538,7 @@ public class Dashboard extends JFrame {
 								public void run() {
 									
 									//Organize data into .CSV
-									//TODO: Refactor and eliminate unused parameters
-									organizer.sortData(finalData, testID, numTests, nameOfFile, (accelGyroSampleRate / magSampleRate), (1 / accelGyroSampleRate), false, false, fileOutputDirectoryStr);  //create the .CSV with neccessary parameters
+									organizer.sortData(finalData, testID, numTests, nameOfFile, (accelGyroSampleRate / magSampleRate), (1 / accelGyroSampleRate), fileOutputDirectoryStr);  //create the .CSV with neccessary parameters
 								}
 							};
 							
@@ -1498,12 +1549,16 @@ public class Dashboard extends JFrame {
 							//Increment test index
 							testNum++;             
 						}
+						
+						if (testNum == expectedTestNum) {
+							dataReceived = true;
+						}
 					}
 				}
 				
 				//Executes if the test data was successfully received
 				//TODO: Refactor to make sense, the data received flag must be set to true somewhere
-				if(!dataReceived) {
+				if(dataReceived) {
 					//Notify the user that the data transfer is complete then exit method
 					generalStatusLabel.setText("Data Transfer Complete");
 					progressBar.setValue(100);
@@ -1602,6 +1657,30 @@ public class Dashboard extends JFrame {
 				timer0TickThreshTextField.setEditable(false);
 				timer0TickThreshTextField.setEnabled(false);
 			}
+		}
+	}
+	
+	public void updateMagSampleRate() {
+		switch (Integer.parseInt(accelGyroSampleRateTextField.getText())) {
+		case(60):			//60Hz
+			magSampleRateTextField.setText("60");
+			break;
+		case(120):
+			magSampleRateTextField.setText("120");
+			break;
+		case (240):
+			magSampleRateTextField.setText("24");
+			break;
+		case (480):
+			magSampleRateTextField.setText("48");
+			break;
+		case (500):
+			magSampleRateTextField.setText("50");
+			break;
+		case (960):
+			magSampleRateTextField.setText("96");
+			break;
+		default:	
 		}
 	}
 
@@ -1722,16 +1801,6 @@ public class Dashboard extends JFrame {
 	public void setPortInitializedFlag(boolean flag) {
 		portInitialized = flag;
 	}
-
-	/**
-	 * getter that allows external classes to see what mode the dashboard is currently in
-	 * @return
-	 */
-	//TODO: Fix or remove (not sure if it is currently used or necessary)
-	public boolean getReadModeFlag() {
-		return readMode;
-	}
-
 
 
 	/**
@@ -1990,21 +2059,29 @@ public class Dashboard extends JFrame {
 				updateDataFields();
 			}
 		});
-
-		getCurrentConfigsButton = new JButton("Get Current Configurations");
-		getCurrentConfigsButton.setEnabled(false);
-		getCurrentConfigsButton.setBorder(null);
-		getCurrentConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		configurationPanel.add(getCurrentConfigsButton);
+		
+		triggerOnReleaseCheckbox = new JCheckBox("Trigger on Release");
+		triggerOnReleaseCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		triggerOnReleaseCheckbox.setSelected(true);
+		configurationPanel.add(triggerOnReleaseCheckbox);
 
 		accelGyroSampleRateTextField = new JTextField();
+		accelGyroSampleRateTextField.setToolTipText("Valid sample rates: 960, 500, 480, 240, 120, 60");
 		accelGyroSampleRateTextField.setText("960");
 		accelGyroSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		accelGyroSampleRateTextField.setColumns(10);
 		accelGyroSampleRateTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		accelGyroSampleRateTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				updateMagSampleRate();
+			}
+		});
+		
 		configurationPanel.add(accelGyroSampleRateTextField);
 
 		magSampleRateTextField = new JTextField();
+		magSampleRateTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
+		magSampleRateTextField.setEnabled(false);
 		magSampleRateTextField.setText("96");
 		magSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		magSampleRateTextField.setColumns(10);
@@ -2062,6 +2139,13 @@ public class Dashboard extends JFrame {
 				writeButtonHandler();
 			}
 		});
+		
+		batteryTimeoutTextField = new JTextField();
+		batteryTimeoutTextField.setText("60");
+		batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		batteryTimeoutTextField.setColumns(10);
+		batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		configurationPanel.add(batteryTimeoutTextField);
 		writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		configurationPanel.add(writeConfigsButton);
 
@@ -2083,12 +2167,11 @@ public class Dashboard extends JFrame {
 		});
 
 		sectorEraseButton = new JButton("Sector Erase");
-		sectorEraseButton.setEnabled(false);
 		sectorEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel.add(sectorEraseButton);
 		sectorEraseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				sectorEraseModule();
+				sectorEraseHandler();
 			}
 		});
 
@@ -2158,6 +2241,9 @@ public class Dashboard extends JFrame {
 			csvDataFile.setModel(new DefaultComboBoxModel(csvList.toArray()));
 		}
 		templateTools.add(csvDataFile);
+		
+		remoteTab = new JPanel();
+		mainTabbedPanel.addTab("Remote Configuration", null, remoteTab, null);
 
 		JPanel progressPanel = new JPanel();
 		contentPanel.add(progressPanel);

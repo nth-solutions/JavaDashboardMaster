@@ -303,7 +303,6 @@ public class EducatorMode extends JFrame {
 		}
 		catch (IOException e) {                                          //If there is an IOException
 			generalStatusLabel.setText("Data Not Sent, Error Communicating with Dongle");    //Notify the user that something broke
-			Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, e);
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255,0,0));
 			//Exit method, communication failed
@@ -311,7 +310,6 @@ public class EducatorMode extends JFrame {
 		} 
 		catch (NullPointerException e) {                                  //If there is a NullPointer
 			generalStatusLabel.setText("Data Not Sent, No Port Selected");  //The serial port was not open; notifies the user about the mistake
-			Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, e);
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255,0,0));
 			//Exit method, communication failed
