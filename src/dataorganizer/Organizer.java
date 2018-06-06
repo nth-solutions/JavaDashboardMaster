@@ -13,14 +13,11 @@ import com.sun.corba.se.impl.orb.ParserTable.TestBadServerIdHandler;
 import com.sun.javafx.collections.MappingChange.Map;
 
 public class Organizer {        //Class for Creating .CSV files
-	private int progress = 0;
 	
     public boolean sortData(int[] data, int testNum, int totalNumTests, String NameOfFile, int magInterval, double period, String fileOutputDirectory) {
     //Method to create .CSV
     	Dashboard dashBoard = Dashboard.getFrameInstance();
     	LoadSettings settings = new LoadSettings();
-    	dashBoard.setWriteStatusLabel("Creating CSV for Test #" + (testNum));        //Tell the user a new .CSV has been created.
-    	dashBoard.updateProgress(0);
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
         
         int [] wordData = new int[data.length];
@@ -36,7 +33,6 @@ public class Organizer {        //Class for Creating .CSV files
         
         int wordCounter = 0;
         for (int pos = 0; pos < endPosition - 1; pos += 2) {                        //While there is more data that needs to be processed
-        	//Frame.updateProgress((int) ( ( (double)(i) ) / (double)(endPosition) ) * 100);    //Updates the progress bar with a progress of creating teh .CSV file
             wordData[wordCounter] = (data[pos] * 256) + data[pos + 1];
             wordCounter++;
         }
@@ -50,8 +46,6 @@ public class Organizer {        //Class for Creating .CSV files
         int setCounter = 0;
         boolean nineAxisFlag = true;
         for (int wordNum = 0; wordNum < wordData.length; wordNum++) {   //tracks if mag data should be written to the .CSV for just Accel/Gyro
-            progress = (int)(100 * ((double)wordNum / (double)(wordData.length))) / 2;
-        	dashBoard.updateProgress(progress);
         	if (sampleCounter == 9 && lineNum % 10 == 0 && magInterval == 10 && nineAxisFlag == true) {     //if new line is zero, then the mag data should is in this block of data so it needs to written to the .CSV
             	test.put(lineNum, sampleHolder);
             	//System.out.println("9 : " + test.get(lineNum).size());
@@ -91,8 +85,6 @@ public class Organizer {        //Class for Creating .CSV files
         int sum = 0;
       
         while (dataFlag < 3) {
-        	progress = 50 + dataFlag * 3;
-        	dashBoard.updateProgress(progress);
         	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
         		//System.out.println(test.get(lineNum).get(axis));
         		sum += test.get(lineNum).get(axis); 
@@ -142,8 +134,6 @@ public class Organizer {        //Class for Creating .CSV files
         */
         
         for (lineNum = 0; lineNum < endPosition; lineNum++) {
-        	progress = 59 + (int)((100 * (double) lineNum / (double) endPosition) / 2.5);
-        	//System.out.println(test.get(lineNum).size());
         	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
         		builder.append(test.get(lineNum).get(axis));
         		builder.append(",");
@@ -167,15 +157,7 @@ public class Organizer {        //Class for Creating .CSV files
    
             return false;
         } 
-        
-        if (testNum == totalNumTests) {
-        	dashBoard.setWriteStatusLabel("Data Transfer Complete");
-        }
-        else {
-        	dashBoard.setWriteStatusLabel("Finished Creating CSV for Test #" + testNum);
-        }
-        
-        dashBoard.updateProgress(100);
+  
         DataFile.write(builder.toString());     //writes the string buffer to the .CSV creating the file
         DataFile.close();                       //close the .CSV
         
