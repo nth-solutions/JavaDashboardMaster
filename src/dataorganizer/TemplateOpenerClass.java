@@ -30,7 +30,24 @@ import javax.swing.JOptionPane;
 public class TemplateOpenerClass {
 	//Copies template, writes data from datafile to the copy(outputfile)
 	public static void start(String TemplateFile, String outputFile, String datafile) {
-		 SimpleXLSXWorkbook workbook = new SimpleXLSXWorkbook(new File(TemplateFile));							
+		LoadSettings settings = new LoadSettings();
+		settings.loadConfigFile();
+		ArrayList<String> templateList = new ArrayList<String>();
+		if(TemplateFile.contains("null")) {
+			settings.getKeyVal("TemplateDirectory");
+			File[] templateFileList = new File(settings.getKeyVal("TemplateDirectory")).listFiles(); 
+			if(templateFileList!=null) {
+				for(int i=0; i<templateFileList.length;i++) {
+					templateList.add(templateFileList[i].toString().substring(templateFileList[i].toString().lastIndexOf("\\")+1, templateFileList[i].toString().length()));
+				}
+			}
+		}
+		
+		
+		
+		TemplateFile = settings.getKeyVal("TemplateDirectory") + JOptionPane.showInputDialog(null, "Select template","", JOptionPane.QUESTION_MESSAGE, null, templateList.toArray(), templateList.get(0));
+		System.out.println(TemplateFile);
+		SimpleXLSXWorkbook workbook = new SimpleXLSXWorkbook(new File(TemplateFile));							
 		 OutputStream o=null;
 		 //Try to open file with and without .xlsx extension.
 		 try {
@@ -43,6 +60,8 @@ public class TemplateOpenerClass {
 		 //If file does not exist
 		 }catch(FileNotFoundException e) {
 			 Dashboard.getFrameInstance().setGeneralStatusLabel("Could not create file at given directory");
+		 }catch(NullPointerException e) {
+			 //User closed window
 		 }
 		 if(o!=null) {
 			//Writes all data from the datafile to outputstream with workbook as template
@@ -63,21 +82,36 @@ public class TemplateOpenerClass {
 			e.printStackTrace();
 		}	
 		//Robot to clear flags in excel and update cells
-		 robot.delay(1000);																				    //Initial delay for application startup
+		 robot.delay(3500);																					//Initial delay for application startup
+		 robot.keyPress(KeyEvent.VK_LEFT);
+		 robot.keyPress(KeyEvent.VK_ENTER);
+		 robot.delay(100);
+		 robot.keyRelease(KeyEvent.VK_LEFT);
+		 robot.keyRelease(KeyEvent.VK_ENTER);
+		 robot.delay(100);
+		 robot.keyPress(KeyEvent.VK_ENTER);
+		 robot.keyRelease(KeyEvent.VK_ENTER);
+		 robot.delay(100);
 		 robot.keyPress(KeyEvent.VK_CONTROL);																//Press CTRL
 		 robot.keyPress(KeyEvent.VK_A);																		//Press A
-		 robot.delay(50);																					//Make sure Excel has all selected
+		 robot.delay(250);																					//Make sure Excel has all selected
 		 robot.keyRelease(KeyEvent.VK_CONTROL);																//Release CTRL
 		 robot.keyRelease(KeyEvent.VK_A);																	//Release A
 		 robot.keyPress(KeyEvent.VK_DELETE);																//Press Delete
 		 robot.keyRelease(KeyEvent.VK_DELETE);																//Release Delete
 		 robot.keyPress(KeyEvent.VK_CONTROL);																//Press CTRL
 		 robot.keyPress(KeyEvent.VK_Z);																		//Press Z
-		 robot.delay(50);																					//Make sure Excel undoes
+		 robot.delay(250);																					//Make sure Excel undoes
 		 robot.keyRelease(KeyEvent.VK_CONTROL);																//Release CTRL
 		 robot.keyRelease(KeyEvent.VK_Z);																	//Release Z
 		 File ofp = new File(outputFile);																	//Reference outputFile as File
-		 ofp.delete();																						//Delete the outputFile from disk (Held in ram by Excel)
+		 try {
+			Thread.sleep(100);
+			 ofp.delete();
+		} catch (InterruptedException e) {
+		
+		}
+																								//Delete the outputFile from disk (Held in ram by Excel)
 	 }
 	/**
 	 * 
@@ -98,6 +132,9 @@ public class TemplateOpenerClass {
 
 	private static void testWrite(SimpleXLSXWorkbook workbook, OutputStream outputStream, String datafile) {				//write datafile to outputstream with workbook template
 		Sheet sheet = workbook.getSheet(0);																					//Reference FIRST sheet in book (0 indexed)
+		if(sheet == null) {
+			System.out.println("sheet null");
+		}
 		File csvData = null;    
 		 csvData = new File(datafile);																						//Open raw data file
 		 List<String> CSVData = null;
@@ -117,17 +154,6 @@ public class TemplateOpenerClass {
 			}
 		});
 		templateSourceFileList.setToolTipText("Template XLSX");
-		LoadSettings settings = new LoadSettings();
-		File[] templateFileList = new File(settings.getKeyVal("TemplateDirectory")).listFiles();
-		ArrayList<String> templateList = new ArrayList<String>();
-		if(templateFileList!=null) {
-			for(int i=0; i<templateFileList.length;i++) {
-				templateList.add(templateFileList[i].toString().substring(templateFileList[i].toString().lastIndexOf("\\")+1, templateFileList[i].toString().length()));
-			}
-		}
-		
-		//TODO: Ask for which template to use so its not null on read
-		//JOptionPane.showInputDialog(null, "","", JOptionPane.QUESTION_MESSAGE, templateSourceFileList, new DefaultComboBoxModel(templateList.toArray()));
 		
 		copyDatatoTemplate(sheet, CSVData.size(), 0, CSVData); 																//copy data from datafile from row 0 to row 1200 into sheet
 	    try {
@@ -155,9 +181,6 @@ public class TemplateOpenerClass {
 		         }
 		         countX++;
 		    }
-		      
 		}
 	}
-
-
 }

@@ -127,7 +127,6 @@ public class Dashboard extends JFrame {
 	private JComboBox gyroSensitivityCombobox;
 	private JComboBox accelFilterCombobox;
 	private JComboBox gyroFilterCombobox;
-	private JComboBox templateSourceFileList;
 	private JComboBox csvDataFile;
 
 	//Buttons
@@ -2252,23 +2251,6 @@ public class Dashboard extends JFrame {
 			}
 		});
 		templateTools.add(openTemplateBtn);
-
-		templateSourceFileList = new JComboBox();
-		templateSourceFileList.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				templateChosen = templateSourceFileList.getSelectedItem().toString();
-			}
-		});
-		templateSourceFileList.setToolTipText("Template XLSX");
-		File[] templateFileList = new File(settings.getKeyVal("TemplateDirectory")).listFiles();
-		ArrayList<String> templateList = new ArrayList<String>();
-		if(templateFileList!=null) {
-			for(int i=0; i<templateFileList.length;i++) {
-				templateList.add(templateFileList[i].toString().substring(templateFileList[i].toString().lastIndexOf("\\")+1, templateFileList[i].toString().length()));
-			}
-			templateSourceFileList.setModel(new DefaultComboBoxModel(templateList.toArray()));
-		}
-		templateTools.add(templateSourceFileList);
 
 		csvDataFile = new JComboBox();
 		csvDataFile.addActionListener(new ActionListener() {
