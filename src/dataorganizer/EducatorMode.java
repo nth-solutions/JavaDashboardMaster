@@ -11,27 +11,34 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.border.LineBorder;
 
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
+import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
 
 import java.awt.Font;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 import javax.swing.DefaultComboBoxModel;
@@ -63,6 +70,13 @@ public class EducatorMode extends JFrame {
 		private OutputStream outputStream;              //Object used for writing serial data
 		
 		public static final int NUM_TEST_PARAMETERS = 13;
+		
+		
+	//Module test data variables
+		ArrayList<Integer> testParameters;
+		
+	//Global file name for this instance
+		String saveFileName="";
 
 	/**
 	 * Launch the application.
@@ -85,10 +99,18 @@ public class EducatorMode extends JFrame {
 	 */
 	public EducatorMode() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Data Organizer Rev-3 (Educator/StudentMode)(5/31/2018)(Under Construction)");
-		setBounds(100, 100, 521, 280);
+		setTitle("Data Organizer Rev-3 (Educator/StudentMode)(6/06/2018)(Under Construction)");
+		setBounds(100, 100, 521, 360);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		//Set the look and feel to whatever the system default is.
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} 
+		catch(Exception e) {
+			System.out.println("Error Setting Look and Feel: " + e);
+		}
+				
 		setContentPane(contentPane);
 		contentPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
@@ -100,6 +122,11 @@ public class EducatorMode extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel.add(panel_1);
 		panel_1.setLayout(new GridLayout(1, 3, 0, 0));
+		
+		JProgressBar progressBar = new JProgressBar();
+		progressBar.setStringPainted(true);
+		progressBar.setPreferredSize(new Dimension(500, 20));
+		contentPane.add(progressBar);
 		
 		commPortCombobox = new JComboBox();
 		commPortCombobox.addActionListener(new ActionListener() {
@@ -159,14 +186,21 @@ public class EducatorMode extends JFrame {
 		separator_1.setForeground(Color.WHITE);
 		contentPane.add(separator_1);
 		
-		JButton settingsBtn = new JButton("...");
-		contentPane.add(settingsBtn);
+		JButton readTestsBtn = new JButton("Read Tests");
+		readTestsBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//FIXME: add browse
+				readTestData();
+			}
+		});
+		contentPane.add(readTestsBtn);
 		
-		JProgressBar progressBar = new JProgressBar();
-		progressBar.setStringPainted(true);
-		progressBar.setPreferredSize(new Dimension(500, 20));
-		contentPane.add(progressBar);
+		JButton settingsBtn = new JButton("...");
+		settingsBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		settingsBtn.setVerticalAlignment(SwingConstants.BOTTOM);
+		contentPane.add(settingsBtn);
 	}
+	
 	
 	//Serial Port Methods******************************************************************************************************************************
 		/**
@@ -195,6 +229,405 @@ public class EducatorMode extends JFrame {
 				generalStatusLabel.setText("No Serial Dongle Found");
 			}
 	}
+	
+	/**
+	 * Configures the serial port and input/output streams for the import sequences (most important parameter is the baud rate)
+	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful
+	 */
+	public boolean configureForImport() {
+		//Close the current serial port if it is open (Must be done for dashboard to work properly for some reason, do not delete)
+		if (portInitialized) {
+			serialPort.close();
+		}
+		//Reopen serial port
+		openSerialPort(serialPort.getName());
+
+		//Attempts to initialize the serial port settings and the input/output streams
+		try {
+			//Configure the serial port for 115200 baud for high speed exports
+			serialPort.setSerialPortParams(115200,      
+					SerialPort.DATABITS_8,
+					SerialPort.STOPBITS_1,
+					SerialPort.PARITY_NONE);
+			//Assign the output stream variable to the serial port's output stream
+			outputStream = serialPort.getOutputStream();
+			//Assign the input stream variable to the serial port's input stream via a buffered reader so we have the option to specify the buffer size
+			inputStream = inputStream = new BufferedInputStream(serialPort.getInputStream(), 725760);
+			dataStreamsInitialized = true;
+		} 
+
+		//Executes if the dongle is configured for an unsupported setting
+		catch (UnsupportedCommOperationException e) {
+			//Notify the user then exit the method
+			generalStatusLabel.setText("Check Serial Dongle Compatability!");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255,0,0));
+			return false;
+		}
+
+		//Executes if there is an error communicating with the dongle
+		catch (IOException e) {
+			//Notify the user then exit the method
+			generalStatusLabel.setText("Error Communicating with Dongle");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255,0,0));
+			return false;
+		}
+		//Return true to exit the method and notify the caller that the method was successful
+		return true;
+
+	}
+	
+	/**
+	 * Tells the module to export it's test data and stores the info in a temporary buffer before calling the external organizer class to format the data into a .CSV
+	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
+	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
+	 */
+	//TODO: Remove aborts or redesign them
+	//TODO: Add handshakes between each few sectors of data to ensure the buffer does not overflow
+	public boolean readTestData() {  
+
+		//Put module into export test data mode, exit method if that routine fails
+		if(!selectMode('E')) {
+			return false;
+		}
+
+		//Executes if the data streams are initialized and the program was not aborted externally
+		if (dataStreamsInitialized) {
+			try {
+
+
+				//Notify the user that it is waiting reading data from module
+				generalStatusLabel.setText("Reading Data From Module");
+
+				//Configure serial port for data imports
+				configureForImport();
+
+
+				boolean dataReceived = false;
+
+				//Initialize start time so timeout can be used
+				long importStartTime = System.currentTimeMillis();
+
+				//Loops until internally exited with break or timeout occurs
+				while ((System.currentTimeMillis() - importStartTime) < 15000) {
+
+					//Executes if data is received from module
+					if (inputStream.available() > 0) {     
+
+						//Reset progress bar
+						progressBar.setValue(0);                         
+
+						//Initialize arraylists to store test params and test data
+						ArrayList<Integer> testParameters = new ArrayList<Integer>();     
+						ArrayList<Integer> testData = new ArrayList<Integer>();
+
+						//Check for test parameter preamble
+						waitForPreamble(1,4);
+
+						//Determine number of tests to expect/ get test parameters
+						int expectedTestNum = -1;
+						while(expectedTestNum == -1) {
+							if(inputStream.available() > 0) {
+								expectedTestNum = inputStream.read();
+							}
+
+						}
+
+						//Notify the user the number of tests that are being imported
+						generalStatusLabel.setText("Importing and Converting Data for " + expectedTestNum + " Test(s)");
+
+						//Reset param index
+						int paramNum = 0;
+
+						//Executes while it is still receiving test parameters
+						//TODO: add handshakes/ timeout
+						while (paramNum < NUM_TEST_PARAMETERS) {
+							if (inputStream.available() > 2) {
+								//Store newly received test parameter in arraylist at index specified by paramNum
+								testParameters.add(paramNum, (inputStream.read() * 256 + inputStream.read()));
+								paramNum++;
+							}
+
+						}				
+
+						//Get date for file name
+						Date date = new Date();
+						
+
+
+						//Tracks which test is currently being imported
+						int testNum = 1;    
+
+						//Loops until it all of the tests are collected
+						while (testNum <= expectedTestNum) {
+							//Update progress bar based on which test is currently being received
+							//TODO: Code this better so it isn't just 80%
+							progressBar.setValue((int) ((100 *((double) testNum / (double) expectedTestNum))/ 1.25));      
+							int temp = 0;
+
+							//reset temporary arraylist for storing test data
+							testData = new ArrayList<Integer>();
+
+							//Wait for start condition (preamble)
+							waitForPreamble(1,8);
+							boolean stopCondition = false;
+
+							//Executes while the stop condition has not been received (Main loop that actually stores testing data)
+							while (!stopCondition) {    
+
+								//Looks for stop condition (87654321)
+								for(int counter = 8; counter >= 1;) {
+									if (inputStream.available() > 0) {
+										//Store newly read byte in temp variable
+										temp = inputStream.read();
+										//Add newly read byte to test data arraylist
+										testData.add(temp);
+
+										//Executes if the temp == the counter (meaning this byte could possibly be the stop condition)
+										if (temp == counter) {  
+											counter--;
+										} 
+
+										else {
+											//Reset stop condition counter
+											counter = 8;
+										}
+									}
+
+								}
+
+								//Executes if there were atleast 8 data points received (used to prevent range bounds error)
+								if (testData.size() >= 8) {    
+
+									//Set the first value in the stop condition to -1 so the next section of this method knows where the end of testing data is
+									testData.set(testData.size() - 8, -1);
+									stopCondition = true;                    
+									generalStatusLabel.setText("Found the Stop Condition For Test " + testNum + ".");    
+								}
+
+							}
+
+							//Executes if the stop condition was found
+							//TODO: Remove, redundant statement
+							if(stopCondition) {
+								testData.set(testData.size() - 8, -1);
+							}
+
+							//Make new array with the size of the test data arraylist, must be final to be used in parameter in thread (see organizer thread below)
+							int[] finalData = new int[testData.size()];                 
+
+							int j = 0;
+							//Loops until the -1 is found (previously inserted to delimit the stop condition
+							while(testData.get(j) != -1) {
+
+								//Copy data to new array
+								finalData[j] = testData.get(j);
+								j++;
+
+							}
+
+							//Set the last value of the array as -1 so organizer knows that this is the end of test
+							//TODO: Identify if this can be removed
+							finalData[j] = -1;
+
+
+							//Set name of file string based on prefixes and suffixes
+							saveFileName += " (#" + (testNum) + ") "  + " "  + ".CSV";  //Add a number and .CSV to the file name
+
+							//Assign test variables to temporary final variables so they can be used as parameters in the organizer thread below
+							final int testID = testNum;		
+							final int numTests = expectedTestNum;
+
+							//Define new operation that can be run in a thread
+							Runnable organizerOperation = new Runnable() {
+								public void run() {
+									//Organize data into .CSV
+									LoadSettings settings = new LoadSettings();
+									settings.loadConfigFile();
+									Organizer organizer = new Organizer();
+									organizer.sortData(finalData, testID, numTests, saveFileName, (testParameters.get(7) / testParameters.get(8)), (1 / testParameters.get(8)), settings.getKeyVal("CSVSaveLocation")+saveFileName);  //create the .CSV with neccessary parameters
+								}
+							};
+
+							//Define new thread to run predefined operation
+							Thread organizerThread = new Thread(organizerOperation);
+							//Start new thread
+							organizerThread.start();      
+							//Increment test index
+							testNum++;             
+						}
+
+						if (testNum == expectedTestNum) {
+							dataReceived = true;
+						}
+					}
+				}
+
+				//Executes if the test data was successfully received
+				//TODO: Refactor to make sense, the data received flag must be set to true somewhere
+				if(dataReceived) {
+					//Notify the user that the data transfer is complete then exit method
+					generalStatusLabel.setText("Data Transfer Complete");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(51, 204, 51));
+					return true;
+				}
+				//Executes if a timeout occurs
+				//TODO: Not operational, make this work
+				else {
+					//Notify the user then exit
+					generalStatusLabel.setText("Timeout");
+					return false;
+				}
+
+			}
+			//Executes if there is an error talking to the serial dongle
+			catch (IOException e){
+				generalStatusLabel.setText("Comm Port Error! Try Again");
+				return false;
+			}
+			//Executes if there is an issue with the purejavacomm library??? Not sure what causes this one to occur
+			//TODO: Figure out what causes this exception to occur
+			catch (PureJavaIllegalStateException e) {
+				generalStatusLabel.setText("Error, Try Again");
+				return false;
+			}
+		}
+		return false;
+
+	}
+	
+	//Read and Write Methods***************************************************************************************************************************
+		/**
+		 * Waits for a sequence of consecutive, increasing numbers then exits the loop
+		 * @param start the number to start the counting sequence at. (must be less than the 'stop' parameter)
+		 * @param stop the number at which the preamble is consider fully received, the ending number on the counter
+		 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
+		 */
+		public boolean waitForPreamble(int start, int stop) {
+			try {
+				//Get start time so a timeout can be used in subsequent while loop
+				long startTime = System.currentTimeMillis();
+				//Create and set flag so in the event of a timeout, an accurate error message can be displayed
+				boolean preambleReceived = false;
+				//While the loop has been executing for less than 500ms
+				//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
+				while (((System.currentTimeMillis() - startTime) < 500)) {
+					//Executes if there is data in the input stream's buffer
+					if (inputStream.available() > 0) {
+						int temp;
+						//Iterates until the specified preamble is received
+						//TODO: Add timeout to this loop
+						for(int counter = start; counter <= stop;) {
+
+							//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+							temp = inputStream.read();
+
+							//Executes of the byte received is equal to the current value of counter
+							if (temp == counter) {    
+								//Increment counter by 1
+								counter++;
+							} 
+
+							//Executes if the counter != temp
+							else {
+								//Reset the counter
+								counter = start;
+							}
+						}
+
+						//Set the preamble flag to true so the the program knows that a timeout didn't occur to break the loop
+						preambleReceived = true;
+						//Break the while loop
+						break;
+					}
+				}
+				//Executes if the preamble was not received meaning there must have been a timeout
+				if (!preambleReceived) {
+					//Notify the user and exit the method
+					generalStatusLabel.setText("Module Unresponsive (Timeout), Try Again");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+					return false;
+				}
+			}
+			//Executes if there is an error sending a command to the dongle
+			catch(IOException e) {
+				//Notify the user and exit the method
+				generalStatusLabel.setText("Error Commicating with Dongle");
+				progressBar.setValue(100);
+				progressBar.setForeground(new Color(255, 0, 0));
+				return false;
+			}
+			//Return true to exit the method and notify the caller that the method was successful
+			return true;
+		}
+
+
+		/**
+		 * Waits for a sequence of consecutive, decreasing numbers then exits the loop
+		 * @param start the number to start the counting sequence at (must be greater than the 'stop' parameter)
+		 * @param stop the number at which the postamble is consider fully received, the ending number on the counter
+		 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
+		 */
+		public boolean waitForPostamble(int start, int stop) {
+			try {
+				//Get start time so a timeout can be used in subsequent while loop
+				long startTime = System.currentTimeMillis();
+				//Create and set flag so in the event of a timeout, an accurate error message can be displayed
+				boolean postambleReceived = false;
+				//While the loop has been executing for less than 60s
+				//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
+				while (((System.currentTimeMillis() - startTime) < 60000)) {
+					//Executes if there is data in the input stream's buffer
+					if (inputStream.available() > 0) {
+						int temp;
+						//Iterates until the specified postamble is received
+						//TODO: Add timeout to this loop
+						for(int counter = start; counter >= stop;) {
+							//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+							temp = inputStream.read();
+
+							//Executes of the byte received is equal to the current value of counter
+							if (temp == counter) {    
+								//Decrement counter by 1
+								counter--;
+							} 
+
+							//Executes if the counter != temp
+							else {
+								//Reset the counter
+								counter = start;
+							}
+						}
+						//Set the postamble flag to true so the the program knows that a timeout didn't occur to break the loop
+						postambleReceived = true;
+						//Break the while loop
+						break;
+					}
+				}
+
+				//Executes if a timeout occurred
+				if (!postambleReceived) {
+					//Notify the user then exit the method
+					generalStatusLabel.setText("Module Unresponsive (Timeout), Try Again");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+					return false;
+				}
+			}
+			//Executes if there is an error sending a command to the dongle
+			catch(IOException e) {
+				//Notify the user then exit the method
+				generalStatusLabel.setText("Error Commicating with Dongle");
+				progressBar.setValue(100);
+				progressBar.setForeground(new Color(255, 0, 0));
+				return false;
+			}
+			//Return true to exit the method and notify the caller that the method was successful
+			return true;
+		}
 	
 	/**
 	 * This method handles the transmission of test parameters to the module with build in handshakes to verify each parameter is correctly received
@@ -517,5 +950,22 @@ public class EducatorMode extends JFrame {
 			portInitialized = true;
 		}
 
+	}
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
+	public void browseButtonHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			saveFileName = chooser.getSelectedFile().toString();
+		}
+		else {
+			saveFileName = null;
+		}
 	}
 }
