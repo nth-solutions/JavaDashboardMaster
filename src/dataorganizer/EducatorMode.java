@@ -229,6 +229,21 @@ public class EducatorMode extends JFrame {
 						writeData[11] = 5;  //Accel Filter
 						writeData[12] = 10;  //Gyro Filter
 						break;
+					case "Pendulum":
+						writeData[0] = 0;			//Serial Number
+						writeData[1] = 5;			//Module ID (Hardware Version)
+						writeData[2] = 16;			//Firmware ID
+						writeData[3] = getTickThreshold(960);		//Timer0 Tick Threshold (Interrupt)
+						writeData[4] = 0;			//Delay After Start
+						writeData[5] = 1;			//Timed Test Flag
+						writeData[6] = 25;     //Test Duration
+						writeData[7] = 960;//Accel Gyro Sample Rate
+						writeData[8] = 96;    //Mag Sample Rate
+						writeData[9] = 2;  //Accel Sensitivity
+						writeData[10] = 250;   //Gyro Sensitivity
+						writeData[11] = 5;  //Accel Filter
+						writeData[12] = 10;  //Gyro Filter
+						break;
 				}
 				
 
