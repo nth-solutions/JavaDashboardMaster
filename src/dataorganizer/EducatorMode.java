@@ -46,11 +46,17 @@ import javax.swing.DefaultComboBoxModel;
 public class EducatorMode extends JFrame {
 
 	private JPanel contentPane;
-	private JProgressBar progressBar;
+	private volatile JProgressBar progressBar;
 	private JLabel generalStatusLabel;
 	private JButton disconnectButton;
 	private JComboBox testTypeComboBox;
 	private JComboBox commPortCombobox;
+	private JButton readTestsBtn;
+	public static EducatorMode educatorInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
+	
+	
+	//Operation Threads
+		private Thread readThread;
 	
 	//Flags
 		private boolean readMode = true;
@@ -186,11 +192,10 @@ public class EducatorMode extends JFrame {
 		separator_1.setForeground(Color.WHITE);
 		contentPane.add(separator_1);
 		
-		JButton readTestsBtn = new JButton("Read Tests");
+		readTestsBtn = new JButton("Read Tests");
 		readTestsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//FIXME: add browse
-				readTestData();
+				readButtonHandler();
 			}
 		});
 		contentPane.add(readTestsBtn);
@@ -316,7 +321,7 @@ public class EducatorMode extends JFrame {
 					if (inputStream.available() > 0) {     
 
 						//Reset progress bar
-						progressBar.setValue(0);                         
+						progressBar.setValue(0);                     
 
 						//Initialize arraylists to store test params and test data
 						ArrayList<Integer> testParameters = new ArrayList<Integer>();     
@@ -951,6 +956,40 @@ public class EducatorMode extends JFrame {
 		}
 
 	}
+	
+	public void readButtonHandler() {
+		//Define operation that can be run in separate thread
+		Runnable readOperation = new Runnable() {
+			public void run() {
+				//Disable read button while read is in progress
+				readTestsBtn.setEnabled(false);
+
+				//Read data from test data module
+				readTestData();
+
+				//Re-enable read button upon read completion
+				readTestsBtn.setEnabled(true);
+			}
+		};
+
+		//Set thread to execute previously defined operation
+		readThread = new Thread(readOperation);
+		//Start thread
+		readThread.start();
+
+	}
+	
+	/**
+	 * Necessary for singleton design pattern, especially the "synchronized" keyword for more info on the singleton method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples
+	 * @return the one and only allowed dashboard instance, singleton pattern specifies only one instance can exist so there are not several instances of the dashboard with different variable values
+	 */
+	public static synchronized EducatorMode getFrameInstance() {
+		if (educatorInstance == null) {
+			educatorInstance = new EducatorMode();
+		}
+		return educatorInstance;
+	}
+	
 	/**
 	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
 	 * the file explorer and select a save location for the incoming data.
