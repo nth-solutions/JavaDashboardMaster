@@ -38,6 +38,7 @@ import purejavacomm.UnsupportedCommOperationException;
 
 import java.awt.Font;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
@@ -67,6 +68,9 @@ public class EducatorMode extends JFrame {
 		private boolean frameInitialized = false;
 		private boolean portOpened = false;
 		private boolean dataStreamsInitialized = false;
+		
+		
+		public static EducatorMode educatorMode;
 		
 	//Serial Port Variables
 		private SerialPort serialPort;      			//Object for the serial port class
@@ -100,6 +104,17 @@ public class EducatorMode extends JFrame {
 		});
 	}
 
+	/**
+	 * Necessary for singleton design pattern, especially the "synchronized" keyword for more info on the singleton method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples
+	 * @return the one and only allowed dashboard instance, singleton pattern specifies only one instance can exist so there are not several instances of the dashboard with different variable values
+	 */
+	public static synchronized EducatorMode getFrameInstance() {
+		if (educatorMode == null) {
+			educatorMode = new EducatorMode();
+		}
+		return educatorMode;
+	}
+	
 	/**
 	 * Create the frame.
 	 */
@@ -867,8 +882,7 @@ public class EducatorMode extends JFrame {
 		} 
 		catch (NullPointerException e) {                                  //If there is a NullPointer
 			generalStatusLabel.setText("Please Select a Port");  //The serial port was not open; notifies the user about the mistake
-			progressBar.setValue(100);
-			progressBar.setForeground(new Color(255,0,0));
+			updateProgress(getProgressBar(), 100, new Color(255,0,0));
 			//Exit method, communication failed
 			return false;
 		}
@@ -957,6 +971,7 @@ public class EducatorMode extends JFrame {
 
 	}
 	
+<<<<<<< HEAD
 	public void readButtonHandler() {
 		//Define operation that can be run in separate thread
 		Runnable readOperation = new Runnable() {
@@ -988,6 +1003,10 @@ public class EducatorMode extends JFrame {
 			educatorInstance = new EducatorMode();
 		}
 		return educatorInstance;
+=======
+	public JProgressBar getProgressBar() {
+		return this.progressBar;
+>>>>>>> 924d95083e6e7e16afdcb343e0250de5645c3c5f
 	}
 	
 	/**
@@ -1006,5 +1025,10 @@ public class EducatorMode extends JFrame {
 		else {
 			saveFileName = null;
 		}
+	}
+	
+	private void updateProgress(JProgressBar thisProgressBar, final int pbarVal, Color color) {
+		    thisProgressBar.setValue(pbarVal);
+			thisProgressBar.setForeground(color);
 	}
 }
