@@ -166,10 +166,6 @@ public class Dashboard extends JFrame {
 	private int gyroFilter;             		
 
 	//Flags
-	//private boolean readMode = true;
-	private boolean organizeAbort = false;
-	//private boolean readAbort = false;
-	//private boolean paramAbort = false;
 	private boolean portInitialized = false;
 	private boolean frameInitialized = false;
 	private boolean portOpened = false;
@@ -211,7 +207,7 @@ public class Dashboard extends JFrame {
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	private Dashboard() {
-		setTitle("JavaDashboard_Rev-4 (6/6/2018)");
+		setTitle("JavaDashboardMaster");
 		createComponents();
 		initDataFields();
 		setVisible(true);
