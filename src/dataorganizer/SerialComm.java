@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.JProgressBar;
 
 import com.sun.javafx.collections.MappingChange.Map;
 
@@ -729,8 +730,7 @@ public class SerialComm {
 	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
 	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
 	 */
-	//TODO: Add handshakes between each few sectors of data to ensure the buffer does not overflow
-	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum) throws IOException, PortInUseException, UnsupportedCommOperationException {  
+	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum, JProgressBar progressBar, boolean timedTestFlag, int expectedBytes) throws IOException, PortInUseException, UnsupportedCommOperationException {  
 		//Put module into export test data mode, exit method if that routine fails
 		if(!selectMode('E')) {
 			return null;
@@ -741,44 +741,72 @@ public class SerialComm {
 		if (dataStreamsInitialized) {
 
 			HashMap<Integer, ArrayList<Integer>> testData = new HashMap<Integer, ArrayList<Integer>>();
+			double progress = 0;
+			double dataProgressPartition = 0;
+			
+			if (timedTestFlag) {
+				dataProgressPartition = (1 / (double)expectedBytes) * (1 / (double)expectedTestNum);
+			}
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
-
+				
 				testData.put(testNum, new ArrayList<Integer>());
 
 				//Wait for start condition (preamble)
 				waitForPreamble(1,8);
-				boolean stopCondition = false;
-
+				long startTime = System.currentTimeMillis();
+				
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
-				while (!stopCondition) {    
-
+				while (true) {    
+					
 					//Looks for stop condition (87654321)
 					for(int counter = 8; counter >= 1;) {
-						if (inputStream.available() > 0) {
+						
+						//Executes if data was received in the serial buffer
+						if (inputStream.available() >= 0) {
+						
 							//Store newly read byte in temp variable
 							int temp = inputStream.read();
+
+							
+
+							progress += dataProgressPartition;
+							progressBar.setValue((int)(progress * 100));
+
 							//Add newly read byte to test data arraylist
 							testData.get(testNum).add(temp);
 							
-
 							//Executes if the temp == the counter (meaning this byte could possibly be the stop condition)
 							if (temp == counter) { 
-								
 								if (counter == 1) {
 									break;
 								}
 								else {
 									counter--;
 								}
-								
 							} 
-
+							
 							else {
 								//Reset stop condition counter
 								counter = 8;
 							}
+							
+							//Reset data timeout counter
+							startTime = System.currentTimeMillis();
 						}
+						
+						
+						//Executes if no data was received in the serial buffer for a predefined number of cycles
+						else if (System.currentTimeMillis() - startTime >= 100 && inputStream.available() <= 0){
+							configureForHandshake();
+							outputStream.write("1234M".getBytes());
+							configureForImport();
+							while (inputStream.available() <= 0) {
+							}
+							//Reset data timeout counter
+							startTime = System.currentTimeMillis();
+						}
+								
 
 					}
 					

@@ -203,6 +203,7 @@ public class AdvancedMode extends JFrame {
 	private JPanel RemoteButtonPanel;
 	private JButton pairNewRemoteButton;
 	private JButton getCurrentConfigurationsButton;
+	private JButton testRemotesButton;
 
 
 
@@ -342,7 +343,18 @@ public class AdvancedMode extends JFrame {
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					serialHandler.pairNewRemote();
+					if(serialHandler.pairNewRemote()) {
+						generalStatusLabel.setText("New Remote Successfully Paired");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+					else {
+						generalStatusLabel.setText("Pair Unsuccessful, Receiver Timed Out");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					
+					
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -359,14 +371,11 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
-
+				
 				//Enable buttons that can now be used since the bulk erase completed
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
-
-				generalStatusLabel.setText("New Remote Successfully Paired");
-				progressBar.setValue(100);
-				progressBar.setForeground(new Color(51, 204, 51));
+				
 			}
 		};
 
@@ -812,7 +821,16 @@ public class AdvancedMode extends JFrame {
 						accelSensitivity = testParameters.get(12);
 						gyroSensitivity = testParameters.get(13);
 						accelFilter = testParameters.get(14);
-						gyroFilter = testParameters.get(15);					
+						gyroFilter = testParameters.get(15);				
+						
+						boolean timedTest = true;
+						if (timedTestFlag == 0) {
+							timedTest = false;
+						}
+						double bytesPerSample = 18;
+						if (accelGyroSampleRate / magSampleRate == 10) {
+							bytesPerSample = 12.6;
+						}
 
 
 
@@ -834,12 +852,12 @@ public class AdvancedMode extends JFrame {
 
 							//Assign file name
 							nameOfFile = "";
-							nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100));
+							nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 							fileNameTextField.setText(nameOfFile);
 
 							HashMap<Integer, ArrayList<Integer>> testData;
 
-							testData = serialHandler.readTestData(expectedTestNum);
+							testData = serialHandler.readTestData(expectedTestNum, progressBar, timedTest, (int) (bytesPerSample * accelGyroSampleRate * testLength));
 							
 							generalStatusLabel.setText("All Data Received from Module");
 							progressBar.setValue(100);
@@ -849,19 +867,22 @@ public class AdvancedMode extends JFrame {
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
 									int [] finalData = new int[testData.get(testIndex).size()];
-									int byteIndex = 0;
-									while (testData.get(testIndex).get(byteIndex) != -1) {
-										finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-										byteIndex++;
+									for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+										if (testData.get(testIndex).get(byteIndex) != -1){
+											finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+										}
+										else {
+											finalData[byteIndex] = -1;
+											break;
+										}
 									}
 
-									final int testNum = testIndex + 1;
-
+									
 									//Define operation that can be run in separate thread
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											//Organize data into .CSV
-											csvBuilder.sortData(finalData, testNum, nameOfFile, (accelGyroSampleRate / magSampleRate), (1 / accelGyroSampleRate), fileOutputDirectoryStr);  
+											csvBuilder.sortData(finalData, nameOfFile, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr);  
 										}
 									};
 
@@ -877,12 +898,19 @@ public class AdvancedMode extends JFrame {
 								progressBar.setForeground(new Color(255, 0, 0));
 							}
 						}
+						else {
+							fileNameTextField.setText("");
+							generalStatusLabel.setText("No Tests Found on Module");
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(255, 0, 0));
+						}
 					}
 					else {
-						generalStatusLabel.setText("No Tests Found on Module");
+						generalStatusLabel.setText("Error Reading From Module, Try Again");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
+					
 				}
 
 				catch (IOException e) {
@@ -929,6 +957,7 @@ public class AdvancedMode extends JFrame {
 			magSampleRateTextField.setText("120");
 			delayAfterStartTextField.setText("0");
 			timer0TickThreshTextField.setText("0");
+			batteryTimeoutTextField.setText("300");
 
 
 			//Comboboxes
@@ -1461,7 +1490,7 @@ public class AdvancedMode extends JFrame {
 
 		batteryTimeoutTextField = new JTextField();
 		batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
-		batteryTimeoutTextField.setText("60");
+		batteryTimeoutTextField.setText("300");
 		batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		batteryTimeoutTextField.setColumns(10);
 		batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
@@ -1578,6 +1607,10 @@ public class AdvancedMode extends JFrame {
 		unpairAllRemotesButton = new JButton("Unpair All Remotes");
 		unpairAllRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		RemoteButtonPanel.add(unpairAllRemotesButton);
+		
+		testRemotesButton = new JButton("Test Paired Remotes");
+		testRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		RemoteButtonPanel.add(testRemotesButton);
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				unpairAllRemotesHandler();
