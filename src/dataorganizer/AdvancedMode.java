@@ -982,6 +982,7 @@ public class AdvancedMode extends JFrame {
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
 									int [] finalData = new int[testData.get(testIndex).size()];
+									
 									for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
 										if (testData.get(testIndex).get(byteIndex) != -1){
 											finalData[byteIndex] = testData.get(testIndex).get(byteIndex);

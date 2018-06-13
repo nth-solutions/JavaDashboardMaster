@@ -502,6 +502,8 @@ public class SerialComm {
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
 	public boolean testRemotes(JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		clearInputStream();
+		
 		//Set module to enter test remote mode
 		if(!selectMode('=')) {
 			return false;
@@ -828,82 +830,96 @@ public class SerialComm {
 			
 			//Progress can only be estimated if it is a timed test so if the module just took a timed test, calculate how much to update the progress bar each time it receives a sector of data
 			if (timedTestFlag) {
-				dataProgressPartition = (1 / (double)expectedBytes) * (1 / (double)expectedTestNum);
+				dataProgressPartition = (2520 / (double)expectedBytes) * (1 / (double)expectedTestNum);
 			}
 			
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
-				
-				//Assign an empty arraylist to the test number that is currently being stored
-				testData.put(testNum, new ArrayList<Integer>());
 
 				//Wait for start condition (preamble)
 				waitForPreamble(1,8);
 				
 				//Create start time variable for timeouts
-				long startTime = System.currentTimeMillis();
+				//long startTime = System.currentTimeMillis();
 				
+				
+				byte [] tempTestData;
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
 				while (true) {    
 					
-					//Looks for stop condition (87654321)
-					for(int counter = 8; counter >= 1;) {
+					//Assign an empty arraylist to the test number that is currently being stored
+					ArrayList<Integer> rawData = new ArrayList<Integer>();
+					
+					while(true) {
+						waitForPreamble(1,4);
 						
-						//Executes if data was received in the serial buffer
-						if (inputStream.available() >= 0) {
-						
-							//Store newly read byte in temp variable
+						if (inputStream.available() > 0) {
 							int temp = inputStream.read();
-
 							
-							//Update progress bar based on how much data was received (dataProgressPartition calculated at top of method)
-							progress += dataProgressPartition;
-							progressBar.setValue((int)(progress * 100));
-
-							//Add newly read byte to test data arraylist
-							testData.get(testNum).add(temp);
-							
-							//Executes if the temp == the counter (meaning this byte could possibly be the stop condition)
-							if (temp == counter) { 
-								if (counter == 1) {
-									break;
+							if (temp == (int)'M') {
+								//System.out.println("M");
+								while (inputStream.available() < 2520) {
 								}
-								else {
-									counter--;
-								}
-							} 
-							
-							else {
-								//Reset stop condition counter
-								counter = 8;
-							}
-							
-							//Reset data timeout counter
-							startTime = System.currentTimeMillis();
-						}
-						
-						
-						//Executes if no data was received in the serial buffer for a predefined number of cycles meaning a new block of data must be sent from the module
-						else if (System.currentTimeMillis() - startTime >= 100 && inputStream.available() <= 0){
-							configureForHandshake();
-							outputStream.write("1234M".getBytes());
-							configureForImport();
-							while (inputStream.available() <= 0) {
-							}
-							//Reset data timeout counter
-							startTime = System.currentTimeMillis();
-						}
+
+								tempTestData = new byte[2520];
 								
-
+								inputStream.read(tempTestData, 0, 2520);
+								
+								//Update progress bar based on how much data was received (dataProgressPartition calculated at top of method)
+								progress += dataProgressPartition;
+								progressBar.setValue((int)(progress * 100));
+								
+								for (byte data : tempTestData) {
+									
+									//Add the bulk read data to the rawData arraylist. IMPORTANT: & 255 converts it from a signed byte to an unsigned byte 
+									rawData.add((int)data & 255);
+									//System.out.println(data & 255);
+								}
+								
+								outputStream.write("M".getBytes());
+							}
+							
+							else if (temp == (int)'P') {
+								//System.out.println("P");
+								for(int counter = 8; counter >= 1;) {
+									//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+									if (inputStream.available() > 0) {
+										temp = inputStream.read();
+										
+										rawData.add(temp);
+										
+										//System.out.println(temp);
+										
+										//Executes of the byte received is equal to the current value of counter
+										if (temp == counter) {    
+											//Decrement counter by 1
+											counter--;
+										} 
+	
+										//Executes if the counter != temp
+										else {
+											//Reset the counter
+											counter = 8;
+										}
+									}
+								}
+								
+								break;
+							}
+							
+						}
 					}
 					
-					//Executes if there were atleast 8 data points received (used to prevent range bounds error)
-					if (testData.get(testNum).size() >= 8) {    
-						//Set the first value in the stop condition to -1 so the next section of this method knows where the end of testing data is
-						testData.get(testNum).set(testData.get(testNum).size() - 8, -1);   
-						break;
+					for (int i = rawData.size() - 4; i < rawData.size(); i++) {
+						rawData.remove(i);
 					}
-				}         
+					rawData.add(-1);
+					
+					testData.put(testNum, rawData);		
+					
+					break;
+					
+				}  
 			}
 			//Method successful, return the map of test data
 			return testData;
