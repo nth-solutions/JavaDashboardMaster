@@ -467,6 +467,14 @@ public class SerialComm {
 		waitForPostamble(4,1);
 		return true;
 	}
+	
+	public boolean testRemotes() throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(!selectMode('=')) {
+			return false;
+		}
+		waitForPostamble(4,1);
+		return true;
+	}
 
 	/**
 	 * Obtains identification info from the module and updates the text on the dashboard. This method can also be used as a non intrusive way of calibrating baud rate without the risk
