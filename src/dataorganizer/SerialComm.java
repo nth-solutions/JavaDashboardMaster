@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 import com.sun.javafx.collections.MappingChange.Map;
@@ -32,6 +33,7 @@ public class SerialComm {
 	private boolean frameInitialized = false;
 	private boolean portOpened = false;
 	private boolean dataStreamsInitialized = false;
+	private boolean remoteTestActive = false;
 
 	public SerialComm() {
 	}
@@ -468,12 +470,36 @@ public class SerialComm {
 		return true;
 	}
 	
-	public boolean testRemotes() throws IOException, PortInUseException, UnsupportedCommOperationException {
+	public boolean testRemotes(JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		if(!selectMode('=')) {
 			return false;
 		}
-		waitForPostamble(4,1);
+		remoteTestActive = true;
+		while (remoteTestActive) {
+			if (inputStream.available() > 0) {
+				int temp = inputStream.read();
+				if (temp == (int)'@') {
+					statusLabel.setText("'A' Button is being Pressed");
+				}
+				else if (temp == (int)'!') {
+					statusLabel.setText("'B' Button is being Pressed");
+				}
+				else {
+					statusLabel.setText("No Button is being Pressed");
+				}
+			}
+			
+		}
+		
+		if(!selectMode('#')) {
+			return false;
+		}
+
 		return true;
+	}
+	
+	public void exitRemoteTest() {
+		remoteTestActive = false;
 	}
 
 	/**

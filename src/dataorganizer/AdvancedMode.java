@@ -205,6 +205,7 @@ public class AdvancedMode extends JFrame {
 	private JButton pairNewRemoteButton;
 	private JButton getCurrentConfigurationsButton;
 	private JButton testRemotesButton;
+	private JButton exitTestModeButton;
 
 
 
@@ -443,15 +444,18 @@ public class AdvancedMode extends JFrame {
 		Runnable testRemoteOperation = new Runnable() {
 			public void run() {
 				//Disable buttons that should not be used in the middle of a sequence
-				bulkEraseButton.setEnabled(false);
-				sectorEraseButton.setEnabled(false);
+				pairNewRemoteButton.setEnabled(false);
+				unpairAllRemotesButton.setEnabled(false);
+				testRemotesButton.setEnabled(false);
+				exitTestModeButton.setEnabled(true);
+				
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Press a Button on a Remote to Test if it is Paired");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					serialHandler.testRemotes();
+					serialHandler.testRemotes(generalStatusLabel);
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -469,11 +473,14 @@ public class AdvancedMode extends JFrame {
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-				//Enable buttons that can now be used since the bulk erase completed
-				bulkEraseButton.setEnabled(true);
-				sectorEraseButton.setEnabled(true);
+				//Enable button
+				pairNewRemoteButton.setEnabled(true);
+				unpairAllRemotesButton.setEnabled(true);
+				testRemotesButton.setEnabled(true);
+				exitTestModeButton.setEnabled(false);
+				
 				//Notify the user that the sequence has completed
-				generalStatusLabel.setText("Sector Erase Complete");
+				testRemotesButton.setText("Test Mode Successfully Exited");
 				progressBar.setValue(100);
 				progressBar.setForeground(new Color(51, 204, 51));
 			}
@@ -484,6 +491,10 @@ public class AdvancedMode extends JFrame {
 		//Start the thread
 		testRemoteThread.start();
 
+	}
+	
+	public void exitTestModeHandler() {
+		serialHandler.exitRemoteTest();
 	}
 
 
@@ -670,48 +681,55 @@ public class AdvancedMode extends JFrame {
 
 					testParameters = serialHandler.readTestParams();
 
-					//Assign local variables to their newly received values from the module
-					timer0TickThreshold = testParameters.get(4);
-					battTimeoutLength = testParameters.get(5);
-					timedTestFlag = testParameters.get(7);
-					triggerOnReleaseFlag = testParameters.get(7);
-					testLength = testParameters.get(9);
-					accelGyroSampleRate = testParameters.get(10);
-					magSampleRate = testParameters.get(11);
-					accelSensitivity = testParameters.get(12);
-					gyroSensitivity = testParameters.get(13);
-					accelFilter = testParameters.get(14);
-					gyroFilter = testParameters.get(15);					
+					if(testParameters != null) {
+						//Assign local variables to their newly received values from the module
+						timer0TickThreshold = testParameters.get(4);
+						battTimeoutLength = testParameters.get(6);
+						timedTestFlag = testParameters.get(7);
+						triggerOnReleaseFlag = testParameters.get(7);
+						testLength = testParameters.get(9);
+						accelGyroSampleRate = testParameters.get(10);
+						magSampleRate = testParameters.get(11);
+						accelSensitivity = testParameters.get(12);
+						gyroSensitivity = testParameters.get(13);
+						accelFilter = testParameters.get(14);
+						gyroFilter = testParameters.get(15);					
 
 
-					if(timedTestFlag > 0) {
-						timedTestCheckbox.setSelected(true);
+						if(timedTestFlag > 0) {
+							timedTestCheckbox.setSelected(true);
+						}
+						else {
+							timedTestCheckbox.setSelected(false);
+						}
+						if(triggerOnReleaseFlag > 0) {
+							triggerOnReleaseCheckbox.setSelected(true);
+						}
+						else {
+							triggerOnReleaseCheckbox.setSelected(false);
+						}
+
+						accelGyroSampleRateTextField.setText(Integer.toString(accelGyroSampleRate));
+						magSampleRateTextField.setText(Integer.toString(magSampleRate));
+						accelSensitivityCombobox.setSelectedIndex(lookupAccelSensitivityIndex(accelSensitivity));
+						gyroSensitivityCombobox.setSelectedIndex(lookupGyroSensitivityIndex(gyroSensitivity));
+						accelFilterCombobox.setSelectedIndex(lookupAccelFilterIndex(accelFilter));
+						gyroFilterCombobox.setSelectedIndex(lookupGyroFilterIndex(gyroFilter));
+
+						timer0TickThreshTextField.setText(Integer.toString(timer0TickThreshold));
+						magSampleRateTextField.setText(Integer.toString(magSampleRate));
+						batteryTimeoutTextField.setText(Integer.toString(battTimeoutLength));
+
+
+						generalStatusLabel.setText("Current Module Configurations Received and Displayed");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
 					}
 					else {
-						timedTestCheckbox.setSelected(false);
+						generalStatusLabel.setText("Error Communicating With Module, Try Again");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
 					}
-					if(triggerOnReleaseFlag > 0) {
-						triggerOnReleaseCheckbox.setSelected(true);
-					}
-					else {
-						triggerOnReleaseCheckbox.setSelected(false);
-					}
-
-					accelGyroSampleRateTextField.setText(Integer.toString(accelGyroSampleRate));
-					magSampleRateTextField.setText(Integer.toString(magSampleRate));
-					accelSensitivityCombobox.setSelectedIndex(lookupAccelSensitivityIndex(accelSensitivity));
-					gyroSensitivityCombobox.setSelectedIndex(lookupGyroSensitivityIndex(gyroSensitivity));
-					accelFilterCombobox.setSelectedIndex(lookupAccelFilterIndex(accelFilter));
-					gyroFilterCombobox.setSelectedIndex(lookupGyroFilterIndex(gyroFilter));
-
-					timer0TickThreshTextField.setText(Integer.toString(timer0TickThreshold));
-					magSampleRateTextField.setText(Integer.toString(magSampleRate));
-					batteryTimeoutTextField.setText(Integer.toString(battTimeoutLength));
-
-
-					generalStatusLabel.setText("Current Module Configurations Received and Displayed");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(51, 204, 51));
 
 				}
 				catch (IOException e) {
@@ -1108,6 +1126,14 @@ public class AdvancedMode extends JFrame {
 		progressBar.setForeground(new Color(51, 204, 51));
 		return true;
 	}
+	
+	public boolean updateTickThresh() {
+		if (!accelGyroSampleRateTextField.getText().isEmpty()) {
+			int tickThresh = getTickThreshold(Integer.parseInt(accelGyroSampleRateTextField.getText()));
+			timer0TickThreshTextField.setText(Integer.toString(tickThresh));
+		}
+		return true;
+	}
 
 	/**
 	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
@@ -1142,7 +1168,7 @@ public class AdvancedMode extends JFrame {
 	public void setWriteStatusLabel(String label) {
 		generalStatusLabel.setText(label);        //Tell the user a new .CSV has been created.
 	}
-	
+
 	public int lookupAccelSensitivityIndex(int accelSensitivity){
 		switch (accelSensitivity) {
 		case(2):		
@@ -1157,7 +1183,7 @@ public class AdvancedMode extends JFrame {
 			return 0;
 		}
 	}
-	
+
 	public int lookupGyroSensitivityIndex(int gyroSensitivity){
 		switch (gyroSensitivity) {
 		case(250):		
@@ -1172,7 +1198,7 @@ public class AdvancedMode extends JFrame {
 			return 0;
 		}
 	}
-	
+
 	public int lookupAccelFilterIndex(int accelFilter){
 		switch (accelFilter) {
 		case(5):		
@@ -1195,27 +1221,25 @@ public class AdvancedMode extends JFrame {
 			return 0;
 		}
 	}
-	
+
 	public int lookupGyroFilterIndex(int gyroFilter){
 		switch (gyroFilter) {
-		case(5):		
-			return 0;
 		case(10):
-			return 1;
+			return 0;
 		case(20):
-			return 2;
+			return 1;
 		case(41):
-			return 3;
+			return 2;
 		case(92):		
-			return 4;
+			return 3;
 		case(184):
-			return 5;
+			return 4;
 		case(250):
-			return 6;
+			return 5;
 		case(3600):
-			return 7;
+			return 6;
 		case(8600):
-			return 8;
+			return 7;
 		default:
 			return 0;
 		}
@@ -1555,6 +1579,7 @@ public class AdvancedMode extends JFrame {
 		accelGyroSampleRateTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				updateMagSampleRate();
+				updateTickThresh();
 			}
 		});
 
@@ -1752,6 +1777,17 @@ public class AdvancedMode extends JFrame {
 		});
 
 		RemoteButtonPanel.add(testRemotesButton);
+		
+		exitTestModeButton = new JButton("Exit Test Mode");
+		exitTestModeButton.setEnabled(false);
+		exitTestModeButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		exitTestModeButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				exitTestModeHandler();
+			}
+		});
+		
+		RemoteButtonPanel.add(exitTestModeButton);
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				unpairAllRemotesHandler();
