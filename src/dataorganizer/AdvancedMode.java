@@ -1,3 +1,9 @@
+/**
+ * AdvancedMode.java
+ * Purpose: This class handles the advanced gui and interacts with the SerialComm.java utility class to talk to the module
+ * Notes: All gui elements should be contained in this class.
+ */
+
 package dataorganizer;
 
 import java.awt.BorderLayout;
@@ -86,6 +92,7 @@ public class AdvancedMode extends JFrame {
 	private JPanel erasePanel;
 	private JPanel eraseButtonPanel;
 	private JPanel remoteTab;
+	private JPanel RemoteButtonPanel;
 
 	//Labels
 	private JLabel generalStatusLabel;
@@ -143,6 +150,11 @@ public class AdvancedMode extends JFrame {
 	private JButton settingsWindowBtn;
 	private JButton btnSelectCsv;
 	private JButton sendQuitCMDButton;
+	private JButton pairNewRemoteButton;
+	private JButton getCurrentConfigurationsButton;
+	private JButton testRemotesButton;
+	private JButton exitTestModeButton;
+	private JButton unpairAllRemotesButton;
 
 	//Progress Bars
 	private JProgressBar progressBar;
@@ -200,12 +212,6 @@ public class AdvancedMode extends JFrame {
 	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
-	private JButton unpairAllRemotesButton;
-	private JPanel RemoteButtonPanel;
-	private JButton pairNewRemoteButton;
-	private JButton getCurrentConfigurationsButton;
-	private JButton testRemotesButton;
-	private JButton exitTestModeButton;
 
 
 
@@ -251,11 +257,14 @@ public class AdvancedMode extends JFrame {
 		AdvancedMode gui = new AdvancedMode();
 
 
-
+		//Loop infinitely so window doesn't close unless user presses close button
 		while(true) {
 		}
 	}
 
+	/**
+	 * Updates the ports combobox with the string ID's of the available serial ports
+	 */
 	public void updateCommPortComboBox() {
 		ArrayList<String> commPortIDList = serialHandler.findPorts();
 		if (commPortIDList != null) {
@@ -315,6 +324,9 @@ public class AdvancedMode extends JFrame {
 
 	}
 
+	/**
+	 * Executed when disconnect button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 */
 	public void disconnectButtonHandler() {
 		serialHandler.closeSerialPort();
 
@@ -332,6 +344,9 @@ public class AdvancedMode extends JFrame {
 		commPortCombobox.setEnabled(true);
 	}
 
+	/**
+	 * Executed when pair new remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 */
 	public void pairNewRemoteHandler() {
 		//Specify new operation that can be run in a separate thread
 		Runnable pairNewRemoteOperation = new Runnable() {
@@ -390,6 +405,9 @@ public class AdvancedMode extends JFrame {
 	}
 
 
+	/**
+	 * Executed when unpair all remotes button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 */
 	public void unpairAllRemotesHandler() {
 		//Specify new operation that can be run in a separate thread
 		Runnable unpairAllRemotesOperation = new Runnable() {
@@ -438,7 +456,11 @@ public class AdvancedMode extends JFrame {
 		//Start the thread
 		unpairAllRemotesThread.start();
 	}
-
+	
+	/**
+	 * Runs a thread that will put the module in a test remote mode that will automatically update the GUI based on which remote button is pressed 
+	 * Executed when test remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 */
 	public void testRemotesHandler() {
 		//Specify new operation that can be run in a separate thread
 		Runnable testRemoteOperation = new Runnable() {
@@ -455,7 +477,11 @@ public class AdvancedMode extends JFrame {
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					serialHandler.testRemotes(generalStatusLabel);
+					if(!serialHandler.testRemotes(generalStatusLabel)) {
+						generalStatusLabel.setText("Error Communicating with Module");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -480,7 +506,7 @@ public class AdvancedMode extends JFrame {
 				exitTestModeButton.setEnabled(false);
 				
 				//Notify the user that the sequence has completed
-				testRemotesButton.setText("Test Mode Successfully Exited");
+				generalStatusLabel.setText("Test Mode Successfully Exited");
 				progressBar.setValue(100);
 				progressBar.setForeground(new Color(51, 204, 51));
 			}
@@ -493,11 +519,13 @@ public class AdvancedMode extends JFrame {
 
 	}
 	
+	/**
+	 * Sets flag that will cause the testRemoteThread to exit the test remote mode
+	 * Executed when exit remote test mode button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 */
 	public void exitTestModeHandler() {
 		serialHandler.exitRemoteTest();
 	}
-
-
 
 
 	/**
@@ -591,7 +619,7 @@ public class AdvancedMode extends JFrame {
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-				//Enable buttons that can now be used since the bulk erase completed
+				//Enable buttons that can now be used since the sector erase completed
 				bulkEraseButton.setEnabled(true);
 				sectorEraseButton.setEnabled(true);
 				//Notify the user that the sequence has completed
@@ -666,8 +694,12 @@ public class AdvancedMode extends JFrame {
 		infoThread.start();
 	}
 
+	/**
+	 * Obtains test parameters from module and updates each data field on the configuration tab with those newly red values
+	 * Executed when get current configs button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 */
 	public void getConfigsHandler() {
-		//Disable read button while read is in progress
+		//Disable get configs button while read is in progress
 		getCurrentConfigurationsButton.setEnabled(false);
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {
@@ -684,9 +716,10 @@ public class AdvancedMode extends JFrame {
 					if(testParameters != null) {
 						//Assign local variables to their newly received values from the module
 						timer0TickThreshold = testParameters.get(4);
+						//Delay after start = index 5
 						battTimeoutLength = testParameters.get(6);
 						timedTestFlag = testParameters.get(7);
-						triggerOnReleaseFlag = testParameters.get(7);
+						triggerOnReleaseFlag = testParameters.get(8);
 						testLength = testParameters.get(9);
 						accelGyroSampleRate = testParameters.get(10);
 						magSampleRate = testParameters.get(11);
@@ -709,6 +742,7 @@ public class AdvancedMode extends JFrame {
 							triggerOnReleaseCheckbox.setSelected(false);
 						}
 
+						testLengthTextField.setText(Integer.toString(testLength));
 						accelGyroSampleRateTextField.setText(Integer.toString(accelGyroSampleRate));
 						magSampleRateTextField.setText(Integer.toString(magSampleRate));
 						accelSensitivityCombobox.setSelectedIndex(lookupAccelSensitivityIndex(accelSensitivity));
@@ -730,7 +764,7 @@ public class AdvancedMode extends JFrame {
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
-
+					
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -864,7 +898,7 @@ public class AdvancedMode extends JFrame {
 
 
 	/**
-	 * Handles the button press of read data from module button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
+	 * Handles the button press of read data from module button. This includes reading the test parameters, updating the read gui, and reading/converting the data to .csv. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
 	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume. See the method calls within the runnable for more info
 	 * on what this handler actually does.
 	 */
@@ -883,9 +917,12 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
+					//Read test parameters from module and store it in testParameters
 					testParameters = serialHandler.readTestParams();
 
+					//Executes if the reading of the test parameters was succesful
 					if (testParameters != null) {
+						
 						expectedTestNum = testParameters.get(0);
 						//Assign local variables to their newly received values from the module
 						timedTestFlag = testParameters.get(7);
@@ -920,6 +957,7 @@ public class AdvancedMode extends JFrame {
 						gyroFilterTextFieldRead.setText(Integer.toString(gyroFilter));             		//Gyro Filter 
 						nameOfFile = fileNameTextField.getText();
 
+						//Executes if there are tests on the module
 						if(expectedTestNum > 0) {
 
 							//Get date for file name
@@ -932,12 +970,14 @@ public class AdvancedMode extends JFrame {
 
 							HashMap<Integer, ArrayList<Integer>> testData;
 
+							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
 							testData = serialHandler.readTestData(expectedTestNum, progressBar, timedTest, (int) (bytesPerSample * accelGyroSampleRate * testLength));
 
 							generalStatusLabel.setText("All Data Received from Module");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(51, 204, 51));
 
+							//Executes if the data was received properly (null = fail)
 							if(testData != null) {
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
@@ -1026,15 +1066,6 @@ public class AdvancedMode extends JFrame {
 			delayAfterStartCheckbox.setSelected(false);
 			manualCalibrationCheckbox.setSelected(false);
 
-			//Text Fields
-			testLengthTextField.setText("25");
-			accelGyroSampleRateTextField.setText("120");
-			magSampleRateTextField.setText("120");
-			delayAfterStartTextField.setText("0");
-			timer0TickThreshTextField.setText("0");
-			batteryTimeoutTextField.setText("300");
-
-
 			//Comboboxes
 			accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"2", "4", "8", "16"}));
 			gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"250", "500", "1000", "2000"}));
@@ -1042,8 +1073,8 @@ public class AdvancedMode extends JFrame {
 			gyroFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)"}));
 
 			//Set Default Selection for Comboboxes
-			accelSensitivityCombobox.setSelectedIndex(3);	//16g
-			gyroSensitivityCombobox.setSelectedIndex(3);	//2000dps
+			accelSensitivityCombobox.setSelectedIndex(2);	//8g
+			gyroSensitivityCombobox.setSelectedIndex(2);	//1000dps
 			accelFilterCombobox.setSelectedIndex(4);		//92Hz
 			gyroFilterCombobox.setSelectedIndex(3);			//92Hz
 		}
@@ -1087,7 +1118,10 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-
+	/**
+	 * Updates the magnetometer text field based on the accel gyro sample rate text field 
+	 * @return
+	 */
 	public boolean updateMagSampleRate() {
 		if (!accelGyroSampleRateTextField.getText().isEmpty()) {
 			switch (Integer.parseInt(accelGyroSampleRateTextField.getText())) {
@@ -1127,6 +1161,10 @@ public class AdvancedMode extends JFrame {
 		return true;
 	}
 	
+	/**
+	 * Update the text field for the tick threshold based on the accel/gyro sample rate
+	 * @return
+	 */
 	public boolean updateTickThresh() {
 		if (!accelGyroSampleRateTextField.getText().isEmpty()) {
 			int tickThresh = getTickThreshold(Integer.parseInt(accelGyroSampleRateTextField.getText()));
@@ -1169,6 +1207,11 @@ public class AdvancedMode extends JFrame {
 		generalStatusLabel.setText(label);        //Tell the user a new .CSV has been created.
 	}
 
+	/**
+	 * Looks up the selection index for the accel sensitivity combobox
+	 * @param accelSensitivity
+	 * @return
+	 */
 	public int lookupAccelSensitivityIndex(int accelSensitivity){
 		switch (accelSensitivity) {
 		case(2):		
@@ -1184,6 +1227,11 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
+	/**
+	 * Looks up the selection index for the gyro sensitivity combobox
+	 * @param accelSensitivity
+	 * @return
+	 */
 	public int lookupGyroSensitivityIndex(int gyroSensitivity){
 		switch (gyroSensitivity) {
 		case(250):		
@@ -1198,7 +1246,12 @@ public class AdvancedMode extends JFrame {
 			return 0;
 		}
 	}
-
+	
+	/**
+	 * Looks up the selection index for the accel filter combobox
+	 * @param accelSensitivity
+	 * @return
+	 */
 	public int lookupAccelFilterIndex(int accelFilter){
 		switch (accelFilter) {
 		case(5):		
@@ -1222,6 +1275,11 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
+	/**
+	 * Looks up the selection index for the gyro sensitivity combobox
+	 * @param accelSensitivity
+	 * @return
+	 */
 	public int lookupGyroFilterIndex(int gyroFilter){
 		switch (gyroFilter) {
 		case(10):

@@ -1,3 +1,12 @@
+/**
+ * SerialComm.java
+ * Purpose: This class handles all UART communications in a modular way so it can be used from any GUI we design.
+ * Notes: This class should never refer to any outside GUI element. If a method needs to change a status label, progress bar, etc., pass it in as a parameter
+ * 		  
+ */
+
+
+
 package dataorganizer;
 
 import java.awt.Color;
@@ -23,18 +32,21 @@ import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
 
 public class SerialComm {
-	private JFrame gui;
 
-	private BufferedInputStream inputStream;        //Object used for reading serial data 
-	private OutputStream outputStream;              //Object used for writing serial data
-	private CommPortIdentifier portId;       		//Object used for opening a COMM ports
-	private SerialPort serialPort;      			//Object for the serial port class
+	//Input and Output Streams of the serial port, input stream must be buffered to prevent data loss due to buffer overflows, DO NOT USE a BufferedReader, it will encode bytes via UTF-8 
+	private BufferedInputStream inputStream;       
+	private OutputStream outputStream;              
+	
+	//Serial port identifiers for opening and the serial port
+	private CommPortIdentifier portId;       		
+	private SerialPort serialPort;      			
 
-	private boolean frameInitialized = false;
-	private boolean portOpened = false;
+
+	//Flags that track object/process states
 	private boolean dataStreamsInitialized = false;
 	private boolean remoteTestActive = false;
 
+	//Constructor not used to initialize anything right now.
 	public SerialComm() {
 	}
 
@@ -94,8 +106,6 @@ public class SerialComm {
 		//Open the serial port with a 2 second timeout
 		serialPort = (SerialPort) portId.open("portHandler", 2000);
 
-		//Set flag lets the program know that the port opened successfully
-		portOpened = true;
 
 		//Create a new buffered reader so we can define the buffer size to prevent a buffer overflow (explicitly defined in the configureForImport() method)
 		inputStream = new BufferedInputStream(serialPort.getInputStream(), 8192);
@@ -121,14 +131,12 @@ public class SerialComm {
 			//Close the serial port
 			serialPort.close();  
 
-			//Clear program flags associated with the COMM port's status
-			portOpened = false;
+			//Let the whole class know that the data streams are no longer initialized
 			dataStreamsInitialized = false;
-
 			return true;
 
 		}
-
+		//Method failed so return false
 		return false;
 	}
 
@@ -147,7 +155,7 @@ public class SerialComm {
 			return true;
 
 		}
-
+		//Method failed so return false
 		return false;
 	}
 
@@ -357,6 +365,7 @@ public class SerialComm {
 					}	
 				}
 				else {
+					//Method failed so return false
 					return false;
 				}
 
@@ -446,6 +455,13 @@ public class SerialComm {
 		return true;
 	}
 
+	/**
+	 * This method tells the method to module to start listening for new remotes to pair. It then waits for a handshake to see if the pairing process was successful or timed out
+	 * @return allows for easy exiting of the method
+	 * @throws IOException Means that there is an error communicating with dongle, thrown to caller for cleaner handling
+	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
+	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
+	 */
 	public boolean pairNewRemote() throws IOException, PortInUseException, UnsupportedCommOperationException{
 
 		if(!selectMode('+')) {
@@ -462,6 +478,13 @@ public class SerialComm {
 		return true;
 	}
 
+	/**
+	 * Tells the module to erase it's receiver memory to unpair all remotes then waits for a postamble to confirm if the process was successful or not
+	 * @return allows for easy exiting of the method
+	 * @throws IOException Means that there is an error communicating with dongle, thrown to caller for cleaner handling
+	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
+	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
+	 */
 	public boolean unpairAllRemotes() throws IOException, PortInUseException, UnsupportedCommOperationException {
 		if(!selectMode('-')) {
 			return false;
@@ -470,12 +493,26 @@ public class SerialComm {
 		return true;
 	}
 	
+	/*
+	 * Puts the module in a test mode that allows the user to press remote buttons to verify if they are being received by the transmitter. This mode can only be 
+	 * exited by setting the remoteTestActive boolean to false which is what the exitRemoteTest() method does.
+ 	 * @return allows for easy exiting of the method
+	 * @throws IOException Means that there is an error communicating with dongle, thrown to caller for cleaner handling
+	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
+	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
+	 */
 	public boolean testRemotes(JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		//Set module to enter test remote mode
 		if(!selectMode('=')) {
 			return false;
 		}
+		//Set flag so class knows that it is in test mode
 		remoteTestActive = true;
+		
+		//Loops until the remoteTestActive boolean is set to false externally
 		while (remoteTestActive) {
+			
+			//If there is data, see if it corresponds to a button being pressed, update the status label accordingly
 			if (inputStream.available() > 0) {
 				int temp = inputStream.read();
 				if (temp == (int)'@') {
@@ -491,13 +528,18 @@ public class SerialComm {
 			
 		}
 		
+		//If the test mode was exited externally by setting the remoteTestActive boolean to false, send the exit command to the module and listen for an echo
 		if(!selectMode('#')) {
 			return false;
 		}
 
+		//Method successful, return true
 		return true;
 	}
 	
+	/**
+	 * Sets boolean to exit remote test mode
+	 */
 	public void exitRemoteTest() {
 		remoteTestActive = false;
 	}
@@ -675,11 +717,16 @@ public class SerialComm {
 			return false;
 		}
 
-
-
 		return true;
 	}
 
+	/**
+	 * This method reads the test parameters and the number of tests on the module and returns those values in an arraylist. If the method is unsuccessful in any way, it will return null
+	 * @return arraylist of the test parameters in order as sent by the married firmware offset back by one index since the first element is saved as the number of tests (index: 0)
+	 * @throws IOException Means that there is an error communicating with dongle, thrown to caller for cleaner handling
+	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
+	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
+	 */
 	public ArrayList<Integer> readTestParams() throws IOException, PortInUseException, UnsupportedCommOperationException {
 		int expectedTestNum;
 
@@ -688,9 +735,9 @@ public class SerialComm {
 			return null;
 		}
 
-
 		configureForHandshake();
 
+		//Executes if the data streams are initialized
 		if (dataStreamsInitialized) {
 
 			boolean dataReceived = false;
@@ -717,7 +764,7 @@ public class SerialComm {
 
 					}
 
-
+					//Arraylist to store raw data before formatting bytes to words
 					ArrayList<Integer> rawParamData = new ArrayList<Integer>();
 
 					//Looks for stop condition (4321)
@@ -731,8 +778,7 @@ public class SerialComm {
 							//Executes if the temp == the counter (meaning this byte could possibly be the stop condition)
 							if (temp == counter) {  
 								counter--;
-							} 
-
+							}
 							else {
 								//Reset stop condition counter
 								counter = 4;
@@ -745,17 +791,19 @@ public class SerialComm {
 					//Initialize arraylists to store test params and test data
 					ArrayList<Integer> testParameters = new ArrayList<Integer>();  
 
-
+					//Append the expected test number to the beginning of the arraylist
 					testParameters.add(expectedTestNum);
+					
+					//Iterate through all of the raw data and convert them to words instead of bytest before storing them in the array
 					for (int paramIndex = 0; paramIndex < rawParamData.size() - 4; paramIndex += 2) {
 						testParameters.add(rawParamData.get(paramIndex) * 256 + rawParamData.get(paramIndex + 1));
 					}
-
+					//Return the arraylist of formatted data
 					return testParameters;
-
 				}
 			}
 		}
+		//Method failed, return null
 		return null;
 	}
 
@@ -778,16 +826,21 @@ public class SerialComm {
 			double progress = 0;
 			double dataProgressPartition = 0;
 			
+			//Progress can only be estimated if it is a timed test so if the module just took a timed test, calculate how much to update the progress bar each time it receives a sector of data
 			if (timedTestFlag) {
 				dataProgressPartition = (1 / (double)expectedBytes) * (1 / (double)expectedTestNum);
 			}
+			
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 				
+				//Assign an empty arraylist to the test number that is currently being stored
 				testData.put(testNum, new ArrayList<Integer>());
 
 				//Wait for start condition (preamble)
 				waitForPreamble(1,8);
+				
+				//Create start time variable for timeouts
 				long startTime = System.currentTimeMillis();
 				
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
@@ -803,7 +856,7 @@ public class SerialComm {
 							int temp = inputStream.read();
 
 							
-
+							//Update progress bar based on how much data was received (dataProgressPartition calculated at top of method)
 							progress += dataProgressPartition;
 							progressBar.setValue((int)(progress * 100));
 
@@ -830,7 +883,7 @@ public class SerialComm {
 						}
 						
 						
-						//Executes if no data was received in the serial buffer for a predefined number of cycles
+						//Executes if no data was received in the serial buffer for a predefined number of cycles meaning a new block of data must be sent from the module
 						else if (System.currentTimeMillis() - startTime >= 100 && inputStream.available() <= 0){
 							configureForHandshake();
 							outputStream.write("1234M".getBytes());
@@ -852,9 +905,10 @@ public class SerialComm {
 					}
 				}         
 			}
+			//Method successful, return the map of test data
 			return testData;
-
 		}
+		//Method failed, return null
 		return null;
 	}
 
