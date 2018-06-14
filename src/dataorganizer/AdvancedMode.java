@@ -965,6 +965,7 @@ public class AdvancedMode extends JFrame {
 
 							//Assign file name
 							nameOfFile = "";
+							nameOfFile += prefixTextField.getText();
 							nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 							fileNameTextField.setText(nameOfFile);
 

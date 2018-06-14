@@ -201,8 +201,8 @@ public class SerialComm {
 		openSerialPort(serialPort.getName());
 
 
-		//Configure the serial port for 115200 baud for high speed exports
-		serialPort.setSerialPortParams(115200,      
+		//Configure the serial port for 153600 baud for high speed exports
+		serialPort.setSerialPortParams(921600,      
 				SerialPort.DATABITS_8,
 				SerialPort.STOPBITS_1,
 				SerialPort.PARITY_NONE);
@@ -852,7 +852,7 @@ public class SerialComm {
 					
 					while(true) {
 						waitForPreamble(1,4);
-						
+						//System.out.println("check");
 						if (inputStream.available() > 0) {
 							int temp = inputStream.read();
 							
@@ -875,8 +875,11 @@ public class SerialComm {
 									rawData.add((int)data & 255);
 									//System.out.println(data & 255);
 								}
-								
-								outputStream.write("M".getBytes());
+								outputStream.write(0);
+								outputStream.write(0);
+								outputStream.write(0);
+								//outputStream.write("@".getBytes());
+							 	//outputStream.write("@".getBytes());
 							}
 							
 							else if (temp == (int)'P') {
