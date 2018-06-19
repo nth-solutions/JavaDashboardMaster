@@ -1733,7 +1733,7 @@ public class AdvancedMode extends JFrame {
 
 		erasePanel = new JPanel();
 		mainTabbedPanel.addTab("Erase", null, erasePanel, null);
-		erasePanel.setLayout(new GridLayout(1, 0, 0, 0));
+		erasePanel.setLayout(new GridLayout(3, 1, 0, 0));
 
 		eraseButtonPanel = new JPanel();
 		erasePanel.add(eraseButtonPanel);

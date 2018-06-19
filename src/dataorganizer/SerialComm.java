@@ -39,7 +39,8 @@ public class SerialComm {
 	
 	//Serial port identifiers for opening and the serial port
 	private CommPortIdentifier portId;       		
-	private SerialPort serialPort;      			
+	private SerialPort serialPort;
+	private String serialPortName;
 
 
 	//Flags that track object/process states
@@ -166,11 +167,16 @@ public class SerialComm {
 	public boolean configureForHandshake() throws IOException, PortInUseException, UnsupportedCommOperationException {
 		//Close the current serial port if it is open (Must be done for dashboard to work properly for some reason, do not delete)
 		if (dataStreamsInitialized) {
+			serialPortName = serialPort.getName();
 			serialPort.close();
 		}
 
 		//Reopen serial port
-		openSerialPort(serialPort.getName());
+		if(serialPortName!=null) {
+			openSerialPort(serialPortName);
+		}else {
+			openSerialPort(portId.getName());
+		}
 
 
 		//Configure the serial port for 38400 baud for low speed handshakes

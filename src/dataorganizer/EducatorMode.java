@@ -54,7 +54,7 @@ public class EducatorMode extends JFrame {
 	private JComboBox commPortCombobox;
 	private JButton readTestsBtn;
 	public static EducatorMode educatorInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
-	
+	public ArrayList<Integer> writeData = new ArrayList<Integer>();
 	
 	//Operation Threads
 		private Thread readThread;
@@ -201,6 +201,11 @@ public class EducatorMode extends JFrame {
 		panel_3.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		JButton programBtn = new JButton("Program Adventure Module");
+		programBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				writeButtonHandler();
+			}
+		});
 		panel_3.add(programBtn);
 		
 		JSeparator separator_1 = new JSeparator();
@@ -665,44 +670,77 @@ public class EducatorMode extends JFrame {
 					return false;
 				}
 
-				int[] writeData = new int[NUM_TEST_PARAMETERS];
 				switch(testTypeComboBox.getSelectedItem().toString()) {
 					case "Conservation of Momentum":
-						writeData[0] = 0;			//Serial Number
-						writeData[1] = 5;			//Module ID (Hardware Version)
-						writeData[2] = 16;			//Firmware ID 
-						writeData[3] = getTickThreshold(960);		//Timer0 Tick Threshold (Interrupt)
-						writeData[4] = 0;			//Delay After Start
-						writeData[5] = 1;			//Timed Test Flag
-						writeData[6] = 25;     //Test Duration
-						writeData[7] = 960;//Accel Gyro Sample Rate
-						writeData[8] = 96;    //Mag Sample Rate
-						writeData[9] = 2;  //Accel Sensitivity
-						writeData[10] = 250;   //Gyro Sensitivity
-						writeData[11] = 5;  //Accel Filter
-						writeData[12] = 10;  //Gyro Filter
+						//0 Serial Number
+						writeData.add(0);
+						//1 Hardware Version
+						writeData.add(5);
+						//2 Firmware Version
+						writeData.add(20);
+						//3 Accel Gyro Sample Rate
+						writeData.add(getTickThreshold(960));
+						//4 Delay after start
+						writeData.add(0);
+						//5 Battery timeout flag
+						writeData.add(300);
+						//6 Timed test flag
+						writeData.add(1);
+						//7 Trigger on release flag
+						writeData.add(1);
+						//8 Test Length
+						writeData.add(25);
+						//9 Accel Gyro Sample Rate
+						writeData.add(120);
+						//10 Mag Sample Rate
+						writeData.add(120);
+						//11 Accel Sensitivity
+						writeData.add(8);
+						//12 Gyro Sensitivity
+						writeData.add(1000);
+						//13 Accel Filter
+						writeData.add(92);
+						//14 Gyro Filter
+						writeData.add(92);
 						break;
 					case "Pendulum":
-						writeData[0] = 0;			//Serial Number
-						writeData[1] = 5;			//Module ID (Hardware Version)
-						writeData[2] = 16;			//Firmware ID
-						writeData[3] = getTickThreshold(960);		//Timer0 Tick Threshold (Interrupt)
-						writeData[4] = 0;			//Delay After Start
-						writeData[5] = 1;			//Timed Test Flag
-						writeData[6] = 25;     //Test Duration
-						writeData[7] = 960;//Accel Gyro Sample Rate
-						writeData[8] = 96;    //Mag Sample Rate
-						writeData[9] = 2;  //Accel Sensitivity
-						writeData[10] = 250;   //Gyro Sensitivity
-						writeData[11] = 5;  //Accel Filter
-						writeData[12] = 10;  //Gyro Filter
+						//0 Serial Number
+						writeData.add(0);
+						//1 Hardware Version
+						writeData.add(5);
+						//2 Firmware Version
+						writeData.add(20);
+						//3 Accel Gyro Sample Rate
+						writeData.add(getTickThreshold(960));
+						//4 Delay after start
+						writeData.add(0);
+						//5 Battery timeout flag
+						writeData.add(300);
+						//6 Timed test flag
+						writeData.add(1);
+						//7 Trigger on release flag
+						writeData.add(1);
+						//8 Test Length
+						writeData.add(25);
+						//9 Accel Gyro Sample Rate
+						writeData.add(120);
+						//10 Mag Sample Rate
+						writeData.add(120);
+						//11 Accel Sensitivity
+						writeData.add(8);
+						//12 Gyro Sensitivity
+						writeData.add(1000);
+						//13 Accel Filter
+						writeData.add(92);
+						//14 Gyro Filter
+						writeData.add(92);
 						break;
 				}
 				
 
-				for (int paramNum = 0; paramNum < writeData.length; paramNum++) {
+				for (int paramNum = 0; paramNum < writeData.size(); paramNum++) {
 					boolean paramReceived = false;
-					progressBar.setValue((int)(100 * ((double)paramNum / (double)writeData.length) / 1.2));
+					progressBar.setValue((int)(100 * ((double)paramNum / (double)writeData.size()) / 1.2));
 					int attemptCounter = 0;
 					while (!paramReceived) {
 
@@ -710,8 +748,8 @@ public class EducatorMode extends JFrame {
 						outputStream.write(new String("1234").getBytes());
 
 						//Send parameter in binary (not ASCII) MSB first
-						outputStream.write(writeData[paramNum] / 256);
-						outputStream.write(writeData[paramNum] % 256);
+						outputStream.write(writeData.get(paramNum) / 256);
+						outputStream.write(writeData.get(paramNum) % 256);
 
 
 						//long startTime = System.currentTimeMillis();
@@ -727,7 +765,7 @@ public class EducatorMode extends JFrame {
 						}
 
 						//If module echoed correctly, send 'A' for Acknowledge
-						if (temp == writeData[paramNum]) {
+						if (temp == writeData.get(paramNum)) {
 							outputStream.write(new String("CA").getBytes());
 							paramReceived = true;
 							attemptCounter = 0;
@@ -953,6 +991,52 @@ public class EducatorMode extends JFrame {
 	}
 	
 	/**
+	 * Handles the button press of the write configuration button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
+	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume. See the method calls within the runnable for more info
+	 * on what this handler actually does.
+	 */
+	private void writeButtonHandler() {
+		SerialComm serialHandler = new SerialComm();
+			Runnable sendParamOperation = new Runnable() {
+				public void run() {
+					//Disable write config button while the sendParameters() method is running
+					try {
+						if(!serialHandler.sendTestParams(writeData)) {
+							generalStatusLabel.setText("Module Not Responding");
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(255, 0, 0));
+						}
+						else {
+							generalStatusLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(51, 204, 51));
+						}
+					}
+					catch (IOException e) {
+						generalStatusLabel.setText("Error Communicating With Serial Dongle");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					catch (PortInUseException e) {
+						generalStatusLabel.setText("Serial Port Already In Use");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					catch (UnsupportedCommOperationException e) {
+						generalStatusLabel.setText("Check Dongle Compatability");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+				}
+			};
+
+			//Assign new operation to a thread so that it can be run in the background
+			final Thread paramThread = new Thread(sendParamOperation);
+			//Start the new thread
+			paramThread.start();
+		}
+	
+	/**
 	 * This method handles which methods will be called when the user selects a port from the comm port combobox
 	 */
 	private void portSelectedHandler() {
@@ -971,7 +1055,6 @@ public class EducatorMode extends JFrame {
 
 	}
 	
-<<<<<<< HEAD
 	public void readButtonHandler() {
 		//Define operation that can be run in separate thread
 		Runnable readOperation = new Runnable() {
@@ -993,20 +1076,9 @@ public class EducatorMode extends JFrame {
 		readThread.start();
 
 	}
-	
-	/**
-	 * Necessary for singleton design pattern, especially the "synchronized" keyword for more info on the singleton method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples
-	 * @return the one and only allowed dashboard instance, singleton pattern specifies only one instance can exist so there are not several instances of the dashboard with different variable values
-	 */
-	public static synchronized EducatorMode getFrameInstance() {
-		if (educatorInstance == null) {
-			educatorInstance = new EducatorMode();
-		}
-		return educatorInstance;
-=======
+
 	public JProgressBar getProgressBar() {
 		return this.progressBar;
->>>>>>> 924d95083e6e7e16afdcb343e0250de5645c3c5f
 	}
 	
 	/**
