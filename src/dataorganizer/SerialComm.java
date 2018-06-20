@@ -327,10 +327,40 @@ public class SerialComm {
 		return true;
 	}
 
-	public boolean startTest() throws IOException, PortInUseException, UnsupportedCommOperationException {
-		if(!selectMode('W')) {
-			return true;
+	
+	/**
+	 * Handles the stopping of a test. To stop a test we pull the line low and check on the firmware side. We then expect a handshake.
+	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
+	 */
+	public boolean stopTest() throws IOException, PortInUseException, UnsupportedCommOperationException{
+		byte[] lineLow = {0,0,0,0};
+		
+		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
+		if(!configureForHandshake()) {
+			return false;
 		}
+				
+		outputStream.write(lineLow);
+		waitForPostamble(4,1);
+		return true;
+	}
+	
+	
+	/**
+	 * Handles the starting of a test. Returns true for success false for failure. 
+	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
+	 */
+	public boolean startTest() throws IOException, PortInUseException, UnsupportedCommOperationException {
+		
+		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
+		if(!configureForHandshake()) {
+			return false;
+		}
+
+		if(!selectMode('W')) {
+			return false;
+		}
+		waitForPostamble(4 , 1);
 		return true;
 	}
 	

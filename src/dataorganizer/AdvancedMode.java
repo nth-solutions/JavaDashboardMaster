@@ -345,6 +345,35 @@ public class AdvancedMode extends JFrame {
 		commPortCombobox.setEnabled(true);
 	}
 
+	public void startTestBtnHandler() {
+		try{
+			if(startTestBtn.getText() == "Start test") {
+				startTestBtn.setText("Stop test");
+				serialHandler.startTest();
+			}else {
+				startTestBtn.setText("Start test");
+				serialHandler.stopTest();
+			}
+			
+			
+		}
+		catch (IOException e) {
+			generalStatusLabel.setText("Error Communicating With Serial Dongle");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255, 0, 0));
+		}
+		catch (PortInUseException e) {
+			generalStatusLabel.setText("Serial Port Already In Use");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255, 0, 0));
+		}
+		catch (UnsupportedCommOperationException e) {
+			generalStatusLabel.setText("Check Dongle Compatability");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255, 0, 0));
+		}
+	}
+	
 	/**
 	 * Executed when pair new remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
 	 */
@@ -1732,7 +1761,7 @@ public class AdvancedMode extends JFrame {
 
 
 		erasePanel = new JPanel();
-		mainTabbedPanel.addTab("Erase", null, erasePanel, null);
+		mainTabbedPanel.addTab("Test/Erase", null, erasePanel, null);
 		erasePanel.setLayout(new GridLayout(3, 1, 0, 0));
 
 		eraseButtonPanel = new JPanel();
@@ -1747,28 +1776,24 @@ public class AdvancedMode extends JFrame {
 				sectorEraseHandler();
 			}
 		});
-
-		bulkEraseButton = new JButton("Bulk Erase");
-		bulkEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		eraseButtonPanel.add(bulkEraseButton);
 		
 		startTestBtn = new JButton("Start Test");
 		startTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				try{
-					serialHandler.startTest();
-				}catch(Exception e) {
-					e.printStackTrace();
-				}
+				startTestBtnHandler();
 			}
 		});
+		
+				bulkEraseButton = new JButton("Bulk Erase");
+				erasePanel.add(bulkEraseButton);
+				bulkEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+				bulkEraseButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						bulkEraseHandler();
+					}
+				});
 		startTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		erasePanel.add(startTestBtn);
-		bulkEraseButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				bulkEraseHandler();
-			}
-		});
 
 		JPanel calibrationPanel = new JPanel();
 		mainTabbedPanel.addTab("Calibration", null, calibrationPanel, null);
