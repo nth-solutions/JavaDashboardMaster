@@ -212,6 +212,7 @@ public class AdvancedMode extends JFrame {
 	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
+	private JButton startTestBtn;
 
 
 
@@ -1750,6 +1751,19 @@ public class AdvancedMode extends JFrame {
 		bulkEraseButton = new JButton("Bulk Erase");
 		bulkEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		eraseButtonPanel.add(bulkEraseButton);
+		
+		startTestBtn = new JButton("Start Test");
+		startTestBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try{
+					serialHandler.startTest();
+				}catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		startTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		erasePanel.add(startTestBtn);
 		bulkEraseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				bulkEraseHandler();

@@ -327,7 +327,14 @@ public class SerialComm {
 		return true;
 	}
 
-
+	public boolean startTest() throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(!selectMode('W')) {
+			return true;
+		}
+		return true;
+	}
+	
+	
 	/**
 	 * Handles the handshakes that tell the module to enter a mode specified by the passed in modeDelimiter character. ex) 'E' for export data (must be identified in the firmware as well).
 	 * This method attempts several times before giving up and notifying the user that there is an error in the communication
