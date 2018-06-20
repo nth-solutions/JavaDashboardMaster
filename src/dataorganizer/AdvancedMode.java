@@ -349,6 +349,8 @@ public class AdvancedMode extends JFrame {
 		Runnable startTestOperation = new Runnable() {
 			public void run() {
 				try{
+					generalStatusLabel.setText("Taking a test...");
+					
 					if(startTestBtn.getText().toString() == "Start Test") {
 						startTestBtn.setText("Stop Test");
 						serialHandler.startTest();
@@ -357,7 +359,8 @@ public class AdvancedMode extends JFrame {
 						serialHandler.stopTest();
 					}
 					
-					
+					generalStatusLabel.setText("Test Taken Successfully! Read the test back in \"Read Mode\" ");
+					progressBar.setValue(100);
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
