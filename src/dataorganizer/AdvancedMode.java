@@ -352,11 +352,21 @@ public class AdvancedMode extends JFrame {
 					generalStatusLabel.setText("Taking a test...");
 					
 					if(startTestBtn.getText().toString() == "Start Test") {
+						startTestBtn.setEnabled(false);
 						startTestBtn.setText("Stop Test");
-						serialHandler.startTest();
+						
+						if(serialHandler.startTest()) {
+							startTestBtn.setText("Start Test");
+						}else {
+							generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
+						}
 					}else {
 						startTestBtn.setText("Start Test");
-						serialHandler.stopTest();
+						if(serialHandler.stopTest()) {
+							startTestBtn.setText("Start Test");
+						}else {
+							generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
+						}
 					}
 					
 					generalStatusLabel.setText("Test Taken Successfully! Read the test back in \"Read Mode\" ");
@@ -380,8 +390,25 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
+		Runnable btnCntrl = new Runnable() {
+			public void run() {		
+				long startTime = System.currentTimeMillis();
+				//While the loop has been executing for less than 500ms
+				while (((System.currentTimeMillis() - startTime) < 5500)) {
+					startTestBtn.setEnabled(false);
+				}
+				
+				startTestBtn.setEnabled(true);
+				
+			}
+		};
+		
+		
 		Thread startTestOperationThread = new Thread(startTestOperation);
 		startTestOperationThread.start();
+		
+		Thread btnCntrlThread = new Thread(btnCntrl);
+		btnCntrlThread.start();  
 	}
 	
 	/**

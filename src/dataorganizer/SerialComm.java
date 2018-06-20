@@ -327,6 +327,56 @@ public class SerialComm {
 		return true;
 	}
 
+	/**
+	 * Waits for a sequence of consecutive, decreasing numbers then exits the loop
+	 * @param start the number to start the counting sequence at (must be greater than the 'stop' parameter)
+	 * @param stop the number at which the postamble is consider fully received, the ending number on the counter
+	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
+	 */
+	public boolean waitForPostamble(int start, int stop, int timeout) throws IOException {
+		//Get start time so a timeout can be used in subsequent while loop
+		long startTime = System.currentTimeMillis();
+		//Create and set flag so in the event of a timeout, an accurate error message can be displayed
+		boolean postambleReceived = false;
+		//While the loop has been executing for less than 60s
+		//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
+		while (((System.currentTimeMillis() - startTime) < timeout)) {
+			//Executes if there is data in the input stream's buffer
+			if (inputStream.available() > 0) {
+				int temp;
+				//Iterates until the specified postamble is received
+				//TODO: Add timeout to this loop
+				for(int counter = start; counter >= stop;) {
+					//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+					temp = inputStream.read();
+
+					//Executes of the byte received is equal to the current value of counter
+					if (temp == counter) {    
+						//Decrement counter by 1
+						counter--;
+					} 
+
+					//Executes if the counter != temp
+					else {
+						//Reset the counter
+						counter = start;
+					}
+				}
+				//Set the postamble flag to true so the the program knows that a timeout didn't occur to break the loop
+				postambleReceived = true;
+				//Break the while loop
+				break;
+			}
+		}
+
+		//Executes if a timeout occurred
+		if (!postambleReceived) {
+			return false;
+		}
+
+		return true;
+	}
+	
 	
 	/**
 	 * Handles the stopping of a test. To stop a test we pull the line low and check on the firmware side. We then expect a handshake.
@@ -336,14 +386,8 @@ public class SerialComm {
 		
 		byte[] lineLow = {0,0,0,0};
 		
-		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
-		if(!configureForHandshake()) {
-			return false;
-		}
-				
 		outputStream.write(lineLow);
-		waitForPostamble(4,1);
-		return true;
+		return waitForPostamble(4,1,500);
 	}
 	
 	
@@ -361,8 +405,7 @@ public class SerialComm {
 		if(!selectMode('W')) {
 			return false;
 		}
-		waitForPostamble(4 , 1);
-		return true;
+		return waitForPostamble(4 , 1);
 	}
 	
 	
