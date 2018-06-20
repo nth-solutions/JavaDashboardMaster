@@ -347,11 +347,11 @@ public class AdvancedMode extends JFrame {
 
 	public void startTestBtnHandler() {
 		try{
-			if(startTestBtn.getText() == "Start test") {
+			if(startTestBtn.getText().toString() == "Start Test") {
 				startTestBtn.setText("Stop test");
 				serialHandler.startTest();
 			}else {
-				startTestBtn.setText("Start test");
+				startTestBtn.setText("Start Test");
 				serialHandler.stopTest();
 			}
 			
@@ -1401,7 +1401,7 @@ public class AdvancedMode extends JFrame {
 	public void createComponents() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 550, 665);
+		setBounds(100, 100, 638, 734);
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPanel);
@@ -1409,7 +1409,7 @@ public class AdvancedMode extends JFrame {
 
 
 		serialPortPanel = new JPanel();
-		serialPortPanel.setPreferredSize(new Dimension(500, 150));
+		serialPortPanel.setPreferredSize(new Dimension(630, 150));
 		contentPanel.add(serialPortPanel);
 		serialPortPanel.setLayout(new GridLayout(0,1, 0, 0));
 
@@ -1493,7 +1493,7 @@ public class AdvancedMode extends JFrame {
 		mainPanelContainer.setLayout(new GridLayout(0, 1, 0, 0));
 
 		mainTabbedPanel = new JTabbedPane(JTabbedPane.TOP);
-		mainTabbedPanel.setPreferredSize(new Dimension(500, 400));
+		mainTabbedPanel.setPreferredSize(new Dimension(630, 400));
 		mainPanelContainer.add(mainTabbedPanel);
 
 		mainTabbedPanel.addChangeListener(new ChangeListener() {
@@ -1899,7 +1899,7 @@ public class AdvancedMode extends JFrame {
 
 		progressBar = new JProgressBar();
 		progressBar.setStringPainted(true);
-		progressBar.setPreferredSize(new Dimension(500, 20));
+		progressBar.setPreferredSize(new Dimension(630, 20));
 		progressPanel.add(progressBar);
 
 		sendQuitCMDButton = new JButton("Exit UART Mode");
@@ -1928,16 +1928,6 @@ public class AdvancedMode extends JFrame {
 		});
 		contentPanel.add(sendQuitCMDButton);
 
-		settingsWindowBtn = new JButton("...");
-		contentPanel.add(settingsWindowBtn);
-		settingsWindowBtn.setHorizontalAlignment(SwingConstants.LEFT);
-
-		settingsWindowBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) { 
-				new SettingsWindow().setVisible(true);
-			}
-		});
-
 		separator = new JSeparator();
 		contentPanel.add(separator);
 		separator.setOrientation(SwingConstants.VERTICAL);
@@ -1948,6 +1938,16 @@ public class AdvancedMode extends JFrame {
 
 		JLabel copyrightLabel = new JLabel("Copyright nth Solutions LLC. 2018");
 		contentPanel.add(copyrightLabel);
+		
+				settingsWindowBtn = new JButton("...");
+				contentPanel.add(settingsWindowBtn);
+				settingsWindowBtn.setHorizontalAlignment(SwingConstants.LEFT);
+				
+						settingsWindowBtn.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) { 
+								new SettingsWindow().setVisible(true);
+							}
+						});
 
 
 		frameInitialized = true;
