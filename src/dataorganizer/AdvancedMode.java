@@ -346,32 +346,38 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public void startTestBtnHandler() {
-		try{
-			if(startTestBtn.getText().toString() == "Start Test") {
-				startTestBtn.setText("Stop test");
-				serialHandler.startTest();
-			}else {
-				startTestBtn.setText("Start Test");
-				serialHandler.stopTest();
+		Runnable startTestOperation = new Runnable() {
+			public void run() {
+				try{
+					if(startTestBtn.getText().toString() == "Start Test") {
+						startTestBtn.setText("Stop test");
+						serialHandler.startTest();
+					}else {
+						startTestBtn.setText("Start Test");
+						serialHandler.stopTest();
+					}
+					
+					
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
 			}
-			
-			
-		}
-		catch (IOException e) {
-			generalStatusLabel.setText("Error Communicating With Serial Dongle");
-			progressBar.setValue(100);
-			progressBar.setForeground(new Color(255, 0, 0));
-		}
-		catch (PortInUseException e) {
-			generalStatusLabel.setText("Serial Port Already In Use");
-			progressBar.setValue(100);
-			progressBar.setForeground(new Color(255, 0, 0));
-		}
-		catch (UnsupportedCommOperationException e) {
-			generalStatusLabel.setText("Check Dongle Compatability");
-			progressBar.setValue(100);
-			progressBar.setForeground(new Color(255, 0, 0));
-		}
+		};
+		Thread thread = new Thread(startTestOperation);
+		thread.run();
 	}
 	
 	/**
@@ -1510,7 +1516,7 @@ public class AdvancedMode extends JFrame {
 		readPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
 		fileNamePanel = new JPanel();
-		fileNamePanel.setPreferredSize(new Dimension(500, 150));
+		fileNamePanel.setPreferredSize(new Dimension(630, 150));
 		readPanel.add(fileNamePanel);
 		fileNamePanel.setLayout(new GridLayout(0, 1, 0, 0));
 
@@ -1563,7 +1569,7 @@ public class AdvancedMode extends JFrame {
 		});
 
 		paramPanel = new JPanel();
-		paramPanel.setPreferredSize(new Dimension(500, 200));
+		paramPanel.setPreferredSize(new Dimension(630, 200));
 		readPanel.add(paramPanel);
 		paramPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
@@ -1784,14 +1790,14 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 		
-				bulkEraseButton = new JButton("Bulk Erase");
-				erasePanel.add(bulkEraseButton);
-				bulkEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-				bulkEraseButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						bulkEraseHandler();
-					}
-				});
+		bulkEraseButton = new JButton("Bulk Erase");
+		erasePanel.add(bulkEraseButton);
+		bulkEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		bulkEraseButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				bulkEraseHandler();
+			}
+		});
 		startTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		erasePanel.add(startTestBtn);
 

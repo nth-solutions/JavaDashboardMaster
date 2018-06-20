@@ -333,6 +333,7 @@ public class SerialComm {
 	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
 	 */
 	public boolean stopTest() throws IOException, PortInUseException, UnsupportedCommOperationException{
+		
 		byte[] lineLow = {0,0,0,0};
 		
 		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
