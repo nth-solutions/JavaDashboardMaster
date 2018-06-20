@@ -920,7 +920,7 @@ public class AdvancedMode extends JFrame {
 					//Read test parameters from module and store it in testParameters
 					testParameters = serialHandler.readTestParams();
 
-					//Executes if the reading of the test parameters was succesful
+					//Executes if the reading of the test parameters was successful
 					if (testParameters != null) {
 						
 						expectedTestNum = testParameters.get(0);
@@ -993,13 +993,12 @@ public class AdvancedMode extends JFrame {
 											break;
 										}
 									}
-
-
+									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile; 
 									//Define operation that can be run in separate thread
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											//Organize data into .CSV
-											csvBuilder.sortData(finalData, nameOfFile, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr);  
+											csvBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr);  
 										}
 									};
 

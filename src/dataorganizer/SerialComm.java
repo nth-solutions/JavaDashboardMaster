@@ -786,6 +786,8 @@ public class SerialComm {
 							//Executes if the temp == the counter (meaning this byte could possibly be the stop condition)
 							if (temp == counter) {  
 								counter--;
+								//if (counter == 0)
+									//System.out.println("Found end condition");
 							}
 							else {
 								//Reset stop condition counter
@@ -831,6 +833,9 @@ public class SerialComm {
 		if (dataStreamsInitialized) {
 
 			HashMap<Integer, ArrayList<Integer>> testData = new HashMap<Integer, ArrayList<Integer>>();
+			byte[] pullLow = {0,0,0,0};
+			
+			
 			double progress = 0;
 			double dataProgressPartition = 0;
 			
@@ -843,11 +848,11 @@ public class SerialComm {
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 
 				//Wait for start condition (preamble)
-				waitForPreamble(1,8);
+				if(!waitForPreamble(1,8))
+				   return null;
 				
 				//Create start time variable for timeouts
 				//long startTime = System.currentTimeMillis();
-				
 				
 				byte [] tempTestData;
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
@@ -857,7 +862,8 @@ public class SerialComm {
 					ArrayList<Integer> rawData = new ArrayList<Integer>();
 					
 					while(true) {
-						waitForPreamble(1,4);
+						if(!waitForPreamble(1,4))
+							return null;
 						//System.out.println("check");
 						if (inputStream.available() > 0) {
 							int temp = inputStream.read();
@@ -881,11 +887,7 @@ public class SerialComm {
 									rawData.add((int)data & 255);
 									//System.out.println(data & 255);
 								}
-								outputStream.write(0);
-								outputStream.write(0);
-								outputStream.write(0);
-								//outputStream.write("@".getBytes());
-							 	//outputStream.write("@".getBytes());
+								outputStream.write(pullLow);
 							}
 							
 							else if (temp == (int)'P') {
@@ -912,13 +914,13 @@ public class SerialComm {
 										}
 									}
 								}
-								
+								//System.out.println("Found end condition for test #" + testNum);
 								break;
 							}
 							
 						}
 					}
-					
+					//TODO:: Does this remove the post-amble? "rawData.size() - 4"; if so should this be "rawData.size() - 8"?
 					for (int i = rawData.size() - 4; i < rawData.size(); i++) {
 						rawData.remove(i);
 					}
@@ -926,6 +928,8 @@ public class SerialComm {
 					
 					testData.put(testNum, rawData);		
 					
+					outputStream.write(pullLow);
+
 					break;
 					
 				}  
