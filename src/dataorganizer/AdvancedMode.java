@@ -360,6 +360,7 @@ public class AdvancedMode extends JFrame {
 					}
 					
 					generalStatusLabel.setText("Test Taken Successfully! Read the test back in \"Read Mode\" ");
+					progressBar.setForeground(new Color(51, 204, 51));
 					progressBar.setValue(100);
 				}
 				catch (IOException e) {
