@@ -350,7 +350,7 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				try{
 					if(startTestBtn.getText().toString() == "Start Test") {
-						startTestBtn.setText("Stop test");
+						startTestBtn.setText("Stop Test");
 						serialHandler.startTest();
 					}else {
 						startTestBtn.setText("Start Test");
@@ -376,8 +376,8 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
-		Thread thread = new Thread(startTestOperation);
-		thread.run();
+		Thread startTestOperationThread = new Thread(startTestOperation);
+		startTestOperationThread.start();
 	}
 	
 	/**
