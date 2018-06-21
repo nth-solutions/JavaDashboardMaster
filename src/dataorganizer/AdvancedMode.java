@@ -350,28 +350,36 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				try{
 					generalStatusLabel.setText("Taking a test...");
-					
-					if(startTestBtn.getText().toString() == "Start Test") {
-						startTestBtn.setEnabled(false);
-						startTestBtn.setText("Stop Test");
-						
-						if(serialHandler.startTest()) {
-							startTestBtn.setText("Start Test");
+					boolean NullPtrExcept = false;
+					try	{
+						if(startTestBtn.getText().toString() == "Start Test") {
+							startTestBtn.setEnabled(false);
+							startTestBtn.setText("Stop Test");
+							
+							if(serialHandler.startTest()) {
+								startTestBtn.setText("Start Test");
+							}else {
+								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
+							}
 						}else {
-							generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
+							startTestBtn.setText("Start Test");
+							if(serialHandler.stopTest()) {
+								startTestBtn.setText("Start Test");
+							}else {
+								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
+							}
 						}
-					}else {
+					}catch(NullPointerException e){
 						startTestBtn.setText("Start Test");
-						if(serialHandler.stopTest()) {
-							startTestBtn.setText("Start Test");
-						}else {
-							generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
-						}
+						generalStatusLabel.setText("Not connected to serial port.");
+						NullPtrExcept = true;
 					}
-					
-					generalStatusLabel.setText("Test Taken Successfully! Read the test back in \"Read Mode\" ");
-					progressBar.setForeground(new Color(51, 204, 51));
-					progressBar.setValue(100);
+					if(!NullPtrExcept) {
+						generalStatusLabel.setText("Test Taken Successfully! Read the test back in \"Read Mode\" ");
+						progressBar.setForeground(new Color(51, 204, 51));
+						progressBar.setValue(100);
+						NullPtrExcept = !NullPtrExcept;
+					}
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
