@@ -36,7 +36,7 @@ public class SerialComm {
 	//Input and Output Streams of the serial port, input stream must be buffered to prevent data loss due to buffer overflows, DO NOT USE a BufferedReader, it will encode bytes via UTF-8 
 	private BufferedInputStream inputStream;       
 	private OutputStream outputStream;              
-	
+
 	//Serial port identifiers for opening and the serial port
 	private CommPortIdentifier portId;       		
 	private SerialPort serialPort;
@@ -72,7 +72,7 @@ public class SerialComm {
 		if (portNames.size() > 0) {
 			return portNames;
 		}
-		
+
 		return null;
 
 	}
@@ -145,7 +145,6 @@ public class SerialComm {
 	 * Clears the input stream buffer
 	 */
 	public boolean clearInputStream() throws IOException{
-
 		//Executes if the data streams are currently initialized (prevents null pointer exception)
 		if (dataStreamsInitialized) {
 			//Executes while there is still data in the input stream buffer
@@ -172,10 +171,11 @@ public class SerialComm {
 		}
 
 		//Reopen serial port
-		if(serialPortName!=null) {
+		if(serialPortName != null) {
 			openSerialPort(serialPortName);
-		}else {
-			openSerialPort(portId.getName());
+		}
+		else {
+			return false;
 		}
 
 
@@ -376,27 +376,116 @@ public class SerialComm {
 
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Handles the stopping of a test. To stop a test we pull the line low and check on the firmware side. We then expect a handshake.
 	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
 	 */
 	public boolean stopTest() throws IOException, PortInUseException, UnsupportedCommOperationException{
-		
+
 		byte[] lineLow = {0,0,0,0};
-		
+
 		outputStream.write(lineLow);
-		return waitForPostamble(4,1,500);
+
+		waitForPostamble(4,1,500);
+
+		return true;
+	}
+
+	public boolean configForCalibration() throws IOException, PortInUseException, UnsupportedCommOperationException{
+		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
+		if(!configureForHandshake()) {
+			return false;
+		}
+
+		if(!selectMode('C')) {
+			return false;
+		}
+
+		return true;
 	}
 	
-	
+	public boolean applyCalibrationOffset(int offset) throws IOException, PortInUseException, UnsupportedCommOperationException{
+		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
+		if(!configureForHandshake()) {
+			return false;
+		}
+
+		if(!selectMode('O')) {
+			return false;
+		}
+		
+		//Reset attempt counter
+		int attemptCounter = 0;
+		//Loops until a parameter is successfully received by module 
+		while (true) {
+
+			//Send Preamble
+			outputStream.write(new String("1234").getBytes());
+
+			//Send parameter in binary (not ASCII) First byte will specify if it is positive ('+' = 43) or negative ('-' = 45)
+			if (offset < 0) {
+				outputStream.write(45);
+				offset = offset * -1;
+			}
+			else {
+				outputStream.write(43);
+			}
+			
+			
+			outputStream.write(offset / 256);
+			outputStream.write(offset % 256);
+
+
+			int temp = -1;
+			long echoStart = System.currentTimeMillis();
+			while((System.currentTimeMillis() - echoStart) < 500) {
+
+				//Executes if the data was received back from the module
+				if (inputStream.available() >= 2) {
+					//Store the echoed number in a temporary variable
+					temp = (inputStream.read() * 256) + inputStream.read(); 
+					//Set a flag to break the loop
+					break;
+				}	
+			}
+
+			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
+			if (temp == offset) {
+				outputStream.write(new String("CA").getBytes());
+				//Reset attempt counter
+				attemptCounter = 0;
+				break;
+			}
+
+			//If module echoed incorrectly, send 'CN' for Not-Acknowledge, (C is preamble for acknowledge cycle)
+			else {
+				outputStream.write(new String("CN").getBytes());
+				//Increment attempt counter
+				attemptCounter++;
+			}
+
+			//Executes after 5 failed attempts
+			if (attemptCounter == 5) {
+				//Exit method, communication failed
+				return false;
+			}
+		}
+		//TODO: Send calibration offset w/ handshake for confirmation
+
+		waitForPostamble(4 , 1);
+
+		return true;
+	}
+
+
 	/**
 	 * Handles the starting of a test. Returns true for success false for failure. 
 	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
 	 */
 	public boolean startTest() throws IOException, PortInUseException, UnsupportedCommOperationException {
-		
+
 		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
 		if(!configureForHandshake()) {
 			return false;
@@ -405,10 +494,13 @@ public class SerialComm {
 		if(!selectMode('W')) {
 			return false;
 		}
-		return waitForPostamble(4 , 1);
+
+		waitForPostamble(4 , 1);
+
+		return true;
 	}
-	
-	
+
+
 	/**
 	 * Handles the handshakes that tell the module to enter a mode specified by the passed in modeDelimiter character. ex) 'E' for export data (must be identified in the firmware as well).
 	 * This method attempts several times before giving up and notifying the user that there is an error in the communication
@@ -579,28 +671,28 @@ public class SerialComm {
 		waitForPostamble(4,1);
 		return true;
 	}
-	
+
 	/*
 	 * Puts the module in a test mode that allows the user to press remote buttons to verify if they are being received by the transmitter. This mode can only be 
 	 * exited by setting the remoteTestActive boolean to false which is what the exitRemoteTest() method does.
- 	 * @return allows for easy exiting of the method
+	 * @return allows for easy exiting of the method
 	 * @throws IOException Means that there is an error communicating with dongle, thrown to caller for cleaner handling
 	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
 	public boolean testRemotes(JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		clearInputStream();
-		
+
 		//Set module to enter test remote mode
 		if(!selectMode('=')) {
 			return false;
 		}
 		//Set flag so class knows that it is in test mode
 		remoteTestActive = true;
-		
+
 		//Loops until the remoteTestActive boolean is set to false externally
 		while (remoteTestActive) {
-			
+
 			//If there is data, see if it corresponds to a button being pressed, update the status label accordingly
 			if (inputStream.available() > 0) {
 				int temp = inputStream.read();
@@ -614,9 +706,9 @@ public class SerialComm {
 					statusLabel.setText("No Button is being Pressed");
 				}
 			}
-			
+
 		}
-		
+
 		//If the test mode was exited externally by setting the remoteTestActive boolean to false, send the exit command to the module and listen for an echo
 		if(!selectMode('#')) {
 			return false;
@@ -625,7 +717,7 @@ public class SerialComm {
 		//Method successful, return true
 		return true;
 	}
-	
+
 	/**
 	 * Sets boolean to exit remote test mode
 	 */
@@ -642,13 +734,13 @@ public class SerialComm {
 
 		//Configure Baud Rate for 38400 temporarily for handshakes
 		configureForHandshake();
-		
-		
+
+
 
 		//Executes if the data streams have already been initialized
 		if (dataStreamsInitialized) {
-			
-			
+
+
 
 			//Put module in 'send ID info' mode, exit method if that routine fails
 			if(!selectMode('I')) {
@@ -868,7 +960,7 @@ public class SerialComm {
 							if (temp == counter) {  
 								counter--;
 								//if (counter == 0)
-									//System.out.println("Found end condition");
+								//System.out.println("Found end condition");
 							}
 							else {
 								//Reset stop condition counter
@@ -884,7 +976,7 @@ public class SerialComm {
 
 					//Append the expected test number to the beginning of the arraylist
 					testParameters.add(expectedTestNum);
-					
+
 					//Iterate through all of the raw data and convert them to words instead of bytest before storing them in the array
 					for (int paramIndex = 0; paramIndex < rawParamData.size() - 4; paramIndex += 2) {
 						testParameters.add(rawParamData.get(paramIndex) * 256 + rawParamData.get(paramIndex + 1));
@@ -909,85 +1001,85 @@ public class SerialComm {
 			return null;
 		}
 		configureForImport();
-		
+
 		//Executes if the data streams are initialized and the program was not aborted externally
 		if (dataStreamsInitialized) {
 
 			HashMap<Integer, ArrayList<Integer>> testData = new HashMap<Integer, ArrayList<Integer>>();
 			byte[] pullLow = {0,0,0,0};
-			
-			
+
+
 			double progress = 0;
 			double dataProgressPartition = 0;
-			
+
 			//Progress can only be estimated if it is a timed test so if the module just took a timed test, calculate how much to update the progress bar each time it receives a sector of data
 			if (timedTestFlag) {
 				dataProgressPartition = (2520 / (double)expectedBytes) * (1 / (double)expectedTestNum);
 			}
-			
+
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 
 				//Wait for start condition (preamble)
 				if(!waitForPreamble(1,8))
-				   return null;
-				
+					return null;
+
 				//Create start time variable for timeouts
 				//long startTime = System.currentTimeMillis();
-				
+
 				byte [] tempTestData;
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
 				while (true) {    
-					
+
 					//Assign an empty arraylist to the test number that is currently being stored
 					ArrayList<Integer> rawData = new ArrayList<Integer>();
-					
+
 					while(true) {
 						if(!waitForPreamble(1,4))
 							return null;
 						//System.out.println("check");
 						if (inputStream.available() > 0) {
 							int temp = inputStream.read();
-							
+
 							if (temp == (int)'M') {
 								//System.out.println("M");
 								while (inputStream.available() < 2520) {
 								}
 
 								tempTestData = new byte[2520];
-								
+
 								inputStream.read(tempTestData, 0, 2520);
-								
+
 								//Update progress bar based on how much data was received (dataProgressPartition calculated at top of method)
 								progress += dataProgressPartition;
 								progressBar.setValue((int)(progress * 100));
-								
+
 								for (byte data : tempTestData) {
-									
+
 									//Add the bulk read data to the rawData arraylist. IMPORTANT: & 255 converts it from a signed byte to an unsigned byte 
 									rawData.add((int)data & 255);
 									//System.out.println(data & 255);
 								}
 								outputStream.write(pullLow);
 							}
-							
+
 							else if (temp == (int)'P') {
 								//System.out.println("P");
 								for(int counter = 8; counter >= 1;) {
 									//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
 									if (inputStream.available() > 0) {
 										temp = inputStream.read();
-										
+
 										rawData.add(temp);
-										
+
 										//System.out.println(temp);
-										
+
 										//Executes of the byte received is equal to the current value of counter
 										if (temp == counter) {    
 											//Decrement counter by 1
 											counter--;
 										} 
-	
+
 										//Executes if the counter != temp
 										else {
 											//Reset the counter
@@ -998,7 +1090,7 @@ public class SerialComm {
 								//System.out.println("Found end condition for test #" + testNum);
 								break;
 							}
-							
+
 						}
 					}
 					//TODO:: Does this remove the post-amble? "rawData.size() - 4"; if so should this be "rawData.size() - 8"?
@@ -1006,13 +1098,13 @@ public class SerialComm {
 						rawData.remove(i);
 					}
 					rawData.add(-1);
-					
+
 					testData.put(testNum, rawData);		
-					
+
 					outputStream.write(pullLow);
 
 					break;
-					
+
 				}  
 			}
 			//Method successful, return the map of test data

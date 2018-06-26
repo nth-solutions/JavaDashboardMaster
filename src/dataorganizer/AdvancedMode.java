@@ -128,6 +128,9 @@ public class AdvancedMode extends JFrame {
 	private JTextField gyroSensitivityTextFieldRead;
 	private JTextField accelFilterTextFieldRead;
 	private JTextField gyroFilterTextFieldRead;
+	
+	//Calibration Tab
+	private JTextField calOffsetTextField;
 
 	//Combo Boxes
 	private JComboBox commPortCombobox;
@@ -155,6 +158,10 @@ public class AdvancedMode extends JFrame {
 	private JButton testRemotesButton;
 	private JButton exitTestModeButton;
 	private JButton unpairAllRemotesButton;
+	private JButton startTestBtn;
+	private JButton configForCalButton;
+	private JButton importCalDataButton;
+	private JButton applyOffsetButton;
 
 	//Progress Bars
 	private JProgressBar progressBar;
@@ -212,14 +219,14 @@ public class AdvancedMode extends JFrame {
 	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
-	private JButton startTestBtn;
+
 
 
 
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
-	private AdvancedMode() {
+	AdvancedMode() {
 		setTitle("JavaDashboardMaster");
 		createComponents();
 		initDataFields();
@@ -358,18 +365,22 @@ public class AdvancedMode extends JFrame {
 							
 							if(serialHandler.startTest()) {
 								startTestBtn.setText("Start Test");
-							}else {
-								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
 							}
-						}else {
-							startTestBtn.setText("Start Test");
-							if(serialHandler.stopTest()) {
-								startTestBtn.setText("Start Test");
-							}else {
+							else {
 								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
 							}
 						}
-					}catch(NullPointerException e){
+						else {
+							startTestBtn.setText("Start Test");
+							if(serialHandler.stopTest()) {
+								startTestBtn.setText("Start Test");
+							}
+							else {
+								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
+							}
+						}
+					}
+					catch(NullPointerException e){
 						startTestBtn.setText("Start Test");
 						generalStatusLabel.setText("Not connected to serial port.");
 						NullPtrExcept = true;
@@ -768,16 +779,151 @@ public class AdvancedMode extends JFrame {
 		//Start separate thread
 		infoThread.start();
 	}
+	
+	
+	public void configForCalHandler() {
+		Runnable getConfigsOperation = new Runnable() {
+			public void run() {
+				configForCalButton.setEnabled(false);
+				importCalDataButton.setEnabled(false);
+				applyOffsetButton.setEnabled(false);
+				
+				try {
+					if(!serialHandler.configForCalibration()) {
+						generalStatusLabel.setText("Error Communicating With Module");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					else {
+						generalStatusLabel.setText("Module Configured for Calibration, Use Configuration Tab to Exit");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+					
+					configForCalButton.setEnabled(true);
+					importCalDataButton.setEnabled(true);
+					applyOffsetButton.setEnabled(true);
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+	}
+	
+	public void importCalDataHandler() {	
+		Runnable getConfigsOperation = new Runnable() {
+			public void run() {
+				configForCalButton.setEnabled(false);
+				importCalDataButton.setEnabled(false);
+				applyOffsetButton.setEnabled(false);
+				
+				try {
+					HashMap<Integer, ArrayList<Integer>> testData;
+
+					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+					testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
+
+					generalStatusLabel.setText("All Data Received from Module");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(51, 204, 51));
+
+					//Executes if the data was received properly (null = fail)
+					if(testData != null) {
+						//TODO: Pass test data at index 0 of testData map into black frame analysis that returns an offset
+						int offset = 0; //TODO: should be = to output of black frame analysis
+						calOffsetTextField.setText(Integer.toString(offset));
+					}
+					
+					configForCalButton.setEnabled(true);
+					importCalDataButton.setEnabled(true);
+					applyOffsetButton.setEnabled(true);
+					
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+	}
+	
+	public void applyOffsetHandler() {
+		Runnable getConfigsOperation = new Runnable() {
+			public void run() {
+				configForCalButton.setEnabled(false);
+				importCalDataButton.setEnabled(false);
+				applyOffsetButton.setEnabled(false);
+				
+				try {
+					if(!serialHandler.applyCalibrationOffset(Integer.parseInt(calOffsetTextField.getText()))) {
+						generalStatusLabel.setText("Error Communicating With Module");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					else {
+						generalStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+					
+					configForCalButton.setEnabled(true);
+					importCalDataButton.setEnabled(true);
+					applyOffsetButton.setEnabled(true);
+					
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+	}
 
 	/**
 	 * Obtains test parameters from module and updates each data field on the configuration tab with those newly red values
 	 * Executed when get current configs button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
 	 */
 	public void getConfigsHandler() {
-		//Disable get configs button while read is in progress
-		getCurrentConfigurationsButton.setEnabled(false);
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {
+				//Disable get configs button while read is in progress
+				getCurrentConfigurationsButton.setEnabled(false);
+				
 				try {
 
 					generalStatusLabel.setText("Reading Current Module Configurations...");
@@ -1446,9 +1592,9 @@ public class AdvancedMode extends JFrame {
 	public void createComponents() {
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 638, 734);
+		setBounds(100, 100, 638, 659);
 		contentPanel = new JPanel();
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPanel.setBorder(new EmptyBorder(0, 10, 10, 10));
 		setContentPane(contentPanel);
 		contentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
@@ -1591,13 +1737,13 @@ public class AdvancedMode extends JFrame {
 		fileLocationPanel.setLayout(new BoxLayout(fileLocationPanel, BoxLayout.X_AXIS));
 
 		fileNameTextField = new JTextField();
-		fileNameTextField.setMaximumSize(new Dimension(350, 50));
+		fileNameTextField.setMaximumSize(new Dimension(450, 50));
 		fileNameTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		fileLocationPanel.add(fileNameTextField);
 		fileNameTextField.setColumns(10);
 
 		browseButton = new JButton("Browse");
-		browseButton.setMaximumSize(new Dimension(150, 50));
+		browseButton.setMaximumSize(new Dimension(160, 50));
 		browseButton.setPreferredSize(new Dimension(81, 35));
 		fileLocationPanel.add(browseButton);
 
@@ -1842,6 +1988,47 @@ public class AdvancedMode extends JFrame {
 
 		JPanel calibrationPanel = new JPanel();
 		mainTabbedPanel.addTab("Calibration", null, calibrationPanel, null);
+		calibrationPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		
+		configForCalButton = new JButton("Configure Module for Calibration");
+		configForCalButton.setEnabled(false);
+		configForCalButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		configForCalButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				configForCalHandler();
+			}
+		});
+		calibrationPanel.add(configForCalButton);
+		
+		importCalDataButton = new JButton("Import Calibration Data and Calculate Offset");
+		importCalDataButton.setEnabled(false);
+		importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		importCalDataButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				importCalDataHandler();
+			}
+		});
+		calibrationPanel.add(importCalDataButton);
+		
+		calOffsetTextField = new JTextField();
+		calOffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		calOffsetTextField.setEditable(false);
+		calOffsetTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
+		calOffsetTextField.setText("0");
+		calOffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		calOffsetTextField.setColumns(10);
+		calOffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		calibrationPanel.add(calOffsetTextField);
+		
+		applyOffsetButton = new JButton("Apply Offset to Module");
+		applyOffsetButton.setEnabled(false);
+		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		applyOffsetButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				applyOffsetHandler();
+			}
+		});
+		calibrationPanel.add(applyOffsetButton);
 
 		templateTools = new JPanel();
 		mainTabbedPanel.addTab("Template Tools", null, templateTools, null);
@@ -1853,6 +2040,7 @@ public class AdvancedMode extends JFrame {
 
 
 		openTemplateBtn = new JButton("Open");
+		openTemplateBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		openTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String outputFile = null;

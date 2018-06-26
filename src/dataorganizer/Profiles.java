@@ -35,7 +35,7 @@ public class Profiles extends JFrame {
 								case "Educator":
 									frame = new EducatorMode();
 								case "Professional":
-									//frame = new Frame();
+									frame = new AdvancedMode();
 							}
 						}
 					}
@@ -47,6 +47,10 @@ public class Profiles extends JFrame {
 					}
 			}
 		});
+		
+		while (true) {
+			
+		}
 	}
 
 	/**
