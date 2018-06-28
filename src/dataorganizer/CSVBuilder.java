@@ -14,7 +14,7 @@ import com.sun.javafx.collections.MappingChange.Map;
 
 public class CSVBuilder {        //Class for Creating .CSV files
 	
-    public boolean sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory) {
+    public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory) {
     //Method to create .CSV
     	LoadSettings settings = new LoadSettings();
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
@@ -95,7 +95,10 @@ public class CSVBuilder {        //Class for Creating .CSV files
             sampleCounter++;
         } 
         
+        
+        
         lineNum --;
+        int numSamples = lineNum;
         int dataFlag = 0;
         int sum = 0;
       
@@ -160,7 +163,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
         } 
         catch (FileNotFoundException e) {
    
-            return false;
+            return 0;
         } 
   
         DataFile.write(builder.toString());     //writes the string buffer to the .CSV creating the file
@@ -174,7 +177,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
         }
         
         
-        return true;        
+        return numSamples;        
     }
     
 

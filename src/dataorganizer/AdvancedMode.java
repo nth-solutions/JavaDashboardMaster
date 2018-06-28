@@ -266,7 +266,10 @@ public class AdvancedMode extends JFrame {
 		//Default the gui that will be opened to null (gui selected in following try/catch block
 		AdvancedMode gui = new AdvancedMode();
 
-
+		
+		//System.out.println(System.getProperty("os.name"));
+		
+		
 		//Loop infinitely so window doesn't close unless user presses close button
 		while(true) {
 		}
@@ -851,8 +854,21 @@ public class AdvancedMode extends JFrame {
 
 					//Executes if the data was received properly (null = fail)
 					if(testData != null) {
+						
 						//TODO: Pass test data at index 0 of testData map into black frame analysis that returns an offset
-						int offset = 0; //TODO: should be = to output of black frame analysis
+						int [] finalData = new int[testData.get(0).size()];
+						
+						for(int byteIndex = 0; byteIndex < testData.get(0).size(); byteIndex++) {
+							if (testData.get(0).get(byteIndex) != -1){
+								finalData[byteIndex] = testData.get(0).get(byteIndex);
+							}
+							else {
+								finalData[byteIndex] = -1;
+								break;
+							}
+						}
+						
+						int offset = new BlackFrameAnalysis().runAnalysis(accelGyroSampleRate, )); //TODO: should be = to output of black frame analysis
 						calOffsetTextField.setText(Integer.toString(offset));
 					}
 					
