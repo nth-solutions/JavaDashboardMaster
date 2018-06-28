@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\Mason\eclipse-workspace\JavaDashboardMaster\bin\JavaDashbord_Rev-4.jar</jar>
-  <outfile>C:\Users\Mason\eclipse-workspace\JavaDashboardMaster\JavaDashboardMaster.exe</outfile>
+  <jar>C:\Users\Mason\eclipse-workspace\JavaDashboard_Rev-6A\bin\DataOrganizer_Rev-6A.jar</jar>
+  <outfile>C:\Users\Mason\eclipse-workspace\JavaDashboard_Rev-6A\JavaDashboard_Rev-6A.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -15,7 +15,7 @@
   <manifest></manifest>
   <icon>C:\Users\Mason\eclipse-workspace\JavaDashboard_Rev-4\res\nth.ico</icon>
   <jre>
-    <path>bin\jre-10.0.1</path>
+    <path>bin\jre1.8.0_161</path>
     <bundledJre64Bit>false</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
     <minVersion></minVersion>

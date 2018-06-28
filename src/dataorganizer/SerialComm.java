@@ -393,6 +393,10 @@ public class SerialComm {
 		return true;
 	}
 
+	/**
+	 * This method puts the module in calibration mode which will basically just tell it to run a calibration test next
+	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
+	 */
 	public boolean configForCalibration() throws IOException, PortInUseException, UnsupportedCommOperationException{
 		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
 		if(!configureForHandshake()) {
@@ -406,6 +410,12 @@ public class SerialComm {
 		return true;
 	}
 	
+	/**
+	 * This method sends the passed in offset to the module with built in handshakes. This is the only means by which the offset
+	 * variable can be overriden in the firmware.
+	 * @param offset positive or negative number that will be sent to the module to be applied to the TMR0 tick threshold
+	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
+	 */
 	public boolean applyCalibrationOffset(int offset) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
 		if(!configureForHandshake()) {
@@ -424,13 +434,13 @@ public class SerialComm {
 			//Send Preamble
 			outputStream.write(new String("1234").getBytes());
 
-			//Send parameter in binary (not ASCII) First byte will specify if it is positive ('+' = 43) or negative ('-' = 45)
+			//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
 			if (offset < 0) {
-				outputStream.write(45);
+				outputStream.write(0);
 				offset = offset * -1;
 			}
 			else {
-				outputStream.write(43);
+				outputStream.write(1);
 			}
 			
 			

@@ -172,6 +172,8 @@ public class AdvancedMode extends JFrame {
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 15;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
+	public static final int CURRENT_FIRMWARE_ID = 22;
+	public static final String CURRENT_FIRMWARE_STRING = "22";
 
 	private int expectedTestNum;
 	//Test Parameters (All must be of type "int")
@@ -742,9 +744,16 @@ public class AdvancedMode extends JFrame {
 						moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
 						hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
 						firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
-						generalStatusLabel.setText("Module Information Successfully Received");
-						progressBar.setValue(100);
-						progressBar.setForeground(new Color(51, 204, 51));
+						if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+							generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(255, 0, 0));	
+						}
+						else {
+							generalStatusLabel.setText("Module Information Successfully Received");
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(51, 204, 51));
+						}
 					}
 					else {
 						generalStatusLabel.setText("Module not Responding, Check Connections");
@@ -1969,6 +1978,7 @@ public class AdvancedMode extends JFrame {
 		});
 		
 		startTestBtn = new JButton("Start Test");
+		startTestBtn.setEnabled(false);
 		startTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				startTestBtnHandler();
