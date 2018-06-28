@@ -230,102 +230,57 @@ public class SerialComm {
 	 * @param stop the number at which the preamble is consider fully received, the ending number on the counter
 	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
 	 */
-	public boolean waitForPreamble(int start, int stop) throws IOException {
+	public boolean waitForPreamble(int start, int stop, int timeout) throws IOException {
 		//Get start time so a timeout can be used in subsequent while loop
 		long startTime = System.currentTimeMillis();
-		//Create and set flag so in the event of a timeout, an accurate error message can be displayed
-		boolean preambleReceived = false;
 		//While the loop has been executing for less than 500ms
 		//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
-		while (((System.currentTimeMillis() - startTime) < 500)) {
+		while (((System.currentTimeMillis() - startTime) < timeout)) {
 			//Executes if there is data in the input stream's buffer
 			if (inputStream.available() > 0) {
 				int temp;
 				//Iterates until the specified preamble is received
-				//TODO: Add timeout to this loop
-				for(int counter = start; counter <= stop;) {
 
-					//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
-					temp = inputStream.read();
+				long preambleStart = System.currentTimeMillis();
+				int counter = start;
+				while (counter <= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
 
-					//Executes of the byte received is equal to the current value of counter
-					if (temp == counter) {    
-						//Increment counter by 1
-						counter++;
-					} 
 
-					//Executes if the counter != temp
-					else {
-						//Reset the counter
-						counter = start;
+					if (inputStream.available() > 0) {
+
+						//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+						temp = inputStream.read();
+
+						//Executes of the byte received is equal to the current value of counter
+						if (temp == counter) {    
+							//Increment counter by 1
+							counter++;
+						} 
+
+						//Executes if the counter != temp
+						else {
+							//Reset the counter
+							counter = start;
+						}
+						preambleStart = System.currentTimeMillis();
 					}
+
 				}
 
-				//Set the preamble flag to true so the the program knows that a timeout didn't occur to break the loop
-				preambleReceived = true;
-				//Break the while loop
-				break;
+				if (counter - 1 == stop) {
+					//Return true to exit the method and notify the caller that the method was successful
+					return true;
+				}
+				System.out.println("TIMEOUT");
+				return false;
+
 			}
-		}
-		//Executes if the preamble was not received meaning there must have been a timeout
-		if (!preambleReceived) {
-			return false;
 		}
 
 		//Return true to exit the method and notify the caller that the method was successful
-		return true;
+		return false;
 	}
 
-
-	/**
-	 * Waits for a sequence of consecutive, decreasing numbers then exits the loop
-	 * @param start the number to start the counting sequence at (must be greater than the 'stop' parameter)
-	 * @param stop the number at which the postamble is consider fully received, the ending number on the counter
-	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
-	 */
-	public boolean waitForPostamble(int start, int stop) throws IOException {
-		//Get start time so a timeout can be used in subsequent while loop
-		long startTime = System.currentTimeMillis();
-		//Create and set flag so in the event of a timeout, an accurate error message can be displayed
-		boolean postambleReceived = false;
-		//While the loop has been executing for less than 60s
-		//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
-		while (((System.currentTimeMillis() - startTime) < 60000)) {
-			//Executes if there is data in the input stream's buffer
-			if (inputStream.available() > 0) {
-				int temp;
-				//Iterates until the specified postamble is received
-				//TODO: Add timeout to this loop
-				for(int counter = start; counter >= stop;) {
-					//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
-					temp = inputStream.read();
-
-					//Executes of the byte received is equal to the current value of counter
-					if (temp == counter) {    
-						//Decrement counter by 1
-						counter--;
-					} 
-
-					//Executes if the counter != temp
-					else {
-						//Reset the counter
-						counter = start;
-					}
-				}
-				//Set the postamble flag to true so the the program knows that a timeout didn't occur to break the loop
-				postambleReceived = true;
-				//Break the while loop
-				break;
-			}
-		}
-
-		//Executes if a timeout occurred
-		if (!postambleReceived) {
-			return false;
-		}
-
-		return true;
-	}
 
 	/**
 	 * Waits for a sequence of consecutive, decreasing numbers then exits the loop
@@ -336,45 +291,50 @@ public class SerialComm {
 	public boolean waitForPostamble(int start, int stop, int timeout) throws IOException {
 		//Get start time so a timeout can be used in subsequent while loop
 		long startTime = System.currentTimeMillis();
-		//Create and set flag so in the event of a timeout, an accurate error message can be displayed
-		boolean postambleReceived = false;
-		//While the loop has been executing for less than 60s
+
+		//While the loop has been executing for less than 500ms
 		//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
 		while (((System.currentTimeMillis() - startTime) < timeout)) {
 			//Executes if there is data in the input stream's buffer
 			if (inputStream.available() > 0) {
 				int temp;
-				//Iterates until the specified postamble is received
+				//Iterates until the specified preamble is received
 				//TODO: Add timeout to this loop
-				for(int counter = start; counter >= stop;) {
-					//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
-					temp = inputStream.read();
 
-					//Executes of the byte received is equal to the current value of counter
-					if (temp == counter) {    
-						//Decrement counter by 1
-						counter--;
-					} 
+				long postambleStart = System.currentTimeMillis();
+				int counter = start;
+				while (counter >= stop && (System.currentTimeMillis() - postambleStart) < timeout) {
 
-					//Executes if the counter != temp
-					else {
-						//Reset the counter
-						counter = start;
+					if (inputStream.available() > 0) {
+						//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+						temp = inputStream.read();
+
+						//Executes of the byte received is equal to the current value of counter
+						if (temp == counter) {    
+							//Increment counter by 1
+							counter--;
+						} 
+
+						//Executes if the counter != temp
+						else {
+							//Reset the counter
+							counter = start;
+						}
+						postambleStart = System.currentTimeMillis();
 					}
 				}
-				//Set the postamble flag to true so the the program knows that a timeout didn't occur to break the loop
-				postambleReceived = true;
-				//Break the while loop
-				break;
+
+				if (counter + 1 == stop) {
+					//Return true to exit the method and notify the caller that the method was successful
+					return true;
+				}
+				return false;
+
 			}
 		}
 
-		//Executes if a timeout occurred
-		if (!postambleReceived) {
-			return false;
-		}
-
-		return true;
+		//Return true to exit the method and notify the caller that the method was successful
+		return false;
 	}
 
 
@@ -409,7 +369,7 @@ public class SerialComm {
 
 		return true;
 	}
-	
+
 	/**
 	 * This method sends the passed in offset to the module with built in handshakes. This is the only means by which the offset
 	 * variable can be overriden in the firmware.
@@ -425,7 +385,7 @@ public class SerialComm {
 		if(!selectMode('O')) {
 			return false;
 		}
-		
+
 		//Reset attempt counter
 		int attemptCounter = 0;
 		//Loops until a parameter is successfully received by module 
@@ -442,8 +402,8 @@ public class SerialComm {
 			else {
 				outputStream.write(1);
 			}
-			
-			
+
+
 			outputStream.write(offset / 256);
 			outputStream.write(offset % 256);
 
@@ -484,7 +444,7 @@ public class SerialComm {
 		}
 		//TODO: Send calibration offset w/ handshake for confirmation
 
-		waitForPostamble(4 , 1);
+		waitForPostamble(4 , 1, 500);
 
 		return true;
 	}
@@ -505,7 +465,7 @@ public class SerialComm {
 			return false;
 		}
 
-		waitForPostamble(4 , 1);
+		waitForPostamble(4 , 1, 500);
 
 		return true;
 	}
@@ -601,7 +561,7 @@ public class SerialComm {
 		}
 
 		//Wait for '4321' (in binary, not ascii) as a handshake so the dashboard knows the erase has completed
-		waitForPostamble(4 , 1);
+		waitForPostamble(4 , 1, 70000);
 
 
 		//Return true to exit the method and notify the caller that the method was successful
@@ -622,7 +582,7 @@ public class SerialComm {
 		}
 
 		//Wait for '4321' (in binary, not ascii) as a handshake so the dashboard knows the erase has completed
-		waitForPostamble(4 , 1);
+		waitForPostamble(4 , 1, 70000);
 
 
 		//Return true to exit the method and notify the caller that the method was successful
@@ -656,11 +616,14 @@ public class SerialComm {
 		if(!selectMode('+')) {
 			return false;
 		}
-		waitForPostamble(4,1);
-		if (inputStream.available() > 0) {
-			int ackValue = inputStream.read();
-			if (!(ackValue == (int)'A')) {
-				return false;
+		waitForPostamble(4, 1, 15000);
+		int ackValue = -1;
+		while (ackValue == -1) {
+			if (inputStream.available() > 0) {
+				ackValue = inputStream.read();
+				if (!(ackValue == (int)'A')) {
+					return false;
+				}
 			}
 		}
 
@@ -678,7 +641,10 @@ public class SerialComm {
 		if(!selectMode('-')) {
 			return false;
 		}
-		waitForPostamble(4,1);
+
+		if(!waitForPostamble(4, 1, 15000)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -745,12 +711,8 @@ public class SerialComm {
 		//Configure Baud Rate for 38400 temporarily for handshakes
 		configureForHandshake();
 
-
-
 		//Executes if the data streams have already been initialized
 		if (dataStreamsInitialized) {
-
-
 
 			//Put module in 'send ID info' mode, exit method if that routine fails
 			if(!selectMode('I')) {
@@ -772,7 +734,7 @@ public class SerialComm {
 			while (idCounter < numIDParams && (System.currentTimeMillis() - startTime) < 1500) {
 
 				//Wait for a preamble, exits method if the preamble times out
-				if(!waitForPreamble(1,4)) {
+				if(!waitForPreamble(1, 4, 500)) {
 					return null;
 				}
 
@@ -918,86 +880,84 @@ public class SerialComm {
 	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
-	public ArrayList<Integer> readTestParams() throws IOException, PortInUseException, UnsupportedCommOperationException {
+	public ArrayList<Integer> readTestParams(int numTestParams) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		int expectedTestNum;
+		ArrayList<Integer> params = new ArrayList<Integer>();
 
-		//Put module into export test data mode, exit method if that routine fails
-		if(!selectMode('G')) {
-			return null;
-		}
-
+		//Configure the serial port for handshake   
 		configureForHandshake();
 
-		//Executes if the data streams are initialized
+		//Executes if the data streams have been initialized and the thread has not been told to abort
 		if (dataStreamsInitialized) {
 
-			boolean dataReceived = false;
+			//Put module into export test data mode, exit method if that routine fails
+			if(!selectMode('G')) {
+				return null;
+			}
 
-			//Initialize start time so timeout can be used
-			long paramListenerStartTime = System.currentTimeMillis();
+			int paramCounter = 0;
+			long startTime = System.currentTimeMillis();
+			//Iterates through each parameter in the array
+			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 1500) {
 
-			//Loops until internally exited with break or timeout occurs
-			while ((System.currentTimeMillis() - paramListenerStartTime) < 5000) {
+				//Wait for a preamble, exits method if the preamble times out
+				if(!waitForPreamble(1, 4, 500)) {
+					return null;
+				}
 
-				//Executes if data is received from module
-				if (inputStream.available() > 0) {                            
+				//Executes if data has been received from the module
+				if (inputStream.available() >= 2) {
+					//Store 2 received bytes in MSB order and form into a word
+					int temp = inputStream.read() * 256 + inputStream.read();
+					//Echo the value back
+					outputStream.write(temp / 256);
+					outputStream.write(temp % 256);
 
+					//Initialize start time so timeout can be used on subsequent while loop
+					long echoStart = System.currentTimeMillis();
 
-					//Check for test parameter preamble
-					waitForPreamble(1,4);
-
-					//Determine number of tests to expect/ get test parameters
-					expectedTestNum = -1;
-					while(expectedTestNum == -1) {
-						if(inputStream.available() > 0) {
-							expectedTestNum = inputStream.read();
-						}
-
-					}
-
-					//Arraylist to store raw data before formatting bytes to words
-					ArrayList<Integer> rawParamData = new ArrayList<Integer>();
-
-					//Looks for stop condition (4321)
-					for(int counter = 4; counter >= 1;) {
-						if (inputStream.available() > 0) {
-							//Store newly read byte in temp variable
-							int temp = inputStream.read();
-							//Add newly read byte to test data arraylist
-							rawParamData.add(temp);
-
-							//Executes if the temp == the counter (meaning this byte could possibly be the stop condition)
-							if (temp == counter) {  
-								counter--;
-								//if (counter == 0)
-								//System.out.println("Found end condition");
-							}
-							else {
-								//Reset stop condition counter
-								counter = 4;
+					//Executes while the timeout has not occurred
+					//while (((System.currentTimeMillis() - echoStart) < 200)) {
+					int echoAttemptCounter = 0;
+					while(echoAttemptCounter < 5) {
+						int ackPreamble = -1;
+						int ackValue = -1;
+						long ackStart = System.currentTimeMillis();
+						while (((System.currentTimeMillis() - echoStart) < 500)) {
+							if (inputStream.available() >= 2) {
+								ackPreamble = inputStream.read();
+								if(ackPreamble == (int)'C') {
+									ackValue = inputStream.read();
+									break;	
+								}
 							}
 						}
 
+						if (ackValue == (int)'A') {
+							//Store the confirmed value
+							params.add(temp);
+							//Increment the ID index so the next ID parameter is stored
+							paramCounter++;
+							break;
+						}
+						else {
+							echoAttemptCounter++;
+						}
 					}
-
-
-					//Initialize arraylists to store test params and test data
-					ArrayList<Integer> testParameters = new ArrayList<Integer>();  
-
-					//Append the expected test number to the beginning of the arraylist
-					testParameters.add(expectedTestNum);
-
-					//Iterate through all of the raw data and convert them to words instead of bytest before storing them in the array
-					for (int paramIndex = 0; paramIndex < rawParamData.size() - 4; paramIndex += 2) {
-						testParameters.add(rawParamData.get(paramIndex) * 256 + rawParamData.get(paramIndex + 1));
-					}
-					//Return the arraylist of formatted data
-					return testParameters;
 				}
 			}
+			//If not all the data was received (Timeout), return null to tell caller that there was an error
+			if (params.size() < numTestParams) {
+				return null;
+			}
+
+			//Return the arraylist of word data, Element 0 = expected test num followed by all testing data
+			return params;
 		}
-		//Method failed, return null
+
+		//Executes if the
 		return null;
+
 	}
 
 	/**
@@ -1031,8 +991,9 @@ public class SerialComm {
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 
 				//Wait for start condition (preamble)
-				if(!waitForPreamble(1,8))
+				if(!waitForPreamble(1, 8, 500)) {
 					return null;
+				}
 
 				//Create start time variable for timeouts
 				//long startTime = System.currentTimeMillis();
@@ -1045,21 +1006,23 @@ public class SerialComm {
 					ArrayList<Integer> rawData = new ArrayList<Integer>();
 
 					while(true) {
-						if(!waitForPreamble(1,4))
+						if(!waitForPreamble(1, 4, 500)) {
 							return null;
-						//System.out.println("check");
+						}
+						//System.out.println("Sector Start");
 						if (inputStream.available() > 0) {
 							int temp = inputStream.read();
 
 							if (temp == (int)'M') {
 								//System.out.println("M");
 								while (inputStream.available() < 2520) {
+									//System.out.println(inputStream.available());
 								}
 
 								tempTestData = new byte[2520];
 
 								inputStream.read(tempTestData, 0, 2520);
-
+								//System.out.println(tempTestData);
 								//Update progress bar based on how much data was received (dataProgressPartition calculated at top of method)
 								progress += dataProgressPartition;
 								progressBar.setValue((int)(progress * 100));
@@ -1074,7 +1037,6 @@ public class SerialComm {
 							}
 
 							else if (temp == (int)'P') {
-								//System.out.println("P");
 								for(int counter = 8; counter >= 1;) {
 									//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
 									if (inputStream.available() > 0) {

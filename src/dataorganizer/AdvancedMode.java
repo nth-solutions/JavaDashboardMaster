@@ -88,7 +88,7 @@ public class AdvancedMode extends JFrame {
 	private JPanel fileNameModifierPanel;
 	private JPanel fileLocationPanel;
 	private JPanel serialPortPanel;
-	private JPanel templateTools;
+	private JPanel adminPanel;
 	private JPanel erasePanel;
 	private JPanel eraseButtonPanel;
 	private JPanel remoteTab;
@@ -138,7 +138,6 @@ public class AdvancedMode extends JFrame {
 	private JComboBox gyroSensitivityCombobox;
 	private JComboBox accelFilterCombobox;
 	private JComboBox gyroFilterCombobox;
-	private JComboBox csvDataFile;
 
 	//Buttons
 	private JButton refreshPortButton;
@@ -149,7 +148,6 @@ public class AdvancedMode extends JFrame {
 	private JButton readDataButton;
 	private JButton bulkEraseButton;
 	private JButton sectorEraseButton;
-	private JButton openTemplateBtn;
 	private JButton settingsWindowBtn;
 	private JButton btnSelectCsv;
 	private JButton sendQuitCMDButton;
@@ -170,7 +168,7 @@ public class AdvancedMode extends JFrame {
 	private JSeparator separator;
 
 	//Test Parameter Variables and Constants
-	public static final int NUM_TEST_PARAMETERS = 15;
+	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
 	public static final int CURRENT_FIRMWARE_ID = 22;
 	public static final String CURRENT_FIRMWARE_STRING = "22";
@@ -181,6 +179,7 @@ public class AdvancedMode extends JFrame {
 	private int triggerOnReleaseFlag;
 	private int battTimeoutLength;
 	private int timer0TickThreshold;
+	private int delayAfterStart;
 	private int testLength;      			
 	private int accelGyroSampleRate;    		
 	private int magSampleRate;          			
@@ -960,22 +959,22 @@ public class AdvancedMode extends JFrame {
 
 					ArrayList<Integer> testParameters = new ArrayList<Integer>();
 
-					testParameters = serialHandler.readTestParams();
+					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
 					if(testParameters != null) {
 						//Assign local variables to their newly received values from the module
-						timer0TickThreshold = testParameters.get(4);
-						//Delay after start = index 5
-						battTimeoutLength = testParameters.get(6);
-						timedTestFlag = testParameters.get(7);
-						triggerOnReleaseFlag = testParameters.get(8);
-						testLength = testParameters.get(9);
-						accelGyroSampleRate = testParameters.get(10);
-						magSampleRate = testParameters.get(11);
-						accelSensitivity = testParameters.get(12);
-						gyroSensitivity = testParameters.get(13);
-						accelFilter = testParameters.get(14);
-						gyroFilter = testParameters.get(15);					
+						timer0TickThreshold = testParameters.get(1);
+						delayAfterStart = testParameters.get(2);
+						battTimeoutLength = testParameters.get(3);
+						timedTestFlag = testParameters.get(4);
+						triggerOnReleaseFlag = testParameters.get(5);
+						testLength = testParameters.get(6);
+						accelGyroSampleRate = testParameters.get(7);
+						magSampleRate = testParameters.get(8);
+						accelSensitivity = testParameters.get(9);
+						gyroSensitivity = testParameters.get(10);
+						accelFilter = testParameters.get(11);
+						gyroFilter = testParameters.get(12);					
 
 
 						if(timedTestFlag > 0) {
@@ -998,7 +997,7 @@ public class AdvancedMode extends JFrame {
 						gyroSensitivityCombobox.setSelectedIndex(lookupGyroSensitivityIndex(gyroSensitivity));
 						accelFilterCombobox.setSelectedIndex(lookupAccelFilterIndex(accelFilter));
 						gyroFilterCombobox.setSelectedIndex(lookupGyroFilterIndex(gyroFilter));
-
+						delayAfterStartTextField.setText(Integer.toString(delayAfterStart));
 						timer0TickThreshTextField.setText(Integer.toString(timer0TickThreshold));
 						magSampleRateTextField.setText(Integer.toString(magSampleRate));
 						batteryTimeoutTextField.setText(Integer.toString(battTimeoutLength));
@@ -1073,36 +1072,32 @@ public class AdvancedMode extends JFrame {
 							triggerOnReleaseFlag = 0;
 						}
 
-
-						//0 Serial Number
+						
+						//0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
 						testParams.add(0);
-						//1 Hardware Version
-						testParams.add(5);
-						//2 Firmware Version
-						testParams.add(20);
-						//3 Accel Gyro Sample Rate
-						testParams.add(getTickThreshold(Integer.parseInt(accelGyroSampleRateTextField.getText())));
-						//4 Delay after start
+						//1 Timer0 Tick Threshold
+						testParams.add(getTickThreshold(Integer.parseInt(timer0TickThreshTextField.getText())));
+						//2 Delay after start
 						testParams.add(0);
-						//5 Battery timeout flag
+						//3 Battery timeout flag
 						testParams.add(Integer.parseInt(batteryTimeoutTextField.getText()));
-						//6 Timed test flag
+						//4 Timed test flag
 						testParams.add(timedTestFlag);
-						//7 Trigger on release flag
+						//5 Trigger on release flag
 						testParams.add(triggerOnReleaseFlag);
-						//8 Test Length
+						//6 Test Length
 						testParams.add(Integer.parseInt(testLengthTextField.getText()));
-						//9 Accel Gyro Sample Rate
+						//7 Accel Gyro Sample Rate
 						testParams.add(Integer.parseInt(accelGyroSampleRateTextField.getText()));
-						//10 Mag Sample Rate
+						//8 Mag Sample Rate
 						testParams.add(Integer.parseInt(magSampleRateTextField.getText()));
-						//11 Accel Sensitivity
+						//9 Accel Sensitivity
 						testParams.add(Integer.parseInt(accelSensitivityCombobox.getSelectedItem().toString()));
-						//12 Gyro Sensitivity
+						//10 Gyro Sensitivity
 						testParams.add(Integer.parseInt(gyroSensitivityCombobox.getSelectedItem().toString()));
-						//13 Accel Filter
+						//11 Accel Filter
 						testParams.add(Integer.parseInt(accelFilterCombobox.getSelectedItem().toString()));
-						//14 Gyro Filter
+						//12 Gyro Filter
 						testParams.add(Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString()));
 
 						if(!serialHandler.sendTestParams(testParams)) {
@@ -1167,22 +1162,22 @@ public class AdvancedMode extends JFrame {
 					progressBar.setForeground(new Color(51, 204, 51));
 
 					//Read test parameters from module and store it in testParameters
-					testParameters = serialHandler.readTestParams();
+					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
 					//Executes if the reading of the test parameters was successful
 					if (testParameters != null) {
 						
 						expectedTestNum = testParameters.get(0);
 						//Assign local variables to their newly received values from the module
-						timedTestFlag = testParameters.get(7);
+						timedTestFlag = testParameters.get(4);
 						//Trigger on release is 8
-						testLength = testParameters.get(9);
-						accelGyroSampleRate = testParameters.get(10);
-						magSampleRate = testParameters.get(11);
-						accelSensitivity = testParameters.get(12);
-						gyroSensitivity = testParameters.get(13);
-						accelFilter = testParameters.get(14);
-						gyroFilter = testParameters.get(15);				
+						testLength = testParameters.get(6);
+						accelGyroSampleRate = testParameters.get(7);
+						magSampleRate = testParameters.get(8);
+						accelSensitivity = testParameters.get(9);
+						gyroSensitivity = testParameters.get(10);
+						accelFilter = testParameters.get(11);
+						gyroFilter = testParameters.get(12);				
 
 						boolean timedTest = true;
 						if (timedTestFlag == 0) {
@@ -2102,54 +2097,6 @@ public class AdvancedMode extends JFrame {
 		VideoFileTextField.setColumns(10);
 		VideoFileTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "VideoFileLocation", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
-		templateTools = new JPanel();
-		mainTabbedPanel.addTab("Template Tools", null, templateTools, null);
-
-		LoadSettings settings = new LoadSettings();
-		settings.loadConfigFile();
-
-		templateTools.setLayout(new GridLayout(4, 1, 30, 0));
-
-
-		openTemplateBtn = new JButton("Open");
-		openTemplateBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		openTemplateBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String outputFile = null;
-				JFileChooser chooser;
-				chooser = new JFileChooser(); 
-				chooser.setCurrentDirectory(new java.io.File("."));
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				chooser.setAcceptAllFileFilterUsed(false);
-				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					outputFile = chooser.getSelectedFile().toString();
-				}
-				else {
-					//Closed
-				}
-				TemplateOpenerClass.start(settings.getKeyVal("TemplateDirectory")+templateChosen, outputFile, settings.getKeyVal("CSVSaveLocation")+"\\"+csvDataFileChosen);
-			}
-		});
-		templateTools.add(openTemplateBtn);
-
-		csvDataFile = new JComboBox();
-		csvDataFile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				csvDataFileChosen = csvDataFile.getSelectedItem().toString();
-			}
-		});
-		csvDataFile.setToolTipText("CSV File Selection");
-
-		File[] csvFileList = new File(settings.getKeyVal("CSVSaveLocation")).listFiles();
-		ArrayList<String> csvList = new ArrayList<String>();
-		if(csvFileList!=null) {
-			for(int i=0; i<csvFileList.length;i++) {
-				csvList.add(csvFileList[i].toString().substring(csvFileList[i].toString().lastIndexOf("\\")+1, csvFileList[i].toString().length()));
-			}
-			csvDataFile.setModel(new DefaultComboBoxModel(csvList.toArray()));
-		}
-		templateTools.add(csvDataFile);
-
 		remoteTab = new JPanel();
 		mainTabbedPanel.addTab("Remote Configuration", null, remoteTab, null);
 		remoteTab.setLayout(new GridLayout(0, 1, 0, 0));
@@ -2191,6 +2138,11 @@ public class AdvancedMode extends JFrame {
 		});
 		
 		RemoteButtonPanel.add(exitTestModeButton);
+		
+				adminPanel = new JPanel();
+				mainTabbedPanel.addTab("Template Tools", null, adminPanel, null);
+				
+						adminPanel.setLayout(new GridLayout(4, 1, 30, 0));
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				unpairAllRemotesHandler();
