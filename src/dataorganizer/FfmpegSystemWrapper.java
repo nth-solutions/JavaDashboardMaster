@@ -4,24 +4,36 @@ public class FfmpegSystemWrapper {
 	private String OSName;
 	private String Arch;
 	
-	
+	//INIT
 	public void FfmpegSystemWrapper() {
 	}
 	
+	/*
+	 * Populates the OSName and Arch variables.
+	 */
 	public void setSystemInfo(){
-		Arch = System.getProperty("os.arch");
+		Arch 	 = System.getProperty("os.arch");
 		OSName   = System.getProperty("os.name");
 	}
 	
+	/*
+	 * Print class privates
+	 */
 	public void PrintAll() {
 		System.out.println(OSName);
 		System.out.println(Arch);
 	}
 	
+	/*
+	 * Return the directory of the FFMPEG binary for the detected system.
+	 * Returns null on no match
+	 */
 	public String getBinRoot() {
 		if(OSName.toLowerCase().contains("windows") && Arch.contains("64")) {
 			return "ffmpeg-win64-static\\bin\\";
 		}
 		return null;
+		
+		
 	}
 }

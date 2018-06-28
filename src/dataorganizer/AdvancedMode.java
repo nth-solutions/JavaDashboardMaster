@@ -208,6 +208,7 @@ public class AdvancedMode extends JFrame {
 	private String templateChosen;
 	private String csvDataFileChosen;
 	private static SerialComm serialHandler;
+	private String videoFileInput;
 	private CSVBuilder csvBuilder = new CSVBuilder();  //Object of class used to organize passed in data to convert and format data into .CSV
 
 	//Flags
@@ -221,6 +222,9 @@ public class AdvancedMode extends JFrame {
 	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
+	private JPanel VideoFilePane;
+	private JButton browseVideoBtn;
+	private JTextField VideoFileTextField;
 
 
 
@@ -855,7 +859,6 @@ public class AdvancedMode extends JFrame {
 					//Executes if the data was received properly (null = fail)
 					if(testData != null) {
 						
-						//TODO: Pass test data at index 0 of testData map into black frame analysis that returns an offset
 						int [] finalData = new int[testData.get(0).size()];
 						
 						for(int byteIndex = 0; byteIndex < testData.get(0).size(); byteIndex++) {
@@ -867,8 +870,8 @@ public class AdvancedMode extends JFrame {
 								break;
 							}
 						}
-						
-						int offset = new BlackFrameAnalysis().runAnalysis(accelGyroSampleRate, )); //TODO: should be = to output of black frame analysis
+						int offset = new BlackFrameAnalysis().runAnalysis(accelGyroSampleRate, VideoFileTextField.getText()); //TODO: should be = to output of black frame analysis
+						System.out.println(offset);
 						calOffsetTextField.setText(Integer.toString(offset));
 					}
 					
@@ -1424,6 +1427,26 @@ public class AdvancedMode extends JFrame {
 	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
 	 * the file explorer and select a save location for the incoming data.
 	 */
+	public void browseVFButtonHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			videoFileInput = chooser.getSelectedFile().toString();
+		}
+		else {
+			videoFileInput =  null;
+		}
+		VideoFileTextField.setText(videoFileInput);
+	}
+
+	
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
 	public void browseButtonHandler() {
 		JFileChooser chooser;
 		chooser = new JFileChooser(); 
@@ -1437,7 +1460,7 @@ public class AdvancedMode extends JFrame {
 			fileOutputDirectoryStr = null;
 		}
 	}
-
+	
 	/**
 	 * Setter that allows external classes to set the progress bar's value
 	 * @param progress integer value between 0-100 that corresponds to the desired percentage to be displayed
@@ -2027,7 +2050,6 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(configForCalButton);
 		
 		importCalDataButton = new JButton("Import Calibration Data and Calculate Offset");
-		importCalDataButton.setEnabled(false);
 		importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		importCalDataButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2055,6 +2077,30 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 		calibrationPanel.add(applyOffsetButton);
+		
+		VideoFilePane = new JPanel();
+		VideoFilePane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		calibrationPanel.add(VideoFilePane);
+		VideoFilePane.setLayout(new GridLayout(0, 2, 0, 0));
+		
+		browseVideoBtn = new JButton("Browse VidFile");
+		browseVideoBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				browseVFButtonHandler();
+				
+			}
+		});
+		VideoFilePane.add(browseVideoBtn);
+		
+		VideoFileTextField = new JTextField();
+		VideoFilePane.add(VideoFileTextField);
+		VideoFileTextField.setToolTipText("");
+		VideoFileTextField.setText("0");
+		VideoFileTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		VideoFileTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		VideoFileTextField.setEditable(false);
+		VideoFileTextField.setColumns(10);
+		VideoFileTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "VideoFileLocation", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
 		templateTools = new JPanel();
 		mainTabbedPanel.addTab("Template Tools", null, templateTools, null);

@@ -21,13 +21,12 @@ import java.util.List;
  * @author Mobile2
  */
 public class BlackFrameAnalysis {
-	private float videoFps;
-
-
+	private float videoFPS;
+	private final int PICClkSpeed = 16667;
 
 	/*
-	 * Reads module sample rate, video sample rate, and the video file. Uses the first nonblackframe
-	 * 
+	 * Reads module sample rate, video sample rate, and the video file. 
+	 * Returns the offset for TMR0
 	 */
 	public int runAnalysis(int moduleSPS, String vf) throws IOException{
 			Process process = Runtime.getRuntime().exec(cmdWrapper(vf));                                                               //get runtime variable to execute command line
@@ -49,20 +48,26 @@ public class BlackFrameAnalysis {
 						lastFrame = Integer.parseInt(s.split(" +")[0].split("=")[1]);
 					}
 				}
+				//Check if the line contains the string 'fps.' it should be in the metadata
 				else if(s.toLowerCase().contains("fps")) {
-					videoFps = Float.valueOf(s.substring(s.lastIndexOf(':')+2, s.length()));
-					System.out.println(videoFps);
+					//Read the FPS as a float (because on most systems it is)
+					videoFPS = Float.valueOf(s.substring(s.lastIndexOf(':')+2, s.length()));
+					System.out.println(videoFPS);
 				}
 			}
-			int lastStartBlackFrame = -1; 
-			int firstStopBlackFrame = -1; 
+			int lastStartBlackFrame = -1;
 			System.out.println();System.out.println();
 
 			int i = 0;
 			for(int sample = blackFrames.get(i);i<blackFrames.size();i++) {
-				if(sample !=lastStartBlackFrame+1) {
-					return i;
+				if(sample != lastStartBlackFrame+1) {
+					if(moduleSPS == videoFPS)
+						return PICClkSpeed * (moduleSPS - i);
+					else {
+						return Math.round(PICClkSpeed * (moduleSPS - (moduleSPS/videoFPS)));
+					}
 				}
+				lastStartBlackFrame = sample;
 			}
 
 			/*for (Iterator<Integer> iterator = blackFrames.iterator(); iterator.hasNext();) {                              //iterates through the blackframes
@@ -80,7 +85,9 @@ public class BlackFrameAnalysis {
 		return 0;
 	}
 	
-	
+	/*
+	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
+	 */
 public String cmdWrapper(String videoName) {
 	String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";
 	String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
@@ -93,6 +100,9 @@ public String cmdWrapper(String videoName) {
 }
 	
 	
+
+
+//Dan's uncommented mess
 public static void writeOutput(PrintWriter writer, List<Integer> nb, List<Integer> b)
 	{
 		int rows = 0;
