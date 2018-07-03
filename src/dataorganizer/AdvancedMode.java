@@ -93,6 +93,7 @@ public class AdvancedMode extends JFrame {
 	private JPanel eraseButtonPanel;
 	private JPanel remoteTab;
 	private JPanel RemoteButtonPanel;
+	private JPanel VideoFilePane;
 
 	//Labels
 	private JLabel generalStatusLabel;
@@ -102,15 +103,13 @@ public class AdvancedMode extends JFrame {
 
 	//CheckBoxes
 	private JCheckBox timedTestCheckbox;
-	private JCheckBox delayAfterStartCheckbox;
-	private JCheckBox manualCalibrationCheckbox;
 	private JCheckBox triggerOnReleaseCheckbox;
 
 	//Text Fields
 
 	//Configuration Tab
 	private JTextField testLengthTextField;
-	private JTextField accelGyroSampleRateTextField;
+	
 	private JTextField magSampleRateTextField;
 	private JTextField delayAfterStartTextField;
 	private JTextField timer0TickThreshTextField;
@@ -128,12 +127,14 @@ public class AdvancedMode extends JFrame {
 	private JTextField gyroSensitivityTextFieldRead;
 	private JTextField accelFilterTextFieldRead;
 	private JTextField gyroFilterTextFieldRead;
+	private JTextField VideoFileTextField;
 	
 	//Calibration Tab
-	private JTextField calOffsetTextField;
+	private JTextField tmr0OffsetTextField;
 
 	//Combo Boxes
 	private JComboBox commPortCombobox;
+	private JComboBox accelGyroSampleRateCombobox;
 	private JComboBox accelSensitivityCombobox;
 	private JComboBox gyroSensitivityCombobox;
 	private JComboBox accelFilterCombobox;
@@ -160,6 +161,7 @@ public class AdvancedMode extends JFrame {
 	private JButton configForCalButton;
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
+	private JButton browseVideoBtn;
 
 	//Progress Bars
 	private JProgressBar progressBar;
@@ -221,9 +223,11 @@ public class AdvancedMode extends JFrame {
 	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
-	private JPanel VideoFilePane;
-	private JButton browseVideoBtn;
-	private JTextField VideoFileTextField;
+	private JPanel calOffsetsPanel;
+	private JTextField textField;
+
+
+
 
 
 
@@ -871,7 +875,7 @@ public class AdvancedMode extends JFrame {
 						}
 						int offset = new BlackFrameAnalysis().runAnalysis(accelGyroSampleRate, VideoFileTextField.getText()); //TODO: should be = to output of black frame analysis
 						System.out.println(offset);
-						calOffsetTextField.setText(Integer.toString(offset));
+						tmr0OffsetTextField.setText(Integer.toString(offset));
 					}
 					
 					configForCalButton.setEnabled(true);
@@ -898,7 +902,7 @@ public class AdvancedMode extends JFrame {
 		};
 	}
 	
-	public void applyOffsetHandler() {
+	public void applyOffsetsHandler() {
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {
 				configForCalButton.setEnabled(false);
@@ -906,7 +910,7 @@ public class AdvancedMode extends JFrame {
 				applyOffsetButton.setEnabled(false);
 				
 				try {
-					if(!serialHandler.applyCalibrationOffset(Integer.parseInt(calOffsetTextField.getText()))) {
+					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(tmr0OffsetTextField.getText()))) {
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -991,7 +995,7 @@ public class AdvancedMode extends JFrame {
 						}
 
 						testLengthTextField.setText(Integer.toString(testLength));
-						accelGyroSampleRateTextField.setText(Integer.toString(accelGyroSampleRate));
+						accelGyroSampleRateCombobox.setSelectedIndex(lookupAccelGyroSampleRateIndex(accelGyroSampleRate));
 						magSampleRateTextField.setText(Integer.toString(magSampleRate));
 						accelSensitivityCombobox.setSelectedIndex(lookupAccelSensitivityIndex(accelSensitivity));
 						gyroSensitivityCombobox.setSelectedIndex(lookupGyroSensitivityIndex(gyroSensitivity));
@@ -1077,7 +1081,7 @@ public class AdvancedMode extends JFrame {
 						testParams.add(0);
 						//1 Timer0 Tick Threshold
 						testParams.add(getTickThreshold(Integer.parseInt(timer0TickThreshTextField.getText())));
-						//2 Delay after start
+						//2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
 						testParams.add(0);
 						//3 Battery timeout flag
 						testParams.add(Integer.parseInt(batteryTimeoutTextField.getText()));
@@ -1088,7 +1092,7 @@ public class AdvancedMode extends JFrame {
 						//6 Test Length
 						testParams.add(Integer.parseInt(testLengthTextField.getText()));
 						//7 Accel Gyro Sample Rate
-						testParams.add(Integer.parseInt(accelGyroSampleRateTextField.getText()));
+						testParams.add(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()));
 						//8 Mag Sample Rate
 						testParams.add(Integer.parseInt(magSampleRateTextField.getText()));
 						//9 Accel Sensitivity
@@ -1308,16 +1312,17 @@ public class AdvancedMode extends JFrame {
 		if (mainTabbedPanel.getSelectedIndex() == 1) {
 			//Checkboxes
 			timedTestCheckbox.setSelected(true);
-			delayAfterStartCheckbox.setSelected(false);
-			manualCalibrationCheckbox.setSelected(false);
+
 
 			//Comboboxes
+			accelGyroSampleRateCombobox.setModel(new DefaultComboBoxModel(new String [] {"60", "120", "240", "480", "500", "960"}));
 			accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"2", "4", "8", "16"}));
 			gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"250", "500", "1000", "2000"}));
 			accelFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"5", "10", "20", "41", "92", "184", "460", "1130 (OFF)"}));
 			gyroFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)"}));
 
 			//Set Default Selection for Comboboxes
+			accelGyroSampleRateCombobox.setSelectedIndex(5);
 			accelSensitivityCombobox.setSelectedIndex(2);	//8g
 			gyroSensitivityCombobox.setSelectedIndex(2);	//1000dps
 			accelFilterCombobox.setSelectedIndex(4);		//92Hz
@@ -1340,7 +1345,8 @@ public class AdvancedMode extends JFrame {
 				testLengthTextField.setEditable(false);
 				testLengthTextField.setEnabled(false);
 			}
-
+			
+			/*
 			//Delay After Start Checkbox (Allows Editing of Timer0 Tick Threshold)
 			if (delayAfterStartCheckbox.isSelected()) {
 				delayAfterStartTextField.setEditable(true);
@@ -1360,6 +1366,7 @@ public class AdvancedMode extends JFrame {
 				timer0TickThreshTextField.setEditable(false);
 				timer0TickThreshTextField.setEnabled(false);
 			}
+			*/
 		}
 	}
 
@@ -1368,8 +1375,8 @@ public class AdvancedMode extends JFrame {
 	 * @return
 	 */
 	public boolean updateMagSampleRate() {
-		if (!accelGyroSampleRateTextField.getText().isEmpty()) {
-			switch (Integer.parseInt(accelGyroSampleRateTextField.getText())) {
+		if (!accelGyroSampleRateCombobox.getSelectedItem().toString().isEmpty()) {
+			switch (Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())) {
 			case(60):			
 				magSampleRateTextField.setText("60");
 				break;
@@ -1411,8 +1418,8 @@ public class AdvancedMode extends JFrame {
 	 * @return
 	 */
 	public boolean updateTickThresh() {
-		if (!accelGyroSampleRateTextField.getText().isEmpty()) {
-			int tickThresh = getTickThreshold(Integer.parseInt(accelGyroSampleRateTextField.getText()));
+		if (!accelGyroSampleRateCombobox.getSelectedItem().toString().isEmpty()) {
+			int tickThresh = getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()));
 			timer0TickThreshTextField.setText(Integer.toString(tickThresh));
 		}
 		return true;
@@ -1470,6 +1477,25 @@ public class AdvancedMode extends JFrame {
 	 */
 	public void setWriteStatusLabel(String label) {
 		generalStatusLabel.setText(label);        //Tell the user a new .CSV has been created.
+	}
+	
+	public int lookupAccelGyroSampleRateIndex(int aGSampleRate) {
+		switch (aGSampleRate) {
+		case(60):		
+			return 0;
+		case(120):
+			return 1;
+		case(240):
+			return 2;
+		case(480):
+			return 3;
+		case(500):
+			return 4;
+		case(960):
+			return 5;
+		default:
+			return 0;
+		}
 	}
 
 	/**
@@ -1866,51 +1892,26 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 
-		delayAfterStartCheckbox = new JCheckBox("Delay After Start");
-		delayAfterStartCheckbox.setEnabled(false);
-		delayAfterStartCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		configurationPanel.add(delayAfterStartCheckbox);
-
-		delayAfterStartCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				updateDataFields();
-			}
-		});
-
-		manualCalibrationCheckbox = new JCheckBox("Manual Calibration");
-		manualCalibrationCheckbox.setEnabled(false);
-		manualCalibrationCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		configurationPanel.add(manualCalibrationCheckbox);
-
-		manualCalibrationCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				updateDataFields();
-			}
-		});
-
 		triggerOnReleaseCheckbox = new JCheckBox("Trigger on Release");
 		triggerOnReleaseCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		triggerOnReleaseCheckbox.setSelected(true);
 		configurationPanel.add(triggerOnReleaseCheckbox);
 
-		accelGyroSampleRateTextField = new JTextField();
-		accelGyroSampleRateTextField.setToolTipText("Valid sample rates: 960, 500, 480, 240, 120, 60");
-		accelGyroSampleRateTextField.setText("960");
-		accelGyroSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		accelGyroSampleRateTextField.setColumns(10);
-		accelGyroSampleRateTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		accelGyroSampleRateTextField.addActionListener(new ActionListener() {
+		
+		accelGyroSampleRateCombobox = new JComboBox();
+		accelGyroSampleRateCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		accelGyroSampleRateCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		configurationPanel.add(accelGyroSampleRateCombobox);
+		accelGyroSampleRateCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				updateMagSampleRate();
 				updateTickThresh();
 			}
 		});
 
-		configurationPanel.add(accelGyroSampleRateTextField);
-
 		magSampleRateTextField = new JTextField();
+		magSampleRateTextField.setEditable(false);
 		magSampleRateTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
-		magSampleRateTextField.setEnabled(false);
 		magSampleRateTextField.setText("96");
 		magSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		magSampleRateTextField.setColumns(10);
@@ -1936,30 +1937,37 @@ public class AdvancedMode extends JFrame {
 		gyroFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		gyroFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		configurationPanel.add(gyroFilterCombobox);
+				
+						testLengthTextField = new JTextField();
+						testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
+						testLengthTextField.setText("25");
+						testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+						testLengthTextField.setColumns(10);
+						testLengthTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Duration (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+						configurationPanel.add(testLengthTextField);
+		
+				batteryTimeoutTextField = new JTextField();
+				batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
+				batteryTimeoutTextField.setText("300");
+				batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+				batteryTimeoutTextField.setColumns(10);
+				batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+				configurationPanel.add(batteryTimeoutTextField);
 
 		timer0TickThreshTextField = new JTextField();
 		timer0TickThreshTextField.setText("3689");
 		timer0TickThreshTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		timer0TickThreshTextField.setEditable(false);
-		timer0TickThreshTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Tick Threshold", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		timer0TickThreshTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Tick Threshold (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		configurationPanel.add(timer0TickThreshTextField);
 		timer0TickThreshTextField.setColumns(10);
 
 		delayAfterStartTextField = new JTextField();
-		delayAfterStartTextField.setText("0");
 		delayAfterStartTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		delayAfterStartTextField.setEditable(false);
 		delayAfterStartTextField.setColumns(10);
-		delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Microseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		configurationPanel.add(delayAfterStartTextField);
-
-		testLengthTextField = new JTextField();
-		testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
-		testLengthTextField.setText("25");
-		testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		testLengthTextField.setColumns(10);
-		testLengthTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Duration (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(testLengthTextField);
 
 		writeConfigsButton = new JButton("Write Configurations");
 		writeConfigsButton.setToolTipText("Sends new test configurations to the module");
@@ -1970,14 +1978,6 @@ public class AdvancedMode extends JFrame {
 				writeButtonHandler();
 			}
 		});
-
-		batteryTimeoutTextField = new JTextField();
-		batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
-		batteryTimeoutTextField.setText("300");
-		batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		batteryTimeoutTextField.setColumns(10);
-		batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(batteryTimeoutTextField);
 
 		getCurrentConfigurationsButton = new JButton("Get Current Configurations");
 		getCurrentConfigurationsButton.setToolTipText("Reads and displays current module configurations on this tab");
@@ -2053,24 +2053,38 @@ public class AdvancedMode extends JFrame {
 		});
 		calibrationPanel.add(importCalDataButton);
 		
-		calOffsetTextField = new JTextField();
-		calOffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
-		calOffsetTextField.setEditable(false);
-		calOffsetTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
-		calOffsetTextField.setText("0");
-		calOffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		calOffsetTextField.setColumns(10);
-		calOffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		calibrationPanel.add(calOffsetTextField);
-		
 		applyOffsetButton = new JButton("Apply Offset to Module");
 		applyOffsetButton.setEnabled(false);
 		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		applyOffsetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				applyOffsetHandler();
+				applyOffsetsHandler();
 			}
 		});
+		
+		calOffsetsPanel = new JPanel();
+		calibrationPanel.add(calOffsetsPanel);
+		calOffsetsPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		
+		tmr0OffsetTextField = new JTextField();
+		calOffsetsPanel.add(tmr0OffsetTextField);
+		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		tmr0OffsetTextField.setEditable(false);
+		tmr0OffsetTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
+		tmr0OffsetTextField.setText("0");
+		tmr0OffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		tmr0OffsetTextField.setColumns(10);
+		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		
+		textField = new JTextField();
+		textField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
+		textField.setText("0");
+		textField.setHorizontalAlignment(SwingConstants.LEFT);
+		textField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		textField.setEditable(false);
+		textField.setColumns(10);
+		textField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		calOffsetsPanel.add(textField);
 		calibrationPanel.add(applyOffsetButton);
 		
 		VideoFilePane = new JPanel();

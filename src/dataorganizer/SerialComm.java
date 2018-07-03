@@ -376,7 +376,7 @@ public class SerialComm {
 	 * @param offset positive or negative number that will be sent to the module to be applied to the TMR0 tick threshold
 	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
 	 */
-	public boolean applyCalibrationOffset(int offset) throws IOException, PortInUseException, UnsupportedCommOperationException{
+	public boolean applyCalibrationOffsets(int tmr0Offset, int delayAfterStart) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
 		if(!configureForHandshake()) {
 			return false;
@@ -388,24 +388,33 @@ public class SerialComm {
 
 		//Reset attempt counter
 		int attemptCounter = 0;
-		//Loops until a parameter is successfully received by module 
-		while (true) {
+		
+		int[] calData = new int[2];
+		
+		calData[0] = tmr0Offset;
+		calData[1] = delayAfterStart;
+		
+		int dataIndex = 0;
+		//Loops until both calibration values are sent to the module successfully or it fails too many times
+		while (dataIndex < 2) {
 
 			//Send Preamble
 			outputStream.write(new String("1234").getBytes());
 
-			//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
-			if (offset < 0) {
-				outputStream.write(0);
-				offset = offset * -1;
-			}
-			else {
-				outputStream.write(1);
+			if(dataIndex == 0) {
+				//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
+				if (tmr0Offset < 0) {
+					outputStream.write(0);
+					tmr0Offset = tmr0Offset * -1;
+				}
+				else {
+					outputStream.write(1);
+				}	
 			}
 
 
-			outputStream.write(offset / 256);
-			outputStream.write(offset % 256);
+			outputStream.write(calData[dataIndex] / 256);
+			outputStream.write(calData[dataIndex] % 256);
 
 
 			int temp = -1;
@@ -422,11 +431,11 @@ public class SerialComm {
 			}
 
 			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
-			if (temp == offset) {
+			if (temp == calData[dataIndex]) {
 				outputStream.write(new String("CA").getBytes());
 				//Reset attempt counter
 				attemptCounter = 0;
-				break;
+				dataIndex++;
 			}
 
 			//If module echoed incorrectly, send 'CN' for Not-Acknowledge, (C is preamble for acknowledge cycle)
@@ -442,7 +451,6 @@ public class SerialComm {
 				return false;
 			}
 		}
-		//TODO: Send calibration offset w/ handshake for confirmation
 
 		waitForPostamble(4 , 1, 500);
 

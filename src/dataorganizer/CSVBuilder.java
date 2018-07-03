@@ -153,7 +153,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
         
         try {
         	if(fileOutputDirectory != null) {
-        	DataFile = new PrintWriter(fileOutputDirectory + File.separator + NameOfFile);
+        		DataFile = new PrintWriter(fileOutputDirectory + File.separator + NameOfFile);
         	}
         	else{
         		DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView()     //Creates .CSV file in default directory which is documents
