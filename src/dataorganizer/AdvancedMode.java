@@ -804,7 +804,7 @@ public class AdvancedMode extends JFrame {
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {
 				configForCalButton.setEnabled(false);
-				importCalDataButton.setEnabled(false);
+				importCalDataButton.setEnabled(true);
 				applyOffsetButton.setEnabled(false);
 				
 				try {
@@ -853,13 +853,13 @@ public class AdvancedMode extends JFrame {
 					HashMap<Integer, ArrayList<Integer>> testData;
 
 					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-					testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
+					//testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
 
 					generalStatusLabel.setText("All Data Received from Module");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					//Executes if the data was received properly (null = fail)
+					/*//Executes if the data was received properly (null = fail)
 					if(testData != null) {
 						
 						int [] finalData = new int[testData.get(0).size()];
@@ -873,10 +873,14 @@ public class AdvancedMode extends JFrame {
 								break;
 							}
 						}
-						int offset = new BlackFrameAnalysis().runAnalysis(accelGyroSampleRate, VideoFileTextField.getText()); //TODO: should be = to output of black frame analysis
+						int offset = new BlackFrameAnalysis().runAnalysis(Integer.valueOf((String)accelGyroSampleRateCombobox.getSelectedItem()), VideoFileTextField.getText()); 
 						System.out.println(offset);
 						tmr0OffsetTextField.setText(Integer.toString(offset));
-					}
+					}*/
+					
+					int offset = new BlackFrameAnalysis().runAnalysis(Integer.parseInt((accelGyroSampleRateCombobox.getSelectedItem()).toString()), VideoFileTextField.getText()); 
+					System.out.println(offset);
+					tmr0OffsetTextField.setText(Integer.toString(offset));
 					
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
@@ -887,7 +891,7 @@ public class AdvancedMode extends JFrame {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
+				}/*
 				catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
@@ -897,9 +901,11 @@ public class AdvancedMode extends JFrame {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
+				}*/
 			}
 		};
+		
+		getConfigsOperation.run();
 	}
 	
 	public void applyOffsetsHandler() {
@@ -2051,6 +2057,30 @@ public class AdvancedMode extends JFrame {
 				importCalDataHandler();
 			}
 		});
+		
+		VideoFilePane = new JPanel();
+		VideoFilePane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		calibrationPanel.add(VideoFilePane);
+		
+		browseVideoBtn = new JButton("Browse for Video");
+		browseVideoBtn.setMaximumSize(new Dimension(600, 80));
+		browseVideoBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				browseVFButtonHandler();
+				
+			}
+		});
+		VideoFilePane.setLayout(new BoxLayout(VideoFilePane, BoxLayout.X_AXIS));
+		
+		VideoFileTextField = new JTextField();
+		VideoFilePane.add(VideoFileTextField);
+		VideoFileTextField.setToolTipText("");
+		VideoFileTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		VideoFileTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		VideoFileTextField.setEditable(false);
+		VideoFileTextField.setColumns(10);
+		VideoFileTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Video File Path", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		VideoFilePane.add(browseVideoBtn);
 		calibrationPanel.add(importCalDataButton);
 		
 		applyOffsetButton = new JButton("Apply Offset to Module");
@@ -2086,30 +2116,6 @@ public class AdvancedMode extends JFrame {
 		textField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(textField);
 		calibrationPanel.add(applyOffsetButton);
-		
-		VideoFilePane = new JPanel();
-		VideoFilePane.setAlignmentX(Component.LEFT_ALIGNMENT);
-		calibrationPanel.add(VideoFilePane);
-		VideoFilePane.setLayout(new GridLayout(0, 2, 0, 0));
-		
-		browseVideoBtn = new JButton("Browse VidFile");
-		browseVideoBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				browseVFButtonHandler();
-				
-			}
-		});
-		VideoFilePane.add(browseVideoBtn);
-		
-		VideoFileTextField = new JTextField();
-		VideoFilePane.add(VideoFileTextField);
-		VideoFileTextField.setToolTipText("");
-		VideoFileTextField.setText("0");
-		VideoFileTextField.setHorizontalAlignment(SwingConstants.LEFT);
-		VideoFileTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		VideoFileTextField.setEditable(false);
-		VideoFileTextField.setColumns(10);
-		VideoFileTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "VideoFileLocation", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
 		remoteTab = new JPanel();
 		mainTabbedPanel.addTab("Remote Configuration", null, remoteTab, null);

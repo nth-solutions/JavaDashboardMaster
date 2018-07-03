@@ -50,8 +50,8 @@ public class BlackFrameAnalysis {
 				}
 				//Check if the line contains the string 'fps.' it should be in the metadata
 				else if(s.toLowerCase().contains("fps")) {
-					//Read the FPS as a float (because on most systems it is)
-					videoFPS = Float.valueOf(s.substring(s.lastIndexOf(':')+2, s.length()));
+					//Read the FPS from the line
+					videoFPS = Float.valueOf(s.substring(s.indexOf("fps")-4, s.indexOf("fps")));
 					System.out.println(videoFPS);
 				}
 			}
