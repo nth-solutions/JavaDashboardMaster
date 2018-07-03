@@ -23,57 +23,56 @@ import java.util.List;
 public class BlackFrameAnalysis {
 	private float videoFPS;
 	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
+	private int NumNonBlack;
 
-	
+
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
 	 * Returns the offset for TMR0
 	 */
-	public int runAnalysis(int moduleSPS, String vf) throws IOException{
-		System.out.println("moduleSPS: " + moduleSPS);
-		System.out.println("vf: " + vf);
-			Process process = Runtime.getRuntime().exec(cmdWrapper(vf));                                                               //get runtime variable to execute command line
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
-			int lastFrame = 0;                                                                                              //sets integer for the last black frame at 0
-			ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
-			ArrayList<Integer> nBlackFrames = new ArrayList<>();                                                                 //black frames stores the frames that are not black
-			String s;                                                                                                       //will store the command line outputs    
-			while ((s = stdError.readLine()) != null) {                                                                 //while there is still output to be read
-				//If line contains the string "[P"
-				if(s.substring(0,2).equals("[P")){
-					String blackFrame = s.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
-					blackFrames.add(Integer.parseInt(blackFrame));                                                      //adds the frame number to the blackFrames list
-				}
-				//Check if line contains the string "frame"
-				else if(s.substring(0,5).equals("frame")){
-					try{
-						lastFrame = Integer.parseInt(s.split(" +")[1]);                                                     //sets the frame to the last seen frame
-					}
-					catch(Exception e){
-						lastFrame = Integer.parseInt(s.split(" +")[0].split("=")[1]);
-					}
-				}
-				//Check if the line contains the string 'fps.' it should be in the metadata
-				else if(s.toLowerCase().contains("fps")) {
-					//Read the FPS as a float, it will be a floating point number, 4-5 digits, and suffix of 'fps'
-					videoFPS = Float.valueOf(s.substring(s.indexOf("fps")-5, s.indexOf("fps")));
+	public int getLatencyOffset(int moduleSPS, String vf) throws IOException{
+		Process process = Runtime.getRuntime().exec(cmdWrapper(vf));                                                               //get runtime variable to execute command line
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
+		int lastFrame = 0;                                                                                              //sets integer for the last black frame at 0
+		ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
+		ArrayList<Integer> nBlackFrames = new ArrayList<>();                                                                 //black frames stores the frames that are not black
+		String s;                                                                                                       //will store the command line outputs    
+		while ((s = stdError.readLine()) != null) { 
+			//If line contains the string "[P"
+			if(s.substring(0,2).equals("[P")){
+				String blackFrame = s.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
+				blackFrames.add(Integer.parseInt(blackFrame));                                                      //adds the frame number to the blackFrames list
+				
+				//Check for frame jump, if there hasn't been a black frame in less than 10 frames then 
+				if(Integer.parseInt(blackFrame) - lastFrame < 10) {
+					lastFrame = Integer.parseInt(blackFrame);
+					NumNonBlack = Integer.parseInt(blackFrame) - lastFrame;
+					System.out.println(NumNonBlack);
 				}
 			}
-			int lastStartBlackFrame = -1;
-
-			int i = 0;
-			for(int sample = blackFrames.get(i);i<blackFrames.size();i++) {
-				if(sample != lastStartBlackFrame+1) {
-					if(moduleSPS == videoFPS)
-						return Math.round(1000 / moduleSPS * (moduleSPS * DELAY_IN_SECONDS_BEFORE_LIGHT - i));
-					else {
-						return Math.round(1000 / moduleSPS * (moduleSPS * DELAY_IN_SECONDS_BEFORE_LIGHT - (moduleSPS / videoFPS) * (i)));
-					}
-				}
-				lastStartBlackFrame = sample;
+			
+			//Check if the line contains the string 'fps.' it should be in the metadata
+			else if(s.toLowerCase().contains("fps")) {
+				//Read the FPS as a float, it will be a floating point number, 4-5 digits, and suffix of 'fps'
+				videoFPS = Float.valueOf(s.substring(s.indexOf("fps")-5, s.indexOf("fps")));
 			}
+		}
+		int lastStartBlackFrame = -1;
 
-			/*for (Iterator<Integer> iterator = blackFrames.iterator(); iterator.hasNext();) {                              //iterates through the blackframes
+		int i = 0;
+		for(int sample = blackFrames.get(i);i<blackFrames.size();i++) {
+			if(sample != lastStartBlackFrame+1) {
+				if(moduleSPS == videoFPS) {
+					return Math.round(1000 / moduleSPS * (moduleSPS * DELAY_IN_SECONDS_BEFORE_LIGHT - i));
+				}
+				else {
+					return Math.round(1000 / moduleSPS * (moduleSPS * DELAY_IN_SECONDS_BEFORE_LIGHT - (moduleSPS / videoFPS) * (i)));
+				}
+			}
+			lastStartBlackFrame = sample;
+		}
+		
+		/*for (Iterator<Integer> iterator = blackFrames.iterator(); iterator.hasNext();) {                              //iterates through the blackframes
                     int bf = iterator.next(); 
                     if (bf != lastStartBlackFrame+1){                                                                             //if it is not immediately after the last black frame
                         for(int i = lastStartBlackFrame+1; i<bf; i++){                                                            //iterates from the last seen black frame to the current one, aka through all of the non black frames
@@ -83,30 +82,30 @@ public class BlackFrameAnalysis {
                     firstStopBlackFrame = bf;
                 }*/
 
- 
+
 
 		return 0;
 	}
-	
+
 	/*
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
-public String cmdWrapper(String videoName) {
-	String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";
-	String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-	String CMD2 = "ffmpeg -ss 00:02:00 -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-	
-	FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
-	SysWrap.setSystemInfo();
-	
-	return SysWrap.getBinRoot()+CMD1;
-}
-	
-	
+	public String cmdWrapper(String videoName) {
+		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";
+		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD2 = "ffmpeg -ss 00:02:00 -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+
+		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
+		SysWrap.setSystemInfo();
+
+		return SysWrap.getBinRoot()+CMD1;
+	}
 
 
-//Dan's uncommented mess
-public static void writeOutput(PrintWriter writer, List<Integer> nb, List<Integer> b)
+
+
+	//Dan's uncommented mess
+	public static void writeOutput(PrintWriter writer, List<Integer> nb, List<Integer> b)
 	{
 		int rows = 0;
 		if(Integer.compare(b.size(), nb.size())>0){
