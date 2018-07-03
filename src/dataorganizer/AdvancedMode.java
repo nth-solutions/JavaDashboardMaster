@@ -172,8 +172,8 @@ public class AdvancedMode extends JFrame {
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
-	public static final int CURRENT_FIRMWARE_ID = 22;
-	public static final String CURRENT_FIRMWARE_STRING = "22";
+	public static final int CURRENT_FIRMWARE_ID = 23;
+	public static final String CURRENT_FIRMWARE_STRING = "23";
 
 	private int expectedTestNum;
 	//Test Parameters (All must be of type "int")
@@ -801,7 +801,7 @@ public class AdvancedMode extends JFrame {
 	
 	
 	public void configForCalHandler() {
-		Runnable getConfigsOperation = new Runnable() {
+		Runnable calforConfigOperation = new Runnable() {
 			public void run() {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(true);
@@ -840,6 +840,8 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
+		Thread calConfigThread = new Thread(calforConfigOperation);
+		calConfigThread.start();
 	}
 	
 	public void importCalDataHandler() {	
@@ -969,9 +971,11 @@ public class AdvancedMode extends JFrame {
 
 						if(timedTestFlag > 0) {
 							timedTestCheckbox.setSelected(true);
+							testLengthTextField.setEnabled(true);
 						}
 						else {
 							timedTestCheckbox.setSelected(false);
+							testLengthTextField.setEnabled(false);
 						}
 						if(triggerOnReleaseFlag > 0) {
 							triggerOnReleaseCheckbox.setSelected(true);
@@ -2021,7 +2025,6 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.setLayout(new GridLayout(0, 1, 0, 0));
 		
 		configForCalButton = new JButton("Configure Module for Calibration");
-		configForCalButton.setEnabled(false);
 		configForCalButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		configForCalButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
