@@ -169,12 +169,6 @@ public class CSVBuilder {        //Class for Creating .CSV files
         DataFile.write(builder.toString());     //writes the string buffer to the .CSV creating the file
         DataFile.close();                       //close the .CSV
         
-        settings.loadConfigFile();
-        if(Boolean.parseBoolean(settings.getKeyVal("OpenOnRead"))){
-        	TemplateOpenerClass toc = new TemplateOpenerClass();
-        	//FIXME: static outputfile, template needs to be chosen internally to TemplateOpenerClass.
-        	toc.start(settings.getKeyVal("TemplateDirectory")+"5 Second Rev-D.xlsx", "tmp.xlsx", NameOfFile);
-        }
         
         
         return numSamples;        

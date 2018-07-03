@@ -224,7 +224,7 @@ public class AdvancedMode extends JFrame {
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
 	private JPanel calOffsetsPanel;
-	private JTextField textField;
+	private JTextField delayAfterTextField;
 	private JPanel videoBrowsePanel;
 	private JTextField videoFilePath;
 	private JButton videoBrowseButton;
@@ -857,8 +857,8 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(51, 204, 51));
 					
-					int offset = new BlackFrameAnalysis().runAnalysis(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()), videoFilePath.getText());
-					tmr0OffsetTextField.setText(Integer.toString(offset));
+					int offset = new BlackFrameAnalysis().getLatencyOffset(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()), videoFilePath.getText());
+					delayAfterTextField.setText(Integer.toString(offset));
 					
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
@@ -2083,14 +2083,14 @@ public class AdvancedMode extends JFrame {
 		tmr0OffsetTextField.setColumns(10);
 		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		
-		textField = new JTextField();
-		textField.setText("0");
-		textField.setHorizontalAlignment(SwingConstants.LEFT);
-		textField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		textField.setEditable(false);
-		textField.setColumns(10);
-		textField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		calOffsetsPanel.add(textField);
+		delayAfterTextField = new JTextField();
+		delayAfterTextField.setText("0");
+		delayAfterTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		delayAfterTextField.setEditable(false);
+		delayAfterTextField.setColumns(10);
+		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		calOffsetsPanel.add(delayAfterTextField);
 		calibrationPanel.add(applyOffsetButton);
 
 		remoteTab = new JPanel();

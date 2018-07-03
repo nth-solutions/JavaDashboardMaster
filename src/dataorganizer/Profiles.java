@@ -32,8 +32,6 @@ public class Profiles extends JFrame {
 							switch(settings.getKeyVal("DefaultProfile")) {
 								case "Adventurer":
 									frame = new AdventurerMode();
-								case "Educator":
-									frame = new EducatorMode();
 								case "Professional":
 									frame = new AdvancedMode();
 							}
@@ -108,13 +106,6 @@ public class Profiles extends JFrame {
 			}
 			
 		});
-		EducatorBtn.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				EducatorBtnActionListener();
-			}
-			
-		});
 		ProffessionalBtn.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -139,10 +130,6 @@ public class Profiles extends JFrame {
 		this.dispose();
 		new AdventurerMode().setVisible(true);
 		
-	}
-	private void EducatorBtnActionListener() {
-		this.dispose();
-		new EducatorMode().setVisible(true);
 	}
 	private void ProfessionalBtnActionListener() throws FileNotFoundException, IOException {
 		this.dispose();
