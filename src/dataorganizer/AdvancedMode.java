@@ -225,9 +225,9 @@ public class AdvancedMode extends JFrame {
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
 	private JPanel calOffsetsPanel;
 	private JTextField textField;
-
-
-
+	private JPanel videoBrowsePanel;
+	private JTextField videoFilePath;
+	private JButton videoBrowseButton;
 
 
 
@@ -848,38 +848,16 @@ public class AdvancedMode extends JFrame {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
-				
 				try {
 					HashMap<Integer, ArrayList<Integer>> testData;
-
 					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
 					//testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
 
 					generalStatusLabel.setText("All Data Received from Module");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(51, 204, 51));
-
-					/*//Executes if the data was received properly (null = fail)
-					if(testData != null) {
-						
-						int [] finalData = new int[testData.get(0).size()];
-						
-						for(int byteIndex = 0; byteIndex < testData.get(0).size(); byteIndex++) {
-							if (testData.get(0).get(byteIndex) != -1){
-								finalData[byteIndex] = testData.get(0).get(byteIndex);
-							}
-							else {
-								finalData[byteIndex] = -1;
-								break;
-							}
-						}
-						int offset = new BlackFrameAnalysis().runAnalysis(Integer.valueOf((String)accelGyroSampleRateCombobox.getSelectedItem()), VideoFileTextField.getText()); 
-						System.out.println(offset);
-						tmr0OffsetTextField.setText(Integer.toString(offset));
-					}*/
 					
-					int offset = new BlackFrameAnalysis().runAnalysis(Integer.parseInt((accelGyroSampleRateCombobox.getSelectedItem()).toString()), VideoFileTextField.getText()); 
-					System.out.println(offset);
+					int offset = new BlackFrameAnalysis().runAnalysis(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()), videoFilePath.getText());
 					tmr0OffsetTextField.setText(Integer.toString(offset));
 					
 					configForCalButton.setEnabled(true);
@@ -893,6 +871,8 @@ public class AdvancedMode extends JFrame {
 					progressBar.setForeground(new Color(255, 0, 0));
 				}/*
 				catch (PortInUseException e) {
+				}
+				/*catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -1431,25 +1411,6 @@ public class AdvancedMode extends JFrame {
 		return true;
 	}
 
-	/**
-	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
-	 * the file explorer and select a save location for the incoming data.
-	 */
-	public void browseVFButtonHandler() {
-		JFileChooser chooser;
-		chooser = new JFileChooser(); 
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			videoFileInput = chooser.getSelectedFile().toString();
-		}
-		else {
-			videoFileInput =  null;
-		}
-		VideoFileTextField.setText(videoFileInput);
-	}
-
 	
 	/**
 	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
@@ -1466,6 +1427,24 @@ public class AdvancedMode extends JFrame {
 		}
 		else {
 			fileOutputDirectoryStr = null;
+		}
+	}
+	
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
+	public void videoBrowseButtonHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			videoFilePath.setText(chooser.getSelectedFile().toString());
+		}
+		else {
+			videoFilePath.setText(null);
 		}
 	}
 	
@@ -1812,7 +1791,8 @@ public class AdvancedMode extends JFrame {
 		fileLocationPanel.setLayout(new BoxLayout(fileLocationPanel, BoxLayout.X_AXIS));
 
 		fileNameTextField = new JTextField();
-		fileNameTextField.setMaximumSize(new Dimension(450, 50));
+		fileNameTextField.setMinimumSize(new Dimension(600, 50));
+		fileNameTextField.setMaximumSize(new Dimension(500, 50));
 		fileNameTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		fileLocationPanel.add(fileNameTextField);
 		fileNameTextField.setColumns(10);
@@ -2058,29 +2038,27 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 		
-		VideoFilePane = new JPanel();
-		VideoFilePane.setAlignmentX(Component.LEFT_ALIGNMENT);
-		calibrationPanel.add(VideoFilePane);
+		videoBrowsePanel = new JPanel();
+		calibrationPanel.add(videoBrowsePanel);
+		videoBrowsePanel.setLayout(new BoxLayout(videoBrowsePanel, BoxLayout.X_AXIS));
 		
-		browseVideoBtn = new JButton("Browse for Video");
-		browseVideoBtn.setMaximumSize(new Dimension(600, 80));
-		browseVideoBtn.addActionListener(new ActionListener() {
+		videoFilePath = new JTextField();
+		videoFilePath.setMaximumSize(new Dimension(500, 2147483647));
+		videoFilePath.setMinimumSize(new Dimension(500, 100));
+		videoFilePath.setColumns(10);
+		videoFilePath.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		videoBrowsePanel.add(videoFilePath);
+		
+		videoBrowseButton = new JButton("Browse");
+		videoBrowseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				browseVFButtonHandler();
-				
+				videoBrowseButtonHandler();
 			}
 		});
-		VideoFilePane.setLayout(new BoxLayout(VideoFilePane, BoxLayout.X_AXIS));
-		
-		VideoFileTextField = new JTextField();
-		VideoFilePane.add(VideoFileTextField);
-		VideoFileTextField.setToolTipText("");
-		VideoFileTextField.setHorizontalAlignment(SwingConstants.LEFT);
-		VideoFileTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		VideoFileTextField.setEditable(false);
-		VideoFileTextField.setColumns(10);
-		VideoFileTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Video File Path", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		VideoFilePane.add(browseVideoBtn);
+		videoBrowseButton.setMinimumSize(new Dimension(160, 100));
+		videoBrowseButton.setPreferredSize(new Dimension(81, 35));
+		videoBrowseButton.setMaximumSize(new Dimension(160, 100));
+		videoBrowsePanel.add(videoBrowseButton);
 		calibrationPanel.add(importCalDataButton);
 		
 		applyOffsetButton = new JButton("Apply Offset to Module");
@@ -2100,14 +2078,12 @@ public class AdvancedMode extends JFrame {
 		calOffsetsPanel.add(tmr0OffsetTextField);
 		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		tmr0OffsetTextField.setEditable(false);
-		tmr0OffsetTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
 		tmr0OffsetTextField.setText("0");
 		tmr0OffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		tmr0OffsetTextField.setColumns(10);
 		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		
 		textField = new JTextField();
-		textField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
 		textField.setText("0");
 		textField.setHorizontalAlignment(SwingConstants.LEFT);
 		textField.setFont(new Font("Tahoma", Font.PLAIN, 16));

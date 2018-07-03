@@ -22,13 +22,16 @@ import java.util.List;
  */
 public class BlackFrameAnalysis {
 	private float videoFPS;
-	private final int PICClkSpeed = 16667;
+	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
 
+	
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
 	 * Returns the offset for TMR0
 	 */
 	public int runAnalysis(int moduleSPS, String vf) throws IOException{
+		System.out.println("moduleSPS: " + moduleSPS);
+		System.out.println("vf: " + vf);
 			Process process = Runtime.getRuntime().exec(cmdWrapper(vf));                                                               //get runtime variable to execute command line
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
 			int lastFrame = 0;                                                                                              //sets integer for the last black frame at 0
@@ -36,10 +39,12 @@ public class BlackFrameAnalysis {
 			ArrayList<Integer> nBlackFrames = new ArrayList<>();                                                                 //black frames stores the frames that are not black
 			String s;                                                                                                       //will store the command line outputs    
 			while ((s = stdError.readLine()) != null) {                                                                 //while there is still output to be read
+				//If line contains the string "[P"
 				if(s.substring(0,2).equals("[P")){
 					String blackFrame = s.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
 					blackFrames.add(Integer.parseInt(blackFrame));                                                      //adds the frame number to the blackFrames list
 				}
+				//Check if line contains the string "frame"
 				else if(s.substring(0,5).equals("frame")){
 					try{
 						lastFrame = Integer.parseInt(s.split(" +")[1]);                                                     //sets the frame to the last seen frame
@@ -50,21 +55,19 @@ public class BlackFrameAnalysis {
 				}
 				//Check if the line contains the string 'fps.' it should be in the metadata
 				else if(s.toLowerCase().contains("fps")) {
-					//Read the FPS from the line
-					videoFPS = Float.valueOf(s.substring(s.indexOf("fps")-4, s.indexOf("fps")));
-					System.out.println(videoFPS);
+					//Read the FPS as a float, it will be a floating point number, 4-5 digits, and suffix of 'fps'
+					videoFPS = Float.valueOf(s.substring(s.indexOf("fps")-5, s.indexOf("fps")));
 				}
 			}
 			int lastStartBlackFrame = -1;
-			System.out.println();System.out.println();
 
 			int i = 0;
 			for(int sample = blackFrames.get(i);i<blackFrames.size();i++) {
 				if(sample != lastStartBlackFrame+1) {
 					if(moduleSPS == videoFPS)
-						return PICClkSpeed * (moduleSPS - i);
+						return Math.round(1000 / moduleSPS * (moduleSPS * DELAY_IN_SECONDS_BEFORE_LIGHT - i));
 					else {
-						return Math.round(PICClkSpeed * (moduleSPS - (moduleSPS/videoFPS)));
+						return Math.round(1000 / moduleSPS * (moduleSPS * DELAY_IN_SECONDS_BEFORE_LIGHT - (moduleSPS / videoFPS) * (i)));
 					}
 				}
 				lastStartBlackFrame = sample;
