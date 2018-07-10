@@ -514,6 +514,7 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
+				disableTabChanges();
 
 				generalStatusLabel.setText("Unpairing all Remotes...");
 				progressBar.setValue(0);
@@ -542,6 +543,7 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
+				enableTabChanges();
 
 				generalStatusLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
 				progressBar.setValue(0);
@@ -568,6 +570,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 				exitTestModeButton.setEnabled(true);
+				disableTabChanges();
 				
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Press a Button on a Remote to Test if it is Paired");
@@ -602,6 +605,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 				exitTestModeButton.setEnabled(false);
+				enableTabChanges();
 				
 				//Notify the user that the sequence has completed
 				generalStatusLabel.setText("Test Mode Successfully Exited");
@@ -638,6 +642,7 @@ public class AdvancedMode extends JFrame {
 				bulkEraseButton.setEnabled(false);
 				sectorEraseButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
+				disableTabChanges();
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Bulk Erasing...");
 				progressBar.setValue(0);
@@ -667,6 +672,7 @@ public class AdvancedMode extends JFrame {
 				bulkEraseButton.setEnabled(true);
 				sectorEraseButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
+				enableTabChanges();
 				//Notify the user that the sequence has completed
 				generalStatusLabel.setText("Bulk Erase Complete");
 				progressBar.setValue(100);
@@ -693,6 +699,7 @@ public class AdvancedMode extends JFrame {
 				//Disable buttons that should not be used in the middle of a sequence
 				bulkEraseButton.setEnabled(false);
 				sectorEraseButton.setEnabled(false);
+				disableTabChanges();
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Sector Erasing...");
 				progressBar.setValue(0);
@@ -720,6 +727,7 @@ public class AdvancedMode extends JFrame {
 				//Enable buttons that can now be used since the sector erase completed
 				bulkEraseButton.setEnabled(true);
 				sectorEraseButton.setEnabled(true);
+				enableTabChanges();
 				//Notify the user that the sequence has completed
 				generalStatusLabel.setText("Sector Erase Complete");
 				progressBar.setValue(100);
@@ -806,6 +814,7 @@ public class AdvancedMode extends JFrame {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(true);
 				applyOffsetButton.setEnabled(false);
+				disableTabChanges();
 				
 				try {
 					if(!serialHandler.configForCalibration()) {
@@ -822,6 +831,7 @@ public class AdvancedMode extends JFrame {
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
+					enableTabChanges();
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -845,11 +855,12 @@ public class AdvancedMode extends JFrame {
 	}
 	
 	public void importCalDataHandler() {	
-		Runnable getConfigsOperation = new Runnable() {
+		Runnable getCalDataOperation = new Runnable() {
 			public void run() {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
+				disableTabChanges();
 				try {
 					HashMap<Integer, ArrayList<Integer>> testData;
 					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
@@ -865,6 +876,7 @@ public class AdvancedMode extends JFrame {
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
+					enableTabChanges();
 					
 				}
 				catch (IOException e) {
@@ -887,7 +899,7 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 		
-		getConfigsOperation.run();
+		getCalDataOperation.run();
 	}
 	
 	public void applyOffsetsHandler() {
@@ -896,6 +908,7 @@ public class AdvancedMode extends JFrame {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
+				disableTabChanges();
 				
 				try {
 					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(tmr0OffsetTextField.getText()))) {
@@ -912,6 +925,7 @@ public class AdvancedMode extends JFrame {
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
+					enableTabChanges();
 					
 				}
 				catch (IOException e) {
@@ -942,6 +956,7 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				//Disable get configs button while read is in progress
 				getCurrentConfigurationsButton.setEnabled(false);
+				disableTabChanges();
 				
 				try {
 
@@ -1026,6 +1041,7 @@ public class AdvancedMode extends JFrame {
 
 				//Re-enable the write config button when the routine has completed
 				getCurrentConfigurationsButton.setEnabled(true);
+				enableTabChanges();
 			}
 		};
 
@@ -1047,7 +1063,7 @@ public class AdvancedMode extends JFrame {
 				public void run() {
 					//Disable write config button while the sendParameters() method is running
 					writeConfigsButton.setEnabled(false);
-
+					disableTabChanges();
 					try {
 						ArrayList<Integer> testParams = new ArrayList<Integer>();
 
@@ -1080,7 +1096,12 @@ public class AdvancedMode extends JFrame {
 						//5 Trigger on release flag
 						testParams.add(triggerOnReleaseFlag);
 						//6 Test Length
-						testParams.add(Integer.parseInt(testLengthTextField.getText()));
+						if(timedTestFlag == 1) {
+							testParams.add(Integer.parseInt(testLengthTextField.getText()));
+						}
+						else {
+							testParams.add(0);
+						}
 						//7 Accel Gyro Sample Rate
 						testParams.add(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()));
 						//8 Mag Sample Rate
@@ -1105,6 +1126,11 @@ public class AdvancedMode extends JFrame {
 							progressBar.setForeground(new Color(51, 204, 51));
 						}
 					}
+					catch (NumberFormatException e) {
+						generalStatusLabel.setText("Please Fill out Every Field");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
 					catch (IOException e) {
 						generalStatusLabel.setText("Error Communicating With Serial Dongle");
 						progressBar.setValue(100);
@@ -1123,6 +1149,7 @@ public class AdvancedMode extends JFrame {
 
 					//Re-enable the write config button when the routine has completed
 					writeConfigsButton.setEnabled(true);
+					enableTabChanges();
 				}
 			};
 
@@ -1146,6 +1173,7 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				//Disable read button while read is in progress
 				readDataButton.setEnabled(false);
+				disableTabChanges();
 
 				try {
 
@@ -1285,6 +1313,7 @@ public class AdvancedMode extends JFrame {
 
 				//Re-enable read button upon read completion
 				readDataButton.setEnabled(true);
+				enableTabChanges();
 			}
 		};
 
@@ -1359,6 +1388,22 @@ public class AdvancedMode extends JFrame {
 			*/
 		}
 	}
+	
+	public void disableTabChanges() {
+		int currentTab = mainTabbedPanel.getSelectedIndex();
+		for (int i = 0; i < mainTabbedPanel.getTabCount(); i++) {
+			if (i != currentTab) {
+				mainTabbedPanel.setEnabledAt(i, false);
+			}
+		}
+	}
+	
+	public void enableTabChanges() {
+		for (int i = 0; i < mainTabbedPanel.getTabCount(); i++) {
+			mainTabbedPanel.setEnabledAt(i, true);
+		}
+	}
+	
 
 	/**
 	 * Updates the magnetometer text field based on the accel gyro sample rate text field 

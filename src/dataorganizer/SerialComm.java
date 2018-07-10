@@ -109,7 +109,7 @@ public class SerialComm {
 
 
 		//Create a new buffered reader so we can define the buffer size to prevent a buffer overflow (explicitly defined in the configureForImport() method)
-		inputStream = new BufferedInputStream(serialPort.getInputStream(), 8192);
+		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
 
 		//Assign the output stream to the output stream of the serial port (no need for a buffer as far as we know)
 		outputStream = serialPort.getOutputStream();  
@@ -187,7 +187,7 @@ public class SerialComm {
 		//Assign the output stream variable to the serial port's output stream
 		outputStream = serialPort.getOutputStream();
 		//Assign the input stream variable to the serial port's input stream via a buffered reader so we have the option to specify the buffer size
-		inputStream = new BufferedInputStream(serialPort.getInputStream(), 8192);
+		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
 		dataStreamsInitialized = true;
 
 		//Return true to exit the method and notify the caller that the method was successful
@@ -215,7 +215,7 @@ public class SerialComm {
 		//Assign the output stream variable to the serial port's output stream
 		outputStream = serialPort.getOutputStream();
 		//Assign the input stream variable to the serial port's input stream via a buffered reader so we have the option to specify the buffer size
-		inputStream = new BufferedInputStream(serialPort.getInputStream(), 725760);
+		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
 		dataStreamsInitialized = true;
 
 
@@ -234,13 +234,11 @@ public class SerialComm {
 		//Get start time so a timeout can be used in subsequent while loop
 		long startTime = System.currentTimeMillis();
 		//While the loop has been executing for less than 500ms
-		//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
 		while (((System.currentTimeMillis() - startTime) < timeout)) {
 			//Executes if there is data in the input stream's buffer
 			if (inputStream.available() > 0) {
 				int temp;
 				//Iterates until the specified preamble is received
-
 				long preambleStart = System.currentTimeMillis();
 				int counter = start;
 				while (counter <= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
@@ -250,7 +248,7 @@ public class SerialComm {
 
 						//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
 						temp = inputStream.read();
-
+						System.out.println(temp);
 						//Executes of the byte received is equal to the current value of counter
 						if (temp == counter) {    
 							//Increment counter by 1
@@ -266,8 +264,9 @@ public class SerialComm {
 					}
 
 				}
-
+				
 				if (counter - 1 == stop) {
+					System.out.println("PREAMBLE");
 					//Return true to exit the method and notify the caller that the method was successful
 					return true;
 				}
@@ -512,7 +511,7 @@ public class SerialComm {
 			long startTime = System.currentTimeMillis();
 
 			//Loops until a timeout occurs or a byte is received and read from the input stream buffer
-			while((System.currentTimeMillis() - startTime) < 100) {
+			while((System.currentTimeMillis() - startTime) < 200) {
 				//Executes if data is in the input stream buffer
 				if (dataStreamsInitialized) {
 					if (inputStream.available() > 0) {
@@ -665,7 +664,6 @@ public class SerialComm {
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
 	public boolean testRemotes(JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
-		clearInputStream();
 
 		//Set module to enter test remote mode
 		if(!selectMode('=')) {
@@ -730,6 +728,8 @@ public class SerialComm {
 			//Initialize flag and temp storage variable
 			int temp;
 
+			boolean preambleFlag = false;
+			
 			//Initialize ID index to 0
 			int idCounter = 0;
 			//Initialize temporary ID parameter array
@@ -741,13 +741,21 @@ public class SerialComm {
 			//Executes while it is still receiving ID info and a timeout has not occured
 			while (idCounter < numIDParams && (System.currentTimeMillis() - startTime) < 1500) {
 
-				//Wait for a preamble, exits method if the preamble times out
-				if(!waitForPreamble(1, 4, 500)) {
-					return null;
+				if (!preambleFlag) {
+					//Wait for a preamble, exits method if the preamble times out
+					if(!waitForPreamble(1, 4, 500)) {
+						return null;
+					}
+					preambleFlag = true;
 				}
-
+				
+				
+				startTime = System.currentTimeMillis();
+				
 				//Executes if data has been received from the module
 				if (inputStream.available() >= 2) {
+					preambleFlag = false;
+					startTime = System.currentTimeMillis();
 					//Store 2 received bytes in MSB order and form into a word
 					temp = inputStream.read() * 256 + inputStream.read();
 					//Echo the value back
@@ -892,6 +900,8 @@ public class SerialComm {
 		int expectedTestNum;
 		ArrayList<Integer> params = new ArrayList<Integer>();
 
+		boolean preambleFlag = false;
+		
 		//Configure the serial port for handshake   
 		configureForHandshake();
 
@@ -908,13 +918,17 @@ public class SerialComm {
 			//Iterates through each parameter in the array
 			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 1500) {
 
-				//Wait for a preamble, exits method if the preamble times out
-				if(!waitForPreamble(1, 4, 500)) {
-					return null;
+				if (!preambleFlag) {
+					//Wait for a preamble, exits method if the preamble times out
+					if(!waitForPreamble(1, 4, 500)) {
+						return null;
+					}
+					preambleFlag = true;
 				}
 
 				//Executes if data has been received from the module
 				if (inputStream.available() >= 2) {
+					preambleFlag = false;
 					//Store 2 received bytes in MSB order and form into a word
 					int temp = inputStream.read() * 256 + inputStream.read();
 					//Echo the value back
@@ -994,15 +1008,19 @@ public class SerialComm {
 			if (timedTestFlag) {
 				dataProgressPartition = (2520 / (double)expectedBytes) * (1 / (double)expectedTestNum);
 			}
-
+			
+			//Notify that the dashboard is ready for test data
+			outputStream.write(pullLow);
+			
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
-
+				
 				//Wait for start condition (preamble)
-				if(!waitForPreamble(1, 8, 500)) {
+				if(!waitForPreamble(1, 8, 1500)) {
 					return null;
 				}
 
+				System.out.println("START PREAMBLE");
 				//Create start time variable for timeouts
 				//long startTime = System.currentTimeMillis();
 
@@ -1012,19 +1030,26 @@ public class SerialComm {
 
 					//Assign an empty arraylist to the test number that is currently being stored
 					ArrayList<Integer> rawData = new ArrayList<Integer>();
-
+					
+					boolean preambleFlag = false;
+					
 					while(true) {
-						if(!waitForPreamble(1, 4, 500)) {
-							return null;
+						if (!preambleFlag) {
+							//Wait for a preamble, exits method if the preamble times out
+							if(!waitForPreamble(1, 4, 1500)) {
+								return null;
+							}
+							preambleFlag = true;
 						}
 						//System.out.println("Sector Start");
 						if (inputStream.available() > 0) {
+							preambleFlag = false;
 							int temp = inputStream.read();
 
 							if (temp == (int)'M') {
-								//System.out.println("M");
+								System.out.println("M");
 								while (inputStream.available() < 2520) {
-									//System.out.println(inputStream.available());
+									System.out.println(inputStream.available());
 								}
 
 								tempTestData = new byte[2520];
