@@ -21,40 +21,54 @@ import java.util.List;
  * @author Mobile2
  */
 public class BlackFrameAnalysis {
-	private float videoFPS;
+	private int videoFPS = 0;
 	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
 	private int NumNonBlack;
+	private final int moduleSPS = 960;
 
 
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
 	 * Returns the offset for TMR0
 	 */
-	public int getLatencyOffset(int moduleSPS, String vf) throws IOException{
-		Process process = Runtime.getRuntime().exec(cmdWrapper(vf));                                                               //get runtime variable to execute command line
+	public int getLatencyOffset(String videoFilePath) throws IOException{
+		Process process = Runtime.getRuntime().exec(cmdWrapper(videoFilePath));                                                               //get runtime variable to execute command line
 		BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
 		int lastFrame = 0;                                                                                              //sets integer for the last black frame at 0
 		ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
-		ArrayList<Integer> nBlackFrames = new ArrayList<>();                                                                 //black frames stores the frames that are not black
-		String s;                                                                                                       //will store the command line outputs    
-		while ((s = stdError.readLine()) != null) { 
+		String lineText;                                                                                                       //will store the command line outputs    
+		while ((lineText = stdError.readLine()) != null) { 
 			//If line contains the string "[P"
-			if(s.substring(0,2).equals("[P")){
-				String blackFrame = s.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
+			if(lineText.substring(0,2).equals("[P")){
+				String blackFrame = lineText.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
 				blackFrames.add(Integer.parseInt(blackFrame));                                                      //adds the frame number to the blackFrames list
-				
+
 				//Check for frame jump, if there hasn't been a black frame in less than 10 frames then 
 				if(Integer.parseInt(blackFrame) - lastFrame < 10) {
 					lastFrame = Integer.parseInt(blackFrame);
 					NumNonBlack = Integer.parseInt(blackFrame) - lastFrame;
-					System.out.println(NumNonBlack);
 				}
 			}
-			
-			//Check if the line contains the string 'fps.' it should be in the metadata
-			else if(s.toLowerCase().contains("fps")) {
-				//Read the FPS as a float, it will be a floating point number, 4-5 digits, and suffix of 'fps'
-				videoFPS = Float.valueOf(s.substring(s.indexOf("fps")-5, s.indexOf("fps")));
+
+
+			if(videoFPS == 0) {
+				//Check if the line contains the string 'fps.' it should be in the metadata
+				if(lineText.toLowerCase().contains(" fps,")) {
+					//Read the FPS as a float, it will be a floating point number, 5-6 characters, and suffix of 'fps'
+					System.out.println(lineText);
+					//System.out.println(lineText.substring(lineText.indexOf(" fps,")-5, lineText.indexOf(" fps,")));
+
+
+					if(lineText.substring(lineText.indexOf(" fps,") - 6, lineText.indexOf(" fps,") - 5).equals(" ")) {
+						System.out.println(lineText.substring(lineText.indexOf(" fps,")-5, lineText.indexOf(" fps,")));
+						videoFPS = (int) Float.parseFloat(lineText.substring(lineText.indexOf(" fps,")-5, lineText.indexOf(" fps,"))) + 1;
+					}
+					else if(lineText.substring(lineText.indexOf(" fps,") - 7, lineText.indexOf(" fps,") - 6).equals(" ")) {
+						videoFPS = (int) Float.parseFloat(lineText.substring(lineText.indexOf(" fps,")-6, lineText.indexOf(" fps,"))) + 1;
+					}
+
+					System.out.println(videoFPS);
+				}
 			}
 		}
 		int lastStartBlackFrame = -1;
@@ -71,7 +85,7 @@ public class BlackFrameAnalysis {
 			}
 			lastStartBlackFrame = sample;
 		}
-		
+
 		/*for (Iterator<Integer> iterator = blackFrames.iterator(); iterator.hasNext();) {                              //iterates through the blackframes
                     int bf = iterator.next(); 
                     if (bf != lastStartBlackFrame+1){                                                                             //if it is not immediately after the last black frame

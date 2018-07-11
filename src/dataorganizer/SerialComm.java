@@ -243,26 +243,29 @@ public class SerialComm {
 				int counter = start;
 				while (counter <= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
 
-
-					if (inputStream.available() > 0) {
-
-						//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
-						temp = inputStream.read();
-						System.out.println(temp);
-						//Executes of the byte received is equal to the current value of counter
-						if (temp == counter) {    
-							//Increment counter by 1
-							counter++;
-						} 
-
-						//Executes if the counter != temp
-						else {
-							//Reset the counter
-							counter = start;
+					try {
+						if (inputStream.available() > 0) {
+	
+							//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+							temp = inputStream.read();
+							System.out.println(temp);
+							//Executes of the byte received is equal to the current value of counter
+							if (temp == counter) {    
+								//Increment counter by 1
+								counter++;
+							} 
+	
+							//Executes if the counter != temp
+							else {
+								//Reset the counter
+								counter = start;
+							}
+							preambleStart = System.currentTimeMillis();
 						}
-						preambleStart = System.currentTimeMillis();
+					}catch(Exception PureJavaIllegalStateException) {
+						System.out.println("file descriptor invalid");
+						return false;
 					}
-
 				}
 				
 				if (counter - 1 == stop) {
