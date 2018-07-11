@@ -248,7 +248,7 @@ public class SerialComm {
 
 						//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
 						temp = inputStream.read();
-						System.out.println(temp);
+						//System.out.println(temp);
 						//Executes of the byte received is equal to the current value of counter
 						if (temp == counter) {    
 							//Increment counter by 1
@@ -266,11 +266,11 @@ public class SerialComm {
 				}
 				
 				if (counter - 1 == stop) {
-					System.out.println("PREAMBLE");
+					//System.out.println("Start");
 					//Return true to exit the method and notify the caller that the method was successful
 					return true;
 				}
-				System.out.println("TIMEOUT");
+				//System.out.println("TIMEOUT");
 				return false;
 
 			}
@@ -1008,19 +1008,30 @@ public class SerialComm {
 			if (timedTestFlag) {
 				dataProgressPartition = (2520 / (double)expectedBytes) * (1 / (double)expectedTestNum);
 			}
+		
 			
 			//Notify that the dashboard is ready for test data
 			outputStream.write(pullLow);
 			
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
+			
+				
+				if(testNum != 0) {
+					if(!waitForPreamble(1, 4, 5000)) {
+						return null;
+					}
+					
+				}
+				
+				//Notify that the dashboard is ready for test data
+				outputStream.write(pullLow);
+				
 				
 				//Wait for start condition (preamble)
 				if(!waitForPreamble(1, 8, 1500)) {
 					return null;
 				}
-
-				System.out.println("START PREAMBLE");
 				//Create start time variable for timeouts
 				//long startTime = System.currentTimeMillis();
 
@@ -1047,9 +1058,7 @@ public class SerialComm {
 							int temp = inputStream.read();
 
 							if (temp == (int)'M') {
-								System.out.println("M");
 								while (inputStream.available() < 2520) {
-									System.out.println(inputStream.available());
 								}
 
 								tempTestData = new byte[2520];
@@ -1092,14 +1101,13 @@ public class SerialComm {
 										}
 									}
 								}
-								//System.out.println("Found end condition for test #" + testNum);
 								break;
 							}
 
 						}
 					}
 					//TODO:: Does this remove the post-amble? "rawData.size() - 4"; if so should this be "rawData.size() - 8"?
-					for (int i = rawData.size() - 4; i < rawData.size(); i++) {
+					for (int i = rawData.size() - 8; i < rawData.size(); i++) {
 						rawData.remove(i);
 					}
 					rawData.add(-1);
