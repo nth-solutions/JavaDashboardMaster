@@ -870,7 +870,7 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(51, 204, 51));
 					
-					int offset = new BlackFrameAnalysis().getLatencyOffset(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()), videoFilePath.getText());
+					int offset = new BlackFrameAnalysis().getLatencyOffset(videoFilePath.getText());
 					delayAfterTextField.setText(Integer.toString(offset));
 					
 					configForCalButton.setEnabled(true);
