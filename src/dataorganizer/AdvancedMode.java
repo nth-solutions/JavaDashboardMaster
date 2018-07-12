@@ -2137,7 +2137,7 @@ public class AdvancedMode extends JFrame {
 		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		delayAfterTextField.setEditable(false);
 		delayAfterTextField.setColumns(10);
-		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(delayAfterTextField);
 		calibrationPanel.add(applyOffsetButton);
 
