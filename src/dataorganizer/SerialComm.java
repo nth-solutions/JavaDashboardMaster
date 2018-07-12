@@ -1015,19 +1015,15 @@ public class SerialComm {
 			}
 		
 			
-			//Notify that the dashboard is ready for test data
-			outputStream.write(pullLow);
-			
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 			
-				
-				if(testNum != 0) {
-					if(!waitForPreamble(1, 4, 5000)) {
-						return null;
-					}
-					
+			
+				if(!waitForPreamble(1, 4, 5000)) {
+					return null;
 				}
+			
+			
 				
 				//Notify that the dashboard is ready for test data
 				outputStream.write(pullLow);
