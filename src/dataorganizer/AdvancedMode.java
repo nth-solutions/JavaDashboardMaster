@@ -457,6 +457,7 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
+				disconnectButton.setEnabled(false);
 
 				generalStatusLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
 				progressBar.setValue(0);
@@ -496,6 +497,7 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
+				disconnectButton.setEnabled(true);
 
 			}
 		};
@@ -518,6 +520,7 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
+				disconnectButton.setEnabled(false);
 				disableTabChanges();
 
 				generalStatusLabel.setText("Unpairing all Remotes...");
@@ -547,6 +550,7 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
+				disconnectButton.setEnabled(true);
 				enableTabChanges();
 
 				generalStatusLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
@@ -574,6 +578,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 				exitTestModeButton.setEnabled(true);
+				disconnectButton.setEnabled(false);
 				disableTabChanges();
 
 				//Notify the user that the bulk erase sequence has began
@@ -609,6 +614,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 				exitTestModeButton.setEnabled(false);
+				disconnectButton.setEnabled(true);
 				enableTabChanges();
 
 				//Notify the user that the sequence has completed

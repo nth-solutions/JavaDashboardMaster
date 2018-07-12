@@ -1023,8 +1023,6 @@ public class SerialComm {
 					return null;
 				}
 			
-			
-				
 				//Notify that the dashboard is ready for test data
 				outputStream.write(pullLow);
 				
