@@ -80,35 +80,7 @@ public class BlackFrameAnalysis {
 		System.out.println(lastblackframe);
 		return ((int)((double)(1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - lastblackframe) * 1000));
 
-		/*
-		 * int i = 0;
-		for(int sample = blackFrames.get(i);i<blackFrames.size();i++) {
-			if(sample != lastStartBlackFrame+1) {
-				if(moduleSPS == videoFPS) {
-					return Math.round((videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - lastblackframe));
-				}
-				else {
-					//return Math.round(T_INTERVAL * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - (moduleSPS / videoFPS) * (i))); //TODO:FIXME
-				}
-			}
-			lastStartBlackFrame = sample;
-		}
-		 */
 
-		/*
-		 * for (Iterator<Integer> iterator = blackFrames.iterator(); iterator.hasNext();) {                              //iterates through the blackframes
-                    int bf = iterator.next(); 
-                    if (bf != lastStartBlackFrame+1){                                                                             //if it is not immediately after the last black frame
-                        for(int i = lastStartBlackFrame+1; i<bf; i++){                                                            //iterates from the last seen black frame to the current one, aka through all of the non black frames
-                            return                                                              //adds the frame to nBlackFrames 
-                        }
-                    }
-                    firstStopBlackFrame = bf;
-                }*/
-
-
-
-		//return 0;
 	}
 
 	/*

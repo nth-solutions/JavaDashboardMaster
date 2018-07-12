@@ -264,7 +264,6 @@ public class SerialComm {
 						}
 					}
 					catch(Exception PureJavaIllegalStateException) {
-						System.out.println("file descriptor invalid");
 						return false;
 					}
 				}
