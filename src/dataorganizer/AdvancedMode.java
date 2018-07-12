@@ -650,7 +650,26 @@ public class AdvancedMode extends JFrame {
 
 				try {
 
-					serialHandler.bulkEraseModule();
+					if(serialHandler.bulkEraseModule()) {
+						//Enable buttons that can now be used since the sector erase completed
+						bulkEraseButton.setEnabled(true);
+						sectorEraseButton.setEnabled(true);
+						enableTabChanges();
+						//Notify the user that the sequence has completed
+						generalStatusLabel.setText("Bulk Erase Complete");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+					else {
+						//Enable buttons that can now be used since the sector erase completed
+						bulkEraseButton.setEnabled(true);
+						sectorEraseButton.setEnabled(true);
+						enableTabChanges();
+						//Notify the user that the sequence has failed
+						generalStatusLabel.setText("Bulk Erase Failed");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -667,16 +686,6 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
-
-				//Enable buttons that can now be used since the bulk erase completed
-				bulkEraseButton.setEnabled(true);
-				sectorEraseButton.setEnabled(true);
-				testRemotesButton.setEnabled(true);
-				enableTabChanges();
-				//Notify the user that the sequence has completed
-				generalStatusLabel.setText("Bulk Erase Complete");
-				progressBar.setValue(100);
-				progressBar.setForeground(new Color(51, 204, 51));
 			}
 		};
 
@@ -706,7 +715,26 @@ public class AdvancedMode extends JFrame {
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					serialHandler.sectorEraseModule();
+					if(serialHandler.sectorEraseModule()) {
+						//Enable buttons that can now be used since the sector erase completed
+						bulkEraseButton.setEnabled(true);
+						sectorEraseButton.setEnabled(true);
+						enableTabChanges();
+						//Notify the user that the sequence has completed
+						generalStatusLabel.setText("Sector Erase Complete");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+					else {
+						//Enable buttons that can now be used since the sector erase completed
+						bulkEraseButton.setEnabled(true);
+						sectorEraseButton.setEnabled(true);
+						enableTabChanges();
+						//Notify the user that the sequence has failed
+						generalStatusLabel.setText("Sector Erase Failed");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -723,15 +751,6 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
-
-				//Enable buttons that can now be used since the sector erase completed
-				bulkEraseButton.setEnabled(true);
-				sectorEraseButton.setEnabled(true);
-				enableTabChanges();
-				//Notify the user that the sequence has completed
-				generalStatusLabel.setText("Sector Erase Complete");
-				progressBar.setValue(100);
-				progressBar.setForeground(new Color(51, 204, 51));
 			}
 		};
 
@@ -870,7 +889,8 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(51, 204, 51));
 					
-					int offset = new BlackFrameAnalysis().getLatencyOffset(videoFilePath.getText());
+					BlackFrameAnalysis bfa = new BlackFrameAnalysis();
+					int offset = bfa.getLatencyOffset(videoFilePath.getText());
 					delayAfterTextField.setText(Integer.toString(offset));
 					
 					configForCalButton.setEnabled(true);
@@ -911,7 +931,7 @@ public class AdvancedMode extends JFrame {
 				disableTabChanges();
 				
 				try {
-					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(tmr0OffsetTextField.getText()))) {
+					if(!serialHandler.applyCalibrationOffsets(0, Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -2055,6 +2075,7 @@ public class AdvancedMode extends JFrame {
 		});
 		
 		bulkEraseButton = new JButton("Bulk Erase");
+		bulkEraseButton.setToolTipText("Make sure the LED is YELLOW after pressing this button! There is a 70 second timeout.");
 		erasePanel.add(bulkEraseButton);
 		bulkEraseButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		bulkEraseButton.addActionListener(new ActionListener() {
@@ -2137,7 +2158,7 @@ public class AdvancedMode extends JFrame {
 		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		delayAfterTextField.setEditable(false);
 		delayAfterTextField.setColumns(10);
-		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (microseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(delayAfterTextField);
 		calibrationPanel.add(applyOffsetButton);
 
