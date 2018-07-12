@@ -571,7 +571,8 @@ public class SerialComm {
 		}
 
 		//Wait for '4321' (in binary, not ascii) as a handshake so the dashboard knows the erase has completed
-		waitForPostamble(4 , 1, 70000);
+		if(!waitForPostamble(4 , 1, 70000))
+			return false;
 
 
 		//Return true to exit the method and notify the caller that the method was successful
@@ -592,7 +593,8 @@ public class SerialComm {
 		}
 
 		//Wait for '4321' (in binary, not ascii) as a handshake so the dashboard knows the erase has completed
-		waitForPostamble(4 , 1, 70000);
+		if(!waitForPostamble(4 , 1, 70000))
+			return false;
 
 
 		//Return true to exit the method and notify the caller that the method was successful

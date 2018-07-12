@@ -26,7 +26,8 @@ public class BlackFrameAnalysis {
 	private int NumNonBlack;
 	private final int moduleSPS = 960;
 	private final double T_INTERVAL = 4.16667;
-
+	private int lastBlackFrame = 0;                                                                                              //sets integer for the last black frame at 0
+	
 
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
@@ -35,7 +36,6 @@ public class BlackFrameAnalysis {
 	public int getLatencyOffset(String videoFilePath) throws IOException{
 		Process process = Runtime.getRuntime().exec(cmdWrapper(videoFilePath));                                                               //get runtime variable to execute command line
 		BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
-		int lastBlackFrame = 0;                                                                                              //sets integer for the last black frame at 0
 		ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
 		String lineText;                                                                                                       //will store the command line outputs   
 		String blackFrame = "0";
@@ -51,7 +51,6 @@ public class BlackFrameAnalysis {
 				else
 					lastBlackFrame = 0;
 				blackFrame = lineText.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
-
 			}
 
 
@@ -77,12 +76,16 @@ public class BlackFrameAnalysis {
 
 
 		int lastblackframe = blackFrames.size();
-		System.out.println(lastblackframe);
 		return ((int)((double)(1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - lastblackframe) * 1000));
-
-
 	}
 
+	
+	public String getLastBlackFrame() {
+		return Integer.toString(lastBlackFrame);
+	}
+	
+	
+	
 	/*
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
