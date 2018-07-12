@@ -1086,7 +1086,7 @@ public class AdvancedMode extends JFrame {
 						//0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
 						testParams.add(0);
 						//1 Timer0 Tick Threshold
-						testParams.add(getTickThreshold(Integer.parseInt(timer0TickThreshTextField.getText())));
+						testParams.add(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())));
 						//2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
 						testParams.add(0);
 						//3 Battery timeout flag
