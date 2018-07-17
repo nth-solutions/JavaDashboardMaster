@@ -874,36 +874,28 @@ public class AdvancedMode extends JFrame {
 	}
 	
 	public void importCalDataHandler() {	
-		Runnable getCalDataOperation = new Runnable() {
-			public void run() {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
 				disableTabChanges();
 				try {
-					HashMap<Integer, ArrayList<Integer>> testData;
-					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-					//testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
 
-					generalStatusLabel.setText("All Data Received from Module");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(51, 204, 51));
-					
-					BlackFrameAnalysis bfa = new BlackFrameAnalysis();
-					int offset = bfa.getLatencyOffset(videoFilePath.getText());
-					delayAfterTextField.setText(Integer.toString(offset));
+					BlackFrameAnalysis bfo = new BlackFrameAnalysis();
+					bfo.getBlackFrameAnalysis(videoFilePath.getText());
+					delayAfterTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
+					tmr0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset(29533, 490)));
 					
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
 					enableTabChanges();
 					
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}/*
+				}
+				/*
 				catch (PortInUseException e) {
 				}
 				/*catch (PortInUseException e) {
@@ -917,10 +909,8 @@ public class AdvancedMode extends JFrame {
 					progressBar.setForeground(new Color(255, 0, 0));
 				}*/
 			}
-		};
-		
-		getCalDataOperation.run();
-	}
+
+	
 	
 	public void applyOffsetsHandler() {
 		Runnable getConfigsOperation = new Runnable() {
@@ -965,6 +955,9 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
+		Thread applyOffsetsHandlerThread = new Thread(getConfigsOperation);
+		applyOffsetsHandlerThread.start();
+		
 	}
 
 	/**
@@ -2131,7 +2124,6 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(importCalDataButton);
 		
 		applyOffsetButton = new JButton("Apply Offset to Module");
-		applyOffsetButton.setEnabled(false);
 		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		applyOffsetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2146,7 +2138,6 @@ public class AdvancedMode extends JFrame {
 		tmr0OffsetTextField = new JTextField();
 		calOffsetsPanel.add(tmr0OffsetTextField);
 		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
-		tmr0OffsetTextField.setEditable(false);
 		tmr0OffsetTextField.setText("0");
 		tmr0OffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		tmr0OffsetTextField.setColumns(10);
@@ -2156,7 +2147,6 @@ public class AdvancedMode extends JFrame {
 		delayAfterTextField.setText("0");
 		delayAfterTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		delayAfterTextField.setEditable(false);
 		delayAfterTextField.setColumns(10);
 		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(delayAfterTextField);
