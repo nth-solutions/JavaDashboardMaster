@@ -1,12 +1,3 @@
-/**
- * SerialComm.java
- * Purpose: This class handles all UART communications in a modular way so it can be used from any GUI we design.
- * Notes: This class should never refer to any outside GUI element. If a method needs to change a status label, progress bar, etc., pass it in as a parameter
- * 		  
- */
-
-
-
 package dataorganizer;
 
 import java.awt.Color;
@@ -30,6 +21,16 @@ import purejavacomm.PortInUseException;
 import purejavacomm.PureJavaIllegalStateException;
 import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
+
+/**
+ * SerialComm.java
+ * Purpose: This class handles all UART communications in a modular way so it can be used from any GUI we design.
+ * 		  
+ * Design Patterns: This class is designed to be as modular as possible. Any GUI elements that need to be manipulated by this class should be passed in as parameters.
+ * 					Additionally, most methods return a boolean if not a data structure in order to allow for easy exiting of the method if the execution is unsuccessful
+ * 					If a method is unsuccessful, it will return false or return a null data structure (such as a null ArrayList). In many cases, it is necessary to surround
+ * 					a method call with an if statement to track whether or not the method successfully completed.
+ */
 
 public class SerialComm {
 
@@ -162,6 +163,9 @@ public class SerialComm {
 	/**
 	 * Configures the serial port and input/output streams for the handshake sequences (most important parameter is the baud rate)
 	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful
+	 * 
+	 * USAGE NOTES: Only call this when you are positive that the module is not sending important data and there is no important data in the 
+	 * serial buffer. Calling this method clears the inputStream buffer.
 	 */
 	public boolean configureForHandshake() throws IOException, PortInUseException, UnsupportedCommOperationException {
 		//Close the current serial port if it is open (Must be done for dashboard to work properly for some reason, do not delete)
@@ -197,6 +201,9 @@ public class SerialComm {
 	/**
 	 * Configures the serial port and input/output streams for the import sequences (most important parameter is the baud rate)
 	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful
+	 * 
+	 * USAGE NOTES: Only call this when you are positive that the module is not sending important data and there is no important data in the 
+	 * serial buffer. Calling this method clears the inputStream buffer.
 	 */
 	public boolean configureForImport() throws IOException, PortInUseException, UnsupportedCommOperationException {
 		//Close the current serial port if it is open (Must be done for dashboard to work properly for some reason, do not delete)
@@ -229,26 +236,38 @@ public class SerialComm {
 	 * @param start the number to start the counting sequence at. (must be less than the 'stop' parameter)
 	 * @param stop the number at which the preamble is consider fully received, the ending number on the counter
 	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
+	 * 
+	 * USAGE NOTES: This method only counts up so 'start' must be < 'stop'. For decrementing counter use waitForPostamble
 	 */
 	public boolean waitForPreamble(int start, int stop, int timeout) throws IOException {
 		//Get start time so a timeout can be used in subsequent while loop
 		long startTime = System.currentTimeMillis();
-		//While the loop has been executing for less than 500ms
+		
+		//While the loop has been executing for less than passed in timeout period
 		while (((System.currentTimeMillis() - startTime) < timeout)) {
+			
 			//Executes if there is data in the input stream's buffer
 			if (inputStream.available() > 0) {
+				
 				int temp;
-				//Iterates until the specified preamble is received
+				
+				//Assign preamble start time for timeout calculation
 				long preambleStart = System.currentTimeMillis();
+				
+				//Set start point for preamble
 				int counter = start;
+				
+				//Iterates until the specified preamble is received or timeout occurs
 				while (counter <= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
 
 					try {
+						
+						//Executes if data is in the inputStream buffer
 						if (inputStream.available() > 0) {
-	
-							//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+
+							//Store newly read byte in the temp variable
 							temp = inputStream.read();
-							//System.out.println(temp);
+							
 							//Executes of the byte received is equal to the current value of counter
 							if (temp == counter) {    
 								//Increment counter by 1
@@ -260,20 +279,25 @@ public class SerialComm {
 								//Reset the counter
 								counter = start;
 							}
+							
+							//Reset preamble timeout counter since data was received (even if it was wrong)
 							preambleStart = System.currentTimeMillis();
 						}
 					}
+					
+					//Unknown Exception, seems to happen randomly so just exit the method and let the user try again if this occurs
 					catch(Exception PureJavaIllegalStateException) {
 						return false;
 					}
 				}
 				
+				//Executes if the entire preamble was received
 				if (counter - 1 == stop) {
-					//System.out.println("Start");
 					//Return true to exit the method and notify the caller that the method was successful
 					return true;
 				}
-				//System.out.println("TIMEOUT");
+				
+				//Executes if a timeout occurred
 				return false;
 
 			}
@@ -289,47 +313,68 @@ public class SerialComm {
 	 * @param start the number to start the counting sequence at (must be greater than the 'stop' parameter)
 	 * @param stop the number at which the postamble is consider fully received, the ending number on the counter
 	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful or timed out
+	 * 
+	 * USAGE NOTES: This method only counts up so 'start' must be < 'stop'. For decrementing counter use waitForPostamble
 	 */
 	public boolean waitForPostamble(int start, int stop, int timeout) throws IOException {
 		//Get start time so a timeout can be used in subsequent while loop
 		long startTime = System.currentTimeMillis();
-
-		//While the loop has been executing for less than 500ms
-		//TODO: This timeout will not work if it is in the internal for loop. Add timeout to for loop if necessary
+		
+		//While the loop has been executing for less than passed in timeout period
 		while (((System.currentTimeMillis() - startTime) < timeout)) {
+			
 			//Executes if there is data in the input stream's buffer
 			if (inputStream.available() > 0) {
+				
 				int temp;
-				//Iterates until the specified preamble is received
-				//TODO: Add timeout to this loop
-
-				long postambleStart = System.currentTimeMillis();
+				
+				//Assign preamble start time for timeout calculation
+				long preambleStart = System.currentTimeMillis();
+				
+				//Set start point for preamble
 				int counter = start;
-				while (counter >= stop && (System.currentTimeMillis() - postambleStart) < timeout) {
+				
+				//Iterates until the specified preamble is received or timeout occurs
+				while (counter >= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
 
-					if (inputStream.available() > 0) {
-						//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
-						temp = inputStream.read();
+					try {
+						
+						//Executes if data is in the inputStream buffer
+						if (inputStream.available() > 0) {
 
-						//Executes of the byte received is equal to the current value of counter
-						if (temp == counter) {    
-							//Increment counter by 1
-							counter--;
-						} 
-
-						//Executes if the counter != temp
-						else {
-							//Reset the counter
-							counter = start;
+							//Store newly read byte in the temp variable
+							temp = inputStream.read();
+							
+							//Executes of the byte received is equal to the current value of counter
+							if (temp == counter) {    
+								//Increment counter by 1
+								counter--;
+							} 
+	
+							//Executes if the counter != temp
+							else {
+								//Reset the counter
+								counter = start;
+							}
+							
+							//Reset preamble timeout counter since data was received (even if it was wrong)
+							preambleStart = System.currentTimeMillis();
 						}
-						postambleStart = System.currentTimeMillis();
+					}
+					
+					//Unknown Exception, seems to happen randomly so just exit the method and let the user try again if this occurs
+					catch(Exception PureJavaIllegalStateException) {
+						return false;
 					}
 				}
-
+				
+				//Executes if the entire preamble was received
 				if (counter + 1 == stop) {
 					//Return true to exit the method and notify the caller that the method was successful
 					return true;
 				}
+				
+				//Executes if a timeout occurred
 				return false;
 
 			}
@@ -360,7 +405,7 @@ public class SerialComm {
 	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
 	 */
 	public boolean configForCalibration() throws IOException, PortInUseException, UnsupportedCommOperationException{
-		//Attempt to configure the serial dongle for handshake mode, exit if it fails to do so
+		//Configure serial port for a handshake (higher baud rate). NOTE: This clears the inputStream buffer so avoid sending data to dashboard when calling this
 		if(!configureForHandshake()) {
 			return false;
 		}
@@ -505,11 +550,13 @@ public class SerialComm {
 
 		//Executes while the mode has not been successfully selected. This loop can be exited by any internal timeouts, or attempt limits as well
 		while(!modeSelected) {
-			//Start condition followed by 'S' to tell firmware to start saving new parameters
+			
+			//Start condition followed by 'modeDelimeter' to tell firmware to enter a specific mode
 			outputStream.write(new String("1111" + modeDelimiter).getBytes());
 
 			//Initialize temp to value that is impossible to be read from the input stream so for debug
 			int temp = -1;
+			
 			//Initialize start time so a timeout can be used
 			long startTime = System.currentTimeMillis();
 
@@ -625,14 +672,20 @@ public class SerialComm {
 	 */
 	public boolean pairNewRemote() throws IOException, PortInUseException, UnsupportedCommOperationException{
 
+		//Tell firmware to enter pair mode
 		if(!selectMode('+')) {
 			return false;
 		}
+		
+		//Wait for confirmation that a remote was detected or the process timed out
 		waitForPostamble(4, 1, 15000);
+		
+		//Get acknowledge handshake to determine if it was successful or a timeout
 		int ackValue = -1;
 		while (ackValue == -1) {
 			if (inputStream.available() > 0) {
-				ackValue = inputStream.read();
+				ackValue = inputStream.read();	
+				//Executes in the event of a timeout
 				if (!(ackValue == (int)'A')) {
 					return false;
 				}
@@ -650,10 +703,12 @@ public class SerialComm {
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
 	public boolean unpairAllRemotes() throws IOException, PortInUseException, UnsupportedCommOperationException {
+		//Tell firmware to enter unpair mode
 		if(!selectMode('-')) {
 			return false;
 		}
 
+		//Wait for process to complete, if the waitForPostamble times out it is assumed that the operation failed
 		if(!waitForPostamble(4, 1, 15000)) {
 			return false;
 		}
@@ -754,15 +809,19 @@ public class SerialComm {
 					preambleFlag = true;
 				}
 				
-				
+				//Reset timeout counter
 				startTime = System.currentTimeMillis();
 				
 				//Executes if data has been received from the module
 				if (inputStream.available() >= 2) {
 					preambleFlag = false;
+					
+					//Reset timeout counter
 					startTime = System.currentTimeMillis();
+					
 					//Store 2 received bytes in MSB order and form into a word
 					temp = inputStream.read() * 256 + inputStream.read();
+					
 					//Echo the value back
 					outputStream.write(temp / 256);
 					outputStream.write(temp % 256);
@@ -770,23 +829,30 @@ public class SerialComm {
 					//Initialize start time so timeout can be used on subsequent while loop
 					long echoStart = System.currentTimeMillis();
 
-					//Executes while the timeout has not occurred
-					//while (((System.currentTimeMillis() - echoStart) < 200)) {
 					int echoAttemptCounter = 0;
+					
+					//Loops until attempt limit is reached or data is received
 					while(echoAttemptCounter < 5) {
 						int ackPreamble = -1;
 						int ackValue = -1;
+						//Create start time so a timeout can be calculated
 						long ackStart = System.currentTimeMillis();
+						//Executes until timeout occurs or data is received
 						while (((System.currentTimeMillis() - echoStart) < 500)) {
+							//Wait until there are at least 2 bytes in the input buffer
 							if (inputStream.available() >= 2) {
+								//Read ack preamble
 								ackPreamble = inputStream.read();
+								//Executes if the last byte read was actually the acknowledge cycle preamble
 								if(ackPreamble == (int)'C') {
+									//Read the actual ack value
 									ackValue = inputStream.read();
 									break;	
 								}
 							}
 						}
 
+						//Executes if the ack value is 'A' meaning that the data was correct
 						if (ackValue == (int)'A') {
 							//Store the confirmed value
 							moduleInfo.add(temp);
@@ -794,6 +860,7 @@ public class SerialComm {
 							idCounter++;
 							break;
 						}
+						//Executes in event of failed ack cycle
 						else {
 							echoAttemptCounter++;
 						}
@@ -830,7 +897,6 @@ public class SerialComm {
 				return false;
 			}
 
-
 			//Iterates through each parameter in the array
 			for (int paramNum = 0; paramNum < params.size(); paramNum++) {
 
@@ -848,7 +914,9 @@ public class SerialComm {
 
 
 					int temp = -1;
+					//Assign start time for timeout calculations
 					long echoStart = System.currentTimeMillis();
+					//Executes until data is received or timeout occurs
 					while((System.currentTimeMillis() - echoStart) < 500) {
 
 						//Executes if the data was received back from the module
@@ -862,6 +930,7 @@ public class SerialComm {
 
 					//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
 					if (temp == params.get(paramNum)) {
+						//Sends acknowledge cycle
 						outputStream.write(new String("CA").getBytes());
 						//Reset attempt counter
 						attemptCounter = 0;
@@ -907,7 +976,7 @@ public class SerialComm {
 
 		boolean preambleFlag = false;
 		
-		//Configure the serial port for handshake   
+		//Configure serial port for a handshake (higher baud rate). NOTE: This clears the inputStream buffer so avoid sending data to dashboard when calling this   
 		configureForHandshake();
 
 		//Executes if the data streams have been initialized and the thread has not been told to abort
@@ -919,10 +988,14 @@ public class SerialComm {
 			}
 
 			int paramCounter = 0;
+			//Assign start time for timeout calculation
 			long startTime = System.currentTimeMillis();
-			//Iterates through each parameter in the array
+			//Iterates through each parameter in the array until completion or timeout
 			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 1500) {
 
+				//Only executes if this iteration has not yet received the preamble. This loop is structured such that for each parameter it will 
+				//start by only looking for the preamble. Once it finds the preamble it will only look for 2 bytes of data. Once it receives the data and
+				//it is analyzed, it resets the preamble flag so looking for the preamble becomes the sole priority again.
 				if (!preambleFlag) {
 					//Wait for a preamble, exits method if the preamble times out
 					if(!waitForPreamble(1, 4, 500)) {
@@ -943,23 +1016,30 @@ public class SerialComm {
 					//Initialize start time so timeout can be used on subsequent while loop
 					long echoStart = System.currentTimeMillis();
 
-					//Executes while the timeout has not occurred
-					//while (((System.currentTimeMillis() - echoStart) < 200)) {
 					int echoAttemptCounter = 0;
+					
+					//Loops until attempt limit is reached or data is received
 					while(echoAttemptCounter < 5) {
 						int ackPreamble = -1;
 						int ackValue = -1;
+						//Create start time so a timeout can be calculated
 						long ackStart = System.currentTimeMillis();
+						//Executes until timeout occurs or data is received
 						while (((System.currentTimeMillis() - echoStart) < 500)) {
+							//Wait until there are at least 2 bytes in the input buffer
 							if (inputStream.available() >= 2) {
+								//Read ack preamble
 								ackPreamble = inputStream.read();
+								//Executes if the last byte read was actually the acknowledge cycle preamble
 								if(ackPreamble == (int)'C') {
+									//Read the actual ack value
 									ackValue = inputStream.read();
 									break;	
 								}
 							}
 						}
 
+						//Executes if the ack value is 'A' meaning that the data was correct
 						if (ackValue == (int)'A') {
 							//Store the confirmed value
 							params.add(temp);
@@ -967,6 +1047,7 @@ public class SerialComm {
 							paramCounter++;
 							break;
 						}
+						//Executes in event of failed ack cycle
 						else {
 							echoAttemptCounter++;
 						}
@@ -992,100 +1073,121 @@ public class SerialComm {
 	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
 	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
 	 */
-	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum, JProgressBar progressBar, boolean timedTestFlag, int expectedBytes) throws IOException, PortInUseException, UnsupportedCommOperationException {  
+	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum, JProgressBar progressBar, JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {  
 		//Put module into export test data mode, exit method if that routine fails
 		if(!selectMode('E')) {
 			return null;
 		}
+		
+		//Configure serial port for an import (higher baud rate). NOTE: This clears the inputStream buffer so avoid sending data to dashboard when calling this
 		configureForImport();
 
 		//Executes if the data streams are initialized and the program was not aborted externally
 		if (dataStreamsInitialized) {
 
+			//This Hashmap holds all the testing data. The key is the test number and the element is the arraylist of data from that test
 			HashMap<Integer, ArrayList<Integer>> testData = new HashMap<Integer, ArrayList<Integer>>();
+			
+			//Just used to pull the TX line low for firmware handshake
 			byte[] pullLow = {0,0,0,0};
 
-
-			double progress = 0;
-			double dataProgressPartition = 0;
-
-			//Progress can only be estimated if it is a timed test so if the module just took a timed test, calculate how much to update the progress bar each time it receives a sector of data
-			if (timedTestFlag) {
-				dataProgressPartition = (2520 / (double)expectedBytes) * (1 / (double)expectedTestNum);
-			}
-		
-			
+					
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
-			
-			
-				if(!waitForPreamble(1, 4, 5000)) {
-					return null;
-				}
-			
-				//Notify that the dashboard is ready for test data
-				outputStream.write(pullLow);
 				
+				//Sector tracking variables for progress calculation
+				int numSectors = 0;
+				int sectorCounter = 0;
+				
+				statusLabel.setText("Transferring Test #" + (testNum + 1) + "...");
+			
 				
 				//Wait for start condition (preamble)
 				if(!waitForPreamble(1, 8, 1500)) {
 					return null;
 				}
-				//Create start time variable for timeouts
-				//long startTime = System.currentTimeMillis();
+				
+				//Notify that the dashboard is ready for test data
+				outputStream.write(pullLow);
+				
+				//Wait for 2 bytes to be received
+				while(inputStream.available() < 2) {
+				}
+				
+				//Read the 2 bytes into the numSectors variable
+				numSectors = inputStream.read() * 256 + inputStream.read();
 
 				byte [] tempTestData;
+				
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
 				while (true) {    
 
 					//Assign an empty arraylist to the test number that is currently being stored
 					ArrayList<Integer> rawData = new ArrayList<Integer>();
 					
+					//Preamble tracking variable for program flow control
 					boolean preambleFlag = false;
 					
 					while(true) {
+						
+						//Executes if the preamble has not yet been received for this block read sequence
 						if (!preambleFlag) {
 							//Wait for a preamble, exits method if the preamble times out
 							if(!waitForPreamble(1, 4, 1500)) {
 								return null;
 							}
+							//Set preamble flag
 							preambleFlag = true;
 						}
-						//System.out.println("Sector Start");
+
+						
 						if (inputStream.available() > 0) {
+							
+							//Reset preamble flag
 							preambleFlag = false;
+							
+							//Read the block type identifier. (1st character after the 1234 sequence)
 							int temp = inputStream.read();
 
+							//Executes when the module specifies that the next block is a full block of data (5 sectors) 
 							if (temp == (int)'M') {
+								//Wait for the whole block to be transferred
 								while (inputStream.available() < 2520) {
 								}
 
+								//Clear the data in tempTestData
 								tempTestData = new byte[2520];
 
+								//Bulk read the sector that was just received
 								inputStream.read(tempTestData, 0, 2520);
-								//System.out.println(tempTestData);
-								//Update progress bar based on how much data was received (dataProgressPartition calculated at top of method)
-								progress += dataProgressPartition;
-								progressBar.setValue((int)(progress * 100));
+								
+								//Update sector counter
+								sectorCounter += 5;
+								
+								//Display calculated progress
+								progressBar.setValue((int)(((double)(sectorCounter)/(double)(numSectors)) * 100));
 
+								//Values from bulk read method are saved as signed bytes, must convert to unsigned
 								for (byte data : tempTestData) {
 
-									//Add the bulk read data to the rawData arraylist. IMPORTANT: & 255 converts it from a signed byte to an unsigned byte 
+									//Add the bulk read data to the rawData arraylist. IMPORTANT: & 255 converts it from a signed byte to an unsigned byte when using bulk read
 									rawData.add((int)data & 255);
-									//System.out.println(data & 255);
 								}
+								
+								//Handshake to Module
 								outputStream.write(pullLow);
 							}
 
+							//Executes if module specified that the next block is a partial block (less than 5 sectors)
 							else if (temp == (int)'P') {
 								for(int counter = 8; counter >= 1;) {
-									//Store newly read byte in the temp variable (Must mod by 256 to get single byte due to quirks in BufferedReader class)
+									//Store newly read byte in the temp variable 
 									if (inputStream.available() > 0) {
+										
+										//
 										temp = inputStream.read();
 
 										rawData.add(temp);
-
-										//System.out.println(temp);
 
 										//Executes of the byte received is equal to the current value of counter
 										if (temp == counter) {    
@@ -1100,6 +1202,7 @@ public class SerialComm {
 										}
 									}
 								}
+								sectorCounter++;
 								break;
 							}
 

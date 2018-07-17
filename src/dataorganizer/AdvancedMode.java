@@ -1,8 +1,3 @@
-/**
- * AdvancedMode.java
- * Purpose: This class handles the advanced gui and interacts with the SerialComm.java utility class to talk to the module
- * Notes: All gui elements should be contained in this class.
- */
 
 package dataorganizer;
 
@@ -66,13 +61,23 @@ import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
 
-public class AdvancedMode extends JFrame {
+/**
+ * AdvancedMode.java
+ * Purpose: This class handles the advanced gui and interacts with the SerialComm.java utility class to talk to the module
+ *
+ * Design Patterns: This class exclusively handles GUI elements and calls external methods for any other operations. Every action event should call a handler method
+ * 					which sets the GUI elements, defines a Runnable operation then starts that operation in a separate thread. No GUI elements can be updated until
+ * 					the action event completes so by starting the actual operation in a separate thread then completing the action event, the dashboard will update.
+ * 					Additionally, most methods return a boolean if not a data structure in order to allow for easy exiting of the method if the execution is unsuccessful
+ * 					If a method is unsuccessful, it will return false or return a null data structure (such as a null ArrayList). In many cases, it is necessary to surround
+ * 					a method call with an if statement to track whether or not the method successfully completed.* 
+ *
+ * COMMENT TERMINOLOGY:
+ *  - Caller: The class, object, location, or method in which the currently executing method was called. ex) The bulkEraseHandler() 'Calls' the bulkEraseModule() method so the bulkEraseHandler() is the caller
+ *  - User: The person using the dashboard, not the programmer.
+ */
 
-	/**
-	 * COMMENT TERMINOLOGY:
-	 * Caller: The class, object, location, or method in which the currently executing method was called. ex) The bulkEraseHandler() 'Calls' the bulkEraseModule() method so the bulkEraseHandler() is the caller
-	 * User: The person using the dashboard, not the programmer.
-	 */
+public class AdvancedMode extends JFrame {
 
 
 	//GUI Elements, define here if they need to be accessed in the Dashboard class. To quickly identify what panel you want to reference, open the GUI in
@@ -215,6 +220,7 @@ public class AdvancedMode extends JFrame {
 
 	//Flags
 	private boolean frameInitialized = false;
+	private boolean corruptConfigFlag = false;
 
 	//Serial Port Variables
 	private SerialPort serialPort;      			//Object for the serial port class
@@ -987,6 +993,8 @@ public class AdvancedMode extends JFrame {
 				//Disable get configs button while read is in progress
 				getCurrentConfigurationsButton.setEnabled(false);
 				disableTabChanges();
+				
+				corruptConfigFlag = false;
 
 				try {
 
@@ -1028,10 +1036,15 @@ public class AdvancedMode extends JFrame {
 						else {
 							triggerOnReleaseCheckbox.setSelected(false);
 						}
-
+						
+						//Assign/lookup values on gui based on read configs. If any of the lookup methods detect corrupt data they set corruptConfigFlag to true
 						testLengthTextField.setText(Integer.toString(testLength));
 						accelGyroSampleRateCombobox.setSelectedIndex(lookupAccelGyroSampleRateIndex(accelGyroSampleRate));
-						magSampleRateTextField.setText(Integer.toString(magSampleRate));
+						//Executes if the magnetometer value is corrupted
+						if(!updateMagSampleRate()) {
+							//Set flag that will be used to determine the status label text
+							corruptConfigFlag = true;
+						}
 						accelSensitivityCombobox.setSelectedIndex(lookupAccelSensitivityIndex(accelSensitivity));
 						gyroSensitivityCombobox.setSelectedIndex(lookupGyroSensitivityIndex(gyroSensitivity));
 						accelFilterCombobox.setSelectedIndex(lookupAccelFilterIndex(accelFilter));
@@ -1042,9 +1055,17 @@ public class AdvancedMode extends JFrame {
 						batteryTimeoutTextField.setText(Integer.toString(battTimeoutLength));
 
 
-						generalStatusLabel.setText("Current Module Configurations Received and Displayed");
-						progressBar.setValue(100);
-						progressBar.setForeground(new Color(51, 204, 51));
+						if(corruptConfigFlag) {
+							initDataFields();
+							generalStatusLabel.setText("Module Configurations Corrupted, Default Values Displayed");
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(255, 0, 0));
+						}
+						else {
+							generalStatusLabel.setText("Current Module Configurations Received and Displayed");
+							progressBar.setValue(100);
+							progressBar.setForeground(new Color(51, 204, 51));
+						}
 					}
 					else {
 						generalStatusLabel.setText("Error Communicating With Module, Try Again");
@@ -1268,7 +1289,7 @@ public class AdvancedMode extends JFrame {
 							HashMap<Integer, ArrayList<Integer>> testData;
 
 							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-							testData = serialHandler.readTestData(expectedTestNum, progressBar, timedTest, (int) (bytesPerSample * accelGyroSampleRate * testLength));
+							testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabel);
 
 							generalStatusLabel.setText("All Data Received from Module");
 							progressBar.setValue(100);
@@ -1379,7 +1400,8 @@ public class AdvancedMode extends JFrame {
 		updateMagSampleRate();
 		testLengthTextField.setText("25");
 		batteryTimeoutTextField.setText("300");
-		timer0TickThreshTextField.setText(Integer.toString(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()))));
+		timer0TickThreshTextField.setText("");
+		delayAfterStartTextField.setText("");
 
 	}
 
@@ -1447,26 +1469,24 @@ public class AdvancedMode extends JFrame {
 			switch (Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())) {
 			case(60):			
 				magSampleRateTextField.setText("60");
-			break;
+				break;
 			case(120):
 				magSampleRateTextField.setText("120");
-			break;
+				break;
 			case (240):
 				magSampleRateTextField.setText("24");
-			break;
+				break;
 			case (480):
 				magSampleRateTextField.setText("48");
-			break;
+				break;
 			case (500):
 				magSampleRateTextField.setText("50");
-			break;
+				break;
 			case (960):
 				magSampleRateTextField.setText("96");
-			break;
+				break;
 			default:	
-				generalStatusLabel.setText("Please Enter a Valid Accel/Gyro Sample Rate");
-				progressBar.setValue(100);
-				progressBar.setForeground(new Color(255, 0, 0));
+				corruptConfigFlag = true;
 				return false;
 			}
 		}
@@ -1561,8 +1581,7 @@ public class AdvancedMode extends JFrame {
 		case(960):
 			return 5;
 		default:
-			initDataFields();
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
+			corruptConfigFlag = true;
 			return accelGyroSampleRateCombobox.getSelectedIndex();
 		}
 	}
@@ -1583,7 +1602,7 @@ public class AdvancedMode extends JFrame {
 		case(16):
 			return 3;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
+			corruptConfigFlag = true;
 			return accelSensitivityCombobox.getSelectedIndex();
 		}
 	}
@@ -1604,7 +1623,7 @@ public class AdvancedMode extends JFrame {
 		case(2000):
 			return 3;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
+			corruptConfigFlag = true;
 			return gyroSensitivityCombobox.getSelectedIndex();
 		}
 	}
@@ -1633,7 +1652,7 @@ public class AdvancedMode extends JFrame {
 		case(1130):
 			return 7;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
+			corruptConfigFlag = true;
 			return accelFilterCombobox.getSelectedIndex();
 		}
 	}
@@ -1662,7 +1681,7 @@ public class AdvancedMode extends JFrame {
 		case(8600):
 			return 7;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
+			corruptConfigFlag = true;
 			return gyroFilterCombobox.getSelectedIndex();
 		}
 	}
