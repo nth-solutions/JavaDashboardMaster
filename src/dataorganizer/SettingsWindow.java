@@ -20,7 +20,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import java.awt.event.ActionListener;
 import java.awt.CardLayout;
-import org.eclipse.wb.swing.FocusTraversalOnArray;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;

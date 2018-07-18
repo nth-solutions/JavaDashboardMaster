@@ -395,6 +395,7 @@ public class SerialComm {
 		
 		calData[0] = tmr0Offset;
 		calData[1] = delayAfterStart;
+		System.out.println(calData[0]);
 		System.out.println(calData[1]);
 		int addFlag = 0;
 		int addFlagSerialRead = 0;
@@ -408,13 +409,12 @@ public class SerialComm {
 			if(dataIndex == 0) {
 				//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
 				if (tmr0Offset < 0) {
-					outputStream.write(0);
-					addFlag = 0;
-					tmr0Offset = tmr0Offset * -1;
-				}
-				else {
 					outputStream.write(1);
 					addFlag = 1;
+				}
+				else {
+					outputStream.write(0);
+					addFlag = 0;
 				}	
 			}
 
