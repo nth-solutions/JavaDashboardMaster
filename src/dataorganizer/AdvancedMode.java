@@ -247,7 +247,7 @@ public class AdvancedMode extends JFrame {
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
-		mainTabbedPanel.setEnabled(false);
+		findModuleCommPort();
 		setVisible(true);
 	}
 
@@ -307,6 +307,98 @@ public class AdvancedMode extends JFrame {
 
 	}
 
+	public void findModuleCommPort() {
+		Runnable findModuleOperation = new Runnable() {
+			public void run() {
+				try {
+					ArrayList<String> commPortIDList = serialHandler.findPorts();
+					boolean moduleFound = false;
+					int commPortIndex = 0;
+					while (!moduleFound && commPortIndex < commPortIDList.size()) {
+	
+						//Get the string identifier (name) of the current port
+						String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();      
+	
+						//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+						if(serialHandler.openSerialPort(selectedCommID)){
+							
+							int attemptCounter = 0;
+							while (attemptCounter < 3 && !moduleFound) {
+								try {
+									ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+			
+									if (moduleIDInfo != null) {
+										moduleFound = true;
+										
+										moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
+										hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
+										firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
+										if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+											generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
+											progressBar.setValue(100);
+											progressBar.setForeground(new Color(255, 0, 0));	
+										}
+										else {
+											generalStatusLabel.setText("Successfully Connected to Module");
+											progressBar.setValue(100);
+											progressBar.setForeground(new Color(51, 204, 51));
+											
+											//Enable the buttons that can now be used since the serial port opened
+											disconnectButton.setEnabled(true);
+											getModuleIDButton.setEnabled(true);
+											readDataButton.setEnabled(true);
+											writeConfigsButton.setEnabled(true);
+											getCurrentConfigurationsButton.setEnabled(true);
+											mainTabbedPanel.setEnabled(true);
+											enableTabChanges();
+											//Disable COMM port combobox so the user doesn't accidentally reopen a port
+											commPortCombobox.setEnabled(false);
+										}
+									}
+									else {
+										attemptCounter++;
+									}
+								}
+								catch (IOException e) {
+									attemptCounter++;
+								}
+								catch (PortInUseException e) {
+									attemptCounter++;
+								}
+								catch (UnsupportedCommOperationException e) {
+									attemptCounter++;
+								}
+							}
+							
+						}
+						commPortIndex++;
+					}
+					if (!moduleFound) {
+						generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));	
+						mainTabbedPanel.setEnabled(false);
+					}
+	
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+					mainTabbedPanel.setEnabled(false);
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+					mainTabbedPanel.setEnabled(false);
+				}
+			}
+		};
+		Thread findModuleThread = new Thread(findModuleOperation);
+		findModuleThread.run();
+		
+	}
 
 	/**
 	 * This method handles which methods will be called when the user selects a port from the COMM port combobox. This entails looking up which port they selected and then opening that port
@@ -393,7 +485,6 @@ public class AdvancedMode extends JFrame {
 							}
 						}
 						else {
-							startTestBtn.setText("Start Test");
 							if(serialHandler.stopTest()) {
 								startTestBtn.setText("Start Test");
 							}
@@ -437,9 +528,11 @@ public class AdvancedMode extends JFrame {
 				//While the loop has been executing for less than 500ms
 				while (((System.currentTimeMillis() - startTime) < 5500)) {
 					startTestBtn.setEnabled(false);
+					getModuleIDButton.setEnabled(false);
 				}
 
 				startTestBtn.setEnabled(true);
+				getModuleIDButton.setEnabled(true);
 
 			}
 		};
@@ -464,6 +557,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 				disconnectButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 
 				generalStatusLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
 				progressBar.setValue(0);
@@ -504,6 +598,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 				disconnectButton.setEnabled(true);
+				getModuleIDButton.setEnabled(true);
 
 			}
 		};
@@ -527,6 +622,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 				disconnectButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 
 				generalStatusLabel.setText("Unpairing all Remotes...");
@@ -557,6 +653,7 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 				disconnectButton.setEnabled(true);
+				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
 
 				generalStatusLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
@@ -585,6 +682,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(false);
 				exitTestModeButton.setEnabled(true);
 				disconnectButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 
 				//Notify the user that the bulk erase sequence has began
@@ -621,6 +719,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(true);
 				exitTestModeButton.setEnabled(false);
 				disconnectButton.setEnabled(true);
+				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
 
 				//Notify the user that the sequence has completed
@@ -658,6 +757,7 @@ public class AdvancedMode extends JFrame {
 				bulkEraseButton.setEnabled(false);
 				sectorEraseButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Bulk Erasing...");
@@ -667,25 +767,22 @@ public class AdvancedMode extends JFrame {
 				try {
 
 					if(serialHandler.bulkEraseModule()) {
-						//Enable buttons that can now be used since the sector erase completed
-						bulkEraseButton.setEnabled(true);
-						sectorEraseButton.setEnabled(true);
-						enableTabChanges();
 						//Notify the user that the sequence has completed
 						generalStatusLabel.setText("Bulk Erase Complete");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
 					else {
-						//Enable buttons that can now be used since the sector erase completed
-						bulkEraseButton.setEnabled(true);
-						sectorEraseButton.setEnabled(true);
-						enableTabChanges();
 						//Notify the user that the sequence has failed
 						generalStatusLabel.setText("Bulk Erase Failed");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
+					//Enable buttons that can now be used since the sector erase completed
+					bulkEraseButton.setEnabled(true);
+					sectorEraseButton.setEnabled(true);
+					getModuleIDButton.setEnabled(true);
+					enableTabChanges();
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -724,6 +821,7 @@ public class AdvancedMode extends JFrame {
 				//Disable buttons that should not be used in the middle of a sequence
 				bulkEraseButton.setEnabled(false);
 				sectorEraseButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Sector Erasing...");
@@ -732,25 +830,23 @@ public class AdvancedMode extends JFrame {
 
 				try {
 					if(serialHandler.sectorEraseModule()) {
-						//Enable buttons that can now be used since the sector erase completed
-						bulkEraseButton.setEnabled(true);
-						sectorEraseButton.setEnabled(true);
-						enableTabChanges();
 						//Notify the user that the sequence has completed
 						generalStatusLabel.setText("Sector Erase Complete");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
 					else {
-						//Enable buttons that can now be used since the sector erase completed
-						bulkEraseButton.setEnabled(true);
-						sectorEraseButton.setEnabled(true);
-						enableTabChanges();
+						
 						//Notify the user that the sequence has failed
 						generalStatusLabel.setText("Sector Erase Failed");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
+					//Enable buttons that can now be used since the sector erase completed
+					bulkEraseButton.setEnabled(true);
+					sectorEraseButton.setEnabled(true);
+					getModuleIDButton.setEnabled(true);
+					enableTabChanges();
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -849,6 +945,7 @@ public class AdvancedMode extends JFrame {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(true);
 				applyOffsetButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 
 				try {
@@ -866,6 +963,7 @@ public class AdvancedMode extends JFrame {
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
+					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 				}
 				catch (IOException e) {
@@ -895,6 +993,7 @@ public class AdvancedMode extends JFrame {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 				try {
 					HashMap<Integer, ArrayList<Integer>> testData;
@@ -912,6 +1011,7 @@ public class AdvancedMode extends JFrame {
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
+					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 
 				}
@@ -944,6 +1044,7 @@ public class AdvancedMode extends JFrame {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 
 				try {
@@ -961,6 +1062,7 @@ public class AdvancedMode extends JFrame {
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
+					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 
 				}
@@ -992,8 +1094,10 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				//Disable get configs button while read is in progress
 				getCurrentConfigurationsButton.setEnabled(false);
+				writeConfigsButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
-				
+
 				corruptConfigFlag = false;
 
 				try {
@@ -1036,7 +1140,7 @@ public class AdvancedMode extends JFrame {
 						else {
 							triggerOnReleaseCheckbox.setSelected(false);
 						}
-						
+
 						//Assign/lookup values on gui based on read configs. If any of the lookup methods detect corrupt data they set corruptConfigFlag to true
 						testLengthTextField.setText(Integer.toString(testLength));
 						accelGyroSampleRateCombobox.setSelectedIndex(lookupAccelGyroSampleRateIndex(accelGyroSampleRate));
@@ -1092,6 +1196,8 @@ public class AdvancedMode extends JFrame {
 
 				//Re-enable the write config button when the routine has completed
 				getCurrentConfigurationsButton.setEnabled(true);
+				writeConfigsButton.setEnabled(true);
+				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
 			}
 		};
@@ -1114,6 +1220,8 @@ public class AdvancedMode extends JFrame {
 				public void run() {
 					//Disable write config button while the sendParameters() method is running
 					writeConfigsButton.setEnabled(false);
+					getCurrentConfigurationsButton.setEnabled(false);
+					getModuleIDButton.setEnabled(false);
 					disableTabChanges();
 					try {
 						ArrayList<Integer> testParams = new ArrayList<Integer>();
@@ -1200,6 +1308,8 @@ public class AdvancedMode extends JFrame {
 
 					//Re-enable the write config button when the routine has completed
 					writeConfigsButton.setEnabled(true);
+					getCurrentConfigurationsButton.setEnabled(true);
+					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 				}
 			};
@@ -1224,6 +1334,7 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				//Disable read button while read is in progress
 				readDataButton.setEnabled(false);
+				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 
 				try {
@@ -1364,6 +1475,7 @@ public class AdvancedMode extends JFrame {
 
 				//Re-enable read button upon read completion
 				readDataButton.setEnabled(true);
+				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
 			}
 		};
@@ -1469,22 +1581,22 @@ public class AdvancedMode extends JFrame {
 			switch (Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())) {
 			case(60):			
 				magSampleRateTextField.setText("60");
-				break;
+			break;
 			case(120):
 				magSampleRateTextField.setText("120");
-				break;
+			break;
 			case (240):
 				magSampleRateTextField.setText("24");
-				break;
+			break;
 			case (480):
 				magSampleRateTextField.setText("48");
-				break;
+			break;
 			case (500):
 				magSampleRateTextField.setText("50");
-				break;
+			break;
 			case (960):
 				magSampleRateTextField.setText("96");
-				break;
+			break;
 			default:	
 				corruptConfigFlag = true;
 				return false;
