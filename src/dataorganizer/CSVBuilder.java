@@ -15,7 +15,7 @@ import com.sun.javafx.collections.MappingChange.Map;
 
 public class CSVBuilder {        //Class for Creating .CSV files
 	
-    public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, int[] testParams) {
+    public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, ArrayList<Integer> testParams) {
     
     	
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
@@ -94,19 +94,19 @@ public class CSVBuilder {        //Class for Creating .CSV files
             	lineNum++;
             }
         	
-        	if (sampleCounter < 3) {
+        	if (sampleCounter < 3 && signedData) {
         		if(wordData[wordNum] > 32768) {
         			wordData[wordNum] -= 65535;
         		}
         		// converts to accel
-        		wordData[wordNum] = ((wordData[wordNum]*testParams[9])/32768);
+        		wordData[wordNum] = ((wordData[wordNum]*testParams.get(9))/32768);
         	}
-        	else if( sampleCounter < 6) {
+        	else if( sampleCounter < 6 && signedData) {
         		if(wordData[wordNum] > 32768) {
         			wordData[wordNum] -= 65535;
         		}
         		// gyro
-        		wordData[wordNum] = ((wordData[wordNum]*testParams[10])/32768);
+        		wordData[wordNum] = ((wordData[wordNum]*testParams.get(10))/32768);
         	}
         	//Add a sample to the sampleHolder vector so it can be mapped to lineNumber when one of the conditionals listed above is true
             sampleHolder.add(wordData[wordNum]);  

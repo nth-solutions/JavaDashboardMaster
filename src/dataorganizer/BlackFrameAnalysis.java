@@ -70,11 +70,7 @@ public class BlackFrameAnalysis {
 
 
 	public int getDelayAfterStart() {
-		int delayAfterStart = (int)((1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - preLitBFNum) * 1000);	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
-		if (delayAfterStart < 0)			//if the delay is negative; set delay to 0; else return positive delay
-			return 0;
-		else
-			return delayAfterStart;
+		return (int)((1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - preLitBFNum) * 1000);	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
 	}
 
 	public int getTMR0Offset() {
