@@ -25,60 +25,52 @@ public class BlackFrameAnalysis {
 	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
 	private int NumNonBlack;
 	private final int moduleSPS = 960;
-	private final double T_INTERVAL = 4.16667;
-	private int lastBlackFrame = 0;                                                                                              //sets integer for the last black frame at 0
+	private final int lengthOfTest = 120;
+	private final double T_INTERVAL = (1/240);
+	private int lastBlackFrame = 0;		//sets integer for the last black frame at 0
+	private int blackFrame = 0;		
 	
+	
+	Process process;
 
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
 	 * Returns the offset for TMR0
 	 */
-	public int getLatencyOffset(String videoFilePath) throws IOException{
-		Process process = Runtime.getRuntime().exec(cmdWrapper(videoFilePath));                                                               //get runtime variable to execute command line
-		BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
-		ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
-		String lineText;                                                                                                       //will store the command line outputs   
-		String blackFrame = "0";
-		while ((lineText = stdError.readLine()) != null) { 
-			if(Integer.parseInt(blackFrame) > lastBlackFrame + 1) {
-				break;
-			}
-			//If line contains the string "[P"
-			if(lineText.substring(0,2).equals("[P")){
-				blackFrames.add(Integer.parseInt(blackFrame));   	//adds the frame number to the blackFrames list
-				if (blackFrames.size() > 1)
-					lastBlackFrame = blackFrames.get(blackFrames.size() - 1);
-				else
-					lastBlackFrame = 0;
-				blackFrame = lineText.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
-			}
-
-
-
+	public void getBlackFrameAnalysis(String videoFilePath) throws IOException{
+			process = Runtime.getRuntime().exec(cmdWrapper(videoFilePath));                                                               //get runtime variable to execute command line
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
+			//ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
+			String lineText;                                                                                                       //will store the command line outputs   
 			
-
-
-
-			/*Check if the line contains the string ' fps,' it should be in the metadata
-			if(lineText.toLowerCase().contains(" fps,") && videoFPS == 0) {
-				//Read the FPS as an integer, it will be a floating point number(add 1 because the string is truncated through the conversion), 5-6 characters, and suffix of 'fps'.
-				if(lineText.substring(lineText.indexOf(" fps,") - 6, lineText.indexOf(" fps,") - 5).equals(" ")) {
-					videoFPS = (int) Float.parseFloat(lineText.substring(lineText.indexOf(" fps,")-5, lineText.indexOf(" fps,"))) + 1;
+		
+			while ((lineText = stdError.readLine()) != null && blackFrame - lastBlackFrame < 200) { 
+	
+				//If line contains the string "[P"
+				if(lineText.substring(0,2).equals("[P")){
+					if (blackFrame >= 1)
+						lastBlackFrame = blackFrame;
+					else
+						lastBlackFrame = 0;
+					blackFrame = Integer.parseInt(lineText.split(" ")[3].split(":")[1]);   			//parses the number of the frames from the line
 				}
-				else if(lineText.substring(lineText.indexOf(" fps,") - 7, lineText.indexOf(" fps,") - 6).equals(" ")) {
-					videoFPS = (int) Float.parseFloat(lineText.substring(lineText.indexOf(" fps,")-6, lineText.indexOf(" fps,"))) + 1;
-				}
-			} 
-
-			*/
-		}
-
-
-
-		int lastblackframe = blackFrames.size();
-		return ((int)((double)(1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - lastblackframe) * 1000));
+			}
 	}
-
+	
+	public int getDelayAfterStart() {
+		int delayAfterStart = ((int)((double)(1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - lastBlackFrame) * 1000));
+		if (delayAfterStart < 0)
+			return 0;
+		else
+			return delayAfterStart;
+	}
+	
+	public int getTMR0Offset() {
+		double timeError =  (blackFrame - lastBlackFrame) - (lengthOfTest * videoFPS) *  (1.0/240.0);  //seconds off
+		double sampleDrift = (timeError /(moduleSPS * lengthOfTest)) * 1000000000 ;		//nano second adjustment per sample
+		double tmr0Adj = sampleDrift / 250;		//tmr0 bit adjustment
+		return (int) Math.round(tmr0Adj);
+	}
 	
 	public String getLastBlackFrame() {
 		return Integer.toString(lastBlackFrame);
@@ -92,49 +84,13 @@ public class BlackFrameAnalysis {
 	public String cmdWrapper(String videoName) {
 		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";
 		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD2 = "ffmpeg -ss 00:02:00 -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD2 = "ffmpeg -ss 00:02:00 -i " + videoName + " -to 00:00:10 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
 
 		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
+		//Create instance of wrapper class
 		SysWrap.setSystemInfo();
-
+		//Set internal private variable (detects system binary for OS + Architecture)
 		return SysWrap.getBinRoot()+CMD;
-	}
-
-
-
-
-	//Dan's uncommented mess
-	public static void writeOutput(PrintWriter writer, List<Integer> nb, List<Integer> b)
-	{
-		int rows = 0;
-		if(Integer.compare(b.size(), nb.size())>0){
-			rows = nb.size();
-			int lastRow = 0;
-			for(int i = 0; i<rows; i++)
-			{
-				writer.println(Integer.toString(b.get(i))+","+Integer.toString(nb.get(i)));
-				lastRow ++;
-			}
-			for(int j = lastRow; j<b.size();j++)
-			{
-				writer.println(Integer.toString(b.get(j))+", ");
-			}
-		}
-		else
-		{
-			rows = b.size();
-			int lastRow = 0;
-			for(int i = 0; i<rows; i++)
-			{
-				writer.println(Integer.toString(b.get(i))+","+Integer.toString(nb.get(i)));
-				lastRow ++;
-			}
-			for(int j = lastRow; j<nb.size();j++)
-			{
-				writer.println(" ,"+Integer.toString(nb.get(j)));
-			}
-		}
-
 	}
 }
 

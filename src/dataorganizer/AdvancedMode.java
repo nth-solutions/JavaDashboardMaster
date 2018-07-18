@@ -80,7 +80,6 @@ public class AdvancedMode extends JFrame {
 
 	//Panels
 	private JPanel contentPanel;
-	private JPanel mainPanelContainer;
 	private JTabbedPane mainTabbedPanel;
 	private JPanel startReadButtonPanel;
 	private JPanel fileNamePanel;
@@ -110,7 +109,7 @@ public class AdvancedMode extends JFrame {
 
 	//Configuration Tab
 	private JTextField testLengthTextField;
-
+	
 	private JTextField magSampleRateTextField;
 	private JTextField delayAfterStartTextField;
 	private JTextField timer0TickThreshTextField;
@@ -129,7 +128,7 @@ public class AdvancedMode extends JFrame {
 	private JTextField accelFilterTextFieldRead;
 	private JTextField gyroFilterTextFieldRead;
 	private JTextField VideoFileTextField;
-
+	
 	//Calibration Tab
 	private JTextField tmr0OffsetTextField;
 
@@ -241,7 +240,6 @@ public class AdvancedMode extends JFrame {
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
-		mainTabbedPanel.setEnabled(false);
 		setVisible(true);
 	}
 
@@ -275,10 +273,10 @@ public class AdvancedMode extends JFrame {
 		//Default the gui that will be opened to null (gui selected in following try/catch block
 		AdvancedMode gui = new AdvancedMode();
 
-
+		
 		//System.out.println(System.getProperty("os.name"));
-
-
+		
+		
 		//Loop infinitely so window doesn't close unless user presses close button
 		while(true) {
 		}
@@ -327,7 +325,6 @@ public class AdvancedMode extends JFrame {
 					readDataButton.setEnabled(true);
 					writeConfigsButton.setEnabled(true);
 					getCurrentConfigurationsButton.setEnabled(true);
-					mainTabbedPanel.setEnabled(true);
 
 					//Disable COMM port combobox so the user doesn't accidentally reopen a port
 					commPortCombobox.setEnabled(false);
@@ -362,7 +359,6 @@ public class AdvancedMode extends JFrame {
 		readDataButton.setEnabled(false);
 		writeConfigsButton.setEnabled(false);
 		getCurrentConfigurationsButton.setEnabled(false);
-		mainTabbedPanel.setEnabled(false);
 
 		//Re-enable COMM port combobox so the user can select a new port to connect to
 		commPortCombobox.setEnabled(true);
@@ -378,7 +374,7 @@ public class AdvancedMode extends JFrame {
 						if(startTestBtn.getText().toString() == "Start Test") {
 							startTestBtn.setEnabled(false);
 							startTestBtn.setText("Stop Test");
-
+							
 							if(serialHandler.startTest()) {
 								startTestBtn.setText("Start Test");
 							}
@@ -432,20 +428,20 @@ public class AdvancedMode extends JFrame {
 				while (((System.currentTimeMillis() - startTime) < 5500)) {
 					startTestBtn.setEnabled(false);
 				}
-
+				
 				startTestBtn.setEnabled(true);
-
+				
 			}
 		};
-
-
+		
+		
 		Thread startTestOperationThread = new Thread(startTestOperation);
 		startTestOperationThread.start();
-
+		
 		Thread btnCntrlThread = new Thread(btnCntrl);
 		btnCntrlThread.start();  
 	}
-
+	
 	/**
 	 * Executed when pair new remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
 	 */
@@ -457,7 +453,6 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
-				disconnectButton.setEnabled(false);
 
 				generalStatusLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
 				progressBar.setValue(0);
@@ -497,7 +492,6 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
-				disconnectButton.setEnabled(true);
 
 			}
 		};
@@ -520,7 +514,6 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
-				disconnectButton.setEnabled(false);
 				disableTabChanges();
 
 				generalStatusLabel.setText("Unpairing all Remotes...");
@@ -550,7 +543,6 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
-				disconnectButton.setEnabled(true);
 				enableTabChanges();
 
 				generalStatusLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
@@ -564,7 +556,7 @@ public class AdvancedMode extends JFrame {
 		//Start the thread
 		unpairAllRemotesThread.start();
 	}
-
+	
 	/**
 	 * Runs a thread that will put the module in a test remote mode that will automatically update the GUI based on which remote button is pressed 
 	 * Executed when test remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
@@ -578,9 +570,8 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 				exitTestModeButton.setEnabled(true);
-				disconnectButton.setEnabled(false);
 				disableTabChanges();
-
+				
 				//Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Press a Button on a Remote to Test if it is Paired");
 				progressBar.setValue(0);
@@ -614,9 +605,8 @@ public class AdvancedMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 				exitTestModeButton.setEnabled(false);
-				disconnectButton.setEnabled(true);
 				enableTabChanges();
-
+				
 				//Notify the user that the sequence has completed
 				generalStatusLabel.setText("Test Mode Successfully Exited");
 				progressBar.setValue(100);
@@ -630,7 +620,7 @@ public class AdvancedMode extends JFrame {
 		testRemoteThread.start();
 
 	}
-
+	
 	/**
 	 * Sets flag that will cause the testRemoteThread to exit the test remote mode
 	 * Executed when exit remote test mode button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
@@ -835,8 +825,8 @@ public class AdvancedMode extends JFrame {
 		//Start separate thread
 		infoThread.start();
 	}
-
-
+	
+	
 	public void configForCalHandler() {
 		Runnable calforConfigOperation = new Runnable() {
 			public void run() {
@@ -844,7 +834,7 @@ public class AdvancedMode extends JFrame {
 				importCalDataButton.setEnabled(true);
 				applyOffsetButton.setEnabled(false);
 				disableTabChanges();
-
+				
 				try {
 					if(!serialHandler.configForCalibration()) {
 						generalStatusLabel.setText("Error Communicating With Module");
@@ -856,7 +846,7 @@ public class AdvancedMode extends JFrame {
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
-
+					
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
@@ -882,56 +872,33 @@ public class AdvancedMode extends JFrame {
 		Thread calConfigThread = new Thread(calforConfigOperation);
 		calConfigThread.start();
 	}
-
+	
 	public void importCalDataHandler() {	
-		Runnable getCalDataOperation = new Runnable() {
-			public void run() {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
 				disableTabChanges();
 				try {
-					HashMap<Integer, ArrayList<Integer>> testData;
-					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-					//testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
 
-					generalStatusLabel.setText("All Data Received from Module");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(51, 204, 51));
-
-					BlackFrameAnalysis bfa = new BlackFrameAnalysis();
-					int offset = bfa.getLatencyOffset(videoFilePath.getText());
-					delayAfterTextField.setText(Integer.toString(offset));
-
+					BlackFrameAnalysis bfo = new BlackFrameAnalysis();
+					bfo.getBlackFrameAnalysis(videoFilePath.getText());
+					delayAfterTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
+					tmr0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset()));
+					
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
 					enableTabChanges();
-
-				}
-				catch (IOException e) {
+					
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}/*
-				catch (PortInUseException e) {
 				}
-				/*catch (PortInUseException e) {
-					generalStatusLabel.setText("Serial Port Already In Use");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
-					generalStatusLabel.setText("Check Dongle Compatability");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}*/
 			}
-		};
 
-		getCalDataOperation.run();
-	}
-
+	
+	
 	public void applyOffsetsHandler() {
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {
@@ -939,7 +906,7 @@ public class AdvancedMode extends JFrame {
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
 				disableTabChanges();
-
+				
 				try {
 					if(!serialHandler.applyCalibrationOffsets(0, Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
 						generalStatusLabel.setText("Error Communicating With Module");
@@ -951,12 +918,12 @@ public class AdvancedMode extends JFrame {
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
-
+					
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
 					applyOffsetButton.setEnabled(true);
 					enableTabChanges();
-
+					
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -975,6 +942,9 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
+		Thread applyOffsetsHandlerThread = new Thread(getConfigsOperation);
+		applyOffsetsHandlerThread.start();
+		
 	}
 
 	/**
@@ -987,7 +957,7 @@ public class AdvancedMode extends JFrame {
 				//Disable get configs button while read is in progress
 				getCurrentConfigurationsButton.setEnabled(false);
 				disableTabChanges();
-
+				
 				try {
 
 					generalStatusLabel.setText("Reading Current Module Configurations...");
@@ -1051,7 +1021,7 @@ public class AdvancedMode extends JFrame {
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
-
+					
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
@@ -1112,11 +1082,11 @@ public class AdvancedMode extends JFrame {
 							triggerOnReleaseFlag = 0;
 						}
 
-
+						
 						//0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
 						testParams.add(0);
 						//1 Timer0 Tick Threshold
-						testParams.add(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())));
+						testParams.add(getTickThreshold(Integer.parseInt(timer0TickThreshTextField.getText())));
 						//2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
 						testParams.add(0);
 						//3 Battery timeout flag
@@ -1218,7 +1188,7 @@ public class AdvancedMode extends JFrame {
 
 					//Executes if the reading of the test parameters was successful
 					if (testParameters != null) {
-
+						
 						expectedTestNum = testParameters.get(0);
 						//Assign local variables to their newly received values from the module
 						timedTestFlag = testParameters.get(4);
@@ -1279,7 +1249,7 @@ public class AdvancedMode extends JFrame {
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
 									int [] finalData = new int[testData.get(testIndex).size()];
-
+									
 									for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
 										if (testData.get(testIndex).get(byteIndex) != -1){
 											finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
@@ -1358,28 +1328,25 @@ public class AdvancedMode extends JFrame {
 	 * Initializes the data fields of the Configurations tab of the dashboard. These are hardcoded for now so they will reset every time you leave this tab and come back
 	 */
 	public void initDataFields() {
-		//Checkboxes
-		timedTestCheckbox.setSelected(true);
+		if (mainTabbedPanel.getSelectedIndex() == 1) {
+			//Checkboxes
+			timedTestCheckbox.setSelected(true);
 
-		//Comboboxes
-		accelGyroSampleRateCombobox.setModel(new DefaultComboBoxModel(new String [] {"60", "120", "240", "480", "500", "960"}));
-		accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"2", "4", "8", "16"}));
-		gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"250", "500", "1000", "2000"}));
-		accelFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"5", "10", "20", "41", "92", "184", "460", "1130 (OFF)"}));
-		gyroFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)"}));
 
-		//Set Default Selection for Comboboxes
-		accelGyroSampleRateCombobox.setSelectedIndex(5);//960-96	
-		accelSensitivityCombobox.setSelectedIndex(2);	//8g
-		gyroSensitivityCombobox.setSelectedIndex(2);	//1000dps
-		accelFilterCombobox.setSelectedIndex(4);		//92Hz
-		gyroFilterCombobox.setSelectedIndex(3);			//92Hz
+			//Comboboxes
+			accelGyroSampleRateCombobox.setModel(new DefaultComboBoxModel(new String [] {"60", "120", "240", "480", "500", "960"}));
+			accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"2", "4", "8", "16"}));
+			gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"250", "500", "1000", "2000"}));
+			accelFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"5", "10", "20", "41", "92", "184", "460", "1130 (OFF)"}));
+			gyroFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)"}));
 
-		//Text Fields
-		updateMagSampleRate();
-		testLengthTextField.setText("25");
-		batteryTimeoutTextField.setText("300");
-		timer0TickThreshTextField.setText(Integer.toString(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()))));
+			//Set Default Selection for Comboboxes
+			accelGyroSampleRateCombobox.setSelectedIndex(5);
+			accelSensitivityCombobox.setSelectedIndex(2);	//8g
+			gyroSensitivityCombobox.setSelectedIndex(2);	//1000dps
+			accelFilterCombobox.setSelectedIndex(4);		//92Hz
+			gyroFilterCombobox.setSelectedIndex(3);			//92Hz
+		}
 
 	}
 
@@ -1397,7 +1364,7 @@ public class AdvancedMode extends JFrame {
 				testLengthTextField.setEditable(false);
 				testLengthTextField.setEnabled(false);
 			}
-
+			
 			/*
 			//Delay After Start Checkbox (Allows Editing of Timer0 Tick Threshold)
 			if (delayAfterStartCheckbox.isSelected()) {
@@ -1418,10 +1385,10 @@ public class AdvancedMode extends JFrame {
 				timer0TickThreshTextField.setEditable(false);
 				timer0TickThreshTextField.setEnabled(false);
 			}
-			 */
+			*/
 		}
 	}
-
+	
 	public void disableTabChanges() {
 		int currentTab = mainTabbedPanel.getSelectedIndex();
 		for (int i = 0; i < mainTabbedPanel.getTabCount(); i++) {
@@ -1430,13 +1397,13 @@ public class AdvancedMode extends JFrame {
 			}
 		}
 	}
-
+	
 	public void enableTabChanges() {
 		for (int i = 0; i < mainTabbedPanel.getTabCount(); i++) {
 			mainTabbedPanel.setEnabledAt(i, true);
 		}
 	}
-
+	
 
 	/**
 	 * Updates the magnetometer text field based on the accel gyro sample rate text field 
@@ -1447,22 +1414,22 @@ public class AdvancedMode extends JFrame {
 			switch (Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())) {
 			case(60):			
 				magSampleRateTextField.setText("60");
-			break;
+				break;
 			case(120):
 				magSampleRateTextField.setText("120");
-			break;
+				break;
 			case (240):
 				magSampleRateTextField.setText("24");
-			break;
+				break;
 			case (480):
 				magSampleRateTextField.setText("48");
-			break;
+				break;
 			case (500):
 				magSampleRateTextField.setText("50");
-			break;
+				break;
 			case (960):
 				magSampleRateTextField.setText("96");
-			break;
+				break;
 			default:	
 				generalStatusLabel.setText("Please Enter a Valid Accel/Gyro Sample Rate");
 				progressBar.setValue(100);
@@ -1480,7 +1447,7 @@ public class AdvancedMode extends JFrame {
 		progressBar.setForeground(new Color(51, 204, 51));
 		return true;
 	}
-
+	
 	/**
 	 * Update the text field for the tick threshold based on the accel/gyro sample rate
 	 * @return
@@ -1493,7 +1460,7 @@ public class AdvancedMode extends JFrame {
 		return true;
 	}
 
-
+	
 	/**
 	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
 	 * the file explorer and select a save location for the incoming data.
@@ -1511,7 +1478,7 @@ public class AdvancedMode extends JFrame {
 			fileOutputDirectoryStr = null;
 		}
 	}
-
+	
 	/**
 	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
 	 * the file explorer and select a save location for the incoming data.
@@ -1529,7 +1496,7 @@ public class AdvancedMode extends JFrame {
 			videoFilePath.setText(null);
 		}
 	}
-
+	
 	/**
 	 * Setter that allows external classes to set the progress bar's value
 	 * @param progress integer value between 0-100 that corresponds to the desired percentage to be displayed
@@ -1545,7 +1512,7 @@ public class AdvancedMode extends JFrame {
 	public void setWriteStatusLabel(String label) {
 		generalStatusLabel.setText(label);        //Tell the user a new .CSV has been created.
 	}
-
+	
 	public int lookupAccelGyroSampleRateIndex(int aGSampleRate) {
 		switch (aGSampleRate) {
 		case(60):		
@@ -1561,9 +1528,7 @@ public class AdvancedMode extends JFrame {
 		case(960):
 			return 5;
 		default:
-			initDataFields();
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
-			return accelGyroSampleRateCombobox.getSelectedIndex();
+			return 0;
 		}
 	}
 
@@ -1583,8 +1548,7 @@ public class AdvancedMode extends JFrame {
 		case(16):
 			return 3;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
-			return accelSensitivityCombobox.getSelectedIndex();
+			return 0;
 		}
 	}
 
@@ -1604,11 +1568,10 @@ public class AdvancedMode extends JFrame {
 		case(2000):
 			return 3;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
-			return gyroSensitivityCombobox.getSelectedIndex();
+			return 0;
 		}
 	}
-
+	
 	/**
 	 * Looks up the selection index for the accel filter combobox
 	 * @param accelSensitivity
@@ -1633,8 +1596,7 @@ public class AdvancedMode extends JFrame {
 		case(1130):
 			return 7;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
-			return accelFilterCombobox.getSelectedIndex();
+			return 0;
 		}
 	}
 
@@ -1662,8 +1624,7 @@ public class AdvancedMode extends JFrame {
 		case(8600):
 			return 7;
 		default:
-			generalStatusLabel.setText("Module Parameters are Corrupted, Defaults Parameters Displayed");
-			return gyroFilterCombobox.getSelectedIndex();
+			return 0;
 		}
 	}
 
@@ -1687,8 +1648,7 @@ public class AdvancedMode extends JFrame {
 			return 7679;
 		case (960):
 			return 3848;
-		default:
-			//Should never execute, passed in value is from combobox with known values
+		default:	//960-96
 			return 3848;
 		}
 	}
@@ -1822,13 +1782,20 @@ public class AdvancedMode extends JFrame {
 		generalStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		serialPortPanel.add(generalStatusLabel);
 
-		mainPanelContainer = new JPanel();
+		JPanel mainPanelContainer = new JPanel();
 		contentPanel.add(mainPanelContainer);
 		mainPanelContainer.setLayout(new GridLayout(0, 1, 0, 0));
 
 		mainTabbedPanel = new JTabbedPane(JTabbedPane.TOP);
 		mainTabbedPanel.setPreferredSize(new Dimension(630, 400));
 		mainPanelContainer.add(mainTabbedPanel);
+
+		mainTabbedPanel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				initDataFields();
+			}
+		});
 
 
 		JPanel readPanel = new JPanel();
@@ -1965,7 +1932,7 @@ public class AdvancedMode extends JFrame {
 		triggerOnReleaseCheckbox.setSelected(true);
 		configurationPanel.add(triggerOnReleaseCheckbox);
 
-
+		
 		accelGyroSampleRateCombobox = new JComboBox();
 		accelGyroSampleRateCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		accelGyroSampleRateCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
@@ -2005,22 +1972,22 @@ public class AdvancedMode extends JFrame {
 		gyroFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		gyroFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		configurationPanel.add(gyroFilterCombobox);
-
-		testLengthTextField = new JTextField();
-		testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
-		testLengthTextField.setText("25");
-		testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		testLengthTextField.setColumns(10);
-		testLengthTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Duration (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(testLengthTextField);
-
-		batteryTimeoutTextField = new JTextField();
-		batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
-		batteryTimeoutTextField.setText("300");
-		batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		batteryTimeoutTextField.setColumns(10);
-		batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(batteryTimeoutTextField);
+				
+						testLengthTextField = new JTextField();
+						testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
+						testLengthTextField.setText("25");
+						testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+						testLengthTextField.setColumns(10);
+						testLengthTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Duration (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+						configurationPanel.add(testLengthTextField);
+		
+				batteryTimeoutTextField = new JTextField();
+				batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
+				batteryTimeoutTextField.setText("300");
+				batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+				batteryTimeoutTextField.setColumns(10);
+				batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+				configurationPanel.add(batteryTimeoutTextField);
 
 		timer0TickThreshTextField = new JTextField();
 		timer0TickThreshTextField.setText("3689");
@@ -2078,7 +2045,7 @@ public class AdvancedMode extends JFrame {
 				sectorEraseHandler();
 			}
 		});
-
+		
 		startTestBtn = new JButton("Start Test");
 		startTestBtn.setEnabled(false);
 		startTestBtn.addActionListener(new ActionListener() {
@@ -2086,7 +2053,7 @@ public class AdvancedMode extends JFrame {
 				startTestBtnHandler();
 			}
 		});
-
+		
 		bulkEraseButton = new JButton("Bulk Erase");
 		bulkEraseButton.setToolTipText("Make sure the LED is YELLOW after pressing this button! There is a 70 second timeout.");
 		erasePanel.add(bulkEraseButton);
@@ -2102,7 +2069,7 @@ public class AdvancedMode extends JFrame {
 		JPanel calibrationPanel = new JPanel();
 		mainTabbedPanel.addTab("Calibration", null, calibrationPanel, null);
 		calibrationPanel.setLayout(new GridLayout(0, 1, 0, 0));
-
+		
 		configForCalButton = new JButton("Configure Module for Calibration");
 		configForCalButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		configForCalButton.addActionListener(new ActionListener() {
@@ -2111,7 +2078,7 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 		calibrationPanel.add(configForCalButton);
-
+		
 		importCalDataButton = new JButton("Import Calibration Data and Calculate Offset");
 		importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		importCalDataButton.addActionListener(new ActionListener() {
@@ -2119,18 +2086,18 @@ public class AdvancedMode extends JFrame {
 				importCalDataHandler();
 			}
 		});
-
+		
 		videoBrowsePanel = new JPanel();
 		calibrationPanel.add(videoBrowsePanel);
 		videoBrowsePanel.setLayout(new BoxLayout(videoBrowsePanel, BoxLayout.X_AXIS));
-
+		
 		videoFilePath = new JTextField();
 		videoFilePath.setMaximumSize(new Dimension(500, 2147483647));
 		videoFilePath.setMinimumSize(new Dimension(500, 100));
 		videoFilePath.setColumns(10);
 		videoFilePath.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		videoBrowsePanel.add(videoFilePath);
-
+		
 		videoBrowseButton = new JButton("Browse");
 		videoBrowseButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2142,34 +2109,31 @@ public class AdvancedMode extends JFrame {
 		videoBrowseButton.setMaximumSize(new Dimension(160, 100));
 		videoBrowsePanel.add(videoBrowseButton);
 		calibrationPanel.add(importCalDataButton);
-
+		
 		applyOffsetButton = new JButton("Apply Offset to Module");
-		applyOffsetButton.setEnabled(false);
 		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		applyOffsetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				applyOffsetsHandler();
 			}
 		});
-
+		
 		calOffsetsPanel = new JPanel();
 		calibrationPanel.add(calOffsetsPanel);
 		calOffsetsPanel.setLayout(new GridLayout(0, 2, 0, 0));
-
+		
 		tmr0OffsetTextField = new JTextField();
 		calOffsetsPanel.add(tmr0OffsetTextField);
 		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
-		tmr0OffsetTextField.setEditable(false);
 		tmr0OffsetTextField.setText("0");
 		tmr0OffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		tmr0OffsetTextField.setColumns(10);
-		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-
+		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (nanoseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		
 		delayAfterTextField = new JTextField();
 		delayAfterTextField.setText("0");
 		delayAfterTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		delayAfterTextField.setEditable(false);
 		delayAfterTextField.setColumns(10);
 		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(delayAfterTextField);
@@ -2205,7 +2169,7 @@ public class AdvancedMode extends JFrame {
 		});
 
 		RemoteButtonPanel.add(testRemotesButton);
-
+		
 		exitTestModeButton = new JButton("Exit Test Mode");
 		exitTestModeButton.setEnabled(false);
 		exitTestModeButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -2214,13 +2178,13 @@ public class AdvancedMode extends JFrame {
 				exitTestModeHandler();
 			}
 		});
-
+		
 		RemoteButtonPanel.add(exitTestModeButton);
-
+		
 		adminPanel = new JPanel();
-		mainTabbedPanel.addTab("Template Tools", null, adminPanel, null);
-
-		adminPanel.setLayout(new GridLayout(4, 1, 30, 0));
+		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
+				
+						adminPanel.setLayout(new GridLayout(4, 1, 30, 0));
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				unpairAllRemotesHandler();
@@ -2273,16 +2237,16 @@ public class AdvancedMode extends JFrame {
 
 		JLabel copyrightLabel = new JLabel("Copyright nth Solutions LLC. 2018");
 		contentPanel.add(copyrightLabel);
-
-		settingsWindowBtn = new JButton("...");
-		contentPanel.add(settingsWindowBtn);
-		settingsWindowBtn.setHorizontalAlignment(SwingConstants.LEFT);
-
-		settingsWindowBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) { 
-				new SettingsWindow().setVisible(true);
-			}
-		});
+		
+				settingsWindowBtn = new JButton("...");
+				contentPanel.add(settingsWindowBtn);
+				settingsWindowBtn.setHorizontalAlignment(SwingConstants.LEFT);
+				
+						settingsWindowBtn.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) { 
+								new SettingsWindow().setVisible(true);
+							}
+						});
 
 
 		frameInitialized = true;
