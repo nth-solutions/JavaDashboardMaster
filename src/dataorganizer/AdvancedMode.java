@@ -85,7 +85,6 @@ public class AdvancedMode extends JFrame {
 
 	//Panels
 	private JPanel contentPanel;
-	private JPanel mainPanelContainer;
 	private JTabbedPane mainTabbedPanel;
 	private JPanel startReadButtonPanel;
 	private JPanel fileNamePanel;
@@ -235,6 +234,9 @@ public class AdvancedMode extends JFrame {
 	private JPanel videoBrowsePanel;
 	private JTextField videoFilePath;
 	private JButton videoBrowseButton;
+	private JPanel panel;
+	private JCheckBox checkBoxElanCSV;
+	private JCheckBox checkBoxSignedData;
 
 
 
@@ -243,7 +245,7 @@ public class AdvancedMode extends JFrame {
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboardMaster");
+		setTitle("JavaDashboard Rev-10");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -425,7 +427,6 @@ public class AdvancedMode extends JFrame {
 					readDataButton.setEnabled(true);
 					writeConfigsButton.setEnabled(true);
 					getCurrentConfigurationsButton.setEnabled(true);
-					mainTabbedPanel.setEnabled(true);
 
 					//Disable COMM port combobox so the user doesn't accidentally reopen a port
 					commPortCombobox.setEnabled(false);
@@ -460,7 +461,6 @@ public class AdvancedMode extends JFrame {
 		readDataButton.setEnabled(false);
 		writeConfigsButton.setEnabled(false);
 		getCurrentConfigurationsButton.setEnabled(false);
-		mainTabbedPanel.setEnabled(false);
 
 		//Re-enable COMM port combobox so the user can select a new port to connect to
 		commPortCombobox.setEnabled(true);
@@ -599,6 +599,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(true);
 				disconnectButton.setEnabled(true);
 				getModuleIDButton.setEnabled(true);
+
 
 			}
 		};
@@ -987,26 +988,20 @@ public class AdvancedMode extends JFrame {
 		calConfigThread.start();
 	}
 
-	public void importCalDataHandler() {	
-		Runnable getCalDataOperation = new Runnable() {
-			public void run() {
+	public void importCalDataHandler() {
+		Runnable getConfigsOperation = new Runnable() {
+			public void run() {	
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 				try {
-					HashMap<Integer, ArrayList<Integer>> testData;
-					//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-					//testData = serialHandler.readTestData(expectedTestNum, progressBar, false, (int) (960 * accelGyroSampleRate * testLength));
 
-					generalStatusLabel.setText("All Data Received from Module");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(51, 204, 51));
+					BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePath.getText());
 
-					BlackFrameAnalysis bfa = new BlackFrameAnalysis();
-					int offset = bfa.getLatencyOffset(videoFilePath.getText());
-					delayAfterTextField.setText(Integer.toString(offset));
+					delayAfterTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
+					tmr0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset()));
 
 					configForCalButton.setEnabled(true);
 					importCalDataButton.setEnabled(true);
@@ -1014,29 +1009,20 @@ public class AdvancedMode extends JFrame {
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}/*
-				catch (PortInUseException e) {
 				}
-				/*catch (PortInUseException e) {
-					generalStatusLabel.setText("Serial Port Already In Use");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
-					generalStatusLabel.setText("Check Dongle Compatability");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}*/
 			}
 		};
-
-		getCalDataOperation.run();
+		
+		Thread getConfigsOperationThread = new Thread(getConfigsOperation);
+		getConfigsOperationThread.start();
+		
 	}
+
+
 
 	public void applyOffsetsHandler() {
 		Runnable getConfigsOperation = new Runnable() {
@@ -1048,7 +1034,7 @@ public class AdvancedMode extends JFrame {
 				disableTabChanges();
 
 				try {
-					if(!serialHandler.applyCalibrationOffsets(0, Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
+					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -1083,6 +1069,9 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
+		Thread applyOffsetsHandlerThread = new Thread(getConfigsOperation);
+		applyOffsetsHandlerThread.start();
+
 	}
 
 	/**
@@ -1245,7 +1234,7 @@ public class AdvancedMode extends JFrame {
 						//0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
 						testParams.add(0);
 						//1 Timer0 Tick Threshold
-						testParams.add(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())));
+						testParams.add(getTickThreshold(Integer.parseInt(timer0TickThreshTextField.getText())));
 						//2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
 						testParams.add(0);
 						//3 Battery timeout flag
@@ -1426,7 +1415,7 @@ public class AdvancedMode extends JFrame {
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											//Organize data into .CSV
-											csvBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr);  
+											csvBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr, checkBoxElanCSV.isSelected(), checkBoxSignedData.isSelected(), testParameters.toArray());  
 										}
 									};
 
@@ -1818,8 +1807,7 @@ public class AdvancedMode extends JFrame {
 			return 7679;
 		case (960):
 			return 3848;
-		default:
-			//Should never execute, passed in value is from combobox with known values
+		default:	//960-96
 			return 3848;
 		}
 	}
@@ -1953,13 +1941,20 @@ public class AdvancedMode extends JFrame {
 		generalStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		serialPortPanel.add(generalStatusLabel);
 
-		mainPanelContainer = new JPanel();
+		JPanel mainPanelContainer = new JPanel();
 		contentPanel.add(mainPanelContainer);
 		mainPanelContainer.setLayout(new GridLayout(0, 1, 0, 0));
 
 		mainTabbedPanel = new JTabbedPane(JTabbedPane.TOP);
 		mainTabbedPanel.setPreferredSize(new Dimension(630, 400));
 		mainPanelContainer.add(mainTabbedPanel);
+
+		mainTabbedPanel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				initDataFields();
+			}
+		});
 
 
 		JPanel readPanel = new JPanel();
@@ -1974,11 +1969,37 @@ public class AdvancedMode extends JFrame {
 
 		startReadButtonPanel = new JPanel();
 		fileNamePanel.add(startReadButtonPanel);
-		startReadButtonPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		startReadButtonPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
 		readDataButton = new JButton("Read Data from Module");
 		readDataButton.setEnabled(false);
 		startReadButtonPanel.add(readDataButton);
+		
+		panel = new JPanel();
+		startReadButtonPanel.add(panel);
+		panel.setLayout(new GridLayout(2, 0, 0, 0));
+		
+		checkBoxElanCSV = new JCheckBox("Save as Elan .CSV");
+		checkBoxElanCSV.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (checkBoxElanCSV.isSelected()) {
+					checkBoxSignedData.setSelected(true);
+				} else {
+					checkBoxSignedData.setSelected(false);
+				}
+			}
+		});
+		panel.add(checkBoxElanCSV);
+		
+		checkBoxSignedData = new JCheckBox("Signed Data");
+		checkBoxSignedData.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (!checkBoxSignedData.isSelected()) {
+					checkBoxElanCSV.setSelected(false);
+				}
+			}
+		});
+		panel.add(checkBoxSignedData);
 		readDataButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				readButtonHandler();
@@ -2275,7 +2296,6 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(importCalDataButton);
 
 		applyOffsetButton = new JButton("Apply Offset to Module");
-		applyOffsetButton.setEnabled(false);
 		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		applyOffsetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2290,17 +2310,15 @@ public class AdvancedMode extends JFrame {
 		tmr0OffsetTextField = new JTextField();
 		calOffsetsPanel.add(tmr0OffsetTextField);
 		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
-		tmr0OffsetTextField.setEditable(false);
 		tmr0OffsetTextField.setText("0");
 		tmr0OffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		tmr0OffsetTextField.setColumns(10);
-		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (bits)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (nanoseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
 		delayAfterTextField = new JTextField();
 		delayAfterTextField.setText("0");
 		delayAfterTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		delayAfterTextField.setEditable(false);
 		delayAfterTextField.setColumns(10);
 		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(delayAfterTextField);
@@ -2349,7 +2367,7 @@ public class AdvancedMode extends JFrame {
 		RemoteButtonPanel.add(exitTestModeButton);
 
 		adminPanel = new JPanel();
-		mainTabbedPanel.addTab("Template Tools", null, adminPanel, null);
+		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
 
 		adminPanel.setLayout(new GridLayout(4, 1, 30, 0));
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
@@ -2405,7 +2423,7 @@ public class AdvancedMode extends JFrame {
 		JLabel copyrightLabel = new JLabel("Copyright nth Solutions LLC. 2018");
 		contentPanel.add(copyrightLabel);
 
-		settingsWindowBtn = new JButton("...");
+		settingsWindowBtn = new JButton("Settings");
 		contentPanel.add(settingsWindowBtn);
 		settingsWindowBtn.setHorizontalAlignment(SwingConstants.LEFT);
 

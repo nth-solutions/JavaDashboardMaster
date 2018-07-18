@@ -23,116 +23,95 @@ import java.util.List;
 public class BlackFrameAnalysis {
 	private int videoFPS = 240;
 	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
-	private int NumNonBlack;
 	private final int moduleSPS = 960;
-	private final double T_INTERVAL = 4.16667;
-	private int lastBlackFrame = 0;                                                                                              //sets integer for the last black frame at 0
+	private final int lengthOfTest = 120;
+	private final double T_INTERVAL = (1.0/240.0);
+	private int preLitBFNum = 0;		//sets integer for the last black frame at 0
+	private int postLitBFNum = 0;		
+
+
 	
 
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
 	 * Returns the offset for TMR0
 	 */
-	public int getLatencyOffset(String videoFilePath) throws IOException{
-		Process process = Runtime.getRuntime().exec(cmdWrapper(videoFilePath));                                                               //get runtime variable to execute command line
-		BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
-		ArrayList<Integer> blackFrames = new ArrayList<>();                                                                  //black frames stores the black frames of the video
-		String lineText;                                                                                                       //will store the command line outputs   
-		String blackFrame = "0";
-		while ((lineText = stdError.readLine()) != null) { 
-			if(Integer.parseInt(blackFrame) > lastBlackFrame + 1) {
-				break;
-			}
-			//If line contains the string "[P"
-			if(lineText.substring(0,2).equals("[P")){
-				blackFrames.add(Integer.parseInt(blackFrame));   	//adds the frame number to the blackFrames list
-				if (blackFrames.size() > 1)
-					lastBlackFrame = blackFrames.get(blackFrames.size() - 1);
-				else
-					lastBlackFrame = 0;
-				blackFrame = lineText.split(" ")[3].split(":")[1];                                                  //parses the number of the frames from the line
-			}
+	public BlackFrameAnalysis(){
+		
+	}
+	
+	public BlackFrameAnalysis(String videoFilePath) throws IOException{
+		for(int i = 1; i < 3; i++) {			//Loop sets i == 1; then 1 == 2, while i == 1 FFMPEG checks for the last black frame before light turns on; while 1 == 2 ffMPEG checks for first black frame after light turns off
+			Process ffmpeg = Runtime.getRuntime().exec(cmdWrapper(videoFilePath, i));                                                               //get runtime variable to execute command line
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(ffmpeg.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
+			String lineText;                                                                                                       //will store the command line outputs   
 
 
+			while ((lineText = stdError.readLine()) != null) { 		//Read until end of time length
 
-			
-
-
-
-			/*Check if the line contains the string ' fps,' it should be in the metadata
-			if(lineText.toLowerCase().contains(" fps,") && videoFPS == 0) {
-				//Read the FPS as an integer, it will be a floating point number(add 1 because the string is truncated through the conversion), 5-6 characters, and suffix of 'fps'.
-				if(lineText.substring(lineText.indexOf(" fps,") - 6, lineText.indexOf(" fps,") - 5).equals(" ")) {
-					videoFPS = (int) Float.parseFloat(lineText.substring(lineText.indexOf(" fps,")-5, lineText.indexOf(" fps,"))) + 1;
+				//If line contains the string "[P"
+				if(lineText.substring(0,2).equals("[P")){
+					if (i == 1) {
+						preLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]);   			//parses the number of the frames from the line
+					}else {
+						postLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]); 
+						postLitBFNum += (115 * videoFPS); 
+						break;
+					}	
 				}
-				else if(lineText.substring(lineText.indexOf(" fps,") - 7, lineText.indexOf(" fps,") - 6).equals(" ")) {
-					videoFPS = (int) Float.parseFloat(lineText.substring(lineText.indexOf(" fps,")-6, lineText.indexOf(" fps,"))) + 1;
-				}
-			} 
-
-			*/
+			}
 		}
+		
+		//System.out.println(preLitBFNum);
+		//System.out.println(postLitBFNum);
+		
+	}
 
 
 
-		int lastblackframe = blackFrames.size();
-		return ((int)((double)(1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - lastblackframe) * 1000));
+	public int getDelayAfterStart() {
+		int delayAfterStart = (int)((1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - preLitBFNum) * 1000);	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
+		if (delayAfterStart < 0)			//if the delay is negative; set delay to 0; else return positive delay
+			return 0;
+		else
+			return delayAfterStart;
+	}
+
+	public int getTMR0Offset() {
+		double timeError =  (double)((postLitBFNum - preLitBFNum) - (lengthOfTest * videoFPS)) *  T_INTERVAL;  //Error in seconds; formula = (Actual - Expected) * (period); Amount of frames off times period equals error in seconds
+		//System.out.println(timeError);
+		double sampleDrift = (timeError /(moduleSPS * lengthOfTest)) * 1000000000 ;		//Error over each sample in nano seconds; formula = (Error / TotalNumSample) * 1 billion; Total error divided evenly over every individual sample times 1E9 to convert to nano seconds
+		double tmr0Adj = sampleDrift / 250;		//Each bit of TMR0 offset is 250 nano seconds; converts SampleDrift to clock cycles
+		return (int) Math.round(tmr0Adj);		//Rounds fraction to an integer
 	}
 
 	
-	public String getLastBlackFrame() {
-		return Integer.toString(lastBlackFrame);
+	public int getTMR0Offset(int a, int b) {
+		double timeError =  (double)((a - b) - (lengthOfTest * videoFPS)) *  T_INTERVAL;  //Error in seconds; formula = (Actual - Expected) * (period); Amount of frames off times period equals error in seconds
+		//System.out.println(timeError);
+		double sampleDrift = (timeError /(moduleSPS * lengthOfTest)) * 1000000000 ;		//Error over each sample in nano seconds; formula = (Error / TotalNumSample) * 1 billion; Total error divided evenly over every individual sample times 1E9 to convert to nano seconds
+		double tmr0Adj = sampleDrift / 250;		//Each bit of TMR0 offset is 250 nano seconds; converts SampleDrift to clock cycles
+		return (int) Math.round(tmr0Adj);		//Rounds fraction to an integer
 	}
-	
-	
 	
 	/*
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
-	public String cmdWrapper(String videoName) {
-		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";
-		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD2 = "ffmpeg -ss 00:02:00 -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+	public String cmdWrapper(String videoName, int commandNum) {
+		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";//Analyzes full video
+		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD2 = "ffmpeg -ss 00:01:55 -i " + videoName + " -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
 
 		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
+		//Create instance of wrapper class
 		SysWrap.setSystemInfo();
+		//Set internal private variable (detects system binary for OS + Architecture)
+		switch(commandNum) {
 
-		return SysWrap.getBinRoot()+CMD;
-	}
+		case 1: return SysWrap.getBinRoot()+CMD1;		//First 3 seconds of video
+		case 2: return SysWrap.getBinRoot()+CMD2;		//Skips 115  seconds in; analyzes next ten seconds
+		case 0: default: return SysWrap.getBinRoot()+CMD; //Analyzes full video
 
-
-
-
-	//Dan's uncommented mess
-	public static void writeOutput(PrintWriter writer, List<Integer> nb, List<Integer> b)
-	{
-		int rows = 0;
-		if(Integer.compare(b.size(), nb.size())>0){
-			rows = nb.size();
-			int lastRow = 0;
-			for(int i = 0; i<rows; i++)
-			{
-				writer.println(Integer.toString(b.get(i))+","+Integer.toString(nb.get(i)));
-				lastRow ++;
-			}
-			for(int j = lastRow; j<b.size();j++)
-			{
-				writer.println(Integer.toString(b.get(j))+", ");
-			}
-		}
-		else
-		{
-			rows = b.size();
-			int lastRow = 0;
-			for(int i = 0; i<rows; i++)
-			{
-				writer.println(Integer.toString(b.get(i))+","+Integer.toString(nb.get(i)));
-				lastRow ++;
-			}
-			for(int j = lastRow; j<nb.size();j++)
-			{
-				writer.println(" ,"+Integer.toString(nb.get(j)));
-			}
 		}
 
 	}

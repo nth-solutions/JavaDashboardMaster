@@ -440,7 +440,10 @@ public class SerialComm {
 		
 		calData[0] = tmr0Offset;
 		calData[1] = delayAfterStart;
-		
+		System.out.println(calData[0]);
+		System.out.println(calData[1]);
+		int addFlag = 0;
+		int addFlagSerialRead = 0;
 		int dataIndex = 0;
 		//Loops until both calibration values are sent to the module successfully or it fails too many times
 		while (dataIndex < 2) {
@@ -451,11 +454,12 @@ public class SerialComm {
 			if(dataIndex == 0) {
 				//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
 				if (tmr0Offset < 0) {
-					outputStream.write(0);
-					tmr0Offset = tmr0Offset * -1;
+					outputStream.write(1);
+					addFlag = 1;
 				}
 				else {
-					outputStream.write(1);
+					outputStream.write(0);
+					addFlag = 0;
 				}	
 			}
 
@@ -470,6 +474,10 @@ public class SerialComm {
 
 				//Executes if the data was received back from the module
 				if (inputStream.available() >= 2) {
+					
+					if(dataIndex == 0)
+						addFlagSerialRead = inputStream.read();		//Reads the state of the add flag
+					
 					//Store the echoed number in a temporary variable
 					temp = (inputStream.read() * 256) + inputStream.read(); 
 					//Set a flag to break the loop
@@ -478,7 +486,7 @@ public class SerialComm {
 			}
 
 			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
-			if (temp == calData[dataIndex]) {
+			if ((dataIndex == 0 && temp == calData[dataIndex] && addFlagSerialRead == addFlag) || (dataIndex == 1 && temp == calData[dataIndex])) {
 				outputStream.write(new String("CA").getBytes());
 				//Reset attempt counter
 				attemptCounter = 0;
@@ -1091,7 +1099,7 @@ public class SerialComm {
 			//Just used to pull the TX line low for firmware handshake
 			byte[] pullLow = {0,0,0,0};
 
-					
+
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 				
@@ -1106,6 +1114,7 @@ public class SerialComm {
 				if(!waitForPreamble(1, 8, 1500)) {
 					return null;
 				}
+
 				
 				//Notify that the dashboard is ready for test data
 				outputStream.write(pullLow);

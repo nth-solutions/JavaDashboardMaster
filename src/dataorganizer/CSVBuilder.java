@@ -3,6 +3,7 @@ package dataorganizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -14,9 +15,9 @@ import com.sun.javafx.collections.MappingChange.Map;
 
 public class CSVBuilder {        //Class for Creating .CSV files
 	
-    public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory) {
-    //Method to create .CSV
-    	LoadSettings settings = new LoadSettings();
+    public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, int[] testParams) {
+    
+    	
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
         
     	
@@ -59,7 +60,10 @@ public class CSVBuilder {        //Class for Creating .CSV files
         	
         	//Executes if the Accel/Gyro : Mag ratio is 10:1, and the sample is a nine axis sample 
         	if (sampleCounter == 9 && lineNum % 10 == 0 && magInterval == 10 && nineAxisFlag == true) {    
-            	test.put(lineNum, sampleHolder);
+            	
+        		
+        		
+        		test.put(lineNum, sampleHolder);
             	//System.out.println("9 : " + test.get(lineNum).size());
             	sampleHolder = new Vector<Integer>();  
             	lineNum++;
@@ -90,6 +94,20 @@ public class CSVBuilder {        //Class for Creating .CSV files
             	lineNum++;
             }
         	
+        	if (sampleCounter < 3) {
+        		if(wordData[wordNum] > 32768) {
+        			wordData[wordNum] -= 65535;
+        		}
+        		// converts to accel
+        		wordData[wordNum] = ((wordData[wordNum]*testParams[9])/32768);
+        	}
+        	else if( sampleCounter < 6) {
+        		if(wordData[wordNum] > 32768) {
+        			wordData[wordNum] -= 65535;
+        		}
+        		// gyro
+        		wordData[wordNum] = ((wordData[wordNum]*testParams[10])/32768);
+        	}
         	//Add a sample to the sampleHolder vector so it can be mapped to lineNumber when one of the conditionals listed above is true
             sampleHolder.add(wordData[wordNum]);  
             sampleCounter++;
@@ -141,13 +159,25 @@ public class CSVBuilder {        //Class for Creating .CSV files
        
         StringBuilder builder = new StringBuilder();
 
-        
-        for (lineNum = 0; lineNum < endPosition; lineNum++) {
-        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
-        		builder.append(test.get(lineNum).get(axis));
-        		builder.append(",");
-        	}
-        	builder.append("\n");
+        if (!elanCSV) {
+	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
+	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
+	        		builder.append(test.get(lineNum).get(axis));
+	        		builder.append(",");
+	        	}
+	        	builder.append("\n");
+	        }
+        } else {
+	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
+	        	builder.append((double)(lineNum + 1) * (1.0/960.0));
+	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
+	        		if(axis < 6) {
+		        		builder.append(test.get(lineNum).get(axis));
+		        		builder.append(",");
+	        		}
+	        	}
+	        	builder.append("\n");
+	        }        		
         }
         
         
