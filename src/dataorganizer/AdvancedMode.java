@@ -238,7 +238,7 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxElanCSV;
 	private JCheckBox checkBoxSignedData;
 
-
+	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 
 
 	/**
@@ -1095,7 +1095,7 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					ArrayList<Integer> testParameters = new ArrayList<Integer>();
+					//ArrayList<Integer> testParameters = new ArrayList<Integer>();
 
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -1113,7 +1113,12 @@ public class AdvancedMode extends JFrame {
 						gyroSensitivity = testParameters.get(10);
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);					
-
+						
+						System.out.println(delayAfterStart);
+						if(delayAfterStart > 2000) {
+							delayAfterStart = ~delayAfterStart &8;
+							System.out.println(delayAfterStart);
+						}
 
 						if(timedTestFlag > 0) {
 							timedTestCheckbox.setSelected(true);
@@ -1328,7 +1333,7 @@ public class AdvancedMode extends JFrame {
 
 				try {
 
-					ArrayList<Integer> testParameters = new ArrayList<Integer>();
+					
 
 					generalStatusLabel.setText("Reading Data from Module...");
 					progressBar.setValue(0);
@@ -1415,7 +1420,7 @@ public class AdvancedMode extends JFrame {
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											//Organize data into .CSV
-											csvBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr, checkBoxElanCSV.isSelected(), checkBoxSignedData.isSelected(), testParameters.toArray());  
+											csvBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr, checkBoxElanCSV.isSelected(), checkBoxSignedData.isSelected(), testParameters);  
 										}
 									};
 

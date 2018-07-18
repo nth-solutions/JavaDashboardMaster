@@ -451,19 +451,29 @@ public class SerialComm {
 			//Send Preamble
 			outputStream.write(new String("1234").getBytes());
 
-			if(dataIndex == 0) {
+			
 				//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
-				if (tmr0Offset < 0) {
+				
+			if (dataIndex == 0) {
+				if (tmr0Offset < 0) { 
 					outputStream.write(1);
 					addFlag = 1;
-				}
-				else {
+				} else {
 					outputStream.write(0);
 					addFlag = 0;
 				}	
+			} else {
+				if (delayAfterStart < 0) { 
+					outputStream.write(1);
+					calData[1] *= -1;
+					addFlag = 1;
+				} else {
+					outputStream.write(0);
+					addFlag = 0;
+				}				
+				
 			}
-
-
+			
 			outputStream.write(calData[dataIndex] / 256);
 			outputStream.write(calData[dataIndex] % 256);
 
@@ -473,10 +483,9 @@ public class SerialComm {
 			while((System.currentTimeMillis() - echoStart) < 500) {
 
 				//Executes if the data was received back from the module
-				if (inputStream.available() >= 2) {
+				if (inputStream.available() >= 3) {
 					
-					if(dataIndex == 0)
-						addFlagSerialRead = inputStream.read();		//Reads the state of the add flag
+					addFlagSerialRead = inputStream.read();		//Reads the state of the add flag
 					
 					//Store the echoed number in a temporary variable
 					temp = (inputStream.read() * 256) + inputStream.read(); 
@@ -486,7 +495,7 @@ public class SerialComm {
 			}
 
 			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
-			if ((dataIndex == 0 && temp == calData[dataIndex] && addFlagSerialRead == addFlag) || (dataIndex == 1 && temp == calData[dataIndex])) {
+			if (temp == calData[dataIndex] && addFlagSerialRead == addFlag) {
 				outputStream.write(new String("CA").getBytes());
 				//Reset attempt counter
 				attemptCounter = 0;
