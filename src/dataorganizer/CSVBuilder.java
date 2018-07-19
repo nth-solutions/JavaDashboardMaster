@@ -15,14 +15,15 @@ import com.sun.javafx.collections.MappingChange.Map;
 
 public class CSVBuilder {        //Class for Creating .CSV files
 	
+	private int additionalLineNums;
+	
+	
     public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, ArrayList<Integer> testParams) {
     
     	
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
         
-    	
         
-
         //Finds the '-1' delimiter that specifies the end of the testing data
         int endPosition = -1;
         for(int pos = 0; pos < data.length; pos++) {
@@ -33,39 +34,72 @@ public class CSVBuilder {        //Class for Creating .CSV files
         }
         //System.out.println(endPosition);
         //Temporary array that holds the passed in data that has been converted from bytes to words
-        int [] wordData = new int[endPosition + 1];
-        
+        double [] wordData = new double[endPosition + 1];
+              
         //Convert passed in data from bytes to words
         int wordCounter = 0;
         for (int pos = 0; pos < endPosition + 1; pos += 2) {                       
             wordData[wordCounter] = (data[pos] * 256) + data[pos + 1];
             wordCounter++;
         }
-
-              
+        
+        
+        
+        
         //Stores the test with a line number associated with a vector that holds the associated testing data
-        HashMap<Integer, Vector<Integer>> test = new HashMap<>();
+        HashMap<Integer, Vector<Double>> test = new HashMap<>();
         
         //Vector that holds the converted data that will be put in the 'test' hashmap with it's associated line number
-        Vector<Integer> sampleHolder = new Vector<Integer>();
+        Vector<Double> sampleHolder = new Vector<Double>();
+        
+        additionalLineNums  = 0;
+        
+        if(testParams.get(2) < 0) {
+        	
+        	Vector<Double> vec9 = new Vector<Double>();
+        	Vector<Double> vec6 = new Vector<Double>();
+	        
+        	for (int i = 0; i < 9; i++) {
+        		if (i < 6) {
+        			vec6.add(i, 0.0);
+        		}
+        		vec9.add(i, 0.0);
+        	}
+        	
+        	double delayAfterStart = (double)testParams.get(2) / -1000.0;
+	 
+	        additionalLineNums = (int) Math.round(delayAfterStart * testParams.get(7));
+	        
+	        for(int i = 0; i < additionalLineNums; i++) {
+	        	if(magInterval == 10 && i % 10 == 0) {
+	        		test.put(i, vec9);
+	        	} else if(magInterval == 10 && i % 10 != 0) {
+	        		test.put(i, vec6);
+	        	
+	        	} else if (magInterval == 1) {
+	        		test.put(i, vec9);
+	        	}
+	        }
+        
+        }
+        
+        
         
         //Initialize Counters/ Flags
-        int lineNum = 0;
+        int lineNum = additionalLineNums;
         int sampleCounter = 0;
         int setCounter = 0;
         boolean nineAxisFlag = true;
-        
+
         //Iterates through each data point
         for (int wordNum = 0; wordNum < wordData.length; wordNum++) { 
         	
         	//Executes if the Accel/Gyro : Mag ratio is 10:1, and the sample is a nine axis sample 
-        	if (sampleCounter == 9 && lineNum % 10 == 0 && magInterval == 10 && nineAxisFlag == true) {    
-            	
-        		
+        	if (sampleCounter == 9 && (lineNum - additionalLineNums) % 10 == 0 && magInterval == 10 && nineAxisFlag == true) {    
         		
         		test.put(lineNum, sampleHolder);
             	//System.out.println("9 : " + test.get(lineNum).size());
-            	sampleHolder = new Vector<Integer>();  
+            	sampleHolder = new Vector<Double>();  
             	lineNum++;
             	nineAxisFlag = false;
             	sampleCounter = 0;
@@ -75,7 +109,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
         	else if (sampleCounter == 6 && magInterval == 10 && nineAxisFlag == false ) {     
             	test.put(lineNum, sampleHolder);
             	//System.out.println("6 : " + test.get(lineNum).size());
-            	sampleHolder = new Vector<Integer>(); 
+            	sampleHolder = new Vector<Double>(); 
             	lineNum++;
             	setCounter++;
             	if (setCounter == 9) {
@@ -90,7 +124,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
         	else if (wordNum % 9 == 0 && magInterval == 1 && wordNum > 0) {
         		//System.out.println("9* : " + test.get(lineNum).size());
             	test.put(lineNum, sampleHolder);           	
-            	sampleHolder = new Vector<Integer>();
+            	sampleHolder = new Vector<Double>();
             	lineNum++;
             }
         	
@@ -106,24 +140,24 @@ public class CSVBuilder {        //Class for Creating .CSV files
         			wordData[wordNum] -= 65535;
         		}
         		// gyro
-        		wordData[wordNum] = ((wordData[wordNum]*testParams.get(10))/32768);
+        		wordData[wordNum] = ((wordData[wordNum]*testParams.get(10))/32768);		//Multiply by the sample rate, and divide by the the max value of a sample.
         	}
         	//Add a sample to the sampleHolder vector so it can be mapped to lineNumber when one of the conditionals listed above is true
             sampleHolder.add(wordData[wordNum]);  
+                        
             sampleCounter++;
         } 
-        
-        
-        
+         
         lineNum --;
         int numSamples = lineNum;
         int dataFlag = 0;
         int sum = 0;
-      
-        while (dataFlag < 3) {
+
+        //Determines the stop condition
+        while (dataFlag < 3) {		//checks for 3 consecutive data points for the end condition
         	//System.out.println(test.get(lineNum).size());
         	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
-        		sum += test.get(lineNum).get(axis); 
+        		sum += test.get(lineNum).get(axis); 		//sums all data in row of data file
         	}
         	if (magInterval == 1) {
         		if (sum != 0 && sum < 9 * 65535) {
@@ -156,9 +190,12 @@ public class CSVBuilder {        //Class for Creating .CSV files
         }
         lineNum += 4;
         endPosition = lineNum;
+        
+        
+        test = insertFirstMagSample(test);
        
         StringBuilder builder = new StringBuilder();
-
+        
         if (!elanCSV) {
 	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
 	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
@@ -168,10 +205,11 @@ public class CSVBuilder {        //Class for Creating .CSV files
 	        	builder.append("\n");
 	        }
         } else {
+        	builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,\n");
 	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
-	        	builder.append((double)(lineNum + 1) * (1.0/960.0));
+	        	builder.append((double)(lineNum) * (1.0/ (double)(testParams.get(7)))).append(",");
 	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
-	        		if(axis < 6) {
+	        		if(axis <= 5 && elanCSV) {
 		        		builder.append(test.get(lineNum).get(axis));
 		        		builder.append(",");
 	        		}
@@ -205,6 +243,21 @@ public class CSVBuilder {        //Class for Creating .CSV files
     }
     
 
+    
+    public HashMap<Integer, Vector<Double>> insertFirstMagSample(HashMap<Integer, Vector<Double>> map){
+    	HashMap<Integer, Vector<Double>> newMap = new HashMap<Integer, Vector<Double>>();
+    	
+    	Vector<Double> line = map.get(additionalLineNums + 10);
+    	Vector<Double> oldLine = map.get(additionalLineNums);
+
+    	oldLine.set(6, line.get(6));
+    	oldLine.set(7, line.get(7));
+    	oldLine.set(8, line.get(8));
+    	newMap = map;
+    	newMap.put(additionalLineNums, oldLine);
+    	return newMap;
+    }
+    
 }
 
 

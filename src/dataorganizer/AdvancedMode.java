@@ -60,6 +60,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * AdvancedMode.java
@@ -85,6 +87,7 @@ public class AdvancedMode extends JFrame {
 
 	//Panels
 	private JPanel contentPanel;
+	private JPanel mainPanelContainer;
 	private JTabbedPane mainTabbedPanel;
 	private JPanel startReadButtonPanel;
 	private JPanel fileNamePanel;
@@ -427,6 +430,7 @@ public class AdvancedMode extends JFrame {
 					readDataButton.setEnabled(true);
 					writeConfigsButton.setEnabled(true);
 					getCurrentConfigurationsButton.setEnabled(true);
+					mainTabbedPanel.setEnabled(false);
 
 					//Disable COMM port combobox so the user doesn't accidentally reopen a port
 					commPortCombobox.setEnabled(false);
@@ -1095,7 +1099,7 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					//ArrayList<Integer> testParameters = new ArrayList<Integer>();
+					
 
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -1116,8 +1120,9 @@ public class AdvancedMode extends JFrame {
 						
 						System.out.println(delayAfterStart);
 						if(delayAfterStart > 2000) {
-							delayAfterStart = ~delayAfterStart &8;
-							System.out.println(delayAfterStart);
+							delayAfterStart = ~delayAfterStart & 65535;
+							delayAfterStart *= -1;
+							testParameters.set(2, delayAfterStart);
 						}
 
 						if(timedTestFlag > 0) {
@@ -1208,6 +1213,7 @@ public class AdvancedMode extends JFrame {
 	 * on what this handler actually does.
 	 */
 	private void writeButtonHandler() {
+		updateTickThresh();
 		if (updateMagSampleRate()) {
 			//Define no operation that can be run in a thread
 			Runnable sendParamOperation = new Runnable() {
@@ -1346,6 +1352,8 @@ public class AdvancedMode extends JFrame {
 					if (testParameters != null) {
 
 						expectedTestNum = testParameters.get(0);
+						delayAfterStart = testParameters.get(2);
+						
 						//Assign local variables to their newly received values from the module
 						timedTestFlag = testParameters.get(4);
 						//Trigger on release is 8
@@ -1356,7 +1364,15 @@ public class AdvancedMode extends JFrame {
 						gyroSensitivity = testParameters.get(10);
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);				
-
+						
+						System.out.println(delayAfterStart);
+						if(delayAfterStart > 2000) {
+							delayAfterStart = ~delayAfterStart & 65535;
+							delayAfterStart *= -1;
+							testParameters.set(2, delayAfterStart);
+						}
+						
+						
 						boolean timedTest = true;
 						if (timedTestFlag == 0) {
 							timedTest = false;
@@ -1946,21 +1962,13 @@ public class AdvancedMode extends JFrame {
 		generalStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		serialPortPanel.add(generalStatusLabel);
 
-		JPanel mainPanelContainer = new JPanel();
+		mainPanelContainer = new JPanel();
 		contentPanel.add(mainPanelContainer);
 		mainPanelContainer.setLayout(new GridLayout(0, 1, 0, 0));
 
 		mainTabbedPanel = new JTabbedPane(JTabbedPane.TOP);
 		mainTabbedPanel.setPreferredSize(new Dimension(630, 400));
 		mainPanelContainer.add(mainTabbedPanel);
-
-		mainTabbedPanel.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-				initDataFields();
-			}
-		});
-
 
 		JPanel readPanel = new JPanel();
 		readPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -2180,7 +2188,6 @@ public class AdvancedMode extends JFrame {
 		configurationPanel.add(batteryTimeoutTextField);
 
 		timer0TickThreshTextField = new JTextField();
-		timer0TickThreshTextField.setText("3689");
 		timer0TickThreshTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		timer0TickThreshTextField.setEditable(false);
 		timer0TickThreshTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Tick Threshold (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
