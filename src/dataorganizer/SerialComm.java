@@ -440,8 +440,8 @@ public class SerialComm {
 		
 		calData[0] = tmr0Offset;
 		calData[1] = delayAfterStart;
-		System.out.println(calData[0]);
-		System.out.println(calData[1]);
+		//System.out.println(calData[0]);
+		//System.out.println(calData[1]);
 		int addFlag = 0;
 		int addFlagSerialRead = 0;
 		int dataIndex = 0;
