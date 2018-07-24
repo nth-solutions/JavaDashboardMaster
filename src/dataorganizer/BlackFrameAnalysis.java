@@ -94,9 +94,9 @@ public class BlackFrameAnalysis {
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
 	public String cmdWrapper(String videoName, int commandNum) {
-		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";//Analyzes full video
-		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD2 = "ffmpeg -ss 00:01:55 -i " + videoName + " -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD = "ffmpeg -i \"" + videoName + "\" -vf blackframe -f rawvideo -y NUL";//Analyzes full video
+		String CMD1 = "ffmpeg -i \"" + videoName + "\" -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD2 = "ffmpeg -ss 00:01:55 -i \"" + videoName + "\" -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
 
 		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
 		//Create instance of wrapper class
