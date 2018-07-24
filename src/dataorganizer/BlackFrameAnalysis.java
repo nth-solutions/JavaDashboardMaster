@@ -25,7 +25,7 @@ public class BlackFrameAnalysis {
 	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
 	private final int moduleSPS = 960;
 	private final int lengthOfTest = 120;
-	private final double T_INTERVAL = (1.0/240.0);
+	private final double T_INTERVAL = (1.0/(double)videoFPS);
 	private int preLitBFNum = 0;		//sets integer for the last black frame at 0
 	private int postLitBFNum = 0;		
 
@@ -62,8 +62,8 @@ public class BlackFrameAnalysis {
 			}
 		}
 		
-		//System.out.println(preLitBFNum);
-		//System.out.println(postLitBFNum);
+		System.out.println(preLitBFNum);
+		System.out.println(postLitBFNum);
 		
 	}
 
@@ -94,9 +94,12 @@ public class BlackFrameAnalysis {
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
 	public String cmdWrapper(String videoName, int commandNum) {
-		String CMD = "ffmpeg -i \"" + videoName + "\" -vf blackframe -f rawvideo -y NUL";//Analyzes full video
-		String CMD1 = "ffmpeg -i \"" + videoName + "\" -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD2 = "ffmpeg -ss 00:01:55 -i \"" + videoName + "\" -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";//Analyzes full video
+		//String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		//String CMD2 = "ffmpeg -ss 00:01:55 -i " + videoName + " -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:04 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD2 = "ffmpeg -ss 00:00:04 -i " + videoName + " -to 00:00:10 -vf blackframe -f rawvideo -y NUL"; 
+		
 
 		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
 		//Create instance of wrapper class
@@ -104,9 +107,9 @@ public class BlackFrameAnalysis {
 		//Set internal private variable (detects system binary for OS + Architecture)
 		switch(commandNum) {
 
-		case 1: return SysWrap.getBinRoot()+CMD1;		//First 3 seconds of video
-		case 2: return SysWrap.getBinRoot()+CMD2;		//Skips 115  seconds in; analyzes next ten seconds
-		case 0: default: return SysWrap.getBinRoot()+CMD; //Analyzes full video
+			case 1: return SysWrap.getBinRoot()+CMD1;		//First 3 seconds of video
+			case 2: return SysWrap.getBinRoot()+CMD2;		//Skips 115  seconds in; analyzes next ten seconds
+			case 0: default: return SysWrap.getBinRoot()+CMD; //Analyzes full video
 
 		}
 

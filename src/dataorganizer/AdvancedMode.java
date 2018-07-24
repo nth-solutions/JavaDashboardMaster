@@ -1245,7 +1245,7 @@ public class AdvancedMode extends JFrame {
 						//0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
 						testParams.add(0);
 						//1 Timer0 Tick Threshold
-						testParams.add(getTickThreshold(Integer.parseInt(timer0TickThreshTextField.getText())));
+						testParams.add(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())));
 						//2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
 						testParams.add(0);
 						//3 Battery timeout flag
@@ -1827,9 +1827,9 @@ public class AdvancedMode extends JFrame {
 		case (500):
 			return 7679;
 		case (960):
-			return 3848;
+			return 3813;
 		default:	//960-96
-			return 3848;
+			return 3813;
 		}
 	}
 
@@ -2198,7 +2198,7 @@ public class AdvancedMode extends JFrame {
 		delayAfterStartTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		delayAfterStartTextField.setEditable(false);
 		delayAfterStartTextField.setColumns(10);
-		delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Microseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Milliseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		configurationPanel.add(delayAfterStartTextField);
 
 		writeConfigsButton = new JButton("Write Configurations");
@@ -2325,7 +2325,7 @@ public class AdvancedMode extends JFrame {
 		tmr0OffsetTextField.setText("0");
 		tmr0OffsetTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		tmr0OffsetTextField.setColumns(10);
-		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (nanoseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (Ticks)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
 		delayAfterTextField = new JTextField();
 		delayAfterTextField.setText("0");
