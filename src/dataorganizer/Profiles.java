@@ -26,7 +26,7 @@ public class Profiles extends JFrame {
 			public void run() {
 					JFrame frame = null;
 					try {
-						LoadSettings settings = new LoadSettings();
+						Settings settings = new Settings();
 						settings.loadConfigFile();
 						if(settings.getKeyVal("DefaultProfile") != null) {
 							switch(settings.getKeyVal("DefaultProfile")) {

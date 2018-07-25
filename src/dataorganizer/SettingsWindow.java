@@ -50,8 +50,8 @@ public class SettingsWindow extends JFrame {
 	}
 
 	
-	public LoadSettings getSettingsInstance() {
-		LoadSettings settings = new LoadSettings();
+	public Settings getSettingsInstance() {
+		Settings settings = new Settings();
 		String saveDirectoryString = null;
 		try {
 			settings.loadConfigFile();
@@ -67,7 +67,7 @@ public class SettingsWindow extends JFrame {
 	
 	
 	public void saveAndExitBtnHandler() {
-		LoadSettings settings = getSettingsInstance();
+		Settings settings = getSettingsInstance();
 		settings.setProp("CSVSaveLocation", saveDirectoryTextField.getText());
 		settings.setProp("DefaultProfile", (String) profileComboBox.getSelectedItem());
 		settings.setProp("TemplateDirectory", templateDirectoryTextField.getText());

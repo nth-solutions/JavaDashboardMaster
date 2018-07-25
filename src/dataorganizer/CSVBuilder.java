@@ -15,10 +15,10 @@ import com.sun.javafx.collections.MappingChange.Map;
 
 public class CSVBuilder {        //Class for Creating .CSV files
 	
-	private int additionalLineNums;
+	private static int additionalLineNums;
 	
 	
-    public int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, ArrayList<Integer> testParams) {
+    public static int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, ArrayList<Integer> testParams) {
     
     	
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
@@ -244,7 +244,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
     
 
     
-    public HashMap<Integer, Vector<Double>> insertFirstMagSample(HashMap<Integer, Vector<Double>> map){
+    public static HashMap<Integer, Vector<Double>> insertFirstMagSample(HashMap<Integer, Vector<Double>> map){
     	HashMap<Integer, Vector<Double>> newMap = new HashMap<Integer, Vector<Double>>();
     	
     	Vector<Double> line = map.get(additionalLineNums + 10);

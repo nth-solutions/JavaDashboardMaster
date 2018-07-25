@@ -235,7 +235,7 @@ public class AdvancedMode extends JFrame {
 	private JPanel calOffsetsPanel;
 	private JTextField delayAfterTextField;
 	private JPanel videoBrowsePanel;
-	private JTextField videoFilePath;
+	private JTextField videoFilePathTextField;
 	private JButton videoBrowseButton;
 	private JPanel panel;
 	private JCheckBox checkBoxElanCSV;
@@ -1002,7 +1002,7 @@ public class AdvancedMode extends JFrame {
 				disableTabChanges();
 				try {
 
-					BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePath.getText());
+					BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
 
 					delayAfterTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
 					tmr0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset()));
@@ -1665,10 +1665,10 @@ public class AdvancedMode extends JFrame {
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setAcceptAllFileFilterUsed(false);
 		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			videoFilePath.setText(chooser.getSelectedFile().toString());
+			videoFilePathTextField.setText(chooser.getSelectedFile().toString());
 		}
 		else {
-			videoFilePath.setText(null);
+			videoFilePathTextField.setText(null);
 		}
 	}
 
@@ -2288,12 +2288,12 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(videoBrowsePanel);
 		videoBrowsePanel.setLayout(new BoxLayout(videoBrowsePanel, BoxLayout.X_AXIS));
 
-		videoFilePath = new JTextField();
-		videoFilePath.setMaximumSize(new Dimension(500, 2147483647));
-		videoFilePath.setMinimumSize(new Dimension(500, 100));
-		videoFilePath.setColumns(10);
-		videoFilePath.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		videoBrowsePanel.add(videoFilePath);
+		videoFilePathTextField = new JTextField();
+		videoFilePathTextField.setMaximumSize(new Dimension(500, 2147483647));
+		videoFilePathTextField.setMinimumSize(new Dimension(500, 100));
+		videoFilePathTextField.setColumns(10);
+		videoFilePathTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		videoBrowsePanel.add(videoFilePathTextField);
 
 		videoBrowseButton = new JButton("Browse");
 		videoBrowseButton.addActionListener(new ActionListener() {
