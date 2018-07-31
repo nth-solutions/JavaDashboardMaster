@@ -33,6 +33,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import javafx.application.Platform;
+import javafx.stage.Stage;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 import purejavacomm.PureJavaIllegalStateException;
@@ -239,7 +241,7 @@ public class AdvancedMode extends JFrame {
 	private JTextField videoFilePathTextField;
 	private JButton videoBrowseButton;
 	private JPanel panel;
-	private JCheckBox checkBoxElanCSV;
+	private JCheckBox checkBoxLabelCSV;
 	private JCheckBox checkBoxSignedData;
 
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
@@ -1436,33 +1438,27 @@ public class AdvancedMode extends JFrame {
 									}
 									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile; 
 									
+									DataOrganizer dataOrgo = new DataOrganizer(testParameters, checkBoxSignedData.isSelected(), 9);
+									
+									dataOrgo.createDataSmpsRawData(finalData);
 									
 									
-									
-									
-									
-									//Define operation that can be run in separate thread
-									Runnable organizerOperation = new Runnable() {
-										public void run() {
-											//Organize data into .CSV
-											
-										}
-									};
-
-									//Set thread to execute previously defined operation
-									organizerThread = new Thread(organizerOperation);
-									//Start thread
-									organizerThread.start();
+									if(chckbxCreatecsv.isSelected()) {
+										dataOrgo.CreateCSV(checkBoxLabelCSV.isSelected(), null, tempName);
+									}
 									
 									if(chckbxCreateGraph.isSelected()) {
-										Runnable graphRunnable = new Runnable() {
-											public void run() {
-												javafx.application.Application.launch(Graph.class);
-											}
-										};
-										
-										Thread graphThread = new Thread(graphRunnable);
-										graphThread.start();
+										com.sun.javafx.application.PlatformImpl.startup(()->{});
+										Platform.runLater(new Runnable() {
+								            public void run() {
+								                try {
+								                    Graph lineGraph= new Graph(dataOrgo);
+								                    lineGraph.start(new Stage());
+								                } catch (Exception e) {
+								                    e.printStackTrace();
+								                }
+								            }
+								        });
 										
 									}
 								}
@@ -2013,10 +2009,10 @@ public class AdvancedMode extends JFrame {
 		startReadButtonPanel.add(panel);
 		panel.setLayout(new GridLayout(2, 2, 0, 0));
 		
-		checkBoxElanCSV = new JCheckBox("Label Data in .CSV");
-		checkBoxElanCSV.addActionListener(new ActionListener() {
+		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
+		checkBoxLabelCSV.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (checkBoxElanCSV.isSelected()) {
+				if (checkBoxLabelCSV.isSelected()) {
 					checkBoxSignedData.setSelected(true);
 				} else {
 					checkBoxSignedData.setSelected(false);
@@ -2036,12 +2032,12 @@ public class AdvancedMode extends JFrame {
 		checkBoxSignedData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!checkBoxSignedData.isSelected()) {
-					checkBoxElanCSV.setSelected(false);
+					checkBoxLabelCSV.setSelected(false);
 				}
 			}
 		});
 		panel.add(checkBoxSignedData);
-		panel.add(checkBoxElanCSV);
+		panel.add(checkBoxLabelCSV);
 		readDataButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				readButtonHandler();
