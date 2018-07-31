@@ -9,6 +9,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTabbedPane;
 import java.awt.GridLayout;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -91,6 +92,16 @@ public class EducatorMode extends JFrame {
 	private JButton noBtn;
 	private JButton btnLaunchMotionVisualization;
 	private JPanel panel_5;
+	private JButton configForCalButton;
+	private JPanel videoBrowsePanel;
+	private JTextField videoFilePathTextField;
+	private JButton btnBrowse;
+	private JButton importCalDataButton;
+	private JPanel calOffsetsPanel;
+	private JTextField tmr0OffsetTextField;
+	private JTextField delayAfterTextField;
+	private JButton applyOffsetButton;
+	private JLabel generalStatusLabel;
 
 	/**
 	 * Launch the application.
@@ -333,6 +344,144 @@ public class EducatorMode extends JFrame {
 		testParams.clear();
 	}
 
+	public void importCalDataHandler() {
+		Runnable getConfigsOperation = new Runnable() {
+			public void run() {	
+				configForCalButton.setEnabled(false);
+				importCalDataButton.setEnabled(false);
+				applyOffsetButton.setEnabled(false);
+				try {
+
+					BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
+
+					delayAfterTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
+					tmr0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset()));
+
+					configForCalButton.setEnabled(true);
+					importCalDataButton.setEnabled(true);
+					applyOffsetButton.setEnabled(true);
+
+				} catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+		
+		Thread getConfigsOperationThread = new Thread(getConfigsOperation);
+		getConfigsOperationThread.start();
+		
+	}
+	
+	public void applyOffsetsHandler() {
+		Runnable getConfigsOperation = new Runnable() {
+			public void run() {
+				configForCalButton.setEnabled(false);
+				importCalDataButton.setEnabled(false);
+				applyOffsetButton.setEnabled(false);
+
+				try {
+					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
+						generalStatusLabel.setText("Error Communicating With Module");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					else {
+						generalStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+
+					configForCalButton.setEnabled(true);
+					importCalDataButton.setEnabled(true);
+					applyOffsetButton.setEnabled(true);
+
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+		Thread applyOffsetsHandlerThread = new Thread(getConfigsOperation);
+		applyOffsetsHandlerThread.start();
+
+	}
+	
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
+	public void videoBrowseButtonHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			videoFilePathTextField.setText(chooser.getSelectedFile().toString());
+		}
+		else {
+			videoFilePathTextField.setText(null);
+		}
+	}
+	
+	public void configForCalHandler() {
+		Runnable calforConfigOperation = new Runnable() {
+			public void run() {
+				configForCalButton.setEnabled(false);
+				importCalDataButton.setEnabled(true);
+				applyOffsetButton.setEnabled(false);
+
+				try {
+					if(!serialHandler.configForCalibration()) {
+						generalStatusLabel.setText("Error Communicating With Module");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					else {
+						generalStatusLabel.setText("Module Configured for Calibration, Use Configuration Tab to Exit");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+
+					configForCalButton.setEnabled(true);
+					importCalDataButton.setEnabled(true);
+					applyOffsetButton.setEnabled(true);
+				}
+				catch (IOException e) {
+					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabel.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+		Thread calConfigThread = new Thread(calforConfigOperation);
+		calConfigThread.start();
+	}
+	
 	/**
 	 * Executed when pair new remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
 	 */
@@ -1248,6 +1397,70 @@ public class EducatorMode extends JFrame {
 
 		JPanel calibrationPanel = new JPanel();
 		mainTabbedPane.addTab("Calibration Panel", null, calibrationPanel, null);
+		calibrationPanel.setLayout(new GridLayout(6, 1, 0, 0));
+		
+		configForCalButton = new JButton("Configure Module for Calibration");
+		configForCalButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				configForCalHandler();
+			}
+		});
+		configForCalButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		calibrationPanel.add(configForCalButton);
+		
+		videoBrowsePanel = new JPanel();
+		calibrationPanel.add(videoBrowsePanel);
+		videoBrowsePanel.setLayout(null);
+		
+		videoFilePathTextField = new JTextField();
+		videoFilePathTextField.setBounds(0, 0, 444, 84);
+		videoFilePathTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		videoBrowsePanel.add(videoFilePathTextField);
+		videoFilePathTextField.setColumns(10);
+		
+		btnBrowse = new JButton("Browse");
+		btnBrowse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				videoBrowseButtonHandler();
+			}
+		});
+		btnBrowse.setBounds(443, 0, 105, 84);
+		videoBrowsePanel.add(btnBrowse);
+		
+		importCalDataButton = new JButton("Import calibration data and calculate offset");
+		importCalDataButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				importCalDataHandler();
+			}
+		});
+		importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		calibrationPanel.add(importCalDataButton);
+		
+		calOffsetsPanel = new JPanel();
+		calibrationPanel.add(calOffsetsPanel);
+		calOffsetsPanel.setLayout(new GridLayout(0, 2, 0, 0));
+		
+		tmr0OffsetTextField = new JTextField();
+		tmr0OffsetTextField.setBorder(new TitledBorder(null, "Timer0 Calibration Offset (Ticks)", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		calOffsetsPanel.add(tmr0OffsetTextField);
+		tmr0OffsetTextField.setColumns(10);
+		
+		delayAfterTextField = new JTextField();
+		delayAfterTextField.setBorder(new TitledBorder(null, "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		calOffsetsPanel.add(delayAfterTextField);
+		delayAfterTextField.setColumns(10);
+		
+		applyOffsetButton = new JButton("Apply Offset");
+		applyOffsetButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				applyOffsetsHandler();
+			}
+		});
+		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		calibrationPanel.add(applyOffsetButton);
+		
+		generalStatusLabel = new JLabel("");
+		calibrationPanel.add(generalStatusLabel);
 
 		JPanel motionVisualizationPanel = new JPanel();
 		mainTabbedPane.addTab("Motion Visualization", null, motionVisualizationPanel, null);
