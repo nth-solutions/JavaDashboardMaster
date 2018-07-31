@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
@@ -219,7 +220,7 @@ public class AdvancedMode extends JFrame {
 	private static SerialComm serialHandler;
 	private String videoFileInput;
 	private CSVBuilder csvBuilder = new CSVBuilder();  //Object of class used to organize passed in data to convert and format data into .CSV
-
+	private List<DataOrganizer> tests = new ArrayList<>();
 	//Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
@@ -242,6 +243,8 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxSignedData;
 
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
+	private JCheckBox chckbxCreateGraph;
+	private JCheckBox chckbxCreatecsv;
 
 
 	/**
@@ -1365,7 +1368,7 @@ public class AdvancedMode extends JFrame {
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);				
 						
-						System.out.println(delayAfterStart);
+						//System.out.println(delayAfterStart);
 						if(delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
@@ -1432,11 +1435,17 @@ public class AdvancedMode extends JFrame {
 										}
 									}
 									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile; 
+									
+									
+									
+									
+									
+									
 									//Define operation that can be run in separate thread
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											//Organize data into .CSV
-											csvBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), fileOutputDirectoryStr, checkBoxElanCSV.isSelected(), checkBoxSignedData.isSelected(), testParameters);  
+											
 										}
 									};
 
@@ -1444,6 +1453,18 @@ public class AdvancedMode extends JFrame {
 									organizerThread = new Thread(organizerOperation);
 									//Start thread
 									organizerThread.start();
+									
+									if(chckbxCreateGraph.isSelected()) {
+										Runnable graphRunnable = new Runnable() {
+											public void run() {
+												javafx.application.Application.launch(Graph.class);
+											}
+										};
+										
+										Thread graphThread = new Thread(graphRunnable);
+										graphThread.start();
+										
+									}
 								}
 							}
 							else {
@@ -1990,9 +2011,9 @@ public class AdvancedMode extends JFrame {
 		
 		panel = new JPanel();
 		startReadButtonPanel.add(panel);
-		panel.setLayout(new GridLayout(2, 0, 0, 0));
+		panel.setLayout(new GridLayout(2, 2, 0, 0));
 		
-		checkBoxElanCSV = new JCheckBox("Save as Elan .CSV");
+		checkBoxElanCSV = new JCheckBox("Label Data in .CSV");
 		checkBoxElanCSV.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (checkBoxElanCSV.isSelected()) {
@@ -2002,9 +2023,16 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		});
-		panel.add(checkBoxElanCSV);
+		
+		chckbxCreateGraph = new JCheckBox("Create Graph");
+		panel.add(chckbxCreateGraph);
+		
+		chckbxCreatecsv = new JCheckBox("Create .CSV");
+		chckbxCreatecsv.setSelected(true);
+		panel.add(chckbxCreatecsv);
 		
 		checkBoxSignedData = new JCheckBox("Signed Data");
+		checkBoxSignedData.setSelected(true);
 		checkBoxSignedData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!checkBoxSignedData.isSelected()) {
@@ -2013,6 +2041,7 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 		panel.add(checkBoxSignedData);
+		panel.add(checkBoxElanCSV);
 		readDataButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				readButtonHandler();
