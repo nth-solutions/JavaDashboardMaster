@@ -11,11 +11,12 @@ public class Settings {
 	
 	
 	//Defines the default configurations
-	public void loadDefaultConfig() {			
-		this.prop.setProperty("CSVSaveLocation","");
+	public void restoreDefaultConfig() {			
+		this.prop.setProperty("CSVSaveLocation","%userprofile%");
 		this.prop.setProperty("DefaultProfile", "");
 		this.prop.setProperty("TemplateDirectory", "");
 		this.prop.setProperty("OpenOnRead", "False");
+		this.saveConfig();
 	}
 	
 	//Loads saved configurations from DataOrganizer.prop
@@ -23,9 +24,8 @@ public class Settings {
 		try{
 			this.prop.load(new FileInputStream("DataOrganizer.prop"));
 		}catch(FileNotFoundException e) {
-			this.loadDefaultConfig();
+			this.restoreDefaultConfig();
 		}catch(IOException e) {
-			
 		}
 	}
 	

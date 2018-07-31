@@ -222,7 +222,7 @@ public class AdvancedMode extends JFrame {
 	private static SerialComm serialHandler;
 	private String videoFileInput;
 	private CSVBuilder csvBuilder = new CSVBuilder();  //Object of class used to organize passed in data to convert and format data into .CSV
-	private List<DataOrganizer> tests = new ArrayList<>();
+	//private List<DataOrganizer> tests = new ArrayList<>();
 	//Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
@@ -1459,6 +1459,7 @@ public class AdvancedMode extends JFrame {
 								                }
 								            }
 								        });
+
 										
 									}
 								}

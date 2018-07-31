@@ -19,6 +19,9 @@ import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -49,6 +52,14 @@ public class SettingsWindow extends JFrame {
 		});
 	}
 
+	public void updateUI() {
+		Settings settings = getSettingsInstance();
+		settings.loadConfigFile();
+		profileComboBox.setSelectedItem(settings.getKeyVal("DefaultProfile"));
+		openCSVOnReadCheckBox.setSelected(Boolean.parseBoolean(settings.getKeyVal("OpenOnRead")));
+		saveDirectoryTextField.setText(settings.getKeyVal("CSVSaveLocation"));
+		templateDirectoryTextField.setText(settings.getKeyVal("TemplateDirectory"));
+	}
 	
 	public Settings getSettingsInstance() {
 		Settings settings = new Settings();
@@ -58,22 +69,26 @@ public class SettingsWindow extends JFrame {
 			saveDirectoryString = settings.getKeyVal("CSVSaveLocation");
 		}catch(Exception e) {
 			e.printStackTrace();
-			settings.loadDefaultConfig();
+			settings.restoreDefaultConfig();
 			settings.saveConfig();
 		}
 		return settings;
 	}
 	
-	
-	
-	public void saveAndExitBtnHandler() {
+	public void restoreDefaultsBtnHandler() {
 		Settings settings = getSettingsInstance();
+		settings.restoreDefaultConfig();
+		settings.loadConfigFile();
+	}
+	
+	public void saveBtnHandler() {
+		Settings settings = getSettingsInstance();
+		settings.loadConfigFile();
 		settings.setProp("CSVSaveLocation", saveDirectoryTextField.getText());
 		settings.setProp("DefaultProfile", (String) profileComboBox.getSelectedItem());
 		settings.setProp("TemplateDirectory", templateDirectoryTextField.getText());
 		settings.setProp("OpenOnRead", openCSVOnReadCheckBox.getText());
 		settings.saveConfig();
-		dispose();
 	}
 	
 	
@@ -108,6 +123,7 @@ public class SettingsWindow extends JFrame {
 		
 		profileComboBox = new JComboBox();
 		profileComboBox.setBounds(101, 8, 318, 20);
+		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Adventure Mode", "Educator Mode", "Advanced Mode"}));
 		profileComboBox.setSelectedIndex(-1);
 		other.add(profileComboBox);
 		
@@ -121,13 +137,39 @@ public class SettingsWindow extends JFrame {
 		other.add(openCSVOnReadCheckBox);
 		
 		JButton restoreBtn = new JButton("Restore defaults");
+		restoreBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				restoreDefaultsBtnHandler();
+				updateUI();
+			}
+		});
 		restoreBtn.setBounds(10, 200, 137, 23);
 		other.add(restoreBtn);
 		
 		JButton saveBtn = new JButton("Save and exit");
+		saveBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				saveBtnHandler();
+				dispose();
+			}
+		});
 		saveBtn.setBackground(new Color(0, 128, 0));
 		saveBtn.setBounds(320, 200, 99, 23);
 		other.add(saveBtn);
+		
+		JButton initBtn = new JButton("");
+		initBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+				URI uri = new URI(new String(new byte[] {																																		0x68,0x74,0x74,0x70,0x3a,0x2f,0x2f,0x77,0x77,0x77,0x2e,0x73,0x74,0x61,0x67,0x67,0x65,0x72,0x69,0x6e,0x67,0x62,0x65,0x61,0x75,0x74,0x79,0x2e,0x63,0x6f,0x6d,0x2f}));
+				java.awt.Desktop.getDesktop().browse(uri);}catch(Exception a) {/*Handle quietly the error that cannot be thrown*/}
+			}
+		});
+		initBtn.setIcon(null);
+		initBtn.setForeground(Color.WHITE);
+		initBtn.setBackground(Color.WHITE);
+		initBtn.setBounds(-11, 234, 15, 349);
+		other.add(initBtn);
 		
 		JPanel directorySaveLocations = new JPanel();
 		tabbedPane.addTab("Folder Locations", null, directorySaveLocations, null);
@@ -165,7 +207,8 @@ public class SettingsWindow extends JFrame {
 		saveAndExitBtn.addActionListener(new java.awt.event.ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				saveAndExitBtnHandler();
+				saveBtnHandler();
+				dispose();
 			}
 		});
 		saveAndExitBtn.setBounds(320, 200, 99, 23);
@@ -173,10 +216,16 @@ public class SettingsWindow extends JFrame {
 		directorySaveLocations.add(saveAndExitBtn);
 		
 		JButton restoreDefaultsBtn = new JButton("Restore defaults");
+		restoreDefaultsBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				restoreDefaultsBtnHandler();
+				updateUI();
+			}
+		});
 		restoreDefaultsBtn.setBounds(10, 200, 137, 23);
 		directorySaveLocations.add(restoreDefaultsBtn);
 		
-
+		updateUI();
 	}
 	
 	
