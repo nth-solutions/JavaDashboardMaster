@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import application.DynamicLineChart.Event;
 //import application.DynamicLineChart.Event;
 //import application.DynamicLineChart.Event;
 import javafx.animation.KeyFrame;
@@ -26,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -75,8 +77,8 @@ public class Graph extends Application {
 		
 		xAxis.setLowerBound(0);
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
-		xAxis.setMinorTickCount(960 / 8);
-		xAxis.setTickUnit(0.125);
+		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
+		xAxis.setTickUnit(1);
 
 		//Create line chart with the x and y axis
 		lineChart = new LineChart<Number, Number>(xAxis, yAxis);
@@ -98,6 +100,7 @@ public class Graph extends Application {
 
 		
 		populateData(dataSeries, lineChart);		//Graph the series if the checkbox corresponding to the series is active
+		styleSeries(dataSeries, lineChart);
 		
 		//Create the scene
 		final StackPane chartContainer = new StackPane();
@@ -128,9 +131,15 @@ public class Graph extends Application {
 				final NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
 				xAxis.setLowerBound(0);
 				xAxis.setUpperBound(dataCollector.getLengthOfTest());
-
+				xAxis.setTickUnit(1);
 				zoomRect.setWidth(0);
 				zoomRect.setHeight(0);
+				for (final DataSeries ds : dataSeries) {
+					ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+					
+				}
+				populateData(dataSeries, lineChart);
+				styleSeries(dataSeries, lineChart);
 			}
 		});
 		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5)
@@ -139,11 +148,12 @@ public class Graph extends Application {
 		zoomControls.getChildren().addAll(zoomButton, resetButton);
 
 		// create some controls which can toggle series display on and off.
-		final HBox dataControls = new HBox(10);
+		final VBox dataControls = new VBox(10);
 		dataControls.setStyle("-fx-padding: 10;");
 		dataControls.setAlignment(Pos.CENTER);
 		final TitledPane controlPane = new TitledPane("Data Series Box", dataControls);
 		controlPane.setCollapsible(true);
+		controlPane.setAlignment(Pos.CENTER_RIGHT);
 		for (final DataSeries ds : dataSeries) {
 			final CheckBox box = new CheckBox(ds.getName());
 			box.setSelected(true);
@@ -154,6 +164,7 @@ public class Graph extends Application {
 			box.setOnAction(action -> {
 				ds.setActive(box.isSelected());
 				populateData(dataSeries, lineChart);
+				styleSeries(dataSeries, lineChart);
 			});
 		}
 
@@ -162,7 +173,7 @@ public class Graph extends Application {
 		final BorderPane root = new BorderPane();
 		root.setCenter(chartContainer);
 		root.setBottom(zoomControls);
-		root.setBottom(controlPane);
+		root.setRight(controlPane);
 		final Scene scene = new Scene(root, 600, 400);
 		stage.setScene(scene);
 		stage.show();
@@ -181,16 +192,10 @@ public class Graph extends Application {
 		}
 
 		series.setData(seriesData);
-		
-		/*Node line = series.getNode().lookup(".chart-series-line");
-		String rgb = String.format("%d, %d, %d",
-		        (int) (color.getRed() * 255),
-		        (int) (color.getGreen() * 255),
-		        (int) (color.getBlue() * 255));
-		
-		line.setStyle("-fx-stroke: rgba(" + rgb + ", 1.0);");*/
+
 		return FXCollections.observableArrayList(Collections.singleton(series));
 	}
+	
 
 	private void populateData(final ObservableList<DataSeries> ds, final LineChart<Number, Number> lineChart) {
 		lineChart.getData().clear();
@@ -200,7 +205,27 @@ public class Graph extends Application {
 			}
 		}
 	}
+	  private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
+		    // force a css layout pass to ensure that subsequent lookup calls work.
+		    lineChart.applyCss();
 
+		    // mark different series with different depending on whether they are above or below average.
+		    int nSeries = 0;
+		      for (DataSeries dof : dataSeries) {
+		          if (!dof.isActive()) continue;
+		          for (int j = 0; j < dof.getSeries().size(); j++) {
+		              XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+		              Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+		              for (Node n : nodes) {
+		                  StringBuilder style = new StringBuilder();
+		                  style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
+
+		                  n.setStyle(style.toString());
+		              }
+		              nSeries++;
+		          }
+		      }
+		  }
 	private void setUpZooming(final Rectangle rect, final Node zoomingNode) {
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -238,9 +263,18 @@ public class Graph extends Application {
 		
 		xAxis.setLowerBound(xAxis.getLowerBound() + (xOffset / xAxisScale));
 		xAxis.setUpperBound(xAxis.getLowerBound() + (zoomRect.getWidth() / xAxisScale));
-	
+		
 		zoomRect.setWidth(0);
 		zoomRect.setHeight(0);
+		
+		for (final DataSeries ds : dataSeries) {
+			if(ds.isActive()) {
+				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
+			
+		}
+		
+		xAxis.setTickUnit(xAxis.getUpperBound() - xAxis.getLowerBound() / 5);
 	}
 
 	public class DataSeries {
@@ -248,7 +282,7 @@ public class Graph extends Application {
 		private ObservableList<XYChart.Series<Number, Number>> series;
 		private boolean isActive = true;
 		private int dof;
-		private Color color;
+		private String color;
 		private DataOrganizer dataOrgo;
 
 		public DataSeries(String name, DataOrganizer dataOrgo) {
@@ -270,23 +304,23 @@ public class Graph extends Application {
 			this.dataOrgo = dataOrgo;
 			
 			switch(dof) {
-				case(1): name = "Accel X"; color = Color.RED;
+				case(1): name = "Accel X"; color = "FireBrick";
 					break;
-				case(2): name = "Accel Y"; color = Color.BLUE;
+				case(2): name = "Accel Y"; color = "DodgerBlue";
 					break;
-				case(3): name = "Accel Z"; color = Color.GREEN;
+				case(3): name = "Accel Z"; color = "ForestGreen";
 					break;
-				case(4): name = "Gyro X"; color = Color.ORANGERED;
+				case(4): name = "Gyro X"; color = "Gold";
 					break;
-				case(5): name = "Gyro Y"; color = Color.DARKSLATEBLUE;
+				case(5): name = "Gyro Y"; color = "Coral";
 					break;
-				case(6): name = "Gyro Z"; color = Color.DARKOLIVEGREEN;
+				case(6): name = "Gyro Z"; color = "MediumBlue";
 					break;
-				case(7): name = "Mag X"; color = Color.MEDIUMVIOLETRED;
+				case(7): name = "Mag X"; color = "DarkViolet";
 					break;
-				case(8): name = "Mag Y"; color = Color.DARKBLUE;
+				case(8): name = "Mag Y"; color = "DarkSlateGray";
 					break;
-				case(9): name = "Mag Z"; color = Color.DARKGREEN;
+				case(9): name = "Mag Z"; color = "SaddleBrown";
 					break;
 			}
 			
@@ -297,17 +331,24 @@ public class Graph extends Application {
 		public String getName() {
 			return name;
 		}
+		
+		public String getColor() {
+			return color;
+		}
 
-		private boolean isActive() {
+		public boolean isActive() {
 			return isActive;
 		}
 
-		private void setActive(boolean isActive) {
+		public void setActive(boolean isActive) {
 			this.isActive = isActive;
 		}
 
 		public ObservableList<XYChart.Series<Number, Number>> getSeries() {
 			return series;
+		}
+		public void updateZoom(double start, double end) {
+			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof));
 		}
 
 	}

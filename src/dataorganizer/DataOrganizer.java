@@ -152,9 +152,9 @@ public class DataOrganizer {
 			}
 		}
 		
-		System.out.println("LineNum: " + lineNum);
-		System.out.println("Length of test: " + lengthOfTest);
-		System.out.println("Size of test: " + dataSmps.get(0).size());
+		//System.out.println("LineNum: " + lineNum);
+		//System.out.println("Length of test: " + lengthOfTest);
+		//System.out.println("Size of test: " + dataSmps.get(0).size());
 	}
 	
 	public int CreateCSV(boolean labelData, String fileOutputDirectory, String nameOfFile) {
@@ -163,8 +163,11 @@ public class DataOrganizer {
         if (!labelData) {
 	        for (int smp = 0; smp < lineNum - 1; smp++) {
 	        	for(int dof = 1; dof <= numDof; dof++) {
-	        		builder.append(dataSmps.get(dof).get(smp));
-	        		builder.append(",");
+	        		if(dataSmps.get(dof).get(smp) != null) {
+	        			builder.append(dataSmps.get(dof).get(smp));
+	        			builder.append(",");
+	        			
+	        		}
 	        	}
 	        	builder.append("\n");
 	        }
@@ -276,14 +279,14 @@ public class DataOrganizer {
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum) {
 
-		/*double duration = end - start;
-		double numSamples = (duration * (double) sampleRate);
-		double rate = 6242.0 / numSamples;
+		int numSamples = (int)Math.round((end - start) * sampleRate);
+		
+		double rate = 6242.0 / (double)numSamples;
 		double newSps =  (sampleRate * rate);
 		double modifier = sampleRate / newSps;
 		
-		System.out.println(modifier);
-		*/
+		
+	
 		List<List<Double>> dofData = new ArrayList<List<Double>>();
 
 		List<Double> dofTime = new ArrayList<Double>();
@@ -292,21 +295,24 @@ public class DataOrganizer {
 		//for(int smp = 0; smp < sampleRate * lengthOfTest; smp++) {
 		//	dofTime.add(smp, dataSmps.get(0).get(smp));
 		//}
+		if(modifier < 1)
+			modifier = 1;
+		//System.out.println(modifier);
 		
-	//	for (int smp = 0; smp < 6242 - 1; smp++) {
-	//		dofTime.add(smp, dataSmps.get(0).get((int)(smp * modifier)));
-	//	}
+		for (int smp = 0; smp < 6242; smp++) {
+			dofTime.add(smp, dataSmps.get(0).get((int) ((start * sampleRate) + (int)(smp * modifier))));
+		}
 		//System.out.println("Size of data; " + dataSmps.get(0).size());
-		dofData.add(0, dataSmps.get(0));
+		dofData.add(0, dofTime);
 		
 		//for(int smp = 0; smp < sampleRate * lengthOfTest; smp++) {
 	//		dofAxis.add(smp, dataSmps.get(dofNum).get(smp));
 	//	}
 	
-	//	for (int smp = 0; smp < 6242 - 1; smp++) {
-	//		dofAxis.add(smp, dataSmps.get(dofNum).get((int)(smp * modifier)));
-	//	}
-		dofData.add(1, dataSmps.get(dofNum));
+		for (int smp = 0; smp < 6242; smp++) {
+			dofAxis.add(smp, dataSmps.get(dofNum).get((int) ((start * sampleRate) + (int)(smp * modifier))));
+		}
+		dofData.add(1, dofAxis);
 
 		//System.out.println(dofData.get(0).size());
 
