@@ -86,6 +86,7 @@ public class EducatorMode extends JFrame {
 	private JLabel generalStatusLabelFive;
 
 	private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
+	ArrayList<Integer> testParams = new ArrayList<Integer>();
 	private String testType;
 	private JPanel stepFive;
 	private JPanel navPanel;
@@ -112,6 +113,38 @@ public class EducatorMode extends JFrame {
 	private JLabel lblStepbExit;
 	private JLabel lblNewLabel_1;
 	private JLabel lblStepRead;
+	private JTextField firstGliderAndModuleMassTextField;
+	private JLabel lblNewLabel_2;
+	private JTextField secondGliderAndModuleMassTextField;
+	private JLabel label;
+	private JLabel lblMassOfSecond;
+	private JLabel lblStepaEnter;
+	private JPanel physicalPendulumLabPane;
+	private JPanel conservationOfEnergyLabPane;
+	private JLabel lblNewLabel_3;
+	private JLabel lblStepaEnter_1;
+	private JTextField totalMassTextField;
+	private JLabel lblI;
+	private JLabel lblNewLabel_4;
+	private JLabel lblDistanceDModule;
+	private JTextField distanceModuleFallsTextField;
+	private JLabel lblNewLabel_5;
+	private JTextField massOfTheModuleTextField;
+	private JLabel lblMassOfThe;
+	private JLabel lblKg;
+	private JTextField momentOfInertiaDMTextField;
+	private JLabel lblI_1;
+	private JLabel lblMomentOfInertia;
+	private JTextField textField;
+	private JLabel label_1;
+	private JLabel lblRadiusOfThe;
+	private JPanel momentumLabPane;
+	private JLabel lblNm;
+	private JTextField kConstTextField;
+	private JLabel lblKConstant;
+	private JLabel lblM;
+	private JTextField amplituteTextField;
+	private JLabel lblAmplitude;
 
 	/**
 	 * Launch the application.
@@ -353,7 +386,7 @@ public class EducatorMode extends JFrame {
 
 		testParams.clear();
 	}
-
+	
 	public void importCalDataHandler() {
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {	
@@ -383,6 +416,89 @@ public class EducatorMode extends JFrame {
 		getConfigsOperationThread.start();
 		
 	}
+	
+	public void readExtraTestParamsForTemplate(){
+		//params.put(testType).put(variable) = x,y,content
+		class CellData{
+			public int X;
+			public int Y;
+			public String content;
+		}
+		
+		HashMap<String, CellData> param = new HashMap<>();
+		CellData cell = new CellData();
+		
+		
+		switch(testType) {
+			case "Conservation of Momentum (Elastic Collision)":
+				
+				//Write param to hashmap and location of template to write in
+				cell.X = 3;
+				cell.Y = 3;
+				cell.content = testTypeHashMap.get(testType).get(7).toString();	//Sample Rate
+				param.put("SampleRate", cell);
+				
+				//Write param to hashmap and location of template to write in
+				cell.X = 3;
+				cell.Y = 4;
+				cell.content = testTypeHashMap.get(testType).get(9).toString();	//Accel Sensitivity
+				param.put("AccelSensitivity", cell);
+				
+				
+				//Write param to hashmap and location of template to write in
+				cell.X = 3;
+				cell.Y = 5;
+				cell.content = testTypeHashMap.get(testType).get(10).toString();	//Gyro Rate
+				param.put("GyroSensitivity", cell);
+				
+				cell.X = 3;
+				cell.Y = 8;
+				cell.content = firstGliderAndModuleMassTextField.getText();
+				param.put("firstGliderAndModuleMassTextField", cell);
+				
+				cell.X = 3;
+				cell.Y = 9;
+				cell.content = secondGliderAndModuleMassTextField.getText();
+				param.put("secondGliderAndModuleMassTextField", cell);
+				break;
+				
+				
+			case "Physical Spring": 
+				cell.X = 3;
+				cell.Y = 3;
+				cell.content = testTypeHashMap.get(testType).get(7).toString();	//Sample Rate
+				param.put("sampleRate", cell);
+				
+				cell.X = 3;
+				cell.Y = 4;
+				cell.content = testTypeHashMap.get(testType).get(9).toString();	//Accel Sensitivity
+				param.put("AccelSensitivity", cell);
+				
+				cell.X = 3;
+				cell.Y = 5;
+				cell.content = testTypeHashMap.get(testType).get(10).toString();//Gyro Sensitivity
+				param.put("GyroSensitivity", cell);
+				
+				cell.X = 3;
+				cell.Y = 7;
+				cell.content = totalMassTextField.getText();
+				param.put("totalMass", cell);
+				
+				cell.X = 3;
+				cell.Y = 8;
+				cell.content = kConstTextField.getText();
+				param.put("kconstant", cell);
+				
+				cell.X = 3;
+				cell.Y = 9;
+				cell.content = amplituteTextField.getText();
+				param.put("amplitute", cell);
+				
+				
+				break;
+		}
+	}
+	
 	
 	public void applyOffsetsHandler() {
 		Runnable getConfigsOperation = new Runnable() {
@@ -670,7 +786,6 @@ public class EducatorMode extends JFrame {
 		Thread testRemoteThread = new Thread(testRemoteOperation);
 		//Start the thread
 		testRemoteThread.start();
-
 	}
 
 	/**
@@ -1130,10 +1245,28 @@ public class EducatorMode extends JFrame {
 		testTypeCombobox = new JComboBox();
 		testTypeCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				stepOne.remove(momentumLabPane);
+				stepOne.remove(physicalPendulumLabPane);
+				stepOne.remove(conservationOfEnergyLabPane);
+				
+				
 				fillTestTypeHashMap(timedTestCheckbox.isSelected()?1:0);
 				testType = testTypeCombobox.getSelectedItem().toString();
 				testTypeHashMap.get(testTypeCombobox.getSelectedItem());
+				
+				switch(testType) {
+					case "Conservation of Momentum (Elastic Collision)":
+						stepOne.add(momentumLabPane);
+						break;
+					case "Physical Pendulum": 
+						stepOne.add(physicalPendulumLabPane);
+						break;
+					case "Conservation of Energy":
+						stepOne.add(conservationOfEnergyLabPane);
+						break;
+				}
+				repaint();
+				
 			}
 		});
 
@@ -1145,6 +1278,7 @@ public class EducatorMode extends JFrame {
 		applyConfigurationsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				writeButtonHandler();
+				readExtraTestParamsForTemplate();
 			}
 		});
 		applyConfigurationsBtn.setBounds(10, 348, 506, 39);
@@ -1184,13 +1318,172 @@ public class EducatorMode extends JFrame {
 		
 		JLabel lblStepSelect = new JLabel("Step 1: Select the test you would like to perform.");
 		lblStepSelect.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblStepSelect.setBounds(10, 25, 292, 25);
+		lblStepSelect.setBounds(10, 24, 292, 25);
 		stepOne.add(lblStepSelect);
 		
-		JLabel lblStepaApply = new JLabel("Step 1A: Apply your configurations");
+		JLabel lblStepaApply = new JLabel("Step 1B: Apply your configurations");
 		lblStepaApply.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblStepaApply.setBounds(10, 306, 229, 31);
 		stepOne.add(lblStepaApply);
+		
+		conservationOfEnergyLabPane = new JPanel();
+		conservationOfEnergyLabPane.setBounds(10, 109, 506, 196);
+		conservationOfEnergyLabPane.setLayout(null);
+		
+		lblNewLabel_4 = new JLabel("Step 1A: Enter the following parameters");
+		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel_4.setBounds(10, 11, 236, 14);
+		conservationOfEnergyLabPane.add(lblNewLabel_4);
+		
+		lblDistanceDModule = new JLabel("Distance module falls");
+		lblDistanceDModule.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblDistanceDModule.setBounds(10, 49, 136, 14);
+		conservationOfEnergyLabPane.add(lblDistanceDModule);
+		
+		distanceModuleFallsTextField = new JTextField();
+		distanceModuleFallsTextField.setBounds(10, 74, 86, 20);
+		conservationOfEnergyLabPane.add(distanceModuleFallsTextField);
+		distanceModuleFallsTextField.setColumns(10);
+		
+		lblNewLabel_5 = new JLabel("m");
+		lblNewLabel_5.setBounds(106, 77, 46, 14);
+		conservationOfEnergyLabPane.add(lblNewLabel_5);
+		
+		massOfTheModuleTextField = new JTextField();
+		massOfTheModuleTextField.setColumns(10);
+		massOfTheModuleTextField.setBounds(10, 145, 86, 20);
+		conservationOfEnergyLabPane.add(massOfTheModuleTextField);
+		
+		lblMassOfThe = new JLabel("Mass of the module");
+		lblMassOfThe.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblMassOfThe.setBounds(10, 120, 136, 14);
+		conservationOfEnergyLabPane.add(lblMassOfThe);
+		
+		lblKg = new JLabel("kg");
+		lblKg.setBounds(106, 148, 46, 14);
+		conservationOfEnergyLabPane.add(lblKg);
+		
+		momentOfInertiaDMTextField = new JTextField();
+		momentOfInertiaDMTextField.setColumns(10);
+		momentOfInertiaDMTextField.setBounds(238, 74, 86, 20);
+		conservationOfEnergyLabPane.add(momentOfInertiaDMTextField);
+		
+		lblI_1 = new JLabel("I");
+		lblI_1.setBounds(334, 77, 46, 14);
+		conservationOfEnergyLabPane.add(lblI_1);
+		
+		lblMomentOfInertia = new JLabel("Moment of Inertia of disc and module");
+		lblMomentOfInertia.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblMomentOfInertia.setBounds(238, 49, 214, 14);
+		conservationOfEnergyLabPane.add(lblMomentOfInertia);
+		
+		textField = new JTextField();
+		textField.setColumns(10);
+		textField.setBounds(238, 145, 86, 20);
+		conservationOfEnergyLabPane.add(textField);
+		
+		label_1 = new JLabel("I");
+		label_1.setBounds(334, 148, 46, 14);
+		conservationOfEnergyLabPane.add(label_1);
+		
+		lblRadiusOfThe = new JLabel("Radius of the disc where string is attached");
+		lblRadiusOfThe.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblRadiusOfThe.setBounds(238, 120, 243, 14);
+		conservationOfEnergyLabPane.add(lblRadiusOfThe);
+		
+		physicalPendulumLabPane = new JPanel();
+		physicalPendulumLabPane.setBounds(10, 109, 506, 196);
+		physicalPendulumLabPane.setLayout(null);
+		stepOne.add(physicalPendulumLabPane);
+		
+		lblNewLabel_3 = new JLabel("Total Mass");
+		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel_3.setBounds(10, 66, 128, 14);
+		physicalPendulumLabPane.add(lblNewLabel_3);
+		
+		lblStepaEnter_1 = new JLabel("Step 1A: Enter the moment of inertia");
+		lblStepaEnter_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepaEnter_1.setBounds(10, 11, 307, 14);
+		physicalPendulumLabPane.add(lblStepaEnter_1);
+		
+		totalMassTextField = new JTextField();
+		totalMassTextField.setBounds(10, 93, 86, 20);
+		physicalPendulumLabPane.add(totalMassTextField);
+		totalMassTextField.setColumns(10);
+		
+		lblI = new JLabel("g");
+		lblI.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblI.setBounds(105, 96, 46, 14);
+		physicalPendulumLabPane.add(lblI);
+		
+		lblNm = new JLabel("N/m");
+		lblNm.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNm.setBounds(105, 154, 46, 14);
+		physicalPendulumLabPane.add(lblNm);
+		
+		kConstTextField = new JTextField();
+		kConstTextField.setColumns(10);
+		kConstTextField.setBounds(10, 151, 86, 20);
+		physicalPendulumLabPane.add(kConstTextField);
+		
+		lblKConstant = new JLabel("K Constant");
+		lblKConstant.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblKConstant.setBounds(10, 124, 128, 14);
+		physicalPendulumLabPane.add(lblKConstant);
+		
+		lblM = new JLabel("m");
+		lblM.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblM.setBounds(360, 96, 46, 14);
+		physicalPendulumLabPane.add(lblM);
+		
+		amplituteTextField = new JTextField();
+		amplituteTextField.setColumns(10);
+		amplituteTextField.setBounds(265, 93, 86, 20);
+		physicalPendulumLabPane.add(amplituteTextField);
+		
+		lblAmplitude = new JLabel("Amplitude");
+		lblAmplitude.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblAmplitude.setBounds(265, 66, 128, 14);
+		physicalPendulumLabPane.add(lblAmplitude);
+		
+		momentumLabPane = new JPanel();
+		momentumLabPane.setBounds(10, 109, 506, 196);
+		momentumLabPane.setLayout(null);
+		
+		firstGliderAndModuleMassTextField = new JTextField();
+		firstGliderAndModuleMassTextField.setBounds(10, 125, 86, 20);
+		momentumLabPane.add(firstGliderAndModuleMassTextField);
+		firstGliderAndModuleMassTextField.setColumns(10);
+		
+		JLabel lblMassOfGlider = new JLabel("Mass of first glider and module");
+		lblMassOfGlider.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblMassOfGlider.setBounds(10, 100, 174, 14);
+		momentumLabPane.add(lblMassOfGlider);
+		
+		lblNewLabel_2 = new JLabel("kg");
+		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel_2.setBounds(106, 128, 46, 14);
+		momentumLabPane.add(lblNewLabel_2);
+		
+		secondGliderAndModuleMassTextField = new JTextField();
+		secondGliderAndModuleMassTextField.setColumns(10);
+		secondGliderAndModuleMassTextField.setBounds(262, 125, 86, 20);
+		momentumLabPane.add(secondGliderAndModuleMassTextField);
+		
+		label = new JLabel("kg");
+		label.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		label.setBounds(358, 128, 46, 14);
+		momentumLabPane.add(label);
+		
+		lblMassOfSecond = new JLabel("Mass of second glider and module");
+		lblMassOfSecond.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblMassOfSecond.setBounds(262, 100, 191, 14);
+		momentumLabPane.add(lblMassOfSecond);
+		
+		lblStepaEnter = new JLabel("Step 1A: Enter the masses of the gliders and modules");
+		lblStepaEnter.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepaEnter.setBounds(10, 23, 307, 14);
+		momentumLabPane.add(lblStepaEnter);
 
 		stepTwo = new JPanel();
 		stepTwo.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -1459,8 +1752,12 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelFive.setBounds(113, 30, 293, 28);
 		navPanel.add(generalStatusLabelFive);
 		eraseBtn.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		eraseBtn.setBounds(10, 11, 506, 394);
+		eraseBtn.setBounds(10, 60, 506, 345);
 		stepFive.add(eraseBtn);
+		
+		JLabel lblStepErase = new JLabel("Step 5: Erase the data from the module. ");
+		lblStepErase.setBounds(242, 23, 46, 14);
+		stepFive.add(lblStepErase);
 
 		JPanel calibrationPanel = new JPanel();
 		mainTabbedPane.addTab("Calibration Panel", null, calibrationPanel, null);
@@ -1531,5 +1828,10 @@ public class EducatorMode extends JFrame {
 
 		JPanel motionVisualizationPanel = new JPanel();
 		mainTabbedPane.addTab("Motion Visualization", null, motionVisualizationPanel, null);
+		
+		for (int i = 0; i < mainTabbedPane.getTabCount(); i++) {
+			mainTabbedPane.setBackgroundAt(i, Color.LIGHT_GRAY);
+			mainTabbedPane.getComponentAt(i).setBackground(Color.LIGHT_GRAY);
+		}
 	}
 }
