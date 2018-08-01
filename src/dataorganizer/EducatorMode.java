@@ -45,6 +45,9 @@ import javax.swing.JToggleButton;
 import javax.swing.JCheckBox;
 import java.awt.FlowLayout;
 import javax.swing.JProgressBar;
+import javax.swing.border.SoftBevelBorder;
+import java.awt.SystemColor;
+import javax.swing.border.LineBorder;
 
 public class EducatorMode extends JFrame {
 
@@ -102,6 +105,13 @@ public class EducatorMode extends JFrame {
 	private JTextField delayAfterTextField;
 	private JButton applyOffsetButton;
 	private JLabel generalStatusLabel;
+	private JButton nextBtnTwo;
+	private JButton backBtnTwo;
+	private JLabel lblNewLabel;
+	private JLabel lblStepaTest;
+	private JLabel lblStepbExit;
+	private JLabel lblNewLabel_1;
+	private JLabel lblStepRead;
 
 	/**
 	 * Launch the application.
@@ -608,6 +618,8 @@ public class EducatorMode extends JFrame {
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
+				backBtnTwo.setEnabled(false);
+				nextBtnTwo.setEnabled(false);
 				exitTestModeButton.setEnabled(true);
 
 
@@ -644,6 +656,8 @@ public class EducatorMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 				exitTestModeButton.setEnabled(false);
+				backBtnTwo.setEnabled(true);
+				nextBtnTwo.setEnabled(true);
 
 				//Notify the user that the sequence has completed
 				generalStatusLabelTwo.setText("Test Mode Successfully Exited");
@@ -1077,31 +1091,39 @@ public class EducatorMode extends JFrame {
 	 * Create the frame.
 	 */
 	public EducatorMode() {
+		setTitle("Adventure Modules - Educator Mode");
 		initComponents();
 		findModuleCommPort();
 	}
 
 	public void initComponents() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 688, 560);
+		setBounds(100, 100, 704, 560);
 		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setBackground(SystemColor.control);
+		contentPane.setBorder(new CompoundBorder());
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
 		JPanel mainPanel = new JPanel();
+		mainPanel.setBackground(SystemColor.control);
 		contentPane.add(mainPanel, BorderLayout.CENTER);
 		mainPanel.setLayout(new GridLayout(0, 1, 0, 0));
 
 		JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+		mainTabbedPane.setForeground(SystemColor.windowText);
+		mainTabbedPane.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		mainPanel.add(mainTabbedPane);
 
 		testTakingPanel = new JPanel();
+		testTakingPanel.setForeground(Color.DARK_GRAY);
+		testTakingPanel.setBackground(Color.DARK_GRAY);
 		mainTabbedPane.addTab("Run Experiment", null, testTakingPanel, null);
 		mainTabbedPane.setEnabledAt(0, true);
 		testTakingPanel.setLayout(new CardLayout(0, 0));
 
 		stepOne = new JPanel();
+		stepOne.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepOne, "stepOne");
 		stepOne.setLayout(null);
 
@@ -1115,7 +1137,7 @@ public class EducatorMode extends JFrame {
 			}
 		});
 
-		testTypeCombobox.setBounds(10, 27, 506, 26);
+		testTypeCombobox.setBounds(10, 61, 506, 26);
 		stepOne.add(testTypeCombobox);
 		testTypeCombobox.setModel(new DefaultComboBoxModel(new String[] {"Conservation of Momentum (Elastic Collision)", "Conservation of Angular Momentum", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"}));
 
@@ -1129,7 +1151,7 @@ public class EducatorMode extends JFrame {
 		stepOne.add(applyConfigurationsBtn);
 
 		JPanel navPanelOne = new JPanel();
-		navPanelOne.setBounds(0, 398, 538, 108);
+		navPanelOne.setBounds(10, 398, 506, 108);
 		stepOne.add(navPanelOne);
 		navPanelOne.setLayout(null);
 
@@ -1144,7 +1166,7 @@ public class EducatorMode extends JFrame {
 				updateBywIndex((wIndex += 1));
 			}
 		});
-		nextBtnOne.setBounds(415, 0, 93, 88);
+		nextBtnOne.setBounds(413, 20, 93, 88);
 		navPanelOne.add(nextBtnOne);
 
 		timedTestCheckbox = new JCheckBox("Timed Test");
@@ -1159,21 +1181,39 @@ public class EducatorMode extends JFrame {
 		});
 		noBtn.setBounds(576, 11, 32, 16);
 		stepOne.add(noBtn);
+		
+		JLabel lblStepSelect = new JLabel("Step 1: Select the test you would like to perform.");
+		lblStepSelect.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepSelect.setBounds(10, 25, 292, 25);
+		stepOne.add(lblStepSelect);
+		
+		JLabel lblStepaApply = new JLabel("Step 1A: Apply your configurations");
+		lblStepaApply.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepaApply.setBounds(10, 306, 229, 31);
+		stepOne.add(lblStepaApply);
 
 		stepTwo = new JPanel();
+		stepTwo.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepTwo, "name_92124154026185");
-		stepTwo.setLayout(new GridLayout(5, 1, 0, 0));
 
 		pairNewRemoteButton = new JButton("Pair New Remote");
+		pairNewRemoteButton.setBounds(2, 31, 522, 74);
 		pairNewRemoteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pairNewRemoteHandler();
 			}
 		});
+		stepTwo.setLayout(null);
+		
+		lblNewLabel = new JLabel("Step 2: Pair a remote");
+		lblNewLabel.setBounds(204, 11, 118, 15);
+		stepTwo.add(lblNewLabel);
+		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		pairNewRemoteButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		stepTwo.add(pairNewRemoteButton);
 
 		unpairAllRemotesButton = new JButton("Unpair All Remotes");
+		unpairAllRemotesButton.setBounds(2, 102, 522, 74);
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				unpairAllRemotesHandler();
@@ -1183,6 +1223,7 @@ public class EducatorMode extends JFrame {
 		stepTwo.add(unpairAllRemotesButton);
 
 		testRemotesButton = new JButton("Test Paired Remotes");
+		testRemotesButton.setBounds(2, 213, 522, 74);
 		testRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				testRemotesHandler();
@@ -1192,6 +1233,7 @@ public class EducatorMode extends JFrame {
 		stepTwo.add(testRemotesButton);
 
 		exitTestModeButton = new JButton("Exit Test Mode");
+		exitTestModeButton.setBounds(2, 332, 522, 74);
 		exitTestModeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				exitTestModeHandler();
@@ -1202,38 +1244,51 @@ public class EducatorMode extends JFrame {
 		stepTwo.add(exitTestModeButton);
 
 		JPanel navPanelTwo = new JPanel();
+		navPanelTwo.setBounds(12, 407, 504, 98);
 		stepTwo.add(navPanelTwo);
 		navPanelTwo.setLayout(null);
 
 		generalStatusLabelTwo = new JLabel("");
 		generalStatusLabelTwo.setHorizontalAlignment(SwingConstants.CENTER);
-		generalStatusLabelTwo.setBounds(113, 33, 292, 24);
+		generalStatusLabelTwo.setBounds(113, 33, 284, 24);
 		navPanelTwo.add(generalStatusLabelTwo);
 
-		JButton nextBtnTwo = new JButton("Next");
+		nextBtnTwo = new JButton("Next");
 		nextBtnTwo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateBywIndex((wIndex += 1));
 			}
 		});
-		nextBtnTwo.setBounds(415, 0, 93, 88);
+		nextBtnTwo.setBounds(411, 11, 93, 88);
 		navPanelTwo.add(nextBtnTwo);
 
-		JButton button = new JButton("Back");
-		button.addActionListener(new ActionListener() {
+		backBtnTwo = new JButton("Back");
+		backBtnTwo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateBywIndex((wIndex -= 1));
 			}
 		});
-		button.setBounds(10, 0, 93, 88);
-		navPanelTwo.add(button);
+		backBtnTwo.setBounds(0, 11, 93, 88);
+		navPanelTwo.add(backBtnTwo);
+		
+		lblStepaTest = new JLabel("Step 2A: Test the paired remote");
+		lblStepaTest.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepaTest.setBounds(170, 187, 189, 15);
+		stepTwo.add(lblStepaTest);
+		
+		lblStepbExit = new JLabel("Step 2B: Exit remote testing");
+		lblStepbExit.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepbExit.setBounds(182, 298, 164, 23);
+		stepTwo.add(lblStepbExit);
 
 		stepThree = new JPanel();
+		stepThree.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepThree, "name_92908667926372");
 		stepThree.setLayout(null);
 
 		JPanel outputPanel = new JPanel();
-		outputPanel.setBounds(0, 0, 548, 302);
+		outputPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
+		outputPanel.setBounds(10, 11, 506, 234);
 		stepThree.add(outputPanel);
 		outputPanel.setLayout(null);
 
@@ -1242,20 +1297,20 @@ public class EducatorMode extends JFrame {
 		JRadioButton dataExcelRadioBtn = new JRadioButton("Data (Spreadsheet)");
 		dataExcelRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		dataExcelRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		dataExcelRadioBtn.setBounds(6, 5, 536, 50);
+		dataExcelRadioBtn.setBounds(112, 48, 317, 50);
 		outputPanel.add(dataExcelRadioBtn);
 
 		group.add(dataExcelRadioBtn);
 
 		JRadioButton motionVisualizationRadioBtn = new JRadioButton("Motion Visualization");
-		motionVisualizationRadioBtn.setBounds(147, 145, 269, 36);
+		motionVisualizationRadioBtn.setBounds(112, 188, 317, 36);
 		outputPanel.add(motionVisualizationRadioBtn);
 		motionVisualizationRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		motionVisualizationRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		group.add(motionVisualizationRadioBtn);
 
 		JRadioButton graphRadioBtn = new JRadioButton("Graph (Using template)");
-		graphRadioBtn.setBounds(143, 58, 268, 48);
+		graphRadioBtn.setBounds(112, 101, 317, 48);
 		outputPanel.add(graphRadioBtn);
 		graphRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		graphRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1265,11 +1320,16 @@ public class EducatorMode extends JFrame {
 		JRadioButton rdbtnBothgraphingAnd = new JRadioButton("Both (Graphing and Spreadsheet output)");
 		rdbtnBothgraphingAnd.setEnabled(false);
 		rdbtnBothgraphingAnd.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		rdbtnBothgraphingAnd.setBounds(112, 114, 332, 23);
+		rdbtnBothgraphingAnd.setBounds(112, 157, 317, 23);
 		outputPanel.add(rdbtnBothgraphingAnd);
+		
+		lblNewLabel_1 = new JLabel("Step 3: Select your output type");
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel_1.setBounds(173, 11, 184, 14);
+		outputPanel.add(lblNewLabel_1);
 
 		readTestBtn = new JButton("Read Test");
-		readTestBtn.setBounds(0, 303, 548, 101);
+		readTestBtn.setBounds(10, 311, 506, 77);
 		readTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				readButtonHandler();
@@ -1279,13 +1339,13 @@ public class EducatorMode extends JFrame {
 		stepThree.add(readTestBtn);
 
 		JPanel navPanelThree = new JPanel();
-		navPanelThree.setBounds(0, 404, 548, 101);
+		navPanelThree.setBounds(10, 404, 506, 101);
 		stepThree.add(navPanelThree);
 		navPanelThree.setLayout(null);
 
 		generalStatusLabelThree = new JLabel("");
 		generalStatusLabelThree.setHorizontalAlignment(SwingConstants.CENTER);
-		generalStatusLabelThree.setBounds(128, 63, 281, 25);
+		generalStatusLabelThree.setBounds(103, 63, 300, 25);
 		navPanelThree.add(generalStatusLabelThree);
 
 		backBtnThree = new JButton("Back");
@@ -1294,7 +1354,7 @@ public class EducatorMode extends JFrame {
 				updateBywIndex((wIndex -= 1));
 			}
 		});
-		backBtnThree.setBounds(10, 0, 93, 88);
+		backBtnThree.setBounds(0, 11, 93, 88);
 		navPanelThree.add(backBtnThree);
 
 		nextBtnThree = new JButton("Next");
@@ -1303,14 +1363,20 @@ public class EducatorMode extends JFrame {
 				updateBywIndex((wIndex += 1));
 			}
 		});
-		nextBtnThree.setBounds(415, 0, 93, 88);
+		nextBtnThree.setBounds(413, 11, 93, 88);
 		navPanelThree.add(nextBtnThree);
 
 		progressBar = new JProgressBar();
-		progressBar.setBounds(128, 38, 281, 14);
+		progressBar.setBounds(103, 39, 300, 14);
 		navPanelThree.add(progressBar);
+		
+		lblStepRead = new JLabel("Step 3A: Read all tests from your Adventure Module.");
+		lblStepRead.setBounds(151, 273, 301, 14);
+		stepThree.add(lblStepRead);
+		lblStepRead.setFont(new Font("Tahoma", Font.PLAIN, 12));
 
 		stepFour = new JPanel();
+		stepFour.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepFour, "name_96253525137854");
 		stepFour.setLayout(new GridLayout(5, 1, 0, 0));
 
@@ -1350,10 +1416,11 @@ public class EducatorMode extends JFrame {
 				updateBywIndex((wIndex += 1));
 			}
 		});
-		nextBtnFour.setBounds(415, 0, 93, 88);
+		nextBtnFour.setBounds(419, 0, 93, 88);
 		navPanelFour.add(nextBtnFour);
 
 		stepFive = new JPanel();
+		stepFive.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepFive, "name_116075093988858");
 		stepFive.setLayout(null);
 
@@ -1365,12 +1432,12 @@ public class EducatorMode extends JFrame {
 		});
 
 		navPanel = new JPanel();
-		navPanel.setBounds(0, 406, 548, 101);
+		navPanel.setBounds(10, 406, 506, 101);
 		stepFive.add(navPanel);
 		navPanel.setLayout(null);
 
 		backBtnFive = new JButton("Back");
-		backBtnFive.setBounds(10, 0, 93, 88);
+		backBtnFive.setBounds(0, 11, 93, 88);
 		backBtnFive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateBywIndex((wIndex -= 1));
@@ -1384,7 +1451,7 @@ public class EducatorMode extends JFrame {
 				updateBywIndex((wIndex += 1));
 			}
 		});
-		nextBtnFive.setBounds(415, 0, 93, 88);
+		nextBtnFive.setBounds(413, 11, 93, 88);
 		navPanel.add(nextBtnFive);
 
 		generalStatusLabelFive = new JLabel("");
@@ -1392,7 +1459,7 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelFive.setBounds(113, 30, 293, 28);
 		navPanel.add(generalStatusLabelFive);
 		eraseBtn.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		eraseBtn.setBounds(10, 11, 498, 394);
+		eraseBtn.setBounds(10, 11, 506, 394);
 		stepFive.add(eraseBtn);
 
 		JPanel calibrationPanel = new JPanel();
