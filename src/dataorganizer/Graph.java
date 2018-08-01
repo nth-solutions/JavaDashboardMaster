@@ -57,8 +57,8 @@ public class Graph extends Application {
 	@Override
 	public void start(Stage stage) {
 		
-		dataCollector = new DataOrganizer();		//Object for getting data; Calls from DataOrganizer class to get data
-		dataCollector.createDataSmpsCSV("C:\\Users\\Mason\\Documents\\(#1)  960-96 16G-92 2000dps-92 MAG-N 31JUL18.csv");
+		//dataCollector = new DataOrganizer();		//Object for getting data; Calls from DataOrganizer class to get data
+		//dataCollector.createDataSmpsCSV("C:\\Users\\Mason\\Documents\\(#1)  960-96 16G-92 2000dps-92 MAG-N 31JUL18.csv");
 		//Create x and y axis for the line chart
 		final NumberAxis xAxis = new NumberAxis();	
 		final NumberAxis yAxis = new NumberAxis();
@@ -91,7 +91,7 @@ public class Graph extends Application {
 		//dataSeries.add(0, new DataSeries("DataSet 1", dataCollector, 1));
 		//dataSeries.add(1, new DataSeries("DataSet 1", dataCollector, 2));
 		
-		for (int numDof = 1; numDof < dataCollector.getNumDof(); numDof++) {		//Fill data series array with multiple elements of graphable series
+		for (int numDof = 1; numDof < 7; numDof++) {		//Fill data series array with multiple elements of graphable series
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
 
@@ -110,9 +110,9 @@ public class Graph extends Application {
 
 		setUpZooming(zoomRect, lineChart);
 
-		final HBox controls = new HBox(10);
-		controls.setPadding(new Insets(10));
-		controls.setAlignment(Pos.CENTER);
+		final HBox zoomControls = new HBox(10);
+		zoomControls.setPadding(new Insets(10));
+		zoomControls.setAlignment(Pos.CENTER);
 
 		final Button zoomButton = new Button("Zoom");
 		final Button resetButton = new Button("Reset");
@@ -134,13 +134,15 @@ public class Graph extends Application {
 			}
 		});
 		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5)
-				.or(zoomRect.heightProperty().lessThan(5));
+				.or(zoomRect.heightProperty().lessThan(0));
 		zoomButton.disableProperty().bind(disableControls);
-		controls.getChildren().addAll(zoomButton, resetButton);
+		zoomControls.getChildren().addAll(zoomButton, resetButton);
 
 		// create some controls which can toggle series display on and off.
-		controls.setStyle("-fx-padding: 10;");
-		final TitledPane controlPane = new TitledPane("Data Series Box", controls);
+		final HBox dataControls = new HBox(10);
+		dataControls.setStyle("-fx-padding: 10;");
+		dataControls.setAlignment(Pos.CENTER);
+		final TitledPane controlPane = new TitledPane("Data Series Box", dataControls);
 		controlPane.setCollapsible(true);
 		for (final DataSeries ds : dataSeries) {
 			final CheckBox box = new CheckBox(ds.getName());
@@ -148,7 +150,7 @@ public class Graph extends Application {
 			// Line line = new Line(0, 10, 50, 10);
 
 			// box.setGraphic(line);
-			controls.getChildren().add(box);
+			dataControls.getChildren().add(box);
 			box.setOnAction(action -> {
 				ds.setActive(box.isSelected());
 				populateData(dataSeries, lineChart);
@@ -159,7 +161,8 @@ public class Graph extends Application {
 
 		final BorderPane root = new BorderPane();
 		root.setCenter(chartContainer);
-		root.setBottom(controls);
+		root.setBottom(zoomControls);
+		root.setBottom(controlPane);
 		final Scene scene = new Scene(root, 600, 400);
 		stage.setScene(scene);
 		stage.show();
@@ -172,7 +175,7 @@ public class Graph extends Application {
 		series.setName(name);
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 		
-		System.out.println(data.get(0).size());
+
 		for (int j = 0; j < data.get(0).size(); j++) {
 				seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
 		}

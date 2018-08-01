@@ -95,7 +95,7 @@ public class DataOrganizer {
 		
 		while(!endCondition) {
 			for(int i = 0; i < magInterval; i++) {
-				dataSmps.get(0).add(lineNum, (double)lineNum / (double)sampleRate);
+				dataSmps.get(0).add(lineNum, (double)lineNum / (double)sampleRate);	//adds the time to the first column
 				int tempByteCounter = byteCounter;
 				//System.out.println("ln: " + lineNum);
 				if(i == 0) {
@@ -104,6 +104,7 @@ public class DataOrganizer {
 							endCondition = true;
 							break;
 						}
+						//System.out.println((data[byteCounter] * 256) + data[byteCounter + 1]);
 						dataSmps.get(dof9).add(lineNum, (double)((data[byteCounter] * 256) + data[byteCounter + 1]));
 						byteCounter += 2;
 					}
@@ -119,18 +120,15 @@ public class DataOrganizer {
 						} else {
 							dataSmps.get(dof6).add(lineNum, null);
 						}
-						
-						
-						
 					}
 				}
 				lineNum++;
-				System.out.println(byteCounter - tempByteCounter);
+				//System.out.println(byteCounter - tempByteCounter);
 			}
 		
 		}
-		lineNum --;
-		System.out.println(lineNum);
+		lengthOfTest = (double)lineNum / (double)sampleRate;	
+		//System.out.println(lineNum);
 		if(signedData) {
 			
 			for(int smp = 0; smp < lineNum; smp++) {
@@ -141,18 +139,22 @@ public class DataOrganizer {
 							curVal -= 65535;
 						}
 						curVal = (curVal * accelSensitivity) / 32768;
-						dataSmps.get(dof).add(smp, curVal);
+						dataSmps.get(dof).set(smp, curVal);
 					} else if(dof < 7) {
 						double curVal = dataSmps.get(dof).get(smp);
 						if(curVal > 32768) {
 							curVal -= 65535;
 						}
 						curVal = (curVal * gyroSensitivity) / 32768;
-						dataSmps.get(dof).add(smp, curVal);	
+						dataSmps.get(dof).set(smp, curVal);	
 					}
 				}	
 			}
 		}
+		
+		System.out.println("LineNum: " + lineNum);
+		System.out.println("Length of test: " + lengthOfTest);
+		System.out.println("Size of test: " + dataSmps.get(0).size());
 	}
 	
 	public int CreateCSV(boolean labelData, String fileOutputDirectory, String nameOfFile) {
@@ -169,9 +171,12 @@ public class DataOrganizer {
         } else {
         	builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,\n");
 	        for (int smp = 0; smp < lineNum - 1; smp++) {
-	        	for(int dof = 0; dof < numDof + 1; dof++) {
-	        		builder.append(dataSmps.get(dof).get(smp));
-	        		builder.append(",");
+	        	for(int dof = 0; dof <= numDof; dof++) {
+	        		if(dataSmps.get(dof).get(smp) != null) {
+		        		builder.append(dataSmps.get(dof).get(smp));
+		        		builder.append(",");
+		        		
+	        		}
 	        	}
 	        	builder.append("\n");
 	        }       		
@@ -291,6 +296,7 @@ public class DataOrganizer {
 	//	for (int smp = 0; smp < 6242 - 1; smp++) {
 	//		dofTime.add(smp, dataSmps.get(0).get((int)(smp * modifier)));
 	//	}
+		//System.out.println("Size of data; " + dataSmps.get(0).size());
 		dofData.add(0, dataSmps.get(0));
 		
 		//for(int smp = 0; smp < sampleRate * lengthOfTest; smp++) {

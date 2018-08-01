@@ -2011,15 +2011,8 @@ public class AdvancedMode extends JFrame {
 		panel.setLayout(new GridLayout(2, 2, 0, 0));
 		
 		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
-		checkBoxLabelCSV.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (checkBoxLabelCSV.isSelected()) {
-					checkBoxSignedData.setSelected(true);
-				} else {
-					checkBoxSignedData.setSelected(false);
-				}
-			}
-		});
+
+
 		
 		chckbxCreateGraph = new JCheckBox("Create Graph");
 		panel.add(chckbxCreateGraph);
@@ -2030,13 +2023,7 @@ public class AdvancedMode extends JFrame {
 		
 		checkBoxSignedData = new JCheckBox("Signed Data");
 		checkBoxSignedData.setSelected(true);
-		checkBoxSignedData.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (!checkBoxSignedData.isSelected()) {
-					checkBoxLabelCSV.setSelected(false);
-				}
-			}
-		});
+
 		panel.add(checkBoxSignedData);
 		panel.add(checkBoxLabelCSV);
 		readDataButton.addActionListener(new ActionListener() {
