@@ -1226,10 +1226,18 @@ public class SerialComm {
 
 						}
 					}
-					//TODO:: Does this remove the post-amble? "rawData.size() - 4"; if so should this be "rawData.size() - 8"?
-					for (int i = rawData.size() - 8; i < rawData.size(); i++) {
-						rawData.remove(i);
+					int rmIndex = rawData.size() -1;
+					while(rawData.get(rmIndex) != 255) {
+						rawData.remove(rmIndex);
+						rmIndex--;
 					}
+					
+					
+					while(rawData.get(rmIndex) == 255) {
+						rawData.remove(rmIndex);
+						rmIndex--;
+					}
+
 					rawData.add(-1);
 
 					testData.put(testNum, rawData);		
