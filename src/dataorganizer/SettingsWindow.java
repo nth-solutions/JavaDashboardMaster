@@ -93,6 +93,43 @@ public class SettingsWindow extends JFrame {
 	
 	
 	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
+	public void saveDirectoryBrowseBtnHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			saveDirectoryTextField.setText(chooser.getSelectedFile().toString());
+		}
+		else {
+			saveDirectoryTextField.setText(null);
+		}
+	}
+	
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
+	public void templateDirectoryBrowseBtnHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			templateDirectoryTextField.setText(chooser.getSelectedFile().toString());
+		}
+		else {
+			templateDirectoryTextField.setText(null);
+		}
+	}
+	
+	
+	/**
 	 * Create the frame.
 	 */
 	public SettingsWindow() {
@@ -186,6 +223,11 @@ public class SettingsWindow extends JFrame {
 		directorySaveLocations.add(saveDirectoryTextField);
 		
 		JButton saveDirectoryBrowseBtn = new JButton("Browse");
+		saveDirectoryBrowseBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				saveDirectoryBrowseBtnHandler();
+			}
+		});
 		saveDirectoryBrowseBtn.setBounds(352, 12, 67, 23);
 		directorySaveLocations.add(saveDirectoryBrowseBtn);
 		
@@ -200,6 +242,11 @@ public class SettingsWindow extends JFrame {
 		directorySaveLocations.add(templateDirectoryTextField);
 		
 		JButton templateDirectoryBrowseBtn = new JButton("Browse");
+		templateDirectoryBrowseBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				templateDirectoryBrowseBtnHandler();
+			}
+		});
 		templateDirectoryBrowseBtn.setBounds(352, 40, 67, 23);
 		directorySaveLocations.add(templateDirectoryBrowseBtn);
 		
