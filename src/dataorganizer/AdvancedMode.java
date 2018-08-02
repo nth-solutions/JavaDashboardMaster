@@ -1438,12 +1438,12 @@ public class AdvancedMode extends JFrame {
 									}
 									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile; 
 									
-									DataOrganizer dataOrgo = new DataOrganizer(testParameters, checkBoxSignedData.isSelected(), 9);
+									DataOrganizer dataOrgo = new DataOrganizer(testParameters, checkBoxSignedData.isSelected(), nameOfFile, 9);
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											dataOrgo.createDataSmpsRawData(finalData);
 											if(chckbxCreatecsv.isSelected()) {
-												dataOrgo.CreateCSV(checkBoxLabelCSV.isSelected(), null, tempName);
+												//dataOrgo.CreateCSV(checkBoxLabelCSV.isSelected(), null, tempName);
 											}
 										}
 									};

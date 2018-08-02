@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import application.DynamicLineChart.Event;
+//import application.DynamicLineChart.Event;
 //import application.DynamicLineChart.Event;
 //import application.DynamicLineChart.Event;
 import javafx.animation.KeyFrame;
@@ -86,7 +86,7 @@ public class Graph extends Application {
 		lineChart.setAnimated(false);		//Turn off the animation so series can be toggled
 		lineChart.setCreateSymbols(false);	//Turn off the data symbols
 
-		lineChart.setTitle("Data");			//Add title to graph
+		lineChart.setTitle(dataCollector.getName());			//Add title to graph
 		
 		dataSeries = FXCollections.observableArrayList(); //Initialize list of series
 		
@@ -151,9 +151,9 @@ public class Graph extends Application {
 		final VBox dataControls = new VBox(10);
 		dataControls.setStyle("-fx-padding: 10;");
 		dataControls.setAlignment(Pos.CENTER);
-		final TitledPane controlPane = new TitledPane("Data Series Box", dataControls);
-		controlPane.setCollapsible(true);
-		controlPane.setAlignment(Pos.CENTER_RIGHT);
+		final TitledPane dataSeriesPane = new TitledPane("Data Series Box", dataControls);
+		dataSeriesPane.setCollapsible(true);
+		dataSeriesPane.setAlignment(Pos.CENTER_RIGHT);
 		for (final DataSeries ds : dataSeries) {
 			final CheckBox box = new CheckBox(ds.getName());
 			box.setSelected(true);
@@ -167,13 +167,41 @@ public class Graph extends Application {
 				styleSeries(dataSeries, lineChart);
 			});
 		}
+		
+		final TitledPane dataAnalysisPane = new TitledPane("Data Analysis Tools", dataControls);
+		dataAnalysisPane.setCollapsible(true);
+		dataAnalysisPane.setAlignment(Pos.CENTER_RIGHT);
+		final CheckBox chckbxRawData = new CheckBox("Display Raw Data");
+		chckbxRawData.setSelected(false);
+		dataControls.getChildren().add(chckbxRawData);
+		chckbxRawData.setOnAction(action ->{
+			for(DataSeries ds: dataSeries) {
+				ds.setDataConversionType(0);
+				populateData(dataSeries, lineChart);
+				styleSeries(dataSeries, lineChart);
+			}
+			
+		});
+		
+		final CheckBox chckbxSignedData = new CheckBox("Display Signed Data");
+		chckbxRawData.setSelected(true);
+		dataControls.getChildren().add(chckbxSignedData);
+		chckbxRawData.setOnAction(action ->{
+			for(DataSeries ds: dataSeries) {
+				ds.setDataConversionType(1);
+				populateData(dataSeries, lineChart);
+				styleSeries(dataSeries, lineChart);
+			}
+			
+		});
+		
 
 		stage.setTitle("Data");
 
 		final BorderPane root = new BorderPane();
 		root.setCenter(chartContainer);
 		root.setBottom(zoomControls);
-		root.setRight(controlPane);
+		root.setRight(dataSeriesPane);
 		final Scene scene = new Scene(root, 600, 400);
 		stage.setScene(scene);
 		stage.show();
@@ -284,6 +312,7 @@ public class Graph extends Application {
 		private int dof;
 		private String color;
 		private DataOrganizer dataOrgo;
+		private int dataConversionType = 1;
 
 		public DataSeries(String name, DataOrganizer dataOrgo) {
 			this.name = name;
@@ -295,7 +324,7 @@ public class Graph extends Application {
 			this.name = name;
 			this.dof = dof;
 			this.dataOrgo = dataOrgo;
-			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof));
+			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 
 		}
 
@@ -324,7 +353,7 @@ public class Graph extends Application {
 					break;
 			}
 			
-			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof));
+			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 			
 		}
 
@@ -343,12 +372,16 @@ public class Graph extends Application {
 		public void setActive(boolean isActive) {
 			this.isActive = isActive;
 		}
-
+		
+		public void setDataConversionType(int dataConversionType) {
+			this.dataConversionType = dataConversionType;
+		}
+		
 		public ObservableList<XYChart.Series<Number, Number>> getSeries() {
 			return series;
 		}
 		public void updateZoom(double start, double end) {
-			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof));
+			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 		}
 
 	}
