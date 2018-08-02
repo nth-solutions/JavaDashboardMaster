@@ -1458,12 +1458,8 @@ public class AdvancedMode extends JFrame {
 										com.sun.javafx.application.PlatformImpl.startup(()->{});
 										Platform.runLater(new Runnable() {
 								            public void run() {
-								                try {
 								                    Graph lineGraph= new Graph(dataOrgo);
 								                    lineGraph.start(new Stage());
-								                } catch (Exception e) {
-								                    e.printStackTrace();
-								                }
 								            }
 								        });
 

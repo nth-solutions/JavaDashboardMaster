@@ -59,8 +59,6 @@ public class Graph extends Application {
 	@Override
 	public void start(Stage stage) {
 		
-		//dataCollector = new DataOrganizer();		//Object for getting data; Calls from DataOrganizer class to get data
-		//dataCollector.createDataSmpsCSV("C:\\Users\\Mason\\Documents\\(#1)  960-96 16G-92 2000dps-92 MAG-N 31JUL18.csv");
 		//Create x and y axis for the line chart
 		final NumberAxis xAxis = new NumberAxis();	
 		final NumberAxis yAxis = new NumberAxis();
@@ -149,9 +147,10 @@ public class Graph extends Application {
 
 		// create some controls which can toggle series display on and off.
 		final VBox dataControls = new VBox(10);
+		FlowPane content = new FlowPane();
 		dataControls.setStyle("-fx-padding: 10;");
 		dataControls.setAlignment(Pos.CENTER);
-		final TitledPane dataSeriesPane = new TitledPane("Data Series Box", dataControls);
+		final TitledPane dataSeriesPane = new TitledPane("Data Series Box", content);
 		dataSeriesPane.setCollapsible(true);
 		dataSeriesPane.setAlignment(Pos.CENTER_RIGHT);
 		for (final DataSeries ds : dataSeries) {
@@ -168,40 +167,48 @@ public class Graph extends Application {
 			});
 		}
 		
-		final TitledPane dataAnalysisPane = new TitledPane("Data Analysis Tools", dataControls);
+		FlowPane content1 = new FlowPane();
+		final TitledPane dataAnalysisPane = new TitledPane("Data Analysis Tools", content1);
 		dataAnalysisPane.setCollapsible(true);
 		dataAnalysisPane.setAlignment(Pos.CENTER_RIGHT);
 		final CheckBox chckbxRawData = new CheckBox("Display Raw Data");
-		chckbxRawData.setSelected(false);
+		final CheckBox chckbxSignedData = new CheckBox("Display Signed Data");
 		dataControls.getChildren().add(chckbxRawData);
+		chckbxRawData.setSelected(false);
 		chckbxRawData.setOnAction(action ->{
+			chckbxSignedData.setSelected(false);
 			for(DataSeries ds: dataSeries) {
 				ds.setDataConversionType(0);
+				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 				populateData(dataSeries, lineChart);
 				styleSeries(dataSeries, lineChart);
 			}
 			
 		});
 		
-		final CheckBox chckbxSignedData = new CheckBox("Display Signed Data");
-		chckbxRawData.setSelected(true);
+		
+		chckbxSignedData.setSelected(true);
 		dataControls.getChildren().add(chckbxSignedData);
-		chckbxRawData.setOnAction(action ->{
+		chckbxSignedData.setOnAction(action ->{
+			chckbxRawData.setSelected(false);
 			for(DataSeries ds: dataSeries) {
 				ds.setDataConversionType(1);
+				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 				populateData(dataSeries, lineChart);
 				styleSeries(dataSeries, lineChart);
 			}
 			
 		});
 		
-
+		
+		
 		stage.setTitle("Data");
 
 		final BorderPane root = new BorderPane();
 		root.setCenter(chartContainer);
 		root.setBottom(zoomControls);
-		root.setRight(dataSeriesPane);
+		root.setRight(dataControls);
+;
 		final Scene scene = new Scene(root, 600, 400);
 		stage.setScene(scene);
 		stage.show();
@@ -237,7 +244,7 @@ public class Graph extends Application {
 		    // force a css layout pass to ensure that subsequent lookup calls work.
 		    lineChart.applyCss();
 
-		    // mark different series with different depending on whether they are above or below average.
+
 		    int nSeries = 0;
 		      for (DataSeries dof : dataSeries) {
 		          if (!dof.isActive()) continue;
@@ -375,6 +382,7 @@ public class Graph extends Application {
 		
 		public void setDataConversionType(int dataConversionType) {
 			this.dataConversionType = dataConversionType;
+			
 		}
 		
 		public ObservableList<XYChart.Series<Number, Number>> getSeries() {

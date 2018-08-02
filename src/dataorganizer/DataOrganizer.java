@@ -95,10 +95,8 @@ public class DataOrganizer {
 
 		while (!endCondition) {
 			for (int i = 0; i < magInterval && !endCondition; i++) {
-				dataSmps.get(0).add(lineNum, (double) lineNum / (double) sampleRate); // adds the time to the first
-																						// column
-				int tempByteCounter = byteCounter;
-				// System.out.println("ln: " + lineNum);
+				dataSmps.get(0).add(lineNum, (double) lineNum / (double) sampleRate); // adds the time to the first column
+
 				if (i == 0) {
 					for (int dof9 = 1; dof9 < 10; dof9++) { // starts at 1 because 0 is time
 						if (data[byteCounter] == -1 || data[byteCounter + 1] == -1) {
@@ -128,29 +126,9 @@ public class DataOrganizer {
 			}
 
 		}
+		lineNum--;
 		lengthOfTest = (double) lineNum / (double) sampleRate;
 		
-
-			/*for (int smp = 0; smp < lineNum; smp++) {
-				for (int dof = 1; dof < 10; dof++) {
-					if (dof < 4) {
-						double curVal = dataSmps.get(dof).get(smp);
-						if (curVal > 32768) {
-							curVal -= 65535;
-						}
-						curVal = (curVal * accelSensitivity) / 32768;
-						dataSmps.get(dof).add(smp, curVal);
-					} else if (dof < 7) {
-						double curVal = dataSmps.get(dof).get(smp);
-						if (curVal > 32768) {
-							curVal -= 65535;
-						}
-						curVal = (curVal * gyroSensitivity) / 32768;
-						dataSmps.get(dof).add(smp, curVal);
-					}
-				}
-			}*/
-
 		
 		return dataSmps;
 	}
@@ -162,10 +140,9 @@ public class DataOrganizer {
 			List<Double> temp = new ArrayList<Double>();
 			signedDataSmps.add(dof, temp);
 		}
-		
+
 		signedDataSmps.get(0).addAll(dataSmps.get(0));
 		
-		System.out.println("Does this work?");
 		for (int smp = 0; smp < lineNum; smp++) {
 			for (int dof = 1; dof < 10; dof++) {
 				if (dof < 4) {
@@ -182,6 +159,9 @@ public class DataOrganizer {
 					}
 					curVal = (curVal * gyroSensitivity) / 32768;
 					signedDataSmps.get(dof).add(smp, curVal);
+				} else {
+					//if(smp < dataSmps.get(7).size() - 1)
+						signedDataSmps.get(dof).add(smp, dataSmps.get(dof).get(smp));
 				}
 			}
 		}
@@ -194,7 +174,7 @@ public class DataOrganizer {
 	
 	
 	public List<List<Double>> getNormalizedDataRollingBlock(){
-		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		rbDataSmps = new ArrayList<List<Double>>();
 		for (int smp = 0; smp < lineNum; smp++) {
 			for (int dof = 1; dof < 10; dof++) {
 				
@@ -203,7 +183,7 @@ public class DataOrganizer {
 		}
 
 		
-		return modifiedDataSmps;
+		return rbDataSmps;
 		
 	}
 
@@ -218,7 +198,7 @@ public class DataOrganizer {
 			case(1): modifiedDataSmps = signedDataSmps;
 				break;
 		}
-		System.out.print(signedDataSmps.get(0).size()); 
+		System.out.println(modifiedDataSmps.get(0).size()); 
 
 		
 		StringBuilder builder = new StringBuilder();
@@ -367,16 +347,18 @@ public class DataOrganizer {
 
 		if (modifier < 1)
 			modifier = 1;
-		// System.out.println(modifier);
-
-		for (int smp = 0; smp < 7000 || smp == modifiedDataSmps.get(0).size() -1; smp++) {
-			dofTime.add(smp, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (smp * modifier))));
+		//System.out.println(modifier);
+		//System.out.println(start*sampleRate);
+		//System.out.println(modifiedDataSmps.get(0).size());
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size()- 1); sample++) {
+			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
+		
 		dofData.add(0, dofTime);
 
-		for (int smp = 0; smp < 7000 || smp == modifiedDataSmps.get(0).size() -1; smp++) {
-			dofAxis.add(smp, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (smp * modifier))));
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 		dofData.add(1, dofAxis);
 
