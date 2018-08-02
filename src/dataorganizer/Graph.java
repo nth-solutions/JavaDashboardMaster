@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -147,7 +148,7 @@ public class Graph extends Application {
 
 		// create some controls which can toggle series display on and off.
 		final VBox dataControls = new VBox(10);
-		FlowPane content = new FlowPane();
+		FlowPane content = new FlowPane(Orientation.VERTICAL);
 		dataControls.setStyle("-fx-padding: 10;");
 		dataControls.setAlignment(Pos.CENTER);
 		final TitledPane dataSeriesPane = new TitledPane("Data Series Box", content);
@@ -159,21 +160,23 @@ public class Graph extends Application {
 			// Line line = new Line(0, 10, 50, 10);
 
 			// box.setGraphic(line);
-			dataControls.getChildren().add(box);
+			content.getChildren().add(box);
 			box.setOnAction(action -> {
 				ds.setActive(box.isSelected());
 				populateData(dataSeries, lineChart);
 				styleSeries(dataSeries, lineChart);
 			});
 		}
+	
 		
-		FlowPane content1 = new FlowPane();
+		
+		FlowPane content1 = new FlowPane(Orientation.VERTICAL);
 		final TitledPane dataAnalysisPane = new TitledPane("Data Analysis Tools", content1);
 		dataAnalysisPane.setCollapsible(true);
 		dataAnalysisPane.setAlignment(Pos.CENTER_RIGHT);
 		final CheckBox chckbxRawData = new CheckBox("Display Raw Data");
 		final CheckBox chckbxSignedData = new CheckBox("Display Signed Data");
-		dataControls.getChildren().add(chckbxRawData);
+		content1.getChildren().add(chckbxRawData);
 		chckbxRawData.setSelected(false);
 		chckbxRawData.setOnAction(action ->{
 			chckbxSignedData.setSelected(false);
@@ -188,7 +191,7 @@ public class Graph extends Application {
 		
 		
 		chckbxSignedData.setSelected(true);
-		dataControls.getChildren().add(chckbxSignedData);
+		content1.getChildren().add(chckbxSignedData);
 		chckbxSignedData.setOnAction(action ->{
 			chckbxRawData.setSelected(false);
 			for(DataSeries ds: dataSeries) {
@@ -200,9 +203,9 @@ public class Graph extends Application {
 			
 		});
 		
+		dataControls.getChildren().addAll(dataSeriesPane, dataAnalysisPane);
 		
-		
-		stage.setTitle("Data");
+		stage.setTitle("Graph Viewer");
 
 		final BorderPane root = new BorderPane();
 		root.setCenter(chartContainer);
