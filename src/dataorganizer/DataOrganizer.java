@@ -129,13 +129,43 @@ public class DataOrganizer {
 
 		}
 		lengthOfTest = (double) lineNum / (double) sampleRate;
+		
+
+			/*for (int smp = 0; smp < lineNum; smp++) {
+				for (int dof = 1; dof < 10; dof++) {
+					if (dof < 4) {
+						double curVal = dataSmps.get(dof).get(smp);
+						if (curVal > 32768) {
+							curVal -= 65535;
+						}
+						curVal = (curVal * accelSensitivity) / 32768;
+						dataSmps.get(dof).add(smp, curVal);
+					} else if (dof < 7) {
+						double curVal = dataSmps.get(dof).get(smp);
+						if (curVal > 32768) {
+							curVal -= 65535;
+						}
+						curVal = (curVal * gyroSensitivity) / 32768;
+						dataSmps.get(dof).add(smp, curVal);
+					}
+				}
+			}*/
+
+		
 		return dataSmps;
 	}
 
 	public List<List<Double>> getSignedData() {
 			
 		signedDataSmps = new ArrayList<List<Double>>();
+		for (int dof = 0; dof < 10; dof++) {
+			List<Double> temp = new ArrayList<Double>();
+			signedDataSmps.add(dof, temp);
+		}
 		
+		signedDataSmps.get(0).addAll(dataSmps.get(0));
+		
+		System.out.println("Does this work?");
 		for (int smp = 0; smp < lineNum; smp++) {
 			for (int dof = 1; dof < 10; dof++) {
 				if (dof < 4) {
@@ -171,21 +201,33 @@ public class DataOrganizer {
 				
 			}
 		}
-		
-		
+
 		
 		return modifiedDataSmps;
 		
 	}
 
 	public int CreateCSV(boolean labelData, String fileOutputDirectory, int dataConversionType) {
+		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		
+		
+		
+		switch(dataConversionType) {
+			case(0): modifiedDataSmps = dataSmps;
+				break;
+			case(1): modifiedDataSmps = signedDataSmps;
+				break;
+		}
+		System.out.print(signedDataSmps.get(0).size()); 
+
+		
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile = null;
 		if (!labelData) {
 			for (int smp = 0; smp < lineNum - 1; smp++) {
 				for (int dof = 1; dof <= numDof; dof++) {
-					if (dataSmps.get(dof).get(smp) != null) {
-						builder.append(dataSmps.get(dof).get(smp));
+					if (modifiedDataSmps.get(dof).get(smp) != null) {
+						builder.append(modifiedDataSmps.get(dof).get(smp));
 						builder.append(",");
 
 					}
@@ -196,8 +238,8 @@ public class DataOrganizer {
 			builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,\n");
 			for (int smp = 0; smp < lineNum - 1; smp++) {
 				for (int dof = 0; dof <= numDof; dof++) {
-					if (dataSmps.get(dof).get(smp) != null) {
-						builder.append(dataSmps.get(dof).get(smp));
+					if (modifiedDataSmps.get(dof).get(smp) != null) {
+						builder.append(modifiedDataSmps.get(dof).get(smp));
 						builder.append(",");
 
 					}
@@ -327,13 +369,13 @@ public class DataOrganizer {
 			modifier = 1;
 		// System.out.println(modifier);
 
-		for (int smp = 0; smp < 7000; smp++) {
+		for (int smp = 0; smp < 7000 || smp == modifiedDataSmps.get(0).size() -1; smp++) {
 			dofTime.add(smp, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (smp * modifier))));
 		}
 
 		dofData.add(0, dofTime);
 
-		for (int smp = 0; smp < 7000; smp++) {
+		for (int smp = 0; smp < 7000 || smp == modifiedDataSmps.get(0).size() -1; smp++) {
 			dofAxis.add(smp, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (smp * modifier))));
 		}
 		dofData.add(1, dofAxis);

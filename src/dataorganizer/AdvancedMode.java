@@ -1442,8 +1442,9 @@ public class AdvancedMode extends JFrame {
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											dataOrgo.createDataSmpsRawData(finalData);
+											dataOrgo.getSignedData();
 											if(chckbxCreatecsv.isSelected()) {
-												//dataOrgo.CreateCSV(checkBoxLabelCSV.isSelected(), null, tempName);
+												dataOrgo.CreateCSV(checkBoxLabelCSV.isSelected(), null, 1);
 											}
 										}
 									};
