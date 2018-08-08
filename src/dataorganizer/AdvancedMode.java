@@ -173,6 +173,8 @@ public class AdvancedMode extends JFrame {
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
 	private JButton browseVideoBtn;
+	private ArrayList<JButton> saveTestBtn;
+	private ArrayList<JButton> graphTestBtn;
 
 	//Progress Bars
 	private JProgressBar progressBar;
@@ -247,6 +249,9 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JCheckBox chckbxCreateGraph;
 	private JCheckBox chckbxCreatecsv;
+	private JPanel testRecordationPanel;
+	private ArrayList<JPanel> testNumPaneArray;
+	private ArrayList<JTextField> testNameTextField;
 
 
 	/**
@@ -257,8 +262,8 @@ public class AdvancedMode extends JFrame {
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
-		findModuleCommPort();
 		setVisible(true);
+		findModuleCommPort();
 	}
 
 	/**
@@ -423,7 +428,7 @@ public class AdvancedMode extends JFrame {
 
 				//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
 				if(serialHandler.openSerialPort(selectedCommID)){
-
+					enableTabChanges();
 					//Notify the user that the port as opened successfully and is ready for a new command
 					generalStatusLabel.setText("Serial Port Opened Successfully, Awaiting Commands");
 					progressBar.setValue(0);
@@ -1436,15 +1441,15 @@ public class AdvancedMode extends JFrame {
 											break;
 										}
 									}
-									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile; 
+									nameOfFile = "(#" + (testIndex+1) + ") " + nameOfFile; 
 									
-									DataOrganizer dataOrgo = new DataOrganizer(testParameters, checkBoxSignedData.isSelected(), nameOfFile, 9);
+									DataOrganizer dataOrgo = new DataOrganizer(testParameters, nameOfFile); //That 9 is the number of axis. 
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											dataOrgo.createDataSmpsRawData(finalData);
 											dataOrgo.getSignedData();
 											if(chckbxCreatecsv.isSelected()) {
-												dataOrgo.CreateCSV(checkBoxLabelCSV.isSelected(), null, 1);
+												dataOrgo.createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected());
 											}
 										}
 									};
@@ -1458,12 +1463,10 @@ public class AdvancedMode extends JFrame {
 										com.sun.javafx.application.PlatformImpl.startup(()->{});
 										Platform.runLater(new Runnable() {
 								            public void run() {
-								                    Graph lineGraph= new Graph(dataOrgo);
+								                    Graph lineGraph = new Graph(dataOrgo);
 								                    lineGraph.start(new Stage());
 								            }
 								        });
-
-										
 									}
 								}
 							}
@@ -1890,6 +1893,54 @@ public class AdvancedMode extends JFrame {
 	}
 
 
+	public void addTestsToRecordationPane(DataOrganizer dataOrgo) {
+		testNumPaneArray = new ArrayList<JPanel>(dataOrgo.getNumTests());
+		saveTestBtn = new ArrayList<JButton>(dataOrgo.getNumTests());
+		graphTestBtn = new ArrayList<JButton>(dataOrgo.getNumTests());
+		testNameTextField = new ArrayList<JTextField>(dataOrgo.getNumTests());
+		
+		for(int i = 0; i < dataOrgo.getNumTests(); i++) {
+			testNumPaneArray.get(i).setBounds(0, i*47, 625, 47);
+			testNumPaneArray.get(i).setLayout(null);
+			
+			testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
+			testNameTextField.get(i).setBounds(10, 11+i*47, 335, 29);
+			testNumPaneArray.get(i).add(testNameTextField.get(i));
+			testNameTextField.get(i).setColumns(10);
+			
+			saveTestBtn.add(new JButton("Save"));
+			saveTestBtn.get(i).setBounds(355, 11+i*47, 70, 23);
+			saveTestBtn.get(i).addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dataOrgo.createCSV(false, true);
+				}
+			});
+			
+			
+			testNumPaneArray.get(i).add(saveTestBtn.get(i));
+			
+			graphTestBtn.add(new JButton("Graph"));
+			graphTestBtn.get(i).setBounds(435, 11+i*47, 69, 23);
+			graphTestBtn.get(i).addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					com.sun.javafx.application.PlatformImpl.startup(()->{});
+					Platform.runLater(new Runnable() {
+			            public void run() {
+			                    Graph lineGraph = new Graph(dataOrgo);
+			                    lineGraph.start(new Stage());
+			            }
+			        });
+				}
+			});
+			testNumPaneArray.get(i).add(graphTestBtn.get(i));
+		}
+		
+		for(int i = 0; i < testNumPaneArray.size();i++) {
+			testRecordationPanel.add(testNumPaneArray.get(i));
+		}
+	}
+	
+	
 	/**
 	 * Creates and initializes the properties of all components on the main dashboard window. ex) panels, buttons, text fields, etc.
 	 */
@@ -2393,7 +2444,11 @@ public class AdvancedMode extends JFrame {
 		});
 
 		RemoteButtonPanel.add(exitTestModeButton);
-
+		
+		testRecordationPanel = new JPanel();
+		mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
+		testRecordationPanel.setLayout(null);
+			
 		adminPanel = new JPanel();
 		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
 
@@ -2464,5 +2519,4 @@ public class AdvancedMode extends JFrame {
 
 		frameInitialized = true;
 	}
-
 }

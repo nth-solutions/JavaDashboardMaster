@@ -96,7 +96,6 @@ public class Graph extends Application {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
 
-
 		
 		populateData(dataSeries, lineChart);		//Graph the series if the checkbox corresponding to the series is active
 		styleSeries(dataSeries, lineChart);
@@ -327,7 +326,7 @@ public class Graph extends Application {
 		public DataSeries(String name, DataOrganizer dataOrgo) {
 			this.name = name;
 			this.dataOrgo = dataOrgo;
-			series = createSeries(name, dataOrgo.getDataSmps());
+			series = createSeries(name, dataOrgo.getDataSamples());
 		}
 
 		public DataSeries(String name, DataOrganizer dataOrgo, int dof) {
