@@ -68,7 +68,7 @@ public class Graph extends Application {
 		yAxis.setLabel("Accel/Gyro");
 		
 		yAxis.setMinorTickVisible(true);
-		yAxis.setAutoRanging(true);
+		yAxis.setAutoRanging(false);
 		yAxis.setTickUnit(0.5);
 		
 		xAxis.setMinorTickVisible(true);
@@ -78,6 +78,9 @@ public class Graph extends Application {
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
 		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
 		xAxis.setTickUnit(1);
+		
+		yAxis.setLowerBound(dataCollector.minTestValAxis());
+		yAxis.setUpperBound(dataCollector.maxTestValAxis());
 
 		//Create line chart with the x and y axis
 		lineChart = new LineChart<Number, Number>(xAxis, yAxis);
@@ -199,7 +202,6 @@ public class Graph extends Application {
 				populateData(dataSeries, lineChart);
 				styleSeries(dataSeries, lineChart);
 			}
-			
 		});
 		
 		dataControls.getChildren().addAll(dataSeriesPane, dataAnalysisPane);
@@ -262,7 +264,8 @@ public class Graph extends Application {
 		              nSeries++;
 		          }
 		      }
-		  }
+	}
+	  
 	private void setUpZooming(final Rectangle rect, final Node zoomingNode) {
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -287,23 +290,24 @@ public class Graph extends Application {
 	}
 
 	private void doZoom(Rectangle zoomRect, LineChart<Number, Number> chart) {
-
-		final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
-		final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
-
-		double xAxisScale = xAxis.getScale();
-		
-		Node chartPlotArea = chart.lookup(".chart-plot-background");
-		double chartZeroX = chartPlotArea.getLayoutX();
-
-		double xOffset = zoomRect.getX() - chartZeroX; 
-		
-		xAxis.setLowerBound(xAxis.getLowerBound() + (xOffset / xAxisScale));
-		xAxis.setUpperBound(xAxis.getLowerBound() + (zoomRect.getWidth() / xAxisScale));
-		
-		zoomRect.setWidth(0);
-		zoomRect.setHeight(0);
-		
+        Point2D zoomTopLeft = new Point2D(zoomRect.getX(), zoomRect.getY());
+        Point2D zoomBottomRight = new Point2D(zoomRect.getX() + zoomRect.getWidth(), zoomRect.getY() + zoomRect.getHeight());
+        final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
+        Point2D yAxisInScene = yAxis.localToScene(0, 0);
+        final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
+        Point2D xAxisInScene = xAxis.localToScene(0, 0);
+        double xOffset = zoomTopLeft.getX() - yAxisInScene.getX() ;
+        double yOffset = zoomBottomRight.getY() - xAxisInScene.getY();
+        double xAxisScale = xAxis.getScale();
+        double yAxisScale = yAxis.getScale();
+        xAxis.setLowerBound(xAxis.getLowerBound() + xOffset / xAxisScale);
+        xAxis.setUpperBound(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale);
+        yAxis.setLowerBound(yAxis.getLowerBound() + yOffset / yAxisScale);
+        yAxis.setUpperBound(yAxis.getLowerBound() - zoomRect.getHeight() / yAxisScale);
+        zoomRect.setWidth(0);
+        zoomRect.setHeight(0);
+        
+        
 		for (final DataSeries ds : dataSeries) {
 			if(ds.isActive()) {
 				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());

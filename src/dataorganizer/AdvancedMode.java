@@ -330,21 +330,21 @@ public class AdvancedMode extends JFrame {
 					boolean moduleFound = false;
 					int commPortIndex = 0;
 					while (!moduleFound && commPortIndex < commPortIDList.size()) {
-	
+
 						//Get the string identifier (name) of the current port
 						String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();      
-	
+
 						//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
 						if(serialHandler.openSerialPort(selectedCommID)){
-							
+
 							int attemptCounter = 0;
-							while (attemptCounter < 3 && !moduleFound) {
+							while (attemptCounter < 1000 && !moduleFound) {
 								try {
 									ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-			
+
 									if (moduleIDInfo != null) {
 										moduleFound = true;
-										
+
 										moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
 										hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
 										firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
@@ -357,7 +357,7 @@ public class AdvancedMode extends JFrame {
 											generalStatusLabel.setText("Successfully Connected to Module");
 											progressBar.setValue(100);
 											progressBar.setForeground(new Color(51, 204, 51));
-											
+
 											//Enable the buttons that can now be used since the serial port opened
 											disconnectButton.setEnabled(true);
 											getModuleIDButton.setEnabled(true);
@@ -384,7 +384,7 @@ public class AdvancedMode extends JFrame {
 									attemptCounter++;
 								}
 							}
-							
+
 						}
 						commPortIndex++;
 					}
@@ -394,7 +394,7 @@ public class AdvancedMode extends JFrame {
 						progressBar.setForeground(new Color(255, 0, 0));	
 						mainTabbedPanel.setEnabled(false);
 					}
-	
+
 				}
 				catch (IOException e) {
 					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
@@ -412,7 +412,7 @@ public class AdvancedMode extends JFrame {
 		};
 		Thread findModuleThread = new Thread(findModuleOperation);
 		findModuleThread.run();
-		
+
 	}
 
 	/**
@@ -851,7 +851,7 @@ public class AdvancedMode extends JFrame {
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
 					else {
-						
+
 						//Notify the user that the sequence has failed
 						generalStatusLabel.setText("Sector Erase Failed");
 						progressBar.setValue(100);
@@ -1030,10 +1030,10 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		};
-		
+
 		Thread getConfigsOperationThread = new Thread(getConfigsOperation);
 		getConfigsOperationThread.start();
-		
+
 	}
 
 
@@ -1109,7 +1109,7 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					
+
 
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -1127,7 +1127,7 @@ public class AdvancedMode extends JFrame {
 						gyroSensitivity = testParameters.get(10);
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);					
-						
+
 						System.out.println(delayAfterStart);
 						if(delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
@@ -1349,7 +1349,7 @@ public class AdvancedMode extends JFrame {
 
 				try {
 
-					
+
 
 					generalStatusLabel.setText("Reading Data from Module...");
 					progressBar.setValue(0);
@@ -1363,7 +1363,7 @@ public class AdvancedMode extends JFrame {
 
 						expectedTestNum = testParameters.get(0);
 						delayAfterStart = testParameters.get(2);
-						
+
 						//Assign local variables to their newly received values from the module
 						timedTestFlag = testParameters.get(4);
 						//Trigger on release is 8
@@ -1374,15 +1374,15 @@ public class AdvancedMode extends JFrame {
 						gyroSensitivity = testParameters.get(10);
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);				
-						
+
 						//System.out.println(delayAfterStart);
 						if(delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
 							testParameters.set(2, delayAfterStart);
 						}
-						
-						
+
+
 						boolean timedTest = true;
 						if (timedTestFlag == 0) {
 							timedTest = false;
@@ -1428,6 +1428,7 @@ public class AdvancedMode extends JFrame {
 
 							//Executes if the data was received properly (null = fail)
 							if(testData != null) {
+								List<DataOrganizer> dataOrgoList = new ArrayList<DataOrganizer>(testData.size()-1);
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
 									int [] finalData = new int[testData.get(testIndex).size()];
@@ -1441,34 +1442,37 @@ public class AdvancedMode extends JFrame {
 											break;
 										}
 									}
-									nameOfFile = "(#" + (testIndex+1) + ") " + nameOfFile; 
-									
-									DataOrganizer dataOrgo = new DataOrganizer(testParameters, nameOfFile); //That 9 is the number of axis. 
+									String tempNameOfFile = "(#" + (testIndex+1) + ")" + nameOfFile; 
+
+									DataOrganizer dataOrgo = new DataOrganizer(testParameters, tempNameOfFile);
+									dataOrgoList.add(dataOrgo);
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											dataOrgo.createDataSmpsRawData(finalData);
 											dataOrgo.getSignedData();
+
 											if(chckbxCreatecsv.isSelected()) {
 												dataOrgo.createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected());
 											}
 										}
 									};
-									
+
 									organizerThread = new Thread(organizerOperation);
 									//Start thread
 									organizerThread.start();																		
 
-									
+
 									if(chckbxCreateGraph.isSelected()) {
 										com.sun.javafx.application.PlatformImpl.startup(()->{});
 										Platform.runLater(new Runnable() {
-								            public void run() {
-								                    Graph lineGraph = new Graph(dataOrgo);
-								                    lineGraph.start(new Stage());
-								            }
-								        });
+											public void run() {
+												Graph lineGraph = new Graph(dataOrgo);
+												lineGraph.start(new Stage());
+											}
+										});
 									}
 								}
+								addTestsToRecordationPane(dataOrgoList);
 							}
 							else {
 								generalStatusLabel.setText("Error Reading From Module, Try Again");
@@ -1893,54 +1897,72 @@ public class AdvancedMode extends JFrame {
 	}
 
 
-	public void addTestsToRecordationPane(DataOrganizer dataOrgo) {
-		testNumPaneArray = new ArrayList<JPanel>(dataOrgo.getNumTests());
-		saveTestBtn = new ArrayList<JButton>(dataOrgo.getNumTests());
-		graphTestBtn = new ArrayList<JButton>(dataOrgo.getNumTests());
-		testNameTextField = new ArrayList<JTextField>(dataOrgo.getNumTests());
-		
-		for(int i = 0; i < dataOrgo.getNumTests(); i++) {
-			testNumPaneArray.get(i).setBounds(0, i*47, 625, 47);
-			testNumPaneArray.get(i).setLayout(null);
-			
-			testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
-			testNameTextField.get(i).setBounds(10, 11+i*47, 335, 29);
-			testNumPaneArray.get(i).add(testNameTextField.get(i));
-			testNameTextField.get(i).setColumns(10);
-			
-			saveTestBtn.add(new JButton("Save"));
-			saveTestBtn.get(i).setBounds(355, 11+i*47, 70, 23);
-			saveTestBtn.get(i).addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					dataOrgo.createCSV(false, true);
-				}
-			});
-			
-			
-			testNumPaneArray.get(i).add(saveTestBtn.get(i));
-			
-			graphTestBtn.add(new JButton("Graph"));
-			graphTestBtn.get(i).setBounds(435, 11+i*47, 69, 23);
-			graphTestBtn.get(i).addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					com.sun.javafx.application.PlatformImpl.startup(()->{});
-					Platform.runLater(new Runnable() {
-			            public void run() {
-			                    Graph lineGraph = new Graph(dataOrgo);
-			                    lineGraph.start(new Stage());
-			            }
-			        });
-				}
-			});
-			testNumPaneArray.get(i).add(graphTestBtn.get(i));
-		}
-		
-		for(int i = 0; i < testNumPaneArray.size();i++) {
-			testRecordationPanel.add(testNumPaneArray.get(i));
+	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
+		if(dataOrgo != null) {
+			final int viewableTests = dataOrgo.size();
+			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
+			saveTestBtn = new ArrayList<JButton>(viewableTests);
+			graphTestBtn = new ArrayList<JButton>(viewableTests);
+			testNameTextField = new ArrayList<JTextField>(viewableTests);
+
+			for(int i = 0; i < viewableTests; i++) {
+				testNumPaneArray.add(new JPanel());
+				testNumPaneArray.get(i).setBounds(0, i*47, 625, 47);
+				testNumPaneArray.get(i).setLayout(null);
+
+				testNameTextField.add(new JTextField());
+				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
+				testNameTextField.get(i).setBounds(10, 11, 335, 29);
+				testNameTextField.get(i).setColumns(10);
+				testNameTextField.get(i).setText(dataOrgo.get(i).getName());
+
+
+				testNumPaneArray.get(i).add(testNameTextField.get(i));
+
+				saveTestBtn.add(new JButton("Save"));
+				saveTestBtn.get(i).setBounds(355, 11, 70, 23);
+				saveTestBtn.get(i).addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						for(int i = 0; i < viewableTests; i++) {
+							if(saveTestBtn.get(i) == e.getSource()) {
+								dataOrgo.get(i).createCSV(false, true);
+							}
+						}
+					}
+				});
+
+
+				testNumPaneArray.get(i).add(saveTestBtn.get(i));
+
+				graphTestBtn.add(new JButton("Graph"));
+				graphTestBtn.get(i).setBounds(435, 11, 69, 23);
+				graphTestBtn.get(i).addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						com.sun.javafx.application.PlatformImpl.startup(()->{});
+						Platform.runLater(new Runnable() {
+							public void run() {
+								for(int i = 0; i < viewableTests; i++) {
+									System.out.println(i);
+									if(graphTestBtn.get(i) == e.getSource()) {
+										Graph lineGraph = new Graph(dataOrgo.get(i));
+										lineGraph.start(new Stage());
+									}
+								}
+								
+							}
+						});
+					}
+				});
+				testNumPaneArray.get(i).add(graphTestBtn.get(i));
+			}
+
+			for(int i = 0; i < testNumPaneArray.size();i++) {
+				testRecordationPanel.add(testNumPaneArray.get(i));
+			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Creates and initializes the properties of all components on the main dashboard window. ex) panels, buttons, text fields, etc.
 	 */
@@ -2059,22 +2081,22 @@ public class AdvancedMode extends JFrame {
 		readDataButton = new JButton("Read Data from Module");
 		readDataButton.setEnabled(false);
 		startReadButtonPanel.add(readDataButton);
-		
+
 		panel = new JPanel();
 		startReadButtonPanel.add(panel);
 		panel.setLayout(new GridLayout(2, 2, 0, 0));
-		
+
 		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
 
 
-		
+
 		chckbxCreateGraph = new JCheckBox("Create Graph");
 		panel.add(chckbxCreateGraph);
-		
+
 		chckbxCreatecsv = new JCheckBox("Create .CSV");
 		chckbxCreatecsv.setSelected(true);
 		panel.add(chckbxCreatecsv);
-		
+
 		checkBoxSignedData = new JCheckBox("Signed Data");
 		checkBoxSignedData.setSelected(true);
 
@@ -2444,11 +2466,11 @@ public class AdvancedMode extends JFrame {
 		});
 
 		RemoteButtonPanel.add(exitTestModeButton);
-		
+
 		testRecordationPanel = new JPanel();
 		mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
 		testRecordationPanel.setLayout(null);
-			
+
 		adminPanel = new JPanel();
 		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
 
