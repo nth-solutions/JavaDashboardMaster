@@ -34,6 +34,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
@@ -247,11 +248,10 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxSignedData;
 
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
-	private JCheckBox chckbxCreateGraph;
-	private JCheckBox chckbxCreatecsv;
 	private JPanel testRecordationPanel;
 	private ArrayList<JPanel> testNumPaneArray;
 	private ArrayList<JTextField> testNameTextField;
+	private final JFXPanel graphingPanel = new JFXPanel();
 
 
 	/**
@@ -1450,27 +1450,12 @@ public class AdvancedMode extends JFrame {
 										public void run() {
 											dataOrgo.createDataSmpsRawData(finalData);
 											dataOrgo.getSignedData();
-
-											if(chckbxCreatecsv.isSelected()) {
-												dataOrgo.createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected());
-											}
 										}
 									};
 
 									organizerThread = new Thread(organizerOperation);
 									//Start thread
-									organizerThread.start();																		
-
-
-									if(chckbxCreateGraph.isSelected()) {
-										com.sun.javafx.application.PlatformImpl.startup(()->{});
-										Platform.runLater(new Runnable() {
-											public void run() {
-												Graph lineGraph = new Graph(dataOrgo);
-												lineGraph.start(new Stage());
-											}
-										});
-									}
+									organizerThread.start();	
 								}
 								addTestsToRecordationPane(dataOrgoList);
 							}
@@ -1896,7 +1881,23 @@ public class AdvancedMode extends JFrame {
 		return "NOP";
 	}
 
-
+	public void initFX(List<DataOrganizer> dataOrgo, ActionEvent e) {
+		final int viewableTests = dataOrgo.size();
+		Platform.setImplicitExit(false);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				for(int i = 0; i < viewableTests; i++) {
+					if(graphTestBtn.get(i) == e.getSource()) {
+						Graph lineGraph = new Graph(dataOrgo.get(i));
+						lineGraph.startGraph(new Stage());
+					}
+				}
+			}
+		});
+	}
+	
+	
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
 		if(dataOrgo != null) {
 			final int viewableTests = dataOrgo.size();
@@ -1907,8 +1908,9 @@ public class AdvancedMode extends JFrame {
 
 			for(int i = 0; i < viewableTests; i++) {
 				testNumPaneArray.add(new JPanel());
-				testNumPaneArray.get(i).setBounds(0, i*47, 625, 47);
+				testNumPaneArray.get(i).setBounds(0, i*48, 625, 47);
 				testNumPaneArray.get(i).setLayout(null);
+				testNumPaneArray.get(i).setBorder(new LineBorder(new Color(0, 0, 0)));
 
 				testNameTextField.add(new JTextField());
 				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -1925,7 +1927,7 @@ public class AdvancedMode extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
-								dataOrgo.get(i).createCSV(false, true);
+								dataOrgo.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected());
 							}
 						}
 					}
@@ -1938,19 +1940,7 @@ public class AdvancedMode extends JFrame {
 				graphTestBtn.get(i).setBounds(435, 11, 69, 23);
 				graphTestBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						com.sun.javafx.application.PlatformImpl.startup(()->{});
-						Platform.runLater(new Runnable() {
-							public void run() {
-								for(int i = 0; i < viewableTests; i++) {
-									System.out.println(i);
-									if(graphTestBtn.get(i) == e.getSource()) {
-										Graph lineGraph = new Graph(dataOrgo.get(i));
-										lineGraph.start(new Stage());
-									}
-								}
-								
-							}
-						});
+						initFX(dataOrgo, e);
 					}
 				});
 				testNumPaneArray.get(i).add(graphTestBtn.get(i));
@@ -2087,15 +2077,6 @@ public class AdvancedMode extends JFrame {
 		panel.setLayout(new GridLayout(2, 2, 0, 0));
 
 		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
-
-
-
-		chckbxCreateGraph = new JCheckBox("Create Graph");
-		panel.add(chckbxCreateGraph);
-
-		chckbxCreatecsv = new JCheckBox("Create .CSV");
-		chckbxCreatecsv.setSelected(true);
-		panel.add(chckbxCreatecsv);
 
 		checkBoxSignedData = new JCheckBox("Signed Data");
 		checkBoxSignedData.setSelected(true);
@@ -2538,6 +2519,8 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 
+		
+		
 
 		frameInitialized = true;
 	}

@@ -23,6 +23,7 @@ public class DataOrganizer {
 	private int magInterval;
 	private int accelSensitivity;
 	private int gyroSensitivity;
+	private int magSensitivity;
 	private double lengthOfTest;
 	private int numDof = 9;
 
@@ -32,18 +33,15 @@ public class DataOrganizer {
 	private double min = 0;
 
 	public DataOrganizer(ArrayList<Integer> testParameters, String testName) {
-
 		this.nameOfTest = testName;
-
 		delayAfterStart = testParameters.get(2);
 		lengthOfTest = testParameters.get(6);
 		sampleRate = testParameters.get(7);
 		magSampleRate = testParameters.get(8);
 		accelSensitivity = testParameters.get(9);
 		gyroSensitivity = testParameters.get(10);
-
+		magSensitivity = 4800;
 		magInterval = sampleRate / magSampleRate;
-
 	}
 
 	public DataOrganizer() {
@@ -76,7 +74,6 @@ public class DataOrganizer {
 					for (int dof6 = 1; dof6 < 7; dof6++) {
 						dataSamples.get(dof6).add(0.0);
 					}
-
 				} else if (magInterval == 1) {
 					for (int dof9 = 1; dof9 < 10; dof9++) {
 						dataSamples.get(dof9).add(0.0);
@@ -132,7 +129,6 @@ public class DataOrganizer {
 	}
 
 	public List<List<Double>> getSignedData() {
-
 		signedDataSamples = new ArrayList<List<Double>>();
 		for (int dof = 0; dof < 10; dof++) {
 			List<Double> temp = new ArrayList<Double>();
@@ -150,16 +146,24 @@ public class DataOrganizer {
 					}
 					curVal = (curVal * accelSensitivity) / 32768;
 					signedDataSamples.get(dof).add(smp, curVal);
-				} else if (dof < 7) {
+				} 
+				else if (dof < 7) {
 					double curVal = dataSamples.get(dof).get(smp);
 					if (curVal > 32768) {
 						curVal -= 65535;
 					}
 					curVal = (curVal * gyroSensitivity) / 32768;
 					signedDataSamples.get(dof).add(smp, curVal);
-				} else {
-					//if(smp < dataSmps.get(7).size() - 1)
-					signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
+				} 
+				else {
+					double curVal = dataSamples.get(dof).get(smp);
+					/*if(curVal != null) {
+						if (curVal > 32768) {
+							curVal -= 65535;
+						}
+						curVal = (curVal * magSensitivity) / 32768;*/
+						signedDataSamples.get(dof).add(smp, curVal);
+				//	}
 				}
 			}
 		}
@@ -376,23 +380,25 @@ public class DataOrganizer {
 
 	public double maxTestValAxis() {
 		double max = -32768;
-		//we cant go past 7 because those are the only axis in signed data
-		for(int coloumn = 0; coloumn < 7 ; coloumn++) {
-			for(int i = 0; i < signedDataSamples.get(coloumn).size(); i++) {
-				if(signedDataSamples.get(coloumn).get(i) > max)
-					max = signedDataSamples.get(coloumn).get(i);
+		
+		for(List<Double> column : signedDataSamples){
+			for(Double sample : column) {
+				if(sample != null)
+					if(sample>max)
+						max = sample;
 			}
 		}
 		return max;
 	}
 
 	public double minTestValAxis() {
-		double min = 32768;				
-		//we cant go past 7 because those are the only axis in signed data
-		for(int coloumn = 0; coloumn < 7; coloumn++) {
-			for(int row = (signedDataSamples.get(coloumn).size() - 1); row >= 0; row--) {
-				if(signedDataSamples.get(coloumn).get(row) < min)
-					min = signedDataSamples.get(coloumn).get(row);
+		double min = 32768;
+		
+		for(List<Double> column: signedDataSamples){
+			for(Double sample: column) {
+				if(sample != null)
+					if(sample<min)
+						min = sample;
 			}
 		}
 		return min;

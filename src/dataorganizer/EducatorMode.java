@@ -119,12 +119,7 @@ public class EducatorMode extends JFrame {
 	private JLabel label;
 	private JLabel lblMassOfSecond;
 	private JLabel lblStepaEnter;
-	private JPanel physicalPendulumLabPane;
 	private JPanel conservationOfEnergyLabPane;
-	private JLabel lblNewLabel_3;
-	private JLabel lblStepaEnter_1;
-	private JTextField totalMassTextField;
-	private JLabel lblI;
 	private JLabel lblNewLabel_4;
 	private JLabel lblDistanceDModule;
 	private JTextField distanceModuleFallsTextField;
@@ -139,12 +134,20 @@ public class EducatorMode extends JFrame {
 	private JLabel label_1;
 	private JLabel lblRadiusOfThe;
 	private JPanel momentumLabPane;
-	private JLabel lblNm;
-	private JTextField kConstTextField;
-	private JLabel lblKConstant;
+	private JTextField handMassTextField;
+	private JLabel lblNewLabel_3;
+	private JLabel lblMassOfThe_1;
+	private JTextField personMassTextField;
+	private JLabel lblDistanceFromYour;
+	private JTextField wingSpanTextField;
+	private JLabel lblShoulderWidth;
+	private JTextField shoulderWidthTextField;
+	private JPanel spinnyStoolDemo;
+	private JLabel lblMassOfThe_2;
+	private JLabel lblNewLabel_6;
+	private JLabel label_2;
 	private JLabel lblM;
-	private JTextField amplituteTextField;
-	private JLabel lblAmplitude;
+	private JLabel label_3;
 
 	/**
 	 * Launch the application.
@@ -478,24 +481,9 @@ public class EducatorMode extends JFrame {
 				cell.Y = 5;
 				cell.content = testTypeHashMap.get(testType).get(10).toString();//Gyro Sensitivity
 				param.put("GyroSensitivity", cell);
-				
-				cell.X = 3;
-				cell.Y = 7;
-				cell.content = totalMassTextField.getText();
-				param.put("totalMass", cell);
-				
-				cell.X = 3;
-				cell.Y = 8;
-				cell.content = kConstTextField.getText();
-				param.put("kconstant", cell);
-				
-				cell.X = 3;
-				cell.Y = 9;
-				cell.content = amplituteTextField.getText();
-				param.put("amplitute", cell);
-				
-				
 				break;
+			case "Spinny Stool":
+				
 		}
 	}
 	
@@ -1246,9 +1234,8 @@ public class EducatorMode extends JFrame {
 		testTypeCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stepOne.remove(momentumLabPane);
-				stepOne.remove(physicalPendulumLabPane);
 				stepOne.remove(conservationOfEnergyLabPane);
-				
+				stepOne.add(spinnyStoolDemo);
 				
 				fillTestTypeHashMap(timedTestCheckbox.isSelected()?1:0);
 				testType = testTypeCombobox.getSelectedItem().toString();
@@ -1258,11 +1245,11 @@ public class EducatorMode extends JFrame {
 					case "Conservation of Momentum (Elastic Collision)":
 						stepOne.add(momentumLabPane);
 						break;
-					case "Physical Pendulum": 
-						stepOne.add(physicalPendulumLabPane);
-						break;
 					case "Conservation of Energy":
 						stepOne.add(conservationOfEnergyLabPane);
+						break;
+					case "Spinny Stool":
+						stepOne.add(spinnyStoolDemo);
 						break;
 				}
 				repaint();
@@ -1272,7 +1259,7 @@ public class EducatorMode extends JFrame {
 
 		testTypeCombobox.setBounds(10, 61, 506, 26);
 		stepOne.add(testTypeCombobox);
-		testTypeCombobox.setModel(new DefaultComboBoxModel(new String[] {"Conservation of Momentum (Elastic Collision)", "Conservation of Angular Momentum", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"}));
+		testTypeCombobox.setModel(new DefaultComboBoxModel(new String[] {"Conservation of Momentum (Elastic Collision)", "Conservation of Angular Momentum", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spinny Stool", "Spring Test - Simple Harmonics"}));
 
 		applyConfigurationsBtn = new JButton("Apply Configurations");
 		applyConfigurationsBtn.addActionListener(new ActionListener() {
@@ -1326,6 +1313,75 @@ public class EducatorMode extends JFrame {
 		lblStepaApply.setBounds(10, 306, 229, 31);
 		stepOne.add(lblStepaApply);
 		
+		spinnyStoolDemo = new JPanel();
+		spinnyStoolDemo.setBounds(10, 111, 506, 184);
+		spinnyStoolDemo.setLayout(null);
+		
+		handMassTextField = new JTextField();
+		handMassTextField.setBounds(10, 75, 86, 20);
+		spinnyStoolDemo.add(handMassTextField);
+		handMassTextField.setColumns(10);
+		
+		JLabel lblStepaEnter_1 = new JLabel("Step 1A: Enter the masses and distances");
+		lblStepaEnter_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepaEnter_1.setBounds(10, 11, 231, 20);
+		spinnyStoolDemo.add(lblStepaEnter_1);
+		
+		lblNewLabel_3 = new JLabel("Mass of the hand weights");
+		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblNewLabel_3.setBounds(10, 52, 175, 20);
+		spinnyStoolDemo.add(lblNewLabel_3);
+		
+		lblMassOfThe_1 = new JLabel("Mass of the person");
+		lblMassOfThe_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblMassOfThe_1.setBounds(10, 106, 175, 20);
+		
+		personMassTextField = new JTextField();
+		personMassTextField.setColumns(10);
+		personMassTextField.setBounds(10, 129, 86, 20);
+		spinnyStoolDemo.add(personMassTextField);
+		
+		lblDistanceFromYour = new JLabel("Wing span");
+		lblDistanceFromYour.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblDistanceFromYour.setBounds(275, 52, 267, 20);
+		spinnyStoolDemo.add(lblDistanceFromYour);
+		
+		wingSpanTextField = new JTextField();
+		wingSpanTextField.setColumns(10);
+		wingSpanTextField.setBounds(275, 75, 86, 20);
+		spinnyStoolDemo.add(wingSpanTextField);
+		
+		lblShoulderWidth = new JLabel("Shoulder width");
+		lblShoulderWidth.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblShoulderWidth.setBounds(275, 106, 104, 20);
+		spinnyStoolDemo.add(lblShoulderWidth);
+		
+		shoulderWidthTextField = new JTextField();
+		shoulderWidthTextField.setColumns(10);
+		shoulderWidthTextField.setBounds(275, 129, 86, 20);
+		spinnyStoolDemo.add(shoulderWidthTextField);
+		
+		lblMassOfThe_2 = new JLabel("Mass of the person");
+		lblMassOfThe_2.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblMassOfThe_2.setBounds(10, 106, 146, 20);
+		spinnyStoolDemo.add(lblMassOfThe_2);
+		
+		lblNewLabel_6 = new JLabel("kg");
+		lblNewLabel_6.setBounds(106, 78, 46, 14);
+		spinnyStoolDemo.add(lblNewLabel_6);
+		
+		label_2 = new JLabel("kg");
+		label_2.setBounds(106, 132, 46, 14);
+		spinnyStoolDemo.add(label_2);
+		
+		lblM = new JLabel("m");
+		lblM.setBounds(371, 78, 46, 14);
+		spinnyStoolDemo.add(lblM);
+		
+		label_3 = new JLabel("m");
+		label_3.setBounds(371, 132, 46, 14);
+		spinnyStoolDemo.add(label_3);
+		
 		conservationOfEnergyLabPane = new JPanel();
 		conservationOfEnergyLabPane.setBounds(10, 109, 506, 196);
 		conservationOfEnergyLabPane.setLayout(null);
@@ -1335,9 +1391,9 @@ public class EducatorMode extends JFrame {
 		lblNewLabel_4.setBounds(10, 11, 236, 14);
 		conservationOfEnergyLabPane.add(lblNewLabel_4);
 		
-		lblDistanceDModule = new JLabel("Distance module falls");
+		lblDistanceDModule = new JLabel("Distance module falls from rest");
 		lblDistanceDModule.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblDistanceDModule.setBounds(10, 49, 136, 14);
+		lblDistanceDModule.setBounds(10, 49, 167, 14);
 		conservationOfEnergyLabPane.add(lblDistanceDModule);
 		
 		distanceModuleFallsTextField = new JTextField();
@@ -1354,9 +1410,9 @@ public class EducatorMode extends JFrame {
 		massOfTheModuleTextField.setBounds(10, 145, 86, 20);
 		conservationOfEnergyLabPane.add(massOfTheModuleTextField);
 		
-		lblMassOfThe = new JLabel("Mass of the module");
+		lblMassOfThe = new JLabel("Mass of the module and holder");
 		lblMassOfThe.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblMassOfThe.setBounds(10, 120, 136, 14);
+		lblMassOfThe.setBounds(10, 120, 183, 14);
 		conservationOfEnergyLabPane.add(lblMassOfThe);
 		
 		lblKg = new JLabel("kg");
@@ -1390,61 +1446,6 @@ public class EducatorMode extends JFrame {
 		lblRadiusOfThe.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblRadiusOfThe.setBounds(238, 120, 243, 14);
 		conservationOfEnergyLabPane.add(lblRadiusOfThe);
-		
-		physicalPendulumLabPane = new JPanel();
-		physicalPendulumLabPane.setBounds(10, 109, 506, 196);
-		physicalPendulumLabPane.setLayout(null);
-		stepOne.add(physicalPendulumLabPane);
-		
-		lblNewLabel_3 = new JLabel("Total Mass");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNewLabel_3.setBounds(10, 66, 128, 14);
-		physicalPendulumLabPane.add(lblNewLabel_3);
-		
-		lblStepaEnter_1 = new JLabel("Step 1A: Enter the moment of inertia");
-		lblStepaEnter_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblStepaEnter_1.setBounds(10, 11, 307, 14);
-		physicalPendulumLabPane.add(lblStepaEnter_1);
-		
-		totalMassTextField = new JTextField();
-		totalMassTextField.setBounds(10, 93, 86, 20);
-		physicalPendulumLabPane.add(totalMassTextField);
-		totalMassTextField.setColumns(10);
-		
-		lblI = new JLabel("g");
-		lblI.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblI.setBounds(105, 96, 46, 14);
-		physicalPendulumLabPane.add(lblI);
-		
-		lblNm = new JLabel("N/m");
-		lblNm.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNm.setBounds(105, 154, 46, 14);
-		physicalPendulumLabPane.add(lblNm);
-		
-		kConstTextField = new JTextField();
-		kConstTextField.setColumns(10);
-		kConstTextField.setBounds(10, 151, 86, 20);
-		physicalPendulumLabPane.add(kConstTextField);
-		
-		lblKConstant = new JLabel("K Constant");
-		lblKConstant.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblKConstant.setBounds(10, 124, 128, 14);
-		physicalPendulumLabPane.add(lblKConstant);
-		
-		lblM = new JLabel("m");
-		lblM.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblM.setBounds(360, 96, 46, 14);
-		physicalPendulumLabPane.add(lblM);
-		
-		amplituteTextField = new JTextField();
-		amplituteTextField.setColumns(10);
-		amplituteTextField.setBounds(265, 93, 86, 20);
-		physicalPendulumLabPane.add(amplituteTextField);
-		
-		lblAmplitude = new JLabel("Amplitude");
-		lblAmplitude.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblAmplitude.setBounds(265, 66, 128, 14);
-		physicalPendulumLabPane.add(lblAmplitude);
 		
 		momentumLabPane = new JPanel();
 		momentumLabPane.setBounds(10, 109, 506, 196);
