@@ -10,6 +10,7 @@ import java.util.Set;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -17,6 +18,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -39,6 +41,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -48,7 +51,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
-public class Graph extends Application {
+public class Graph {
 	private LineChart<Number, Number> lineChart;
 	private ObservableList<DataSeries> dataSeries;
 	private DataOrganizer dataCollector;
@@ -57,8 +60,7 @@ public class Graph extends Application {
 		this.dataCollector = dataCollector;
 	}
 	
-	@Override
-	public void start(Stage stage) {
+	public Scene startGraph(Stage stage) {
 		
 		//Create x and y axis for the line chart
 		final NumberAxis xAxis = new NumberAxis();	
@@ -95,7 +97,7 @@ public class Graph extends Application {
 		//dataSeries.add(0, new DataSeries("DataSet 1", dataCollector, 1));
 		//dataSeries.add(1, new DataSeries("DataSet 1", dataCollector, 2));
 		
-		for (int numDof = 1; numDof < 7; numDof++) {		//Fill data series array with multiple elements of graphable series
+		for (int numDof = 1; numDof < 10; numDof++) {		//Fill data series array with multiple elements of graphable series
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
 
@@ -133,6 +135,8 @@ public class Graph extends Application {
 				xAxis.setLowerBound(0);
 				xAxis.setUpperBound(dataCollector.getLengthOfTest());
 				xAxis.setTickUnit(1);
+				yAxis.setLowerBound(dataCollector.minTestValAxis());
+				yAxis.setUpperBound(dataCollector.maxTestValAxis());
 				zoomRect.setWidth(0);
 				zoomRect.setHeight(0);
 				for (final DataSeries ds : dataSeries) {
@@ -188,7 +192,6 @@ public class Graph extends Application {
 				populateData(dataSeries, lineChart);
 				styleSeries(dataSeries, lineChart);
 			}
-			
 		});
 		
 		
@@ -216,6 +219,22 @@ public class Graph extends Application {
 		final Scene scene = new Scene(root, 600, 400);
 		stage.setScene(scene);
 		stage.show();
+		
+		
+		stage.setOnHiding(new EventHandler<WindowEvent>() {
+	         @Override
+	         public void handle(WindowEvent event) {
+	             Platform.runLater(new Runnable() {
+	                 @Override
+	                 public void run() {
+	                     stage.hide();
+	                 }
+	             });
+	         }
+	    });
+		
+		
+		return scene;
 	}
 	
 
@@ -397,10 +416,5 @@ public class Graph extends Application {
 		public void updateZoom(double start, double end) {
 			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 		}
-
-	}
-
-	public static void main(String[] args) {
-		launch(args);
 	}
 }
