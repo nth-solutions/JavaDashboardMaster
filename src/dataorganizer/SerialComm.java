@@ -261,13 +261,12 @@ public class SerialComm {
 				while (counter <= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
 
 					try {
-						
 						//Executes if data is in the inputStream buffer
 						if (inputStream.available() > 0) {
 
 							//Store newly read byte in the temp variable
 							temp = inputStream.read();
-							
+/*DEBUG REMOVE*/							if (timeout == 1500) System.out.println(temp);
 							//Executes of the byte received is equal to the current value of counter
 							if (temp == counter) {    
 								//Increment counter by 1
@@ -286,7 +285,9 @@ public class SerialComm {
 					}
 					
 					//Unknown Exception, seems to happen randomly so just exit the method and let the user try again if this occurs
-					catch(Exception PureJavaIllegalStateException) {
+					//There was effectively a try catch ALL here before, if there are other errors to be caught we will differentiate in the future. 
+					catch(PureJavaIllegalStateException e) {
+						e.printStackTrace();
 						return false;
 					}
 				}
@@ -1093,6 +1094,7 @@ public class SerialComm {
 	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum, JProgressBar progressBar, JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {  
 		//Put module into export test data mode, exit method if that routine fails
 		if(!selectMode('E')) {
+			statusLabel.setText("Could not configure the module to export.");
 			return null;
 		}
 		
@@ -1121,6 +1123,7 @@ public class SerialComm {
 				
 				//Wait for start condition (preamble)
 				if(!waitForPreamble(1, 8, 1500)) {
+					statusLabel.setText("Lost communication with module. Please reconnect to the port.");
 					return null;
 				}
 
@@ -1152,6 +1155,7 @@ public class SerialComm {
 						if (!preambleFlag) {
 							//Wait for a preamble, exits method if the preamble times out
 							if(!waitForPreamble(1, 4, 1500)) {
+								statusLabel.setText("Lost communication with module. Please reconnect to the port.");
 								return null;
 							}
 							//Set preamble flag
