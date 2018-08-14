@@ -329,65 +329,66 @@ public class AdvancedMode extends JFrame {
 					ArrayList<String> commPortIDList = serialHandler.findPorts();
 					boolean moduleFound = false;
 					int commPortIndex = 0;
-					while (!moduleFound && commPortIndex < commPortIDList.size()) {
-
-						//Get the string identifier (name) of the current port
-						String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();      
-
-						//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-						if(serialHandler.openSerialPort(selectedCommID)){
-
-							int attemptCounter = 0;
-							while (attemptCounter < 1000 && !moduleFound) {
-								try {
-									ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-
-									if (moduleIDInfo != null) {
-										moduleFound = true;
-
-										moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
-										hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
-										firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
-										if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-											generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
-											progressBar.setValue(100);
-											progressBar.setForeground(new Color(255, 0, 0));	
+					if(commPortIDList != null)
+						while (!moduleFound && commPortIndex < commPortIDList.size()) {
+	
+							//Get the string identifier (name) of the current port
+							String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();      
+	
+							//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+							if(serialHandler.openSerialPort(selectedCommID)){
+	
+								int attemptCounter = 0;
+								while (attemptCounter < 1000 && !moduleFound) {
+									try {
+										ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+	
+										if (moduleIDInfo != null) {
+											moduleFound = true;
+	
+											moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
+											hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
+											firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
+											if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+												generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
+												progressBar.setValue(100);
+												progressBar.setForeground(new Color(255, 0, 0));	
+											}
+											else {
+												generalStatusLabel.setText("Successfully Connected to Module");
+												progressBar.setValue(100);
+												progressBar.setForeground(new Color(51, 204, 51));
+	
+												//Enable the buttons that can now be used since the serial port opened
+												disconnectButton.setEnabled(true);
+												getModuleIDButton.setEnabled(true);
+												readDataButton.setEnabled(true);
+												writeConfigsButton.setEnabled(true);
+												getCurrentConfigurationsButton.setEnabled(true);
+												mainTabbedPanel.setEnabled(true);
+												enableTabChanges();
+												//Disable COMM port combobox so the user doesn't accidentally reopen a port
+												commPortCombobox.setEnabled(false);
+											}
 										}
 										else {
-											generalStatusLabel.setText("Successfully Connected to Module");
-											progressBar.setValue(100);
-											progressBar.setForeground(new Color(51, 204, 51));
-
-											//Enable the buttons that can now be used since the serial port opened
-											disconnectButton.setEnabled(true);
-											getModuleIDButton.setEnabled(true);
-											readDataButton.setEnabled(true);
-											writeConfigsButton.setEnabled(true);
-											getCurrentConfigurationsButton.setEnabled(true);
-											mainTabbedPanel.setEnabled(true);
-											enableTabChanges();
-											//Disable COMM port combobox so the user doesn't accidentally reopen a port
-											commPortCombobox.setEnabled(false);
+											attemptCounter++;
 										}
 									}
-									else {
+									catch (IOException e) {
+										attemptCounter++;
+									}
+									catch (PortInUseException e) {
+										attemptCounter++;
+									}
+									catch (UnsupportedCommOperationException e) {
 										attemptCounter++;
 									}
 								}
-								catch (IOException e) {
-									attemptCounter++;
-								}
-								catch (PortInUseException e) {
-									attemptCounter++;
-								}
-								catch (UnsupportedCommOperationException e) {
-									attemptCounter++;
-								}
+	
 							}
-
+							commPortIndex++;
 						}
-						commPortIndex++;
-					}
 					if (!moduleFound) {
 						generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 						progressBar.setValue(100);
@@ -1891,6 +1892,7 @@ public class AdvancedMode extends JFrame {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						Graph lineGraph = new Graph(dataOrgo.get(i));
 						lineGraph.startGraph(new Stage());
+						MediaPlayerMain.launch();
 					}
 				}
 			}
