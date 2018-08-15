@@ -259,14 +259,13 @@ public class SerialComm {
 				
 				//Iterates until the specified preamble is received or timeout occurs
 				while (counter <= stop && (System.currentTimeMillis() - preambleStart) < timeout) {
-
 					try {
 						//Executes if data is in the inputStream buffer
 						if (inputStream.available() > 0) {
 
 							//Store newly read byte in the temp variable
 							temp = inputStream.read();
-/*DEBUG REMOVE*/							if (timeout == 1500) System.out.println(temp);
+/*DEBUG REMOVE*///							if (timeout == 1500) System.out.println(temp);
 							//Executes of the byte received is equal to the current value of counter
 							if (temp == counter) {    
 								//Increment counter by 1

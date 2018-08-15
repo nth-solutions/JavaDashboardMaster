@@ -7,6 +7,7 @@
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -16,32 +17,40 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.MediaPlayerController">
+<BorderPane fx:id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="620.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.MediaPlayerController">
    <bottom>
       <VBox alignment="CENTER" prefHeight="75.0" style="-fx-background-color: #EAE6DA;" BorderPane.alignment="CENTER">
          <children>
             <HBox alignment="CENTER" prefHeight="75.0" style="-fx-background-color: #EAE6DA;">
                <children>
-                  <Button fx:id="stopButton" disable="true" layoutX="91.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleResetVideo" prefHeight="50.0" prefWidth="100.0" text="Reset">
+                  <ComboBox fx:id="selectFrameRateComboBox" disable="true" onAction="#handleFrameRateSelection" prefWidth="150.0" promptText="Frame Rate">
+                     <tooltip>
+                        <Tooltip text="Select the frame rate the video was recorded at." />
+                     </tooltip>
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin>
+                  </ComboBox>
+                  <Button fx:id="resetButton" disable="true" layoutX="91.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleResetVideo" prefHeight="50.0" prefWidth="100.0" text="Reset">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                      <tooltip>
-                        <Tooltip text="Resets the Video " />
+                        <Tooltip text="Click to reset video." />
                      </tooltip></Button>
                   <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" prefHeight="50.0" prefWidth="100.0" text="File">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                      <tooltip>
-                        <Tooltip onCloseRequest="#handleFileOpener" text="Selects a video file from file explorer" />
+                        <Tooltip onCloseRequest="#handleFileOpener" text="Click to select an MP4 file." />
                      </tooltip></Button>
-                  <Button fx:id="playPauseButton" disable="true" mnemonicParsing="false" onAction="#handlePlayPauseVideo" onKeyPressed="#handlePlayVideoKey" prefHeight="50.0" prefWidth="100.0" text="Play">
+                  <Button fx:id="playPauseButton" disable="true" mnemonicParsing="false" onAction="#handlePlayPauseVideo" prefHeight="50.0" prefWidth="100.0" text="Play">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin>
                      <tooltip>
-                        <Tooltip text="Plays and Pauses the video" />
+                        <Tooltip text="Click to Play/Pause the video." />
                      </tooltip></Button>
                   <Button fx:id="exitButton" disable="true" layoutX="290.0" layoutY="23.0" mnemonicParsing="false" onAction="#handleExitProgram" prefHeight="50.0" prefWidth="100.0" text="Exit">
                      <HBox.margin>
@@ -54,12 +63,12 @@
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin></Text>
-                  <Slider fx:id="rateChangeSlider" blockIncrement="0.1" disable="true" majorTickUnit="1.0" max="8.0" minorTickCount="10" onKeyReleased="#handleRateChangeKeys" onMouseClicked="#handleRateChange" prefHeight="33.0" prefWidth="400.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
+                  <Slider fx:id="rateChangeSlider" blockIncrement="0.1" disable="true" majorTickUnit="1.0" max="8.0" minorTickCount="10" onKeyReleased="#handleRateChangeKeys" onMouseReleased="#handleRateChange" prefHeight="33.0" prefWidth="400.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                      <tooltip>
-                        <Tooltip text="Sets the video playback speed (Range is between 0x and 8x)" />
+                        <Tooltip text="Slide to select a video playback speed (Range is between 0x and 8x)." />
                      </tooltip>
                   </Slider>
                </children>
@@ -68,14 +77,17 @@
       </VBox>
    </bottom>
    <center>
-      <StackPane style="-fx-background-color: #BCBCBE;" BorderPane.alignment="CENTER">
+      <StackPane fx:id="mediaViewPane" style="-fx-background-color: #000000;" BorderPane.alignment="CENTER">
          <children>
-            <Slider fx:id="timeStampSlider" blockIncrement="1.0" disable="true" majorTickUnit="1000.0" max="0.0" minorTickCount="0" onDragDetected="#handleSelectTimeStampDrag" onKeyPressed="#handlePausePlaybackOnKeyPress" onKeyReleased="#handleSelectTimeStampKeys" onMouseClicked="#handleSelectTimeStamp" StackPane.alignment="BOTTOM_CENTER">
+            <MediaView fx:id="mediaView" managed="false" onMouseDragReleased="#handleSelectTimeStampDrag" />
+            <Slider fx:id="timeStampSlider" blockIncrement="1.0" disable="true" majorTickUnit="1000.0" max="0.0" minorTickCount="0" onDragDetected="#handleSelectTimeStampDrag" onKeyPressed="#handlePausePlaybackOnKeyPress" onKeyReleased="#handleSelectTimeStampKeys" onMouseReleased="#handleSelectTimeStamp" StackPane.alignment="BOTTOM_CENTER">
                <tooltip>
-                  <Tooltip text="Drag slider to select video timestamp" />
+                  <Tooltip text="Drag slider to select video timestamp.  Double Click to select timestamp without sliding. " />
                </tooltip></Slider>
-            <MediaView fx:id="mediaView" fitHeight="400.0" fitWidth="700.0" onMouseDragReleased="#handleSelectTimeStampDrag" />
          </children>
+         <effect>
+            <InnerShadow />
+         </effect>
       </StackPane>
    </center>
    <right>
@@ -106,16 +118,18 @@
          <children>
             <VBox layoutX="5.0" layoutY="191.0" prefHeight="250.0" prefWidth="130.0">
                <children>
-                  <Text fx:id="totalFrameText" strokeType="OUTSIDE" strokeWidth="0.0" text="Test" wrappingWidth="100.0" />
-                  <CheckBox fx:id="frameByFrameCheckbox" alignment="TOP_CENTER" disable="true" mnemonicParsing="false" onAction="#handleSelectFrameByFrameAnalysis" prefHeight="10.0" prefWidth="140.0" text="Frame-by-Frame ">
+                  <CheckBox fx:id="frameByFrameCheckbox" alignment="TOP_CENTER" disable="true" mnemonicParsing="false" onAction="#handleEnableFrameByFrameAnalysis" prefHeight="10.0" prefWidth="140.0" text="Frame-by-Frame ">
                      <padding>
                         <Insets bottom="10.0" />
                      </padding>
                      <VBox.margin>
                         <Insets bottom="8.0" />
                      </VBox.margin>
+                     <tooltip>
+                        <Tooltip text="Check this box to enable Frame-by-Frame analysis." />
+                     </tooltip>
                   </CheckBox>
-                  <TextField fx:id="selectFrameToDisplayTextField" alignment="CENTER" disable="true" onAction="#handleUnlockFrameRateSelectionButton" prefHeight="20.0" prefWidth="140.0" promptText="Enter Frame">
+                  <TextField fx:id="selectFrameToDisplayTextField" alignment="CENTER" disable="true" onAction="#handleEnableRemainingAnalysisComponents" prefHeight="20.0" prefWidth="140.0" promptText="Enter Frame">
                      <tooltip>
                         <Tooltip text="Enter a frame for selection" />
                      </tooltip>
@@ -123,14 +137,9 @@
                         <Insets bottom="8.0" />
                      </VBox.margin>
                   </TextField>
-                  <ComboBox fx:id="selectFrameRateComboBox" disable="true" prefWidth="150.0" promptText="Frame Rate">
-                     <VBox.margin>
-                        <Insets bottom="8.0" />
-                     </VBox.margin>
-                  </ComboBox>
                   <Button fx:id="goToFrameButton" alignment="TOP_CENTER" disable="true" mnemonicParsing="false" onAction="#handleSeekToSelectedFrame" prefWidth="140.0" text="Go To Frame">
                      <tooltip>
-                        <Tooltip text="Select this button to display the frame entered above." />
+                        <Tooltip text="Click to display the frame entered above." />
                      </tooltip>
                      <VBox.margin>
                         <Insets bottom="8.0" />
@@ -155,11 +164,22 @@
                      <VBox.margin>
                         <Insets />
                      </VBox.margin></HBox>
-                  <Button fx:id="totalFrameDisplayButton" alignment="CENTER" disable="true" mnemonicParsing="false" prefWidth="130.0" text="Display Total Frames" textAlignment="CENTER">
+                  <TextField fx:id="totalFrameTextField" alignment="CENTER" disable="true" editable="false" promptText="Total Frames">
                      <VBox.margin>
                         <Insets top="8.0" />
                      </VBox.margin>
-                  </Button>
+                     <tooltip>
+                        <Tooltip text="Displays the total number of frames in the video." />
+                     </tooltip>
+                  </TextField>
+                  <TextField fx:id="currentFrameCounterTextField" alignment="CENTER" disable="true" editable="false" promptText="Current Frame ">
+                     <VBox.margin>
+                        <Insets top="8.0" />
+                     </VBox.margin>
+                     <tooltip>
+                        <Tooltip text="Displays the current frame being displayed." />
+                     </tooltip>
+                  </TextField>
                </children>
                <padding>
                   <Insets bottom="20.0" />
@@ -172,7 +192,7 @@
          <children>
             <HBox prefHeight="40.0" prefWidth="1080.0">
                <children>
-                  <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a File!" textAlignment="CENTER" wrappingWidth="1080.13671875">
+                  <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a File" textAlignment="CENTER" wrappingWidth="1080.0">
                      <font>
                         <Font size="24.0" />
                      </font>

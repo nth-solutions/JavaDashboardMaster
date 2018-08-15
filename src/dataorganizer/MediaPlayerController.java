@@ -1,20 +1,18 @@
 package dataorganizer;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -23,32 +21,26 @@ import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 import javafx.util.Duration;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.ResourceBundle;
-import java.util.concurrent.TimeUnit;
 
-import static javafx.scene.media.MediaPlayer.Status.PAUSED;
-import static javafx.scene.media.MediaPlayer.Status.PLAYING;
+import static java.lang.Math.round;
 
+//TODO: COMMENT
 //TODO: Fullscreen video capabilities/resizing
 //TODO: Add encoder that changes all file types to mp4
 
-//IDEA: Change range on the playback slider to 0-1 with larger increments
-//IDEA: Import frame rate from dashboard
+//Tan Color:   #EAE6DA
+//Gray Color:  #BCBCBE
 
 
 public class MediaPlayerController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        selectFrameRateComboBox.getItems().addAll("30 fps", "60 fps", "120 fps", "240 fps");
-
+        selectFrameRateComboBox.getItems().addAll("30 fps", "60 fps", "120 fps", "240 fps");                                          // Fills the selectFrameRateComboBox with selectable frame rate values that are used in the frame-by-frame analysis algorithms
     }
 
 
@@ -57,6 +49,8 @@ public class MediaPlayerController implements Initializable {
     private double playbackRate;
     private Boolean playing = false;
     private File fileCopy;
+    private Boolean videoLoaded = false;
+
 
     @FXML                                                                                                                                       // FXML component Declarations
     private MediaView mediaView;
@@ -65,7 +59,9 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private Slider rateChangeSlider;
     @FXML
-    private Button stopButton;
+    private Button selectFileButton;
+    @FXML
+    private Button resetButton;
     @FXML
     private Button playPauseButton;
     @FXML
@@ -78,77 +74,86 @@ public class MediaPlayerController implements Initializable {
     private Text totalVideoTimeText;
     @FXML
     private Text generalStatusText;
-
-
-
-
-
-
-
+    @FXML
+    private ComboBox selectFrameRateComboBox;
 
     @FXML
     public void handleFileOpener (ActionEvent event) {
         FileChooser fileChooser = new FileChooser();                                                                                             // Creates a FileChooser Object
-        fileChooser.setTitle("Select a Video File");
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");             // Creates a filter that limits fileChooser's search parameters to *.mp4 files
+        fileChooser.setTitle("Select a Video File");                                                                                             // Sets the title of the file selector
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");            // Creates a filter that limits fileChooser's search parameters to *.mp4 files
         fileChooser.getExtensionFilters().add(filter);                                                                                           // Initializes the filter into the fileChooser object
 
         File file = fileChooser.showOpenDialog(null);                                                                               // Specifies the parent component for the dialog
 
-        fileCopy = file;
+        fileCopy = file;                                                                                                                          // File object necessary for use in the reset handler
 
-        if (file != null) {                                                                                                                      // If the filepath contains a valid file the following code is initiated
+        if (file != null) {                                                                                                                      // If the filepath contains a valid file the following code is initiated ->
             filePath = file.toURI().toString();                                                                                                  // Sets the user's selection to a file path that will be used to select the video file to be displayed
             Media media = new Media(filePath);                                                                                                   // Sets the media object to the selected file path
-            mediaPlayer = new MediaPlayer(media);                                                                                                // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
+            mediaPlayer = new MediaPlayer(media);                                                                                                // Creates a mediaPlayer object, mediaPlayer is utilized for video playback control
             mediaView.setMediaPlayer(mediaPlayer);                                                                                               // Sets the mediaPlayer to be the controller for the mediaVew object
+            videoLoaded = true;                                                                                                                  // Boolean to check if a video has been loaded
+            
+            selectFrameRateComboBox.setDisable(false);                                                                                           // Enables the user to select the frame rate the video was recorded at after initializing a video
+            selectFileButton.setDisable(true);                                                                                                   // Disables the button used to select a file following a selection
 
-            stopButton.setDisable(false);                                                                                                        // Enables buttons following a valid file selection
+
+            mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {                                                       // Displays a moving slider bar that corresponds to the current point of playback within the video sequence
+                @Override
+                public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+                    timeStampSlider.setMax(mediaPlayer.getTotalDuration().toMillis());                                                           // Sets the maximum value of the slider bar equal to the total duration of the file
+                    timeStampSlider.setValue(newValue.toMillis());                                                                               // Updates the slider circle to be located wherever the video is along playback
+
+                    playbackTimeText.setText(String.valueOf(new DecimalFormat("#.000").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
+                    totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds()) + "s"));      // Displays the total video length in seconds
+
+                    currentFrameCounterTextField.setText("Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * frameRates[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()])))); //updates the currentFrameCounterTextField to the current frame being displayed during playback
+                    totalFrameTextField.setText("Total Frames: " + String.valueOf((new DecimalFormat("#").format(totalFrames))));                         // Sets the text within the totalFrameTextField equal to the totalFrames variable calculated during the handleFileOpener event
+
+                }
+            });
+
+
+        }
+
+    }
+
+    @FXML
+    public void handleFrameRateSelection(ActionEvent event) {
+        if (!selectFrameRateComboBox.getSelectionModel().isEmpty()) {
+            resetButton.setDisable(false);                                                                                                        // Enables buttons following a valid file selection
             playPauseButton.setDisable(false);
             exitButton.setDisable(false);
             timeStampSlider.setDisable(false);
             rateChangeSlider.setDisable(false);
             frameByFrameCheckbox.setDisable(false);
 
-
-            mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {                                                       // Displays a moving slider bar that corresponds to the current point of playback within the video sequence
-                @Override
-                public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-                    timeStampSlider.setMax(mediaPlayer.getTotalDuration().toMillis());
-                    timeStampSlider.setValue(newValue.toMillis());
-
-                    playbackTimeText.setText(String.valueOf(new DecimalFormat("#.000").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
-                    totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds()) + "s"));      // Displays the total video length in seconds
-                }
-            });
-
-
             mediaPlayer.play();                                                                                                                  // Begins video playback on the opening of the file
-            playPauseButton.setText("Pause");
-            generalStatusText.setText("");
+            playPauseButton.setText("Pause");                                                                                                    // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
+            generalStatusText.setText("");                                                                                                       // Removes the status text from the top of the player after the user selects a file
 
-
+            totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * frameRates[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()]);   // Sets the totalFrames variable equal to the total number of frames in the selected file
         }
-
     }
 
     @FXML
     public void handleSelectTimeStamp(MouseEvent event) {                                                                                        // Allows user to select a point along the video's playback to resume playing
-        mediaPlayer.seek(Duration.millis(timeStampSlider.getValue()));
-        mediaPlayer.play();
-        playPauseButton.setText("Pause");
+        mediaPlayer.seek(Duration.millis(timeStampSlider.getValue()));                                                                           // Seeks the videos playback to the value present at the area along the slider where the user dragged the slider circle
+        mediaPlayer.play();                                                                                                                      // Resume's video playback
+        playPauseButton.setText("Pause");                                                                                                        // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
     }
 
     @FXML
     public void handleSelectTimeStampKeys(KeyEvent event) {                                                                                      // Allows user to select a point along the video's playback using left and right arrow keys
         if (event.getCode()==KeyCode.RIGHT) {
-            mediaPlayer.seek(Duration.millis(timeStampSlider.getValue() * 1.05));
-            mediaPlayer.play();
+            mediaPlayer.seek(Duration.millis(timeStampSlider.getValue() * 1.03));                                                                // Increments the slider bar to +3% of the original slider circle value following a right arrow keypress
+            mediaPlayer.play();                                                                                                                  // Resume's video playback
         } else if (event.getCode()==KeyCode.LEFT) {
-            mediaPlayer.seek(Duration.millis(timeStampSlider.getValue() * .95));
-            mediaPlayer.play();
+            mediaPlayer.seek(Duration.millis(timeStampSlider.getValue() * .97));                                                                 // Decrement's the slider bar to -3% of the original slider circle value following a left arrow keypress
+            mediaPlayer.play();                                                                                                                  // Resume's video playback
         }
-        playPauseButton.setText("Pause");
+        playPauseButton.setText("Pause");                                                                                                        // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
     }
 
     @FXML
@@ -156,39 +161,28 @@ public class MediaPlayerController implements Initializable {
         if (event.getCode()==KeyCode.RIGHT || event.getCode()==KeyCode.LEFT) {
             mediaPlayer.pause();
         }
-        //playPauseButton.setText("Play");
+
     }
 
     @FXML
     public void handleSelectTimeStampDrag(MouseEvent event){                                                                                     // Prevents the ChangeListener from overwriting slider placement
         mediaPlayer.pause();
-        playPauseButton.setText("Play");
+        playPauseButton.setText("Play");                                                                                                         //Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
     }
 
     @FXML
-    public void handlePlayPauseVideo(ActionEvent event) {                                                                                             // Event listener responsible for handling the 'play' button
-        if (playing) {
-            mediaPlayer.play();
-            playPauseButton.setText("Pause");
-            playing = false;
-        } else {
-            mediaPlayer.pause();
-            playPauseButton.setText("Play");
-            playing = true;
+    public void handlePlayPauseVideo(ActionEvent event) {                                                                                           // Event listener responsible for changing the text and functionality of the playPauseButton button
+        if (playing) {                                                                                                                              // When the button is pressed, if the Boolean Playing is true ->
+            mediaPlayer.play();                                                                                                                     // The mediaPlayer resumes playback
+            playPauseButton.setText("Pause");                                                                                                       // The playPauseButton is then set to display "Pause"
+            playing = false;                                                                                                                        // The Boolean Playing is switched to false so as to activate the 'else' conditional of the code following a secondary press
+        } else {                                                                                                                                    // When the button is pressed, if the Boolean Playing is false ->
+            mediaPlayer.pause();                                                                                                                    // The mediaPlayer's playback is paused
+            playPauseButton.setText("Play");                                                                                                        // The playPause button is then set to display "Play"
+            playing = true;                                                                                                                         // The Boolean Playing is set to true so as to activate the 'if' conditional of the code following another press
         }
 
     }
-
-    @FXML
-    public void handlePlayVideoKey(KeyEvent event) {                                                                                              // Event listener responsible for assigning the space key to a play function
-        if (event.getCode() != KeyCode.SPACE) {
-            mediaPlayer.play();
-            playPauseButton.setText("Pause");
-        }
-    }
-
-
-
 
     @FXML
     public void handleResetVideo(ActionEvent event) throws InterruptedException {
@@ -199,31 +193,40 @@ public class MediaPlayerController implements Initializable {
             mediaPlayer = new MediaPlayer(media);                                                                                                // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
             mediaView.setMediaPlayer(mediaPlayer);                                                                                               // Sets the mediaPlayer to be the controller for the mediaVew object
 
-            stopButton.setDisable(false);                                                                                                        // Enables buttons following a valid file selection
-            selectFrameToDisplayTextField.setDisable(true);
-            selectFrameRateComboBox.setDisable(true);
-            goToFrameButton.setDisable(true);
-            decrementOneFrameButton.setDisable(true);
-            incrementOneFrameButton.setDisable(true);
-
             mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {                                                       // Displays a moving slider bar that corresponds to the current point of playback within the video sequence
                 @Override
                 public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-                    timeStampSlider.setMax(mediaPlayer.getTotalDuration().toMillis());
-                    timeStampSlider.setValue(newValue.toMillis());
+                    timeStampSlider.setMax(mediaPlayer.getTotalDuration().toMillis());                                                           // Sets the maximum value of the slider bar equal to the total duration of the file
+                    timeStampSlider.setValue(newValue.toMillis());                                                                               // Updates the slider circle to be located wherever the video is along playback
 
                     playbackTimeText.setText(String.valueOf(new DecimalFormat("#.000").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
                     totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds()) + "s"));      // Displays the total video length in seconds
+
+                    currentFrameCounterTextField.setText("Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * frameRates[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()])))); //updates the currentFrameCounterTextField to the current frame being displayed during playback
+                    totalFrameTextField.setText("Total Frames: " + String.valueOf((new DecimalFormat("#").format(totalFrames))));                         // Sets the text within the totalFrameTextField equal to the totalFrames variable calculated during the handleFileOpener event
                 }
             });
 
 
+            selectFrameToDisplayTextField.setDisable(true);                                                                                       // Disables the Frame-By-Frame Analysis components following a program reset
+            goToFrameButton.setDisable(true);
+            decrementOneFrameButton.setDisable(true);
+            incrementOneFrameButton.setDisable(true);
+            totalFrameTextField.setDisable(true);
+            currentFrameCounterTextField.setDisable(true);
+            selectFileButton.setDisable(true);
 
-            mediaPlayer.play();
-            playPauseButton.setText("Pause");
+            playPauseButton.setText("Play");                                                                                                     // Resets various UI components for consistency following a program reset
+            playing = true;
             timeStampSlider.setValue(0);
-            playbackTimeText.setText("000s");
+            playbackTimeText.setText(".000s");
             frameByFrameCheckbox.setSelected(false);
+            generalStatusText.setText("");
+            selectFrameToDisplayTextField.setText("");
+            rateChangeSlider.setValue(1);
+            rateText.setText("1x");
+            currentFrameCounterTextField.clear();
+
         }
     }
 
@@ -237,12 +240,12 @@ public class MediaPlayerController implements Initializable {
         playbackRate = rateChangeSlider.getValue();                                                                                              // is responsible for gathering the rate assigned to the rateChangeSlider and changing
         mediaPlayer.setRate(playbackRate);                                                                                                       // the playback speed accordingly
 
-        rateText.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
+        rateText.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");                                               // Displays the current playback speed
     }
 
     @FXML
-    public void handleRateChangeKeys(KeyEvent event) {
-        playbackRate = rateChangeSlider.getValue();                                                                                              //This method supports the movement of the playback rate slider with the movement of key presses
+    public void handleRateChangeKeys(KeyEvent event) {                                                                                           //This method supports the movement of the playback rate slider with the movement of key presses
+        playbackRate = rateChangeSlider.getValue();
         mediaPlayer.setRate(playbackRate);
 
         rateText.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
@@ -252,20 +255,24 @@ public class MediaPlayerController implements Initializable {
 
 
 
-    //IN TESTING: MAY THROW ERRORS
-    //TODO: Make frame handlers permanently store values so as not to have to select the frame rate multiple times - Rewrite drop down menu
-    //TODO: Throw error message when text is entered into the frame selection box & if number is out of bounds
-    //TODO: Add Single Step Frame Move
-    //TODO: Total Frame Count
+    /*** BEGINNING OF FRAME-BY-FRAME ANALYSIS COMPONENT ***/
 
 
 
-    @FXML
+
+
+    double totalDurationInMs;                                                                                                                       // Variable Declarations
+    double frameEnteredFromTextBox;
+    double frameConvertedToMsCount;
+    double[] millisPerFrame = {33.333, 16.666 , 8.333, 4.166};                                                                                      // Each value within the array corresponds to the number of milliseconds per frame at recording speeds of 30, 60, 120, and 240 fps
+    double[] frameRates = {30, 60, 120, 240};                                                                                                       // Each value within the array corresponds to a possible video frame rate
+    double totalFrames;
+
+
+    @FXML                                                                                                                                           // FXML component Declarations
     private CheckBox frameByFrameCheckbox;
     @FXML
     private TextField selectFrameToDisplayTextField;
-    @FXML
-    private ComboBox selectFrameRateComboBox;
     @FXML
     private Button goToFrameButton;
     @FXML
@@ -273,97 +280,183 @@ public class MediaPlayerController implements Initializable {
     @FXML
     private Button incrementOneFrameButton;
     @FXML
-    private Text totalFrameText;
+    private TextField totalFrameTextField;
     @FXML
-    private Button totalFrameDisplayButton;
-
-
-    double totalDuration;
-    double frameSelected;
-    double frameToDisplay;
-    double[] millisPerFrame = {33.333, 16.666 , 8.333, 4.166};                                                                                  // Each value within the array corresponds to the number of milliseconds per frame at recording speeds of 30, 60, 120, and 240 fps
-
+    private TextField currentFrameCounterTextField;
 
 
     @FXML
-    public void handleSelectFrameByFrameAnalysis(ActionEvent event) {
-        if (frameByFrameCheckbox.isSelected()) {
-            selectFrameToDisplayTextField.setDisable(false);
-            mediaPlayer.pause();
-            playPauseButton.setText("Play");
-        } else if (!frameByFrameCheckbox.isSelected()) {
-            selectFrameToDisplayTextField.setDisable(true);
-            selectFrameRateComboBox.setDisable(true);
+    public void handleEnableFrameByFrameAnalysis(ActionEvent event) {                                                                                   // Method responsible for enabling/disabling the selectFrameToDisplayTextField following a checkbox selection
+        if (frameByFrameCheckbox.isSelected()) {                                                                                                        // If the frameByFrameCheckbox is selected ->
+            selectFrameToDisplayTextField.setDisable(false);                                                                                            // Enables the selectFrameToDisplayTextField
+            mediaPlayer.pause();                                                                                                                        // Pauses the video playback
+            playPauseButton.setText("Play");                                                                                                            // Changes the playPauseButton's display text to Play for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
+
+        } else if (!frameByFrameCheckbox.isSelected()) {                                                                                                // Else if the frameByFrameCheckbox is not selected ->
+            selectFrameToDisplayTextField.setDisable(true);                                                                                             // All components of the Frame-by-Frame analysis unit are disabled
             goToFrameButton.setDisable(true);
             incrementOneFrameButton.setDisable(true);
             decrementOneFrameButton.setDisable(true);
+            totalFrameTextField.setDisable(true);
+            currentFrameCounterTextField.setDisable(true);
+
+            selectFrameToDisplayTextField.clear();                                                                                                      // Text within the selectFrameToDisplayTextField is cleared so the user can have a clean field upon next use of the frame-by-frame analysis tool
+            currentFrameCounterTextField.clear();
         }
     }
 
-
     @FXML
-    public void handleUnlockFrameRateSelectionButton(ActionEvent event) {                                                                           // Enables/Disables the frame by frame analysis buttons when the frameByFrameCheckbox is selected/de-selected
+    public void handleEnableRemainingAnalysisComponents(ActionEvent event) {                                                                                        // Method responsible for enabling all remaining components of the frame-by-frame analysis unit following a valid frame # entry
         try {
-            if (frameSelected >= 0 && frameToDisplay <= totalDuration) {
-                Integer.parseInt(selectFrameToDisplayTextField.getText());
-                selectFrameRateComboBox.setDisable(false);
-                goToFrameButton.setDisable(false);
+            if (Double.parseDouble(selectFrameToDisplayTextField.getText()) >= 0 && Double.parseDouble(selectFrameToDisplayTextField.getText()) <= totalFrames) {   // If the selected frame is higher than 0 and lower than the maximum possible frame ->
+                goToFrameButton.setDisable(false);                                                                                                                  // All Frame-By-Frame Analysis tools are enabled and any error message pop-ups are cleared
                 incrementOneFrameButton.setDisable(false);
                 decrementOneFrameButton.setDisable(false);
-                totalFrameDisplayButton.setDisable(false);
-            } else {
-                generalStatusText.setText("Not a Number");
+                totalFrameTextField.setDisable(false);
+                currentFrameCounterTextField.setDisable(false);
+                generalStatusText.setText("");
+            } else {                                                                                                                                                 // If the frame selected is invalid ->
+                generalStatusText.setText("Not a Valid Frame");                                                                                                      // No components are unlocked and an error message pop-up is shown
             }
+        } catch (NumberFormatException e) {                                                                                                                          // An error message is shown for all selected frames that are completely out of bounds / NaN
+            generalStatusText.setText("Not a Valid Frame");
+        }
+
+    }
+
+    @FXML
+    public void handleSeekToSelectedFrame(ActionEvent event) {
+
+
+        try {
+            if (frameEnteredFromTextBox >= 0 && frameEnteredFromTextBox <= totalFrames) {
+
+                frameEnteredFromTextBox = Double.parseDouble(selectFrameToDisplayTextField.getText());                                                        // Gets the frame selected by the user
+                totalDurationInMs = Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toMillis()));                 //Gets the total duration of the video and converts it to a millisecond value
+                frameConvertedToMsCount = frameEnteredFromTextBox * millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()];           // takes the users frame selection and the frame rate selected and calculates a millisecond value regarding where the frame is located within the video's playback
+
+                mediaPlayer.seek(Duration.millis(frameConvertedToMsCount));                                                                                   // The video's playback seeks to the frameConvertedToMsCount calculated above
+                mediaPlayer.pause();                                                                                                                          // pauses the video's playback
+                playPauseButton.setText("Play");                                                                                                              // The playPauseButton is then set to display "Play"
+                generalStatusText.setText("");                                                                                                                // Clears the error message pop-up
+            } else {
+                generalStatusText.setText("Not a Valid Frame");                                                                                               // Displays an error message, informing the user that their selected frame is invalid
+            }
+
         } catch (NumberFormatException e) {
-            e.printStackTrace();
-            generalStatusText.setText("Was it text?");
+            generalStatusText.setText("Not a Valid Frame");                                                                                                   // An error message is shown for all selected frames that are completely out of bounds / NaN
         }
+
 
     }
 
-
-
-
     @FXML
-    public void handleSeekToSelectedFrame(ActionEvent event) {                                                                                                       // Seeks video playback to the selected frame rate
-
-        totalDuration = mediaPlayer.getTotalDuration().toMillis();
-        frameSelected = Double.parseDouble(selectFrameToDisplayTextField.getText());
-        frameToDisplay = frameSelected * millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()];
-
-
-        if (frameToDisplay >= totalDuration && frameSelected <= 0) {                                                                                                  // Conditional prevents the user from selecting an out-of-bounds frame and throwing a compile error
-                generalStatusText.setText("Frame Out of Bounds.");
-            } else {
-                mediaPlayer.seek(Duration.millis(frameToDisplay));
-                mediaPlayer.pause();
-                playPauseButton.setText("Play");
+    public void handleFrameCounterChangeByOne(ActionEvent event) {                                                                                            // Method responsible for incrementing/decrementing the displayed frame by one
+        if(event.getSource() == decrementOneFrameButton ){                                                                                                    // Checks which button the user hit, if the user hit the decrementOneFrameButton ->
+            if (Double.parseDouble(selectFrameToDisplayTextField.getText()) > 0 ) {                                                                           // If the entered value is a valid frame ->
+                frameConvertedToMsCount -= millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()];                                    // The frame shown is decreased by one frame value and assigned to frameConvertedToMsCount
+                selectFrameToDisplayTextField.setText(Integer.toString(Integer.parseInt(selectFrameToDisplayTextField.getText())-1));                      // The frame displayed in selectFrameToDisplayTextField is decreased by one
+                currentFrameCounterTextField.setText("Current Frame: " + Integer.toString(Integer.parseInt(selectFrameToDisplayTextField.getText())-1));   // The frame displayed in currentFrameCounterTextField is decreased by one
+                generalStatusText.setText("");                                                                                                                // Clears the error message pop-up
+            } else {                                                                                                                                          // If the frame entered is an invalid frame ->
+                currentFrameCounterTextField.setText("Current Frame: 0");                                                                                     // currentFrameCounterTextField is set to its minimum value possible: 0
+                selectFrameToDisplayTextField.setText("0");                                                                                                   // selectFrameToDisplayTextField is set to its minimum value possible: 0
+                generalStatusText.setText("Minimum Frame Reached");                                                                                           // Displays an error message pop-up, warning the user that they can't decrement the selected frame any lower
             }
-    }
 
-    @FXML
-    public void handleFrameCounterChangeByOne(ActionEvent event) {
-        if(event.getSource() == decrementOneFrameButton){
-            frameToDisplay -= millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()];
-            selectFrameToDisplayTextField.setText(Integer.toString(Integer.parseInt(selectFrameToDisplayTextField.getText())-1));
-        }else{
-            frameToDisplay += millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()];
-            selectFrameToDisplayTextField.setText(Integer.toString(Integer.parseInt(selectFrameToDisplayTextField.getText())+1));
+        }else{                                                                                                                                                // If the user didn't hit the decrementByOneFrameButton, the program knows they hit the incrementByOneFrameButton ->
+            if (Double.parseDouble(selectFrameToDisplayTextField.getText()) < totalFrames) {                                                                  // If the entered value is a valid frame ->
+                frameConvertedToMsCount += millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()];                                    // The frame shown is increased by one frame value and assigned to frameConvertedToMsCount
+                selectFrameToDisplayTextField.setText(Integer.toString(Integer.parseInt(selectFrameToDisplayTextField.getText())+1));                      // The frame displayed in selectFrameToDisplayTextField is increased by one
+                currentFrameCounterTextField.setText("Current Frame: " + Integer.toString(Integer.parseInt(selectFrameToDisplayTextField.getText())+1));   // The frame displayed in the currentFrameCounterTextField is increased by one
+                generalStatusText.setText("");                                                                                                                // Clears the error message pop-up
+            } else {                                                                                                                                          // If the entered value isn't a valid frame ->
+                currentFrameCounterTextField.setText("Current Frame: " + (new DecimalFormat("#").format(totalFrames)));                               // currentFrameCounterTextField is set to its maximum value possible: the calculated totalFrames double;
+                selectFrameToDisplayTextField.setText(String.valueOf(new DecimalFormat("#").format(totalFrames)));                                    // selectFrameToDisplayTextField is set to its maximum value possible: the calculated totalFrames double;
+                generalStatusText.setText("Maximum Frame Reached");                                                                                           // Displays an error message pop-up, warning the user that they can't increment the selected frame any higher
+            }
+
         }
-        mediaPlayer.seek(Duration.millis(frameToDisplay));
-        mediaPlayer.pause();
+        mediaPlayer.seek(Duration.millis(frameConvertedToMsCount));                                                                                     // The mediaPlayer seeks to updated frameConvertedToMsCount value
+        mediaPlayer.pause();                                                                                                                            // Pauses the video playback
     }
 
+
+
+
+
+    /*** BEGINNING OF DASHBOARD/GRAPH COMMUNICATIONS COMPONENT***/
+
+
     @FXML
-    public void handleDisplayTotalFrames(ActionEvent event) {
-        totalFrameText.setText(String.valueOf(mediaPlayer.getTotalDuration().toMillis() * millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()]));
-        totalFrameText.setVisible(true);
-    }
+    private StackPane mediaViewPane;
 
 
     public int getCurrentFrame(){
-        //wish we didnt need the user for this input ¯\_(ツ)_/¯ ffmpeg later
+        //wish we didnt need the user for this input, ffmpeg later
         //Current Time position in milliseconds / milliseconds per frame = frame
-        return (int)Math.round((mediaPlayer.getCurrentTime().toSeconds()*1000) / millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()]);
+        // Ryan Method: new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * frameRates[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()]))));
+        if(selectFrameRateComboBox.getSelectionModel().getSelectedIndex() >= 0)
+        	return (int) round((mediaPlayer.getCurrentTime().toSeconds()*1000) / millisPerFrame[selectFrameRateComboBox.getSelectionModel().getSelectedIndex()]);
+        return -1;
     }
+    
+    public Boolean hasVideoSelected(){
+        return videoLoaded;
+    }
+    public Boolean isVideoPlaying(){
+        return playing;
+    }
+
+    public int getPlaybackSpeed() {
+        return (int) rateChangeSlider.getValue();
+    }
+
+    public int getFPS() {
+        //"30 fps", "60 fps", "120 fps", "240 fps"
+        switch(selectFrameRateComboBox.getSelectionModel().getSelectedIndex()) {
+            case 0:
+                return 30;
+            case 1:
+                return 60;
+            case 2:
+                return 120;
+            case 3:
+                return 240;
+        }
+        return -1;
+    }
+
+    public void scaleOnResize(){
+        InvalidationListener resizeMediaView = observable -> {
+            mediaView.setFitWidth(mediaViewPane.getWidth());
+            mediaView.setFitHeight(mediaViewPane.getHeight());
+
+            Bounds actualVideoSize = mediaView.getLayoutBounds();
+            mediaView.setX((mediaViewPane.getWidth() - actualVideoSize.getWidth()) / 2);
+            mediaView.setY((mediaViewPane.getHeight() - actualVideoSize.getHeight()) / 2);
+
+
+
+        };
+        mediaViewPane.heightProperty().addListener(resizeMediaView);
+        mediaViewPane.widthProperty().addListener(resizeMediaView);
+
+        mediaView.setSmooth(true);
+        mediaView.setPreserveRatio(true);
+    }
+
+    public void scaleVideoAtStart() {
+//        mediaView.setFitWidth(mediaViewPane.getWidth());
+//        mediaView.setFitHeight(mediaViewPane.getHeight());
+
+        Bounds actualVideoSize = mediaView.getLayoutBounds();
+        mediaView.setX((mediaViewPane.getWidth() - actualVideoSize.getWidth()) / 2);
+        mediaView.setY((mediaViewPane.getHeight() - actualVideoSize.getHeight()) /2);
+
+        mediaView.setSmooth(true);
+        mediaView.setPreserveRatio(true);
+   }
+
+
 }

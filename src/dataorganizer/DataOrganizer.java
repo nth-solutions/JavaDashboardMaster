@@ -156,14 +156,14 @@ public class DataOrganizer {
 					signedDataSamples.get(dof).add(smp, curVal);
 				} 
 				else {
-					double curVal = dataSamples.get(dof).get(smp);
+					signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
 					/*if(curVal != null) {
 						if (curVal > 32768) {
 							curVal -= 65535;
 						}
 						curVal = (curVal * magSensitivity) / 32768;*/
-						signedDataSamples.get(dof).add(smp, curVal);
-				//	}
+						//signedDataSamples.get(dof).add(smp, curVal);
+						//	}
 				}
 			}
 		}
@@ -339,10 +339,12 @@ public class DataOrganizer {
 
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
-		case(0): modifiedDataSmps = dataSamples;
-		break;
-		case(1): modifiedDataSmps = signedDataSamples;
-		break;
+			case(0): 
+				modifiedDataSmps = dataSamples;
+				break;
+			case(1): 
+				modifiedDataSmps = signedDataSamples;
+				break;
 		}
 
 

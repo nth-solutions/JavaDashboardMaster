@@ -1,5 +1,6 @@
 package dataorganizer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -55,19 +57,25 @@ public class Graph {
 	private LineChart<Number, Number> lineChart;
 	private ObservableList<DataSeries> dataSeries;
 	private DataOrganizer dataCollector;
+	private int xRangeLow;
+	private int xRangeHigh;
+	private Pane chartContainer;
+	private Rectangle currentTimeInMediaPlayer;
 	
 	public Graph(DataOrganizer dataCollector) {
 		this.dataCollector = dataCollector;
 	}
 	
 	public Scene startGraph(Stage stage) {
-		
+		stage.setWidth(690);
+		stage.setResizable(false);
 		//Create x and y axis for the line chart
 		final NumberAxis xAxis = new NumberAxis();	
 		final NumberAxis yAxis = new NumberAxis();
 		//Configure the axis to show helpful information
 		xAxis.setLabel("Time");
 		yAxis.setLabel("Accel/Gyro");
+		
 		
 		yAxis.setMinorTickVisible(true);
 		yAxis.setAutoRanging(false);
@@ -77,7 +85,7 @@ public class Graph {
 		xAxis.setAutoRanging(false);
 		
 		xAxis.setLowerBound(0);
-		xAxis.setUpperBound(dataCollector.getLengthOfTest());
+		xAxis.setUpperBound(dataCollector.getLengthOfTest()); 
 		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
 		xAxis.setTickUnit(1);
 		
@@ -106,7 +114,7 @@ public class Graph {
 		styleSeries(dataSeries, lineChart);
 		
 		//Create the scene
-		final StackPane chartContainer = new StackPane();
+		chartContainer = new Pane();
 		chartContainer.getChildren().add(lineChart);
 		//Zoom rectangle for highlighting data that will be zoomed
 		final Rectangle zoomRect = new Rectangle();
@@ -134,7 +142,6 @@ public class Graph {
 				final NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
 				xAxis.setLowerBound(0);
 				xAxis.setUpperBound(dataCollector.getLengthOfTest());
-				xAxis.setTickUnit(1);
 				yAxis.setLowerBound(dataCollector.minTestValAxis());
 				yAxis.setUpperBound(dataCollector.maxTestValAxis());
 				zoomRect.setWidth(0);
@@ -215,7 +222,8 @@ public class Graph {
 		root.setCenter(chartContainer);
 		root.setBottom(zoomControls);
 		root.setRight(dataControls);
-;
+		
+		
 		final Scene scene = new Scene(root, 600, 400);
 		stage.setScene(scene);
 		stage.show();
@@ -232,8 +240,6 @@ public class Graph {
 	             });
 	         }
 	    });
-		
-		
 		return scene;
 	}
 	
@@ -243,7 +249,6 @@ public class Graph {
 		XYChart.Series<Number, Number> series = new XYChart.Series<>();
 		series.setName(name);
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-		
 
 		for (int j = 0; j < data.get(0).size(); j++) {
 				seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
@@ -263,7 +268,8 @@ public class Graph {
 			}
 		}
 	}
-	  private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
+	
+	private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
 		    // force a css layout pass to ensure that subsequent lookup calls work.
 		    lineChart.applyCss();
 
@@ -336,7 +342,34 @@ public class Graph {
 		
 		xAxis.setTickUnit(xAxis.getUpperBound() - xAxis.getLowerBound() / 5);
 	}
+	
+	
+	private Rectangle drawRect(int x, int y, int FPS) {
+		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
+		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
+		double xAxisOrigin = chartPlotArea.getLayoutX();
+		x = (int) (410*x/(FPS * dataCollector.getLengthOfTest()));
+		currentTimeInMediaPlayer.setX(5 + xAxisOrigin + x);			//range is XOrigin -> XOrigin + 412
+		currentTimeInMediaPlayer.setY(40);
+		currentTimeInMediaPlayer.setStroke(Color.RED);
+		currentTimeInMediaPlayer.setStrokeWidth(1);
+		return currentTimeInMediaPlayer;
+	}
 
+	public void updateCirclePos(int frameInMediaPlayer, int FPS) {
+		int lastFrame = -2;
+		if(frameInMediaPlayer != lastFrame){
+			Platform.runLater(new Runnable() {
+				@Override public void run() {
+					chartContainer.getChildren().remove(currentTimeInMediaPlayer);
+					chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, FPS));
+				}
+			});
+			lastFrame = frameInMediaPlayer;
+		}
+		//lineChart.getChildrenUnmodifiable().add(drawCircle(0, frameInMediaPlayer));
+	}
+	
 	public class DataSeries {
 		private String name;
 		private ObservableList<XYChart.Series<Number, Number>> series;
@@ -417,4 +450,9 @@ public class Graph {
 			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 		}
 	}
+	
+	private void updateViewToActiveDataSeries() {
+		
+	}
+	
 }

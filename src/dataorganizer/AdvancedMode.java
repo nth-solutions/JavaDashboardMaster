@@ -35,6 +35,9 @@ import javax.swing.event.ChangeListener;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
@@ -258,7 +261,7 @@ public class AdvancedMode extends JFrame {
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-12");
+		setTitle("JavaDashboard Rev-14");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -339,7 +342,7 @@ public class AdvancedMode extends JFrame {
 							if(serialHandler.openSerialPort(selectedCommID)){
 	
 								int attemptCounter = 0;
-								while (attemptCounter < 1000 && !moduleFound) {
+								while (attemptCounter < 10 && !moduleFound) {
 									try {
 										ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
 	
@@ -1892,13 +1895,32 @@ public class AdvancedMode extends JFrame {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						Graph lineGraph = new Graph(dataOrgo.get(i));
 						lineGraph.startGraph(new Stage());
-						MediaPlayerMain.launch();
+						MediaPlayerController mediaController = startMediaPlayer();
+						mediaController.scaleOnResize();
+						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				}
 			}
 		});
 	}
 	
+	public MediaPlayerController startMediaPlayer() {
+		Stage primaryStage = new Stage();
+		Parent root = null;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("MediaPlayerStructure.fxml"));
+		try {
+			root = loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	    primaryStage.setTitle("Video Player");
+	    if(root!=null) primaryStage.setScene(new Scene(root, 1080, 620));
+	    primaryStage.show();
+	    primaryStage.setResizable(true);
+	    return loader.getController();
+	}
 	
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
 		if(dataOrgo != null) {
@@ -1954,6 +1976,32 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
+	public void shareFrameGraphAndMedia(Graph graph, MediaPlayerController MPC) {
+		Runnable updatePosInGraph = new Runnable() {
+			public void run() {
+				try {
+					int currentFrame = -1;
+					while(true) {
+						if(MPC.hasVideoSelected()) {
+							while(currentFrame != MPC.getCurrentFrame()) {
+								Thread.sleep(10);
+								graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
+								currentFrame = MPC.getCurrentFrame();
+							}
+						}
+						Thread.sleep(100);
+					} 
+				}catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		Thread updatePosInGraphThread = new Thread(updatePosInGraph);
+		updatePosInGraphThread.start();
+	}
+	
 
 	/**
 	 * Creates and initializes the properties of all components on the main dashboard window. ex) panels, buttons, text fields, etc.
