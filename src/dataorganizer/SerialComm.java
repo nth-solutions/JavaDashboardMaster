@@ -278,6 +278,8 @@ public class SerialComm {
 								counter = start;
 							}
 							
+							
+							
 							//Reset preamble timeout counter since data was received (even if it was wrong)
 							preambleStart = System.currentTimeMillis();
 						}

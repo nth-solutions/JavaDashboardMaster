@@ -89,8 +89,8 @@ public class Graph {
 		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
 		xAxis.setTickUnit(1);
 		
-		yAxis.setLowerBound(dataCollector.minTestValAxis());
-		yAxis.setUpperBound(dataCollector.maxTestValAxis());
+		//yAxis.setLowerBound(dataCollector.minTestValAxis());		//TODO: Find min and max of only ACTIVE dataSeries
+		//yAxis.setUpperBound(dataCollector.maxTestValAxis());
 
 		//Create line chart with the x and y axis
 		lineChart = new LineChart<Number, Number>(xAxis, yAxis);
@@ -142,8 +142,6 @@ public class Graph {
 				final NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
 				xAxis.setLowerBound(0);
 				xAxis.setUpperBound(dataCollector.getLengthOfTest());
-				yAxis.setLowerBound(dataCollector.minTestValAxis());
-				yAxis.setUpperBound(dataCollector.maxTestValAxis());
 				zoomRect.setWidth(0);
 				zoomRect.setHeight(0);
 				for (final DataSeries ds : dataSeries) {

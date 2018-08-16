@@ -358,6 +358,7 @@ public class AdvancedMode extends JFrame {
 												progressBar.setForeground(new Color(255, 0, 0));	
 											}
 											else {
+												enableTabChanges();
 												generalStatusLabel.setText("Successfully Connected to Module");
 												progressBar.setValue(100);
 												progressBar.setForeground(new Color(51, 204, 51));
@@ -369,7 +370,6 @@ public class AdvancedMode extends JFrame {
 												writeConfigsButton.setEnabled(true);
 												getCurrentConfigurationsButton.setEnabled(true);
 												mainTabbedPanel.setEnabled(true);
-												enableTabChanges();
 												//Disable COMM port combobox so the user doesn't accidentally reopen a port
 												commPortCombobox.setEnabled(false);
 											}
@@ -433,6 +433,7 @@ public class AdvancedMode extends JFrame {
 				//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
 				if(serialHandler.openSerialPort(selectedCommID)){
 					enableTabChanges();
+					
 					//Notify the user that the port as opened successfully and is ready for a new command
 					generalStatusLabel.setText("Serial Port Opened Successfully, Awaiting Commands");
 					progressBar.setValue(0);
@@ -444,7 +445,6 @@ public class AdvancedMode extends JFrame {
 					readDataButton.setEnabled(true);
 					writeConfigsButton.setEnabled(true);
 					getCurrentConfigurationsButton.setEnabled(true);
-					mainTabbedPanel.setEnabled(false);
 
 					//Disable COMM port combobox so the user doesn't accidentally reopen a port
 					commPortCombobox.setEnabled(false);
@@ -1688,6 +1688,30 @@ public class AdvancedMode extends JFrame {
 			videoFilePathTextField.setText(null);
 		}
 	}
+	
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a csv file to load
+	 */
+	public void csvBrowseButtonHandler() {
+		JFileChooser chooser;
+		chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			ArrayList<DataOrganizer> dataOrgoList = new ArrayList<DataOrganizer>();
+			DataOrganizer dataOrgo = new DataOrganizer();
+			dataOrgoList.add(dataOrgo);
+			dataOrgo.createDataSamplesFromCSV(chooser.getSelectedFile().toString());
+			dataOrgo.getSignedData();
+			addTestsToRecordationPane(dataOrgoList);
+			repaint();
+		}
+		else {
+			generalStatusLabel.setText("Not a valid CSV file.");
+		}
+	}
 
 	/**
 	 * Setter that allows external classes to set the progress bar's value
@@ -2041,6 +2065,7 @@ public class AdvancedMode extends JFrame {
 		commPortCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				portSelectedHandler();
+				enableTabChanges();
 			}
 		});
 
@@ -2066,6 +2091,7 @@ public class AdvancedMode extends JFrame {
 		getModuleIDButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				getModuleInfoButtonHandler();
+				enableTabChanges();
 			}
 		});
 
@@ -2501,6 +2527,15 @@ public class AdvancedMode extends JFrame {
 		testRecordationPanel = new JPanel();
 		mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
 		testRecordationPanel.setLayout(null);
+		
+		JButton loadTestBtn = new JButton("Load Test From File");
+		loadTestBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				csvBrowseButtonHandler();
+			}
+		});
+		loadTestBtn.setBounds(485, 349, 140, 23);
+		testRecordationPanel.add(loadTestBtn);
 
 		adminPanel = new JPanel();
 		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
