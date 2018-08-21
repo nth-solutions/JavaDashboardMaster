@@ -1,8 +1,10 @@
 package dataorganizer;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 //import application.DynamicLineChart.Event;
@@ -22,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
@@ -53,13 +56,21 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.stage.Stage;
 
-public class Graph {
+public class Graph implements Initializable{
+	
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+		
+	}
+	
 	private LineChart<Number, Number> lineChart;
+	private Pane chartContainer;
 	private ObservableList<DataSeries> dataSeries;
+	
+	
 	private DataOrganizer dataCollector;
 	private int xRangeLow;
 	private int xRangeHigh;
-	private Pane chartContainer;
 	private Rectangle currentTimeInMediaPlayer;
 	
 	public Graph(DataOrganizer dataCollector) {
@@ -452,5 +463,7 @@ public class Graph {
 	private void updateViewToActiveDataSeries() {
 		
 	}
+
+	
 	
 }

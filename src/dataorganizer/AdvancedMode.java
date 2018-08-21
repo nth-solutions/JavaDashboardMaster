@@ -1917,8 +1917,7 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						Graph lineGraph = new Graph(dataOrgo.get(i));
-						lineGraph.startGraph(new Stage());
+						GraphController lineGraph = startGraphing();
 						MediaPlayerController mediaController = startMediaPlayer();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
@@ -1939,10 +1938,32 @@ public class AdvancedMode extends JFrame {
 		}
 		
 	    primaryStage.setTitle("Video Player");
-	    if(root!=null) primaryStage.setScene(new Scene(root, 1080, 620));
+	    if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
 	    primaryStage.show();
-	    primaryStage.setResizable(true);
+	    primaryStage.setResizable(false);
 	    return loader.getController();
+	}
+	
+	
+	
+	public GraphController startGraphing() {
+		Stage primaryStage = new Stage();
+		Parent root = null;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructure.fxml"));
+		try {
+			root = loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(root!=null) primaryStage.setScene(new Scene(root, 800, 500));
+		
+	    primaryStage.setTitle("Graph");
+		primaryStage.show();
+		primaryStage.setResizable(true);
+		
+		return loader.getController();
 	}
 	
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
@@ -1999,7 +2020,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-	public void shareFrameGraphAndMedia(Graph graph, MediaPlayerController MPC) {
+	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
 		Runnable updatePosInGraph = new Runnable() {
 			public void run() {
 				try {
