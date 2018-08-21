@@ -483,19 +483,23 @@ public class SerialComm {
 			int temp = -1;
 			long echoStart = System.currentTimeMillis();
 			while((System.currentTimeMillis() - echoStart) < 500) {
-
 				//Executes if the data was received back from the module
 				if (inputStream.available() >= 3) {
 					
 					addFlagSerialRead = inputStream.read();		//Reads the state of the add flag
-					
+					int v1, v2;
+					v1 = inputStream.read() * 256;
+					v2 = inputStream.read();
+					System.out.println(v1 + " " +  v2);
 					//Store the echoed number in a temporary variable
-					temp = (inputStream.read() * 256) + inputStream.read(); 
+					temp = v1 + v2;
 					//Set a flag to break the loop
 					break;
 				}	
 			}
+			
 
+			System.out.println(addFlagSerialRead + ":" + addFlag + "," + temp + ":" + calData[dataIndex]);
 			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
 			if (temp == calData[dataIndex] && addFlagSerialRead == addFlag) {
 				outputStream.write(new String("CA").getBytes());
