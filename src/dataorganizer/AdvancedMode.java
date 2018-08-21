@@ -1920,7 +1920,6 @@ public class AdvancedMode extends JFrame {
 						Graph lineGraph = new Graph(dataOrgo.get(i));
 						lineGraph.startGraph(new Stage());
 						MediaPlayerController mediaController = startMediaPlayer();
-						mediaController.scaleOnResize();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				}
