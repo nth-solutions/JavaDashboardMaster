@@ -478,9 +478,7 @@ public class SerialComm {
 			}
 			
 			outputStream.write(calData[dataIndex] / 255);
-			int tmr0Temp = calData[dataIndex] % 255;
-			System.out.println(tmr0Temp);
-			outputStream.write(tmr0Temp);
+			outputStream.write(calData[dataIndex] % 255);
 
 
 			int temp = -1;
@@ -496,8 +494,6 @@ public class SerialComm {
 				}	
 			}
 			
-
-			System.out.println(addFlagSerialRead + ":" + addFlag + "," + temp + ":" + calData[dataIndex]);
 			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
 			if (temp == calData[dataIndex] && addFlagSerialRead == addFlag) {
 				outputStream.write(new String("CA").getBytes());
