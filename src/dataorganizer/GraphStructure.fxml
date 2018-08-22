@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.CheckBox?>
@@ -12,17 +11,16 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
-      <Pane prefHeight="400.0" prefWidth="707.0" BorderPane.alignment="CENTER">
+      <Pane fx:id="chartContainer" prefHeight="400.0" prefWidth="707.0" BorderPane.alignment="CENTER">
          <children>
-            <LineChart layoutX="51.0" layoutY="76.0">
+            <LineChart fx:id="lineChart" animated="false" layoutX="57.0" layoutY="76.0">
               <xAxis>
-                <CategoryAxis label="Time (Seconds)" side="BOTTOM" />
+                <NumberAxis autoRanging="false" label="Time (Seconds)" side="BOTTOM" tickUnit="1.0" />
               </xAxis>
               <yAxis>
-                <NumberAxis label="Units (Dependant on axis)" side="LEFT" />
+                <NumberAxis autoRanging="false" label="Units (Dependant on axis)" side="LEFT" tickUnit="0.5" />
               </yAxis>
             </LineChart>
          </children>
@@ -39,45 +37,45 @@
                            <children>
                               <HBox prefHeight="23.0" prefWidth="94.0">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Accel X">
+                                    <CheckBox fx:id="AccelX" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Accel X">
                                        <HBox.margin>
                                           <Insets right="10.0" />
                                        </HBox.margin>
                                     </CheckBox>
-                                    <CheckBox mnemonicParsing="false" text="Mag X" />
+                                    <CheckBox fx:id="MagX" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Mag X" />
                                  </children>
                               </HBox>
                               <HBox prefHeight="23.0" prefWidth="94.0">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Accel Y">
+                                    <CheckBox fx:id="AccelY" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Accel Y">
                                        <HBox.margin>
                                           <Insets right="10.0" />
                                        </HBox.margin>
                                     </CheckBox>
-                                    <CheckBox mnemonicParsing="false" text="Mag Y" />
+                                    <CheckBox fx:id="MagY" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Mag Y" />
                                  </children>
                               </HBox>
                               <HBox prefHeight="23.0" prefWidth="94.0">
                                  <children>
-                                    <CheckBox mnemonicParsing="false" text="Accel Z">
+                                    <CheckBox fx:id="AccelZ" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Accel Z">
                                        <HBox.margin>
                                           <Insets right="10.0" />
                                        </HBox.margin>
                                     </CheckBox>
-                                    <CheckBox mnemonicParsing="false" text="Mag Z" />
+                                    <CheckBox fx:id="MagZ" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Mag Z" />
                                  </children>
                               </HBox>
-                              <CheckBox mnemonicParsing="false" text="Gyro X">
+                              <CheckBox fx:id="GyroX" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Gyro X">
                                  <VBox.margin>
                                     <Insets bottom="4.0" />
                                  </VBox.margin>
                               </CheckBox>
-                              <CheckBox mnemonicParsing="false" text="Gyro Y">
+                              <CheckBox fx:id="GyroY" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Gyro Y">
                                  <VBox.margin>
                                     <Insets bottom="4.0" />
                                  </VBox.margin>
                               </CheckBox>
-                              <CheckBox mnemonicParsing="false" text="Gyro Z" />
+                              <CheckBox fx:id="GyroZ" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Gyro Z" />
                            </children>
                         </VBox>
                      </children>
