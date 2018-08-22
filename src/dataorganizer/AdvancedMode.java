@@ -396,7 +396,6 @@ public class AdvancedMode extends JFrame {
 						generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));	
-						mainTabbedPanel.setEnabled(false);
 					}
 
 				}
@@ -404,13 +403,11 @@ public class AdvancedMode extends JFrame {
 					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-					mainTabbedPanel.setEnabled(false);
 				}
 				catch (PortInUseException e) {
 					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-					mainTabbedPanel.setEnabled(false);
 				}
 			}
 		};
@@ -1917,8 +1914,10 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						GraphController lineGraph = startGraphing();
+						Graph lineGraph = new Graph(dataOrgo.get(i));
+						lineGraph.startGraph(new Stage());
 						MediaPlayerController mediaController = startMediaPlayer();
+						mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				}
@@ -2020,7 +2019,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
+	public void shareFrameGraphAndMedia(Graph graph, MediaPlayerController MPC) {
 		Runnable updatePosInGraph = new Runnable() {
 			public void run() {
 				try {

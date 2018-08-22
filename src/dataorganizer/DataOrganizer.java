@@ -282,9 +282,11 @@ public class DataOrganizer {
 				for (int str = 0; str < sample.length; str++) {
 					try {
 						dataSamples.get(str).add(Double.parseDouble(sample[str]));
+						System.out.println(sample[str]);
 						min = Math.min(Double.parseDouble(sample[str]), min);
 						max = Math.max(Double.parseDouble(sample[str]), max);
 					} catch (NumberFormatException nfe) {
+						nfe.printStackTrace();
 						break;
 					}
 				}
