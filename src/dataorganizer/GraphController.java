@@ -30,7 +30,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
 
 public class GraphController implements Initializable{
 	
@@ -46,7 +45,7 @@ public class GraphController implements Initializable{
 	@FXML
 	private NumberAxis yAxis = new NumberAxis();
 	@FXML
-	private LineChart lineChart = new LineChart(xAxis, yAxis);
+	private LineChart<Number, Number> lineChart;
 	@FXML
 	private final Rectangle zoomRect = new Rectangle();
 	@FXML
@@ -72,9 +71,7 @@ public class GraphController implements Initializable{
 	private DataOrganizer dataCollector;
 	private ObservableList<DataSeries> dataSeries;
 	
-	public void GraphController() {
-		
-	}
+	public GraphController() {}
 	
 	
 	public void start() {
@@ -91,10 +88,9 @@ public class GraphController implements Initializable{
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
 		
-		populateData(dataSeries, lineChart);		//Graph the series if the checkbox corresponding to the series is active
-		styleSeries(dataSeries, lineChart);
 		
-		//Zoom rectangle for highlighting data that will be zoomed
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
 		
 		chartContainer.getChildren().add(zoomRect);
 
@@ -237,7 +233,6 @@ public class GraphController implements Initializable{
 			}
 			
 			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
-			
 		}
 
 		public String getName() {

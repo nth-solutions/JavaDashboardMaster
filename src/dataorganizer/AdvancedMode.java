@@ -1914,10 +1914,10 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						GraphController lineGraph = startGraphing();
-						lineGraph.setDataOrganizer(dataOrgo.get(i));
-						lineGraph.start();
+						Graph lineGraph = new Graph(dataOrgo.get(i));
+						lineGraph.startGraph(new Stage());
 						MediaPlayerController mediaController = startMediaPlayer();
+						mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				}
@@ -2019,7 +2019,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
+	public void shareFrameGraphAndMedia(Graph graph, MediaPlayerController MPC) {
 		Runnable updatePosInGraph = new Runnable() {
 			public void run() {
 				try {
