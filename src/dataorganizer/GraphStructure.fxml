@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+      <Pane prefHeight="400.0" prefWidth="707.0" BorderPane.alignment="CENTER">
+         <children>
+            <LineChart layoutX="51.0" layoutY="76.0">
+              <xAxis>
+                <CategoryAxis label="Time (Seconds)" side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis label="Units (Dependant on axis)" side="LEFT" />
+              </yAxis>
+            </LineChart>
+         </children>
+      </Pane>
+   </center>
+   <right>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <TitledPane animated="false" layoutY="8.0" prefHeight="198.0" prefWidth="191.0" text="Data Series Box">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <VBox prefHeight="183.0" prefWidth="200.0">
+                           <children>
+                              <HBox prefHeight="23.0" prefWidth="94.0">
+                                 <children>
+                                    <CheckBox mnemonicParsing="false" text="Accel X">
+                                       <HBox.margin>
+                                          <Insets right="10.0" />
+                                       </HBox.margin>
+                                    </CheckBox>
+                                    <CheckBox mnemonicParsing="false" text="Mag X" />
+                                 </children>
+                              </HBox>
+                              <HBox prefHeight="23.0" prefWidth="94.0">
+                                 <children>
+                                    <CheckBox mnemonicParsing="false" text="Accel Y">
+                                       <HBox.margin>
+                                          <Insets right="10.0" />
+                                       </HBox.margin>
+                                    </CheckBox>
+                                    <CheckBox mnemonicParsing="false" text="Mag Y" />
+                                 </children>
+                              </HBox>
+                              <HBox prefHeight="23.0" prefWidth="94.0">
+                                 <children>
+                                    <CheckBox mnemonicParsing="false" text="Accel Z">
+                                       <HBox.margin>
+                                          <Insets right="10.0" />
+                                       </HBox.margin>
+                                    </CheckBox>
+                                    <CheckBox mnemonicParsing="false" text="Mag Z" />
+                                 </children>
+                              </HBox>
+                              <CheckBox mnemonicParsing="false" text="Gyro X">
+                                 <VBox.margin>
+                                    <Insets bottom="4.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="Gyro Y">
+                                 <VBox.margin>
+                                    <Insets bottom="4.0" />
+                                 </VBox.margin>
+                              </CheckBox>
+                              <CheckBox mnemonicParsing="false" text="Gyro Z" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+              </content>
+            </TitledPane>
+            <TitledPane animated="false" layoutY="253.0" prefHeight="109.0" prefWidth="191.0" text="Data Analysis Tools">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="86.0" prefWidth="200.0">
+                     <children>
+                        <CheckBox layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Raw Data Samples" />
+                        <CheckBox layoutX="14.0" layoutY="43.0" mnemonicParsing="false" text="Signed Data Samples" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </TitledPane>
+         </children>
+      </Pane>
+   </right>
+</BorderPane>
