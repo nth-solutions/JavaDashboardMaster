@@ -1701,7 +1701,7 @@ public class AdvancedMode extends JFrame {
 			DataOrganizer dataOrgo = new DataOrganizer();
 			dataOrgoList.add(dataOrgo);
 			dataOrgo.createDataSamplesFromCSV(chooser.getSelectedFile().toString());
-			dataOrgo.getSignedData();
+			dataOrgo.getCSVSignedData();
 			addTestsToRecordationPane(dataOrgoList);
 			repaint();
 		}
