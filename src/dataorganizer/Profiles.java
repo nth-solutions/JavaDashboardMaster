@@ -30,8 +30,6 @@ public class Profiles extends JFrame {
 						settings.loadConfigFile();
 						if(settings.getKeyVal("DefaultProfile") != null) {
 							switch(settings.getKeyVal("DefaultProfile")) {
-								case "Adventurer":
-									frame = new AdventurerMode();
 								case "Professional":
 									frame = new AdvancedMode();
 							}
@@ -127,8 +125,6 @@ public class Profiles extends JFrame {
 	}
 	
 	private void AdventureBtnActionListener() {
-		this.dispose();
-		new AdventurerMode().setVisible(true);
 		
 	}
 	private void ProfessionalBtnActionListener() throws FileNotFoundException, IOException {
