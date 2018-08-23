@@ -237,7 +237,7 @@ public class Graph implements Initializable{
 		stage.setScene(scene);
 		stage.show();
 		
-		
+
 		stage.setOnHiding(new EventHandler<WindowEvent>() {
 	         @Override
 	         public void handle(WindowEvent event) {
@@ -277,7 +277,7 @@ public class Graph implements Initializable{
 			}
 		}
 	}
-	
+
 	private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
 		    // force a css layout pass to ensure that subsequent lookup calls work.
 		    lineChart.applyCss();
@@ -299,7 +299,7 @@ public class Graph implements Initializable{
 		          }
 		      }
 	}
-	  
+
 	private void setUpZooming(final Rectangle rect, final Node zoomingNode) {
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -351,7 +351,7 @@ public class Graph implements Initializable{
 		
 		xAxis.setTickUnit(xAxis.getUpperBound() - xAxis.getLowerBound() / 5);
 	}
-	
+
 	
 	private Rectangle drawRect(int x, int y, int FPS) {
 		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
@@ -378,7 +378,7 @@ public class Graph implements Initializable{
 		}
 		//lineChart.getChildrenUnmodifiable().add(drawCircle(0, frameInMediaPlayer));
 	}
-	
+
 	public class DataSeries {
 		private String name;
 		private ObservableList<XYChart.Series<Number, Number>> series;

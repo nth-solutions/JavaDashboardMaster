@@ -3,96 +3,63 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
-      <Pane fx:id="chartContainer" prefHeight="400.0" prefWidth="707.0" BorderPane.alignment="CENTER">
+      <Pane fx:id="chartContainer" BorderPane.alignment="CENTER">
          <children>
-            <LineChart fx:id="lineChart" animated="false" layoutX="57.0" layoutY="76.0">
+            <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="40.0" title="   ">
               <xAxis>
-                <NumberAxis autoRanging="false" label="Time (Seconds)" side="BOTTOM" tickUnit="1.0" />
+                <NumberAxis autoRanging="false" label="Time " side="BOTTOM" tickUnit="1.0" fx:id="xAxis" />
               </xAxis>
               <yAxis>
-                <NumberAxis autoRanging="false" label="Units (Dependant on axis)" side="LEFT" tickUnit="0.5" />
+                <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" minorTickVisible="false" side="LEFT" tickUnit="0.5" />
               </yAxis>
             </LineChart>
+            <Separator layoutX="575.0" orientation="VERTICAL" prefHeight="550.0" prefWidth="10.0" />
          </children>
       </Pane>
    </center>
    <right>
-      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="dataControls" prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
          <children>
-            <TitledPane animated="false" layoutY="8.0" prefHeight="198.0" prefWidth="191.0" text="Data Series Box">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <VBox prefHeight="183.0" prefWidth="200.0">
-                           <children>
-                              <HBox prefHeight="23.0" prefWidth="94.0">
-                                 <children>
-                                    <CheckBox fx:id="AccelX" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Accel X">
-                                       <HBox.margin>
-                                          <Insets right="10.0" />
-                                       </HBox.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="MagX" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Mag X" />
-                                 </children>
-                              </HBox>
-                              <HBox prefHeight="23.0" prefWidth="94.0">
-                                 <children>
-                                    <CheckBox fx:id="AccelY" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Accel Y">
-                                       <HBox.margin>
-                                          <Insets right="10.0" />
-                                       </HBox.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="MagY" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Mag Y" />
-                                 </children>
-                              </HBox>
-                              <HBox prefHeight="23.0" prefWidth="94.0">
-                                 <children>
-                                    <CheckBox fx:id="AccelZ" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Accel Z">
-                                       <HBox.margin>
-                                          <Insets right="10.0" />
-                                       </HBox.margin>
-                                    </CheckBox>
-                                    <CheckBox fx:id="MagZ" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Mag Z" />
-                                 </children>
-                              </HBox>
-                              <CheckBox fx:id="GyroX" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Gyro X">
-                                 <VBox.margin>
-                                    <Insets bottom="4.0" />
-                                 </VBox.margin>
-                              </CheckBox>
-                              <CheckBox fx:id="GyroY" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Gyro Y">
-                                 <VBox.margin>
-                                    <Insets bottom="4.0" />
-                                 </VBox.margin>
-                              </CheckBox>
-                              <CheckBox fx:id="GyroZ" mnemonicParsing="false" onAction="#dataSeriesCheckBoxHandler" selected="true" text="Gyro Z" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </AnchorPane>
-              </content>
+            <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="200.0" text="Data Series Box">
+               <content>
+                  <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" />
+               </content>
             </TitledPane>
-            <TitledPane animated="false" layoutY="253.0" prefHeight="109.0" prefWidth="191.0" text="Data Analysis Tools">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="86.0" prefWidth="200.0">
+            <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="200.0" text="Data Analysis Tools">
+               <content>
+                  <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <CheckBox layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Raw Data Samples" />
-                        <CheckBox layoutX="14.0" layoutY="43.0" mnemonicParsing="false" text="Signed Data Samples" />
-                     </children>
-                  </AnchorPane>
-              </content>
-            </TitledPane>
-         </children>
-      </Pane>
+                        <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" text="Display Raw Data">
+                           <padding>
+                              <Insets bottom="5.0" />
+                           </padding></CheckBox>
+                        <CheckBox fx:id="displaySignedDataCheckbox" mnemonicParsing="false" onAction="#handleDisplaySignedData" selected="true" text="Display Signed Data" />
+                     </children></FlowPane>
+               </content></TitledPane>
+            <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="100.0" prefWidth="150.0" spacing="10.0">
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+               <children>
+                  <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="30.0" prefWidth="60.0" text="Zoom" />
+                  <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="30.0" prefWidth="60.0" text="Reset" />
+               </children>
+            </HBox>
+         </children></VBox>
    </right>
 </BorderPane>

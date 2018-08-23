@@ -1914,8 +1914,9 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						Graph lineGraph = new Graph(dataOrgo.get(i));
-						lineGraph.startGraph(new Stage());
+						GraphController lineGraph = startGraphing();
+						lineGraph.setDataCollector(dataOrgo.get(i));
+						lineGraph.graphSettingsOnStart();
 						MediaPlayerController mediaController = startMediaPlayer();
 						mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
@@ -1944,7 +1945,7 @@ public class AdvancedMode extends JFrame {
 	}
 	
 	
-	
+
 	public GraphController startGraphing() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
@@ -1956,15 +1957,15 @@ public class AdvancedMode extends JFrame {
 			e.printStackTrace();
 		}
 		
-		if(root!=null) primaryStage.setScene(new Scene(root, 800, 500));
+		if(root!=null) primaryStage.setScene(new Scene(root, 750, 500));
 		
 	    primaryStage.setTitle("Graph");
 		primaryStage.show();
-		primaryStage.setResizable(true);
+		primaryStage.setResizable(false);
 		
 		return loader.getController();
 	}
-	
+
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
 		if(dataOrgo != null) {
 			final int viewableTests = dataOrgo.size();
@@ -2019,7 +2020,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-	public void shareFrameGraphAndMedia(Graph graph, MediaPlayerController MPC) {
+	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
 		Runnable updatePosInGraph = new Runnable() {
 			public void run() {
 				try {
