@@ -106,11 +106,13 @@ public class GraphController implements Initializable{
 	public void handleZoom(ActionEvent event) {
 		doZoom(zoomRect, lineChart);
 	}
+
 	@FXML
 	public void handleReset(ActionEvent event) {
 		final NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
 		xAxis.setLowerBound(0);
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
+
 		zoomRect.setWidth(0);
 		zoomRect.setHeight(0);
 		for (final DataSeries ds : dataSeries) {
@@ -119,8 +121,12 @@ public class GraphController implements Initializable{
 		}
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
+
+		yAxis.setUpperBound(100);
+		yAxis.setLowerBound(0);
 	}
 
+	@FXML
 	public void handleDisplayRawData(ActionEvent event) {
 		displaySignedDataCheckbox.setSelected(false);
 		for (DataSeries ds: dataSeries) {
@@ -132,6 +138,7 @@ public class GraphController implements Initializable{
 
 	}
 
+	@FXML
 	public void handleDisplaySignedData(ActionEvent event) {
 		displayRawDataCheckbox.setSelected(false);
 		for (DataSeries ds: dataSeries) {
@@ -188,6 +195,9 @@ public class GraphController implements Initializable{
 
 		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5).or(zoomRect.heightProperty().lessThan(0));
 		zoomButton.disableProperty().bind(disableControls);
+
+		System.out.println(dataCollector.maxTestValAxis());
+		System.out.println(dataCollector.minTestValAxis());
 	}
 
 
@@ -419,6 +429,9 @@ public class GraphController implements Initializable{
 			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 		}
 	}
+
+
+
 
 }
 	
