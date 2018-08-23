@@ -31,7 +31,6 @@ import java.util.ResourceBundle;
 import static java.lang.Math.round;
 
 //GOALS:
-//TODO: Fullscreen video capabilities/resizing *SHELVED FOR LATER DEVELOPMENT
 //TODO: INTEGRATE FFMPEG INTO PROGRAM *SHELVED FOR LATER DEVELOPMENT
 
 //BUG FIXES:

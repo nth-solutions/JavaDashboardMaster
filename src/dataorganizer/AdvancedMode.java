@@ -1956,7 +1956,7 @@ public class AdvancedMode extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		if(root!=null) primaryStage.setScene(new Scene(root, 750, 500));
 		
 	    primaryStage.setTitle("Graph");
