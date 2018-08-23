@@ -1919,7 +1919,7 @@ public class AdvancedMode extends JFrame {
 						lineGraph.graphSettingsOnStart();
 						MediaPlayerController mediaController = startMediaPlayer();
 						mediaController.scaleVideoAtStart();
-						//shareFrameGraphAndMedia(lineGraph, mediaController);
+						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				}
 			}
@@ -2020,7 +2020,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-	public void shareFrameGraphAndMedia(Graph graph, MediaPlayerController MPC) {
+	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
 		Runnable updatePosInGraph = new Runnable() {
 			public void run() {
 				try {
