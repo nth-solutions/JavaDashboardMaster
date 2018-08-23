@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="600.0" prefWidth="540.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/10.0.1" fx:controller="dataorganizer.HelpMenuController">
+   <children>
+      <TabPane prefHeight="600.0" prefWidth="540.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="Bulletized Steps">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="425.0" prefWidth="437.0" />
+            </content>
+          </Tab>
+          <Tab text="Detailed Steps">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

@@ -166,7 +166,6 @@ public class AdvancedMode extends JFrame {
 	private JButton sectorEraseButton;
 	private JButton settingsWindowBtn;
 	private JButton btnSelectCsv;
-	private JButton sendQuitCMDButton;
 	private JButton pairNewRemoteButton;
 	private JButton getCurrentConfigurationsButton;
 	private JButton testRemotesButton;
@@ -255,6 +254,7 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<JPanel> testNumPaneArray;
 	private ArrayList<JTextField> testNameTextField;
 	private final JFXPanel graphingPanel = new JFXPanel();
+	private JButton helpBtn;
 
 
 	/**
@@ -1965,6 +1965,24 @@ public class AdvancedMode extends JFrame {
 		
 		return loader.getController();
 	}
+	
+	public HelpMenuController startHelpMenu() {
+		Stage primaryStage = new Stage();
+		Parent root = null;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("HelpMenuStructure.fxml"));
+		try {
+			root = loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	    primaryStage.setTitle("Help Menu");
+	    if(root!=null) primaryStage.setScene(new Scene(root, 540, 600));
+	    primaryStage.show();
+	    primaryStage.setResizable(false);
+	    return loader.getController();
+	}
 
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
 		if(dataOrgo != null) {
@@ -2577,32 +2595,6 @@ public class AdvancedMode extends JFrame {
 		progressBar.setPreferredSize(new Dimension(630, 20));
 		progressPanel.add(progressBar);
 
-		sendQuitCMDButton = new JButton("Exit UART Mode");
-		sendQuitCMDButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					serialHandler.sendExitCommand();
-				}
-				catch (IOException e) {
-					generalStatusLabel.setText("Error Communicating With Serial Dongle");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
-					generalStatusLabel.setText("Serial Port Already In Use");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
-					generalStatusLabel.setText("Check Dongle Compatability");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				}
-
-			}
-		});
-		contentPanel.add(sendQuitCMDButton);
-
 		separator = new JSeparator();
 		contentPanel.add(separator);
 		separator.setOrientation(SwingConstants.VERTICAL);
@@ -2617,6 +2609,20 @@ public class AdvancedMode extends JFrame {
 		settingsWindowBtn = new JButton("Settings");
 		contentPanel.add(settingsWindowBtn);
 		settingsWindowBtn.setHorizontalAlignment(SwingConstants.LEFT);
+		
+		helpBtn = new JButton("Help (?)");
+		helpBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Platform.setImplicitExit(false);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						startHelpMenu();
+					}
+				});
+			}
+		});
+		contentPanel.add(helpBtn);
 
 		settingsWindowBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) { 
