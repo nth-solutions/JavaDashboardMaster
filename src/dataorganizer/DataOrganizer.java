@@ -174,7 +174,28 @@ public class DataOrganizer {
 		return signedDataSamples;
 	}
 
+	public void getCSVSignedData() {
+		signedDataSamples = new ArrayList<List<Double>>();
+		for (int dof = 0; dof < 10; dof++) {
+			List<Double> temp = new ArrayList<Double>();
+			signedDataSamples.add(dof, temp);
+		}
 
+		for(int dof = 0; dof < dataSamples.size();dof++) {
+			for(Double smp: dataSamples.get(dof)) {
+					if(dof < 7) {
+					if (smp > 32768) {
+						smp -= 65535;
+					}
+					smp = (smp * accelSensitivity) / 32768;
+					signedDataSamples.get(dof).add(smp);
+				}else
+					signedDataSamples.get(dof).add(smp);
+			}
+		}
+	}
+	
+	
 	public List<List<Double>> getNormalizedDataRollingBlock(){
 		normalizedDataSamples = new ArrayList<List<Double>>();
 		for (int smp = 0; smp < lineNum; smp++) {
