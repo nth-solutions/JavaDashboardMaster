@@ -2347,7 +2347,7 @@ public class AdvancedMode extends JFrame {
 
 		gyroSensitivityCombobox = new JComboBox();
 		gyroSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		gyroSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Sensitivity (dps)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+		gyroSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Sensitivity (d/s)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		configurationPanel.add(gyroSensitivityCombobox);
 
 		accelFilterCombobox = new JComboBox();
@@ -2625,6 +2625,7 @@ public class AdvancedMode extends JFrame {
 						int tabIndex = getAdvancedModeCurrentTab();
 						HelpMenuController HMC  = startHelpMenu();
 						HMC.setTabIndex(tabIndex);
+						HMC.populateLabels();
 					}
 				});
 			}
