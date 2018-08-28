@@ -76,8 +76,9 @@ public class HelpMenuController implements Initializable{
 				DetailedStepsLabel.setDisable(true);
 				break;
 			case 5: 
-				BullitizedStepsLabel.setText("");
+				BullitizedStepsLabel.setText("1. This menu is populated after reading tests from the module.\n2. Go to the \"Read mode\" Tab and Click \"Read Data from Module\" to populate the list.\n3. Maximum number of displayable tests is 8.");
 				DetailedStepsLabel.setDisable(false);
+				break;
 		}
 	}
 	
