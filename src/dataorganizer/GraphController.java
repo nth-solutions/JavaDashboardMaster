@@ -165,6 +165,7 @@ public class GraphController implements Initializable{
 
 		lineChart.setTitle(dataCollector.getName());
 
+
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
