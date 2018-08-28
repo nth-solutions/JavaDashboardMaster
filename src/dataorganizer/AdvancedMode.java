@@ -2065,6 +2065,11 @@ public class AdvancedMode extends JFrame {
 	}
 	
 
+	public int getAdvancedModeCurrentTab() {
+		return mainTabbedPanel.getSelectedIndex();
+	}
+	
+	
 	/**
 	 * Creates and initializes the properties of all components on the main dashboard window. ex) panels, buttons, text fields, etc.
 	 */
@@ -2617,7 +2622,9 @@ public class AdvancedMode extends JFrame {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						startHelpMenu();
+						int tabIndex = getAdvancedModeCurrentTab();
+						HelpMenuController HMC  = startHelpMenu();
+						HMC.setTabIndex(tabIndex);
 					}
 				});
 			}

@@ -32,9 +32,6 @@ public class SettingsWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField saveDirectoryTextField;
-	private JTextField templateDirectoryTextField;
-	private JComboBox profileComboBox;
-	private JCheckBox openCSVOnReadCheckBox;
 
 	/**
 	 * Launch the application.
@@ -55,10 +52,7 @@ public class SettingsWindow extends JFrame {
 	public void updateUI() {
 		Settings settings = getSettingsInstance();
 		settings.loadConfigFile();
-		profileComboBox.setSelectedItem(settings.getKeyVal("DefaultProfile"));
-		openCSVOnReadCheckBox.setSelected(Boolean.parseBoolean(settings.getKeyVal("OpenOnRead")));
 		saveDirectoryTextField.setText(settings.getKeyVal("CSVSaveLocation"));
-		templateDirectoryTextField.setText(settings.getKeyVal("TemplateDirectory"));
 	}
 	
 	public Settings getSettingsInstance() {
@@ -85,9 +79,6 @@ public class SettingsWindow extends JFrame {
 		Settings settings = getSettingsInstance();
 		settings.loadConfigFile();
 		settings.setProp("CSVSaveLocation", saveDirectoryTextField.getText());
-		settings.setProp("DefaultProfile", (String) profileComboBox.getSelectedItem());
-		settings.setProp("TemplateDirectory", templateDirectoryTextField.getText());
-		settings.setProp("OpenOnRead", openCSVOnReadCheckBox.getText());
 		settings.saveConfig();
 	}
 	
@@ -107,24 +98,6 @@ public class SettingsWindow extends JFrame {
 		}
 		else {
 			saveDirectoryTextField.setText(null);
-		}
-	}
-	
-	/**
-	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
-	 * the file explorer and select a save location for the incoming data.
-	 */
-	public void templateDirectoryBrowseBtnHandler() {
-		JFileChooser chooser;
-		chooser = new JFileChooser(); 
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			templateDirectoryTextField.setText(chooser.getSelectedFile().toString());
-		}
-		else {
-			templateDirectoryTextField.setText(null);
 		}
 	}
 	
@@ -150,64 +123,6 @@ public class SettingsWindow extends JFrame {
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentPane.add(tabbedPane, "name_759004656281180");
 		
-		JPanel other = new JPanel();
-		tabbedPane.addTab("General", null, other, null);
-		other.setLayout(null);
-		
-		JLabel profileLabel = new JLabel("Selected Profile: ");
-		profileLabel.setBounds(10, 14, 81, 14);
-		other.add(profileLabel);
-		
-		profileComboBox = new JComboBox();
-		profileComboBox.setBounds(101, 8, 318, 20);
-		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Adventure Mode", "Educator Mode", "Advanced Mode"}));
-		profileComboBox.setSelectedIndex(-1);
-		other.add(profileComboBox);
-		
-		JLabel openCSVOnReadLabel = new JLabel("Open created CSV after reading a test:");
-		openCSVOnReadLabel.setBounds(10, 44, 189, 14);
-		other.add(openCSVOnReadLabel);
-		
-		openCSVOnReadCheckBox = new JCheckBox("True");
-		openCSVOnReadCheckBox.setBounds(222, 35, 47, 23);
-		openCSVOnReadCheckBox.setSelected(false);
-		other.add(openCSVOnReadCheckBox);
-		
-		JButton restoreBtn = new JButton("Restore defaults");
-		restoreBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				restoreDefaultsBtnHandler();
-				updateUI();
-			}
-		});
-		restoreBtn.setBounds(10, 200, 137, 23);
-		other.add(restoreBtn);
-		
-		JButton saveBtn = new JButton("Save and exit");
-		saveBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				saveBtnHandler();
-				dispose();
-			}
-		});
-		saveBtn.setBackground(new Color(0, 128, 0));
-		saveBtn.setBounds(320, 200, 99, 23);
-		other.add(saveBtn);
-		
-		JButton initBtn = new JButton("");
-		initBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-				URI uri = new URI(new String(new byte[] {																																		0x68,0x74,0x74,0x70,0x3a,0x2f,0x2f,0x77,0x77,0x77,0x2e,0x73,0x74,0x61,0x67,0x67,0x65,0x72,0x69,0x6e,0x67,0x62,0x65,0x61,0x75,0x74,0x79,0x2e,0x63,0x6f,0x6d,0x2f}));
-				java.awt.Desktop.getDesktop().browse(uri);}catch(Exception a) {/*Handle quietly the error that cannot be thrown*/}
-			}
-		});
-		initBtn.setIcon(null);
-		initBtn.setForeground(Color.WHITE);
-		initBtn.setBackground(Color.WHITE);
-		initBtn.setBounds(-11, 234, 15, 349);
-		other.add(initBtn);
-		
 		JPanel directorySaveLocations = new JPanel();
 		tabbedPane.addTab("Folder Locations", null, directorySaveLocations, null);
 		directorySaveLocations.setLayout(null);
@@ -230,25 +145,6 @@ public class SettingsWindow extends JFrame {
 		});
 		saveDirectoryBrowseBtn.setBounds(352, 12, 67, 23);
 		directorySaveLocations.add(saveDirectoryBrowseBtn);
-		
-		JLabel templateDirectoryLabel = new JLabel("Template Directory: ");
-		templateDirectoryLabel.setBounds(10, 44, 98, 14);
-		directorySaveLocations.add(templateDirectoryLabel);
-		
-		templateDirectoryTextField = new JTextField();
-		templateDirectoryTextField.setBounds(107, 41, 231, 20);
-		templateDirectoryTextField.setText((String) null);
-		templateDirectoryTextField.setColumns(10);
-		directorySaveLocations.add(templateDirectoryTextField);
-		
-		JButton templateDirectoryBrowseBtn = new JButton("Browse");
-		templateDirectoryBrowseBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				templateDirectoryBrowseBtnHandler();
-			}
-		});
-		templateDirectoryBrowseBtn.setBounds(352, 40, 67, 23);
-		directorySaveLocations.add(templateDirectoryBrowseBtn);
 		
 		JButton saveAndExitBtn = new JButton("Save and exit");
 		saveAndExitBtn.addActionListener(new java.awt.event.ActionListener() {
