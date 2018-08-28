@@ -6,37 +6,33 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.HelpMenuController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="545.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.HelpMenuController">
    <children>
-      <TabPane prefHeight="600.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane prefHeight="600.0" prefWidth="545.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab onSelectionChanged="#populateLabels" text="Bulletized Steps">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="600.0" prefWidth="600.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="570.0" prefWidth="540.0">
                      <children>
-                        <Label fx:id="titleBSPageLabel" layoutX="187.0" layoutY="14.0" prefHeight="34.0" prefWidth="227.0">
+                        <Label fx:id="titleBSPageLabel" alignment="CENTER" layoutX="136.0" layoutY="20.0" prefHeight="40.0" prefWidth="272.5">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <Label fx:id="BullitizedStepsLabel" alignment="TOP_LEFT" contentDisplay="TOP" layoutX="13.0" layoutY="62.0" prefHeight="495.0" prefWidth="574.0">
-                           <font>
-                              <Font size="14.0" />
-                           </font>
-                        </Label>
+                        <Label fx:id="BullitizedStepsLabel" alignment="TOP_LEFT" contentDisplay="TOP" layoutX="5.0" layoutY="71.0" prefHeight="500.0" prefWidth="535.0" />
                      </children></AnchorPane>
             </content>
           </Tab>
           <Tab onSelectionChanged="#populateLabels" text="Detailed Steps">
             <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="570.0" prefWidth="540.0">
                      <children>
-                        <Label fx:id="titleDSPageLabel" layoutX="187.0" layoutY="14.0" prefHeight="34.0" prefWidth="227.0">
+                        <Label fx:id="titleDSPageLabel" alignment="CENTER" layoutX="136.0" layoutY="20.0" prefHeight="40.0" prefWidth="272.5">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Label>
-                        <Label fx:id="DetailedStepsLabel" alignment="TOP_LEFT" contentDisplay="TOP" layoutX="11.0" layoutY="48.0" prefHeight="504.0" prefWidth="578.0" />
+                        <Label fx:id="DetailedStepsLabel" alignment="TOP_LEFT" contentDisplay="TOP" layoutX="5.0" layoutY="71.0" prefHeight="500.0" prefWidth="535.0" />
                      </children></AnchorPane>
             </content>
           </Tab>

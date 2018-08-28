@@ -1,5 +1,6 @@
 package dataorganizer;
 
+import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 public class HelpMenuController implements Initializable{
 
@@ -61,14 +63,14 @@ public class HelpMenuController implements Initializable{
 				break;
 			case 1:
 				BullitizedStepsLabel.setText("1. When checked, the \"Timed Test\" checkbox will use the \"Test Duration\" to time\r\t the test. Otherwise the test must be manually exited. \n2. When checked, the \"Trigger on Release\" checkbox will make sure the module waits\n\t for you to release the trigger on the remote. Otherwise the test will be started\n\t immediately on button press.\n3. ALWAYS write the configurations to the module with \"Write Configurations\" button.\n\t You can verify the configurations were written correctly with the \"Get Current\n\t Configurations\" button.");
-				DetailedStepsLabel.setText("1. \"Sample rate\" may be specified in the Accel/Gyro Sample Rate combobox. \"Magnetometer Sample\"\n\t Rate is calculated accordingly.\n2. The \"Accelerometer Sensitivity\" is in multiples of Earth gravity(G). At \"2G\" the maximum\r\t reading would be twice 9.8m/s^2 before saturation. \n3. \"Gyroscope Sensitivity\" is in degrees per second (d/s). \"Test Duration\" is the length of the test, if the module is set to take timed tests. \"Battery Timeout Length\" is the time that the module will stay on without user interaction.");
+				DetailedStepsLabel.setText("1. \"Sample rate\" may be specified in the Accel/Gyro Sample Rate combobox. \"Magnetometer \n Sample\" Rate is calculated accordingly.\n2. The \"Accelerometer Sensitivity\" is in multiples of Earth gravity(G). At \"2G\" the maximum\r\t reading would be twice 9.8m/s^2 before saturation. \n3. \"Gyroscope Sensitivity\" is in degrees per second (d/s). \"Test Duration\" is the length of the test, \n if the module is set to take timed tests. \"Battery Timeout Length\" is the time that the module will \n stay on without user interaction.");
 				break;
 			case 2:
-				BullitizedStepsLabel.setText("1. \"Sector Erase\" deletes the sectors that are recorded to have test data. \n2. \"Bulk Erase\" deletes all data on the module. This is left here as a debug step internally.");
+				BullitizedStepsLabel.setText("1. \"Sector Erase\" deletes the sectors that are recorded to have test data. \n2. \"Bulk Erase\" deletes all data on the module. This is left here as a debug step \ninternally.");
 				DetailedStepsLabel.setDisable(true);
 				break;
 			case 3: 
-				BullitizedStepsLabel.setText("1. Make sure you have paired a remote that will connect to your video recording\n\t device, and the module!\n2. \"Configure Module for Calibration\" puts the module into calibration mode.\n3. Once in calibration mode, run the calibration test.\n\t1. Take the module to a dark room and place the module and LED in frame of the\n\t\t Video Recording Device.\n\t2. Using the remote paired to both the Video Recording Device and Module,\n\t start the test.\n\t3. The calibration test will take 2 minutes. On completion of the test,\n\t load the video on to your computer and plug the module back in.\n4. In the dashboard click \"Browse\" and select the video you have just recorded.\n5. You may now click \"Import Calibration Data and Calculate Offset.\" The text fields will\n\t populate.\n6. You may click \"Apply Offset to Module\"");
+				BullitizedStepsLabel.setText("1. Make sure you have paired a remote that will connect to your video recording\n\t device, and the module!\n2. \"Configure Module for Calibration\" puts the module into calibration mode.\n3. Once in calibration mode, run the calibration test.\n\t1. Take the module to a dark room and place the module and LED in frame of \n the Video Recording Device.\n\t2. Using the remote paired to both the Video Recording Device and Module,\n\t start the test.\n\t3. The calibration test will take 2 minutes. On completion of the test,\n\t load the video on to your computer and plug the module back in.\n4. In the dashboard click \"Browse\" and select the video you have just recorded.\n5. You may now click \"Import Calibration Data and Calculate Offset.\" The text fields \n will populate.\n6. You may click \"Apply Offset to Module\"");
 				DetailedStepsLabel.setDisable(true);
 				break;
 			case 4: 
@@ -76,11 +78,10 @@ public class HelpMenuController implements Initializable{
 				DetailedStepsLabel.setDisable(true);
 				break;
 			case 5: 
-				BullitizedStepsLabel.setText("1. This menu is populated after reading tests from the module.\n2. Go to the \"Read mode\" Tab and Click \"Read Data from Module\" to populate the list.\n3. Maximum number of displayable tests is 8.");
+				BullitizedStepsLabel.setText("1. This menu is populated after reading tests from the module.\n2. Go to the \"Read mode\" Tab and Click \"Read Data from Module\" to populate the \n list.3. Maximum number of displayable tests is 8.");
 				DetailedStepsLabel.setDisable(false);
 				break;
 		}
 	}
-	
-	
+
 }

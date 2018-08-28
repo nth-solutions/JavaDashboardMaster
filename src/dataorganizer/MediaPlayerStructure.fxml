@@ -17,11 +17,11 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.MediaPlayerController">
+<BorderPane fx:id="basePane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1180.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.MediaPlayerController">
    <bottom>
-      <VBox alignment="CENTER" prefHeight="75.0" style="-fx-background-color: #EAE6DA;" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" prefHeight="75.0" BorderPane.alignment="CENTER">
          <children>
-            <HBox alignment="CENTER" prefHeight="75.0" style="-fx-background-color: #EAE6DA;">
+            <HBox alignment="CENTER" prefHeight="75.0">
                <children>
                   <ComboBox fx:id="selectFrameRateComboBox" disable="true" onAction="#handleFrameRateSelection" prefWidth="175.0" promptText="Frame Rate">
                      <tooltip>
@@ -56,7 +56,7 @@
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin></Text>
-                  <Slider fx:id="rateChangeSlider" blockIncrement="0.1" disable="true" majorTickUnit="1.0" max="8.0" minorTickCount="9" onKeyReleased="#handleRateChangeKeys" onMouseReleased="#handleRateChange" prefHeight="38.0" prefWidth="675.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
+                  <Slider fx:id="rateChangeSlider" blockIncrement="0.1" disable="true" majorTickUnit="1.0" max="8.0" minorTickCount="9" onKeyReleased="#handleRateChangeKeys" onMouseReleased="#handleRateChange" prefHeight="38.0" prefWidth="600.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
@@ -85,7 +85,7 @@
       </StackPane>
    </center>
    <right>
-      <Pane prefHeight="200.0" prefWidth="140.0" style="-fx-background-color: #EAE6DA;" BorderPane.alignment="CENTER">
+      <Pane prefHeight="200.0" prefWidth="140.0" BorderPane.alignment="CENTER">
          <children>
             <VBox layoutY="599.0" />
             <HBox layoutY="599.0" prefHeight="20.0" prefWidth="140.0">
@@ -110,7 +110,7 @@
          </children></Pane>
    </right>
    <left>
-      <Pane prefHeight="200.0" prefWidth="140.0" style="-fx-background-color: #EAE6DA;" BorderPane.alignment="CENTER">
+      <Pane prefHeight="200.0" prefWidth="140.0" BorderPane.alignment="CENTER">
          <children>
             <VBox layoutY="295.0" prefHeight="250.0" prefWidth="140.0">
                <children>
@@ -187,13 +187,13 @@
          </children></Pane>
    </left>
    <top>
-      <Pane style="-fx-background-color: #EAE6DA;" BorderPane.alignment="CENTER">
+      <Pane BorderPane.alignment="CENTER">
          <children>
             <VBox>
                <children>
                   <HBox>
                      <children>
-                        <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a Video" textAlignment="CENTER" wrappingWidth="1280.0">
+                        <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" text="Select a Video" textAlignment="CENTER" wrappingWidth="1180.0">
                            <font>
                               <Font size="24.0" />
                            </font>

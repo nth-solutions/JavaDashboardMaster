@@ -55,6 +55,7 @@ public class GraphController implements Initializable{
 
 
 
+
 	@FXML
 	private LineChart<Number, Number> lineChart;
 	@FXML

@@ -1978,10 +1978,11 @@ public class AdvancedMode extends JFrame {
 		}
 		
 	    primaryStage.setTitle("Help Menu");
-	    if(root!=null) primaryStage.setScene(new Scene(root, 540, 600));
+	    if(root!=null) primaryStage.setScene(new Scene(root, 535, 600));
 	    primaryStage.show();
 	    primaryStage.setResizable(false);
 	    return loader.getController();
+
 	}
 
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
