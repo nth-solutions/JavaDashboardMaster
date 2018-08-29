@@ -358,13 +358,13 @@ public class DataOrganizer {
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 
-		List<Double> modifiedDataSmps = new ArrayList<Double>();
+		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 			case(0): 
-				modifiedDataSmps = dataSamples.get(dofNum);
+				modifiedDataSmps = dataSamples;
 				break;
 			case(1): 
-				modifiedDataSmps = signedDataSamples.get(dofNum);
+				modifiedDataSmps = signedDataSamples;
 				break;
 		}
 
@@ -385,15 +385,15 @@ public class DataOrganizer {
 		//System.out.println(modifier);
 		//System.out.println(start*sampleRate);
 		//System.out.println(modifiedDataSmps.get(0).size());
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.size() - 1); sample++) {
-			dofTime.add(sample, modifiedDataSmps.get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
-
 
 		dofData.add(0, dofTime);
 
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.size() - 1); sample++) {
-			dofAxis.add(sample, modifiedDataSmps.get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+
 		}
 		dofData.add(1, dofAxis);
 

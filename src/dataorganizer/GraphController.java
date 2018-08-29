@@ -24,6 +24,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
@@ -84,6 +85,11 @@ public class GraphController implements Initializable{
 	private CheckBox displayRawDataCheckbox;
 	@FXML
 	private CheckBox displaySignedDataCheckbox;
+	@FXML
+	private TextField maxYValueTextField;
+	@FXML
+	private TextField minYValueTextField;
+
 
 	public void setDataCollector(DataOrganizer dataCollector) {
 		this.dataCollector = dataCollector;
@@ -99,6 +105,8 @@ public class GraphController implements Initializable{
 	private int xRangeHigh;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle zoomRect = new Rectangle();
+	int yMax = 100;
+	int yMin = 0;
 
 
 	/*** Event Handlers ***/
@@ -122,8 +130,8 @@ public class GraphController implements Initializable{
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
-		yAxis.setUpperBound(100);
-		yAxis.setLowerBound(0);
+		yAxis.setUpperBound(yMax);
+		yAxis.setLowerBound(yMin);
 	}
 
 	@FXML
@@ -145,6 +153,23 @@ public class GraphController implements Initializable{
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			populateData(dataSeries, lineChart);
 			styleSeries(dataSeries, lineChart);
+		}
+
+	}
+
+	@FXML
+	public void handleSetYRange(ActionEvent event) {
+
+		try {
+			yMax = Integer.parseInt(maxYValueTextField.getText());
+			yMin = Integer.parseInt(minYValueTextField.getText());
+			
+			yAxis.setUpperBound(yMax);
+			yAxis.setLowerBound(yMin);
+
+		} catch (NumberFormatException e) {
+			maxYValueTextField.setText("Enter a valid number");
+			minYValueTextField.setText("Enter a valid number");
 		}
 
 	}
