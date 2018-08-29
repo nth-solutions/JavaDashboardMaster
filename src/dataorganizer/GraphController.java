@@ -118,7 +118,6 @@ public class GraphController implements Initializable{
 		zoomRect.setHeight(0);
 		for (final DataSeries ds : dataSeries) {
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
-
 		}
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
@@ -136,7 +135,6 @@ public class GraphController implements Initializable{
 			populateData(dataSeries, lineChart);
 			styleSeries(dataSeries, lineChart);
 		}
-
 	}
 
 	@FXML
@@ -170,6 +168,11 @@ public class GraphController implements Initializable{
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
+		
+		
+		
+		dataCollector.getDataSamples();
+		
 
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
@@ -197,9 +200,6 @@ public class GraphController implements Initializable{
 
 		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5).or(zoomRect.heightProperty().lessThan(0));
 		zoomButton.disableProperty().bind(disableControls);
-
-		System.out.println(dataCollector.maxTestValAxis());
-		System.out.println(dataCollector.minTestValAxis());
 	}
 
 
@@ -371,12 +371,13 @@ public class GraphController implements Initializable{
 			this.dof = dof;
 			this.dataOrgo = dataOrgo;
 			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
-
 		}
 
 		public DataSeries(DataOrganizer dataOrgo, int dof) {
 			this.dof = dof;
 			this.dataOrgo = dataOrgo;
+			
+			
 
 			switch(dof) {
 				case(1): name = "Accel X"; color = "FireBrick";
@@ -397,10 +398,12 @@ public class GraphController implements Initializable{
 					break;
 				case(9): name = "Mag Z"; color = "SaddleBrown";
 					break;
+				case(10): name = "Magnitude"; color = "Black";
+					break;
 			}
-
+			
+			
 			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
-
 		}
 
 		public String getName() {
@@ -427,14 +430,11 @@ public class GraphController implements Initializable{
 		public ObservableList<XYChart.Series<Number, Number>> getSeries() {
 			return series;
 		}
+		
 		public void updateZoom(double start, double end) {
 			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 		}
 	}
-
-
-
-
 }
 	
 

@@ -303,7 +303,6 @@ public class DataOrganizer {
 				for (int str = 0; str < sample.length; str++) {
 					try {
 						dataSamples.get(str).add(Double.parseDouble(sample[str]));
-						System.out.println(sample[str]);
 						min = Math.min(Double.parseDouble(sample[str]), min);
 						max = Math.max(Double.parseDouble(sample[str]), max);
 					} catch (NumberFormatException nfe) {
@@ -359,13 +358,13 @@ public class DataOrganizer {
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 
-		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		List<Double> modifiedDataSmps = new ArrayList<Double>();
 		switch(dataConversionType) {
 			case(0): 
-				modifiedDataSmps = dataSamples;
+				modifiedDataSmps = dataSamples.get(dofNum);
 				break;
 			case(1): 
-				modifiedDataSmps = signedDataSamples;
+				modifiedDataSmps = signedDataSamples.get(dofNum);
 				break;
 		}
 
@@ -386,15 +385,15 @@ public class DataOrganizer {
 		//System.out.println(modifier);
 		//System.out.println(start*sampleRate);
 		//System.out.println(modifiedDataSmps.get(0).size());
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
-			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.size() - 1); sample++) {
+			dofTime.add(sample, modifiedDataSmps.get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
 
 		dofData.add(0, dofTime);
 
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
-			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.size() - 1); sample++) {
+			dofAxis.add(sample, modifiedDataSmps.get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 		dofData.add(1, dofAxis);
 
