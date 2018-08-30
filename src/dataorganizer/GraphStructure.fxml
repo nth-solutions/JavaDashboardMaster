@@ -13,14 +13,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
       <Pane BorderPane.alignment="CENTER">
          <children>
-            <Pane fx:id="chartContainer" layoutX="40.0" layoutY="14.0" prefHeight="400.0" prefWidth="500.0">
+            <Pane fx:id="chartContainer" layoutX="40.0" layoutY="14.0" prefHeight="450.0" prefWidth="600.0">
                <children>
-                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" title="   ">
+                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" prefHeight="450.0" prefWidth="600.0" title="   ">
                     <xAxis>
                       <NumberAxis autoRanging="false" label="Time " side="BOTTOM" tickUnit="1.0" fx:id="xAxis" />
                     </xAxis>
@@ -66,7 +68,7 @@
                         </Button>
                      </children></FlowPane>
                </content></TitledPane>
-            <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="100.0" prefWidth="150.0" spacing="10.0">
+            <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="45.0" prefWidth="172.0" spacing="10.0">
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
@@ -78,4 +80,15 @@
             </HBox>
          </children></VBox>
    </right>
+   <top>
+      <HBox BorderPane.alignment="CENTER">
+         <children>
+            <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="900.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Text>
+         </children>
+      </HBox>
+   </top>
 </BorderPane>
