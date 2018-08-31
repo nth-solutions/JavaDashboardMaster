@@ -43,6 +43,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.beans.binding.BooleanBinding;
+import javafx.scene.text.Text;
 
 /*** The Following Refers to Features That Need To Be Implemented Within the Program***/
 //TODO: Add Ability to Graph Mag Data (Possibly Fixed?)
@@ -98,6 +99,8 @@ public class GraphController implements Initializable{
 	private TextField maxYValueTextField;
 	@FXML
 	private TextField minYValueTextField;
+	@FXML
+	private Text generalStatusText;
 
 
 	public void setDataCollector(DataOrganizer dataCollector) {
@@ -172,7 +175,7 @@ public class GraphController implements Initializable{
 		try {
 			yMax = Integer.parseInt(maxYValueTextField.getText());
 			yMin = Integer.parseInt(minYValueTextField.getText());
-			
+
 			yAxis.setUpperBound(yMax);
 			yAxis.setLowerBound(yMin);
 
