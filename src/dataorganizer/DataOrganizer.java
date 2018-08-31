@@ -135,6 +135,7 @@ public class DataOrganizer {
 			signedDataSamples.add(dof, temp);
 		}
 
+		System.out.println("accelSensitivity: " + accelSensitivity + "\ngyroSensitivity: " + gyroSensitivity);
 		signedDataSamples.get(0).addAll(dataSamples.get(0));
 
 		for (int smp = 0; smp < lineNum; smp++) {
@@ -180,19 +181,29 @@ public class DataOrganizer {
 			List<Double> temp = new ArrayList<Double>();
 			signedDataSamples.add(dof, temp);
 		}
-
+		accelSensitivity = 4;		//TODO REMOVE
+		gyroSensitivity = 2000;		//TODO REMOVE
+		
+		signedDataSamples.get(0).addAll(dataSamples.get(0));
 		for(int dof = 0; dof < dataSamples.size();dof++) {
 			for(Double smp: dataSamples.get(dof)) {
-					if(dof < 7) {
+				if(dof < 4) {
 					if (smp > 32768) {
 						smp -= 65535;
 					}
 					smp = (smp * accelSensitivity) / 32768;
 					signedDataSamples.get(dof).add(smp);
+				}if(dof < 7) {
+					if (smp > 32768) {
+						smp -= 65535;
+					}
+					smp = (smp * gyroSensitivity) / 32768;
+					signedDataSamples.get(dof).add(smp);
 				}else
 					signedDataSamples.get(dof).add(smp);
 			}
 		}
+		System.out.println("(CSV) signedDataSamples: " + signedDataSamples);
 	}
 	
 	
@@ -223,12 +234,10 @@ public class DataOrganizer {
 
 
 
-		if(signedData)
+		if(!signedData)
 			modifiedDataSmps = dataSamples;
 		else
 			modifiedDataSmps = signedDataSamples;
-
-
 
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile = null;
@@ -279,8 +288,9 @@ public class DataOrganizer {
 
 	}
 
-	public void createDataSamplesFromCSV(String CSVFilePath) {
-		dataSamples = new ArrayList<List<Double>>(9);	//This was 7 lololol
+	
+	public void createDataSamplesFromCSV(String CSVFilePath) { //Fail
+		dataSamples = new ArrayList<List<Double>>(9);	
 
 		double interval = (1.0 / sampleRate);
 		int numSample = (int) (sampleRate * lengthOfTest);
@@ -355,9 +365,12 @@ public class DataOrganizer {
 		this.nameOfTest = name;
 	}
 
+	public List<List<Double>> returnSignedData(){
+		return signedDataSamples;
+	}
+	
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
-
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 			case(0): 
@@ -391,9 +404,9 @@ public class DataOrganizer {
 
 		dofData.add(0, dofTime);
 
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+		
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
 			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
-
 		}
 		dofData.add(1, dofAxis);
 

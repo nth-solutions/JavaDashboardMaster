@@ -1,5 +1,14 @@
 package dataorganizer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
@@ -178,10 +187,7 @@ public class GraphController implements Initializable{
 
 
 	/*** Method for Preloading All Settings***/
-
-
-
-
+	
 
 	public void graphSettingsOnStart(){
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
@@ -189,14 +195,12 @@ public class GraphController implements Initializable{
 
 		lineChart.setTitle(dataCollector.getName());
 
-
+		System.out.println(dataCollector.returnSignedData());
+		
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
 		
-		
-		
-		dataCollector.getDataSamples();
 		
 
 		populateData(dataSeries, lineChart);
@@ -231,8 +235,6 @@ public class GraphController implements Initializable{
 
 
 	/*** creates the Frame-By-Frame Analysis Rectangle ***/
-
-
 
 
 
@@ -366,8 +368,8 @@ public class GraphController implements Initializable{
 		XYChart.Series<Number, Number> series = new XYChart.Series<>();
 		series.setName(name);
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-
-		for (int j = 0; j < data.get(0).size(); j++) {
+		
+		for (int j = 0; j < data.get(0).size() && j < data.get(1).size(); j++) {
 			seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
 		}
 
@@ -376,7 +378,7 @@ public class GraphController implements Initializable{
 		return FXCollections.observableArrayList(Collections.singleton(series));
 	}
 
-	public class DataSeries {
+	public class DataSeries{
 		private String name;
 		private ObservableList<XYChart.Series<Number, Number>> series;
 		private boolean isActive = true;
