@@ -118,8 +118,9 @@ public class GraphController implements Initializable{
 	private int xRangeHigh;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle zoomRect = new Rectangle();
-	int yMax = 100;
-	int yMin = 0;
+	private int XOffsetCounter = 0;
+	private int yMax = 100;
+	private int yMin = 0;
 
 
 	/*** Event Handlers ***/
@@ -190,14 +191,23 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void addNullButtonHandler(ActionEvent event) {
+		XOffsetCounter += 10;
 		for(final DataSeries ds: dataSeries) {
-			ds.addNulls(100);
+			ds.addNulls(XOffsetCounter);
 		}
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 	}
 	
-	
+	@FXML
+	public void subNullButtonHandler(ActionEvent event) {
+		XOffsetCounter -= 10;
+		for(final DataSeries ds: dataSeries) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
+	}
 
 
 	/*** Method for Preloading All Settings***/

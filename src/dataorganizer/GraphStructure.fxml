@@ -66,11 +66,19 @@
                               <Insets top="5.0" />
                            </FlowPane.margin>
                         </Button>
-                        <Button mnemonicParsing="false" onAction="#addNullButtonHandler" text="Fresh button">
+                        <HBox>
                            <FlowPane.margin>
                               <Insets top="5.0" />
                            </FlowPane.margin>
-                        </Button>
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#subNullButtonHandler" text="Move Left">
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                              <Button mnemonicParsing="false" onAction="#addNullButtonHandler" text="Move Right" />
+                           </children>
+                        </HBox>
                      </children></FlowPane>
                </content></TitledPane>
             <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="45.0" prefWidth="172.0" spacing="10.0">
