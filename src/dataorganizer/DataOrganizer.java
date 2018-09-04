@@ -135,7 +135,6 @@ public class DataOrganizer {
 			signedDataSamples.add(dof, temp);
 		}
 
-		System.out.println("accelSensitivity: " + accelSensitivity + "\ngyroSensitivity: " + gyroSensitivity);
 		signedDataSamples.get(0).addAll(dataSamples.get(0));
 
 		for (int smp = 0; smp < lineNum; smp++) {
@@ -203,7 +202,6 @@ public class DataOrganizer {
 					signedDataSamples.get(dof).add(smp);
 			}
 		}
-		System.out.println("(CSV) signedDataSamples: " + signedDataSamples);
 	}
 	
 	
@@ -369,6 +367,13 @@ public class DataOrganizer {
 		return signedDataSamples;
 	}
 	
+	public List<List<Double>> getByConversionType(int dataConversionType) {
+		switch(dataConversionType) {
+		case 1: return signedDataSamples;
+		case 2: return dataSamples;
+		}
+		return null;
+	}
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();

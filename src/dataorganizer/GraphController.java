@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -187,7 +188,16 @@ public class GraphController implements Initializable{
 
 	}
 
-
+	@FXML
+	public void addNullButtonHandler(ActionEvent event) {
+		for(final DataSeries ds: dataSeries) {
+			ds.addNulls(100);
+		}
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
+	}
+	
+	
 
 
 	/*** Method for Preloading All Settings***/
@@ -199,7 +209,6 @@ public class GraphController implements Initializable{
 
 		lineChart.setTitle(dataCollector.getName());
 
-		System.out.println(dataCollector.returnSignedData());
 		
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
@@ -412,8 +421,6 @@ public class GraphController implements Initializable{
 		public DataSeries(DataOrganizer dataOrgo, int dof) {
 			this.dof = dof;
 			this.dataOrgo = dataOrgo;
-			
-			
 
 			switch(dof) {
 				case(1): name = "Accel X"; color = "FireBrick";
@@ -469,6 +476,27 @@ public class GraphController implements Initializable{
 		
 		public void updateZoom(double start, double end) {
 			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
+		}
+		
+		public void addNulls(int offset) {
+			List<List<Double>> seriesData = new ArrayList<List<Double>>();
+			List<Double> timeAxis = new ArrayList<Double>();
+			List<Double> dataAxis = new ArrayList<Double>();
+			
+			timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0));
+			
+			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) {
+				if(offset > i) {
+					dataAxis.add(i, null);
+					continue;
+				}
+				dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset));
+			}
+			
+			seriesData.add(timeAxis);
+			seriesData.add(dataAxis);
+			
+			series = createSeries(name,seriesData);
 		}
 	}
 }
