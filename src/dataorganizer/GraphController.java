@@ -32,10 +32,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -102,6 +99,8 @@ public class GraphController implements Initializable{
 	private TextField minYValueTextField;
 	@FXML
 	private Text generalStatusText;
+	@FXML
+	private Label dataOriginLabel; //TODO: Make this change text based on dataset it controls
 
 
 	public void setDataCollector(DataOrganizer dataCollector) {
@@ -190,7 +189,7 @@ public class GraphController implements Initializable{
 	}
 
 	@FXML
-	public void addNullButtonHandler(ActionEvent event) {
+	public void addTenNullButtonHandler(ActionEvent event) {
 		XOffsetCounter += 10;
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
@@ -200,8 +199,28 @@ public class GraphController implements Initializable{
 	}
 	
 	@FXML
-	public void subNullButtonHandler(ActionEvent event) {
+	public void subTenNullButtonHandler(ActionEvent event) {
 		XOffsetCounter -= 10;
+		for(final DataSeries ds: dataSeries) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
+	}
+
+	@FXML
+	public void addOneNullButtonHandler(ActionEvent event) {
+		XOffsetCounter += 1;
+		for(final DataSeries ds: dataSeries) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
+	}
+
+	@FXML
+	public void subOneNullButtonHandler(ActionEvent event) {
+		XOffsetCounter -= 1;
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
 		}

@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -17,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
       <Pane BorderPane.alignment="CENTER">
          <children>
@@ -44,12 +45,12 @@
          <children>
             <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="200.0" prefWidth="200.0" text="Data Series Box">
                <content>
-                  <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="220.0" prefWidth="195.0" />
+                  <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="174.0" prefWidth="195.0" />
                </content>
             </TitledPane>
-            <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="220.0" prefWidth="195.0" text="Data Analysis Tools">
+            <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="250.0" prefWidth="195.0" text="Data Analysis Tools">
                <content>
-                  <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" orientation="VERTICAL" prefHeight="204.0" prefWidth="200.0">
+                  <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" orientation="VERTICAL" prefHeight="266.0" prefWidth="195.0">
                      <children>
                         <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" text="Display Raw Data">
                            <padding>
@@ -90,42 +91,82 @@
                               </Button>
                            </children>
                         </HBox>
-                        <HBox alignment="CENTER">
-                           <FlowPane.margin>
-                              <Insets top="5.0" />
-                           </FlowPane.margin>
+                        <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="45.0" prefWidth="172.0" spacing="10.0">
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
                            <children>
-                              <Button mnemonicParsing="false" onAction="#subNullButtonHandler" text="Move Left">
-                                 <HBox.margin>
-                                    <Insets right="5.0" />
-                                 </HBox.margin>
-                              </Button>
-                              <Button mnemonicParsing="false" onAction="#addNullButtonHandler" text="Move Right" />
+                              <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="30.0" prefWidth="60.0" text="Zoom" />
+                              <Separator orientation="VERTICAL" prefHeight="200.0" />
+                              <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="30.0" prefWidth="60.0" text="Reset" />
                            </children>
                         </HBox>
                      </children></FlowPane>
                </content></TitledPane>
-            <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="45.0" prefWidth="172.0" spacing="10.0">
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-               <children>
-                  <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="30.0" prefWidth="60.0" text="Zoom" />
-                  <Separator orientation="VERTICAL" prefHeight="200.0" />
-                  <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="30.0" prefWidth="60.0" text="Reset" />
-               </children>
-            </HBox>
+            <TitledPane alignment="CENTER_RIGHT" animated="false" prefHeight="130.0" text="Data Shift">
+              <content>
+                  <FlowPane alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="90.0" prefWidth="215.0">
+                     <children>
+                        <VBox prefHeight="60.0" prefWidth="105.0">
+                           <children>
+                              <Label fx:id="dataOriginLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="105.0" text="Data Origin" textAlignment="CENTER">
+                                 <VBox.margin>
+                                    <Insets bottom="5.0" />
+                                 </VBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <HBox alignment="CENTER">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#subOneNullButtonHandler" prefWidth="50.0" text="-1">
+                                       <HBox.margin>
+                                          <Insets right="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#addOneNullButtonHandler" prefWidth="50.0" text="+1" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#subTenNullButtonHandler" prefWidth="50.0" text="-10">
+                                       <HBox.margin>
+                                          <Insets right="5.0" top="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#addTenNullButtonHandler" prefWidth="50.0" text="+10">
+                                       <HBox.margin>
+                                          <Insets top="5.0" />
+                                       </HBox.margin>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </FlowPane>
+              </content>
+            </TitledPane>
          </children></VBox>
    </right>
    <top>
-      <HBox BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER">
          <children>
-            <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="900.0">
-               <font>
-                  <Font size="24.0" />
-               </font>
-            </Text>
+            <ToolBar prefHeight="40.0" prefWidth="200.0">
+              <items>
+                <Button mnemonicParsing="false" text="Graph" />
+              </items>
+            </ToolBar>
+            <HBox>
+               <children>
+                  <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="900.0">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
          </children>
-      </HBox>
+      </VBox>
    </top>
 </BorderPane>
