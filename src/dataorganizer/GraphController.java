@@ -172,7 +172,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void handleSetYRange(ActionEvent event) {
 
-		try {
+		/*try {
 			yMax = Integer.parseInt(maxYValueTextField.getText());
 			yMin = Integer.parseInt(minYValueTextField.getText());
 
@@ -182,7 +182,7 @@ public class GraphController implements Initializable{
 		} catch (NumberFormatException e) {
 			maxYValueTextField.setText("Enter a valid number");
 			minYValueTextField.setText("Enter a valid number");
-		}
+		}*/
 
 	}
 
@@ -232,6 +232,11 @@ public class GraphController implements Initializable{
 
 		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5).or(zoomRect.heightProperty().lessThan(0));
 		zoomButton.disableProperty().bind(disableControls);
+
+		if (maxYValueTextField.getText().equals("") && minYValueTextField.getText().equals("")) {
+			maxYValueTextField.setText(Integer.toString(yMax));
+			minYValueTextField.setText(Integer.toString(yMin));
+		}
 	}
 
 

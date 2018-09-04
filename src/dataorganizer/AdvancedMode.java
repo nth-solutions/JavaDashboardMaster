@@ -1987,6 +1987,7 @@ public class AdvancedMode extends JFrame {
 
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
 		if(dataOrgo != null) {
+            testRecordationPanel.removeAll();
 			final int viewableTests = dataOrgo.size();
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
 			saveTestBtn = new ArrayList<JButton>(viewableTests);
