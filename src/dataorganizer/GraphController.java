@@ -172,17 +172,18 @@ public class GraphController implements Initializable{
 	@FXML
 	public void handleSetYRange(ActionEvent event) {
 
-		/*try {
+		try {
 			yMax = Integer.parseInt(maxYValueTextField.getText());
 			yMin = Integer.parseInt(minYValueTextField.getText());
 
 			yAxis.setUpperBound(yMax);
 			yAxis.setLowerBound(yMin);
 
+			generalStatusText.setText("");
+
 		} catch (NumberFormatException e) {
-			maxYValueTextField.setText("Enter a valid number");
-			minYValueTextField.setText("Enter a valid number");
-		}*/
+			generalStatusText.setText("Enter a valid Y-Axis Value");
+		}
 
 	}
 

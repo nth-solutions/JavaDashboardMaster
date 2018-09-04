@@ -86,7 +86,7 @@
                               <Insets top="5.0" />
                            </FlowPane.margin>
                            <children>
-                              <Button alignment="CENTER" mnemonicParsing="false" onAction="#handleSetYRange" prefHeight="25.0" prefWidth="150.0" text="Set Y-Values" textAlignment="CENTER" />
+                              <Button alignment="CENTER" mnemonicParsing="false" onAction="#handleSetYRange" prefHeight="25.0" prefWidth="150.0" text="Set Y-Axis Values" textAlignment="CENTER" />
                            </children>
                         </HBox>
                      </children></FlowPane>
