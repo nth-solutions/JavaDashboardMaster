@@ -178,6 +178,7 @@ public class AdvancedMode extends JFrame {
 	private JButton browseVideoBtn;
 	private ArrayList<JButton> saveTestBtn;
 	private ArrayList<JButton> graphTestBtn;
+	private ArrayList<JButton> mediaPlayerBtn;
 
 	//Progress Bars
 	private JProgressBar progressBar;
@@ -185,6 +186,10 @@ public class AdvancedMode extends JFrame {
 	//JSeparators
 	private JSeparator separator;
 
+	//UI Controllers
+	GraphController lineGraph;
+	MediaPlayerController mediaController;
+	
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
@@ -1699,9 +1704,9 @@ public class AdvancedMode extends JFrame {
 		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			ArrayList<DataOrganizer> dataOrgoList = new ArrayList<DataOrganizer>();
 			DataOrganizer dataOrgo = new DataOrganizer();
-			dataOrgoList.add(dataOrgo);
 			dataOrgo.createDataSamplesFromCSV(chooser.getSelectedFile().toString());
-			dataOrgo.getCSVSignedData();
+			dataOrgo.getSignedData();
+			dataOrgoList.add(dataOrgo);
 			addTestsToRecordationPane(dataOrgoList);
 			repaint();
 		}
@@ -1914,10 +1919,12 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						GraphController lineGraph = startGraphing();
+						lineGraph = startGraphing();
 						lineGraph.setDataCollector(dataOrgo.get(i));
 						lineGraph.graphSettingsOnStart();
-						MediaPlayerController mediaController = startMediaPlayer();
+					}
+					if(mediaPlayerBtn.get(i) == e.getSource()) { //TODO: Add MediaPlayerBtn and call this method from it
+						mediaController = startMediaPlayer();
 						mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
@@ -1992,6 +1999,7 @@ public class AdvancedMode extends JFrame {
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
 			saveTestBtn = new ArrayList<JButton>(viewableTests);
 			graphTestBtn = new ArrayList<JButton>(viewableTests);
+			mediaPlayerBtn = new ArrayList<JButton>(viewableTests);
 			testNameTextField = new ArrayList<JTextField>(viewableTests);
 
 			for(int i = 0; i < viewableTests; i++) {
@@ -2021,17 +2029,27 @@ public class AdvancedMode extends JFrame {
 					}
 				});
 
-
 				testNumPaneArray.get(i).add(saveTestBtn.get(i));
 
 				graphTestBtn.add(new JButton("Graph"));
-				graphTestBtn.get(i).setBounds(435, 11, 69, 23);
+				graphTestBtn.get(i).setBounds(430, 11, 70, 23);
 				graphTestBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						initFX(dataOrgo, e);
 					}
 				});
+
 				testNumPaneArray.get(i).add(graphTestBtn.get(i));
+				
+				mediaPlayerBtn.add(new JButton("Media Player"));
+				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
+				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						initFX(dataOrgo, e);
+					}
+				});
+				
+				testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
 			}
 
 			for(int i = 0; i < testNumPaneArray.size();i++) {
