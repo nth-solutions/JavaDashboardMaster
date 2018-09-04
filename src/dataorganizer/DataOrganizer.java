@@ -218,15 +218,7 @@ public class DataOrganizer {
 		return normalizedDataSamples;
 
 	}
-
-	/*I feel compelled to explain this because I just learned about it. This method creates a csv, and returns an int.
-	 *It also takes two boolean
-	 *Why it was an int I'm not sure, but the int was thrown in a switch statement and checked for the values 1 and 0.
-	 * 
-	 *  That sounds very much like a boolean. That is all. Good luck to future interns. Stay away from this class if you are not ready for hell. 
-	 *  
-	 *  git-blame Rob. Every time. He tried though. Its a mess, but working.
-	 */
+	
 	public int createCSV(boolean labelData, boolean signedData) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 
