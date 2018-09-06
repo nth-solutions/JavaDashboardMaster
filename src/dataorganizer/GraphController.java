@@ -124,8 +124,8 @@ public class GraphController implements Initializable{
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle zoomRect = new Rectangle();
 	private int XOffsetCounter = 0;
-	private int yMax = 100;
-	private int yMin = 0;
+	private double yMax = 100;
+	private double yMin = 0;
 
 
 	/*** Event Handlers ***/
@@ -180,8 +180,8 @@ public class GraphController implements Initializable{
 	public void handleSetYRange(ActionEvent event) {
 
 		try {
-			yMax = Integer.parseInt(maxYValueTextField.getText());
-			yMin = Integer.parseInt(minYValueTextField.getText());
+			yMax = Double.parseDouble(maxYValueTextField.getText());
+			yMin = Double.parseDouble(minYValueTextField.getText());
 
 			yAxis.setUpperBound(yMax);
 			yAxis.setLowerBound(yMin);
@@ -190,6 +190,11 @@ public class GraphController implements Initializable{
 
 		} catch (NumberFormatException e) {
 			generalStatusText.setText("Enter a valid Y-Axis Value");
+			maxYValueTextField.setText(Double.toString(yMax));
+			minYValueTextField.setText(Double.toString(yMin));
+
+			yAxis.setUpperBound(yMax);
+			yAxis.setLowerBound(yMin);
 		}
 
 	}
@@ -298,8 +303,8 @@ public class GraphController implements Initializable{
 		zoomButton.disableProperty().bind(disableControls);
 
 		if (maxYValueTextField.getText().equals("") && minYValueTextField.getText().equals("")) {
-			maxYValueTextField.setText(Integer.toString(yMax));
-			minYValueTextField.setText(Integer.toString(yMin));
+			maxYValueTextField.setText(Double.toString(yMax));
+			minYValueTextField.setText(Double.toString(yMin));
 		}
 	}
 

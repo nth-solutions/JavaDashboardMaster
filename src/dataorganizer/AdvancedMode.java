@@ -1955,7 +1955,7 @@ public class AdvancedMode extends JFrame {
 			e.printStackTrace();
 		}
 
-		if(root!=null) primaryStage.setScene(new Scene(root, 900, 700));
+		if(root!=null) primaryStage.setScene(new Scene(root, 1000, 700));
 		
 	    primaryStage.setTitle("Graph");
 		primaryStage.show();
