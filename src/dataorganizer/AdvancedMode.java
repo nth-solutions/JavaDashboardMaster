@@ -133,7 +133,6 @@ public class AdvancedMode extends JFrame {
 	//Read Tab
 	private JTextField prefixTextField;
 	private JTextField suffixTextField;
-	private JTextField fileNameTextField;
 	private JTextField numTestsTextFieldRead;
 	private JTextField testLengthTextFieldRead;
 	private JTextField accelGyroSampleRateTextFieldRead;
@@ -160,7 +159,6 @@ public class AdvancedMode extends JFrame {
 	private JButton disconnectButton;
 	private JButton writeConfigsButton;
 	private JButton getModuleIDButton;
-	private JButton browseButton;
 	private JButton readDataButton;
 	private JButton bulkEraseButton;
 	private JButton sectorEraseButton;
@@ -260,6 +258,9 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<JTextField> testNameTextField;
 	private final JFXPanel graphingPanel = new JFXPanel();
 	private JButton helpBtn;
+	private JTextField fileNameTextField;
+	private JPanel launcherPane;
+	private JButton graphLauncherBtn;
 
 
 	/**
@@ -1462,7 +1463,16 @@ public class AdvancedMode extends JFrame {
 									organizerThread = new Thread(organizerOperation);
 									//Start thread
 									organizerThread.start();	
+									
 								}
+								
+								Settings settings = new Settings();
+								settings.loadConfigFile();
+								if(Boolean.parseBoolean(settings.getKeyVal("AutoSave"))) {
+									for(DataOrganizer dO: dataOrgoList)
+										dO.createCSV(false, false);
+								}
+								
 								addTestsToRecordationPane(dataOrgoList);
 							}
 							else {
@@ -1652,25 +1662,6 @@ public class AdvancedMode extends JFrame {
 			timer0TickThreshTextField.setText(Integer.toString(tickThresh));
 		}
 		return true;
-	}
-
-
-	/**
-	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
-	 * the file explorer and select a save location for the incoming data.
-	 */
-	public void browseButtonHandler() {
-		JFileChooser chooser;
-		chooser = new JFileChooser(); 
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			fileOutputDirectoryStr = chooser.getSelectedFile().toString();
-		}
-		else {
-			fileOutputDirectoryStr = null;
-		}
 	}
 
 	/**
@@ -2243,25 +2234,15 @@ public class AdvancedMode extends JFrame {
 
 		fileLocationPanel = new JPanel();
 		fileNamePanel.add(fileLocationPanel);
-		fileLocationPanel.setLayout(new BoxLayout(fileLocationPanel, BoxLayout.X_AXIS));
-
+		fileLocationPanel.setLayout(null);
+		
 		fileNameTextField = new JTextField();
+		fileNameTextField.setBounds(0, 0, 630, 50);
 		fileNameTextField.setMinimumSize(new Dimension(600, 50));
 		fileNameTextField.setMaximumSize(new Dimension(500, 50));
+		fileNameTextField.setColumns(15);
 		fileNameTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		fileLocationPanel.add(fileNameTextField);
-		fileNameTextField.setColumns(10);
-
-		browseButton = new JButton("Browse");
-		browseButton.setMaximumSize(new Dimension(160, 50));
-		browseButton.setPreferredSize(new Dimension(81, 35));
-		fileLocationPanel.add(browseButton);
-
-		browseButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				browseButtonHandler();
-			}
-		});
 
 		paramPanel = new JPanel();
 		paramPanel.setPreferredSize(new Dimension(630, 200));
@@ -2315,6 +2296,19 @@ public class AdvancedMode extends JFrame {
 		gyroFilterTextFieldRead.setColumns(10);
 		gyroFilterTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(gyroFilterTextFieldRead);
+		
+				testRecordationPanel = new JPanel();
+				mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
+				testRecordationPanel.setLayout(null);
+				
+				JButton loadTestBtn = new JButton("Load Test From File");
+				loadTestBtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						csvBrowseButtonHandler();
+					}
+				});
+				loadTestBtn.setBounds(485, 349, 140, 23);
+				testRecordationPanel.add(loadTestBtn);
 
 		JPanel configurationPanel = new JPanel();
 		configurationPanel.setPreferredSize(new Dimension(500, 1000));
@@ -2586,23 +2580,46 @@ public class AdvancedMode extends JFrame {
 
 		RemoteButtonPanel.add(exitTestModeButton);
 
-		testRecordationPanel = new JPanel();
-		mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
-		testRecordationPanel.setLayout(null);
-		
-		JButton loadTestBtn = new JButton("Load Test From File");
-		loadTestBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				csvBrowseButtonHandler();
-			}
-		});
-		loadTestBtn.setBounds(485, 349, 140, 23);
-		testRecordationPanel.add(loadTestBtn);
-
 		adminPanel = new JPanel();
 		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
 
 		adminPanel.setLayout(new GridLayout(4, 1, 30, 0));
+		
+		launcherPane = new JPanel();
+		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);
+		launcherPane.setLayout(null);
+		
+		graphLauncherBtn = new JButton("Graph");
+		graphLauncherBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Platform.setImplicitExit(false);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						startGraphing();
+					}
+				});
+			}
+		});
+		graphLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		graphLauncherBtn.setBounds(0, 0, 625, 182);
+		launcherPane.add(graphLauncherBtn);
+		
+		JButton mediaPlayerLauncherBtn = new JButton("Media Player");
+		mediaPlayerLauncherBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Platform.setImplicitExit(false);
+				Platform.runLater(new Runnable() {
+					@Override
+					public void run() {
+						startMediaPlayer();
+					}
+				});
+			}
+		});
+		mediaPlayerLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		mediaPlayerLauncherBtn.setBounds(0, 182, 625, 190);
+		launcherPane.add(mediaPlayerLauncherBtn);
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				unpairAllRemotesHandler();

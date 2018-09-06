@@ -6,10 +6,11 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -18,7 +19,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
       <Pane BorderPane.alignment="CENTER">
          <children>
@@ -34,6 +35,11 @@
                   </LineChart>
                </children>
             </Pane>
+            <Text fx:id="generalStatusText" layoutY="643.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="900.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Text>
          </children>
       </Pane>
    </center>
@@ -150,21 +156,20 @@
          </children></VBox>
    </right>
    <top>
-      <VBox BorderPane.alignment="CENTER">
+      <VBox prefHeight="50.0" prefWidth="906.0" BorderPane.alignment="CENTER">
          <children>
-            <ToolBar prefHeight="40.0" prefWidth="200.0">
-              <items>
-                <Button mnemonicParsing="false" text="Graph" />
-              </items>
-            </ToolBar>
-            <HBox>
+            <HBox prefHeight="40.0" prefWidth="902.0">
                <children>
-                  <Text fx:id="generalStatusText" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="900.0">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Text>
+                  <MenuButton mnemonicParsing="false" text="File">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
+                      <MenuItem mnemonicParsing="false" onAction="#clearData" text="Clear Data" />
+                    </items>
+                  </MenuButton>
                </children>
+               <VBox.margin>
+                  <Insets bottom="10.0" />
+               </VBox.margin>
             </HBox>
          </children>
       </VBox>

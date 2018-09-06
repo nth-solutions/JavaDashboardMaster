@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.JFileChooser;
+
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -42,6 +44,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.beans.binding.BooleanBinding;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 /*** The Following Refers to Features That Need To Be Implemented Within the Program***/
 //TODO: Add Ability to Graph Mag Data (Possibly Fixed?)
@@ -228,10 +231,29 @@ public class GraphController implements Initializable{
 		styleSeries(dataSeries, lineChart);
 	}
 
-
+	@FXML
+	public void importCSV(ActionEvent event) {
+		String csvFilePath = csvBrowseButtonHandler();
+		System.out.println("csvFilePath: " + csvFilePath);
+		DataOrganizer dataOrgoObject = new DataOrganizer();
+		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
+		
+		for (int numDof = 1; numDof < 10; numDof++) {
+			dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
+		}
+		
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
+	}
+	
+	@FXML
+	public void clearData() {
+		lineChart.getData().clear();
+	}
+	
+	
 	/*** Method for Preloading All Settings***/
 	
-
 	public void graphSettingsOnStart(){
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
 		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
@@ -279,6 +301,23 @@ public class GraphController implements Initializable{
 	}
 
 
+	/**
+	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
+	 * the file explorer and select a save location for the incoming data.
+	 */
+	public String csvBrowseButtonHandler() {
+		final JFileChooser chooser = new JFileChooser(); 
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			return chooser.getSelectedFile().toString();
+		}
+		else {
+			return null;
+		}
+	}
+	
 
 
 	/*** creates the Frame-By-Frame Analysis Rectangle ***/

@@ -32,6 +32,7 @@ public class SettingsWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField saveDirectoryTextField;
+	private JCheckBox saveOnReadCheckBox;
 
 	/**
 	 * Launch the application.
@@ -53,6 +54,7 @@ public class SettingsWindow extends JFrame {
 		Settings settings = getSettingsInstance();
 		settings.loadConfigFile();
 		saveDirectoryTextField.setText(settings.getKeyVal("CSVSaveLocation"));
+		saveOnReadCheckBox.setSelected(Boolean.parseBoolean(settings.getKeyVal("AutoSave")));
 	}
 	
 	public Settings getSettingsInstance() {
@@ -79,6 +81,7 @@ public class SettingsWindow extends JFrame {
 		Settings settings = getSettingsInstance();
 		settings.loadConfigFile();
 		settings.setProp("CSVSaveLocation", saveDirectoryTextField.getText());
+		settings.setProp("AutoSave", String.valueOf(saveOnReadCheckBox.isSelected()));
 		settings.saveConfig();
 	}
 	
@@ -168,9 +171,14 @@ public class SettingsWindow extends JFrame {
 		restoreDefaultsBtn.setBounds(10, 200, 137, 23);
 		directorySaveLocations.add(restoreDefaultsBtn);
 		
+		JLabel lblSaveOnRead = new JLabel("Save on Read:");
+		lblSaveOnRead.setBounds(12, 58, 75, 14);
+		directorySaveLocations.add(lblSaveOnRead);
+		
+		saveOnReadCheckBox = new JCheckBox("");
+		saveOnReadCheckBox.setBounds(97, 58, 21, 23);
+		directorySaveLocations.add(saveOnReadCheckBox);
+		
 		updateUI();
 	}
-	
-	
-	
 }
