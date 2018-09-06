@@ -124,8 +124,8 @@ public class GraphController implements Initializable{
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle zoomRect = new Rectangle();
 	private int XOffsetCounter = 0;
-	private int yMax = 100;
-	private int yMin = 0;
+	private double yMax = 100;
+	private double yMin = 0;
 
 
 	/*** Event Handlers ***/
@@ -180,8 +180,8 @@ public class GraphController implements Initializable{
 	public void handleSetYRange(ActionEvent event) {
 
 		try {
-			yMax = Integer.parseInt(maxYValueTextField.getText());
-			yMin = Integer.parseInt(minYValueTextField.getText());
+			yMax = Double.parseDouble(maxYValueTextField.getText());
+			yMin = Double.parseDouble(minYValueTextField.getText());
 
 			yAxis.setUpperBound(yMax);
 			yAxis.setLowerBound(yMin);
@@ -190,6 +190,11 @@ public class GraphController implements Initializable{
 
 		} catch (NumberFormatException e) {
 			generalStatusLabel.setText("Enter a valid Y-Axis Value");
+			maxYValueTextField.setText(Double.toString(yMax));
+			minYValueTextField.setText(Double.toString(yMin));
+
+			yAxis.setUpperBound(yMax);
+			yAxis.setLowerBound(yMin);
 		}
 
 	}
@@ -240,7 +245,8 @@ public class GraphController implements Initializable{
 		if(csvFilePath != null) {
 			DataOrganizer dataOrgoObject = new DataOrganizer();
 			dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
-
+			dataOrgoObject.getCSVSignedData();
+			
 			for (int numDof = 1; numDof < 10; numDof++) {
 				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
 			}
@@ -249,7 +255,34 @@ public class GraphController implements Initializable{
 			styleSeries(dataSeries, lineChart);
 		}
 		
-		generalStatusLabel.setText("");
+		zoomRect.setManaged(false);
+		zoomRect.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
+		chartContainer.getChildren().add(zoomRect);
+
+		setUpZooming(zoomRect, lineChart);
+
+		for (final DataSeries ds : dataSeries) {
+			final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
+			dataToDisplayCheckBox.setSelected(true);
+			dataToDisplayCheckBox.setPadding(new Insets(5));
+			// Line line = new Line(0, 10, 50, 10);
+
+			// box.setGraphic(line);
+			dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
+			dataToDisplayCheckBox.setOnAction(action -> {
+				ds.setActive(dataToDisplayCheckBox.isSelected());
+				populateData(dataSeries, lineChart);
+				styleSeries(dataSeries, lineChart);
+			});
+		}
+
+		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5).or(zoomRect.heightProperty().lessThan(0));
+		zoomButton.disableProperty().bind(disableControls);
+
+		if (maxYValueTextField.getText().equals("") && minYValueTextField.getText().equals("")) {
+			maxYValueTextField.setText(Double.toString(yMax));
+			minYValueTextField.setText(Double.toString(yMin));
+		}
 	}
 
 	@FXML
@@ -301,8 +334,8 @@ public class GraphController implements Initializable{
 		zoomButton.disableProperty().bind(disableControls);
 
 		if (maxYValueTextField.getText().equals("") && minYValueTextField.getText().equals("")) {
-			maxYValueTextField.setText(Integer.toString(yMax));
-			minYValueTextField.setText(Integer.toString(yMin));
+			maxYValueTextField.setText(Double.toString(yMax));
+			minYValueTextField.setText(Double.toString(yMin));
 		}
 	}
 
@@ -407,7 +440,6 @@ public class GraphController implements Initializable{
 				if(ds.isActive()) {
 					ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 				}
-
 			}
 
 			xAxis.setTickUnit(xAxis.getUpperBound() - xAxis.getLowerBound() / 5);
@@ -417,9 +449,6 @@ public class GraphController implements Initializable{
 
 
 		/*** Data Handling and Functionality Components***/
-
-
-
 
 		private void populateData(final ObservableList<DataSeries> ds, final LineChart<Number, Number> lineChart) {
 			lineChart.getData().clear();
@@ -486,7 +515,7 @@ public class GraphController implements Initializable{
 				this.name = name;
 				this.dof = dof;
 				this.dataOrgo = dataOrgo;
-				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType, 960));
 			}
 
 			public DataSeries(DataOrganizer dataOrgo, int dof) {
@@ -517,7 +546,7 @@ public class GraphController implements Initializable{
 				}
 
 
-				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+				series = createSeries(name, dataOrgo.getZoomedSeriesCSV(0, dataOrgo.getLengthOfTest(), dof, dataConversionType, 960));
 			}
 
 			public String getName() {
@@ -546,7 +575,7 @@ public class GraphController implements Initializable{
 			}
 
 			public void updateZoom(double start, double end) {
-				series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
+				series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType, 960));
 			}
 
 			public void addNulls(int offset) {

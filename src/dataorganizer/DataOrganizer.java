@@ -367,7 +367,7 @@ public class DataOrganizer {
 		return null;
 	}
 
-	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
+	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType, int sampleRate) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 			case(0): 
@@ -399,18 +399,62 @@ public class DataOrganizer {
 			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
+		System.out.println(dofTime);
+		
 		dofData.add(0, dofTime);
 
 		
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
-			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+			dofAxis.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 		dofData.add(1, dofAxis);
 
 		return dofData;
 	}
 
+	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType, int sampleRate) {
+		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		switch(dataConversionType) {
+			case(0): 
+				modifiedDataSmps = dataSamples;
+				break;
+			case(1): 
+				modifiedDataSmps = signedDataSamples;
+				break;
+		}
+		
+		int numSamples = (int) Math.round((end - start) * sampleRate);
 
+		double rate = 7000.0 / (double) numSamples;
+		double newSps = (sampleRate * rate);
+		double modifier = sampleRate / newSps;
+
+		List<List<Double>> dofData = new ArrayList<List<Double>>();
+
+		List<Double> dofTime = new ArrayList<Double>();
+		dofTime.add(0, 0.0);
+		List<Double> dofAxis = new ArrayList<Double>();
+
+		if (modifier < 1)
+			modifier = 1;
+		
+		for(int sample = 1; sample < 7000 && sample < modifiedDataSmps.get(0).size(); sample++) {
+			dofTime.add(sample, ((1/(double)sampleRate)*(double)sample));
+		}
+		
+		dofData.add(0, dofTime);
+		
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
+			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		}
+		
+		dofData.add(1, dofAxis);
+		System.out.println(dofAxis);
+		
+		return dofData;
+	}
+	
+	
 	public double maxTestValAxis() {
 		double max = -32768;
 		
