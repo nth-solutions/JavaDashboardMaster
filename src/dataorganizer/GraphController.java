@@ -9,14 +9,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -306,16 +309,27 @@ public class GraphController implements Initializable{
 	 * the file explorer and select a save location for the incoming data.
 	 */
 	public String csvBrowseButtonHandler() {
-		final JFileChooser chooser = new JFileChooser(); 
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			return chooser.getSelectedFile().toString();
+		AtomicReference<String> csvLocation = new AtomicReference<String>();
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					final JFileChooser chooser = new JFileChooser(); 
+					chooser.setCurrentDirectory(new java.io.File("."));
+					chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					chooser.setAcceptAllFileFilterUsed(false);
+					if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+						csvLocation.set(chooser.getSelectedFile().toString());
+					}
+				}
+			});
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		else {
-			return null;
-		}
+		
+		return csvLocation.get();
 	}
 	
 
