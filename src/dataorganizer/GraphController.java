@@ -504,6 +504,8 @@ public class GraphController implements Initializable{
 			return FXCollections.observableArrayList(Collections.singleton(series));
 		}
 
+		
+		// See Robs email
 		public class DataSeries{
 			private String name;
 			private ObservableList<XYChart.Series<Number, Number>> series;
@@ -554,7 +556,7 @@ public class GraphController implements Initializable{
 				}
 
 
-				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+				series = createSeries(name, dataOrgo.getZoomedSeriesCSV(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 			}
 
 			public String getName() {
@@ -586,25 +588,29 @@ public class GraphController implements Initializable{
 				series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 			}
 
+			
+			/*
+			 * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left. 
+			 */
 			public void addNulls(int offset) {
 				List<List<Double>> seriesData = new ArrayList<List<Double>>();
 				List<Double> timeAxis = new ArrayList<Double>();
 				List<Double> dataAxis = new ArrayList<Double>();
 
-				timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0));
+				timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0)); //Add time axis
 
-				for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) {
-					if(offset > i) {
-						dataAxis.add(i, null);
-						continue;
+				for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to end of data + offset (or minus offset if its negative)
+					if(offset > i) { //If the offset is less than the sample 
+						dataAxis.add(i, null); //Add empty
+						continue; //Back to top of the loop
 					}
-					dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset));
+					dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //pull the samples we want (getByConversion) reference the axis (each series is a dof, and time axis) and add the current sample
 				}
 
 				seriesData.add(timeAxis);
 				seriesData.add(dataAxis);
 
-				series = createSeries(name,seriesData);
+				series = createSeries(name,seriesData); //create a series for the linechart
 			}
 		}
 	}

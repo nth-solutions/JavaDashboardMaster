@@ -234,34 +234,39 @@ public class DataOrganizer {
 			e.printStackTrace();
 			return -1;
 		}
-		for(int i = 0; i < testParameters.size(); i++) {
+		for(int i = 0; i < testParameters.size(); i++) { //Write all parameters to the file. We really only needed like 3 at the time of writing but this was easier and probably more effective in the future.
 			dataFile.println(testParameters.get(i).toString());
 		}
 		dataFile.close();
 		return 0;
 	}
 
+	/*
+	 * Read the test parameters from the file we stored them in. This file will be in the same directory as the .csv and has the 
+	 * extension .csvp (extension is misleading. They are really separated by newlines, which is actually data inefficient I realize as I write this. \cr\lf is two bytes and a comma is one. no biggie right? )
+	 */
 	public int readAndSetTestParameters(String pathToFile) {
-		File f = new File(pathToFile);
-		this.nameOfTest = f.getName();
-		settings.loadConfigFile();
-		BufferedReader CSVPFile = null;
+		File f = new File(pathToFile); //Create a file object of the .csvp, just to get the file name. I was told this way is more efficient than substrings. Its definitely shorter than string manipulation. Plus I would have had to taken other OS file separators into account
+		this.nameOfTest = f.getName(); //set the name of the test
+		settings.loadConfigFile(); //need to load keys from settings file. This tells us where CSV's are stored
+		BufferedReader CSVPFile = null; //Reader for reading from the file
 		String lineText = "";
-		testParameters = new ArrayList<Integer>();
+		testParameters = new ArrayList<Integer>(); //Reinstantiate the testParameters object. Just for a quick while loop. 
+		
 		try {
-			CSVPFile = new BufferedReader(new FileReader(pathToFile));
+			CSVPFile = new BufferedReader(new FileReader(pathToFile)); //open the file for reading
 		} catch (FileNotFoundException e) {
 			return -1;			//File Permissions error
 		}
 
 		try {
-			while((lineText = CSVPFile.readLine()) != null){
-				testParameters.add(testParameters.size(), Integer.parseInt(lineText));
+			while((lineText = CSVPFile.readLine()) != null){ //Read until EOF
+				testParameters.add(testParameters.size(), Integer.parseInt(lineText)); //Parse as an int and add to test params
 			}
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
+			//NFE really shouldn't happen but it would mean that the file is corrupt.
 			try {
-				CSVPFile.close();
+				CSVPFile.close(); //Try to close the file
 			} catch (IOException e1) {
 				// I guess we can't close the corrupt file either.
 			}
@@ -275,12 +280,16 @@ public class DataOrganizer {
 			return -3; //Permissions error as well.
 		}
 
-		delayAfterStart = this.testParameters.get(2);
-		lengthOfTest = this.testParameters.get(6);
-		sampleRate = this.testParameters.get(7);
-		magSampleRate = this.testParameters.get(8);
-		accelSensitivity = this.testParameters.get(9);
-		gyroSensitivity = this.testParameters.get(10);
+		
+		/*
+		 * Just set these variables because thats where we reference them from most of the time.
+		 */
+		delayAfterStart = testParameters.get(2);
+		lengthOfTest = testParameters.get(6);
+		sampleRate = testParameters.get(7);
+		magSampleRate = testParameters.get(8);
+		accelSensitivity = testParameters.get(9);
+		gyroSensitivity = testParameters.get(10);
 		magSensitivity = 4800; //TODO: not constant
 
 		try {
@@ -294,8 +303,6 @@ public class DataOrganizer {
 
 	public int createCSV(boolean labelData, boolean signedData) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
-
-
 
 		if(!signedData)
 			modifiedDataSmps = dataSamples;
@@ -484,9 +491,9 @@ public class DataOrganizer {
 	}
 
 	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType) {
-		dofNum--;
+		dofNum--; //hardcore hack. Not really. I had an off by one error but could only account for it here, because otherwise there is an extra empty checkbox in the dataSeriesCheckboxFlowPane
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
-		switch(dataConversionType) {
+		switch(dataConversionType) { //What type of data. 0 is raw, 1 is signed. We are expecting to expand on this supposedly? thats why its a switch and not a bool
 		case(0): 
 			modifiedDataSmps = dataSamples;
 		break;
@@ -495,11 +502,11 @@ public class DataOrganizer {
 		break;
 		}
 
-		int numSamples = (int) Math.round((end - start) * sampleRate);
+		int numSamples = (int) Math.round((end - start) * sampleRate); //How many samples are we interested in
 
-		double rate = 7000.0 / (double) numSamples;
-		double newSps = (sampleRate * rate);
-		double modifier = sampleRate / newSps;
+		double rate = 7000.0 / (double) numSamples; //Whats our rate? Rob made up 7000 and I stole it.
+		double newSps = (sampleRate * rate); 
+		double modifier = sampleRate / newSps; 
 
 		List<List<Double>> dofData = new ArrayList<List<Double>>();
 
@@ -507,7 +514,7 @@ public class DataOrganizer {
 		dofTime.add(0, 0.0);
 		List<Double> dofAxis = new ArrayList<Double>();
 
-		if (modifier < 1)
+		if (modifier < 1) // We cant have more data than we have
 			modifier = 1;
 
 		for(int sample = 1; sample < 7000 && sample < modifiedDataSmps.get(0).size(); sample++) {
