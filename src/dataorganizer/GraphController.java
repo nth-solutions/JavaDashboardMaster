@@ -69,8 +69,6 @@ public class GraphController implements Initializable{
 
 
 
-
-
 	@FXML
 	private LineChart<Number, Number> lineChart;
 	@FXML
@@ -119,6 +117,7 @@ public class GraphController implements Initializable{
 
 	private ObservableList<DataSeries> dataSeries = FXCollections.observableArrayList();								//Initializes the list of series
 	private DataOrganizer dataCollector;
+	private String csvFilePath;
 	private int xRangeLow;
 	private int xRangeHigh;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
@@ -137,10 +136,9 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void handleReset(ActionEvent event) {
-		final NumberAxis xAxis = (NumberAxis) lineChart.getXAxis();
-		xAxis.setLowerBound(0);
-		xAxis.setUpperBound(dataCollector.getLengthOfTest());
-
+		yAxis.setUpperBound(yMax);
+		yAxis.setLowerBound(yMin);
+		
 		zoomRect.setWidth(0);
 		zoomRect.setHeight(0);
 		for (final DataSeries ds : dataSeries) {
@@ -149,8 +147,7 @@ public class GraphController implements Initializable{
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
-		yAxis.setUpperBound(yMax);
-		yAxis.setLowerBound(yMin);
+		
 	}
 
 	@FXML
@@ -241,11 +238,12 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void importCSV(ActionEvent event) {
-		String csvFilePath = csvBrowseButtonHandler();
+		csvFilePath = csvBrowseButtonHandler();
 		if(csvFilePath != null) {
 			DataOrganizer dataOrgoObject = new DataOrganizer();
 			dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
 			dataOrgoObject.getCSVSignedData();
+			this.dataCollector = dataOrgoObject;
 			
 			for (int numDof = 1; numDof < 10; numDof++) {
 				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
@@ -255,8 +253,12 @@ public class GraphController implements Initializable{
 			styleSeries(dataSeries, lineChart);
 		}
 		
+		xAxis.setUpperBound(dataCollector.getLengthOfTest());
+		xAxis.setLowerBound(0);
+		
 		zoomRect.setManaged(false);
 		zoomRect.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
+		chartContainer.getChildren().remove(zoomRect);
 		chartContainer.getChildren().add(zoomRect);
 
 		setUpZooming(zoomRect, lineChart);
@@ -288,6 +290,8 @@ public class GraphController implements Initializable{
 	@FXML
 	public void clearData() {
 		lineChart.getData().clear();
+		dataDisplayCheckboxesFlowPane.getChildren().clear();
+		dataSeries = FXCollections.observableArrayList(); 
 	}
 
 
@@ -303,8 +307,6 @@ public class GraphController implements Initializable{
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
 		}
-
-
 
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
@@ -486,11 +488,17 @@ public class GraphController implements Initializable{
 			XYChart.Series<Number, Number> series = new XYChart.Series<>();
 			series.setName(name);
 			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-
+			
+			if(data.get(1).size() < 700)
+				System.out.println(data.get(1).size());
+			
 			for (int j = 0; j < data.get(0).size() && j < data.get(1).size(); j++) {
 				seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
+				
 			}
 
+			
+			
 			series.setData(seriesData);
 
 			return FXCollections.observableArrayList(Collections.singleton(series));
@@ -515,7 +523,7 @@ public class GraphController implements Initializable{
 				this.name = name;
 				this.dof = dof;
 				this.dataOrgo = dataOrgo;
-				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType, 960));
+				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 			}
 
 			public DataSeries(DataOrganizer dataOrgo, int dof) {
@@ -546,7 +554,7 @@ public class GraphController implements Initializable{
 				}
 
 
-				series = createSeries(name, dataOrgo.getZoomedSeriesCSV(0, dataOrgo.getLengthOfTest(), dof, dataConversionType, 960));
+				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 			}
 
 			public String getName() {
@@ -575,7 +583,7 @@ public class GraphController implements Initializable{
 			}
 
 			public void updateZoom(double start, double end) {
-				series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType, 960));
+				series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 			}
 
 			public void addNulls(int offset) {

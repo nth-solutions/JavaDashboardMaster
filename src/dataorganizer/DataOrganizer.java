@@ -17,6 +17,7 @@ public class DataOrganizer {
 	private List<List<Double>> dataSamples;
 	private List<List<Double>> signedDataSamples;
 	private List<List<Double>> normalizedDataSamples;
+	private List<Integer> testParameters;
 	private String nameOfTest;
 	private int sampleRate;
 	private int magSampleRate;
@@ -26,6 +27,7 @@ public class DataOrganizer {
 	private int magSensitivity;
 	private double lengthOfTest;
 	private int numDof = 9;
+	Settings settings = new Settings();
 
 	private int delayAfterStart;
 	private int lineNum;
@@ -34,6 +36,7 @@ public class DataOrganizer {
 
 	public DataOrganizer(ArrayList<Integer> testParameters, String testName) {
 		this.nameOfTest = testName;
+		this.testParameters = testParameters;
 		delayAfterStart = testParameters.get(2);
 		lengthOfTest = testParameters.get(6);
 		sampleRate = testParameters.get(7);
@@ -162,8 +165,8 @@ public class DataOrganizer {
 							curVal -= 65535;
 						}
 						curVal = (curVal * magSensitivity) / 32768;*/
-						//signedDataSamples.get(dof).add(smp, curVal);
-						//	}
+					//signedDataSamples.get(dof).add(smp, curVal);
+					//	}
 				}
 			}
 		}
@@ -180,10 +183,8 @@ public class DataOrganizer {
 			List<Double> temp = new ArrayList<Double>();
 			signedDataSamples.add(dof, temp);
 		}
-		accelSensitivity = 4;		//TODO REMOVE
-		gyroSensitivity = 2000;		//TODO REMOVE
-		
-		signedDataSamples.get(0).addAll(dataSamples.get(0));
+
+
 		for(int dof = 0; dof < dataSamples.size();dof++) {
 			for(Double smp: dataSamples.get(dof)) {
 				if(dof < 4) {
@@ -203,8 +204,8 @@ public class DataOrganizer {
 			}
 		}
 	}
-	
-	
+
+
 	public List<List<Double>> getNormalizedDataRollingBlock(){
 		normalizedDataSamples = new ArrayList<List<Double>>();
 		for (int smp = 0; smp < lineNum; smp++) {
@@ -214,11 +215,83 @@ public class DataOrganizer {
 			}
 		}
 
-
 		return normalizedDataSamples;
 
 	}
-	
+
+	/*
+	 * Creates new .CSVP file for storing the test parameters of a given test, We need this alongside the CSV file for graphing purposes.
+	 */
+	public int createCSVP() {
+		settings.loadConfigFile();
+		String CSVPath = settings.getKeyVal("CSVSaveLocation"); //Pull up the directory of chosen as CSV location files
+		PrintWriter dataFile = null;
+		try {
+			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); //Create new file in CSVDirectory, file extension is .csvp 
+			//System.out.println(CSVPath + File.separator + nameOfTest + "p");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+		for(int i = 0; i < testParameters.size(); i++) {
+			dataFile.println(testParameters.get(i).toString());
+		}
+		dataFile.close();
+		return 0;
+	}
+
+	public int readAndSetTestParameters(String pathToFile) {
+		File f = new File(pathToFile);
+		this.nameOfTest = f.getName();
+		settings.loadConfigFile();
+		BufferedReader CSVPFile = null;
+		String lineText = "";
+		testParameters = new ArrayList<Integer>();
+		try {
+			CSVPFile = new BufferedReader(new FileReader(pathToFile));
+		} catch (FileNotFoundException e) {
+			return -1;			//File Permissions error
+		}
+
+		try {
+			while((lineText = CSVPFile.readLine()) != null){
+				testParameters.add(testParameters.size(), Integer.parseInt(lineText));
+			}
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+			try {
+				CSVPFile.close();
+			} catch (IOException e1) {
+				// I guess we can't close the corrupt file either.
+			}
+			return -2;	//Corrupt .CSVP
+		} catch( IOException e) {
+			try {
+				CSVPFile.close();
+			} catch (IOException e1) {
+				// I guess we can't close the corrupt file either.
+			}
+			return -3; //Permissions error as well.
+		}
+
+		delayAfterStart = this.testParameters.get(2);
+		lengthOfTest = this.testParameters.get(6);
+		sampleRate = this.testParameters.get(7);
+		magSampleRate = this.testParameters.get(8);
+		accelSensitivity = this.testParameters.get(9);
+		gyroSensitivity = this.testParameters.get(10);
+		magSensitivity = 4800; //TODO: not constant
+
+		try {
+			CSVPFile.close();
+		} catch (IOException e1) {
+			// I guess we can't close the file either.
+		}
+		
+		return 0;
+	}
+
 	public int createCSV(boolean labelData, boolean signedData) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 
@@ -256,10 +329,8 @@ public class DataOrganizer {
 			}
 		}
 
-		Settings settings = new Settings();
-		settings.loadConfigFile();
 		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
-		
+
 		try {
 			if (fileOutputDirectory != null) {
 				DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
@@ -270,7 +341,7 @@ public class DataOrganizer {
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			return 1;
+			return -1;
 		}
 		DataFile.write(builder.toString()); // writes the string buffer to the .CSV creating the file
 		DataFile.close(); // close the .CSV
@@ -278,8 +349,9 @@ public class DataOrganizer {
 
 	}
 
-	
-	public void createDataSamplesFromCSV(String CSVFilePath) { //Fail
+
+	public void createDataSamplesFromCSV(String CSVFilePath) { 
+		readAndSetTestParameters(CSVFilePath + 'p'); //CSVP file. Should be kept with CSV File
 		dataSamples = new ArrayList<List<Double>>(9);	
 
 		double interval = (1.0 / sampleRate);
@@ -336,6 +408,7 @@ public class DataOrganizer {
 
 
 	public double getLengthOfTest() {
+		this.lengthOfTest = dataSamples.get(0).size()/sampleRate;
 		return lengthOfTest;
 	}
 
@@ -358,7 +431,7 @@ public class DataOrganizer {
 	public List<List<Double>> returnSignedData(){
 		return signedDataSamples;
 	}
-	
+
 	public List<List<Double>> getByConversionType(int dataConversionType) {
 		switch(dataConversionType) {
 		case 1: return signedDataSamples;
@@ -367,15 +440,15 @@ public class DataOrganizer {
 		return null;
 	}
 
-	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType, int sampleRate) {
+	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
-			case(0): 
-				modifiedDataSmps = dataSamples;
-				break;
-			case(1): 
-				modifiedDataSmps = signedDataSamples;
-				break;
+		case(0): 
+			modifiedDataSmps = dataSamples;
+		break;
+		case(1): 
+			modifiedDataSmps = signedDataSamples;
+		break;
 		}
 
 
@@ -399,30 +472,29 @@ public class DataOrganizer {
 			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
-		System.out.println(dofTime);
-		
 		dofData.add(0, dofTime);
 
-		
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
-			dofAxis.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
+			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 		dofData.add(1, dofAxis);
 
 		return dofData;
 	}
 
-	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType, int sampleRate) {
+	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType) {
+		dofNum--;
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
-			case(0): 
-				modifiedDataSmps = dataSamples;
-				break;
-			case(1): 
-				modifiedDataSmps = signedDataSamples;
-				break;
+		case(0): 
+			modifiedDataSmps = dataSamples;
+		break;
+		case(1): 
+			modifiedDataSmps = signedDataSamples;
+		break;
 		}
-		
+
 		int numSamples = (int) Math.round((end - start) * sampleRate);
 
 		double rate = 7000.0 / (double) numSamples;
@@ -437,27 +509,42 @@ public class DataOrganizer {
 
 		if (modifier < 1)
 			modifier = 1;
-		
+
 		for(int sample = 1; sample < 7000 && sample < modifiedDataSmps.get(0).size(); sample++) {
 			dofTime.add(sample, ((1/(double)sampleRate)*(double)sample));
 		}
-		
+
 		dofData.add(0, dofTime);
-		
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
-			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
-		}
+
+		//TODO
+		//TODO
+		//TODO
+		//With tests that sampled mag equally as often as accel/gyro, 9/10 mag samples will be skipped. Temporarily did this because graphs needed spacers where sample rate was not sampled at an equal speed to accel/gyro. Also 80/20 rule. 
+		if(dofNum <= 5)
+			for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
+				dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample))));
+			}
+		else if(dofNum > 5)
+			for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1) * 10; sample++) {
+				if(sample % 10 == 0)
+					dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample/10))));
+				else
+					dofAxis.add(sample, null);
+			}
 		
 		dofData.add(1, dofAxis);
-		System.out.println(dofAxis);
-		
+
+		//System.out.println(dofNum +":"+ dofTime.size() +":"+ dofAxis.size());
+		//System.out.println(dofNum +":"+ dofTime);
+		//System.out.println(dofNum +":"+ dofAxis);
+
 		return dofData;
 	}
-	
-	
+
+
 	public double maxTestValAxis() {
 		double max = -32768;
-		
+
 		for(List<Double> column : signedDataSamples){
 			for(Double sample : column) {
 				if(sample != null)
@@ -470,7 +557,7 @@ public class DataOrganizer {
 
 	public double minTestValAxis() {
 		double min = 32768;
-		
+
 		for(List<Double> column: signedDataSamples){
 			for(Double sample: column) {
 				if(sample != null)

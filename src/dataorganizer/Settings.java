@@ -6,13 +6,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.swing.filechooser.FileSystemView;
+
 public class Settings {
 	Properties prop = new Properties();			//Define properties
 	
 	
 	//Defines the default configurations
 	public void restoreDefaultConfig() {			
-		this.prop.setProperty("CSVSaveLocation","%userprofile%");
+		this.prop.setProperty("CSVSaveLocation", FileSystemView.getFileSystemView().getDefaultDirectory().getPath());
 		this.prop.setProperty("DefaultProfile", "");
 		this.prop.setProperty("TemplateDirectory", "");
 		this.prop.setProperty("OpenOnRead", "False");

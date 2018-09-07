@@ -1469,8 +1469,10 @@ public class AdvancedMode extends JFrame {
 								Settings settings = new Settings();
 								settings.loadConfigFile();
 								if(Boolean.parseBoolean(settings.getKeyVal("AutoSave"))) {
-									for(DataOrganizer dO: dataOrgoList)
+									for(DataOrganizer dO: dataOrgoList) {
+										dO.createCSVP();
 										dO.createCSV(false, false);
+									}
 								}
 								
 								addTestsToRecordationPane(dataOrgoList);
@@ -2014,7 +2016,11 @@ public class AdvancedMode extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
-								dataOrgo.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected());
+								dataOrgo.get(i).createCSVP();
+								if(dataOrgo.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected()) != 0)
+									generalStatusLabel.setText("Could not save your file. Do you have a file with that name already?");
+								generalStatusLabel.setText("File created successfully");
+									
 							}
 						}
 					}
