@@ -27,6 +27,8 @@ public class DataOrganizer {
 	private int magSensitivity;
 	private double lengthOfTest;
 	private int numDof = 9;
+	private String dataSourceID;
+	private int sourceID;
 	Settings settings = new Settings();
 
 	private int delayAfterStart;
@@ -53,6 +55,20 @@ public class DataOrganizer {
 		lengthOfTest = 6.9;
 	}
 
+	public void setSourceID(String dataSourceID, int sourceID) {
+		this.sourceID = sourceID;
+		this.dataSourceID = dataSourceID;
+	}
+	
+	public int getSourceID() {
+		return this.sourceID;
+	}
+	
+	public String getSourceId() {
+		return this.dataSourceID;
+	}
+	
+	
 	public List<List<Double>> createDataSmpsRawData(int[] data) {
 
 		boolean endCondition = false;

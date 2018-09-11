@@ -246,7 +246,8 @@ public class AdvancedMode extends JFrame {
 	private JPanel launcherPane;
 	private JButton graphLauncherBtn;
 
-
+	private String moduleSerialID;
+	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
@@ -340,6 +341,7 @@ public class AdvancedMode extends JFrame {
 											moduleFound = true;
 	
 											moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
+											moduleSerialID = moduleIDInfo.get(0).toString();
 											hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
 											firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
 											if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
@@ -1119,7 +1121,7 @@ public class AdvancedMode extends JFrame {
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);					
 
-						System.out.println(delayAfterStart);
+						
 						if(delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
@@ -1874,7 +1876,7 @@ public class AdvancedMode extends JFrame {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						lineGraph = startGraphing();
 						lineGraph.setDataCollector(dataOrgo.get(i));
-						lineGraph.graphSettingsOnStart();
+						lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
 					if(mediaPlayerBtn.get(i) == e.getSource()) { //TODO: Add MediaPlayerBtn and call this method from it
 						mediaController = startMediaPlayer();

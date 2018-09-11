@@ -57,12 +57,7 @@ import javafx.stage.Stage;
 public class GraphController implements Initializable{
 
 	@Override
-	public void initialize(URL location, ResourceBundle resources){
-	}
-
-
-
-
+	public void initialize(URL location, ResourceBundle resources){}
 
 	//FXML Component Declarations
 
@@ -85,6 +80,8 @@ public class GraphController implements Initializable{
 	private Button resetButton;
 	@FXML
 	private VBox dataControls;
+	@FXML
+	private TitledPane dataSourceTitledPane;
 	@FXML
 	private TitledPane dataDisplayTitledPane;
 	@FXML
@@ -110,8 +107,6 @@ public class GraphController implements Initializable{
 	public void setDataCollector(DataOrganizer dataCollector) {
 		this.dataCollector = dataCollector;
 	}
-
-
 
 	//Program Variable Declarations
 
@@ -243,7 +238,10 @@ public class GraphController implements Initializable{
 			DataOrganizer dataOrgoObject = new DataOrganizer();
 			dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
 			dataOrgoObject.getCSVSignedData();
+			dataOrgoObject.setSourceID(new File(csvFilePath).getName(), 1);
 			this.dataCollector = dataOrgoObject;
+			
+			dataSourceTitledPane.setText("CSV File: " + dataOrgoObject.getSourceId());
 			
 			for (int numDof = 1; numDof < 10; numDof++) {
 				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
@@ -297,7 +295,8 @@ public class GraphController implements Initializable{
 
 	/*** Method for Preloading All Settings***/
 
-	public void graphSettingsOnStart(){
+	public void graphSettingsOnStart(String moduleSerialID){
+		dataSourceTitledPane.setText("Module Serial ID: " + moduleSerialID);
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
 		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
 
@@ -307,7 +306,7 @@ public class GraphController implements Initializable{
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof, 0));
 		}
-
+		
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
@@ -512,7 +511,8 @@ public class GraphController implements Initializable{
 			private DataOrganizer dataOrgo;
 			private int dataConversionType = 1;
 			private int source; //Int representing source type. 0 being live module data, 1 being file.
-
+			private String dataSourceID;
+			
 			public DataSeries(String name, DataOrganizer dataOrgo) {
 				this.name = name;
 				this.dataOrgo = dataOrgo;
@@ -576,9 +576,8 @@ public class GraphController implements Initializable{
 
 			public void setDataConversionType(int dataConversionType) {
 				this.dataConversionType = dataConversionType;
-
 			}
-
+			
 			public ObservableList<XYChart.Series<Number, Number>> getSeries() {
 				return series;
 			}
