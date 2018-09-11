@@ -415,7 +415,7 @@ public class DataOrganizer {
 
 
 	public double getLengthOfTest() {
-		this.lengthOfTest = dataSamples.get(0).size()/sampleRate;
+		this.lengthOfTest = (double)dataSamples.get(0).size()/(double)sampleRate;
 		return lengthOfTest;
 	}
 
@@ -447,7 +447,19 @@ public class DataOrganizer {
 		return null;
 	}
 
-	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
+	public List<List<Double>> getZoomedSeries(int source, double start, double end, int dofNum, int dataConversionType ){
+		switch(source) {
+			case 0: //Live module data
+				return getZoomedSeriesModule(start, end, dofNum, dataConversionType);
+			case 1: //File data
+				return getZoomedSeriesCSV(start, end, dofNum, dataConversionType);
+			default: 
+				return null;
+		}
+	}
+	
+	
+	public List<List<Double>> getZoomedSeriesModule(double start, double end, int dofNum, int dataConversionType) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 		case(0): 
@@ -491,7 +503,7 @@ public class DataOrganizer {
 	}
 
 	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType) {
-		dofNum--; //hardcore hack. Not really. I had an off by one error but could only account for it here, because otherwise there is an extra empty checkbox in the dataSeriesCheckboxFlowPane
+		dofNum--; //hardcore hack. Not really. I had an off by one error but could only account for it here instead of graph, because our the DataSeries object expects 1-9, whereas we index 0,8. Hence decrease dofnum 1 for indexes here.
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) { //What type of data. 0 is raw, 1 is signed. We are expecting to expand on this supposedly? thats why its a switch and not a bool
 		case(0): 
@@ -518,7 +530,7 @@ public class DataOrganizer {
 			modifier = 1;
 
 		for(int sample = 1; sample < 7000 && sample < modifiedDataSmps.get(0).size(); sample++) {
-			dofTime.add(sample, ((1/(double)sampleRate)*(double)sample));
+			dofTime.add(sample, ((1/(double)sampleRate)*((double)sample*modifier)));
 		}
 
 		dofData.add(0, dofTime);
@@ -529,7 +541,7 @@ public class DataOrganizer {
 		//With tests that sampled mag equally as often as accel/gyro, 9/10 mag samples will be skipped. Temporarily did this because graphs needed spacers where sample rate was not sampled at an equal speed to accel/gyro. Also 80/20 rule. 
 		if(dofNum <= 5)
 			for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
-				dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample))));
+				dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample*modifier))));
 			}
 		else if(dofNum > 5)
 			for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1) * 10; sample++) {

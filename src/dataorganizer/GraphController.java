@@ -246,12 +246,14 @@ public class GraphController implements Initializable{
 			this.dataCollector = dataOrgoObject;
 			
 			for (int numDof = 1; numDof < 10; numDof++) {
-				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
+				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
 			}
 
 			populateData(dataSeries, lineChart);
 			styleSeries(dataSeries, lineChart);
 		}
+		
+		System.out.println(dataCollector.getLengthOfTest());
 		
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
 		xAxis.setLowerBound(0);
@@ -305,7 +307,7 @@ public class GraphController implements Initializable{
 
 
 		for (int numDof = 1; numDof < 10; numDof++) {
-			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof));
+			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof, 0));
 		}
 
 		populateData(dataSeries, lineChart);
@@ -514,6 +516,7 @@ public class GraphController implements Initializable{
 			private String color;
 			private DataOrganizer dataOrgo;
 			private int dataConversionType = 1;
+			private int source; //Int representing source type. 0 being live module data, 1 being file.
 
 			public DataSeries(String name, DataOrganizer dataOrgo) {
 				this.name = name;
@@ -521,14 +524,15 @@ public class GraphController implements Initializable{
 				series = createSeries(name, dataOrgo.getDataSamples());
 			}
 
-			public DataSeries(String name, DataOrganizer dataOrgo, int dof) {
+			public DataSeries(String name, DataOrganizer dataOrgo, int dof, int source) {
 				this.name = name;
 				this.dof = dof;
 				this.dataOrgo = dataOrgo;
-				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+				this.source =  source;
+				series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 			}
 
-			public DataSeries(DataOrganizer dataOrgo, int dof) {
+			public DataSeries(DataOrganizer dataOrgo, int dof, int source) {
 				this.dof = dof;
 				this.dataOrgo = dataOrgo;
 
@@ -556,7 +560,7 @@ public class GraphController implements Initializable{
 				}
 
 
-				series = createSeries(name, dataOrgo.getZoomedSeriesCSV(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+				series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 			}
 
 			public String getName() {
@@ -585,7 +589,7 @@ public class GraphController implements Initializable{
 			}
 
 			public void updateZoom(double start, double end) {
-				series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
+				series = createSeries(name, dataOrgo.getZoomedSeries(source, start, end, dof, dataConversionType));
 			}
 
 			

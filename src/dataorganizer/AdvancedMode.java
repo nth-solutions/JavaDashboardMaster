@@ -2016,7 +2016,9 @@ public class AdvancedMode extends JFrame {
 					public void actionPerformed(ActionEvent e) {
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
-								dataOrgo.get(i).createCSVP();
+								if(dataOrgo.get(i).createCSVP() != 0) {
+									generalStatusLabel.setText("Could not save file parameters. You will not be able to regraph this test in our application.");
+								}
 								if(dataOrgo.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected()) != 0)
 									generalStatusLabel.setText("Could not save your file. Do you have a file with that name already?");
 								generalStatusLabel.setText("File created successfully");
