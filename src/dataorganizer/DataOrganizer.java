@@ -29,6 +29,7 @@ public class DataOrganizer {
 	private int numDof = 9;
 	private String dataSourceID;
 	private int sourceID;
+	private String moduleSerialID;
 	Settings settings = new Settings();
 
 	private int delayAfterStart;
@@ -66,6 +67,13 @@ public class DataOrganizer {
 	
 	public String getSourceId() {
 		return this.dataSourceID;
+	}
+	
+	public String getSerialID() {
+		return this.moduleSerialID;
+	}
+	public void setSerialID(String ID) {
+		this.moduleSerialID = ID;
 	}
 	
 	

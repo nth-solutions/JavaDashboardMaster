@@ -18,6 +18,11 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
@@ -31,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.beans.PropertyChangeEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -63,6 +69,8 @@ public class EducatorMode extends JFrame {
 	private JCheckBox timedTestCheckbox;
 	private JProgressBar progressBar;
 	private JComboBox testTypeCombobox;
+	private GraphController lineGraph;
+	private MediaPlayerController mediaController;
 	private JButton applyConfigurationsBtn;
 	private JButton nextBtnOne;
 	private JButton backBtnThree;
@@ -74,7 +82,7 @@ public class EducatorMode extends JFrame {
 	private JButton exitTestModeButton;
 	private ButtonGroup group;
 	private static SerialComm serialHandler;
-	private Integer wIndex = 1; //Lol windex
+	private Integer wIndex = 1; 
 	private JPanel testTakingPanel;
 	private JPanel stepOne;
 	private JPanel stepTwo;
@@ -148,6 +156,8 @@ public class EducatorMode extends JFrame {
 	private JLabel label_2;
 	private JLabel lblM;
 	private JLabel label_3;
+	private JButton mediaPlayerBtn;
+	private JButton graphTestBtn;
 
 	/**
 	 * Launch the application.
@@ -388,6 +398,94 @@ public class EducatorMode extends JFrame {
 		testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
 
 		testParams.clear();
+	}
+	
+	public void initFX(List<DataOrganizer> dataOrgo, ActionEvent e) {
+		final int viewableTests = dataOrgo.size();
+		Platform.setImplicitExit(false);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				for(int i = 0; i < viewableTests; i++) {
+					if(graphTestBtn == e.getSource()) {
+						lineGraph = startGraphing();
+						lineGraph.setDataCollector(dataOrgo.get(i));
+						lineGraph.graphSettingsOnStart(dataOrgo.get(i).getSerialID());
+					}
+					if(mediaPlayerBtn == e.getSource()) {
+						mediaController = startMediaPlayer();
+						mediaController.scaleVideoAtStart();
+						shareFrameGraphAndMedia(lineGraph, mediaController);
+					}
+				}
+			}
+		});
+	}
+	
+	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
+		Runnable updatePosInGraph = new Runnable() {
+			public void run() {
+				try {
+					int currentFrame = -1;
+					while(true) {
+						if(MPC.hasVideoSelected()) {
+							while(currentFrame != MPC.getCurrentFrame()) {
+								Thread.sleep(10);
+								graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
+								currentFrame = MPC.getCurrentFrame();
+							}
+						}
+						Thread.sleep(100);
+					} 
+				}catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		};
+		
+		Thread updatePosInGraphThread = new Thread(updatePosInGraph);
+		updatePosInGraphThread.start();
+	}
+	
+	public MediaPlayerController startMediaPlayer() {
+		Stage primaryStage = new Stage();
+		Parent root = null;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("MediaPlayerStructure.fxml"));
+		try {
+			root = loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	    primaryStage.setTitle("Video Player");
+	    if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
+	    primaryStage.show();
+	    primaryStage.setResizable(false);
+	    return loader.getController();
+	}
+	
+	
+
+	public GraphController startGraphing() {
+		Stage primaryStage = new Stage();
+		Parent root = null;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructure.fxml"));
+		try {
+			root = loader.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		if(root!=null) primaryStage.setScene(new Scene(root, 1000, 700));
+		
+	    primaryStage.setTitle("Graph");
+		primaryStage.show();
+		primaryStage.setResizable(false);
+		
+		return loader.getController();
 	}
 	
 	public void importCalDataHandler() {
@@ -1829,6 +1927,25 @@ public class EducatorMode extends JFrame {
 
 		JPanel motionVisualizationPanel = new JPanel();
 		mainTabbedPane.addTab("Motion Visualization", null, motionVisualizationPanel, null);
+		motionVisualizationPanel.setLayout(null);
+		
+		graphTestBtn = new JButton("Graph");
+		graphTestBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				initFx(dataOrgo, arg0);
+			}
+		});
+		graphTestBtn.setBounds(10, 11, 506, 232);
+		motionVisualizationPanel.add(graphTestBtn);
+		
+		mediaPlayerBtn = new JButton("Media Player");
+		mediaPlayerBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				initFx(dataOrgo, arg0);
+			}
+		});
+		mediaPlayerBtn.setBounds(10, 242, 506, 263);
+		motionVisualizationPanel.add(mediaPlayerBtn);
 		
 		for (int i = 0; i < mainTabbedPane.getTabCount(); i++) {
 			mainTabbedPane.setBackgroundAt(i, Color.LIGHT_GRAY);

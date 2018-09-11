@@ -1878,7 +1878,7 @@ public class AdvancedMode extends JFrame {
 						lineGraph.setDataCollector(dataOrgo.get(i));
 						lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
-					if(mediaPlayerBtn.get(i) == e.getSource()) { //TODO: Add MediaPlayerBtn and call this method from it
+					if(mediaPlayerBtn.get(i) == e.getSource()) { 
 						mediaController = startMediaPlayer();
 						mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
@@ -2634,10 +2634,6 @@ public class AdvancedMode extends JFrame {
 				new SettingsWindow().setVisible(true);
 			}
 		});
-
-		
-		
-
 		frameInitialized = true;
 	}
 }
