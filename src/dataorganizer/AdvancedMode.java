@@ -108,7 +108,6 @@ public class AdvancedMode extends JFrame {
 	private JPanel eraseButtonPanel;
 	private JPanel remoteTab;
 	private JPanel RemoteButtonPanel;
-	private JPanel VideoFilePane;
 
 	//Labels
 	private JLabel generalStatusLabel;
@@ -141,7 +140,6 @@ public class AdvancedMode extends JFrame {
 	private JTextField gyroSensitivityTextFieldRead;
 	private JTextField accelFilterTextFieldRead;
 	private JTextField gyroFilterTextFieldRead;
-	private JTextField VideoFileTextField;
 
 	//Calibration Tab
 	private JTextField tmr0OffsetTextField;
@@ -163,7 +161,6 @@ public class AdvancedMode extends JFrame {
 	private JButton bulkEraseButton;
 	private JButton sectorEraseButton;
 	private JButton settingsWindowBtn;
-	private JButton btnSelectCsv;
 	private JButton pairNewRemoteButton;
 	private JButton getCurrentConfigurationsButton;
 	private JButton testRemotesButton;
@@ -173,7 +170,6 @@ public class AdvancedMode extends JFrame {
 	private JButton configForCalButton;
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
-	private JButton browseVideoBtn;
 	private ArrayList<JButton> saveTestBtn;
 	private ArrayList<JButton> graphTestBtn;
 	private ArrayList<JButton> mediaPlayerBtn;
@@ -224,23 +220,11 @@ public class AdvancedMode extends JFrame {
 
 	//Output File Info and Variables
 	private String nameOfFile = "";     			//Sets the name of file to an empty string to start
-	private String fileOutputDirectoryStr;			//The directory to write the test to
-	private String templateChosen;
-	private String csvDataFileChosen;
 	private static SerialComm serialHandler;
-	private String videoFileInput;
-	private CSVBuilder csvBuilder = new CSVBuilder();  //Object of class used to organize passed in data to convert and format data into .CSV
 	//private List<DataOrganizer> tests = new ArrayList<>();
 	//Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
-
-	//Serial Port Variables
-	private SerialPort serialPort;      			//Object for the serial port class
-	private static CommPortIdentifier portId;       //Object used for opening a COMM ports
-	private static Enumeration portList;            //Object used for finding COMM ports
-	private BufferedInputStream inputStream;             //Object used for reading serial data 
-	private OutputStream outputStream;              //Object used for writing serial data
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
 	private JPanel calOffsetsPanel;
@@ -1683,30 +1667,6 @@ public class AdvancedMode extends JFrame {
 			videoFilePathTextField.setText(null);
 		}
 	}
-	
-	/**
-	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
-	 * the file explorer and select a csv file to load
-	 */
-	public void csvBrowseButtonHandler() {
-		JFileChooser chooser;
-		chooser = new JFileChooser(); 
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			ArrayList<DataOrganizer> dataOrgoList = new ArrayList<DataOrganizer>();
-			DataOrganizer dataOrgo = new DataOrganizer();
-			dataOrgo.createDataSamplesFromCSV(chooser.getSelectedFile().toString());
-			dataOrgo.getSignedData();
-			dataOrgoList.add(dataOrgo);
-			addTestsToRecordationPane(dataOrgoList);
-			repaint();
-		}
-		else {
-			generalStatusLabel.setText("Not a valid CSV file.");
-		}
-	}
 
 	/**
 	 * Setter that allows external classes to set the progress bar's value
@@ -2308,15 +2268,6 @@ public class AdvancedMode extends JFrame {
 				testRecordationPanel = new JPanel();
 				mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
 				testRecordationPanel.setLayout(null);
-				
-				JButton loadTestBtn = new JButton("Load Test From File");
-				loadTestBtn.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						csvBrowseButtonHandler();
-					}
-				});
-				loadTestBtn.setBounds(485, 349, 140, 23);
-				testRecordationPanel.add(loadTestBtn);
 
 		JPanel configurationPanel = new JPanel();
 		configurationPanel.setPreferredSize(new Dimension(500, 1000));
