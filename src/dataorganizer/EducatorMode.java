@@ -1932,7 +1932,7 @@ public class EducatorMode extends JFrame {
 		graphTestBtn = new JButton("Graph");
 		graphTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				initFx(dataOrgo, arg0);
+				//initFx(dataOrgo, arg0); we need to use the dataOrganizer object instead of CSVBuilder so we can pass this object to the graph. 
 			}
 		});
 		graphTestBtn.setBounds(10, 11, 506, 232);
@@ -1941,7 +1941,7 @@ public class EducatorMode extends JFrame {
 		mediaPlayerBtn = new JButton("Media Player");
 		mediaPlayerBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				initFx(dataOrgo, arg0);
+				//initFx(dataOrgo, arg0); 
 			}
 		});
 		mediaPlayerBtn.setBounds(10, 242, 506, 263);
