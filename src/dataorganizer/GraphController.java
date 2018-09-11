@@ -253,8 +253,6 @@ public class GraphController implements Initializable{
 			styleSeries(dataSeries, lineChart);
 		}
 		
-		System.out.println(dataCollector.getLengthOfTest());
-		
 		xAxis.setUpperBound(dataCollector.getLengthOfTest());
 		xAxis.setLowerBound(0);
 		
@@ -491,9 +489,6 @@ public class GraphController implements Initializable{
 			series.setName(name);
 			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 			
-			if(data.get(1).size() < 700)
-				System.out.println(data.get(1).size());
-			
 			for (int j = 0; j < data.get(0).size() && j < data.get(1).size(); j++) {
 				seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
 				
@@ -603,14 +598,14 @@ public class GraphController implements Initializable{
 
 				timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0)); //Add time axis
 
-				for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to end of data + offset (or minus offset if its negative)
-					if(offset > i) { //If the offset is less than the sample 
-						dataAxis.add(i, null); //Add empty
-						continue; //Back to top of the loop
+				for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data + offset"
+					if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
+							dataAxis.add(i, null);
+							continue;
 					}
-					dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //pull the samples we want (getByConversion) reference the axis (each series is a dof, and time axis) and add the current sample
+					dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //If we have enough padding, start adding the samples
 				}
-
+				
 				seriesData.add(timeAxis);
 				seriesData.add(dataAxis);
 
