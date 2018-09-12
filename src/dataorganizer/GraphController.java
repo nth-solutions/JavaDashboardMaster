@@ -145,8 +145,8 @@ public class GraphController implements Initializable{
 		for (final DataSeries ds : dataSeries) {
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 		}
-		populateData(dataSeries, lineChart);
-		styleSeries(dataSeries, lineChart);
+		repopulateData();
+		restyleSeries();
 
 
 	}
@@ -203,8 +203,8 @@ public class GraphController implements Initializable{
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
 		}
-		populateData(dataSeries, lineChart);
-		styleSeries(dataSeries, lineChart);
+		populateData(dataSeriesTwo, lineChart);
+		styleSeries(dataSeriesTwo, lineChart);
 	}
 
 	@FXML
@@ -235,6 +235,47 @@ public class GraphController implements Initializable{
 		}
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
+	}
+
+	//data shift for dataset two
+	@FXML
+	public void addTenNullButtonHandlerTwo(ActionEvent event) {
+		XOffsetCounter += 10;
+		for(final DataSeries ds: dataSeriesTwo) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeriesTwo, lineChart);
+		styleSeries(dataSeriesTwo, lineChart);
+	}
+
+	@FXML
+	public void subTenNullButtonHandlerTwo(ActionEvent event) {
+		XOffsetCounter -= 10;
+		for(final DataSeries ds: dataSeriesTwo) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeriesTwo, lineChart);
+		styleSeries(dataSeries, lineChart);
+	}
+
+	@FXML
+	public void addOneNullButtonHandlerTwo(ActionEvent event) {
+		XOffsetCounter += 1;
+		for(final DataSeries ds: dataSeriesTwo) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeriesTwo, lineChart);
+		styleSeries(dataSeriesTwo, lineChart);
+	}
+
+	@FXML
+	public void subOneNullButtonHandlerTwo(ActionEvent event) {
+		XOffsetCounter -= 1;
+		for(final DataSeries ds: dataSeriesTwo) {
+			ds.addNulls(XOffsetCounter);
+		}
+		populateData(dataSeriesTwo, lineChart);
+		styleSeries(dataSeriesTwo, lineChart);
 	}
 
 	@FXML
@@ -297,17 +338,19 @@ public class GraphController implements Initializable{
 			}
 		}else {
 			for (final DataSeries ds : dataSeriesTwo) {
-				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
-				dataToDisplayCheckBox.setSelected(true);
-				dataToDisplayCheckBox.setPadding(new Insets(5));
+				dataSourceTitledPaneTwo.setDisable(false);
+				dataSourceTitledPaneTwo.setExpanded(true);
+				final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(ds.getName());
+				dataToDisplayCheckBoxTwo.setSelected(true);
+				dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
 				// box.setGraphic(line);
-				dataDisplayCheckboxesFlowPaneTwo.getChildren().add(dataToDisplayCheckBox);
-				dataToDisplayCheckBox.setOnAction(action -> {
-					ds.setActive(dataToDisplayCheckBox.isSelected());
-					populateData(dataSeries, lineChart);
-					styleSeries(dataSeries, lineChart);
+				dataDisplayCheckboxesFlowPaneTwo.getChildren().add(dataToDisplayCheckBoxTwo);
+				dataToDisplayCheckBoxTwo.setOnAction(action -> {
+					ds.setActive(dataToDisplayCheckBoxTwo.isSelected());
+					repopulateData();
+					restyleSeries();
 				});
 			}
 		}
@@ -323,7 +366,7 @@ public class GraphController implements Initializable{
 	}
 
 	@FXML
-	public void clearData() {
+	public void clearDataAll() {
 		lineChart.getData().clear();
 		dataSourceTitledPane.setText("");
 		dataSourceTitledPaneTwo.setText("");
@@ -332,6 +375,16 @@ public class GraphController implements Initializable{
 		dataSeries = FXCollections.observableArrayList(); 
 		dataSeriesTwo = FXCollections.observableArrayList();
 		numDataSets = 0;
+	}
+
+	@FXML
+	public void clearDataSetOne() {
+		lineChart.getData().removeAll(dataSeries);
+	}
+
+	@FXML
+	public void clearDataSetTwo() {
+		lineChart.getData().removeAll(dataSeriesTwo);
 	}
 
 
@@ -368,8 +421,8 @@ public class GraphController implements Initializable{
 			dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
 			dataToDisplayCheckBox.setOnAction(action -> {
 				ds.setActive(dataToDisplayCheckBox.isSelected());
-				populateData(dataSeries, lineChart);
-				styleSeries(dataSeries, lineChart);
+				repopulateData();
+				restyleSeries();
 			});
 		}
 
@@ -496,7 +549,6 @@ public class GraphController implements Initializable{
 	/*** Data Handling and Functionality Components***/
 
 	private void populateData(final ObservableList<DataSeries> ds, final LineChart<Number, Number> lineChart) {
-		lineChart.getData().clear();
 		for (DataSeries data : ds) {
 			if (data.isActive()) {
 				lineChart.getData().addAll(data.getSeries());
@@ -504,6 +556,63 @@ public class GraphController implements Initializable{
 		}
 	}
 
+
+	private void repopulateData() {
+		lineChart.getData().clear();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		for (DataSeries data : dataSeriesTwo) {
+			if (data.isActive()) {
+				lineChart.getData().addAll(data.getSeries());
+			}
+		}
+		for (DataSeries data : dataSeries) {
+			if (data.isActive()) {
+				lineChart.getData().addAll(data.getSeries());
+			}
+		}
+	}
+
+
+	private void restyleSeries() {
+		// force a css layout pass to ensure that subsequent lookup calls work.
+		lineChart.applyCss();
+
+
+		int nSeries = 0;
+		for (DataSeries dof : dataSeries) {
+			if (!dof.isActive()) continue;
+			for (int j = 0; j < dof.getSeries().size(); j++) {
+				XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+				Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+				for (Node n : nodes) {
+					StringBuilder style = new StringBuilder();
+					style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
+
+					n.setStyle(style.toString());
+				}
+				nSeries++;
+			}
+		}
+		for (DataSeries dof : dataSeriesTwo) {
+			if (!dof.isActive()) continue;
+			for (int j = 0; j < dof.getSeries().size(); j++) {
+				XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+				Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+				for (Node n : nodes) {
+					StringBuilder style = new StringBuilder();
+					style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
+
+					n.setStyle(style.toString());
+				}
+				nSeries++;
+			}
+		}
+	}
 
 	private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
 		// force a css layout pass to ensure that subsequent lookup calls work.

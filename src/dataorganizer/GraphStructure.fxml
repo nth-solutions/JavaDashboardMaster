@@ -112,7 +112,7 @@
                   <Font size="10.0" />
                </font>
             </TitledPane>
-            <TitledPane fx:id="dataSourceTitledPaneTwo" prefHeight="165.0" prefWidth="360.0">
+            <TitledPane fx:id="dataSourceTitledPaneTwo" disable="true" expanded="false" prefHeight="165.0" prefWidth="360.0">
                <content>
                   <AnchorPane prefHeight="171.0" prefWidth="309.0">
                      <children>
@@ -131,7 +131,7 @@
                                                             <Insets right="5.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button mnemonicParsing="false" onAction="#addOneNullButtonHandler" prefWidth="50.0" text="+1" />
+                                                      <Button mnemonicParsing="false" onAction="#addOneNullButtonHandlerTwo" prefWidth="50.0" text="+1" />
                                                    </children>
                                                 </HBox>
                                                 <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
@@ -141,7 +141,7 @@
                                                             <Insets right="5.0" top="5.0" />
                                                          </HBox.margin>
                                                       </Button>
-                                                      <Button mnemonicParsing="false" onAction="#addTenNullButtonHandler" prefWidth="50.0" text="+10">
+                                                      <Button mnemonicParsing="false" onAction="#addTenNullButtonHandlerTwo" prefWidth="50.0" text="+10">
                                                          <HBox.margin>
                                                             <Insets top="5.0" />
                                                          </HBox.margin>
@@ -236,7 +236,9 @@
                   <MenuButton mnemonicParsing="false" prefHeight="40.0" prefWidth="60.0" text="File">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
-                      <MenuItem mnemonicParsing="false" onAction="#clearData" text="Clear Data" />
+                      <MenuItem mnemonicParsing="false" onAction="#clearDataAll" text="Clear Data" />
+                        <MenuItem mnemonicParsing="false" onAction="#clearDataSetOne" text="Clear Data: Set 1" />
+                        <MenuItem mnemonicParsing="false" onAction="#clearDataSetTwo" text="Clear Data: Set 2" />
                     </items>
                   </MenuButton>
                </children>
