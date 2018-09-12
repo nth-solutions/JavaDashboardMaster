@@ -26,7 +26,7 @@
          <children>
             <Pane fx:id="chartContainer" layoutX="40.0" layoutY="14.0" prefHeight="450.0" prefWidth="600.0">
                <children>
-                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" prefHeight="450.0" prefWidth="600.0" title="   ">
+                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="-14.0" prefHeight="450.0" prefWidth="600.0" title="   ">
                     <xAxis>
                       <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickUnit="1.0" fx:id="xAxis" />
                     </xAxis>
@@ -45,20 +45,20 @@
       </Pane>
    </center>
    <right>
-      <VBox fx:id="dataControls" alignment="CENTER" prefHeight="650.0" prefWidth="250.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="dataControls" alignment="CENTER" prefHeight="650.0" prefWidth="339.0" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
          <children>
-            <TitledPane fx:id="dataSourceTitledPane" animated="false" prefHeight="350.0" prefWidth="230.0">
+            <TitledPane fx:id="dataSourceTitledPane" animated="false" prefHeight="180.0" prefWidth="331.0">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="317.0" prefWidth="228.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="156.0" prefWidth="333.0">
                      <children>
-                        <VBox fillWidth="false" prefHeight="337.0" prefWidth="229.0">
+                        <HBox layoutY="3.0" prefHeight="151.0" prefWidth="337.0">
                            <children>
-                              <TitledPane alignment="CENTER_RIGHT" animated="false" prefHeight="110.0" prefWidth="228.0" text="Data Shift">
+                              <TitledPane alignment="CENTER_RIGHT" animated="false" prefHeight="148.0" prefWidth="123.0" text="Data Shift">
                                 <content>
-                                    <FlowPane alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="82.0" prefWidth="148.0">
+                                    <FlowPane alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="115.0" prefWidth="86.0">
                                        <children>
                                           <VBox prefHeight="60.0" prefWidth="105.0">
                                              <children>
@@ -91,14 +91,20 @@
                                        </children>
                                     </FlowPane>
                                 </content>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
                               </TitledPane>
-                              <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="220.0" prefWidth="228.0" text="Data Series Box">
+                              <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="141.0" prefWidth="197.0" text="Data Series Box">
                                  <content>
-                                    <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="205.0" prefWidth="216.0" />
+                                    <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="116.0" prefWidth="222.0" />
                                  </content>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
                               </TitledPane>
                            </children>
-                        </VBox>
+                        </HBox>
                      </children>
                   </AnchorPane>
               </content>
@@ -106,9 +112,68 @@
                   <Font size="10.0" />
                </font>
             </TitledPane>
-            <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="250.0" prefWidth="195.0" text="Data Analysis Tools">
+            <TitledPane fx:id="dataSourceTitledPaneTwo" prefHeight="165.0" prefWidth="360.0">
                <content>
-                  <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" orientation="VERTICAL" prefHeight="266.0" prefWidth="195.0">
+                  <AnchorPane prefHeight="171.0" prefWidth="309.0">
+                     <children>
+                        <HBox prefHeight="151.0" prefWidth="338.0">
+                           <children>
+                              <TitledPane alignment="CENTER_RIGHT" animated="false" prefHeight="141.0" prefWidth="114.0" text="Data Shift">
+                                 <content>
+                                    <FlowPane alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="115.0" prefWidth="116.0">
+                                       <children>
+                                          <VBox prefHeight="60.0" prefWidth="105.0">
+                                             <children>
+                                                <HBox alignment="CENTER">
+                                                   <children>
+                                                      <Button mnemonicParsing="false" onAction="#subOneNullButtonHandler" prefWidth="50.0" text="-1">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </Button>
+                                                      <Button mnemonicParsing="false" onAction="#addOneNullButtonHandler" prefWidth="50.0" text="+1" />
+                                                   </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0">
+                                                   <children>
+                                                      <Button mnemonicParsing="false" onAction="#subTenNullButtonHandler" prefWidth="50.0" text="-10">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" top="5.0" />
+                                                         </HBox.margin>
+                                                      </Button>
+                                                      <Button mnemonicParsing="false" onAction="#addTenNullButtonHandler" prefWidth="50.0" text="+10">
+                                                         <HBox.margin>
+                                                            <Insets top="5.0" />
+                                                         </HBox.margin>
+                                                      </Button>
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </FlowPane>
+                                 </content>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </TitledPane>
+                              <TitledPane fx:id="dataDisplayTitledPaneTwo" alignment="CENTER_RIGHT" prefHeight="141.0" prefWidth="191.0" text="Data Series Box">
+                                 <content>
+                                    <FlowPane fx:id="dataDisplayCheckboxesFlowPaneTwo" orientation="VERTICAL" prefHeight="115.0" prefWidth="180.0" />
+                                 </content>
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                 </HBox.margin>
+                              </TitledPane>
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </TitledPane>
+            <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" prefHeight="234.0" prefWidth="329.0" text="Data Analysis Tools">
+               <content>
+                  <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" orientation="VERTICAL" prefHeight="208.0" prefWidth="257.0">
                      <children>
                         <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" text="Display Raw Data">
                            <padding>

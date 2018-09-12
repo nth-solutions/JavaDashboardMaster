@@ -1875,7 +1875,7 @@ public class AdvancedMode extends JFrame {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						lineGraph = startGraphing();
-						lineGraph.setDataCollector(dataOrgo.get(i));
+						lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
 						lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
 					if(mediaPlayerBtn.get(i) == e.getSource()) { 

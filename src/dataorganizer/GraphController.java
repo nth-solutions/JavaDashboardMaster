@@ -83,9 +83,13 @@ public class GraphController implements Initializable{
 	@FXML
 	private TitledPane dataSourceTitledPane;
 	@FXML
+	private TitledPane dataSourceTitledPaneTwo;
+	@FXML
 	private TitledPane dataDisplayTitledPane;
 	@FXML
 	private FlowPane dataDisplayCheckboxesFlowPane;
+	@FXML
+	private FlowPane dataDisplayCheckboxesFlowPaneTwo;
 	@FXML
 	private TitledPane rawOrSignedDataDisplayTitledPane;
 	@FXML
@@ -104,14 +108,15 @@ public class GraphController implements Initializable{
 	private Label dataOriginLabel; //TODO: Make this change text based on dataset it controls
 
 
-	public void setDataCollector(DataOrganizer dataCollector) {
-		this.dataCollector = dataCollector;
+	public void setDataCollector(DataOrganizer dataCollector, int index) {
+		this.dataCollector[index] = dataCollector;
 	}
 
 	//Program Variable Declarations
 
 	private ObservableList<DataSeries> dataSeries = FXCollections.observableArrayList();								//Initializes the list of series
-	private DataOrganizer dataCollector;
+	private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();								//Initializes the list of series
+	private DataOrganizer[] dataCollector = new DataOrganizer[2];
 	private String csvFilePath;
 	private int xRangeLow;
 	private int xRangeHigh;
@@ -120,6 +125,7 @@ public class GraphController implements Initializable{
 	private int XOffsetCounter = 0;
 	private double yMax = 100;
 	private double yMin = 0;
+	private int numDataSets;
 
 
 	/*** Event Handlers ***/
@@ -133,7 +139,7 @@ public class GraphController implements Initializable{
 	public void handleReset(ActionEvent event) {
 		yAxis.setUpperBound(yMax);
 		yAxis.setLowerBound(yMin);
-		
+
 		zoomRect.setWidth(0);
 		zoomRect.setHeight(0);
 		for (final DataSeries ds : dataSeries) {
@@ -142,7 +148,7 @@ public class GraphController implements Initializable{
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
-		
+
 	}
 
 	@FXML
@@ -233,27 +239,40 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void importCSV(ActionEvent event) {
+
 		csvFilePath = csvBrowseButtonHandler();
 		if(csvFilePath != null) {
 			DataOrganizer dataOrgoObject = new DataOrganizer();
 			dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
 			dataOrgoObject.getCSVSignedData();
 			dataOrgoObject.setSourceID(new File(csvFilePath).getName(), 1);
-			this.dataCollector = dataOrgoObject;
-			
-			dataSourceTitledPane.setText("CSV File: " + dataOrgoObject.getSourceId());
-			
-			for (int numDof = 1; numDof < 10; numDof++) {
-				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
-			}
+			this.dataCollector[numDataSets] = dataOrgoObject;
 
-			populateData(dataSeries, lineChart);
-			styleSeries(dataSeries, lineChart);
+			if(numDataSets == 0)
+				dataSourceTitledPane.setText("CSV File: " + dataOrgoObject.getSourceId());
+			else
+				dataSourceTitledPaneTwo.setText("CSV File: " + dataOrgoObject.getSourceId());
+
+			if(numDataSets == 0)
+				for (int numDof = 1; numDof < 10; numDof++) {
+					dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
+				}
+			else
+				for (int numDof = 1; numDof < 10; numDof++) {
+					dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
+				}
+			if(numDataSets == 0) {
+				populateData(dataSeries, lineChart);
+				styleSeries(dataSeries, lineChart);
+			}else {
+				populateData(dataSeriesTwo, lineChart);
+				styleSeries(dataSeriesTwo, lineChart);
+			}
 		}
-		
-		xAxis.setUpperBound(dataCollector.getLengthOfTest());
+
+		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
 		xAxis.setLowerBound(0);
-		
+
 		zoomRect.setManaged(false);
 		zoomRect.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
 		chartContainer.getChildren().remove(zoomRect);
@@ -261,19 +280,36 @@ public class GraphController implements Initializable{
 
 		setUpZooming(zoomRect, lineChart);
 
-		for (final DataSeries ds : dataSeries) {
-			final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
-			dataToDisplayCheckBox.setSelected(true);
-			dataToDisplayCheckBox.setPadding(new Insets(5));
-			// Line line = new Line(0, 10, 50, 10);
+		if(numDataSets == 0) {
+			for (final DataSeries ds : dataSeries) {
+				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
+				dataToDisplayCheckBox.setSelected(true);
+				dataToDisplayCheckBox.setPadding(new Insets(5));
+				// Line line = new Line(0, 10, 50, 10);
 
-			// box.setGraphic(line);
-			dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
-			dataToDisplayCheckBox.setOnAction(action -> {
-				ds.setActive(dataToDisplayCheckBox.isSelected());
-				populateData(dataSeries, lineChart);
-				styleSeries(dataSeries, lineChart);
-			});
+				// box.setGraphic(line);
+				dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
+				dataToDisplayCheckBox.setOnAction(action -> {
+					ds.setActive(dataToDisplayCheckBox.isSelected());
+					populateData(dataSeries, lineChart);
+					styleSeries(dataSeries, lineChart);
+				});
+			}
+		}else {
+			for (final DataSeries ds : dataSeriesTwo) {
+				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
+				dataToDisplayCheckBox.setSelected(true);
+				dataToDisplayCheckBox.setPadding(new Insets(5));
+				// Line line = new Line(0, 10, 50, 10);
+
+				// box.setGraphic(line);
+				dataDisplayCheckboxesFlowPaneTwo.getChildren().add(dataToDisplayCheckBox);
+				dataToDisplayCheckBox.setOnAction(action -> {
+					ds.setActive(dataToDisplayCheckBox.isSelected());
+					populateData(dataSeries, lineChart);
+					styleSeries(dataSeries, lineChart);
+				});
+			}
 		}
 
 		final BooleanBinding disableControls = zoomRect.widthProperty().lessThan(5).or(zoomRect.heightProperty().lessThan(0));
@@ -283,13 +319,19 @@ public class GraphController implements Initializable{
 			maxYValueTextField.setText(Double.toString(yMax));
 			minYValueTextField.setText(Double.toString(yMin));
 		}
+		numDataSets++;
 	}
 
 	@FXML
 	public void clearData() {
 		lineChart.getData().clear();
+		dataSourceTitledPane.setText("");
+		dataSourceTitledPaneTwo.setText("");
 		dataDisplayCheckboxesFlowPane.getChildren().clear();
+		dataDisplayCheckboxesFlowPaneTwo.getChildren().clear();
 		dataSeries = FXCollections.observableArrayList(); 
+		dataSeriesTwo = FXCollections.observableArrayList();
+		numDataSets = 0;
 	}
 
 
@@ -297,16 +339,16 @@ public class GraphController implements Initializable{
 
 	public void graphSettingsOnStart(String moduleSerialID){
 		dataSourceTitledPane.setText("Module Serial ID: " + moduleSerialID);
-		xAxis.setUpperBound(dataCollector.getLengthOfTest());
-		xAxis.setMinorTickCount(dataCollector.getSampleRate()/16);
+		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
+		xAxis.setMinorTickCount(dataCollector[numDataSets].getSampleRate()/16);
 
-		lineChart.setTitle(dataCollector.getName());
+		lineChart.setTitle(dataCollector[numDataSets].getName());
 
 
 		for (int numDof = 1; numDof < 10; numDof++) {
-			dataSeries.add(numDof - 1, new DataSeries(dataCollector, numDof, 0));
+			dataSeries.add(numDof - 1, new DataSeries(dataCollector[numDataSets], numDof, 0));
 		}
-		
+
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
@@ -338,6 +380,8 @@ public class GraphController implements Initializable{
 			maxYValueTextField.setText(Double.toString(yMax));
 			minYValueTextField.setText(Double.toString(yMin));
 		}
+
+		numDataSets++;
 	}
 
 	/**
@@ -357,261 +401,261 @@ public class GraphController implements Initializable{
 
 
 
-		/*** creates the Frame-By-Frame Analysis Rectangle ***/
+	/*** creates the Frame-By-Frame Analysis Rectangle ***/
 
 
 
-		private Rectangle drawRect(int x, int y, int FPS) {
-			currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
-			Node chartPlotArea = lineChart.lookup(".chart-plot-background");
-			double xAxisOrigin = chartPlotArea.getLayoutX();
-			x = (int) (410*x/(FPS * dataCollector.getLengthOfTest()));
-			currentTimeInMediaPlayer.setX(5 + xAxisOrigin + x);			//range is XOrigin -> XOrigin + 412
-			currentTimeInMediaPlayer.setY(40);
-			currentTimeInMediaPlayer.setStroke(Color.RED);
-			currentTimeInMediaPlayer.setStrokeWidth(1);
-			return currentTimeInMediaPlayer;
-		}
+	private Rectangle drawRect(int x, int y, int FPS) {
+		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
+		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
+		double xAxisOrigin = chartPlotArea.getLayoutX();
+		x = (int) (410*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
+		currentTimeInMediaPlayer.setX(xAxisOrigin + x -9);			//range is XOrigin -> XOrigin + 412 //-9 to align to the x axis origin. XOrigin is slightly misaligned, reason unknown. 
+		currentTimeInMediaPlayer.setY(40);
+		currentTimeInMediaPlayer.setStroke(Color.RED);
+		currentTimeInMediaPlayer.setStrokeWidth(1);
+		return currentTimeInMediaPlayer;
+	}
 
-		public void updateCirclePos(int frameInMediaPlayer, int FPS) {
-			int lastFrame = -2;
-			if(frameInMediaPlayer != lastFrame){
-				Platform.runLater(new Runnable() {
-					@Override public void run() {
-						chartContainer.getChildren().remove(currentTimeInMediaPlayer);
-						chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, FPS));
-					}
-				});
-				lastFrame = frameInMediaPlayer;
-			}
-			//lineChart.getChildrenUnmodifiable().add(drawCircle(0, frameInMediaPlayer));
-		}
-
-
-
-
-		/*** Sets Up and Performs Zooming ***/
-
-
-
-
-		private void setUpZooming(final Rectangle rect, final Node zoomingNode) {
-			final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
-			zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
-				@Override
-				public void handle(MouseEvent event) {
-					mouseAnchor.set(new Point2D(event.getX(), event.getY()));
-					rect.setWidth(0);
-					rect.setHeight(0);
+	public void updateCirclePos(int frameInMediaPlayer, int FPS) {
+		int lastFrame = -2;
+		if(frameInMediaPlayer != lastFrame){
+			Platform.runLater(new Runnable() {
+				@Override public void run() {
+					chartContainer.getChildren().remove(currentTimeInMediaPlayer);
+					chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, FPS));
 				}
 			});
-			zoomingNode.setOnMouseDragged(new EventHandler<MouseEvent>() {
-				@Override
-				public void handle(MouseEvent event) {
-					double x = event.getX();
-					double y = event.getY();
-					rect.setX(Math.min(x, mouseAnchor.get().getX()));
-					rect.setY(Math.min(y, mouseAnchor.get().getY()));
-					rect.setWidth(Math.abs(x - mouseAnchor.get().getX()));
-					rect.setHeight(Math.abs(y - mouseAnchor.get().getY()));
-				}
-			});
+			lastFrame = frameInMediaPlayer;
 		}
-
-		private void doZoom(Rectangle zoomRect, LineChart<Number, Number> chart) {
-			Point2D zoomTopLeft = new Point2D(zoomRect.getX(), zoomRect.getY());
-			Point2D zoomBottomRight = new Point2D(zoomRect.getX() + zoomRect.getWidth(), zoomRect.getY() + zoomRect.getHeight());
-			final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
-			Point2D yAxisInScene = yAxis.localToScene(0, 0);
-			final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
-			Point2D xAxisInScene = xAxis.localToScene(0, 0);
-			double xOffset = zoomTopLeft.getX() - yAxisInScene.getX() ;
-			double yOffset = zoomBottomRight.getY() - xAxisInScene.getY();
-			double xAxisScale = xAxis.getScale();
-			double yAxisScale = yAxis.getScale();
-			xAxis.setLowerBound(xAxis.getLowerBound() + xOffset / xAxisScale);
-			xAxis.setUpperBound(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale);
-			yAxis.setLowerBound(yAxis.getLowerBound() + yOffset / yAxisScale);
-			yAxis.setUpperBound(yAxis.getLowerBound() - zoomRect.getHeight() / yAxisScale);
-			zoomRect.setWidth(0);
-			zoomRect.setHeight(0);
+		//lineChart.getChildrenUnmodifiable().add(drawCircle(0, frameInMediaPlayer));
+	}
 
 
-			for (final DataSeries ds : dataSeries) {
-				if(ds.isActive()) {
-					ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
-				}
+
+
+	/*** Sets Up and Performs Zooming ***/
+
+
+
+
+	private void setUpZooming(final Rectangle rect, final Node zoomingNode) {
+		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
+		zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				mouseAnchor.set(new Point2D(event.getX(), event.getY()));
+				rect.setWidth(0);
+				rect.setHeight(0);
 			}
-
-			xAxis.setTickUnit(xAxis.getUpperBound() - xAxis.getLowerBound() / 5);
-		}
-
-
-
-
-		/*** Data Handling and Functionality Components***/
-
-		private void populateData(final ObservableList<DataSeries> ds, final LineChart<Number, Number> lineChart) {
-			lineChart.getData().clear();
-			for (DataSeries data : ds) {
-				if (data.isActive()) {
-					lineChart.getData().addAll(data.getSeries());
-				}
+		});
+		zoomingNode.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				double x = event.getX();
+				double y = event.getY();
+				rect.setX(Math.min(x, mouseAnchor.get().getX()));
+				rect.setY(Math.min(y, mouseAnchor.get().getY()));
+				rect.setWidth(Math.abs(x - mouseAnchor.get().getX()));
+				rect.setHeight(Math.abs(y - mouseAnchor.get().getY()));
 			}
-		}
+		});
+	}
+
+	private void doZoom(Rectangle zoomRect, LineChart<Number, Number> chart) {
+		Point2D zoomTopLeft = new Point2D(zoomRect.getX(), zoomRect.getY());
+		Point2D zoomBottomRight = new Point2D(zoomRect.getX() + zoomRect.getWidth(), zoomRect.getY() + zoomRect.getHeight());
+		final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
+		Point2D yAxisInScene = yAxis.localToScene(0, 0);
+		final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
+		Point2D xAxisInScene = xAxis.localToScene(0, 0);
+		double xOffset = zoomTopLeft.getX() - yAxisInScene.getX() ;
+		double yOffset = zoomBottomRight.getY() - xAxisInScene.getY();
+		double xAxisScale = xAxis.getScale();
+		double yAxisScale = yAxis.getScale();
+		xAxis.setLowerBound(xAxis.getLowerBound() + xOffset / xAxisScale);
+		xAxis.setUpperBound(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale);
+		yAxis.setLowerBound(yAxis.getLowerBound() + yOffset / yAxisScale);
+		yAxis.setUpperBound(yAxis.getLowerBound() - zoomRect.getHeight() / yAxisScale);
+		zoomRect.setWidth(0);
+		zoomRect.setHeight(0);
 
 
-		private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
-			// force a css layout pass to ensure that subsequent lookup calls work.
-			lineChart.applyCss();
-
-
-			int nSeries = 0;
-			for (DataSeries dof : dataSeries) {
-				if (!dof.isActive()) continue;
-				for (int j = 0; j < dof.getSeries().size(); j++) {
-					XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-					Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-					for (Node n : nodes) {
-						StringBuilder style = new StringBuilder();
-						style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
-
-						n.setStyle(style.toString());
-					}
-					nSeries++;
-				}
+		for (final DataSeries ds : dataSeries) {
+			if(ds.isActive()) {
+				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
 
-		private ObservableList<XYChart.Series<Number, Number>> createSeries(String name, List<List<Double>> data) {
-			XYChart.Series<Number, Number> series = new XYChart.Series<>();
-			series.setName(name);
-			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-			
-			for (int j = 0; j < data.get(0).size() && j < data.get(1).size(); j++) {
-				seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
-				
-			}
-
-			
-			
-			series.setData(seriesData);
-
-			return FXCollections.observableArrayList(Collections.singleton(series));
-		}
-
-		
-		// See Robs email
-		public class DataSeries{
-			private String name;
-			private ObservableList<XYChart.Series<Number, Number>> series;
-			private boolean isActive = true;
-			private int dof;
-			private String color;
-			private DataOrganizer dataOrgo;
-			private int dataConversionType = 1;
-			private int source; //Int representing source type. 0 being live module data, 1 being file.
-			private String dataSourceID;
-			
-			public DataSeries(String name, DataOrganizer dataOrgo) {
-				this.name = name;
-				this.dataOrgo = dataOrgo;
-				series = createSeries(name, dataOrgo.getDataSamples());
-			}
-
-			public DataSeries(String name, DataOrganizer dataOrgo, int dof, int source) {
-				this.name = name;
-				this.dof = dof;
-				this.dataOrgo = dataOrgo;
-				this.source =  source;
-				series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
-			}
-
-			public DataSeries(DataOrganizer dataOrgo, int dof, int source) {
-				this.dof = dof;
-				this.dataOrgo = dataOrgo;
-
-				switch(dof) {
-				case(1): name = "Accel X"; color = "FireBrick";
-				break;
-				case(2): name = "Accel Y"; color = "DodgerBlue";
-				break;
-				case(3): name = "Accel Z"; color = "ForestGreen";
-				break;
-				case(4): name = "Gyro X"; color = "Gold";
-				break;
-				case(5): name = "Gyro Y"; color = "Coral";
-				break;
-				case(6): name = "Gyro Z"; color = "MediumBlue";
-				break;
-				case(7): name = "Mag X"; color = "DarkViolet";
-				break;
-				case(8): name = "Mag Y"; color = "DarkSlateGray";
-				break;
-				case(9): name = "Mag Z"; color = "SaddleBrown";
-				break;
-				case(10): name = "Magnitude"; color = "Black";
-				break;
-				}
+		xAxis.setTickUnit(xAxis.getUpperBound() - xAxis.getLowerBound() / 5);
+	}
 
 
-				series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
-			}
 
-			public String getName() {
-				return name;
-			}
 
-			public String getColor() {
-				return color;
-			}
+	/*** Data Handling and Functionality Components***/
 
-			public boolean isActive() {
-				return isActive;
-			}
-
-			public void setActive(boolean isActive) {
-				this.isActive = isActive;
-			}
-
-			public void setDataConversionType(int dataConversionType) {
-				this.dataConversionType = dataConversionType;
-			}
-			
-			public ObservableList<XYChart.Series<Number, Number>> getSeries() {
-				return series;
-			}
-
-			public void updateZoom(double start, double end) {
-				series = createSeries(name, dataOrgo.getZoomedSeries(source, start, end, dof, dataConversionType));
-			}
-
-			
-			/*
-			 * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left. 
-			 */
-			public void addNulls(int offset) {
-				List<List<Double>> seriesData = new ArrayList<List<Double>>();
-				List<Double> timeAxis = new ArrayList<Double>();
-				List<Double> dataAxis = new ArrayList<Double>();
-
-				timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0)); //Add time axis
-
-				for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data + offset"
-					if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
-							dataAxis.add(i, null);
-							continue;
-					}
-					dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //If we have enough padding, start adding the samples
-				}
-				
-				seriesData.add(timeAxis);
-				seriesData.add(dataAxis);
-
-				series = createSeries(name,seriesData); //create a series for the linechart
+	private void populateData(final ObservableList<DataSeries> ds, final LineChart<Number, Number> lineChart) {
+		lineChart.getData().clear();
+		for (DataSeries data : ds) {
+			if (data.isActive()) {
+				lineChart.getData().addAll(data.getSeries());
 			}
 		}
 	}
+
+
+	private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
+		// force a css layout pass to ensure that subsequent lookup calls work.
+		lineChart.applyCss();
+
+
+		int nSeries = 0;
+		for (DataSeries dof : dataSeries) {
+			if (!dof.isActive()) continue;
+			for (int j = 0; j < dof.getSeries().size(); j++) {
+				XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+				Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+				for (Node n : nodes) {
+					StringBuilder style = new StringBuilder();
+					style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
+
+					n.setStyle(style.toString());
+				}
+				nSeries++;
+			}
+		}
+	}
+
+	private ObservableList<XYChart.Series<Number, Number>> createSeries(String name, List<List<Double>> data) {
+		XYChart.Series<Number, Number> series = new XYChart.Series<>();
+		series.setName(name);
+		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+
+		for (int j = 0; j < data.get(0).size() && j < data.get(1).size(); j++) {
+			seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
+
+		}
+
+
+
+		series.setData(seriesData);
+
+		return FXCollections.observableArrayList(Collections.singleton(series));
+	}
+
+
+	// See Robs email
+	public class DataSeries{
+		private String name;
+		private ObservableList<XYChart.Series<Number, Number>> series;
+		private boolean isActive = true;
+		private int dof;
+		private String color;
+		private DataOrganizer dataOrgo;
+		private int dataConversionType = 1;
+		private int source; //Int representing source type. 0 being live module data, 1 being file.
+		private String dataSourceID;
+
+		public DataSeries(String name, DataOrganizer dataOrgo) {
+			this.name = name;
+			this.dataOrgo = dataOrgo;
+			series = createSeries(name, dataOrgo.getDataSamples());
+		}
+
+		public DataSeries(String name, DataOrganizer dataOrgo, int dof, int source) {
+			this.name = name;
+			this.dof = dof;
+			this.dataOrgo = dataOrgo;
+			this.source =  source;
+			series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+		}
+
+		public DataSeries(DataOrganizer dataOrgo, int dof, int source) {
+			this.dof = dof;
+			this.dataOrgo = dataOrgo;
+
+			switch(dof) {
+			case(1): name = "Accel X"; color = "FireBrick";
+			break;
+			case(2): name = "Accel Y"; color = "DodgerBlue";
+			break;
+			case(3): name = "Accel Z"; color = "ForestGreen";
+			break;
+			case(4): name = "Gyro X"; color = "Gold";
+			break;
+			case(5): name = "Gyro Y"; color = "Coral";
+			break;
+			case(6): name = "Gyro Z"; color = "MediumBlue";
+			break;
+			case(7): name = "Mag X"; color = "DarkViolet";
+			break;
+			case(8): name = "Mag Y"; color = "DarkSlateGray";
+			break;
+			case(9): name = "Mag Z"; color = "SaddleBrown";
+			break;
+			case(10): name = "Magnitude"; color = "Black";
+			break;
+			}
+
+
+			series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getColor() {
+			return color;
+		}
+
+		public boolean isActive() {
+			return isActive;
+		}
+
+		public void setActive(boolean isActive) {
+			this.isActive = isActive;
+		}
+
+		public void setDataConversionType(int dataConversionType) {
+			this.dataConversionType = dataConversionType;
+		}
+
+		public ObservableList<XYChart.Series<Number, Number>> getSeries() {
+			return series;
+		}
+
+		public void updateZoom(double start, double end) {
+			series = createSeries(name, dataOrgo.getZoomedSeries(source, start, end, dof, dataConversionType));
+		}
+
+
+		/*
+		 * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left. 
+		 */
+		public void addNulls(int offset) {
+			List<List<Double>> seriesData = new ArrayList<List<Double>>();
+			List<Double> timeAxis = new ArrayList<Double>();
+			List<Double> dataAxis = new ArrayList<Double>();
+
+			timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0)); //Add time axis
+
+			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data + offset"
+				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
+					dataAxis.add(i, null);
+					continue;
+				}
+				dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //If we have enough padding, start adding the samples
+			}
+
+			seriesData.add(timeAxis);
+			seriesData.add(dataAxis);
+
+			series = createSeries(name,seriesData); //create a series for the linechart
+		}
+	}
+}
 
 
 

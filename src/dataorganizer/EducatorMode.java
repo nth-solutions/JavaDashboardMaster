@@ -62,6 +62,7 @@ public class EducatorMode extends JFrame {
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
 	public static final int CURRENT_FIRMWARE_ID = 23;
+	private DataOrganizer dataOrgo;
 
 	private JPanel contentPane;
 	private JComboBox gyroSensitivityCombobox;
@@ -400,23 +401,20 @@ public class EducatorMode extends JFrame {
 		testParams.clear();
 	}
 	
-	public void initFX(List<DataOrganizer> dataOrgo, ActionEvent e) {
-		final int viewableTests = dataOrgo.size();
+	public void initFX(DataOrganizer dataOrgo, ActionEvent e) {
 		Platform.setImplicitExit(false);
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				for(int i = 0; i < viewableTests; i++) {
-					if(graphTestBtn == e.getSource()) {
-						lineGraph = startGraphing();
-						lineGraph.setDataCollector(dataOrgo.get(i));
-						lineGraph.graphSettingsOnStart(dataOrgo.get(i).getSerialID());
-					}
-					if(mediaPlayerBtn == e.getSource()) {
-						mediaController = startMediaPlayer();
-						mediaController.scaleVideoAtStart();
-						shareFrameGraphAndMedia(lineGraph, mediaController);
-					}
+				if(graphTestBtn == e.getSource()) {
+					lineGraph = startGraphing();
+					lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
+					lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
+				}
+				if(mediaPlayerBtn == e.getSource()) {
+					mediaController = startMediaPlayer();
+					mediaController.scaleVideoAtStart();
+					shareFrameGraphAndMedia(lineGraph, mediaController);
 				}
 			}
 		});
@@ -1127,10 +1125,6 @@ public class EducatorMode extends JFrame {
 						int gyroFilter = testParameters.get(12);
 
 
-						boolean timedTest = true;
-						if (timedTestFlag == 0) {
-							timedTest = false;
-						}
 						double bytesPerSample = 18;
 						if (accelGyroSampleRate / magSampleRate == 10) {
 							bytesPerSample = 12.6;
@@ -1172,13 +1166,16 @@ public class EducatorMode extends JFrame {
 										}
 									}
 									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile; 
+									dataOrgo = new DataOrganizer();
 									//Define operation that can be run in separate thread
-									Settings settings = new Settings();
-									settings.loadConfigFile();
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 											//Organize data into .CSV
-											CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters); 
+											dataOrgo.createDataSmpsRawData(finalData);
+											dataOrgo.getSignedData();
+											dataOrgo.createCSVP();
+											dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+											//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters); 
 										}
 									};
 
@@ -1932,7 +1929,7 @@ public class EducatorMode extends JFrame {
 		graphTestBtn = new JButton("Graph");
 		graphTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//initFx(dataOrgo, arg0); we need to use the dataOrganizer object instead of CSVBuilder so we can pass this object to the graph. 
+				initFX(dataOrgo, arg0);
 			}
 		});
 		graphTestBtn.setBounds(10, 11, 506, 232);
@@ -1941,7 +1938,7 @@ public class EducatorMode extends JFrame {
 		mediaPlayerBtn = new JButton("Media Player");
 		mediaPlayerBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//initFx(dataOrgo, arg0); 
+				initFX(dataOrgo, arg0); 
 			}
 		});
 		mediaPlayerBtn.setBounds(10, 242, 506, 263);
