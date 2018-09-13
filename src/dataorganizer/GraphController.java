@@ -123,6 +123,7 @@ public class GraphController implements Initializable{
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle zoomRect = new Rectangle();
 	private int XOffsetCounter = 0;
+	private int XOffsetCounterTwo = 0;
 	private double yMax = 100;
 	private double yMin = 0;
 	private int numDataSets;
@@ -203,8 +204,8 @@ public class GraphController implements Initializable{
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
 		}
-		populateData(dataSeriesTwo, lineChart);
-		styleSeries(dataSeriesTwo, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
@@ -213,8 +214,8 @@ public class GraphController implements Initializable{
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
 		}
-		populateData(dataSeries, lineChart);
-		styleSeries(dataSeries, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
@@ -223,8 +224,8 @@ public class GraphController implements Initializable{
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
 		}
-		populateData(dataSeries, lineChart);
-		styleSeries(dataSeries, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
@@ -233,54 +234,53 @@ public class GraphController implements Initializable{
 		for(final DataSeries ds: dataSeries) {
 			ds.addNulls(XOffsetCounter);
 		}
-		populateData(dataSeries, lineChart);
-		styleSeries(dataSeries, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	//data shift for dataset two
 	@FXML
 	public void addTenNullButtonHandlerTwo(ActionEvent event) {
-		XOffsetCounter += 10;
+		XOffsetCounterTwo += 10;
 		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounter);
+			ds.addNulls(XOffsetCounterTwo);
 		}
-		populateData(dataSeriesTwo, lineChart);
-		styleSeries(dataSeriesTwo, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
 	public void subTenNullButtonHandlerTwo(ActionEvent event) {
-		XOffsetCounter -= 10;
+		XOffsetCounterTwo -= 10;
 		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounter);
+			ds.addNulls(XOffsetCounterTwo);
 		}
-		populateData(dataSeriesTwo, lineChart);
-		styleSeries(dataSeries, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
 	public void addOneNullButtonHandlerTwo(ActionEvent event) {
-		XOffsetCounter += 1;
+		XOffsetCounterTwo += 1;
 		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounter);
+			ds.addNulls(XOffsetCounterTwo);
 		}
-		populateData(dataSeriesTwo, lineChart);
-		styleSeries(dataSeriesTwo, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
 	public void subOneNullButtonHandlerTwo(ActionEvent event) {
-		XOffsetCounter -= 1;
+		XOffsetCounterTwo -= 1;
 		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounter);
+			ds.addNulls(XOffsetCounterTwo);
 		}
-		populateData(dataSeriesTwo, lineChart);
-		styleSeries(dataSeriesTwo, lineChart);
+		repopulateData();
+		restyleSeries();
 	}
 
 	@FXML
 	public void importCSV(ActionEvent event) {
-
 		csvFilePath = csvBrowseButtonHandler();
 		if(csvFilePath != null) {
 			DataOrganizer dataOrgoObject = new DataOrganizer();
@@ -380,11 +380,21 @@ public class GraphController implements Initializable{
 	@FXML
 	public void clearDataSetOne() {
 		lineChart.getData().removeAll(dataSeries);
+		dataDisplayCheckboxesFlowPane.getChildren().removeAll();
+		dataSourceTitledPane.setText("");
+		dataSeries = dataSeriesTwo;
+		dataSeriesTwo = FXCollections.observableArrayList();
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
+		numDataSets--;
 	}
 
 	@FXML
 	public void clearDataSetTwo() {
 		lineChart.getData().removeAll(dataSeriesTwo);
+		dataDisplayCheckboxesFlowPaneTwo.getChildren().removeAll();
+		dataSourceTitledPaneTwo.setText("");
+		numDataSets--;
 	}
 
 
@@ -396,7 +406,6 @@ public class GraphController implements Initializable{
 		xAxis.setMinorTickCount(dataCollector[numDataSets].getSampleRate()/16);
 
 		lineChart.setTitle(dataCollector[numDataSets].getName());
-
 
 		for (int numDof = 1; numDof < 10; numDof++) {
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector[numDataSets], numDof, 0));
@@ -567,6 +576,7 @@ public class GraphController implements Initializable{
 		}
 		for (DataSeries data : dataSeriesTwo) {
 			if (data.isActive()) {
+				System.out.println(data.getSeries());
 				lineChart.getData().addAll(data.getSeries());
 			}
 		}
