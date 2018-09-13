@@ -526,7 +526,7 @@ public class DataOrganizer {
 		dofData.add(0, dofTime);
 
 
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
+		for (int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
 			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 		dofData.add(1, dofAxis);

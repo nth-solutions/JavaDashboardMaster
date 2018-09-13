@@ -332,8 +332,8 @@ public class GraphController implements Initializable{
 				dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
 				dataToDisplayCheckBox.setOnAction(action -> {
 					ds.setActive(dataToDisplayCheckBox.isSelected());
-					populateData(dataSeries, lineChart);
-					styleSeries(dataSeries, lineChart);
+					repopulateData();
+					restyleSeries();
 				});
 			}
 		}else {
@@ -471,8 +471,8 @@ public class GraphController implements Initializable{
 		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX();
-		x = (int) (410*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
-		currentTimeInMediaPlayer.setX(xAxisOrigin + x -9);			//range is XOrigin -> XOrigin + 412 //-9 to align to the x axis origin. XOrigin is slightly misaligned, reason unknown. 
+		x = (int) (522*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
+		currentTimeInMediaPlayer.setX(xAxisOrigin + x -7);			//range is XOrigin -> XOrigin + 412 //-7 to align to the x axis origin. XOrigin is slightly misaligned, reason unknown. 
 		currentTimeInMediaPlayer.setY(40);
 		currentTimeInMediaPlayer.setStroke(Color.RED);
 		currentTimeInMediaPlayer.setStrokeWidth(1);

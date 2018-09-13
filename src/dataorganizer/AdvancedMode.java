@@ -2179,7 +2179,6 @@ public class AdvancedMode extends JFrame {
 		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
 
 		checkBoxSignedData = new JCheckBox("Signed Data");
-		checkBoxSignedData.setSelected(true);
 
 		panel.add(checkBoxSignedData);
 		panel.add(checkBoxLabelCSV);
@@ -2558,7 +2557,8 @@ public class AdvancedMode extends JFrame {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						startGraphing();
+						lineGraph = startGraphing();
+						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
 			}
@@ -2569,12 +2569,14 @@ public class AdvancedMode extends JFrame {
 		
 		JButton mediaPlayerLauncherBtn = new JButton("Media Player");
 		mediaPlayerLauncherBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent arg0) {
 				Platform.setImplicitExit(false);
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						startMediaPlayer();
+						mediaController = startMediaPlayer();
+						mediaController.scaleVideoAtStart();
+						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
 			}
