@@ -2179,6 +2179,7 @@ public class AdvancedMode extends JFrame {
 		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
 
 		checkBoxSignedData = new JCheckBox("Signed Data");
+		checkBoxSignedData.setSelected(true);
 
 		panel.add(checkBoxSignedData);
 		panel.add(checkBoxLabelCSV);

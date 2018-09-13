@@ -18,6 +18,7 @@ public class DataOrganizer {
 	private List<List<Double>> signedDataSamples;
 	private List<List<Double>> normalizedDataSamples;
 	private List<Integer> testParameters;
+	List<Double> dofTime;
 	private String nameOfTest;
 	private int sampleRate;
 	private int magSampleRate;
@@ -333,6 +334,8 @@ public class DataOrganizer {
 		else
 			modifiedDataSmps = signedDataSamples;
 
+		System.out.println(modifiedDataSmps.get(0).size());
+		
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile = null;
 		if (!labelData) {
@@ -428,11 +431,12 @@ public class DataOrganizer {
 			}
 		}
 	}
-
+	
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
 	}
-
+	
+	
 	public void setDataSmps(List<List<Double>> dataSmps) {
 		this.dataSamples = dataSmps;
 	}
@@ -471,6 +475,10 @@ public class DataOrganizer {
 		return null;
 	}
 
+	public List<Double> getTimeAxis(){
+		return dofTime;
+	}
+	
 	public List<List<Double>> getZoomedSeries(int source, double start, double end, int dofNum, int dataConversionType ){
 		switch(source) {
 			case 0: //Live module data
@@ -503,7 +511,7 @@ public class DataOrganizer {
 
 		List<List<Double>> dofData = new ArrayList<List<Double>>();
 
-		List<Double> dofTime = new ArrayList<Double>();
+		dofTime = new ArrayList<Double>();
 		List<Double> dofAxis = new ArrayList<Double>();
 
 		if (modifier < 1)
@@ -546,7 +554,7 @@ public class DataOrganizer {
 
 		List<List<Double>> dofData = new ArrayList<List<Double>>();
 
-		List<Double> dofTime = new ArrayList<Double>();
+		dofTime = new ArrayList<Double>();
 		dofTime.add(0, 0.0);
 		List<Double> dofAxis = new ArrayList<Double>();
 

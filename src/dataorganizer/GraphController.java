@@ -576,7 +576,6 @@ public class GraphController implements Initializable{
 		}
 		for (DataSeries data : dataSeriesTwo) {
 			if (data.isActive()) {
-				System.out.println(data.getSeries());
 				lineChart.getData().addAll(data.getSeries());
 			}
 		}
@@ -758,7 +757,7 @@ public class GraphController implements Initializable{
 			List<Double> timeAxis = new ArrayList<Double>();
 			List<Double> dataAxis = new ArrayList<Double>();
 
-			timeAxis.addAll(dataOrgo.getByConversionType(dataConversionType).get(0)); //Add time axis
+			timeAxis.addAll(dataOrgo.getTimeAxis()); 
 
 			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data + offset"
 				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
