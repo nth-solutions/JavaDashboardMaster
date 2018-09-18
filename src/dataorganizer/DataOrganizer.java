@@ -537,7 +537,7 @@ public class DataOrganizer {
 	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType) {
 		dofNum--; //hardcore hack. Not really. I had an off by one error but could only account for it here instead of graph, because our the DataSeries object expects 1-9, whereas we index 0,8. Hence decrease dofnum 1 for indexes here.
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
-		switch(dataConversionType) { //What type of data. 0 is raw, 1 is signed. We are expecting to expand on this supposedly? thats why its a switch and not a bool
+		switch(dataConversionType) { //What type of data. 0 is raw, 1 is signed. We are expecting to expand on this supposedly? thats why its a switch and not a boolean
 		case(0): 
 			modifiedDataSmps = dataSamples;
 		break;
@@ -558,7 +558,7 @@ public class DataOrganizer {
 		dofTime.add(0, 0.0);
 		List<Double> dofAxis = new ArrayList<Double>();
 
-		if (modifier < 1) // We cant have more data than we have
+		if (modifier < 1) // We cant have more data than we have. a modifier greater than 1 would try to access an index beyond what we have in modifedDataSmps
 			modifier = 1;
 
 		for(int sample = 1; sample < 7000 && sample < modifiedDataSmps.get(0).size(); sample++) {

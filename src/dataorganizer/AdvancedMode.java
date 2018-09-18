@@ -187,8 +187,8 @@ public class AdvancedMode extends JFrame {
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
-	public static final int CURRENT_FIRMWARE_ID = 23;
-	public static final String CURRENT_FIRMWARE_STRING = "23";
+	public static final int CURRENT_FIRMWARE_ID = 24;
+	public static final String CURRENT_FIRMWARE_STRING = "24";
 
 	private int expectedTestNum;
 	//Test Parameters (All must be of type "int")
@@ -247,12 +247,13 @@ public class AdvancedMode extends JFrame {
 	private JButton graphLauncherBtn;
 
 	private String moduleSerialID;
+	private JTextField serialNumberTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-14");
+		setTitle("JavaDashboard Rev-16");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -1947,6 +1948,22 @@ public class AdvancedMode extends JFrame {
 
 	}
 
+	public void setSerialNumberHandler() {
+		try {
+			if(serialHandler.setSerialNumber(Integer.parseInt(serialNumberTextField.getText()))) {
+				generalStatusLabel.setText("Successfully set serial number");
+			}
+		} catch (NumberFormatException e) {
+			generalStatusLabel.setText("Invalid serial number");
+		} catch (IOException e) {
+			generalStatusLabel.setText("Unknown Error.");
+		} catch (PortInUseException e) {
+			generalStatusLabel.setText("Reconnect to module, connection dropped.");
+		} catch (UnsupportedCommOperationException e) {
+			generalStatusLabel.setText("Unknown Error.");
+		}
+	}
+	
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
 		if(dataOrgo != null) {
             testRecordationPanel.removeAll();
@@ -2543,8 +2560,21 @@ public class AdvancedMode extends JFrame {
 
 		adminPanel = new JPanel();
 		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
-
-		adminPanel.setLayout(new GridLayout(4, 1, 30, 0));
+		adminPanel.setLayout(null);
+		
+		serialNumberTextField = new JTextField();
+		serialNumberTextField.setBounds(10, 125, 132, 30);
+		adminPanel.add(serialNumberTextField);
+		serialNumberTextField.setColumns(10);
+		
+		JButton writeSerialNumberBtn = new JButton("Write");
+		writeSerialNumberBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				setSerialNumberHandler();
+			}
+		});
+		writeSerialNumberBtn.setBounds(179, 129, 89, 23);
+		adminPanel.add(writeSerialNumberBtn);
 		
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);

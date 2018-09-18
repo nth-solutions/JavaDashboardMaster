@@ -143,8 +143,16 @@ public class GraphController implements Initializable{
 
 		zoomRect.setWidth(0);
 		zoomRect.setHeight(0);
-		for (final DataSeries ds : dataSeries) {
-			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		
+		if(dataSeries != null) {
+			for (final DataSeries ds : dataSeries) {
+				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}	
+		}
+		if(dataSeriesTwo != null) {
+			for (final DataSeries ds : dataSeriesTwo) {
+				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}	
 		}
 		repopulateData();
 		restyleSeries();
@@ -282,33 +290,37 @@ public class GraphController implements Initializable{
 	@FXML
 	public void importCSV(ActionEvent event) {
 		csvFilePath = csvBrowseButtonHandler();
-		if(csvFilePath != null) {
-			DataOrganizer dataOrgoObject = new DataOrganizer();
-			dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
-			dataOrgoObject.getCSVSignedData();
-			dataOrgoObject.setSourceID(new File(csvFilePath).getName(), 1);
-			this.dataCollector[numDataSets] = dataOrgoObject;
+		if(csvFilePath != null)
+			loadCSVData();
+	}
+	
+	public void loadCSVData() {
+		DataOrganizer dataOrgoObject = new DataOrganizer();
+		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
+		dataOrgoObject.getCSVSignedData();
+		dataOrgoObject.setSourceID(new File(csvFilePath).getName(), 1);
+		this.dataCollector[numDataSets] = dataOrgoObject;
 
-			if(numDataSets == 0)
-				dataSourceTitledPane.setText("CSV File: " + dataOrgoObject.getSourceId());
-			else
-				dataSourceTitledPaneTwo.setText("CSV File: " + dataOrgoObject.getSourceId());
+		if(numDataSets == 0)
+			dataSourceTitledPane.setText("CSV File: " + dataOrgoObject.getSourceId());
+		else
+			dataSourceTitledPaneTwo.setText("CSV File: " + dataOrgoObject.getSourceId());
 
-			if(numDataSets == 0)
-				for (int numDof = 1; numDof < 10; numDof++) {
-					dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
-				}
-			else
-				for (int numDof = 1; numDof < 10; numDof++) {
-					dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
-				}
-			if(numDataSets == 0) {
-				populateData(dataSeries, lineChart);
-				styleSeries(dataSeries, lineChart);
-			}else {
-				populateData(dataSeriesTwo, lineChart);
-				styleSeries(dataSeriesTwo, lineChart);
+		if(numDataSets == 0)
+			for (int numDof = 1; numDof < 10; numDof++) {
+				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
 			}
+		else
+			for (int numDof = 1; numDof < 10; numDof++) {
+				dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
+			}
+		
+		if(numDataSets == 0) {
+			populateData(dataSeries, lineChart);
+			styleSeries(dataSeries, lineChart);
+		}else {
+			populateData(dataSeriesTwo, lineChart);
+			styleSeries(dataSeriesTwo, lineChart);
 		}
 
 		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
@@ -470,9 +482,9 @@ public class GraphController implements Initializable{
 	private Rectangle drawRect(int x, int y, int FPS) {
 		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
-		double xAxisOrigin = chartPlotArea.getLayoutX();
+		double xAxisOrigin = chartPlotArea.getLayoutX() - 8;  //-8 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
 		x = (int) (522*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
-		currentTimeInMediaPlayer.setX(xAxisOrigin + x -7);			//range is XOrigin -> XOrigin + 412 //-7 to align to the x axis origin. XOrigin is slightly misaligned, reason unknown. 
+		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + 522
 		currentTimeInMediaPlayer.setY(40);
 		currentTimeInMediaPlayer.setStroke(Color.RED);
 		currentTimeInMediaPlayer.setStrokeWidth(1);
@@ -574,12 +586,12 @@ public class GraphController implements Initializable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		for (DataSeries data : dataSeriesTwo) {
+		for (DataSeries data : dataSeries) {
 			if (data.isActive()) {
 				lineChart.getData().addAll(data.getSeries());
 			}
 		}
-		for (DataSeries data : dataSeries) {
+		for (DataSeries data : dataSeriesTwo) {
 			if (data.isActive()) {
 				lineChart.getData().addAll(data.getSeries());
 			}
@@ -671,7 +683,7 @@ public class GraphController implements Initializable{
 		private int dof;
 		private String color;
 		private DataOrganizer dataOrgo;
-		private int dataConversionType = 1;
+		private int dataConversionType = 1; //signed or unsigned, 
 		private int source; //Int representing source type. 0 being live module data, 1 being file.
 		private String dataSourceID;
 

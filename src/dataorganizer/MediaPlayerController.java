@@ -373,8 +373,6 @@ public void handlePlayPauseVideo(ActionEvent event) {                           
         } catch (NumberFormatException e) {
             generalStatusText.setText("Not a Valid Frame");                                                                                                     // An error message is shown for all selected frames that are completely out of bounds / NaN
         }
-
-
     }
 
     @FXML

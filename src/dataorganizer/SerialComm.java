@@ -198,6 +198,34 @@ public class SerialComm {
 		return true;
 	}
 
+	/*
+	 * Set serial number of module
+	 */
+	public boolean setSerialNumber(int serialNumber) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(!selectMode('M')) {
+			return false;
+		}
+		
+		outputStream.write(serialNumber / 256);
+		outputStream.write(serialNumber % 256);
+		
+		long echoStart = System.currentTimeMillis();
+		
+		while((System.currentTimeMillis() - echoStart) < 500) {
+			if (inputStream.available() >= 2) {
+				if((inputStream.read()*256 + inputStream.read()) == serialNumber) {
+					outputStream.write(new String("CA").getBytes());
+					return true;
+				}else {
+					outputStream.write(new String("CN").getBytes());
+				}
+			}
+		}
+			
+		return false;
+		
+	}
+	
 	/**
 	 * Configures the serial port and input/output streams for the import sequences (most important parameter is the baud rate)
 	 * @return boolean that allows for easy exiting of the method in addition to notifying the caller that if it was successful
@@ -443,7 +471,7 @@ public class SerialComm {
 		calData[0] = tmr0Offset;
 		calData[1] = delayAfterStart;
 		//System.out.println(calData[0]);
-		//System.out.println(calData[1]);
+		//System.out.println( lData[1]);
 		int addFlag = 0;
 		int addFlagSerialRead = 0;
 		int dataIndex = 0;
@@ -817,7 +845,6 @@ public class SerialComm {
 
 			//Executes while it is still receiving ID info and a timeout has not occured
 			while (idCounter < numIDParams && (System.currentTimeMillis() - startTime) < 1500) {
-
 				if (!preambleFlag) {
 					//Wait for a preamble, exits method if the preamble times out
 					if(!waitForPreamble(1, 4, 500)) {
