@@ -21,7 +21,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
       <Pane BorderPane.alignment="CENTER">
          <children>
@@ -53,9 +53,9 @@
          <children>
             <Accordion>
                <panes>
-                  <TitledPane fx:id="dataSourceTitledPane" animated="false" prefHeight="180.0" prefWidth="360.0">
+                  <TitledPane fx:id="dataSourceTitledPane" animated="false">
                     <content>
-                      <AnchorPane depthTest="ENABLE" minHeight="0.0" minWidth="0.0" prefHeight="156.0" prefWidth="358.0">
+                      <AnchorPane depthTest="ENABLE" minHeight="0.0" minWidth="0.0">
                            <children>
                               <HBox alignment="CENTER" layoutY="3.0" prefHeight="151.0" prefWidth="358.0">
                                  <children>
@@ -115,9 +115,9 @@
                         <Font size="10.0" />
                      </font>
                   </TitledPane>
-                  <TitledPane fx:id="dataSourceTitledPaneTwo" animated="false" prefHeight="428.0" prefWidth="360.0">
+                  <TitledPane fx:id="dataSourceTitledPaneTwo" animated="false">
                      <content>
-                        <AnchorPane depthTest="ENABLE" minHeight="0.0" minWidth="0.0" prefHeight="156.0" prefWidth="358.0">
+                        <AnchorPane depthTest="ENABLE" minHeight="0.0" minWidth="0.0">
                            <children>
                               <HBox alignment="CENTER" layoutY="3.0" prefHeight="151.0" prefWidth="358.0">
                                  <children>
@@ -177,17 +177,21 @@
                         <Font size="10.0" />
                      </font>
                   </TitledPane>
-                  <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" animated="false" prefHeight="234.0" prefWidth="150.0" text="Data Analysis Tools">
+                  <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" animated="false" text="Data Analysis Tools">
                      <content>
-                        <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" alignment="CENTER" orientation="VERTICAL" prefHeight="208.0" prefWidth="257.0">
+                        <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL">
                            <children>
-                              <CheckBox fx:id="displayRawDataCheckbox" disable="true" mnemonicParsing="false" onAction="#handleDisplayRawData" text="Display Raw Data">
-                                 <padding>
-                                    <Insets bottom="5.0" />
-                                 </padding>
-                              </CheckBox>
-                              <CheckBox fx:id="displaySignedDataCheckbox" disable="true" mnemonicParsing="false" onAction="#handleDisplaySignedData" selected="true" text="Display Signed Data" />
-                              <HBox alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="165.0">
+                              <VBox>
+                                 <children>
+                                    <CheckBox fx:id="displayRawDataCheckbox" disable="true" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="200.0" text="Display Raw Data">
+                                       <padding>
+                                          <Insets bottom="5.0" />
+                                       </padding>
+                                    </CheckBox>
+                                    <CheckBox fx:id="displaySignedDataCheckbox" disable="true" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="200.0" selected="true" text="Display Signed Data" />
+                                 </children>
+                              </VBox>
+                              <HBox alignment="CENTER">
                                  <FlowPane.margin>
                                     <Insets bottom="5.0" top="10.0" />
                                  </FlowPane.margin>
@@ -200,7 +204,7 @@
                                     <TextField fx:id="maxYValueTextField" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="75.0" />
                                  </children>
                               </HBox>
-                              <HBox alignment="CENTER_RIGHT">
+                              <HBox alignment="CENTER">
                                  <children>
                                     <Label prefHeight="17.0" prefWidth="100.0" text="Y-Axis Minimum:" textAlignment="CENTER">
                                        <HBox.margin>
@@ -222,7 +226,7 @@
                                     </Button>
                                  </children>
                               </HBox>
-                              <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="45.0" prefWidth="172.0" spacing="10.0">
+                              <HBox fx:id="zoomControls" alignment="CENTER" prefHeight="45.0" spacing="10.0">
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                                  </padding>
@@ -232,6 +236,46 @@
                                     <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="30.0" prefWidth="60.0" text="Reset" />
                                  </children>
                               </HBox>
+                              <Separator prefWidth="200.0" />
+                              <VBox alignment="TOP_CENTER" prefHeight="145.0" prefWidth="200.0">
+                                 <children>
+                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="200.0" text="Accelerometer Offset" textAlignment="CENTER">
+                                       <padding>
+                                          <Insets bottom="5.0" top="5.0" />
+                                       </padding></Label>
+                                    <HBox alignment="CENTER" prefHeight="25.0" prefWidth="200.0">
+                                       <children>
+                                          <Label prefWidth="100.0" text="X-Axis Offset:  " />
+                                          <TextField fx:id="accelerometerXAxisOffsetTextField" alignment="CENTER_RIGHT" layoutX="38.0" layoutY="10.0" prefWidth="75.0" text="0" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets bottom="5.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <HBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="25.0" prefWidth="200.0">
+                                       <children>
+                                          <Label prefWidth="100.0" text="Y-Axis Offset: " />
+                                          <TextField fx:id="accelerometerYAxisOffsetTextField" alignment="CENTER_RIGHT" layoutX="38.0" layoutY="10.0" prefWidth="75.0" text="0" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" />
+                                       </padding>
+                                    </HBox>
+                                    <HBox alignment="CENTER" layoutX="10.0" layoutY="35.0" prefHeight="25.0" prefWidth="200.0">
+                                       <children>
+                                          <Label prefWidth="100.0" text="Z-Axis Offset: " />
+                                          <TextField fx:id="accelerometerZAxisOffsetTextField" alignment="CENTER_RIGHT" layoutX="38.0" layoutY="10.0" prefWidth="75.0" text="0" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="5.0" />
+                                       </padding>
+                                    </HBox>
+                                    <Button alignment="CENTER" mnemonicParsing="false" onAction="#applyAccelerometerOffsets" prefHeight="25.0" prefWidth="100.0" text="Load Offsets" textAlignment="CENTER" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </VBox>
                            </children>
                         </FlowPane>
                      </content>

@@ -73,27 +73,15 @@ public class GraphController implements Initializable{
 	@FXML
 	private Pane chartContainer;
 	@FXML
-	private HBox zoomControls;
-	@FXML
 	private Button zoomButton;
-	@FXML
-	private Button resetButton;
-	@FXML
-	private VBox dataControls;
 	@FXML
 	private TitledPane dataSourceTitledPane;
 	@FXML
 	private TitledPane dataSourceTitledPaneTwo;
 	@FXML
-	private TitledPane dataDisplayTitledPane;
-	@FXML
 	private FlowPane dataDisplayCheckboxesFlowPane;
 	@FXML
 	private FlowPane dataDisplayCheckboxesFlowPaneTwo;
-	@FXML
-	private TitledPane rawOrSignedDataDisplayTitledPane;
-	@FXML
-	private FlowPane rawOrSignedDataDisplayFlowPane;
 	@FXML
 	private CheckBox displayRawDataCheckbox;
 	@FXML
@@ -105,7 +93,11 @@ public class GraphController implements Initializable{
 	@FXML
 	private Text generalStatusLabel;
 	@FXML
-	private Label dataOriginLabel; //TODO: Make this change text based on dataset it controls
+	private TextField accelerometerXAxisOffsetTextField;
+	@FXML
+	private TextField accelerometerYAxisOffsetTextField;
+	@FXML
+	private TextField accelerometerZAxisOffsetTextField;
 
 
 	public void setDataCollector(DataOrganizer dataCollector, int index) {
@@ -127,6 +119,9 @@ public class GraphController implements Initializable{
 	private double yMax = 100;
 	private double yMin = 0;
 	private int numDataSets;
+	private int xAxisAccelerometer;
+	private int yAxisAccelerometer;
+	private int zAxisAccelerometer;
 
 
 	/*** Event Handlers ***/
@@ -376,6 +371,34 @@ public class GraphController implements Initializable{
 		}
 		numDataSets++;
 	}
+
+	@FXML
+	public void applyAccelerometerOffsets(ActionEvent event) {
+
+		try {
+			xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
+			yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
+			zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
+
+			generalStatusLabel.setText("");
+
+		} catch (NumberFormatException e) {
+
+			generalStatusLabel.setText("Enter a Valid Offset Value");
+
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
 
 	@FXML
 	public void clearDataAll() {
