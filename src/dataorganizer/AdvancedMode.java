@@ -2564,7 +2564,7 @@ public class AdvancedMode extends JFrame {
 		adminPanel.setLayout(null);
 		
 		serialNumberTextField = new JTextField();
-		serialNumberTextField.setBounds(10, 125, 132, 30);
+		serialNumberTextField.setBounds(109, 19, 132, 23);
 		adminPanel.add(serialNumberTextField);
 		serialNumberTextField.setColumns(10);
 		
@@ -2574,8 +2574,13 @@ public class AdvancedMode extends JFrame {
 				setSerialNumberHandler();
 			}
 		});
-		writeSerialNumberBtn.setBounds(179, 129, 89, 23);
+		writeSerialNumberBtn.setBounds(261, 19, 89, 23);
 		adminPanel.add(writeSerialNumberBtn);
+		
+		JLabel lblSerialNumber = new JLabel("Serial Number");
+		lblSerialNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblSerialNumber.setBounds(10, 19, 89, 23);
+		adminPanel.add(lblSerialNumber);
 		
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);
