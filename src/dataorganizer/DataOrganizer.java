@@ -167,7 +167,7 @@ public class DataOrganizer {
 		
 
 		for (int dof = 1; dof < 10; dof++) {
-			for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
+			if(dof < 7)for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
 				if (dof < 4) {
 					double curVal = dataSamples.get(dof).get(smp);
 					if (curVal > 32768) {
@@ -176,7 +176,7 @@ public class DataOrganizer {
 					curVal = (curVal * accelSensitivity) / 32768;
 					signedDataSamples.get(dof).add(smp, curVal);
 				} 
-				else if (dof < 7) {
+				else {
 					double curVal = dataSamples.get(dof).get(smp);
 					if (curVal > 32768) {
 						curVal -= 65535;

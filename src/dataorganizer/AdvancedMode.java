@@ -248,6 +248,7 @@ public class AdvancedMode extends JFrame {
 
 	private String moduleSerialID;
 	private JTextField serialNumberTextField;
+	private JTextField modelNumberTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -343,7 +344,7 @@ public class AdvancedMode extends JFrame {
 	
 											moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
 											moduleSerialID = moduleIDInfo.get(0).toString();
-											hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
+											hardwareIDLabel.setText("Module Hardware ID: " + (char)(moduleIDInfo.get(1)/256) + (char)(moduleIDInfo.get(1)%256));
 											firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
 											if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
 												generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
@@ -897,10 +898,10 @@ public class AdvancedMode extends JFrame {
 
 				try {
 					ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-
+					
 					if (moduleIDInfo != null) {
 						moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
-						hardwareIDLabel.setText("Module Hardware ID: " + moduleIDInfo.get(1) + "x");
+						hardwareIDLabel.setText("Module Hardware ID: " + (char)(moduleIDInfo.get(1)/256) + (char)(moduleIDInfo.get(1)%256));
 						firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
 						if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
 							generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
@@ -1951,7 +1952,7 @@ public class AdvancedMode extends JFrame {
 	public void setSerialNumberHandler() {
 		try {
 			if(serialHandler.setSerialNumber(Integer.parseInt(serialNumberTextField.getText()))) {
-				generalStatusLabel.setText("Successfully set serial number");
+				generalStatusLabel.setText("Successfully set Serial Number");
 			}
 		} catch (NumberFormatException e) {
 			generalStatusLabel.setText("Invalid serial number");
@@ -1962,6 +1963,24 @@ public class AdvancedMode extends JFrame {
 		} catch (UnsupportedCommOperationException e) {
 			generalStatusLabel.setText("Unknown Error.");
 		}
+	}
+	
+	public void setModelNumberHandler() {
+			try {
+				if(serialHandler.setModelNumber(modelNumberTextField.getText())) {
+					generalStatusLabel.setText("Successfully set Model Number");
+				}
+			} catch (NumberFormatException e) {
+				generalStatusLabel.setText("Invalid serial number");
+			} catch (IOException e) {
+				generalStatusLabel.setText("Unknown Error.");
+			} catch (PortInUseException e) {
+				generalStatusLabel.setText("Reconnect to module, connection dropped.");
+			} catch (UnsupportedCommOperationException e) {
+				generalStatusLabel.setText("Unknown Error.");
+			} catch (URICommunicationsExceptions e) {
+				generalStatusLabel.setText(e.getMessage());
+			}
 	}
 	
 	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
@@ -2581,6 +2600,25 @@ public class AdvancedMode extends JFrame {
 		lblSerialNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblSerialNumber.setBounds(10, 19, 89, 23);
 		adminPanel.add(lblSerialNumber);
+		
+		JLabel lblModelNumber = new JLabel("Model Number");
+		lblModelNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblModelNumber.setBounds(10, 52, 89, 23);
+		adminPanel.add(lblModelNumber);
+		
+		modelNumberTextField = new JTextField();
+		modelNumberTextField.setColumns(10);
+		modelNumberTextField.setBounds(109, 52, 132, 23);
+		adminPanel.add(modelNumberTextField);
+		
+		JButton button = new JButton("Write");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				setModelNumberHandler();
+			}
+		});
+		button.setBounds(261, 52, 89, 23);
+		adminPanel.add(button);
 		
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);

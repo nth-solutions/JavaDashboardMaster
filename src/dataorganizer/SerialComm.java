@@ -200,9 +200,11 @@ public class SerialComm {
 
 	/*
 	 * Set serial number of module
+	 * @return boolean that denotes success or failure
+	 * @param int Serial Number
 	 */
 	public boolean setSerialNumber(int serialNumber) throws IOException, PortInUseException, UnsupportedCommOperationException {
-		if(!selectMode('M')) {
+		if(!selectMode('N')) {
 			return false;
 		}
 		
@@ -214,6 +216,43 @@ public class SerialComm {
 		while((System.currentTimeMillis() - echoStart) < 500) {
 			if (inputStream.available() >= 2) {
 				if((inputStream.read()*256 + inputStream.read()) == serialNumber) {
+					outputStream.write(new String("CA").getBytes());
+					return true;
+				}else {
+					outputStream.write(new String("CN").getBytes());
+				}
+			}
+		}
+			
+		return false;
+		
+	}
+	
+	/*
+	 * Set model number of module
+	 * @return boolean that denotes success or failure
+	 * @param int Serial Number
+	 */
+	public boolean setModelNumber(String modelNumber) throws IOException, PortInUseException, UnsupportedCommOperationException, URICommunicationsExceptions {
+		if(!selectMode('M')) {
+			return false;
+		}
+		
+		byte[] modelNumberBytes = modelNumber.getBytes();
+		
+		//if(modelNumberBytes.length != 2) throw new URICommunicationsExceptions("Invalid model number length, 2 characters are expected");
+		
+		outputStream.write(modelNumberBytes[0]);
+		outputStream.write(modelNumberBytes[1]);
+		
+		long echoStart = System.currentTimeMillis();
+		
+		while((System.currentTimeMillis() - echoStart) < 500) {
+			if (inputStream.available() >= 2) {
+				byte[] tempByteCompare = new byte[2];
+				tempByteCompare[0] = (byte) inputStream.read();
+				tempByteCompare[1] = (byte) inputStream.read();
+				if((new String(tempByteCompare)).equals(modelNumber)) {
 					outputStream.write(new String("CA").getBytes());
 					return true;
 				}else {
@@ -1301,4 +1340,10 @@ public class SerialComm {
 	}
 
 
+}
+
+class URICommunicationsExceptions extends Exception{
+	public URICommunicationsExceptions(String message) {
+		super(message);
+	}
 }
