@@ -133,6 +133,8 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void handleReset(ActionEvent event) {
+		xAxis.setUpperBound(dataCollector[0].getLengthOfTest());
+		xAxis.setLowerBound(0);
 		yAxis.setUpperBound(yMax);
 		yAxis.setLowerBound(yMin);
 
@@ -144,11 +146,13 @@ public class GraphController implements Initializable{
 				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}	
 		}
+		
 		if(dataSeriesTwo != null) {
 			for (final DataSeries ds : dataSeriesTwo) {
 				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}	
 		}
+		
 		repopulateData();
 		restyleSeries();
 
@@ -706,7 +710,7 @@ public class GraphController implements Initializable{
 		private int dof;
 		private String color;
 		private DataOrganizer dataOrgo;
-		private int dataConversionType = 1; //signed or unsigned, 
+		private int dataConversionType = 1; //signed or unsigned,
 		private String dataSourceID;
 
 		public DataSeries(String name, DataOrganizer dataOrgo) {
