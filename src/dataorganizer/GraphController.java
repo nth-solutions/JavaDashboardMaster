@@ -292,7 +292,7 @@ public class GraphController implements Initializable{
 	public void loadCSVData() {
 		DataOrganizer dataOrgoObject = new DataOrganizer();
 		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
-		dataOrgoObject.getCSVSignedData();
+		dataOrgoObject.getSignedData();
 		dataOrgoObject.setSourceID(new File(csvFilePath).getName(), 1);
 		this.dataCollector[numDataSets] = dataOrgoObject;
 
@@ -303,11 +303,11 @@ public class GraphController implements Initializable{
 
 		if(numDataSets == 0)
 			for (int numDof = 1; numDof < 10; numDof++) {
-				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
+				dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
 			}
 		else
 			for (int numDof = 1; numDof < 10; numDof++) {
-				dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof, 1));
+				dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
 			}
 		
 		if(numDataSets == 0) {
@@ -443,7 +443,7 @@ public class GraphController implements Initializable{
 		lineChart.setTitle(dataCollector[numDataSets].getName());
 
 		for (int numDof = 1; numDof < 10; numDof++) {
-			dataSeries.add(numDof - 1, new DataSeries(dataCollector[numDataSets], numDof, 0));
+			dataSeries.add(numDof - 1, new DataSeries(dataCollector[numDataSets], numDof));
 		}
 
 		populateData(dataSeries, lineChart);
@@ -707,7 +707,6 @@ public class GraphController implements Initializable{
 		private String color;
 		private DataOrganizer dataOrgo;
 		private int dataConversionType = 1; //signed or unsigned, 
-		private int source; //Int representing source type. 0 being live module data, 1 being file.
 		private String dataSourceID;
 
 		public DataSeries(String name, DataOrganizer dataOrgo) {
@@ -716,15 +715,14 @@ public class GraphController implements Initializable{
 			series = createSeries(name, dataOrgo.getDataSamples());
 		}
 
-		public DataSeries(String name, DataOrganizer dataOrgo, int dof, int source) {
+		public DataSeries(String name, DataOrganizer dataOrgo, int dof) {
 			this.name = name;
 			this.dof = dof;
 			this.dataOrgo = dataOrgo;
-			this.source =  source;
-			series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 		}
 
-		public DataSeries(DataOrganizer dataOrgo, int dof, int source) {
+		public DataSeries(DataOrganizer dataOrgo, int dof) {
 			this.dof = dof;
 			this.dataOrgo = dataOrgo;
 
@@ -752,7 +750,7 @@ public class GraphController implements Initializable{
 			}
 
 
-			series = createSeries(name, dataOrgo.getZoomedSeries(source, 0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
 		}
 
 		public String getName() {
@@ -780,7 +778,7 @@ public class GraphController implements Initializable{
 		}
 
 		public void updateZoom(double start, double end) {
-			series = createSeries(name, dataOrgo.getZoomedSeries(source, start, end, dof, dataConversionType));
+			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
 		}
 
 

@@ -164,9 +164,10 @@ public class DataOrganizer {
 		}
 
 		signedDataSamples.get(0).addAll(dataSamples.get(0));
+		
 
-		for (int smp = 0; smp < lineNum; smp++) {
-			for (int dof = 1; dof < 10; dof++) {
+		for (int dof = 1; dof < 10; dof++) {
+			for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
 				if (dof < 4) {
 					double curVal = dataSamples.get(dof).get(smp);
 					if (curVal > 32768) {
@@ -183,8 +184,8 @@ public class DataOrganizer {
 					curVal = (curVal * gyroSensitivity) / 32768;
 					signedDataSamples.get(dof).add(smp, curVal);
 				} 
-				else {
-					signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
+				//else {
+					//signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
 					/*if(curVal != null) {
 						if (curVal > 32768) {
 							curVal -= 65535;
@@ -192,42 +193,19 @@ public class DataOrganizer {
 						curVal = (curVal * magSensitivity) / 32768;*/
 					//signedDataSamples.get(dof).add(smp, curVal);
 					//	}
-				}
 			}
+			if(dof > 6)
+				for(int smp = 0; smp < (dataSamples.get(0).size()/10); smp++) {
+					signedDataSamples.get(dof).add(dataSamples.get(dof).get(smp));
+				}
 		}
 
 		// System.out.println("LineNum: " + lineNum);
 		// System.out.println("Length of test: " + lengthOfTest);
 		// System.out.println("Size of test: " + dataSmps.get(0).size());
+		
+		
 		return signedDataSamples;
-	}
-
-	public void getCSVSignedData() {
-		signedDataSamples = new ArrayList<List<Double>>();
-		for (int dof = 0; dof < 10; dof++) {
-			List<Double> temp = new ArrayList<Double>();
-			signedDataSamples.add(dof, temp);
-		}
-
-
-		for(int dof = 0; dof < dataSamples.size();dof++) {
-			for(Double smp: dataSamples.get(dof)) {
-				if(dof < 4) {
-					if (smp > 32768) {
-						smp -= 65535;
-					}
-					smp = (smp * accelSensitivity) / 32768;
-					signedDataSamples.get(dof).add(smp);
-				}if(dof < 7) {
-					if (smp > 32768) {
-						smp -= 65535;
-					}
-					smp = (smp * gyroSensitivity) / 32768;
-					signedDataSamples.get(dof).add(smp);
-				}else
-					signedDataSamples.get(dof).add(smp);
-			}
-		}
 	}
 
 
@@ -334,7 +312,6 @@ public class DataOrganizer {
 		else
 			modifiedDataSmps = signedDataSamples;
 
-		System.out.println(modifiedDataSmps.get(0).size());
 		
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile = null;
@@ -386,12 +363,12 @@ public class DataOrganizer {
 
 	public void createDataSamplesFromCSV(String CSVFilePath) { 
 		readAndSetTestParameters(CSVFilePath + 'p'); //CSVP file. Should be kept with CSV File
-		dataSamples = new ArrayList<List<Double>>(9);	
+		dataSamples = new ArrayList<List<Double>>();	
 
 		double interval = (1.0 / sampleRate);
 		int numSample = (int) (sampleRate * lengthOfTest);
 
-		for (int dof = 0; dof < numDof; dof++) {
+		for (int dof = 1; dof <= numDof+1; dof++) {
 			List<Double> temp = new ArrayList<Double>();
 			dataSamples.add(temp);
 		}
@@ -408,7 +385,7 @@ public class DataOrganizer {
 
 				for (int str = 0; str < sample.length; str++) {
 					try {
-						dataSamples.get(str).add(Double.parseDouble(sample[str]));
+						dataSamples.get(str+1).add(Double.parseDouble(sample[str]));
 						min = Math.min(Double.parseDouble(sample[str]), min);
 						max = Math.max(Double.parseDouble(sample[str]), max);
 					} catch (NumberFormatException nfe) {
@@ -429,6 +406,10 @@ public class DataOrganizer {
 					e.printStackTrace();
 				}
 			}
+		}
+		
+		for(int i = 0; i <dataSamples.get(1).size();i++) {
+			dataSamples.get(0).add( (double)i / (double)sampleRate);
 		}
 	}
 	
@@ -479,19 +460,9 @@ public class DataOrganizer {
 		return dofTime;
 	}
 	
-	public List<List<Double>> getZoomedSeries(int source, double start, double end, int dofNum, int dataConversionType ){
-		switch(source) {
-			case 0: //Live module data
-				return getZoomedSeriesModule(start, end, dofNum, dataConversionType);
-			case 1: //File data
-				return getZoomedSeriesCSV(start, end, dofNum, dataConversionType);
-			default: 
-				return null;
-		}
-	}
 	
 	
-	public List<List<Double>> getZoomedSeriesModule(double start, double end, int dofNum, int dataConversionType) {
+	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 		case(0): 
@@ -525,70 +496,12 @@ public class DataOrganizer {
 
 		dofData.add(0, dofTime);
 
-
 		for (int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
 			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 		dofData.add(1, dofAxis);
 
-		return dofData;
-	}
-
-	public List<List<Double>> getZoomedSeriesCSV(double start, double end, int dofNum, int dataConversionType) {
-		dofNum--; //hardcore hack. Not really. I had an off by one error but could only account for it here instead of graph, because our the DataSeries object expects 1-9, whereas we index 0,8. Hence decrease dofnum 1 for indexes here.
-		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
-		switch(dataConversionType) { //What type of data. 0 is raw, 1 is signed. We are expecting to expand on this supposedly? thats why its a switch and not a boolean
-		case(0): 
-			modifiedDataSmps = dataSamples;
-		break;
-		case(1): 
-			modifiedDataSmps = signedDataSamples;
-		break;
-		}
-
-		int numSamples = (int) Math.round((end - start) * sampleRate); //How many samples are we interested in
-
-		double rate = 7000.0 / (double) numSamples; //Whats our rate? Rob made up 7000 and I stole it.
-		double newSps = (sampleRate * rate); 
-		double modifier = sampleRate / newSps; 
-
-		List<List<Double>> dofData = new ArrayList<List<Double>>();
-
-		dofTime = new ArrayList<Double>();
-		dofTime.add(0, 0.0);
-		List<Double> dofAxis = new ArrayList<Double>();
-
-		if (modifier < 1) // We cant have more data than we have. a modifier greater than 1 would try to access an index beyond what we have in modifedDataSmps
-			modifier = 1;
-
-		for(int sample = 1; sample < 7000 && sample < modifiedDataSmps.get(0).size(); sample++) {
-			dofTime.add(sample, ((1/(double)sampleRate)*((double)sample*modifier)));
-		}
-
-		dofData.add(0, dofTime);
-
-		//TODO
-		//TODO
-		//TODO
-		//With tests that sampled mag equally as often as accel/gyro, 9/10 mag samples will be skipped. Temporarily did this because graphs needed spacers where sample rate was not sampled at an equal speed to accel/gyro. Also 80/20 rule. 
-		if(dofNum <= 5)
-			for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
-				dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample*modifier))));
-			}
-		else if(dofNum > 5)
-			for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(dofNum).size() - 1) * 10; sample++) {
-				if(sample % 10 == 0)
-					dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample/10))));
-				else
-					dofAxis.add(sample, null);
-			}
 		
-		dofData.add(1, dofAxis);
-
-		//System.out.println(dofNum +":"+ dofTime.size() +":"+ dofAxis.size());
-		//System.out.println(dofNum +":"+ dofTime);
-		//System.out.println(dofNum +":"+ dofAxis);
-
 		return dofData;
 	}
 
