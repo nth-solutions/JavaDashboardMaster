@@ -21,18 +21,18 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1600.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <center>
       <Pane BorderPane.alignment="CENTER">
          <children>
-            <Pane fx:id="chartContainer" layoutX="40.0" layoutY="14.0" prefHeight="450.0" prefWidth="600.0">
+            <Pane fx:id="chartContainer" layoutX="40.0" layoutY="14.0" prefHeight="815.0" prefWidth="1174.0">
                <children>
-                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="-14.0" prefHeight="450.0" prefWidth="600.0" title="   ">
+                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="-14.0" prefHeight="815.0" prefWidth="1191.0" title="   ">
                     <xAxis>
                       <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickUnit="1.0" fx:id="xAxis" />
                     </xAxis>
                     <yAxis>
-                      <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" minorTickVisible="false" side="LEFT" tickUnit="0.5" />
+                      <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" minorTickVisible="false" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                     </yAxis>
                   </LineChart>
                </children>

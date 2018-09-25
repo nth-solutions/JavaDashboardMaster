@@ -1921,11 +1921,11 @@ public class AdvancedMode extends JFrame {
 			e.printStackTrace();
 		}
 
-		if(root!=null) primaryStage.setScene(new Scene(root, 1000, 700));
+		if(root!=null) primaryStage.setScene(new Scene(root, 1600, 900));
 		
 	    primaryStage.setTitle("Graph");
 		primaryStage.show();
-		primaryStage.setResizable(false);
+		primaryStage.setResizable(true);
 		
 		return loader.getController();
 	}

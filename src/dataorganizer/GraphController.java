@@ -116,8 +116,8 @@ public class GraphController implements Initializable{
 	private final Rectangle zoomRect = new Rectangle();
 	private int XOffsetCounter = 0;
 	private int XOffsetCounterTwo = 0;
-	private double yMax = 100;
-	private double yMin = 0;
+	private double yMax = 5;
+	private double yMin = -5;
 	private int numDataSets;
 	private int xAxisAccelerometer;
 	private int yAxisAccelerometer;
@@ -325,7 +325,7 @@ public class GraphController implements Initializable{
 		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
 		xAxis.setLowerBound(0);
 
-		zoomRect.setManaged(false);
+		zoomRect.setManaged(true);
 		zoomRect.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
 		chartContainer.getChildren().remove(zoomRect);
 		chartContainer.getChildren().add(zoomRect);
@@ -335,7 +335,7 @@ public class GraphController implements Initializable{
 		if(numDataSets == 0) {
 			for (final DataSeries ds : dataSeries) {
 				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
-				dataToDisplayCheckBox.setSelected(true);
+				dataToDisplayCheckBox.setSelected(false);
 				dataToDisplayCheckBox.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
@@ -352,7 +352,7 @@ public class GraphController implements Initializable{
 				dataSourceTitledPaneTwo.setDisable(false);
 				dataSourceTitledPaneTwo.setExpanded(true);
 				final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(ds.getName());
-				dataToDisplayCheckBoxTwo.setSelected(true);
+				dataToDisplayCheckBoxTwo.setSelected(false);
 				dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
@@ -453,7 +453,7 @@ public class GraphController implements Initializable{
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
-		zoomRect.setManaged(false);
+		zoomRect.setManaged(true);
 		zoomRect.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
 		chartContainer.getChildren().add(zoomRect);
 
@@ -706,7 +706,7 @@ public class GraphController implements Initializable{
 	public class DataSeries{
 		private String name;
 		private ObservableList<XYChart.Series<Number, Number>> series;
-		private boolean isActive = true;
+		private boolean isActive = false;
 		private int dof;
 		private String color;
 		private DataOrganizer dataOrgo;
