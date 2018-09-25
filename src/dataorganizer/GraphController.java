@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -122,6 +124,7 @@ public class GraphController implements Initializable{
 	private int xAxisAccelerometer;
 	private int yAxisAccelerometer;
 	private int zAxisAccelerometer;
+	private DecimalFormat roundTime = new DecimalFormat("#.#");
 
 
 	/*** Event Handlers ***/
@@ -133,7 +136,7 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void handleReset(ActionEvent event) {
-		xAxis.setUpperBound(Math.round(dataCollector[0].getLengthOfTest()));
+		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[0].getLengthOfTest())));
 		xAxis.setLowerBound(0);
 		yAxis.setUpperBound(yMax);
 		yAxis.setLowerBound(yMin);
@@ -324,7 +327,7 @@ public class GraphController implements Initializable{
 			styleSeries(dataSeriesTwo, lineChart);
 		}
 
-		xAxis.setUpperBound(Math.round(dataCollector[numDataSets].getLengthOfTest()));
+		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[numDataSets].getLengthOfTest())));
 		xAxis.setLowerBound(0);
 
 		zoomRect.setManaged(true);
@@ -445,7 +448,7 @@ public class GraphController implements Initializable{
 
 	public void graphSettingsOnStart(String moduleSerialID){
 		dataSourceTitledPane.setText("Module Serial ID: " + moduleSerialID);
-		xAxis.setUpperBound(Math.round(dataCollector[numDataSets].getLengthOfTest()));
+		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[numDataSets].getLengthOfTest())));
 		xAxis.setMinorTickCount(dataCollector[numDataSets].getSampleRate()/16);
 
 		lineChart.setTitle(dataCollector[numDataSets].getName());
@@ -582,7 +585,7 @@ public class GraphController implements Initializable{
 		double xAxisScale = xAxis.getScale();
 		double yAxisScale = yAxis.getScale();
 		xAxis.setLowerBound(xAxis.getLowerBound() + xOffset / xAxisScale);
-		xAxis.setUpperBound(Math.round(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale));
+		xAxis.setUpperBound(Double.parseDouble(roundTime.format(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale)));
 		yAxis.setLowerBound(yAxis.getLowerBound() + yOffset / yAxisScale);
 		yAxis.setUpperBound(yAxis.getLowerBound() - zoomRect.getHeight() / yAxisScale);
 		zoomRect.setWidth(0);
