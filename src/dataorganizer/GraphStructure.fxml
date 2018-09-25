@@ -25,9 +25,9 @@
    <center>
       <Pane BorderPane.alignment="CENTER">
          <children>
-            <Pane fx:id="chartContainer" layoutX="40.0" layoutY="15.0" prefHeight="815.0" prefWidth="1174.0">
+            <Pane fx:id="chartContainer" prefHeight="850.0" prefWidth="1220.0">
                <children>
-                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="-14.0" prefHeight="815.0" prefWidth="1190.0" title="   ">
+                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" prefHeight="850.0" prefWidth="1220.0" title="   ">
                     <xAxis>
                       <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickUnit="1.0" fx:id="xAxis" />
                     </xAxis>
@@ -37,11 +37,6 @@
                   </LineChart>
                </children>
             </Pane>
-            <Text fx:id="generalStatusLabel" fill="#d30000" layoutY="643.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="783.0">
-               <font>
-                  <Font size="24.0" />
-               </font>
-            </Text>
          </children>
       </Pane>
    </center>
@@ -281,6 +276,11 @@
                      </content>
                   </TitledPane>
                </panes></Accordion>
+            <Text fx:id="generalStatusLabel" fill="#d30000" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" wrappingWidth="111.0">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Text>
          </children></VBox>
    </right>
    <top>
