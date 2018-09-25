@@ -133,7 +133,7 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void handleReset(ActionEvent event) {
-		xAxis.setUpperBound(dataCollector[0].getLengthOfTest());
+		xAxis.setUpperBound(Math.round(dataCollector[0].getLengthOfTest()));
 		xAxis.setLowerBound(0);
 		yAxis.setUpperBound(yMax);
 		yAxis.setLowerBound(yMin);
@@ -322,7 +322,7 @@ public class GraphController implements Initializable{
 			styleSeries(dataSeriesTwo, lineChart);
 		}
 
-		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
+		xAxis.setUpperBound(Math.round(dataCollector[numDataSets].getLengthOfTest()));
 		xAxis.setLowerBound(0);
 
 		zoomRect.setManaged(true);
@@ -441,7 +441,7 @@ public class GraphController implements Initializable{
 
 	public void graphSettingsOnStart(String moduleSerialID){
 		dataSourceTitledPane.setText("Module Serial ID: " + moduleSerialID);
-		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
+		xAxis.setUpperBound(Math.round(dataCollector[numDataSets].getLengthOfTest()));
 		xAxis.setMinorTickCount(dataCollector[numDataSets].getSampleRate()/16);
 
 		lineChart.setTitle(dataCollector[numDataSets].getName());
@@ -461,7 +461,7 @@ public class GraphController implements Initializable{
 
 		for (final DataSeries ds : dataSeries) {
 			final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
-			dataToDisplayCheckBox.setSelected(true);
+			dataToDisplayCheckBox.setSelected(false);
 			dataToDisplayCheckBox.setPadding(new Insets(5));
 			// Line line = new Line(0, 10, 50, 10);
 
@@ -575,7 +575,7 @@ public class GraphController implements Initializable{
 		double xAxisScale = xAxis.getScale();
 		double yAxisScale = yAxis.getScale();
 		xAxis.setLowerBound(xAxis.getLowerBound() + xOffset / xAxisScale);
-		xAxis.setUpperBound(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale);
+		xAxis.setUpperBound(Math.round(xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale));
 		yAxis.setLowerBound(yAxis.getLowerBound() + yOffset / yAxisScale);
 		yAxis.setUpperBound(yAxis.getLowerBound() - zoomRect.getHeight() / yAxisScale);
 		zoomRect.setWidth(0);
