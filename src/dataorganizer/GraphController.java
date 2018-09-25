@@ -314,6 +314,8 @@ public class GraphController implements Initializable{
 				dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
 			}
 		
+		dataSeries.get(0).setActive(true);
+		
 		if(numDataSets == 0) {
 			populateData(dataSeries, lineChart);
 			styleSeries(dataSeries, lineChart);
@@ -336,6 +338,7 @@ public class GraphController implements Initializable{
 			for (final DataSeries ds : dataSeries) {
 				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
 				dataToDisplayCheckBox.setSelected(false);
+				if(ds.dof == 1) dataToDisplayCheckBox.setSelected(true);
 				dataToDisplayCheckBox.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
@@ -353,6 +356,7 @@ public class GraphController implements Initializable{
 				dataSourceTitledPaneTwo.setExpanded(true);
 				final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(ds.getName());
 				dataToDisplayCheckBoxTwo.setSelected(false);
+				if(ds.dof == 1) dataToDisplayCheckBoxTwo.setSelected(true);
 				dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
@@ -450,6 +454,8 @@ public class GraphController implements Initializable{
 			dataSeries.add(numDof - 1, new DataSeries(dataCollector[numDataSets], numDof));
 		}
 
+		dataSeries.get(0).setActive(true);
+		
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);
 
@@ -462,6 +468,7 @@ public class GraphController implements Initializable{
 		for (final DataSeries ds : dataSeries) {
 			final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
 			dataToDisplayCheckBox.setSelected(false);
+			if(ds.dof == 1) dataToDisplayCheckBox.setSelected(true);
 			dataToDisplayCheckBox.setPadding(new Insets(5));
 			// Line line = new Line(0, 10, 50, 10);
 
