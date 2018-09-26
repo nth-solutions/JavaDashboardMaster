@@ -18,6 +18,7 @@ public class DataOrganizer {
 	private List<List<Double>> signedDataSamples;
 	private List<List<Double>> normalizedDataSamples;
 	private List<Integer> testParameters;
+	private Double[] baselines;
 	List<Double> dofTime;
 	private String nameOfTest;
 	private int sampleRate;
@@ -208,18 +209,26 @@ public class DataOrganizer {
 		return signedDataSamples;
 	}
 
+	
+	public void generateBaselines(double start, double end) {
+		for (int dof = 1; dof < 10; dof++) {
+			for(int sample = 0; sample < signedDataSamples.get(dof).size(); sample++) {
+				baselines[dof] += signedDataSamples.get(dof).get(sample);
+			}
+			baselines[dof] = baselines[dof]/(signedDataSamples.get(dof).size()-1);
+		}
+	}
 
 	public List<List<Double>> getNormalizedDataRollingBlock(){
 		normalizedDataSamples = new ArrayList<List<Double>>();
-		for (int smp = 0; smp < lineNum; smp++) {
-			for (int dof = 1; dof < 10; dof++) {
-
-
+		normalizedDataSamples.get(0).addAll(signedDataSamples.get(0));
+		for (int dof = 1; dof < 10; dof++) {
+			for (int smp = 0; smp < signedDataSamples.get(0).size(); smp++) {
+				normalizedDataSamples.get(dof).set(smp, signedDataSamples.get(dof).get(smp) - baselines[dof]);
 			}
 		}
 
 		return normalizedDataSamples;
-
 	}
 
 	/*
@@ -459,6 +468,7 @@ public class DataOrganizer {
 		switch(dataConversionType) {
 		case 1: return signedDataSamples;
 		case 2: return dataSamples;
+		case 3: return normalizedDataSamples;
 		}
 		return null;
 	}
@@ -470,6 +480,8 @@ public class DataOrganizer {
 
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
+		if(dofNum == 10) return getMagnitudeSeries(start, end, dataConversionType);
+		
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 		case(0): 
@@ -477,6 +489,9 @@ public class DataOrganizer {
 		break;
 		case(1): 
 			modifiedDataSmps = signedDataSamples;
+		break;
+		case 2:
+			modifiedDataSmps = normalizedDataSamples;
 		break;
 		}
 
@@ -548,11 +563,13 @@ public class DataOrganizer {
 		dofData.add(0, dofTime);
 		
 		for(int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < modifiedDataSmps.get(0).size() - 1; sample++) {
+			
 			dofAxis.add(Math.sqrt(
 					  Math.pow(modifiedDataSmps.get(1).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2)
 					+ Math.pow(modifiedDataSmps.get(2).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2) 
 					+ Math.pow(modifiedDataSmps.get(3).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2))
 			);
+			
 		}
 		dofData.add(1, dofAxis);
 		

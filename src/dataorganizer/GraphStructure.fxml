@@ -178,12 +178,12 @@
                            <children>
                               <VBox>
                                  <children>
-                                    <CheckBox fx:id="displayRawDataCheckbox" disable="true" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="200.0" text="Display Raw Data">
+                                    <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="200.0" text="Display Raw Data">
                                        <padding>
                                           <Insets bottom="5.0" />
                                        </padding>
                                     </CheckBox>
-                                    <CheckBox fx:id="displaySignedDataCheckbox" disable="true" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="200.0" selected="true" text="Display Signed Data" />
+                                    <CheckBox fx:id="displaySignedDataCheckbox" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="200.0" selected="true" text="Display Signed Data" />
                                  </children>
                               </VBox>
                               <HBox alignment="CENTER">

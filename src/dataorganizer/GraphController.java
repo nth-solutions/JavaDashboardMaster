@@ -170,6 +170,7 @@ public class GraphController implements Initializable{
 		for (DataSeries ds: dataSeries) {
 			ds.setDataConversionType(0);
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			lineChart.getData().clear();
 			populateData(dataSeries, lineChart);
 			styleSeries(dataSeries, lineChart);
 		}
@@ -181,6 +182,20 @@ public class GraphController implements Initializable{
 		for (DataSeries ds: dataSeries) {
 			ds.setDataConversionType(1);
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			lineChart.getData().clear();
+			populateData(dataSeries, lineChart);
+			styleSeries(dataSeries, lineChart);
+		}
+
+	}
+	
+	@FXML
+	public void handleDisplayNormalizedData(ActionEvent event) {
+		displayRawDataCheckbox.setSelected(false);
+		for (DataSeries ds: dataSeries) {
+			ds.setDataConversionType(1);
+			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			lineChart.getData().clear();
 			populateData(dataSeries, lineChart);
 			styleSeries(dataSeries, lineChart);
 		}
