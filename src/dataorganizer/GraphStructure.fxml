@@ -37,11 +37,6 @@
                   </LineChart>
                </children>
             </Pane>
-            <Text fx:id="generalStatusLabel" fill="#d30000" layoutY="643.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="783.0">
-               <font>
-                  <Font size="24.0" />
-               </font>
-            </Text>
          </children>
       </Pane>
    </center>
@@ -276,6 +271,7 @@
                                     <Insets />
                                  </HBox.margin>
                               </VBox>
+                              <CheckBox fx:id="AccelMagnitudeCheckBox" mnemonicParsing="false" onAction="#magnitudeCheckBoxHandler" text="Accel Magnitude" />
                            </children>
                         </FlowPane>
                      </content>
@@ -296,6 +292,11 @@
                         <MenuItem mnemonicParsing="false" onAction="#clearDataSetTwo" text="Clear Data: Set 2" />
                     </items>
                   </MenuButton>
+                  <Text fx:id="generalStatusLabel" fill="#d30000" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="783.0">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Text>
                </children>
                <VBox.margin>
                   <Insets bottom="10.0" />

@@ -89,6 +89,8 @@ public class GraphController implements Initializable{
 	@FXML
 	private CheckBox displaySignedDataCheckbox;
 	@FXML
+	private CheckBox AccelMagnitudeCheckBox;
+	@FXML
 	private TextField maxYValueTextField;
 	@FXML
 	private TextField minYValueTextField;
@@ -296,6 +298,19 @@ public class GraphController implements Initializable{
 			loadCSVData();
 	}
 	
+	@FXML
+	public void magnitudeCheckBoxHandler(ActionEvent event) {
+		if(AccelMagnitudeCheckBox.isSelected()) {
+			dataSeries.add(9, new DataSeries(dataCollector[0], 10));
+			dataSeries.get(9).setActive(true);
+		}else {
+			dataSeries.get(9).setActive(false);
+		}
+		
+		repopulateData();
+		restyleSeries();
+	}
+	
 	public void loadCSVData() {
 		DataOrganizer dataOrgoObject = new DataOrganizer();
 		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
@@ -390,8 +405,19 @@ public class GraphController implements Initializable{
 			xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
 			yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
 			zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
-
-			generalStatusLabel.setText("");
+			
+			dataSeries.get(0).applyCalibrationOffset(xAxisAccelerometer);
+			dataSeries.get(1).applyCalibrationOffset(yAxisAccelerometer);
+			dataSeries.get(2).applyCalibrationOffset(zAxisAccelerometer);
+			
+			dataSeries.get(0).updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			dataSeries.get(1).updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			dataSeries.get(2).updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			
+			repopulateData();
+			restyleSeries();
+			
+			generalStatusLabel.setText("Updated with Accel offsets");
 
 		} catch (NumberFormatException e) {
 
@@ -399,8 +425,6 @@ public class GraphController implements Initializable{
 
 		}
 	}
-
-
 
 
 
@@ -636,6 +660,7 @@ public class GraphController implements Initializable{
 				lineChart.getData().addAll(data.getSeries());
 			}
 		}
+		
 	}
 
 
@@ -762,14 +787,21 @@ public class GraphController implements Initializable{
 			break;
 			case(9): name = "Mag Z"; color = "SaddleBrown";
 			break;
-			case(10): name = "Magnitude"; color = "Black";
+			case(10): name = "Accel Magnitude"; color = "Black";
 			break;
 			}
 
-
-			series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+			if(dof != 10)
+				series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
+			
+			if(dof == 10)
+				series = createSeries(name, dataOrgo.getMagnitudeSeries(0, dataOrgo.getLengthOfTest(), dataConversionType));
 		}
 
+		public void applyCalibrationOffset(int AccelOffset) {
+			dataOrgo.applyAccelOffset(xAxisAccelerometer, dof);
+		}
+		
 		public String getName() {
 			return name;
 		}

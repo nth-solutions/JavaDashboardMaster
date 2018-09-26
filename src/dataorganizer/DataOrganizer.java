@@ -61,23 +61,23 @@ public class DataOrganizer {
 		this.sourceID = sourceID;
 		this.dataSourceID = dataSourceID;
 	}
-	
+
 	public int getSourceID() {
 		return this.sourceID;
 	}
-	
+
 	public String getSourceId() {
 		return this.dataSourceID;
 	}
-	
+
 	public String getSerialID() {
 		return this.moduleSerialID;
 	}
 	public void setSerialID(String ID) {
 		this.moduleSerialID = ID;
 	}
-	
-	
+
+
 	public List<List<Double>> createDataSmpsRawData(int[] data) {
 
 		boolean endCondition = false;
@@ -164,7 +164,7 @@ public class DataOrganizer {
 		}
 
 		signedDataSamples.get(0).addAll(dataSamples.get(0));
-		
+
 
 		for (int dof = 1; dof < 10; dof++) {
 			if(dof < 7)for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
@@ -185,14 +185,14 @@ public class DataOrganizer {
 					signedDataSamples.get(dof).add(smp, curVal);
 				} 
 				//else {
-					//signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
-					/*if(curVal != null) {
+				//signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
+				/*if(curVal != null) {
 						if (curVal > 32768) {
 							curVal -= 65535;
 						}
 						curVal = (curVal * magSensitivity) / 32768;*/
-					//signedDataSamples.get(dof).add(smp, curVal);
-					//	}
+				//signedDataSamples.get(dof).add(smp, curVal);
+				//	}
 			}
 			if(dof > 6)
 				for(int smp = 0; smp < (dataSamples.get(0).size()/10); smp++) {
@@ -203,8 +203,8 @@ public class DataOrganizer {
 		// System.out.println("LineNum: " + lineNum);
 		// System.out.println("Length of test: " + lengthOfTest);
 		// System.out.println("Size of test: " + dataSmps.get(0).size());
-		
-		
+
+
 		return signedDataSamples;
 	}
 
@@ -255,7 +255,7 @@ public class DataOrganizer {
 		BufferedReader CSVPFile = null; //Reader for reading from the file
 		String lineText = "";
 		testParameters = new ArrayList<Integer>(); //Reinstantiate the testParameters object. Just for a quick while loop. 
-		
+
 		try {
 			CSVPFile = new BufferedReader(new FileReader(pathToFile)); //open the file for reading
 		} catch (FileNotFoundException e) {
@@ -283,7 +283,7 @@ public class DataOrganizer {
 			return -3; //Permissions error as well.
 		}
 
-		
+
 		/*
 		 * Just set these variables because thats where we reference them from most of the time.
 		 */
@@ -300,7 +300,7 @@ public class DataOrganizer {
 		} catch (IOException e1) {
 			// I guess we can't close the file either.
 		}
-		
+
 		return 0;
 	}
 
@@ -312,7 +312,7 @@ public class DataOrganizer {
 		else
 			modifiedDataSmps = signedDataSamples;
 
-		
+
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile = null;
 		if (!labelData) {
@@ -407,17 +407,24 @@ public class DataOrganizer {
 				}
 			}
 		}
-		
+
 		for(int i = 0; i <dataSamples.get(1).size();i++) {
 			dataSamples.get(0).add( (double)i / (double)sampleRate);
 		}
 	}
-	
+
+
+	public void applyAccelOffset(int AccelOffset, int dof) {
+		for(int i = 0; i < signedDataSamples.get(dof).size(); i++) {
+			signedDataSamples.get(dof).set(i, signedDataSamples.get(dof).get(i) + AccelOffset);
+		}
+	}
+
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
 	}
-	
-	
+
+
 	public void setDataSmps(List<List<Double>> dataSmps) {
 		this.dataSamples = dataSmps;
 	}
@@ -459,9 +466,9 @@ public class DataOrganizer {
 	public List<Double> getTimeAxis(){
 		return dofTime;
 	}
-	
-	
-	
+
+
+
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
@@ -501,6 +508,53 @@ public class DataOrganizer {
 		}
 		dofData.add(1, dofAxis);
 
+
+
+		return dofData;
+	}
+
+	
+	/*
+	 * Creates a series for linechart, using 
+	 */
+	public List<List<Double>> getMagnitudeSeries(double start, double end, int dataConversionType) {
+		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		List<List<Double>> dofData = new ArrayList<List<Double>>();
+		List<Double> dofTime = new ArrayList<Double>();
+		List<Double> dofAxis = new ArrayList<Double>();
+		
+		switch(dataConversionType) {
+		case(0): 
+			modifiedDataSmps = dataSamples;
+		break;
+		case(1): 
+			modifiedDataSmps = signedDataSamples;
+		break;
+		}
+
+		int numSamples = (int) Math.round((end - start) * sampleRate);
+
+		double rate = 7000.0 / (double) numSamples;
+		double newSps = (sampleRate * rate);
+		double modifier = sampleRate / newSps;
+
+		if (modifier < 1)
+			modifier = 1;
+		
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
+		}
+
+		dofData.add(0, dofTime);
+		
+		for(int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < modifiedDataSmps.get(0).size() - 1; sample++) {
+			dofAxis.add(Math.sqrt(
+					  Math.pow(modifiedDataSmps.get(1).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2)
+					+ Math.pow(modifiedDataSmps.get(2).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2) 
+					+ Math.pow(modifiedDataSmps.get(3).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2))
+			);
+		}
+		dofData.add(1, dofAxis);
 		
 		return dofData;
 	}
