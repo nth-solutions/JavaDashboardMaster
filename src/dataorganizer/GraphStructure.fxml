@@ -35,6 +35,11 @@
                       <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" minorTickVisible="false" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                     </yAxis>
                   </LineChart>
+                  <Text fx:id="generalStatusLabel" fill="#d30000" layoutX="259.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="783.0">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Text>
                </children>
             </Pane>
          </children>
@@ -172,18 +177,22 @@
                         <Font size="10.0" />
                      </font>
                   </TitledPane>
-                  <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" animated="false" text="Data Analysis Tools">
+                  <TitledPane fx:id="rawOrSignedDataDisplayTitledPane" alignment="CENTER_RIGHT" animated="false" prefHeight="784.0" prefWidth="329.0" text="Data Analysis Tools">
                      <content>
-                        <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL">
+                        <FlowPane fx:id="rawOrSignedDataDisplayFlowPane" alignment="CENTER" columnHalignment="CENTER" orientation="VERTICAL" prefHeight="758.0" prefWidth="260.0">
                            <children>
                               <VBox>
                                  <children>
-                                    <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="200.0" text="Display Raw Data">
+                                    <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="200.0" text="Raw Data">
                                        <padding>
                                           <Insets bottom="5.0" />
                                        </padding>
                                     </CheckBox>
-                                    <CheckBox fx:id="displaySignedDataCheckbox" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="200.0" selected="true" text="Display Signed Data" />
+                                    <CheckBox fx:id="displaySignedDataCheckbox" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="200.0" selected="true" text="Signed Data" />
+                                    <Separator prefWidth="200.0">
+                                       <VBox.margin>
+                                          <Insets top="5.0" />
+                                       </VBox.margin></Separator>
                                  </children>
                               </VBox>
                               <HBox alignment="CENTER">
@@ -292,11 +301,6 @@
                         <MenuItem mnemonicParsing="false" onAction="#clearDataSetTwo" text="Clear Data: Set 2" />
                     </items>
                   </MenuButton>
-                  <Text fx:id="generalStatusLabel" fill="#d30000" strokeType="OUTSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="783.0">
-                     <font>
-                        <Font size="24.0" />
-                     </font>
-                  </Text>
                </children>
                <VBox.margin>
                   <Insets bottom="10.0" />

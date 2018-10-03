@@ -168,33 +168,34 @@ public class DataOrganizer {
 
 
 		for (int dof = 1; dof < 10; dof++) {
-			if(dof < 7)for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
-				if (dof < 4) {
-					double curVal = dataSamples.get(dof).get(smp);
-					if (curVal > 32768) {
-						curVal -= 65535;
-					}
-					curVal = (curVal * accelSensitivity) / 32768;
-					signedDataSamples.get(dof).add(smp, curVal);
-				} 
-				else {
-					double curVal = dataSamples.get(dof).get(smp);
-					if (curVal > 32768) {
-						curVal -= 65535;
-					}
-					curVal = (curVal * gyroSensitivity) / 32768;
-					signedDataSamples.get(dof).add(smp, curVal);
-				} 
-				//else {
-				//signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
-				/*if(curVal != null) {
+			if(dof < 7)
+				for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
+					if (dof < 4) {
+						double curVal = dataSamples.get(dof).get(smp);
 						if (curVal > 32768) {
 							curVal -= 65535;
 						}
-						curVal = (curVal * magSensitivity) / 32768;*/
-				//signedDataSamples.get(dof).add(smp, curVal);
-				//	}
-			}
+						curVal = (curVal * accelSensitivity) / 32768;
+						signedDataSamples.get(dof).add(smp, curVal);
+					} 
+					else {
+						double curVal = dataSamples.get(dof).get(smp);
+						if (curVal > 32768) {
+							curVal -= 65535;
+						}
+						curVal = (curVal * gyroSensitivity) / 32768;
+						signedDataSamples.get(dof).add(smp, curVal);
+					} 
+					//else {
+					//signedDataSamples.get(dof).add(smp, dataSamples.get(dof).get(smp));
+					/*if(curVal != null) {
+							if (curVal > 32768) {
+								curVal -= 65535;
+							}
+							curVal = (curVal * magSensitivity) / 32768;*/
+					//signedDataSamples.get(dof).add(smp, curVal);
+					//	}
+				}
 			if(dof > 6)
 				for(int smp = 0; smp < (dataSamples.get(0).size()/10); smp++) {
 					signedDataSamples.get(dof).add(dataSamples.get(dof).get(smp));
@@ -208,29 +209,7 @@ public class DataOrganizer {
 
 		return signedDataSamples;
 	}
-
 	
-	public void generateBaselines(double start, double end) {
-		for (int dof = 1; dof < 10; dof++) {
-			for(int sample = 0; sample < signedDataSamples.get(dof).size(); sample++) {
-				baselines[dof] += signedDataSamples.get(dof).get(sample);
-			}
-			baselines[dof] = baselines[dof]/(signedDataSamples.get(dof).size()-1);
-		}
-	}
-
-	public List<List<Double>> getNormalizedDataRollingBlock(){
-		normalizedDataSamples = new ArrayList<List<Double>>();
-		normalizedDataSamples.get(0).addAll(signedDataSamples.get(0));
-		for (int dof = 1; dof < 10; dof++) {
-			for (int smp = 0; smp < signedDataSamples.get(0).size(); smp++) {
-				normalizedDataSamples.get(dof).set(smp, signedDataSamples.get(dof).get(smp) - baselines[dof]);
-			}
-		}
-
-		return normalizedDataSamples;
-	}
-
 	/*
 	 * Creates new .CSVP file for storing the test parameters of a given test, We need this alongside the CSV file for graphing purposes.
 	 */
@@ -484,13 +463,13 @@ public class DataOrganizer {
 		
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
-		case(0): 
+		case(0):
 			modifiedDataSmps = dataSamples;
 		break;
 		case(1): 
 			modifiedDataSmps = signedDataSamples;
 		break;
-		case 2:
+		case(2):
 			modifiedDataSmps = normalizedDataSamples;
 		break;
 		}
@@ -509,22 +488,18 @@ public class DataOrganizer {
 
 		if (modifier < 1)
 			modifier = 1;
-		//System.out.println(modifier);
-		//System.out.println(start*sampleRate);
-		//System.out.println(modifiedDataSmps.get(0).size());
 		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
 			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
 		dofData.add(0, dofTime);
-
+		
 		for (int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
 			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
+		
 		dofData.add(1, dofAxis);
-
-
-
+		
 		return dofData;
 	}
 
@@ -545,6 +520,8 @@ public class DataOrganizer {
 		case(1): 
 			modifiedDataSmps = signedDataSamples;
 		break;
+		case(2):
+			modifiedDataSmps = normalizedDataSamples;
 		}
 
 		int numSamples = (int) Math.round((end - start) * sampleRate);

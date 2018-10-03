@@ -89,6 +89,8 @@ public class GraphController implements Initializable{
 	@FXML
 	private CheckBox displaySignedDataCheckbox;
 	@FXML
+	private CheckBox displayNormalizedDataCheckbox;
+	@FXML
 	private CheckBox AccelMagnitudeCheckBox;
 	@FXML
 	private TextField maxYValueTextField;
@@ -102,6 +104,10 @@ public class GraphController implements Initializable{
 	private TextField accelerometerYAxisOffsetTextField;
 	@FXML
 	private TextField accelerometerZAxisOffsetTextField;
+	@FXML
+	private TextField baselineLowerBound;
+	@FXML
+	private TextField baselineUpperBound;
 
 
 	public void setDataCollector(DataOrganizer dataCollector, int index) {
@@ -114,18 +120,17 @@ public class GraphController implements Initializable{
 	private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();								//Initializes the list of series
 	private DataOrganizer[] dataCollector = new DataOrganizer[2];
 	private String csvFilePath;
-	private int xRangeLow;
-	private int xRangeHigh;
+	private int selectionRangeType;
+	private double xRangeLow;
+	private double xRangeHigh;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle zoomRect = new Rectangle();
+	private final Rectangle baselineRect = new Rectangle();
 	private int XOffsetCounter = 0;
 	private int XOffsetCounterTwo = 0;
 	private double yMax = 5;
 	private double yMin = -5;
 	private int numDataSets;
-	private int xAxisAccelerometer;
-	private int yAxisAccelerometer;
-	private int zAxisAccelerometer;
 	private DecimalFormat roundTime = new DecimalFormat("#.#");
 
 
@@ -133,7 +138,13 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void handleZoom(ActionEvent event) {
+		setUpZooming(zoomRect, lineChart);
 		doZoom(zoomRect, lineChart);
+	}
+	
+	@FXML 
+	public void handleBaselineRange(ActionEvent event) {
+		setUpBaselineRangeSelection(baselineRect, lineChart);
 	}
 
 	@FXML
@@ -179,26 +190,13 @@ public class GraphController implements Initializable{
 	@FXML
 	public void handleDisplaySignedData(ActionEvent event) {
 		displayRawDataCheckbox.setSelected(false);
+		lineChart.getData().clear();
 		for (DataSeries ds: dataSeries) {
 			ds.setDataConversionType(1);
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
-			lineChart.getData().clear();
-			populateData(dataSeries, lineChart);
-			styleSeries(dataSeries, lineChart);
 		}
-
-	}
-	
-	@FXML
-	public void handleDisplayNormalizedData(ActionEvent event) {
-		displayRawDataCheckbox.setSelected(false);
-		for (DataSeries ds: dataSeries) {
-			ds.setDataConversionType(1);
-			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
-			lineChart.getData().clear();
-			populateData(dataSeries, lineChart);
-			styleSeries(dataSeries, lineChart);
-		}
+		populateData(dataSeries, lineChart);
+		styleSeries(dataSeries, lineChart);
 
 	}
 
@@ -331,6 +329,7 @@ public class GraphController implements Initializable{
 		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
 		dataOrgoObject.getSignedData();
 		dataOrgoObject.setSourceID(new File(csvFilePath).getName(), 1);
+		
 		this.dataCollector[numDataSets] = dataOrgoObject;
 
 		if(numDataSets == 0)
@@ -362,11 +361,15 @@ public class GraphController implements Initializable{
 
 		zoomRect.setManaged(true);
 		zoomRect.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
+		baselineRect.setManaged(true);
+		baselineRect.setFill(Color.LIGHTGOLDENRODYELLOW.deriveColor(0, 1, 1, 0.5));
 		chartContainer.getChildren().remove(zoomRect);
 		chartContainer.getChildren().add(zoomRect);
+		chartContainer.getChildren().remove(baselineRect);
+		chartContainer.getChildren().add(baselineRect);
 
 		setUpZooming(zoomRect, lineChart);
-
+		
 		if(numDataSets == 0) {
 			for (final DataSeries ds : dataSeries) {
 				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
@@ -412,14 +415,19 @@ public class GraphController implements Initializable{
 		}
 		numDataSets++;
 	}
-
+	
+	
 	@FXML
 	public void applyAccelerometerOffsets(ActionEvent event) {
-
 		try {
-			xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
-			yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
-			zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
+
+			final int xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
+			final int yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
+			final int zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
+			
+			dataSeries.get(0).dataOrgo.getSignedData();
+			dataSeries.get(1).dataOrgo.getSignedData();
+			dataSeries.get(2).dataOrgo.getSignedData();
 			
 			dataSeries.get(0).applyCalibrationOffset(xAxisAccelerometer);
 			dataSeries.get(1).applyCalibrationOffset(yAxisAccelerometer);
@@ -583,7 +591,52 @@ public class GraphController implements Initializable{
 
 
 
-
+	public void setUpBaselineRangeSelection(final Rectangle rect, final Node zoomingNode) {
+		
+		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
+		zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				mouseAnchor.set(new Point2D(event.getX(), event.getY()));
+				rect.setWidth(0);
+				rect.setHeight(0);
+				zoomingNode.removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
+			}
+		});
+		zoomingNode.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				double x = event.getX();
+				double y = event.getY();
+				rect.setX(Math.min(x, mouseAnchor.get().getX()));
+				rect.setY(Math.min(y, mouseAnchor.get().getY()));
+				rect.setWidth(Math.abs(x - mouseAnchor.get().getX()));
+				rect.setHeight(Math.abs(y - mouseAnchor.get().getY()));
+				zoomingNode.removeEventHandler(MouseEvent.MOUSE_DRAGGED, this);
+				getBaselineRange(rect, (LineChart<Number,Number>) zoomingNode);
+			}
+		});
+	}
+	
+	public void getBaselineRange(Rectangle rect, LineChart<Number, Number> chart) {
+		final double MagicNumberOne, MagicNumberTwo;
+		MagicNumberOne = 1;
+		MagicNumberTwo = 0.7;
+		Point2D zoomTopLeft = new Point2D(zoomRect.getX(), zoomRect.getY());
+		Point2D zoomBottomRight = new Point2D(zoomRect.getX() + zoomRect.getWidth(), zoomRect.getY() + zoomRect.getHeight());
+		final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
+		Point2D yAxisInScene = yAxis.localToScene(0, 0);
+		final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
+		Point2D xAxisInScene = xAxis.localToScene(0, 0);
+		double xOffset = zoomTopLeft.getX() - yAxisInScene.getX();
+		double yOffset = zoomBottomRight.getY() - xAxisInScene.getY();
+		double xAxisScale = xAxis.getScale();
+		double yAxisScale = yAxis.getScale();
+		
+		xRangeLow = (xAxis.getLowerBound() + xOffset / xAxisScale) - MagicNumberOne;
+		xRangeHigh = Double.parseDouble(roundTime.format((xAxis.getLowerBound() + zoomRect.getWidth() / xAxisScale) - MagicNumberTwo) );
+	}
+	
 	/*** Sets Up and Performs Zooming ***/
 
 
@@ -597,6 +650,7 @@ public class GraphController implements Initializable{
 				mouseAnchor.set(new Point2D(event.getX(), event.getY()));
 				rect.setWidth(0);
 				rect.setHeight(0);
+				zoomingNode.removeEventHandler(MouseEvent.MOUSE_PRESSED, this);
 			}
 		});
 		zoomingNode.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -608,13 +662,14 @@ public class GraphController implements Initializable{
 				rect.setY(Math.min(y, mouseAnchor.get().getY()));
 				rect.setWidth(Math.abs(x - mouseAnchor.get().getX()));
 				rect.setHeight(Math.abs(y - mouseAnchor.get().getY()));
+				zoomingNode.removeEventHandler(MouseEvent.MOUSE_DRAGGED, this);
 			}
 		});
 	}
 
 	private void doZoom(Rectangle zoomRect, LineChart<Number, Number> chart) {
 		final double MagicNumberOne, MagicNumberTwo;
-		MagicNumberOne = 1;
+		MagicNumberOne = 1.1;
 		MagicNumberTwo = 0.7;
 		Point2D zoomTopLeft = new Point2D(zoomRect.getX(), zoomRect.getY());
 		Point2D zoomBottomRight = new Point2D(zoomRect.getX() + zoomRect.getWidth(), zoomRect.getY() + zoomRect.getHeight());
@@ -744,9 +799,7 @@ public class GraphController implements Initializable{
 
 		for (int j = 0; j < data.get(0).size() && j < data.get(1).size(); j++) {
 			seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
-
 		}
-
 
 
 		series.setData(seriesData);
@@ -763,8 +816,8 @@ public class GraphController implements Initializable{
 		private int dof;
 		private String color;
 		private DataOrganizer dataOrgo;
-		private int dataConversionType = 1; //signed or unsigned,
-		private String dataSourceID;
+		private int dataConversionType = 1; //raw, signed, normalized; 0, 1, 2
+		private int appliedAccelOffset;
 
 		public DataSeries(String name, DataOrganizer dataOrgo) {
 			this.name = name;
@@ -814,7 +867,7 @@ public class GraphController implements Initializable{
 		}
 
 		public void applyCalibrationOffset(int AccelOffset) {
-			dataOrgo.applyAccelOffset(xAxisAccelerometer, dof);
+			dataOrgo.applyAccelOffset(AccelOffset, dof);
 		}
 		
 		public String getName() {
@@ -842,10 +895,9 @@ public class GraphController implements Initializable{
 		}
 
 		public void updateZoom(double start, double end) {
-			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, dof, dataConversionType));
+			series = createSeries(name, dataOrgo.getZoomedSeries(start, end, this.dof, this.dataConversionType));
 		}
-
-
+		
 		/*
 		 * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left. 
 		 */
