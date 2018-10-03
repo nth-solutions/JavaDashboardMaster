@@ -420,10 +420,25 @@ public class GraphController implements Initializable{
 	@FXML
 	public void applyAccelerometerOffsets(ActionEvent event) {
 		try {
-
-			final int xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
-			final int yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
-			final int zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
+		
+			double xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
+			double yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
+			double zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
+			
+			if (xAxisAccelerometer > 32768) {
+				xAxisAccelerometer -= 65535;
+			}
+			xAxisAccelerometer = (xAxisAccelerometer * dataCollector[0].accelSensitivity) / 32768;
+			
+			if (yAxisAccelerometer > 32768) {
+				yAxisAccelerometer -= 65535;
+			}
+			yAxisAccelerometer = (yAxisAccelerometer * dataCollector[0].accelSensitivity) / 32768;
+			
+			if (zAxisAccelerometer > 32768) {
+				zAxisAccelerometer -= 65535;
+			}
+			zAxisAccelerometer = (zAxisAccelerometer * dataCollector[0].accelSensitivity) / 32768;
 			
 			dataSeries.get(0).dataOrgo.getSignedData();
 			dataSeries.get(1).dataOrgo.getSignedData();
@@ -866,7 +881,7 @@ public class GraphController implements Initializable{
 				series = createSeries(name, dataOrgo.getMagnitudeSeries(0, dataOrgo.getLengthOfTest(), dataConversionType));
 		}
 
-		public void applyCalibrationOffset(int AccelOffset) {
+		public void applyCalibrationOffset(double AccelOffset) {
 			dataOrgo.applyAccelOffset(AccelOffset, dof);
 		}
 		

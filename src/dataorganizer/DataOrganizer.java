@@ -24,8 +24,8 @@ public class DataOrganizer {
 	private int sampleRate;
 	private int magSampleRate;
 	private int magInterval;
-	private int accelSensitivity;
-	private int gyroSensitivity;
+	public int accelSensitivity;
+	public int gyroSensitivity;
 	private int magSensitivity;
 	private double lengthOfTest;
 	private int numDof = 9;
@@ -402,7 +402,7 @@ public class DataOrganizer {
 	}
 
 
-	public void applyAccelOffset(int AccelOffset, int dof) {
+	public void applyAccelOffset(double AccelOffset, int dof) {
 		for(int i = 0; i < signedDataSamples.get(dof).size(); i++) {
 			signedDataSamples.get(dof).set(i, signedDataSamples.get(dof).get(i) + AccelOffset);
 		}
