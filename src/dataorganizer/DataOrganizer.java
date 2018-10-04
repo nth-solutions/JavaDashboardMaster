@@ -291,6 +291,31 @@ public class DataOrganizer {
 		return 0;
 	}
 
+	public List<List<Double>> rollingBlock(int dataSet, int rollRange) {
+		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		switch(dataSet) {
+			case 0:
+				modifiedDataSmps = dataSamples;
+				break;
+			case 1: 
+				modifiedDataSmps = signedDataSamples;
+				break;
+		}
+		
+		for(int dof = 1; dof < modifiedDataSmps.size(); dof++) { //Iterate DoF
+			for(int j = 0; j < modifiedDataSmps.get(dof).size(); j++) { //iterate smps
+				double avg = 0.0;
+				for(int i = 0; i < rollRange && i+j < modifiedDataSmps.get(dof).size(); i++) { //Sum 10 smps, do not exceed size of dof data size
+					avg += modifiedDataSmps.get(dof).get(j+i);
+				}
+				avg = avg/rollRange; //divide for average
+				modifiedDataSmps.get(dof).set(j, avg);
+			}
+		}
+		
+		return modifiedDataSmps;
+	}
+	
 	public int createCSV(boolean labelData, boolean signedData) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 
