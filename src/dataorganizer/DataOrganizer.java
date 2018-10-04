@@ -18,8 +18,7 @@ public class DataOrganizer {
 	private List<List<Double>> signedDataSamples;
 	private List<List<Double>> normalizedDataSamples;
 	private List<Integer> testParameters;
-	private Double[] baselines;
-	List<Double> dofTime;
+	private List<Double> dofTime;
 	private String nameOfTest;
 	private int sampleRate;
 	private int magSampleRate;

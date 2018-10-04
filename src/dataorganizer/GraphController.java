@@ -455,21 +455,14 @@ public class GraphController implements Initializable{
 			repopulateData();
 			restyleSeries();
 			
-			generalStatusLabel.setText("Updated with Accel offsets");
+			generalStatusLabel.setText("Normalized");
 
 		} catch (NumberFormatException e) {
 
-			generalStatusLabel.setText("Enter a Valid Offset Value");
+			generalStatusLabel.setText("Enter a number");
 
 		}
 	}
-
-
-
-
-
-
-
 
 
 
