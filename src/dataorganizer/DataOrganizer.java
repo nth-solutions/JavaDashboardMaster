@@ -208,7 +208,7 @@ public class DataOrganizer {
 
 		return signedDataSamples;
 	}
-	
+
 	/*
 	 * Creates new .CSVP file for storing the test parameters of a given test, We need this alongside the CSV file for graphing purposes.
 	 */
@@ -291,31 +291,29 @@ public class DataOrganizer {
 		return 0;
 	}
 
-	public List<List<Double>> rollingBlock(int dataSet, int rollRange) {
+	public List<List<Double>> rollingBlock(int dataSet, int rollRange, int dof) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataSet) {
-			case 0:
-				modifiedDataSmps = dataSamples;
-				break;
-			case 1: 
-				modifiedDataSmps = signedDataSamples;
-				break;
+		case 0:
+			modifiedDataSmps = dataSamples;
+			break;
+		case 1: 
+			modifiedDataSmps = signedDataSamples;
+			break;
 		}
-		
-		for(int dof = 1; dof < modifiedDataSmps.size(); dof++) { //Iterate DoF
-			for(int j = 0; j < modifiedDataSmps.get(dof).size(); j++) { //iterate smps
-				double avg = 0.0;
-				for(int i = 0; i < rollRange && i+j < modifiedDataSmps.get(dof).size(); i++) { //Sum 10 smps, do not exceed size of dof data size
-					avg += modifiedDataSmps.get(dof).get(j+i);
-				}
-				avg = avg/rollRange; //divide for average
-				modifiedDataSmps.get(dof).set(j, avg);
+
+		for(int j = 0; j < modifiedDataSmps.get(dof).size(); j++) { //iterate smps
+			double avg = 0.0;
+			for(int i = 0; i < rollRange && i+j < modifiedDataSmps.get(dof).size(); i++) { //Sum 10 smps, do not exceed size of dof data size
+				avg += modifiedDataSmps.get(dof).get(j+i);
 			}
+			avg = avg/rollRange; //divide for average
+			modifiedDataSmps.get(dof).set(j, avg);
 		}
-		
+
 		return modifiedDataSmps;
 	}
-	
+
 	public int createCSV(boolean labelData, boolean signedData) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 
@@ -484,7 +482,7 @@ public class DataOrganizer {
 
 	public List<List<Double>> getZoomedSeries(double start, double end, int dofNum, int dataConversionType) {
 		if(dofNum == 10) return getMagnitudeSeries(start, end, dataConversionType);
-		
+
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 		switch(dataConversionType) {
 		case(0):
@@ -517,17 +515,17 @@ public class DataOrganizer {
 		}
 
 		dofData.add(0, dofTime);
-		
+
 		for (int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < (modifiedDataSmps.get(dofNum).size() - 1); sample++) {
 			dofAxis.add(sample, modifiedDataSmps.get(dofNum).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
-		
+
 		dofData.add(1, dofAxis);
-		
+
 		return dofData;
 	}
 
-	
+
 	/*
 	 * Creates a series for linechart, using 
 	 */
@@ -536,7 +534,7 @@ public class DataOrganizer {
 		List<List<Double>> dofData = new ArrayList<List<Double>>();
 		List<Double> dofTime = new ArrayList<Double>();
 		List<Double> dofAxis = new ArrayList<Double>();
-		
+
 		switch(dataConversionType) {
 		case(0): 
 			modifiedDataSmps = dataSamples;
@@ -556,24 +554,24 @@ public class DataOrganizer {
 
 		if (modifier < 1)
 			modifier = 1;
-		
+
 		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
 			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
 		dofData.add(0, dofTime);
-		
+
 		for(int sample = 0; sample < 7000 && (start * sampleRate) + (int) (sample * modifier) < modifiedDataSmps.get(0).size() - 1; sample++) {
-			
+
 			dofAxis.add(Math.sqrt(
-					  Math.pow(modifiedDataSmps.get(1).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2)
+					Math.pow(modifiedDataSmps.get(1).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2)
 					+ Math.pow(modifiedDataSmps.get(2).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2) 
 					+ Math.pow(modifiedDataSmps.get(3).get((int) ((start * sampleRate) + (int) (sample * modifier))), 2))
-			);
-			
+					);
+
 		}
 		dofData.add(1, dofAxis);
-		
+
 		return dofData;
 	}
 

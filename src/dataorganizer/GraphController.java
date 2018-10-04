@@ -172,7 +172,6 @@ public class GraphController implements Initializable{
 		repopulateData();
 		restyleSeries();
 
-
 	}
 
 	@FXML
@@ -323,7 +322,7 @@ public class GraphController implements Initializable{
 		repopulateData();
 		restyleSeries();
 	}
-	
+
 	public void loadCSVData() {
 		DataOrganizer dataOrgoObject = new DataOrganizer();
 		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
@@ -416,11 +415,20 @@ public class GraphController implements Initializable{
 		numDataSets++;
 	}
 	
+	@FXML 
+	public void rollingBlockHandler(ActionEvent event) {
+		for(DataSeries ds: dataSeries) {
+			ds.rollingBlock(10);
+			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		}	
+		repopulateData();
+		restyleSeries();
+	}
 	
 	@FXML
 	public void applyAccelerometerOffsets(ActionEvent event) {
 		try {
-		
+			//This can be done better. 
 			double xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
 			double yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
 			double zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
@@ -809,7 +817,6 @@ public class GraphController implements Initializable{
 			seriesData.add(new XYChart.Data<>(data.get(0).get(j), data.get(1).get(j)));
 		}
 
-
 		series.setData(seriesData);
 
 		return FXCollections.observableArrayList(Collections.singleton(series));
@@ -927,7 +934,11 @@ public class GraphController implements Initializable{
 			seriesData.add(timeAxis);
 			seriesData.add(dataAxis);
 
-			series = createSeries(name,seriesData); //create a series for the linechart
+			series = createSeries(name, seriesData); //create a series for the linechart
+		}
+		
+		public void rollingBlock(int rollRange) {
+			dataOrgo.rollingBlock(dataConversionType, rollRange, dof);
 		}
 	}
 }

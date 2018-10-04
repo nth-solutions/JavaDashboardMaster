@@ -255,7 +255,7 @@
                               <Separator prefWidth="200.0" />
                               <VBox alignment="TOP_CENTER" prefHeight="145.0" prefWidth="200.0">
                                  <children>
-                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="200.0" text="Accelerometer Offset (bitcount)" textAlignment="CENTER">
+                                    <Label alignment="CENTER" prefHeight="25.0" prefWidth="200.0" text="Accelerometer Calibration (bitcount)" textAlignment="CENTER">
                                        <padding>
                                           <Insets bottom="5.0" top="5.0" />
                                        </padding></Label>
@@ -286,11 +286,32 @@
                                           <Insets bottom="5.0" />
                                        </padding>
                                     </HBox>
-                                    <Button alignment="CENTER" mnemonicParsing="false" onAction="#applyAccelerometerOffsets" prefHeight="25.0" prefWidth="100.0" text="Load Offsets" textAlignment="CENTER" />
+                                    <Button alignment="CENTER" mnemonicParsing="false" onAction="#applyAccelerometerOffsets" prefHeight="25.0" prefWidth="100.0" text="Apply Offsets" textAlignment="CENTER" />
                                  </children>
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>
+                              </VBox>
+                              <Separator prefWidth="200.0" />
+                              <VBox prefHeight="52.0" prefWidth="0.0">
+                                 <children>
+                                    <HBox alignment="CENTER_LEFT" />
+                                    <HBox alignment="CENTER" prefHeight="25.0" prefWidth="200.0">
+                                       <children>
+                                          <Label prefWidth="100.0" text="Rolling Block:" />
+                                          <TextField fx:id="rollingBlockTextField" alignment="TOP_RIGHT" prefHeight="25.0" prefWidth="75.0">
+                                             <padding>
+                                                <Insets bottom="5.0" top="5.0" />
+                                             </padding>
+                                          </TextField>
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="25.0" prefWidth="73.0">
+                                       <children>
+                                          <Button mnemonicParsing="false" onAction="#rollingBlockHandler" text="Apply Rolling Block" />
+                                       </children>
+                                    </HBox>
+                                 </children>
                               </VBox>
                            </children>
                         </FlowPane>
