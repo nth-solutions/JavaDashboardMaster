@@ -99,6 +99,8 @@ public class GraphController implements Initializable{
 	@FXML
 	private Text generalStatusLabel;
 	@FXML
+	private TextField rollingBlockTextField;
+	@FXML
 	private TextField accelerometerXAxisOffsetTextField;
 	@FXML
 	private TextField accelerometerYAxisOffsetTextField;
@@ -417,8 +419,10 @@ public class GraphController implements Initializable{
 	
 	@FXML 
 	public void rollingBlockHandler(ActionEvent event) {
+		int rollingBlockValue = Integer.parseInt(rollingBlockTextField.getText());
+		if(rollingBlockValue == 0) return;
 		for(DataSeries ds: dataSeries) {
-			ds.rollingBlock(10);
+			ds.rollingBlock(rollingBlockValue);
 			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 		}	
 		repopulateData();
@@ -923,7 +927,7 @@ public class GraphController implements Initializable{
 
 			timeAxis.addAll(dataOrgo.getTimeAxis()); 
 
-			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data + offset"
+			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data (int given axis) + offset"
 				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
 					dataAxis.add(i, null);
 					continue;
@@ -938,6 +942,7 @@ public class GraphController implements Initializable{
 		}
 		
 		public void rollingBlock(int rollRange) {
+			if(dof > 9 ) return;
 			dataOrgo.rollingBlock(dataConversionType, rollRange, dof);
 		}
 	}
