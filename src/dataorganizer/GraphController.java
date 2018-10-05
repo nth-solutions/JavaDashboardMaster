@@ -923,7 +923,7 @@ public class GraphController implements Initializable{
 
 			timeAxis.addAll(dataOrgo.getTimeAxis()); 
 
-			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data (in axis) + offset"
+			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data + offset"
 				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
 					dataAxis.add(i, null);
 					continue;
@@ -938,7 +938,6 @@ public class GraphController implements Initializable{
 		}
 		
 		public void rollingBlock(int rollRange) {
-			dataOrgo.getSignedData();
 			dataOrgo.rollingBlock(dataConversionType, rollRange, dof);
 		}
 	}
