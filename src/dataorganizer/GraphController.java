@@ -313,16 +313,37 @@ public class GraphController implements Initializable{
 	}
 	
 	@FXML
-	public void magnitudeCheckBoxHandler(ActionEvent event) {
-		if(AccelMagnitudeCheckBox.isSelected()) {
-			dataSeries.add(9, new DataSeries(dataCollector[0], 10));
-			dataSeries.get(9).setActive(true);
+	public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {
+		if(dataCollector[1] != null) {
+			if(AccelMagnitudeCheckBox.isSelected()) {
+				dataSeries.add(9, new DataSeries(dataCollector[0], 10));
+				dataSeries.get(9).setActive(true);
+			}else {
+				dataSeries.get(9).setActive(false);
+			}
+			
+			repopulateData();
+			restyleSeries();
 		}else {
-			dataSeries.get(9).setActive(false);
+			generalStatusLabel.setText("Please add a data set.");
 		}
+	}
+	
+	@FXML
+	public void magnitudeDatasetTwoCheckBoxHandler(ActionEvent event) {
+		if(dataCollector[1] != null) {
+			if(AccelMagnitudeCheckBox.isSelected()) {
+				dataSeries.add(9, new DataSeries(dataCollector[1], 10));
+				dataSeries.get(9).setActive(true);
+			}else {
+				dataSeries.get(9).setActive(false);
+			}
 		
-		repopulateData();
-		restyleSeries();
+			repopulateData();
+			restyleSeries();
+		}else {
+			generalStatusLabel.setText("Please add a second data set.");
+		}
 	}
 
 	public void loadCSVData() {
@@ -432,7 +453,23 @@ public class GraphController implements Initializable{
 	@FXML
 	public void applyAccelerometerOffsets(ActionEvent event) {
 		try {
-			//This can be done better. 
+			Double[] axisAccel = {(double) Integer.parseInt(accelerometerXAxisOffsetTextField.getText()), (double) Integer.parseInt(accelerometerYAxisOffsetTextField.getText()),  (double) Integer.parseInt(accelerometerZAxisOffsetTextField.getText())};
+			
+			for(int i = 0; i < 3; i++) {
+				if(axisAccel[i] > 32768) {
+					axisAccel[i] -= 65535;
+				}
+				axisAccel[i] = axisAccel[i]*dataCollector[0].accelSensitivity/32768;
+				
+				dataSeries.get(i).dataOrgo.getSignedData();
+				dataSeries.get(i).applyCalibrationOffset(axisAccel[i]);
+				dataSeries.get(i).updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
+			
+			repopulateData();
+			restyleSeries();
+			
+			/*This can be done better. 
 			double xAxisAccelerometer = Integer.parseInt(accelerometerXAxisOffsetTextField.getText());
 			double yAxisAccelerometer = Integer.parseInt(accelerometerYAxisOffsetTextField.getText());
 			double zAxisAccelerometer = Integer.parseInt(accelerometerZAxisOffsetTextField.getText());
@@ -467,7 +504,8 @@ public class GraphController implements Initializable{
 			repopulateData();
 			restyleSeries();
 			
-			generalStatusLabel.setText("Normalized");
+			generalStatusLabel.setText("Normalized");*/
+			
 
 		} catch (NumberFormatException e) {
 
@@ -587,6 +625,7 @@ public class GraphController implements Initializable{
 		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX() - 8;  //-8 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
+		lineChart.getWidth();
 		x = (int) (522*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
 		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + 522
 		currentTimeInMediaPlayer.setY(40);
@@ -612,7 +651,6 @@ public class GraphController implements Initializable{
 
 
 	public void setUpBaselineRangeSelection(final Rectangle rect, final Node zoomingNode) {
-		
 		final ObjectProperty<Point2D> mouseAnchor = new SimpleObjectProperty<>();
 		zoomingNode.setOnMousePressed(new EventHandler<MouseEvent>() {
 			@Override
