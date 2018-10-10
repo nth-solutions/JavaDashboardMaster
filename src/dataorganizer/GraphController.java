@@ -211,7 +211,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +10 data samples
 		XOffsetCounter += 10;																							//Incrementer that increments the amount offset that has been applied to the data by +10 and stores it in the XOffsetCounter variable
-		for(final DataSeries axisOfDataSeries: dataSeries) {															
+		for(final DataSeries axisOfDataSeries: dataSeries) {
 			axisOfDataSeries.addNulls(XOffsetCounter);
 		}
 		repopulateData();
