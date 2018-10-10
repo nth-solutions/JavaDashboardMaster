@@ -9,7 +9,7 @@ import java.util.Properties;
 import javax.swing.filechooser.FileSystemView;
 
 public class Settings {
-	Properties prop = new Properties();			//Define properties
+	Properties prop = new Properties();			//Defines properties
 	
 	
 	//Defines the default configurations
