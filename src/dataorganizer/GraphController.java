@@ -832,7 +832,6 @@ public class GraphController implements Initializable{
 		// force a css layout pass to ensure that subsequent lookup calls work.
 		lineChart.applyCss();
 
-
 		int nSeries = 0;
 		for (DataSeries dof : dataSeries) {
 			if (!dof.isActive()) continue;

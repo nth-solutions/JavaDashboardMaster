@@ -609,7 +609,53 @@ public class SerialComm {
 		return true;
 	}
 
+	public boolean setAccelMPUOffsets(int[] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(!selectMode('K')) {
+			return false;
+		}
+		
+		int tempRx; 
+		for(int i = 0; i < offsets.length; i++) {
+			outputStream.write(new String("1234").getBytes());
+			outputStream.write(offsets[i]/256);
+			outputStream.write(offsets[i]%256);
+			tempRx = inputStream.read()*256;
+			tempRx += inputStream.read();
+			if(tempRx == offsets[i]) {
+				outputStream.write(new String("CA").getBytes());
+			}
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return true;
+	}
+	
+	
+	public int[] getAccelMPUOffsets() throws IOException, PortInUseException, UnsupportedCommOperationException {
+		int[] offsets = new int[3];
 
+		clearInputStream();
+		
+		if(!selectMode('Y')) {
+			return offsets;
+		}
+		
+		offsets[0]  = inputStream.read()*256;
+		offsets[0] += inputStream.read();
+		offsets[1]  = inputStream.read()*256;
+		offsets[1] += inputStream.read();
+		offsets[2]  = inputStream.read()*256;
+		offsets[2] += inputStream.read();
+		
+		return offsets;
+	}
+	
+	
 	/**
 	 * Handles the handshakes that tell the module to enter a mode specified by the passed in modeDelimiter character. ex) 'E' for export data (must be identified in the firmware as well).
 	 * This method attempts several times before giving up and notifying the user that there is an error in the communication

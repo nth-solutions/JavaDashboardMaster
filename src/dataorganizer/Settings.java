@@ -18,7 +18,7 @@ public class Settings {
 		this.prop.setProperty("DefaultProfile", "");
 		this.prop.setProperty("TemplateDirectory", "");
 		this.prop.setProperty("OpenOnRead", "False");
-		this.prop.setProperty("AutoSave", "False");
+		this.prop.setProperty("AutoSave", "True");
 		this.saveConfig();
 	}
 	

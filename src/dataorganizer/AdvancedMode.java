@@ -187,8 +187,8 @@ public class AdvancedMode extends JFrame {
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
-	public static final int CURRENT_FIRMWARE_ID = 24;
-	public static final String CURRENT_FIRMWARE_STRING = "24";
+	public static final int CURRENT_FIRMWARE_ID = 25;
+	public static final String CURRENT_FIRMWARE_STRING = "25";
 
 	private int expectedTestNum;
 	//Test Parameters (All must be of type "int")
@@ -249,6 +249,9 @@ public class AdvancedMode extends JFrame {
 	private String moduleSerialID;
 	private JTextField serialNumberTextField;
 	private JTextField modelNumberTextField;
+	private JTextField xAxisTextField;
+	private JTextField yAxisTextField;
+	private JTextField zAxisTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -2577,48 +2580,122 @@ public class AdvancedMode extends JFrame {
 		});
 
 		RemoteButtonPanel.add(exitTestModeButton);
-
-		adminPanel = new JPanel();
-		mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
-		adminPanel.setLayout(null);
 		
-		serialNumberTextField = new JTextField();
-		serialNumberTextField.setBounds(109, 19, 132, 23);
-		adminPanel.add(serialNumberTextField);
-		serialNumberTextField.setColumns(10);
-		
-		JButton writeSerialNumberBtn = new JButton("Write");
-		writeSerialNumberBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				setSerialNumberHandler();
-			}
-		});
-		writeSerialNumberBtn.setBounds(261, 19, 89, 23);
-		adminPanel.add(writeSerialNumberBtn);
-		
-		JLabel lblSerialNumber = new JLabel("Serial Number");
-		lblSerialNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblSerialNumber.setBounds(10, 19, 89, 23);
-		adminPanel.add(lblSerialNumber);
-		
-		JLabel lblModelNumber = new JLabel("Model Number");
-		lblModelNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblModelNumber.setBounds(10, 52, 89, 23);
-		adminPanel.add(lblModelNumber);
-		
-		modelNumberTextField = new JTextField();
-		modelNumberTextField.setColumns(10);
-		modelNumberTextField.setBounds(109, 52, 132, 23);
-		adminPanel.add(modelNumberTextField);
-		
-		JButton button = new JButton("Write");
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				setModelNumberHandler();
-			}
-		});
-		button.setBounds(261, 52, 89, 23);
-		adminPanel.add(button);
+				adminPanel = new JPanel();
+				mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
+				adminPanel.setLayout(null);
+				
+				serialNumberTextField = new JTextField();
+				serialNumberTextField.setBounds(109, 19, 132, 23);
+				adminPanel.add(serialNumberTextField);
+				serialNumberTextField.setColumns(10);
+				
+				JButton writeSerialNumberBtn = new JButton("Write");
+				writeSerialNumberBtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						setSerialNumberHandler();
+					}
+				});
+				writeSerialNumberBtn.setBounds(261, 19, 89, 23);
+				adminPanel.add(writeSerialNumberBtn);
+				
+				JLabel lblSerialNumber = new JLabel("Serial Number");
+				lblSerialNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblSerialNumber.setBounds(10, 19, 89, 23);
+				adminPanel.add(lblSerialNumber);
+				
+				JLabel lblModelNumber = new JLabel("Model Number");
+				lblModelNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblModelNumber.setBounds(10, 52, 89, 23);
+				adminPanel.add(lblModelNumber);
+				
+				modelNumberTextField = new JTextField();
+				modelNumberTextField.setColumns(10);
+				modelNumberTextField.setBounds(109, 52, 132, 23);
+				adminPanel.add(modelNumberTextField);
+				
+				JButton button = new JButton("Write");
+				button.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						setModelNumberHandler();
+					}
+				});
+				button.setBounds(261, 52, 89, 23);
+				adminPanel.add(button);
+				
+				JLabel lblNewLabel = new JLabel("X Axis");
+				lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblNewLabel.setBounds(10, 133, 46, 14);
+				adminPanel.add(lblNewLabel);
+				
+				xAxisTextField = new JTextField();
+				xAxisTextField.setBounds(66, 132, 86, 20);
+				adminPanel.add(xAxisTextField);
+				xAxisTextField.setColumns(10);
+				
+				yAxisTextField = new JTextField();
+				yAxisTextField.setColumns(10);
+				yAxisTextField.setBounds(66, 168, 86, 20);
+				adminPanel.add(yAxisTextField);
+				
+				JLabel lblYAxis = new JLabel("Y Axis");
+				lblYAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblYAxis.setBounds(10, 169, 46, 14);
+				adminPanel.add(lblYAxis);
+				
+				zAxisTextField = new JTextField();
+				zAxisTextField.setColumns(10);
+				zAxisTextField.setBounds(66, 199, 86, 20);
+				adminPanel.add(zAxisTextField);
+				
+				JLabel lblZAxis = new JLabel("Z Axis");
+				lblZAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblZAxis.setBounds(10, 200, 46, 14);
+				adminPanel.add(lblZAxis);
+				
+				JButton btnNewButton = new JButton("Read Offsets");
+				btnNewButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						try {
+							int[] offsets = serialHandler.getAccelMPUOffsets();
+							xAxisTextField.setText(Integer.toString(offsets[0]));
+							yAxisTextField.setText(Integer.toString(offsets[1]));
+							zAxisTextField.setText(Integer.toString(offsets[2]));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (PortInUseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedCommOperationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+				btnNewButton.setBounds(187, 147, 104, 23);
+				adminPanel.add(btnNewButton);
+				
+				JButton btnWriteOffsets = new JButton("Write Offsets");
+				btnWriteOffsets.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						int[] offsets = {Integer.parseInt(xAxisTextField.getText()), Integer.parseInt(yAxisTextField.getText()), Integer.parseInt(zAxisTextField.getText())};
+						try {
+							serialHandler.setAccelMPUOffsets(offsets);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (PortInUseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedCommOperationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+				btnWriteOffsets.setBounds(187, 181, 104, 23);
+				adminPanel.add(btnWriteOffsets);
 		
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);
@@ -2664,7 +2741,7 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 
-
+		
 
 		JPanel progressPanel = new JPanel();
 		contentPanel.add(progressPanel);

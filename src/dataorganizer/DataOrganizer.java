@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -573,6 +575,70 @@ public class DataOrganizer {
 		dofData.add(1, dofAxis);
 
 		return dofData;
+	}
+	
+	public Integer[] calibrateFromCalibrationTest(String csvFile, int readBlockLength, int stdDevMax){
+		List<Integer> offsets = new ArrayList<Integer>();
+		List<List<Integer>> means = new ArrayList<List<Integer>>(); //axis.index*readBlockLength
+		List<List<Integer>> stdDevBlock = new ArrayList<List<Integer>>();
+		
+		for(int axi = 1; axi < 4; axi++) { //Find the mean for $(readBlockLength) blocks of samples in each axis
+			int avg = 0;
+			for(int k = 0; k*readBlockLength < signedDataSamples.get(axi).size(); k++) {
+				for(int i = k*readBlockLength; i*k < readBlockLength; i++) {
+					avg += signedDataSamples.get(axi).get(i*k);
+				}
+				avg = avg/readBlockLength;
+				means.get(axi).add(avg);
+			}
+		}
+
+		for(int axi = 1; axi < 4; axi++) { //Calculate stdDev for each block of 500 
+			List<Double> blockSamples = new ArrayList<Double>();
+			int blockAvg = 0;
+			for(int sample = 0; sample < means.get(axi).size(); sample++) {
+				blockAvg += Math.pow((signedDataSamples.get(axi).get(sample) - means.get(axi).get(sample%readBlockLength)), 2);
+			}
+			blockAvg = blockAvg/means.get(axi).size();
+			stdDevBlock.get(axi).add(blockAvg);
+		}
+		
+		Integer[] min = new Integer[3];
+		Integer[] max = new Integer[3];
+		for(int axi = 1; axi < 4; axi++) { //Find mins and maxs of the means, for each axis.
+			min[axi-1] = Collections.min(means.get(axi));
+			max[axi-1] = Collections.max(means.get(axi));
+		}
+		
+		for(int axi = 1; axi < 4; axi++) {
+			if(means.get(axi).get(means.indexOf(min[axi-1])) < (-2048 + 200) && means.get(axi).get(means.indexOf(min[axi-1])) > (-2048 - 200)) { //If the lowest mean is inside tolerances
+				if(stdDevBlock.get(axi).get(means.indexOf(min[axi-1])) < stdDevMax) {
+					int avg = 0;
+					for(int offsetCalcSampleCounter = means.indexOf(min[axi-1])*readBlockLength; offsetCalcSampleCounter < readBlockLength; offsetCalcSampleCounter++) {
+						avg += signedDataSamples.get(axi).get(offsetCalcSampleCounter);
+					}
+					avg = avg/readBlockLength;
+					offsets.add(avg);
+				}
+			}
+			if(means.get(axi).get(means.indexOf(max[axi-1])) < (2048 + 200) && means.get(axi).get(means.indexOf(max[axi-1])) > (2048 - 200)) { //If the highest mean is inside the tolerances
+				if(stdDevBlock.get(axi).get(means.indexOf(min[axi-1])) < stdDevMax) {
+					int avg = 0;
+					for(int offsetCalcSampleCounter = means.indexOf(min[axi-1])*readBlockLength; offsetCalcSampleCounter < readBlockLength; offsetCalcSampleCounter++) {
+						avg += signedDataSamples.get(axi).get(offsetCalcSampleCounter);
+					}
+					avg = avg/readBlockLength;
+					offsets.add(avg);
+				}
+			}
+		}
+		
+		Integer[] axisOffsets = new Integer[3];
+		axisOffsets[0] = (offsets.get(0) + offsets.get(1))/2;
+		axisOffsets[1] = (offsets.get(2) + offsets.get(3))/2;
+		axisOffsets[2] = (offsets.get(4) + offsets.get(5))/2;
+		
+		return axisOffsets;
 	}
 
 
