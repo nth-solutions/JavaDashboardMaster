@@ -291,32 +291,27 @@ public class GraphController implements Initializable{
 		restyleSeries();
 	}
 
-
 	@FXML
-	public void importCSV(ActionEvent event) {
+	public void importCSV(ActionEvent event) {																										//Event handler that imports an external CSV into the graphing interface
 
-//		csvFilePath = csvBrowseButtonHandler();
-//		if(csvFilePath != null)
-//			loadCSVData();
+		try {																																		//Try/Catch that catches Null Pointer Exception when no file is selected
+			FileChooser fileChooser = new FileChooser();																							//Creates a FileChooser Object
+			fileChooser.setTitle("Select a CSV");																									//Sets the title of the FileChooser object
+			FileChooser.ExtensionFilter filterCSVs  = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");		//Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
+			fileChooser.getExtensionFilters().add(filterCSVs);																						//Adds the filter to the FileChooser
+			File fileChosen = fileChooser.showOpenDialog(null);																		//Assigns the user's selected file to the fileChosen variable
 
-		try {
-			FileChooser fileChooser = new FileChooser();
-			FileChooser.ExtensionFilter filter  = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
-			fileChooser.getExtensionFilters().add(filter);
+			csvFilePath = fileChosen.toString();																									//Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
 
-			File file = fileChooser.showOpenDialog(null);
-
-			csvFilePath = file.toString();
-
-			if (csvFilePath != null) {
-				loadCSVData();
+			if (csvFilePath != null) {																												//Checks to make sure the given file path contains a valid value
+				loadCSVData();																														//Calls the loadCSV method
 			}
 
-		} catch (NullPointerException e) {}
+		} catch (NullPointerException e) {}																											//Catches the NullPointer exception
 	}
 	
 	@FXML
-	public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {
+	public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {													//
 		if(dataCollector[1] != null) {
 			if(AccelMagnitudeCheckBox.isSelected()) {
 				dataSeries.add(9, new DataSeries(dataCollector[0], 10));
