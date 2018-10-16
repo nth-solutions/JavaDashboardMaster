@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javax.swing.JFileChooser;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -36,21 +35,12 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
-/*** The Following Refers to Features That Need To Be Implemented Within the Program***/
-//TODO: Add Ability to Graph Mag Data (Possibly Fixed?)
-//TODO: Scale Y Based on Data
-
-
 public class GraphController implements Initializable{
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources){}
 
 	//FXML Component Declarations
-
-
-
-
 	@FXML
 	private LineChart<Number, Number> lineChart;
 	@FXML
@@ -309,9 +299,11 @@ public class GraphController implements Initializable{
 
 		} catch (NullPointerException e) {}																											//Catches the NullPointer exception
 	}
-	
+
+	/** RESUME COMMENTING HERE**/
+
 	@FXML
-	public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {													//
+	public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {
 		if(dataCollector[1] != null) {
 			if(AccelMagnitudeCheckBox.isSelected()) {
 				dataSeries.add(9, new DataSeries(dataCollector[0], 10));
@@ -516,22 +508,22 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void clearDataAll() {
-		lineChart.getData().clear();
-		dataSourceTitledPane.setText("");
-		dataSourceTitledPaneTwo.setText("");
-		dataDisplayCheckboxesFlowPane.getChildren().clear();
-		dataDisplayCheckboxesFlowPaneTwo.getChildren().clear();
-		dataSeries = FXCollections.observableArrayList();
-		dataSeriesTwo = FXCollections.observableArrayList();
-		numDataSets = 0;
+		lineChart.getData().clear();                                                                                    //Removes the data attached to the lineChart object
+		dataSourceTitledPane.setText("");                                                                               //Removes the name of the file being displayed on dataSourceTitledPane
+		dataSourceTitledPaneTwo.setText("");                                                                            //Removes the name of the file being displayed on dataSourceTitledPaneTwo
+		dataDisplayCheckboxesFlowPane.getChildren().clear();                                                            //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
+		dataDisplayCheckboxesFlowPaneTwo.getChildren().clear();                                                         //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
+		dataSeries = FXCollections.observableArrayList();                                                               //TODO
+		dataSeriesTwo = FXCollections.observableArrayList();                                                            //TODO
+		numDataSets = 0;                                                                                                //Sets numDataSets to 0 to indicate that zero active data sets are currently loaded
 	}
 
 	@FXML
 	public void clearDataSetOne() {
-		lineChart.getData().removeAll(dataSeries);
-		dataDisplayCheckboxesFlowPane.getChildren().removeAll();
-		dataSourceTitledPane.setText("");
-		dataSeries = dataSeriesTwo;
+		lineChart.getData().removeAll(dataSeries);                                                                      //Removes the First Data Series from the linechart object
+		dataDisplayCheckboxesFlowPane.getChildren().removeAll();                                                        //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
+		dataSourceTitledPane.setText("");                                                                               //Removes the name of the file being displayed on dataSourceTitledPane
+		dataSeries = dataSeriesTwo;                                                                                     //TODO
 		dataSeriesTwo = FXCollections.observableArrayList();
 		populateData(dataSeries, lineChart);
 		styleSeries(dataSeries, lineChart);

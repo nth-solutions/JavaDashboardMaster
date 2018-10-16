@@ -16,8 +16,7 @@ import com.sun.javafx.collections.MappingChange.Map;
 public class CSVBuilder {        //Class for Creating .CSV files
 	
 	private static int additionalLineNums;
-	
-	
+
     public static int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, ArrayList<Integer> testParams) {
     
     	
