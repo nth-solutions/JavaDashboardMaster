@@ -34,6 +34,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.beans.binding.BooleanBinding;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 
 /*** The Following Refers to Features That Need To Be Implemented Within the Program***/
 //TODO: Add Ability to Graph Mag Data (Possibly Fixed?)
@@ -210,50 +211,51 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void addTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +10 data samples
-		XOffsetCounter += 10;																							//Incrementer that increments the amount offset that has been applied to the data by +10 and stores it in the XOffsetCounter variable
-		for(final DataSeries axisOfDataSeries: dataSeries) {
-			axisOfDataSeries.addNulls(XOffsetCounter);
+		XOffsetCounter += 10;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +10 and stores it in the XOffsetCounter variable
+		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
-		repopulateData();
-		restyleSeries();
+		repopulateData();																								//TODO
+		restyleSeries();																								//TODO
 	}
 
 	@FXML
-	public void subTenNullButtonHandler(ActionEvent event) {
-		XOffsetCounter -= 10;
-		for(final DataSeries ds: dataSeries) {
-			ds.addNulls(XOffsetCounter);
+	public void subTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -10 data samples
+		XOffsetCounter -= 10;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -10 and stores it in the XOffsetCounter variable
+		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
-		repopulateData();
-		restyleSeries();
+		repopulateData();																								//TODO
+		restyleSeries();																								//TODO
 	}
 
 	@FXML
-	public void addOneNullButtonHandler(ActionEvent event) {
-		XOffsetCounter += 1;
-		for(final DataSeries ds: dataSeries) {
-			ds.addNulls(XOffsetCounter);
+	public void addOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +1 data samples
+		XOffsetCounter += 1;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +1 and stores it in the XOffsetCounter variable
+		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
-		repopulateData();
-		restyleSeries();
+		repopulateData();																								//TODO
+		restyleSeries();																								//TODO
 	}
 
 	@FXML
-	public void subOneNullButtonHandler(ActionEvent event) {
-		XOffsetCounter -= 1;
-		for(final DataSeries ds: dataSeries) {
-			ds.addNulls(XOffsetCounter);
+	public void subOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -1 data samples
+		XOffsetCounter -= 1;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -1 and stores it in the XOffsetCounter variable
+		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
-		repopulateData();
-		restyleSeries();
+		repopulateData();																								//TODO
+		restyleSeries();																								//TODO
 	}
 
-	//data shift for dataset two
+	//Data Shift for the Second Data Set.
+
 	@FXML
 	public void addTenNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo += 10;
-		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounterTwo);
+		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
 		restyleSeries();
@@ -262,8 +264,8 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subTenNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo -= 10;
-		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounterTwo);
+		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
 		restyleSeries();
@@ -272,8 +274,8 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addOneNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo += 1;
-		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounterTwo);
+		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
 		restyleSeries();
@@ -282,18 +284,35 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subOneNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo -= 1;
-		for(final DataSeries ds: dataSeriesTwo) {
-			ds.addNulls(XOffsetCounterTwo);
+		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
 		restyleSeries();
 	}
 
+
 	@FXML
 	public void importCSV(ActionEvent event) {
-		csvFilePath = csvBrowseButtonHandler();
-		if(csvFilePath != null)
-			loadCSVData();
+
+//		csvFilePath = csvBrowseButtonHandler();
+//		if(csvFilePath != null)
+//			loadCSVData();
+
+		try {
+			FileChooser fileChooser = new FileChooser();
+			FileChooser.ExtensionFilter filter  = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
+			fileChooser.getExtensionFilters().add(filter);
+
+			File file = fileChooser.showOpenDialog(null);
+
+			csvFilePath = file.toString();
+
+			if (csvFilePath != null) {
+				loadCSVData();
+			}
+
+		} catch (NullPointerException e) {}
 	}
 	
 	@FXML
@@ -377,35 +396,35 @@ public class GraphController implements Initializable{
 		setUpZooming(userCreatedZoomRectangleBox, lineChart);
 		
 		if(numDataSets == 0) {
-			for (final DataSeries ds : dataSeries) {
-				final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
+			for (final DataSeries axisOfDataSeries : dataSeries) {
+				final CheckBox dataToDisplayCheckBox = new CheckBox(axisOfDataSeries.getName());
 				dataToDisplayCheckBox.setSelected(false);
-				if(ds.dof == 1) dataToDisplayCheckBox.setSelected(true);
+				if(axisOfDataSeries.dof == 1) dataToDisplayCheckBox.setSelected(true);
 				dataToDisplayCheckBox.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
 				// box.setGraphic(line);
 				dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
 				dataToDisplayCheckBox.setOnAction(action -> {
-					ds.setActive(dataToDisplayCheckBox.isSelected());
+					axisOfDataSeries.setActive(dataToDisplayCheckBox.isSelected());
 					repopulateData();
 					restyleSeries();
 				});
 			}
 		}else {
-			for (final DataSeries ds : dataSeriesTwo) {
+			for (final DataSeries axisOfDataSeries : dataSeriesTwo) {
 				dataSourceTitledPaneTwo.setDisable(false);
 				dataSourceTitledPaneTwo.setExpanded(true);
-				final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(ds.getName());
+				final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(axisOfDataSeries.getName());
 				dataToDisplayCheckBoxTwo.setSelected(false);
-				if(ds.dof == 1) dataToDisplayCheckBoxTwo.setSelected(true);
+				if(axisOfDataSeries.dof == 1) dataToDisplayCheckBoxTwo.setSelected(true);
 				dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
 				// Line line = new Line(0, 10, 50, 10);
 
 				// box.setGraphic(line);
 				dataDisplayCheckboxesFlowPaneTwo.getChildren().add(dataToDisplayCheckBoxTwo);
 				dataToDisplayCheckBoxTwo.setOnAction(action -> {
-					ds.setActive(dataToDisplayCheckBoxTwo.isSelected());
+					axisOfDataSeries.setActive(dataToDisplayCheckBoxTwo.isSelected());
 					repopulateData();
 					restyleSeries();
 				});
@@ -426,9 +445,9 @@ public class GraphController implements Initializable{
 	public void rollingBlockHandler(ActionEvent event) {
 		int rollingBlockValue = Integer.parseInt(rollingBlockTextField.getText());
 		if(rollingBlockValue == 0) return;
-		for(DataSeries ds: dataSeries) {
-			ds.rollingBlock(rollingBlockValue);
-			ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		for(DataSeries axisOfDataSeries: dataSeries) {
+			axisOfDataSeries.rollingBlock(rollingBlockValue);
+			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 		}	
 		repopulateData();
 		restyleSeries();
@@ -557,17 +576,17 @@ public class GraphController implements Initializable{
 
 		setUpZooming(userCreatedZoomRectangleBox, lineChart);
 
-		for (final DataSeries ds : dataSeries) {
-			final CheckBox dataToDisplayCheckBox = new CheckBox(ds.getName());
+		for (final DataSeries axisOfDataSeries : dataSeries) {
+			final CheckBox dataToDisplayCheckBox = new CheckBox(axisOfDataSeries.getName());
 			dataToDisplayCheckBox.setSelected(false);
-			if(ds.dof == 1) dataToDisplayCheckBox.setSelected(true);
+			if(axisOfDataSeries.dof == 1) dataToDisplayCheckBox.setSelected(true);
 			dataToDisplayCheckBox.setPadding(new Insets(5));
 			// Line line = new Line(0, 10, 50, 10);
 
 			// box.setGraphic(line);
 			dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
 			dataToDisplayCheckBox.setOnAction(action -> {
-				ds.setActive(dataToDisplayCheckBox.isSelected());
+				axisOfDataSeries.setActive(dataToDisplayCheckBox.isSelected());
 				repopulateData();
 				restyleSeries();
 			});
@@ -583,23 +602,6 @@ public class GraphController implements Initializable{
 
 		numDataSets++;
 	}
-
-	/**
-	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
-	 * the file explorer and select a save location for the incoming data.
-	 */
-	public String csvBrowseButtonHandler() {
-		final JFileChooser chooser = new JFileChooser(); 
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			return chooser.getSelectedFile().toString();
-		}
-		return null;
-	}
-
-
 
 	/*** creates the Frame-By-Frame Analysis Rectangle ***/
 
@@ -731,9 +733,9 @@ public class GraphController implements Initializable{
 		userCreatedZoomRectangleBox.setHeight(0);
 
 
-		for (final DataSeries ds : dataSeries) {
-			if(ds.isActive()) {
-				ds.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		for (final DataSeries axisOfDataSeries : dataSeries) {
+			if(axisOfDataSeries.isActive()) {
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
 
@@ -745,8 +747,8 @@ public class GraphController implements Initializable{
 
 	/*** Data Handling and Functionality Components***/
 
-	private void populateData(final ObservableList<DataSeries> ds, final LineChart<Number, Number> lineChart) {
-		for (DataSeries data : ds) {
+	private void populateData(final ObservableList<DataSeries> axisOfDataSeries, final LineChart<Number, Number> lineChart) {
+		for (DataSeries data : axisOfDataSeries) {
 			if (data.isActive()) {
 				lineChart.getData().addAll(data.getSeries());
 			}
