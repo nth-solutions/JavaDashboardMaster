@@ -2092,6 +2092,7 @@ public class AdvancedMode extends JFrame {
 		DataOrganizer dataOrgo = new DataOrganizer();
 		dataOrgo.createDataSamplesFromCSV(calibrationCSV);
 		dataOrgo.readAndSetTestParameters(calibrationCSV+'p');
+		dataOrgo.getSignedData();
 		
 		ArrayList<Integer> offsets = dataOrgo.calibrateFromCalibrationTest(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
 		for(int x : offsets) {
@@ -2724,7 +2725,7 @@ public class AdvancedMode extends JFrame {
 				adminPanel.add(readBlockLengthTextField);
 				
 				stdDevMaxTextField = new JTextField();
-				stdDevMaxTextField.setText("5");
+				stdDevMaxTextField.setText("15");
 				stdDevMaxTextField.setColumns(10);
 				stdDevMaxTextField.setBounds(116, 304, 175, 20);
 				adminPanel.add(stdDevMaxTextField);

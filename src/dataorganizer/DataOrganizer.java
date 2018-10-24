@@ -576,86 +576,136 @@ public class DataOrganizer {
 
 		return dofData;
 	}
-	
+
 	public ArrayList<Integer> calibrateFromCalibrationTest(String csvFile, int readBlockLength, int stdDevMax){
-		ArrayList<Integer> offsets = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> offsets = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Integer>> means = new ArrayList<ArrayList<Integer>>(); //axis.index*readBlockLength
 		ArrayList<ArrayList<Integer>> stdDevBlock = new ArrayList<ArrayList<Integer>>();
-		
-		System.out.println("Start");
+
 		for(int i = 0; i < dataSamples.get(0).size()%readBlockLength; i++) {
 			means.add(new ArrayList<Integer>());
 			stdDevBlock.add(new ArrayList<Integer>());
 		}
-		
+
 		for(int axi = 1; axi < 4; axi++) { //Find the mean for $(readBlockLength) blocks of samples in each axis
 			for(int k = 0; k < dataSamples.get(axi).size(); k+=readBlockLength) {
 				int avg = 0;
 				for(int i = 0; i < readBlockLength && i+k < dataSamples.get(axi).size(); i++) {
-					avg += dataSamples.get(axi).get(i+k);
+					int curVal = (int)Math.round(dataSamples.get(axi).get(i+k));
+					if (curVal > 32768) {
+						curVal -= 65535;
+					}
+					avg += curVal;
 				}
 				avg = avg/readBlockLength;
 				means.get(axi).add(avg);
 			}
 		}
-		
+
 		for(int axi = 1; axi < 4; axi++) { //Calculate stdDev for each block of 500 
 			for(int block = 0; block < dataSamples.get(axi).size(); block+=readBlockLength) {
 				int blockAvg = 0;
 				for(int sample = 0; sample < readBlockLength && sample+block < dataSamples.get(axi).size(); sample++) {
-					blockAvg += Math.pow((dataSamples.get(axi).get(block+sample) - means.get(axi).get(block%readBlockLength)), 2);
+					int curVal = (int)Math.round(dataSamples.get(axi).get(sample+block));
+					if (curVal > 32768) {
+						curVal -= 65535;
+					}
+					blockAvg += Math.pow((curVal - means.get(axi).get(block/readBlockLength)), 2);
 				}
-				blockAvg = (int) Math.sqrt(blockAvg/means.get(axi).size()-1);
-				System.out.println(blockAvg);
+				blockAvg = (int) Math.sqrt(blockAvg/readBlockLength);
 				stdDevBlock.get(axi).add(blockAvg);
 			}
 		}
+
+		offsets.add(new ArrayList<Integer>());
+		for(int axi = 1; axi < 4; axi++) {
+			offsets.add(new ArrayList<Integer>());
+			int avg = 0;
+			for(int i = 0; i < means.get(axi).size(); i++) {
+				if(means.get(axi).get(i) < (-2048 + 200) && means.get(axi).get(i) > (-2048 - 200)) { //If the lowest mean is inside tolerancess
+					if(stdDevMax > stdDevBlock.get(axi).get(i)) {
+						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
+							int curVal = (int)Math.round(dataSamples.get(axi).get(offsetCalcSampleCounter));
+							if (curVal > 32768) {
+								curVal -= 65535;
+							}
+							avg += curVal;
+						}
+						avg = avg/readBlockLength;
+						offsets.get(axi).add(avg);
+					}
+				}
+				else if(means.get(axi).get(i) < (2048 + 200) && means.get(axi).get(i) > (2048 - 200)) { //If the lowest mean is inside tolerancess
+					if(stdDevMax > stdDevBlock.get(axi).get(i)) {
+						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
+							int curVal = (int)Math.round(dataSamples.get(axi).get(offsetCalcSampleCounter));
+							if (curVal > 32768) {
+								curVal -= 65535;
+							}
+							avg += curVal;
+						}
+						avg = avg/readBlockLength;
+						offsets.get(axi).add(avg);
+					}
+				}
+			}
+		}
 		
-		Integer[] min = new Integer[3];
+		System.out.println(offsets);
+		
+		/*Integer[] min = new Integer[3];
 		Integer[] max = new Integer[3];
 		for(int axi = 1; axi < 4; axi++) { //Find mins and maxs of the means, for each axis.
 			double maxTemp = 0;
 			double minTemp = 65535;
-			for(int sample = 0; sample < means.get(axi).size(); sample++) {
-				if(means.get(axi).get(sample) > maxTemp && means.get(axi).get(sample) < 32768)
-					maxTemp = means.get(axi).get(sample);
-				else if(means.get(axi).get(sample) > 32768 && means.get(axi).get(sample) < minTemp) {
-					minTemp = means.get(axi).get(sample);
+			for(int currentAverage = 0; currentAverage < means.get(axi).size(); currentAverage++) {
+				if(means.get(axi).get(currentAverage) > maxTemp && means.get(axi).get(currentAverage) < 32768) {
+					maxTemp = means.get(axi).get(currentAverage);
+				}
+				else if(means.get(axi).get(currentAverage) > 32768 && means.get(axi).get(currentAverage) < minTemp) {
+					minTemp = means.get(axi).get(currentAverage);
 				}
 			}
 			min[axi-1] = (int)minTemp;
 			max[axi-1] = (int)maxTemp;
-		}
-		
-		
+		}*/
+
+		/*ArrayList<Integer> minStd = new ArrayList<Integer>();
 		for(int axi = 1; axi < 4; axi++) {
-			if(means.get(axi).get(means.get(axi).indexOf(min[axi-1])) < (-2048 + 200) && means.get(axi).get(means.indexOf(min[axi-1])) > (-2048 - 200)) { //If the lowest mean is inside tolerances
-				if(stdDevBlock.get(axi).get(means.indexOf(min[axi-1])) < stdDevMax) {
-					int avg = 0;
-					for(int offsetCalcSampleCounter = means.indexOf(min[axi-1])*readBlockLength; offsetCalcSampleCounter < readBlockLength; offsetCalcSampleCounter++) {
-						avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
-					}
-					avg = avg/readBlockLength;
-					offsets.add(avg);
+			int prevStdMin = -stdDevMax;
+			for(int stdDevIndex = 0; stdDevIndex < stdDevBlock.get(axi).size(); stdDevIndex++) {
+				if(stdDevBlock.get(axi).get(stdDevIndex) < stdDevMax && stdDevBlock.get(axi).get(stdDevIndex) < prevStdMin) {
+					System.out.println(axi +" : "+ stdDevIndex +" : "+ means.get(axi).get(stdDevIndex) +" : "+ stdDevBlock.get(axi).get(stdDevIndex));
+					minStd.add(axi - 1, stdDevIndex);
 				}
 			}
-			if(means.get(axi).get(means.get(axi).indexOf(max[axi-1])) < (2048 + 200) && means.get(axi).get(means.indexOf(max[axi-1])) > (2048 - 200)) { //If the highest mean is inside the tolerances
-				if(stdDevBlock.get(axi).get(means.indexOf(min[axi-1])) < stdDevMax) {
-					int avg = 0;
-					for(int offsetCalcSampleCounter = means.indexOf(min[axi-1])*readBlockLength; offsetCalcSampleCounter < readBlockLength; offsetCalcSampleCounter++) {
-						avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
-					}
-					avg = avg/readBlockLength;
-					offsets.add(avg);
-				}
-			}
-		}
+		}*/
 		
+		/*for(int axi = 1; axi < 4; axi++) {
+			int stdDevLowestIndex = minStd.get(axi);
+			if(means.get(axi).get(stdDevLowestIndex) < (-2048 + 200) && means.get(axi).get(stdDevLowestIndex) > (-2048 - 200)) { //If the lowest mean is inside tolerancess
+				int avg = 0;
+				for(int offsetCalcSampleCounter = stdDevLowestIndex*readBlockLength; offsetCalcSampleCounter < stdDevLowestIndex*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
+					avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
+				}
+				avg = avg/readBlockLength;
+				offsets.add(avg);
+			}
+			if(means.get(axi).get(stdDevLowestIndex) < (2048 + 200) && means.get(axi).get(stdDevLowestIndex) > (2048 - 200)) { //If the highest mean is inside the tolerances
+				int avg = 0;
+				for(int offsetCalcSampleCounter = stdDevLowestIndex*readBlockLength; offsetCalcSampleCounter < stdDevLowestIndex*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
+					avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
+				}
+				avg = avg/readBlockLength;
+				offsets.add(avg);
+			}
+		}*/
+
 		ArrayList<Integer> axisOffsets = new ArrayList<Integer>();
-		axisOffsets.set(0, (offsets.get(0) + offsets.get(1))/2);
-		axisOffsets.set(1, (offsets.get(2) + offsets.get(3))/2);
-		axisOffsets.set(1, (offsets.get(4) + offsets.get(5))/2);
-		
+		axisOffsets.add(0, (offsets.get(1).get(0) + offsets.get(1).get(0))/2);
+		axisOffsets.add(1, (offsets.get(2).get(0) + offsets.get(2).get(0))/2);
+		axisOffsets.add(2, (offsets.get(3).get(0) + offsets.get(3).get(0))/2);
+
 		return axisOffsets;
 	}
 
@@ -664,9 +714,9 @@ public class DataOrganizer {
 		double max = -32768;
 
 		for(Double sample : dataSamples.get(axi)){
-				if(sample != null)
-					if(sample>max)
-						max = sample;
+			if(sample != null)
+				if(sample>max)
+					max = sample;
 		}
 		return max;
 	}
@@ -675,9 +725,9 @@ public class DataOrganizer {
 		double min = 32768;
 
 		for(Double sample: dataSamples.get(axi)){
-				if(sample != null)
-					if(sample<min)
-						min = sample;
+			if(sample != null)
+				if(sample<min)
+					min = sample;
 		}
 		return min;
 	}
