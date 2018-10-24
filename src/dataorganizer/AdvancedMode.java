@@ -252,6 +252,9 @@ public class AdvancedMode extends JFrame {
 	private JTextField xAxisTextField;
 	private JTextField yAxisTextField;
 	private JTextField zAxisTextField;
+	private JTextField calibrationCSVTextField;
+	private JTextField readBlockLengthTextField;
+	private JTextField stdDevMaxTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -2085,7 +2088,18 @@ public class AdvancedMode extends JFrame {
 		updatePosInGraphThread.start();
 	}
 	
-
+	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold){
+		DataOrganizer dataOrgo = new DataOrganizer();
+		dataOrgo.createDataSamplesFromCSV(calibrationCSV);
+		dataOrgo.readAndSetTestParameters(calibrationCSV+'p');
+		
+		ArrayList<Integer> offsets = dataOrgo.calibrateFromCalibrationTest(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
+		for(int x : offsets) {
+			System.out.println(x);
+		}
+		
+	}
+	
 	public int getAdvancedModeCurrentTab() {
 		return mainTabbedPanel.getSelectedIndex();
 	}
@@ -2696,6 +2710,45 @@ public class AdvancedMode extends JFrame {
 				});
 				btnWriteOffsets.setBounds(187, 181, 104, 23);
 				adminPanel.add(btnWriteOffsets);
+				
+				calibrationCSVTextField = new JTextField();
+				calibrationCSVTextField.setText("C:\\users\\Mason\\Documents\\(#1) 960-96 16G-92 2000dps-92 MAG-N 23OCT18.csv");
+				calibrationCSVTextField.setBounds(116, 242, 175, 20);
+				adminPanel.add(calibrationCSVTextField);
+				calibrationCSVTextField.setColumns(10);
+				
+				readBlockLengthTextField = new JTextField();
+				readBlockLengthTextField.setText("500");
+				readBlockLengthTextField.setColumns(10);
+				readBlockLengthTextField.setBounds(116, 273, 175, 20);
+				adminPanel.add(readBlockLengthTextField);
+				
+				stdDevMaxTextField = new JTextField();
+				stdDevMaxTextField.setText("5");
+				stdDevMaxTextField.setColumns(10);
+				stdDevMaxTextField.setBounds(116, 304, 175, 20);
+				adminPanel.add(stdDevMaxTextField);
+				
+				JButton getCalibrationOffsets = new JButton("Calibrate");
+				getCalibrationOffsets.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()));
+					}
+				});
+				getCalibrationOffsets.setBounds(328, 272, 89, 23);
+				adminPanel.add(getCalibrationOffsets);
+				
+				JLabel lblNewLabel_1 = new JLabel("csv: ");
+				lblNewLabel_1.setBounds(10, 245, 89, 14);
+				adminPanel.add(lblNewLabel_1);
+				
+				JLabel lblBlockLength = new JLabel("block Length: ");
+				lblBlockLength.setBounds(10, 276, 89, 14);
+				adminPanel.add(lblBlockLength);
+				
+				JLabel lblStddevMax = new JLabel("stdDev Max: ");
+				lblStddevMax.setBounds(10, 307, 89, 14);
+				adminPanel.add(lblStddevMax);
 		
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);

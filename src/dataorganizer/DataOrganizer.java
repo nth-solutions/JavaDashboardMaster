@@ -170,7 +170,7 @@ public class DataOrganizer {
 
 		for (int dof = 1; dof < 10; dof++) {
 			if(dof < 7)
-				for (int smp = 0; smp < dataSamples.get(0).size(); smp++) {
+				for (int smp = 0; smp < dataSamples.get(dof).size()-1; smp++) {
 					if (dof < 4) {
 						double curVal = dataSamples.get(dof).get(smp);
 						if (curVal > 32768) {
@@ -577,55 +577,73 @@ public class DataOrganizer {
 		return dofData;
 	}
 	
-	public Integer[] calibrateFromCalibrationTest(String csvFile, int readBlockLength, int stdDevMax){
-		List<Integer> offsets = new ArrayList<Integer>();
-		List<List<Integer>> means = new ArrayList<List<Integer>>(); //axis.index*readBlockLength
-		List<List<Integer>> stdDevBlock = new ArrayList<List<Integer>>();
+	public ArrayList<Integer> calibrateFromCalibrationTest(String csvFile, int readBlockLength, int stdDevMax){
+		ArrayList<Integer> offsets = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> means = new ArrayList<ArrayList<Integer>>(); //axis.index*readBlockLength
+		ArrayList<ArrayList<Integer>> stdDevBlock = new ArrayList<ArrayList<Integer>>();
+		
+		System.out.println("Start");
+		for(int i = 0; i < dataSamples.get(0).size()%readBlockLength; i++) {
+			means.add(new ArrayList<Integer>());
+			stdDevBlock.add(new ArrayList<Integer>());
+		}
 		
 		for(int axi = 1; axi < 4; axi++) { //Find the mean for $(readBlockLength) blocks of samples in each axis
-			int avg = 0;
-			for(int k = 0; k*readBlockLength < signedDataSamples.get(axi).size(); k++) {
-				for(int i = k*readBlockLength; i*k < readBlockLength; i++) {
-					avg += signedDataSamples.get(axi).get(i*k);
+			for(int k = 0; k < dataSamples.get(axi).size(); k+=readBlockLength) {
+				int avg = 0;
+				for(int i = 0; i < readBlockLength && i+k < dataSamples.get(axi).size(); i++) {
+					avg += dataSamples.get(axi).get(i+k);
 				}
 				avg = avg/readBlockLength;
 				means.get(axi).add(avg);
 			}
 		}
-
+		
 		for(int axi = 1; axi < 4; axi++) { //Calculate stdDev for each block of 500 
-			List<Double> blockSamples = new ArrayList<Double>();
-			int blockAvg = 0;
-			for(int sample = 0; sample < means.get(axi).size(); sample++) {
-				blockAvg += Math.pow((signedDataSamples.get(axi).get(sample) - means.get(axi).get(sample%readBlockLength)), 2);
+			for(int block = 0; block < dataSamples.get(axi).size(); block+=readBlockLength) {
+				int blockAvg = 0;
+				for(int sample = 0; sample < readBlockLength && sample+block < dataSamples.get(axi).size(); sample++) {
+					blockAvg += Math.pow((dataSamples.get(axi).get(block+sample) - means.get(axi).get(block%readBlockLength)), 2);
+				}
+				blockAvg = (int) Math.sqrt(blockAvg/means.get(axi).size()-1);
+				System.out.println(blockAvg);
+				stdDevBlock.get(axi).add(blockAvg);
 			}
-			blockAvg = blockAvg/means.get(axi).size();
-			stdDevBlock.get(axi).add(blockAvg);
 		}
 		
 		Integer[] min = new Integer[3];
 		Integer[] max = new Integer[3];
 		for(int axi = 1; axi < 4; axi++) { //Find mins and maxs of the means, for each axis.
-			min[axi-1] = Collections.min(means.get(axi));
-			max[axi-1] = Collections.max(means.get(axi));
+			double maxTemp = 0;
+			double minTemp = 65535;
+			for(int sample = 0; sample < means.get(axi).size(); sample++) {
+				if(means.get(axi).get(sample) > maxTemp && means.get(axi).get(sample) < 32768)
+					maxTemp = means.get(axi).get(sample);
+				else if(means.get(axi).get(sample) > 32768 && means.get(axi).get(sample) < minTemp) {
+					minTemp = means.get(axi).get(sample);
+				}
+			}
+			min[axi-1] = (int)minTemp;
+			max[axi-1] = (int)maxTemp;
 		}
+		
 		
 		for(int axi = 1; axi < 4; axi++) {
-			if(means.get(axi).get(means.indexOf(min[axi-1])) < (-2048 + 200) && means.get(axi).get(means.indexOf(min[axi-1])) > (-2048 - 200)) { //If the lowest mean is inside tolerances
+			if(means.get(axi).get(means.get(axi).indexOf(min[axi-1])) < (-2048 + 200) && means.get(axi).get(means.indexOf(min[axi-1])) > (-2048 - 200)) { //If the lowest mean is inside tolerances
 				if(stdDevBlock.get(axi).get(means.indexOf(min[axi-1])) < stdDevMax) {
 					int avg = 0;
 					for(int offsetCalcSampleCounter = means.indexOf(min[axi-1])*readBlockLength; offsetCalcSampleCounter < readBlockLength; offsetCalcSampleCounter++) {
-						avg += signedDataSamples.get(axi).get(offsetCalcSampleCounter);
+						avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
 					}
 					avg = avg/readBlockLength;
 					offsets.add(avg);
 				}
 			}
-			if(means.get(axi).get(means.indexOf(max[axi-1])) < (2048 + 200) && means.get(axi).get(means.indexOf(max[axi-1])) > (2048 - 200)) { //If the highest mean is inside the tolerances
+			if(means.get(axi).get(means.get(axi).indexOf(max[axi-1])) < (2048 + 200) && means.get(axi).get(means.indexOf(max[axi-1])) > (2048 - 200)) { //If the highest mean is inside the tolerances
 				if(stdDevBlock.get(axi).get(means.indexOf(min[axi-1])) < stdDevMax) {
 					int avg = 0;
 					for(int offsetCalcSampleCounter = means.indexOf(min[axi-1])*readBlockLength; offsetCalcSampleCounter < readBlockLength; offsetCalcSampleCounter++) {
-						avg += signedDataSamples.get(axi).get(offsetCalcSampleCounter);
+						avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
 					}
 					avg = avg/readBlockLength;
 					offsets.add(avg);
@@ -633,37 +651,33 @@ public class DataOrganizer {
 			}
 		}
 		
-		Integer[] axisOffsets = new Integer[3];
-		axisOffsets[0] = (offsets.get(0) + offsets.get(1))/2;
-		axisOffsets[1] = (offsets.get(2) + offsets.get(3))/2;
-		axisOffsets[2] = (offsets.get(4) + offsets.get(5))/2;
+		ArrayList<Integer> axisOffsets = new ArrayList<Integer>();
+		axisOffsets.set(0, (offsets.get(0) + offsets.get(1))/2);
+		axisOffsets.set(1, (offsets.get(2) + offsets.get(3))/2);
+		axisOffsets.set(1, (offsets.get(4) + offsets.get(5))/2);
 		
 		return axisOffsets;
 	}
 
 
-	public double maxTestValAxis() {
+	public double maxTestValAxis(int axi) {
 		double max = -32768;
 
-		for(List<Double> column : signedDataSamples){
-			for(Double sample : column) {
+		for(Double sample : dataSamples.get(axi)){
 				if(sample != null)
 					if(sample>max)
 						max = sample;
-			}
 		}
 		return max;
 	}
 
-	public double minTestValAxis() {
+	public double minTestValAxis(int axi) {
 		double min = 32768;
 
-		for(List<Double> column: signedDataSamples){
-			for(Double sample: column) {
+		for(Double sample: dataSamples.get(axi)){
 				if(sample != null)
 					if(sample<min)
 						min = sample;
-			}
 		}
 		return min;
 	}
