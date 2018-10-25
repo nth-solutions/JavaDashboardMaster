@@ -21,6 +21,7 @@ public class DataOrganizer {
 	private List<List<Double>> normalizedDataSamples;
 	private List<Integer> testParameters;
 	private List<Double> dofTime;
+	public int[] mpuOffsets;
 	private String nameOfTest;
 	private int sampleRate;
 	private int magSampleRate;
@@ -577,8 +578,9 @@ public class DataOrganizer {
 		return dofData;
 	}
 
-	public ArrayList<Integer> calibrateFromCalibrationTest(String csvFile, int readBlockLength, int stdDevMax){
-		ArrayList<ArrayList<Integer>> offsets = new ArrayList<ArrayList<Integer>>();
+	public int[] getCalibrationOffsets(String csvFile, int readBlockLength, int stdDevMax){
+		ArrayList<ArrayList<Integer>> inRangeMeans = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> offsetIndexes = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Integer>> means = new ArrayList<ArrayList<Integer>>(); //axis.index*readBlockLength
 		ArrayList<ArrayList<Integer>> stdDevBlock = new ArrayList<ArrayList<Integer>>();
 
@@ -616,13 +618,15 @@ public class DataOrganizer {
 				stdDevBlock.get(axi).add(blockAvg);
 			}
 		}
-
-		offsets.add(new ArrayList<Integer>());
+		
+		inRangeMeans.add(new ArrayList<Integer>());
+		offsetIndexes.add(new ArrayList<Integer>());
 		for(int axi = 1; axi < 4; axi++) {
-			offsets.add(new ArrayList<Integer>());
+			inRangeMeans.add(new ArrayList<Integer>());
+			offsetIndexes.add(new ArrayList<Integer>());
 			int avg = 0;
 			for(int i = 0; i < means.get(axi).size(); i++) {
-				if(means.get(axi).get(i) < (-2048 + 200) && means.get(axi).get(i) > (-2048 - 200)) { //If the lowest mean is inside tolerancess
+				if(means.get(axi).get(i) < (-2048 + 1800) && means.get(axi).get(i) > (-2048 - 1800)) { //If the lowest mean is inside tolerancess
 					if(stdDevMax > stdDevBlock.get(axi).get(i)) {
 						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
 							int curVal = (int)Math.round(dataSamples.get(axi).get(offsetCalcSampleCounter));
@@ -632,10 +636,11 @@ public class DataOrganizer {
 							avg += curVal;
 						}
 						avg = avg/readBlockLength;
-						offsets.get(axi).add(avg);
+						offsetIndexes.get(axi).add(i);
+						inRangeMeans.get(axi).add(avg);
 					}
 				}
-				else if(means.get(axi).get(i) < (2048 + 200) && means.get(axi).get(i) > (2048 - 200)) { //If the lowest mean is inside tolerancess
+				else if(means.get(axi).get(i) < (2048 + 1800) && means.get(axi).get(i) > (2048 - 1800)) { //If the lowest mean is inside tolerancess
 					if(stdDevMax > stdDevBlock.get(axi).get(i)) {
 						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
 							int curVal = (int)Math.round(dataSamples.get(axi).get(offsetCalcSampleCounter));
@@ -645,67 +650,25 @@ public class DataOrganizer {
 							avg += curVal;
 						}
 						avg = avg/readBlockLength;
-						offsets.get(axi).add(avg);
+						offsetIndexes.get(axi).add(i);
+						inRangeMeans.get(axi).add(avg);
 					}
 				}
 			}
 		}
 		
-		System.out.println(offsets);
-		
-		/*Integer[] min = new Integer[3];
-		Integer[] max = new Integer[3];
-		for(int axi = 1; axi < 4; axi++) { //Find mins and maxs of the means, for each axis.
-			double maxTemp = 0;
-			double minTemp = 65535;
-			for(int currentAverage = 0; currentAverage < means.get(axi).size(); currentAverage++) {
-				if(means.get(axi).get(currentAverage) > maxTemp && means.get(axi).get(currentAverage) < 32768) {
-					maxTemp = means.get(axi).get(currentAverage);
-				}
-				else if(means.get(axi).get(currentAverage) > 32768 && means.get(axi).get(currentAverage) < minTemp) {
-					minTemp = means.get(axi).get(currentAverage);
-				}
-			}
-			min[axi-1] = (int)minTemp;
-			max[axi-1] = (int)maxTemp;
-		}*/
 
-		/*ArrayList<Integer> minStd = new ArrayList<Integer>();
-		for(int axi = 1; axi < 4; axi++) {
-			int prevStdMin = -stdDevMax;
-			for(int stdDevIndex = 0; stdDevIndex < stdDevBlock.get(axi).size(); stdDevIndex++) {
-				if(stdDevBlock.get(axi).get(stdDevIndex) < stdDevMax && stdDevBlock.get(axi).get(stdDevIndex) < prevStdMin) {
-					System.out.println(axi +" : "+ stdDevIndex +" : "+ means.get(axi).get(stdDevIndex) +" : "+ stdDevBlock.get(axi).get(stdDevIndex));
-					minStd.add(axi - 1, stdDevIndex);
-				}
-			}
-		}*/
-		
-		/*for(int axi = 1; axi < 4; axi++) {
-			int stdDevLowestIndex = minStd.get(axi);
-			if(means.get(axi).get(stdDevLowestIndex) < (-2048 + 200) && means.get(axi).get(stdDevLowestIndex) > (-2048 - 200)) { //If the lowest mean is inside tolerancess
-				int avg = 0;
-				for(int offsetCalcSampleCounter = stdDevLowestIndex*readBlockLength; offsetCalcSampleCounter < stdDevLowestIndex*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
-					avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
-				}
-				avg = avg/readBlockLength;
-				offsets.add(avg);
-			}
-			if(means.get(axi).get(stdDevLowestIndex) < (2048 + 200) && means.get(axi).get(stdDevLowestIndex) > (2048 - 200)) { //If the highest mean is inside the tolerances
-				int avg = 0;
-				for(int offsetCalcSampleCounter = stdDevLowestIndex*readBlockLength; offsetCalcSampleCounter < stdDevLowestIndex*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
-					avg += dataSamples.get(axi).get(offsetCalcSampleCounter);
-				}
-				avg = avg/readBlockLength;
-				offsets.add(avg);
-			}
-		}*/
+		int[] axisOffsets = new int[3];
+		System.out.println(inRangeMeans);
+		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 
+			int min = Collections.min(inRangeMeans.get(axi));
+			int max = Collections.max(inRangeMeans.get(axi));
+			int offset = ((max+min)/2);
+			if(offset > 1024) return null;
+			axisOffsets[axi-1] = offset;
+		}
 
-		ArrayList<Integer> axisOffsets = new ArrayList<Integer>();
-		axisOffsets.add(0, (offsets.get(1).get(0) + offsets.get(1).get(0))/2);
-		axisOffsets.add(1, (offsets.get(2).get(0) + offsets.get(2).get(0))/2);
-		axisOffsets.add(2, (offsets.get(3).get(0) + offsets.get(3).get(0))/2);
-
+		mpuOffsets = axisOffsets;
 		return axisOffsets;
 	}
 

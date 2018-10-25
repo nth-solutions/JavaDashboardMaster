@@ -610,6 +610,7 @@ public class SerialComm {
 	}
 
 	public boolean setAccelMPUOffsets(int[] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(offsets == null) return false;
 		if(!selectMode('K')) {
 			return false;
 		}

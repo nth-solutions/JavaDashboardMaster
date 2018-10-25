@@ -260,7 +260,7 @@ public class AdvancedMode extends JFrame {
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-16");
+		setTitle("JavaDashboard Rev-17");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -2088,17 +2088,14 @@ public class AdvancedMode extends JFrame {
 		updatePosInGraphThread.start();
 	}
 	
-	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold){
+	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		DataOrganizer dataOrgo = new DataOrganizer();
 		dataOrgo.createDataSamplesFromCSV(calibrationCSV);
 		dataOrgo.readAndSetTestParameters(calibrationCSV+'p');
 		dataOrgo.getSignedData();
+		dataOrgo.getCalibrationOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
 		
-		ArrayList<Integer> offsets = dataOrgo.calibrateFromCalibrationTest(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
-		for(int x : offsets) {
-			System.out.println(x);
-		}
-		
+		serialHandler.setAccelMPUOffsets(dataOrgo.mpuOffsets);
 	}
 	
 	public int getAdvancedModeCurrentTab() {
@@ -2733,7 +2730,21 @@ public class AdvancedMode extends JFrame {
 				JButton getCalibrationOffsets = new JButton("Calibrate");
 				getCalibrationOffsets.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()));
+						try {
+							applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()));
+						} catch (NumberFormatException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (PortInUseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedCommOperationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 				});
 				getCalibrationOffsets.setBounds(328, 272, 89, 23);
