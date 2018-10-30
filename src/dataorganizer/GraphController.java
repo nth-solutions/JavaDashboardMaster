@@ -13,6 +13,8 @@ import java.util.Set;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -49,6 +51,8 @@ public class GraphController implements Initializable{
 	private NumberAxis yAxis;
 	@FXML
 	private Pane chartContainer;
+	@FXML
+	private Pane graphingPane;
 	@FXML
 	private Button zoomButton;
 	@FXML
@@ -304,7 +308,7 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {
-		if(dataCollector[1] != null) {
+		if(dataCollector[0] != null) {
 			if(AccelMagnitudeCheckBox.isSelected()) {
 				dataSeries.add(9, new DataSeries(dataCollector[0], 10));
 				dataSeries.get(9).setActive(true);
@@ -337,6 +341,7 @@ public class GraphController implements Initializable{
 	}
 
 	public void loadCSVData() {
+		createListenersResize();
 		DataOrganizer dataOrgoObject = new DataOrganizer();
 		dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
 		dataOrgoObject.getSignedData();
@@ -538,10 +543,28 @@ public class GraphController implements Initializable{
 		numDataSets--;
 	}
 
-
+	public void createListenersResize() {
+		graphingPane.heightProperty().addListener(new ChangeListener() {
+			@Override
+			public void changed(ObservableValue arg0, Object arg1, Object arg2) {
+				double height = (double) arg2;
+				lineChart.setPrefHeight(height-100);
+			}
+		});
+		graphingPane.widthProperty().addListener(new ChangeListener() {
+			@Override
+			public void changed(ObservableValue arg0, Object arg1, Object arg2) {
+				double width = (double) arg2;
+				lineChart.setPrefWidth(width-width/4);
+			}
+		});
+	}
+	
+	
 	/*** Method for Preloading All Settings***/
 
 	public void graphSettingsOnStart(String moduleSerialID){
+		createListenersResize();
 		dataSourceTitledPane.setText("Module Serial ID: " + moduleSerialID);
 		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[numDataSets].getLengthOfTest())));
 		xAxis.setMinorTickCount(dataCollector[numDataSets].getSampleRate()/16);
@@ -598,8 +621,8 @@ public class GraphController implements Initializable{
 		currentTimeInMediaPlayer = new Rectangle(0, -512, 1, 715);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX() - 8;  //-8 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
-		lineChart.getWidth();
-		x = (int) (1144*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
+		double lineChartWidth = lineChart.getWidth() - 136; //Magic number 136, because the linechart doesn't know its own width.
+		x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
 		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + $length (of chart)
 		currentTimeInMediaPlayer.setY(40);
 		currentTimeInMediaPlayer.setStroke(Color.RED);

@@ -1927,6 +1927,7 @@ public class EducatorMode extends JFrame {
 		motionVisualizationPanel.setLayout(null);
 		
 		graphTestBtn = new JButton("Graph");
+		graphTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		graphTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				initFX(dataOrgo, arg0);
@@ -1936,6 +1937,7 @@ public class EducatorMode extends JFrame {
 		motionVisualizationPanel.add(graphTestBtn);
 		
 		mediaPlayerBtn = new JButton("Media Player");
+		mediaPlayerBtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		mediaPlayerBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				initFX(dataOrgo, arg0); 
