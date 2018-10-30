@@ -618,11 +618,12 @@ public class GraphController implements Initializable{
 
 
 	private Rectangle drawRect(int x, int y, int FPS) {
-		currentTimeInMediaPlayer = new Rectangle(0, -512, 1, 715);
+		double lineChartHeight = lineChart.getHeight();
+		currentTimeInMediaPlayer = new Rectangle(0, -512, 1, lineChartHeight - lineChartHeight/8);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
-		double xAxisOrigin = chartPlotArea.getLayoutX() - 8;  //-8 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
-		double lineChartWidth = lineChart.getWidth() - 136; //Magic number 136, because the linechart doesn't know its own width.
-		x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
+		double xAxisOrigin = chartPlotArea.getLayoutX() + 4;  //+4 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
+		double lineChartWidth = lineChart.getWidth() - 84; //Magic number 84, because the linechart doesn't know its own width.
+		x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //multiply the width of the chart by the frame number and divide by the number of frames in the first data set (The index of which data set should not matter, if the tests are equal.)
 		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + $length (of chart)
 		currentTimeInMediaPlayer.setY(40);
 		currentTimeInMediaPlayer.setStroke(Color.RED);

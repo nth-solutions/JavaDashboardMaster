@@ -42,8 +42,6 @@ public class MediaPlayerController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         selectFrameRateComboBox.getItems().addAll("30 fps", "60 fps", "120 fps", "240 fps");                                                         // Fills the selectFrameRateComboBox with selectable frame rate values that are used in the frame-by-frame analysis algorithms
-
-
     }
 
     /*** BEGINNING OF PRIMARY VIDEO PLAYER COMPONENTS ***/
