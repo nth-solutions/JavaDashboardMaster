@@ -595,12 +595,12 @@ public class GraphController implements Initializable{
 
 
 	private Rectangle drawRect(int x, int y, int FPS) {
-		currentTimeInMediaPlayer = new Rectangle(0, 0, 1, 260);
+		currentTimeInMediaPlayer = new Rectangle(0, -512, 1, 715);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX() - 8;  //-8 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
 		lineChart.getWidth();
-		x = (int) (522*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
-		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + 522
+		x = (int) (1144*x/(FPS * dataCollector[0].getLengthOfTest())); //The index of which data set should not matter, if the tests are equal.
+		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + $length (of chart)
 		currentTimeInMediaPlayer.setY(40);
 		currentTimeInMediaPlayer.setStroke(Color.RED);
 		currentTimeInMediaPlayer.setStrokeWidth(1);

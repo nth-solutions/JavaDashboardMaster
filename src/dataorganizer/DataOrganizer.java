@@ -513,7 +513,7 @@ public class DataOrganizer {
 
 		if (modifier < 1)
 			modifier = 1;
-		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample) < (modifiedDataSmps.get(0).size() - 1); sample++) {
+		for (int sample = 0; sample < 7000 && ((start * sampleRate) + sample*modifier) < (modifiedDataSmps.get(0).size() - 1); sample++) {
 			dofTime.add(sample, modifiedDataSmps.get(0).get((int) ((start * sampleRate) + (int) (sample * modifier))));
 		}
 
