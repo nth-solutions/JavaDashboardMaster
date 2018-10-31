@@ -2076,7 +2076,8 @@ public class AdvancedMode extends JFrame {
 							if(MPC.hasVideoSelected()) {
 								while(currentFrame != MPC.getCurrentFrame()) {
 									Thread.sleep(10);
-									graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
+									if(graph != null)
+										graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
 									currentFrame = MPC.getCurrentFrame();
 								}
 							}

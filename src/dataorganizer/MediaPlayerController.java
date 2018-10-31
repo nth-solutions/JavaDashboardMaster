@@ -96,6 +96,13 @@ public class MediaPlayerController implements Initializable {
 
         fileCopy = file;                                                                                                                                        // File object necessary for use in the reset handler
 
+        try {
+			readFileFPSFromFFMpeg();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
         if (file != null) {                                                                                                                                     // If the filepath contains a valid file the following code is initiated ->
             filePath = file.toURI().toString();                                                                                                                 // Sets the user's selection to a file path that will be used to select the video file to be displayed
             media = new Media(filePath);                                                                                                                        // Sets the media object to the selected file path
@@ -110,7 +117,17 @@ public class MediaPlayerController implements Initializable {
             mediaPlayer.setOnReady(new Runnable() {                                                                                                             // Sets the maximum value of the slider bar equal to the total duration of the file
                 @Override
                 public void run() {
+                    
+                    resetButton.setDisable(false);                                                                                                                      // Enables buttons following a valid file selection
+                    playPauseButton.setDisable(false);
+                    timeStampSlider.setDisable(false);
+                    rateChangeSlider.setDisable(false);
+                    frameByFrameCheckbox.setDisable(false);
+
+                    mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
+                    playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
                     timeStampSlider.setMax(round(media.getDuration().toMillis()));
+                    totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
                 }
             });
 
@@ -128,18 +145,6 @@ public class MediaPlayerController implements Initializable {
                 }
             });
         }
-        
-        resetButton.setDisable(false);                                                                                                                      // Enables buttons following a valid file selection
-        playPauseButton.setDisable(false);
-        timeStampSlider.setDisable(false);
-        rateChangeSlider.setDisable(false);
-        frameByFrameCheckbox.setDisable(false);
-
-        mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
-        playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
-
-
-        totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
     }
 
     @FXML

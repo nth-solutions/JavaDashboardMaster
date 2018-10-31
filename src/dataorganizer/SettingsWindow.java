@@ -33,6 +33,7 @@ public class SettingsWindow extends JFrame {
 	private JPanel contentPane;
 	private JTextField saveDirectoryTextField;
 	private JCheckBox saveOnReadCheckBox;
+	private JComboBox profileComboBox;
 
 	/**
 	 * Launch the application.
@@ -55,6 +56,7 @@ public class SettingsWindow extends JFrame {
 		settings.loadConfigFile();
 		saveDirectoryTextField.setText(settings.getKeyVal("CSVSaveLocation"));
 		saveOnReadCheckBox.setSelected(Boolean.parseBoolean(settings.getKeyVal("AutoSave")));
+		profileComboBox.setSelectedItem(settings.getKeyVal("DefaultProfile"));
 	}
 	
 	public Settings getSettingsInstance() {
@@ -82,6 +84,7 @@ public class SettingsWindow extends JFrame {
 		settings.loadConfigFile();
 		settings.setProp("CSVSaveLocation", saveDirectoryTextField.getText());
 		settings.setProp("AutoSave", String.valueOf(saveOnReadCheckBox.isSelected()));
+		settings.setProp("DefaultProfile", profileComboBox.getSelectedItem().toString());
 		settings.saveConfig();
 	}
 	
@@ -109,8 +112,6 @@ public class SettingsWindow extends JFrame {
 	 * Create the frame.
 	 */
 	public SettingsWindow() {
-		
-		
 		
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -178,6 +179,15 @@ public class SettingsWindow extends JFrame {
 		saveOnReadCheckBox = new JCheckBox("");
 		saveOnReadCheckBox.setBounds(97, 58, 21, 23);
 		directorySaveLocations.add(saveOnReadCheckBox);
+		
+		JLabel lblNewLabel = new JLabel("Profile:");
+		lblNewLabel.setBounds(12, 102, 75, 14);
+		directorySaveLocations.add(lblNewLabel);
+		
+		profileComboBox = new JComboBox();
+		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Professional", "Educator"}));
+		profileComboBox.setBounds(97, 99, 106, 20);
+		directorySaveLocations.add(profileComboBox);
 		
 		updateUI();
 	}

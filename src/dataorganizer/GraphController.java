@@ -623,7 +623,8 @@ public class GraphController implements Initializable{
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX() + 4;  //+4 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
 		double lineChartWidth = lineChart.getWidth() - 84; //Magic number 84, because the linechart doesn't know its own width.
-		x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //multiply the width of the chart by the frame number and divide by the number of frames in the first data set (The index of which data set should not matter, if the tests are equal.)
+		if(dataCollector[0] != null)
+			x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //multiply the width of the chart by the frame number and divide by the number of frames in the first data set (The index of which data set should not matter, if the tests are equal.)
 		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + $length (of chart)
 		currentTimeInMediaPlayer.setY(40);
 		currentTimeInMediaPlayer.setStroke(Color.RED);

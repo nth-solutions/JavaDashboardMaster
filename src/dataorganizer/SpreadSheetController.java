@@ -24,20 +24,22 @@ public class SpreadSheetController {
 	private OutputStream os; //OutputStream for Commiter
 	
 	private static String csv = "C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\(#2) 960-96 16G-92 2000dps-92 MAG-N 9OCT18.csv";
-	private static String template = "C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\Pendulum Template Rev G DAF.xlsx";
+	private static String template = "C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\Conservation of Momentum Template AS REV C3.xlsx";
 	
 	public static void main(String[] args) throws Exception {
 		List<String> csvData = null;
 		csvData = Files.readAllLines(new File(csv).toPath());
 		
-		SpreadSheetController SSC = new SpreadSheetController(template, 1);
-		SSC.copyDatatoTemplate(2, csvData);
+		SpreadSheetController SSC = new SpreadSheetController(template, 0);
+		SSC.copyDataToTemplate(2, csvData);
 		
-		List<String> offsets = Arrays.asList("1","2","3","4","5","6");
+		List<String> offsets = Arrays.asList("1","2","3");
+		List<Integer> params = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 		
-		SSC.setActiveSheet(0);
-		
+		SSC.setActiveSheet(1);
+
 		SSC.copyMPUOffsetsToTemplate(offsets);
+		SSC.writeModuleParams(params);
 		SSC.save("C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\templateModified.xlsx");
 	}
 	
@@ -71,13 +73,35 @@ public class SpreadSheetController {
 		workbook.commit(new FileOutputStream(outputFile));
 	}
 	
+	public void writeDataSetOneWithParams(List<String> offsets, List<Integer> params, List<String> CSVData) {
+		setActiveSheet(0);
+		copyDataToTemplate(2, CSVData);
+		setActiveSheet(1);
+		copyMPUOffsetsToTemplate(offsets);
+		writeModuleParams(params);
+	}
+	
+	public void writeDataSetTwoWithParams(List<String> offsets, List<Integer> params, List<String> CSVData) {
+		setActiveSheet(2);
+		copyDataToTemplate(2, CSVData);
+		setActiveSheet(3);
+		copyMPUOffsetsToTemplate(offsets);
+		writeModuleParams(params);
+	}
+	
 	public void copyMPUOffsetsToTemplate(List<String> offsets) {
 		for(int i = 0; i < offsets.size(); i++) {
-			this.modifyCell(-1, 0, offsets.get(i));
+			this.modifyCell(i, 0, offsets.get(i));
 		}
 	}
 	
-	private void copyDatatoTemplate(int rowOffset, List<String> CSVData) {					//copy data from datafile to sheet starting at rowOffset to rowCount     
+	public void writeModuleParams(List<Integer> params) {
+		for(int i = 6; i < params.size(); i++) {
+			this.modifyCell(i+1, 0, Integer.toString(params.get(i))); //Add one to i in first parameter of modify cell to write to correct location
+		}
+	}
+	
+	private void copyDataToTemplate(int rowOffset, List<String> CSVData) {					//copy data from datafile to sheet starting at rowOffset to rowCount     
 		int countX=0;																				//Count rows written
 		
 		//Loop rows of sheet
