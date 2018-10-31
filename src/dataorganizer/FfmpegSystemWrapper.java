@@ -6,6 +6,8 @@ public class FfmpegSystemWrapper {
 	
 	//INIT
 	public void FfmpegSystemWrapper() {
+		Arch 	 = System.getProperty("os.arch");
+		OSName   = System.getProperty("os.name");
 	}
 	
 	/*
@@ -33,7 +35,5 @@ public class FfmpegSystemWrapper {
 			return "ffmpeg-win64-static\\bin\\";
 		}
 		return null;
-		
-		
 	}
 }

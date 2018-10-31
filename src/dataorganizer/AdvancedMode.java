@@ -255,6 +255,8 @@ public class AdvancedMode extends JFrame {
 	private JTextField calibrationCSVTextField;
 	private JTextField readBlockLengthTextField;
 	private JTextField stdDevMaxTextField;
+	private JTextField passwordTextField;
+	private JPanel adminPanelContent;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -294,17 +296,20 @@ public class AdvancedMode extends JFrame {
 			System.out.println("Error Setting Look and Feel: " + e);
 		}
 
-		serialHandler = new SerialComm();
 		//Default the gui that will be opened to null (gui selected in following try/catch block
-		AdvancedMode gui = new AdvancedMode();
-
-
-		//System.out.println(System.getProperty("os.name"));
-
-
-		//Loop infinitely so window doesn't close unless user presses close button
-		while(true) {
-		}
+		serialHandler = new SerialComm();
+		Runnable frameRunner = new Runnable() {
+			public void run() {
+				try {
+					AdvancedMode frame = new AdvancedMode();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		Thread frameThread = new Thread(frameRunner);
+		frameThread.run();
 	}
 
 	/**
@@ -2597,137 +2602,133 @@ public class AdvancedMode extends JFrame {
 				mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
 				adminPanel.setLayout(null);
 				
+				JPanel passwordPanel = new JPanel();
+				passwordPanel.setBounds(0, 0, 625, 356);
+				adminPanel.add(passwordPanel);
+				passwordPanel.setLayout(null);
+				
+				passwordTextField = new JTextField();
+				passwordTextField.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						if(passwordTextField.getText().equals("1234")) {
+							adminPanel.remove(passwordPanel);
+							adminPanel.add(adminPanelContent);
+							adminPanel.revalidate();
+							adminPanel.repaint();
+						}
+					}
+				});
+				passwordTextField.setBounds(251, 159, 86, 20);
+				passwordPanel.add(passwordTextField);
+				passwordTextField.setColumns(10);
+				
+				JLabel lblNewLabel_2 = new JLabel("Password:");
+				lblNewLabel_2.setBounds(261, 134, 63, 14);
+				passwordPanel.add(lblNewLabel_2);
+				
+				adminPanelContent = new JPanel();
+				adminPanelContent.setBounds(0, 0, 625, 356);
+				adminPanelContent.setLayout(null);
+				
 				serialNumberTextField = new JTextField();
-				serialNumberTextField.setBounds(109, 19, 132, 23);
-				adminPanel.add(serialNumberTextField);
+				serialNumberTextField.setBounds(99, 0, 132, 23);
+				adminPanelContent.add(serialNumberTextField);
 				serialNumberTextField.setColumns(10);
 				
 				JButton writeSerialNumberBtn = new JButton("Write");
-				writeSerialNumberBtn.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						setSerialNumberHandler();
-					}
-				});
-				writeSerialNumberBtn.setBounds(261, 19, 89, 23);
-				adminPanel.add(writeSerialNumberBtn);
+				writeSerialNumberBtn.setBounds(251, 0, 89, 23);
+				adminPanelContent.add(writeSerialNumberBtn);
 				
 				JLabel lblSerialNumber = new JLabel("Serial Number");
+				lblSerialNumber.setBounds(0, 0, 89, 23);
+				adminPanelContent.add(lblSerialNumber);
 				lblSerialNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblSerialNumber.setBounds(10, 19, 89, 23);
-				adminPanel.add(lblSerialNumber);
 				
 				JLabel lblModelNumber = new JLabel("Model Number");
+				lblModelNumber.setBounds(0, 33, 89, 23);
+				adminPanelContent.add(lblModelNumber);
 				lblModelNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblModelNumber.setBounds(10, 52, 89, 23);
-				adminPanel.add(lblModelNumber);
 				
 				modelNumberTextField = new JTextField();
+				modelNumberTextField.setBounds(99, 33, 132, 23);
+				adminPanelContent.add(modelNumberTextField);
 				modelNumberTextField.setColumns(10);
-				modelNumberTextField.setBounds(109, 52, 132, 23);
-				adminPanel.add(modelNumberTextField);
 				
 				JButton button = new JButton("Write");
-				button.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						setModelNumberHandler();
-					}
-				});
-				button.setBounds(261, 52, 89, 23);
-				adminPanel.add(button);
+				button.setBounds(251, 33, 89, 23);
+				adminPanelContent.add(button);
 				
 				JLabel lblNewLabel = new JLabel("X Axis");
+				lblNewLabel.setBounds(0, 114, 46, 14);
+				adminPanelContent.add(lblNewLabel);
 				lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblNewLabel.setBounds(10, 133, 46, 14);
-				adminPanel.add(lblNewLabel);
 				
 				xAxisTextField = new JTextField();
-				xAxisTextField.setBounds(66, 132, 86, 20);
-				adminPanel.add(xAxisTextField);
+				xAxisTextField.setBounds(56, 113, 86, 20);
+				adminPanelContent.add(xAxisTextField);
 				xAxisTextField.setColumns(10);
 				
 				yAxisTextField = new JTextField();
+				yAxisTextField.setBounds(56, 149, 86, 20);
+				adminPanelContent.add(yAxisTextField);
 				yAxisTextField.setColumns(10);
-				yAxisTextField.setBounds(66, 168, 86, 20);
-				adminPanel.add(yAxisTextField);
-				
-				JLabel lblYAxis = new JLabel("Y Axis");
-				lblYAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblYAxis.setBounds(10, 169, 46, 14);
-				adminPanel.add(lblYAxis);
 				
 				zAxisTextField = new JTextField();
+				zAxisTextField.setBounds(56, 180, 86, 20);
+				adminPanelContent.add(zAxisTextField);
 				zAxisTextField.setColumns(10);
-				zAxisTextField.setBounds(66, 199, 86, 20);
-				adminPanel.add(zAxisTextField);
 				
 				JLabel lblZAxis = new JLabel("Z Axis");
+				lblZAxis.setBounds(0, 181, 46, 14);
+				adminPanelContent.add(lblZAxis);
 				lblZAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblZAxis.setBounds(10, 200, 46, 14);
-				adminPanel.add(lblZAxis);
 				
 				JButton btnNewButton = new JButton("Read Offsets");
-				btnNewButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						try {
-							int[] offsets = serialHandler.getAccelMPUOffsets();
-							xAxisTextField.setText(Integer.toString(offsets[0]));
-							yAxisTextField.setText(Integer.toString(offsets[1]));
-							zAxisTextField.setText(Integer.toString(offsets[2]));
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (PortInUseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedCommOperationException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-				btnNewButton.setBounds(187, 147, 104, 23);
-				adminPanel.add(btnNewButton);
+				btnNewButton.setBounds(177, 128, 104, 23);
+				adminPanelContent.add(btnNewButton);
 				
 				JButton btnWriteOffsets = new JButton("Write Offsets");
-				btnWriteOffsets.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						int[] offsets = {Integer.parseInt(xAxisTextField.getText()), Integer.parseInt(yAxisTextField.getText()), Integer.parseInt(zAxisTextField.getText())};
-						try {
-							serialHandler.setAccelMPUOffsets(offsets);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (PortInUseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedCommOperationException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-				btnWriteOffsets.setBounds(187, 181, 104, 23);
-				adminPanel.add(btnWriteOffsets);
+				btnWriteOffsets.setBounds(177, 162, 104, 23);
+				adminPanelContent.add(btnWriteOffsets);
 				
 				calibrationCSVTextField = new JTextField();
+				calibrationCSVTextField.setBounds(106, 223, 175, 20);
+				adminPanelContent.add(calibrationCSVTextField);
 				calibrationCSVTextField.setText("C:\\users\\Mason\\Documents\\(#1) 960-96 16G-92 2000dps-92 MAG-N 23OCT18.csv");
-				calibrationCSVTextField.setBounds(116, 242, 175, 20);
-				adminPanel.add(calibrationCSVTextField);
 				calibrationCSVTextField.setColumns(10);
 				
 				readBlockLengthTextField = new JTextField();
+				readBlockLengthTextField.setBounds(106, 254, 175, 20);
+				adminPanelContent.add(readBlockLengthTextField);
 				readBlockLengthTextField.setText("500");
 				readBlockLengthTextField.setColumns(10);
-				readBlockLengthTextField.setBounds(116, 273, 175, 20);
-				adminPanel.add(readBlockLengthTextField);
 				
 				stdDevMaxTextField = new JTextField();
+				stdDevMaxTextField.setBounds(106, 285, 175, 20);
+				adminPanelContent.add(stdDevMaxTextField);
 				stdDevMaxTextField.setText("15");
 				stdDevMaxTextField.setColumns(10);
-				stdDevMaxTextField.setBounds(116, 304, 175, 20);
-				adminPanel.add(stdDevMaxTextField);
 				
 				JButton getCalibrationOffsets = new JButton("Calibrate");
+				getCalibrationOffsets.setBounds(318, 253, 89, 23);
+				adminPanelContent.add(getCalibrationOffsets);
+				
+				JLabel lblNewLabel_1 = new JLabel("csv: ");
+				lblNewLabel_1.setBounds(0, 226, 89, 14);
+				adminPanelContent.add(lblNewLabel_1);
+				
+				JLabel lblBlockLength = new JLabel("block Length: ");
+				lblBlockLength.setBounds(0, 257, 89, 14);
+				adminPanelContent.add(lblBlockLength);
+				
+				JLabel lblStddevMax = new JLabel("stdDev Max: ");
+				lblStddevMax.setBounds(0, 288, 89, 14);
+				adminPanelContent.add(lblStddevMax);
+				
+				JLabel lblYAxis = new JLabel("Y Axis");
+				lblYAxis.setBounds(0, 150, 46, 14);
+				adminPanelContent.add(lblYAxis);
+				lblYAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				getCalibrationOffsets.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						try {
@@ -2747,20 +2748,52 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				getCalibrationOffsets.setBounds(328, 272, 89, 23);
-				adminPanel.add(getCalibrationOffsets);
-				
-				JLabel lblNewLabel_1 = new JLabel("csv: ");
-				lblNewLabel_1.setBounds(10, 245, 89, 14);
-				adminPanel.add(lblNewLabel_1);
-				
-				JLabel lblBlockLength = new JLabel("block Length: ");
-				lblBlockLength.setBounds(10, 276, 89, 14);
-				adminPanel.add(lblBlockLength);
-				
-				JLabel lblStddevMax = new JLabel("stdDev Max: ");
-				lblStddevMax.setBounds(10, 307, 89, 14);
-				adminPanel.add(lblStddevMax);
+				btnWriteOffsets.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						int[] offsets = {Integer.parseInt(xAxisTextField.getText()), Integer.parseInt(yAxisTextField.getText()), Integer.parseInt(zAxisTextField.getText())};
+						try {
+							serialHandler.setAccelMPUOffsets(offsets);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (PortInUseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedCommOperationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+				btnNewButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						try {
+							int[] offsets = serialHandler.getAccelMPUOffsets();
+							xAxisTextField.setText(Integer.toString(offsets[0]));
+							yAxisTextField.setText(Integer.toString(offsets[1]));
+							zAxisTextField.setText(Integer.toString(offsets[2]));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (PortInUseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (UnsupportedCommOperationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+				button.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						setModelNumberHandler();
+					}
+				});
+				writeSerialNumberBtn.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						setSerialNumberHandler();
+					}
+				});
 		
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);
@@ -2824,7 +2857,7 @@ public class AdvancedMode extends JFrame {
 		contentPanel.add(copyrightPanel);
 		copyrightPanel.setLayout(new BorderLayout(10, 0));
 
-		JLabel copyrightLabel = new JLabel("Copyright nth Solutions LLC. 2018");
+		JLabel copyrightLabel = new JLabel("Copyright BioForce Analytics, LLC. 2018");
 		contentPanel.add(copyrightLabel);
 
 		settingsWindowBtn = new JButton("Settings");

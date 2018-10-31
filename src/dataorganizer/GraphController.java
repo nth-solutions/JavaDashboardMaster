@@ -631,18 +631,17 @@ public class GraphController implements Initializable{
 		return currentTimeInMediaPlayer;
 	}
 
-	public void updateCirclePos(int frameInMediaPlayer, int FPS) {
+	public void updateCirclePos(int frameInMediaPlayer, double FPS) {
 		int lastFrame = -2;
 		if(frameInMediaPlayer != lastFrame){
 			Platform.runLater(new Runnable() {
 				@Override public void run() {
 					chartContainer.getChildren().remove(currentTimeInMediaPlayer);
-					chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, FPS));
+					chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, (int)FPS));
 				}
 			});
 			lastFrame = frameInMediaPlayer;
 		}
-		//lineChart.getChildrenUnmodifiable().add(drawCircle(0, frameInMediaPlayer));
 	}
 
 

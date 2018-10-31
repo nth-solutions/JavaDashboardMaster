@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Tooltip?>
@@ -23,14 +22,6 @@
          <children>
             <HBox alignment="CENTER" prefHeight="75.0">
                <children>
-                  <ComboBox fx:id="selectFrameRateComboBox" disable="true" onAction="#handleFrameRateSelection" prefWidth="175.0" promptText="Frame Rate">
-                     <tooltip>
-                        <Tooltip text="Select the frame rate the video was recorded at." />
-                     </tooltip>
-                     <HBox.margin>
-                        <Insets right="10.0" />
-                     </HBox.margin>
-                  </ComboBox>
                   <Button fx:id="resetButton" disable="true" layoutX="91.0" layoutY="10.0" mnemonicParsing="false" onAction="#handleResetVideo" prefHeight="50.0" prefWidth="100.0" text="Reset">
                      <HBox.margin>
                         <Insets right="10.0" />
