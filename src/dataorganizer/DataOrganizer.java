@@ -21,7 +21,7 @@ public class DataOrganizer {
 	private List<List<Double>> normalizedDataSamples;
 	private List<Integer> testParameters;
 	private List<Double> dofTime;
-	public int[] mpuOffsets;
+	public int[][] MPUMinMax; //first dimension is for axis(1), second is for min(0)/max(1) 
 	private String nameOfTest;
 	private int sampleRate;
 	private int magSampleRate;
@@ -78,6 +78,10 @@ public class DataOrganizer {
 	}
 	public void setSerialID(String ID) {
 		this.moduleSerialID = ID;
+	}
+
+	public List<Integer> getTestParameters(){
+		return testParameters;
 	}
 
 
@@ -529,6 +533,10 @@ public class DataOrganizer {
 	}
 
 
+	public List<List<Double>> getRawDataSamples() {
+		return dataSamples;
+	}
+
 	/*
 	 * Creates a series for linechart, using 
 	 */
@@ -578,11 +586,38 @@ public class DataOrganizer {
 		return dofData;
 	}
 
+	public void setMPUMinMax(int[][] mpuMinMax) {
+		MPUMinMax = mpuMinMax;
+	}
+	
+	
+	public List<String> getMPUOffsetString(){
+		List<String> mpuOffsetString = new ArrayList<String>();
+		for(int axi = 0; axi < MPUMinMax.length; axi++) {
+			mpuOffsetString.add(String.valueOf((MPUMinMax[axi][0]+MPUMinMax[axi][1]/2)));
+		}
+		return mpuOffsetString;
+	}
+	
+	public int[] getMPUOffsets() {
+		int[] mpuOffsets = new int[9];
+		for(int axi = 0; axi < MPUMinMax.length; axi++) {
+			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
+		}
+		return mpuOffsets;
+	}
+	
+	
+	/*
+	 *  Sets internal private variable MpuMinMax. First array is axis, and second is min[0]/max[1]
+	 *  @return the offsets for accel, gyro, and mag. (The offsets follow the same ordering convention we use with dataSamples, without the time axis (accel,gyro,mag)(x,y,z))
+	 */
 	public int[] getCalibrationOffsets(String csvFile, int readBlockLength, int stdDevMax){
 		ArrayList<ArrayList<Integer>> inRangeMeans = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Integer>> offsetIndexes = new ArrayList<ArrayList<Integer>>();
 		ArrayList<ArrayList<Integer>> means = new ArrayList<ArrayList<Integer>>(); //axis.index*readBlockLength
 		ArrayList<ArrayList<Integer>> stdDevBlock = new ArrayList<ArrayList<Integer>>();
+
 
 		for(int i = 0; i < dataSamples.get(0).size()%readBlockLength; i++) {
 			means.add(new ArrayList<Integer>());
@@ -618,7 +653,7 @@ public class DataOrganizer {
 				stdDevBlock.get(axi).add(blockAvg);
 			}
 		}
-		
+
 		inRangeMeans.add(new ArrayList<Integer>());
 		offsetIndexes.add(new ArrayList<Integer>());
 		for(int axi = 1; axi < 4; axi++) {
@@ -656,19 +691,77 @@ public class DataOrganizer {
 				}
 			}
 		}
-		
 
-		int[] axisOffsets = new int[3];
-		System.out.println(inRangeMeans);
+
+
+		int[] axisOffsets = new int[9];
+
+		int MpuMinMax[][] = new int[9][2];
+
+		/*for(int axi = 4; axi < 7; axi++) { //Iterate for Gyro min/max
+			int avg = 0;
+
+			System.out.println(inRangeMeans.get(axi-3));
+			System.out.println(Collections.min(inRangeMeans.get(axi-3)));
+			System.out.println(means.get(axi-3));
+			System.out.println(means.get(axi-3).indexOf(Collections.min(inRangeMeans.get(axi-3))));
+			
+			int start = readBlockLength*inRangeMeans.get(axi-3).indexOf(Collections.min(inRangeMeans.get(axi-3))); //Start in the data where we derive accel mpu offsets
+			int end = start+readBlockLength; //End where we would stop in the data where we derive accel mpu offsets
+			for(int offsetSampleCounter = start; offsetSampleCounter < end; offsetSampleCounter++) {
+				avg += dataSamples.get(axi).get(offsetSampleCounter);
+			}
+			MpuMinMax[axi][0] = avg/readBlockLength;
+
+			start = readBlockLength*inRangeMeans.get(axi-4).indexOf(Collections.max(inRangeMeans.get(axi-4))); //Start in the data where we derive accel mpu offsets
+			for(int offsetSampleCounter = start; offsetSampleCounter < end; offsetSampleCounter++) {
+				avg += dataSamples.get(axi).get(offsetSampleCounter);
+			}
+			MpuMinMax[axi][1] = avg/readBlockLength;
+
+		}*/
+
+
+		/*
+		for(int axi = 7; axi < 10; axi++) { //Iterate for mag min/max
+			int avg = 0;
+
+			for(int offsetIndex = 0; offsetIndex < offsetIndexes.get(axi-4).size(); offsetIndex++) {
+				avg = 0;
+				int start = readBlockLength*inRangeMeans.get(axi-7).indexOf(Collections.min(inRangeMeans.get(axi-7))); //Start in the data where we derive accel mpu offsets
+				int end = offsetIndexes.get(axi-4).get(offsetIndex)*readBlockLength+readBlockLength; //End where we would stop in the data where we derive accel mpu offsets
+				for(int offsetSampleCounter = start; offsetSampleCounter < end; offsetSampleCounter++) {
+					avg += dataSamples.get(axi).get(offsetSampleCounter);
+				}
+				MpuMinMax[axi][0] = avg/readBlockLength;
+
+				start = readBlockLength*inRangeMeans.get(axi-7).indexOf(Collections.max(inRangeMeans.get(axi-7))); //Start in the data where we derive accel mpu offsets
+				for(int offsetSampleCounter = start; offsetSampleCounter < end; offsetSampleCounter++) {
+					avg += dataSamples.get(axi).get(offsetSampleCounter);
+				}
+				MpuMinMax[axi][1] = avg/readBlockLength;
+
+			}
+		}*/
+
+
 		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 
-			int min = Collections.min(inRangeMeans.get(axi));
-			int max = Collections.max(inRangeMeans.get(axi));
-			int offset = ((max+min)/2);
+			MpuMinMax[axi][0] = Collections.min(inRangeMeans.get(axi));
+			MpuMinMax[axi][1] = Collections.max(inRangeMeans.get(axi));
+			int offset = ((MpuMinMax[axi][0]+MpuMinMax[axi][1])/2);
 			if(offset > 1024) return null;
 			axisOffsets[axi-1] = offset;
 		}
 
-		mpuOffsets = axisOffsets;
+
+		axisOffsets[4] = MpuMinMax[4][0]+MpuMinMax[4][1]/2;
+		axisOffsets[5] = MpuMinMax[5][0]+MpuMinMax[5][1]/2;
+		axisOffsets[6] = MpuMinMax[6][0]+MpuMinMax[6][1]/2;
+		axisOffsets[7] = MpuMinMax[7][0]+MpuMinMax[7][1]/2;
+		axisOffsets[8] = MpuMinMax[8][0]+MpuMinMax[8][1]/2;
+
+
+		MPUMinMax = MpuMinMax;
 		return axisOffsets;
 	}
 

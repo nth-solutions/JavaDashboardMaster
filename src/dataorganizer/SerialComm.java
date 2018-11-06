@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
@@ -154,7 +155,6 @@ public class SerialComm {
 				inputStream.read();
 			}
 			return true;
-
 		}
 		//Method failed so return false
 		return false;
@@ -609,14 +609,16 @@ public class SerialComm {
 		return true;
 	}
 
-	public boolean setAccelMPUOffsets(int[] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
+	public boolean setMPUOffsets(int[] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		if(offsets == null) return false;
 		if(!selectMode('K')) {
 			return false;
 		}
 		
 		int tempRx; 
-		for(int i = 0; i < offsets.length; i++) {
+
+		long echoStart = System.currentTimeMillis();
+		for(int i = 0; i < offsets.length && System.currentTimeMillis() - echoStart < 500; i++) {
 			outputStream.write(new String("1234").getBytes());
 			outputStream.write(offsets[i]/256);
 			outputStream.write(offsets[i]%256);
@@ -633,29 +635,69 @@ public class SerialComm {
 			}
 		}
 		
+		
+		inputStream.read();
+		if(inputStream.read() != (int)'A') {
+			return false;
+		}
+		
 		return true;
 	}
 	
-	
-	public int[] getAccelMPUOffsets() throws IOException, PortInUseException, UnsupportedCommOperationException {
-		int[] offsets = new int[3];
-
-		clearInputStream();
-		
-		if(!selectMode('Y')) {
-			return offsets;
+	public boolean setMPUMinMax(int[][] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(offsets == null) return false;
+		if(!selectMode('K')) {
+			return false;
 		}
 		
-		offsets[0]  = inputStream.read()*256;
-		offsets[0] += inputStream.read();
-		offsets[1]  = inputStream.read()*256;
-		offsets[1] += inputStream.read();
-		offsets[2]  = inputStream.read()*256;
-		offsets[2] += inputStream.read();
+		int tempRx; 
+
+		long echoStart = System.currentTimeMillis();
+		for(int axi = 1; axi < offsets.length; axi++) {
+			for(int i = 0; i < offsets[axi].length && System.currentTimeMillis() - echoStart < 500; i++) {
+				outputStream.write(new String("1234").getBytes());
+				if(offsets[axi][i] < 0) offsets[axi][i] += 65535;
+				outputStream.write(offsets[axi][i]/256);
+				outputStream.write(offsets[axi][i]%256);
+				tempRx = inputStream.read()*256 + inputStream.read();
+				if(tempRx == offsets[axi][i]) {
+					outputStream.write(new String("CA").getBytes());
+				}
+				else {
+					System.out.println(tempRx +": does not match " + offsets[axi][i]);
+				}
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 		
-		return offsets;
+		
+		inputStream.read();
+		if(inputStream.read() != (int)'A') {
+			return false;
+		}
+		
+		return true;
 	}
 	
+	public int[][] getMPUMinMax() throws IOException, PortInUseException, UnsupportedCommOperationException {
+		if(!selectMode('Y')) {
+			return null;
+		}
+		int[][] mpuMinMax = new int[9][2];
+		
+		for(int axi = 0; axi < 8; axi++) {
+			mpuMinMax[axi][0] = inputStream.read()*256 + inputStream.read();
+			if(mpuMinMax[axi][0] > 32768) mpuMinMax[axi][0] -= 65535;
+			mpuMinMax[axi][1] = inputStream.read()*256 + inputStream.read();
+			if(mpuMinMax[axi][1] > 32768) mpuMinMax[axi][1] -= 65535;
+		}
+		return mpuMinMax;
+	}
 	
 	/**
 	 * Handles the handshakes that tell the module to enter a mode specified by the passed in modeDelimiter character. ex) 'E' for export data (must be identified in the firmware as well).

@@ -21,6 +21,8 @@ import java.awt.CardLayout;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Component;
@@ -69,6 +71,11 @@ import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 
 /**
  * AdvancedMode.java
@@ -151,6 +158,8 @@ public class AdvancedMode extends JFrame {
 	private JComboBox gyroSensitivityCombobox;
 	private JComboBox accelFilterCombobox;
 	private JComboBox gyroFilterCombobox;
+	
+	private JSpinner testSelectionSpinner;
 
 	//Buttons
 	private JButton refreshPortButton;
@@ -187,8 +196,8 @@ public class AdvancedMode extends JFrame {
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
-	public static final int CURRENT_FIRMWARE_ID = 25;
-	public static final String CURRENT_FIRMWARE_STRING = "25";
+	public static final int CURRENT_FIRMWARE_ID = 26;
+	public static final String CURRENT_FIRMWARE_STRING = "26";
 
 	private int expectedTestNum;
 	//Test Parameters (All must be of type "int")
@@ -236,6 +245,7 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxLabelCSV;
 	private JCheckBox checkBoxSignedData;
 
+	private List<DataOrganizer> dataOrgoList;
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JPanel testRecordationPanel;
 	private ArrayList<JPanel> testNumPaneArray;
@@ -249,14 +259,26 @@ public class AdvancedMode extends JFrame {
 	private String moduleSerialID;
 	private JTextField serialNumberTextField;
 	private JTextField modelNumberTextField;
-	private JTextField xAxisTextField;
-	private JTextField yAxisTextField;
-	private JTextField zAxisTextField;
+	private JTextField xAxisAccelTextField;
+	private JTextField yAxisAccelTextField;
+	private JTextField zAxisAccelTextField;
 	private JTextField calibrationCSVTextField;
 	private JTextField readBlockLengthTextField;
 	private JTextField stdDevMaxTextField;
 	private JTextField passwordTextField;
 	private JPanel adminPanelContent;
+	private JTextField xAxisGyroTextField;
+	private JTextField yAxisGyroTextField;
+	private JTextField zAxisGyroTextField;
+	private JTextField xAxisMagTextField;
+	private JTextField yAxisMagTextField;
+	private JTextField zAxisMagTextField;
+	private JPanel templatePanel;
+	private JComboBox templateComboBox;
+	private JLabel lblSelectTheTemplate;
+	private JLabel testSelectorLabel;
+	private JLabel lblNewLabel_4;
+	private JTextField newTemplateNameTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -738,7 +760,6 @@ public class AdvancedMode extends JFrame {
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
-				exitTestModeButton.setEnabled(false);
 				disconnectButton.setEnabled(true);
 				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
@@ -1355,8 +1376,6 @@ public class AdvancedMode extends JFrame {
 
 				try {
 
-
-
 					generalStatusLabel.setText("Reading Data from Module...");
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
@@ -1368,6 +1387,7 @@ public class AdvancedMode extends JFrame {
 					if (testParameters != null) {
 
 						expectedTestNum = testParameters.get(0);
+						testSelectorLabel.setText("There are "+ expectedTestNum +" stored tests, enter the test number you want to use a template with: ");
 						delayAfterStart = testParameters.get(2);
 
 						//Assign local variables to their newly received values from the module
@@ -1434,7 +1454,7 @@ public class AdvancedMode extends JFrame {
 
 							//Executes if the data was received properly (null = fail)
 							if(testData != null) {
-								List<DataOrganizer> dataOrgoList = new ArrayList<DataOrganizer>(testData.size()-1);
+								dataOrgoList = new ArrayList<DataOrganizer>(testData.size()-1);
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
 									int [] finalData = new int[testData.get(testIndex).size()];
@@ -1960,6 +1980,37 @@ public class AdvancedMode extends JFrame {
 
 	}
 
+	public boolean writeTemplateHandler() {
+		if(serialHandler == null) return false;
+		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		int dataOrgoListIndex = (Integer)(testSelectionSpinner.getValue())-1;
+		List<String> offsets = null;
+		try {
+			dataOrgoList.get(dataOrgoListIndex).setMPUMinMax(serialHandler.getMPUMinMax());
+		} catch (IOException | PortInUseException | UnsupportedCommOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		offsets = dataOrgoList.get(dataOrgoListIndex).getMPUOffsetString();
+		List<Integer> params = dataOrgoList.get(dataOrgoListIndex).getTestParameters();
+		List<List<Double>> CSVData = dataOrgoList.get(dataOrgoListIndex).getRawDataSamples();
+		int[][] MpuMinMax = dataOrgoList.get(dataOrgoListIndex).MPUMinMax;
+		SSC.setActiveSheet(0);
+		SSC.copyDataToTemplate(2, CSVData);
+		SSC.setActiveSheet(1);
+		SSC.writeMPUMaxMinToTemplate(MpuMinMax);
+		SSC.writeModuleParams(params);
+		try {
+			SSC.save(newTemplateNameTextField.getText());
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	public void setSerialNumberHandler() {
 		try {
 			if(serialHandler.setSerialNumber(Integer.parseInt(serialNumberTextField.getText()))) {
@@ -2099,9 +2150,9 @@ public class AdvancedMode extends JFrame {
 		dataOrgo.createDataSamplesFromCSV(calibrationCSV);
 		dataOrgo.readAndSetTestParameters(calibrationCSV+'p');
 		dataOrgo.getSignedData();
-		dataOrgo.getCalibrationOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
-		
-		serialHandler.setAccelMPUOffsets(dataOrgo.mpuOffsets);
+		int[] offsets = dataOrgo.getCalibrationOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
+	
+		serialHandler.setMPUMinMax(dataOrgo.MPUMinMax);
 	}
 	
 	public int getAdvancedModeCurrentTab() {
@@ -2214,7 +2265,7 @@ public class AdvancedMode extends JFrame {
 
 		JPanel readPanel = new JPanel();
 		readPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		mainTabbedPanel.addTab("Read Mode", null, readPanel, null);
+		mainTabbedPanel.addTab("Read Tests", null, readPanel, null);
 		readPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
 		fileNamePanel = new JPanel();
@@ -2332,7 +2383,7 @@ public class AdvancedMode extends JFrame {
 		JPanel configurationPanel = new JPanel();
 		configurationPanel.setPreferredSize(new Dimension(500, 1000));
 		configurationPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		mainTabbedPanel.addTab("Configurations", null, configurationPanel, null);
+		mainTabbedPanel.addTab("Configure Test Parameters", null, configurationPanel, null);
 		configurationPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
 		timedTestCheckbox = new JCheckBox("Timed Test");
@@ -2445,6 +2496,82 @@ public class AdvancedMode extends JFrame {
 		configurationPanel.add(getCurrentConfigurationsButton);
 		writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		configurationPanel.add(writeConfigsButton);
+		
+		templatePanel = new JPanel();
+		mainTabbedPanel.addTab("Spreadsheet Output", null, templatePanel, null);
+		
+		templateComboBox = new JComboBox();
+		templateComboBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+			}
+		});
+		templateComboBox.setBounds(231, 73, 370, 20);
+		templateComboBox.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				File[] listOfFiles = new File(System.getProperty("user.dir")+"\\EducatorTemplates").listFiles();
+				for(File file : listOfFiles) {
+					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
+						templateComboBox.addItem(file.getName());	
+					}
+				}
+			}
+		});
+		templatePanel.setLayout(null);
+		
+		lblSelectTheTemplate = new JLabel("Select the template to use:");
+		lblSelectTheTemplate.setBounds(10, 60, 190, 43);
+		lblSelectTheTemplate.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		templatePanel.add(lblSelectTheTemplate);
+		templatePanel.add(templateComboBox);
+		
+		testSelectorLabel = new JLabel("There are 0 stored tests, please read tests in the \"Read Tests\" tab.");
+		testSelectorLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		testSelectorLabel.setBounds(10, 29, 534, 20);
+		templatePanel.add(testSelectorLabel);
+		
+		JButton writeToTemplateBtn = new JButton("Write to template");
+		writeToTemplateBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				generalStatusLabel.setText("Writing to template. Please wait..");
+				
+				JFrame parent = new JFrame();
+				JOptionPane.showMessageDialog(parent, "Calculation, Creating File, Please Wait...", "File Loading", 0);
+				
+				if(writeTemplateHandler()) {
+					
+					generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
+					//Create Robot
+					new RobotType().openAndRefreshTemplate((System.getProperty("user.dir")+"\\"+newTemplateNameTextField.getText()));
+				}
+				else {
+					generalStatusLabel.setText("Failed to write template");
+				}
+			}
+		});
+		writeToTemplateBtn.setBounds(10, 156, 591, 23);
+		templatePanel.add(writeToTemplateBtn);
+		
+		lblNewLabel_4 = new JLabel("Name the template: ");
+		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_4.setBounds(10, 114, 176, 20);
+		templatePanel.add(lblNewLabel_4);
+		
+		newTemplateNameTextField = new JTextField();
+		newTemplateNameTextField.setBounds(231, 116, 370, 20);
+		templatePanel.add(newTemplateNameTextField);
+		newTemplateNameTextField.setColumns(10);
+		
+		testSelectionSpinner = new JSpinner();
+		testSelectionSpinner.setModel(new SpinnerNumberModel(1, 1, 127, 1));
+		testSelectionSpinner.setBounds(554, 31, 39, 20);
+		templatePanel.add(testSelectionSpinner);
+		
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setBounds(10, 190, 605, 2);
+		templatePanel.add(separator_1);
 
 
 		erasePanel = new JPanel();
@@ -2485,7 +2612,7 @@ public class AdvancedMode extends JFrame {
 		erasePanel.add(startTestBtn);
 
 		JPanel calibrationPanel = new JPanel();
-		mainTabbedPanel.addTab("Calibration", null, calibrationPanel, null);
+		mainTabbedPanel.addTab("SINC\u2122 Calibration", null, calibrationPanel, null);
 		calibrationPanel.setLayout(new GridLayout(0, 1, 0, 0));
 
 		configForCalButton = new JButton("Configure Module for Calibration");
@@ -2558,7 +2685,7 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(applyOffsetButton);
 
 		remoteTab = new JPanel();
-		mainTabbedPanel.addTab("Remote Configuration", null, remoteTab, null);
+		mainTabbedPanel.addTab("Remote Control", null, remoteTab, null);
 		remoteTab.setLayout(new GridLayout(0, 1, 0, 0));
 
 		RemoteButtonPanel = new JPanel();
@@ -2589,7 +2716,6 @@ public class AdvancedMode extends JFrame {
 		RemoteButtonPanel.add(testRemotesButton);
 
 		exitTestModeButton = new JButton("Exit Test Mode");
-		exitTestModeButton.setEnabled(false);
 		exitTestModeButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		exitTestModeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2598,38 +2724,11 @@ public class AdvancedMode extends JFrame {
 		});
 
 		RemoteButtonPanel.add(exitTestModeButton);
-		
-				adminPanel = new JPanel();
-				mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
-				adminPanel.setLayout(null);
-				
-				JPanel passwordPanel = new JPanel();
-				passwordPanel.setBounds(0, 0, 625, 356);
-				adminPanel.add(passwordPanel);
-				passwordPanel.setLayout(null);
-				
-				passwordTextField = new JTextField();
-				passwordTextField.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						if(passwordTextField.getText().equals("1234")) {
-							adminPanel.remove(passwordPanel);
-							adminPanel.add(adminPanelContent);
-							adminPanel.revalidate();
-							adminPanel.repaint();
-						}
-					}
-				});
-				passwordTextField.setBounds(251, 159, 86, 20);
-				passwordPanel.add(passwordTextField);
-				passwordTextField.setColumns(10);
-				
-				JLabel lblNewLabel_2 = new JLabel("Password:");
-				lblNewLabel_2.setBounds(261, 134, 63, 14);
-				passwordPanel.add(lblNewLabel_2);
 				
 				adminPanelContent = new JPanel();
 				adminPanelContent.setBounds(0, 0, 625, 356);
 				adminPanelContent.setLayout(null);
+				
 				
 				serialNumberTextField = new JTextField();
 				serialNumberTextField.setBounds(99, 0, 132, 23);
@@ -2664,20 +2763,20 @@ public class AdvancedMode extends JFrame {
 				adminPanelContent.add(lblNewLabel);
 				lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				
-				xAxisTextField = new JTextField();
-				xAxisTextField.setBounds(56, 113, 86, 20);
-				adminPanelContent.add(xAxisTextField);
-				xAxisTextField.setColumns(10);
+				xAxisAccelTextField = new JTextField();
+				xAxisAccelTextField.setBounds(56, 113, 86, 20);
+				adminPanelContent.add(xAxisAccelTextField);
+				xAxisAccelTextField.setColumns(10);
 				
-				yAxisTextField = new JTextField();
-				yAxisTextField.setBounds(56, 149, 86, 20);
-				adminPanelContent.add(yAxisTextField);
-				yAxisTextField.setColumns(10);
+				yAxisAccelTextField = new JTextField();
+				yAxisAccelTextField.setBounds(56, 149, 86, 20);
+				adminPanelContent.add(yAxisAccelTextField);
+				yAxisAccelTextField.setColumns(10);
 				
-				zAxisTextField = new JTextField();
-				zAxisTextField.setBounds(56, 180, 86, 20);
-				adminPanelContent.add(zAxisTextField);
-				zAxisTextField.setColumns(10);
+				zAxisAccelTextField = new JTextField();
+				zAxisAccelTextField.setBounds(56, 180, 86, 20);
+				adminPanelContent.add(zAxisAccelTextField);
+				zAxisAccelTextField.setColumns(10);
 				
 				JLabel lblZAxis = new JLabel("Z Axis");
 				lblZAxis.setBounds(0, 181, 46, 14);
@@ -2685,11 +2784,11 @@ public class AdvancedMode extends JFrame {
 				lblZAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				
 				JButton btnNewButton = new JButton("Read Offsets");
-				btnNewButton.setBounds(177, 128, 104, 23);
+				btnNewButton.setBounds(417, 128, 104, 23);
 				adminPanelContent.add(btnNewButton);
 				
 				JButton btnWriteOffsets = new JButton("Write Offsets");
-				btnWriteOffsets.setBounds(177, 162, 104, 23);
+				btnWriteOffsets.setBounds(417, 162, 104, 23);
 				adminPanelContent.add(btnWriteOffsets);
 				
 				calibrationCSVTextField = new JTextField();
@@ -2711,18 +2810,18 @@ public class AdvancedMode extends JFrame {
 				stdDevMaxTextField.setColumns(10);
 				
 				JButton getCalibrationOffsets = new JButton("Calibrate");
-				getCalibrationOffsets.setBounds(318, 253, 89, 23);
+				getCalibrationOffsets.setBounds(294, 253, 89, 23);
 				adminPanelContent.add(getCalibrationOffsets);
 				
-				JLabel lblNewLabel_1 = new JLabel("csv: ");
+				JLabel lblNewLabel_1 = new JLabel("CSV Location: ");
 				lblNewLabel_1.setBounds(0, 226, 89, 14);
 				adminPanelContent.add(lblNewLabel_1);
 				
-				JLabel lblBlockLength = new JLabel("block Length: ");
+				JLabel lblBlockLength = new JLabel("Block Length: ");
 				lblBlockLength.setBounds(0, 257, 89, 14);
 				adminPanelContent.add(lblBlockLength);
 				
-				JLabel lblStddevMax = new JLabel("stdDev Max: ");
+				JLabel lblStddevMax = new JLabel("STDDev Max: ");
 				lblStddevMax.setBounds(0, 288, 89, 14);
 				adminPanelContent.add(lblStddevMax);
 				
@@ -2730,6 +2829,51 @@ public class AdvancedMode extends JFrame {
 				lblYAxis.setBounds(0, 150, 46, 14);
 				adminPanelContent.add(lblYAxis);
 				lblYAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				
+				xAxisGyroTextField = new JTextField();
+				xAxisGyroTextField.setColumns(10);
+				xAxisGyroTextField.setBounds(174, 114, 86, 20);
+				adminPanelContent.add(xAxisGyroTextField);
+				
+				yAxisGyroTextField = new JTextField();
+				yAxisGyroTextField.setColumns(10);
+				yAxisGyroTextField.setBounds(174, 150, 86, 20);
+				adminPanelContent.add(yAxisGyroTextField);
+				
+				zAxisGyroTextField = new JTextField();
+				zAxisGyroTextField.setColumns(10);
+				zAxisGyroTextField.setBounds(174, 181, 86, 20);
+				adminPanelContent.add(zAxisGyroTextField);
+				
+				xAxisMagTextField = new JTextField();
+				xAxisMagTextField.setColumns(10);
+				xAxisMagTextField.setBounds(297, 113, 86, 20);
+				adminPanelContent.add(xAxisMagTextField);
+				
+				yAxisMagTextField = new JTextField();
+				yAxisMagTextField.setColumns(10);
+				yAxisMagTextField.setBounds(297, 149, 86, 20);
+				adminPanelContent.add(yAxisMagTextField);
+				
+				zAxisMagTextField = new JTextField();
+				zAxisMagTextField.setColumns(10);
+				zAxisMagTextField.setBounds(297, 180, 86, 20);
+				adminPanelContent.add(zAxisMagTextField);
+				
+				JLabel lblNewLabel_3 = new JLabel("Accel");
+				lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblNewLabel_3.setBounds(84, 91, 39, 14);
+				adminPanelContent.add(lblNewLabel_3);
+				
+				JLabel lblGyro = new JLabel("Gyro");
+				lblGyro.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblGyro.setBounds(200, 89, 39, 18);
+				adminPanelContent.add(lblGyro);
+				
+				JLabel lblMag = new JLabel("Mag");
+				lblMag.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				lblMag.setBounds(324, 89, 31, 18);
+				adminPanelContent.add(lblMag);
 				getCalibrationOffsets.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						try {
@@ -2751,9 +2895,18 @@ public class AdvancedMode extends JFrame {
 				});
 				btnWriteOffsets.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						int[] offsets = {Integer.parseInt(xAxisTextField.getText()), Integer.parseInt(yAxisTextField.getText()), Integer.parseInt(zAxisTextField.getText())};
+
 						try {
-							serialHandler.setAccelMPUOffsets(offsets);
+							int[] offsets = {
+										Integer.parseInt(xAxisAccelTextField.getText()), Integer.parseInt(yAxisAccelTextField.getText()), Integer.parseInt(zAxisAccelTextField.getText()),
+										Integer.parseInt(xAxisGyroTextField.getText()), Integer.parseInt(yAxisGyroTextField.getText()), Integer.parseInt(zAxisGyroTextField.getText()),
+										Integer.parseInt(xAxisMagTextField.getText()), Integer.parseInt(yAxisMagTextField.getText()), Integer.parseInt(zAxisMagTextField.getText()),
+							};
+							if(serialHandler.setMPUOffsets(offsets)) {
+								generalStatusLabel.setText("Successfully wrote all offsets");
+							}
+						} catch (NumberFormatException e) {
+							generalStatusLabel.setText("Please enter valid offsets (0-65535)");
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -2769,10 +2922,26 @@ public class AdvancedMode extends JFrame {
 				btnNewButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						try {
-							int[] offsets = serialHandler.getAccelMPUOffsets();
-							xAxisTextField.setText(Integer.toString(offsets[0]));
-							yAxisTextField.setText(Integer.toString(offsets[1]));
-							zAxisTextField.setText(Integer.toString(offsets[2]));
+							DataOrganizer dataOrgo = new DataOrganizer();
+							int[][] mpuMinMax = serialHandler.getMPUMinMax();
+							dataOrgo.setMPUMinMax(mpuMinMax);
+							int[] offsets = dataOrgo.getMPUOffsets();
+							
+							generalStatusLabel.setText("MPU offsets received.");
+							
+							xAxisAccelTextField.setText(Integer.toString(offsets[0]));
+							yAxisAccelTextField.setText(Integer.toString(offsets[1]));
+							zAxisAccelTextField.setText(Integer.toString(offsets[2]));
+							
+							xAxisGyroTextField.setText(Integer.toString(offsets[3]));
+							yAxisGyroTextField.setText(Integer.toString(offsets[4]));
+							zAxisGyroTextField.setText(Integer.toString(offsets[5]));
+							
+							xAxisMagTextField.setText(Integer.toString(offsets[6]));
+							yAxisMagTextField.setText(Integer.toString(offsets[7]));
+							zAxisMagTextField.setText(Integer.toString(offsets[8]));
+							
+							
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -2834,13 +3003,42 @@ public class AdvancedMode extends JFrame {
 		mediaPlayerLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		mediaPlayerLauncherBtn.setBounds(0, 182, 625, 190);
 		launcherPane.add(mediaPlayerLauncherBtn);
+		
+				adminPanel = new JPanel();
+				mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
+				adminPanel.setLayout(null);
+				
+				JPanel passwordPanel = new JPanel();
+				passwordPanel.setBounds(0, 0, 625, 356);
+				//adminPanel.add(passwordPanel);
+				adminPanel.add(adminPanelContent);
+				passwordPanel.setLayout(null);
+				
+				passwordTextField = new JTextField();
+				passwordTextField.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						if(passwordTextField.getText().equals("1234")) {
+							adminPanel.remove(passwordPanel);
+							adminPanel.add(adminPanelContent);
+							adminPanel.revalidate();
+							adminPanel.repaint();
+						}
+					}
+				});
+				
+				
+				passwordTextField.setBounds(251, 159, 86, 20);
+				passwordPanel.add(passwordTextField);
+				passwordTextField.setColumns(10);
+				
+				JLabel lblNewLabel_2 = new JLabel("Password:");
+				lblNewLabel_2.setBounds(261, 134, 63, 14);
+				passwordPanel.add(lblNewLabel_2);
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				unpairAllRemotesHandler();
 			}
 		});
-
-		
 
 		JPanel progressPanel = new JPanel();
 		contentPanel.add(progressPanel);

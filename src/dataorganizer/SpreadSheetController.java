@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.incesoft.tools.excel.xlsx.CellStyle;
+import com.incesoft.tools.excel.xlsx.Fill;
+import com.incesoft.tools.excel.xlsx.Font;
 import com.incesoft.tools.excel.xlsx.Sheet;
 import com.incesoft.tools.excel.xlsx.SimpleXLSXWorkbook;
 import com.incesoft.tools.excel.xlsx.SimpleXLSXWorkbook.Commiter;
@@ -21,37 +24,27 @@ public class SpreadSheetController {
 	private SimpleXLSXWorkbook workbook;
 	private Sheet sheet;
 	private int sheetIndex = 0;
-	private OutputStream os; //OutputStream for Commiter
-	
-	private static String csv = "C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\(#2) 960-96 16G-92 2000dps-92 MAG-N 9OCT18.csv";
-	private static String template = "C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\Conservation of Momentum Template AS REV C3.xlsx";
-	
-	public static void main(String[] args) throws Exception {
-		List<String> csvData = null;
-		csvData = Files.readAllLines(new File(csv).toPath());
-		
-		SpreadSheetController SSC = new SpreadSheetController(template, 0);
-		SSC.copyDataToTemplate(2, csvData);
-		
-		List<String> offsets = Arrays.asList("1","2","3");
-		List<Integer> params = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
-		
-		SSC.setActiveSheet(1);
-
-		SSC.copyMPUOffsetsToTemplate(offsets);
-		SSC.writeModuleParams(params);
-		SSC.save("C:\\Users\\Mason\\Documents\\Adventure Modules Test Data\\templateModified.xlsx");
-	}
-	
-
+	private Font font;
+	private Fill fill;
+	private CellStyle style;
 
 	SpreadSheetController(String csv) {
 		workbook = new SimpleXLSXWorkbook(new File(csv));
+		font = workbook.createFont();
+		font.setColor("FFFFFFFF");
+		fill = workbook.createFill();
+		fill.setFgColor("00000000");
+		style = workbook.createStyle(font, fill);
 	}
 	
 	SpreadSheetController(String csv, int index) {
 		workbook = new SimpleXLSXWorkbook(new File(csv));		
 		sheet = workbook.getSheet(index);
+		font = workbook.createFont();
+		font.setColor("FFFFFFFF");
+		fill = workbook.createFill();
+		fill.setFgColor("00000000");
+		style = workbook.createStyle(font, fill);
 	}
 	
 	public void setActiveSheet(int index) {
@@ -73,7 +66,7 @@ public class SpreadSheetController {
 		workbook.commit(new FileOutputStream(outputFile));
 	}
 	
-	public void writeDataSetOneWithParams(List<String> offsets, List<Integer> params, List<String> CSVData) {
+	public void writeDataSetOneWithParams(List<String> offsets, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(0);
 		copyDataToTemplate(2, CSVData);
 		setActiveSheet(1);
@@ -81,7 +74,7 @@ public class SpreadSheetController {
 		writeModuleParams(params);
 	}
 	
-	public void writeDataSetTwoWithParams(List<String> offsets, List<Integer> params, List<String> CSVData) {
+	public void writeDataSetTwoWithParams(List<String> offsets, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(2);
 		copyDataToTemplate(2, CSVData);
 		setActiveSheet(3);
@@ -89,34 +82,36 @@ public class SpreadSheetController {
 		writeModuleParams(params);
 	}
 	
-	public void copyMPUOffsetsToTemplate(List<String> offsets) {
-		for(int i = 0; i < offsets.size(); i++) {
-			this.modifyCell(i, 0, offsets.get(i));
+	
+	public void writeMPUMaxMinToTemplate(int[][] MpuOffsets) {
+		for(int axi = 0; axi < MpuOffsets.length; axi++ ) {
+			this.modifyCell(axi+2, 1, Integer.toString(MpuOffsets[axi][0]));
+			this.modifyCell(axi+2, 2, Integer.toString(MpuOffsets[axi][1]));
 		}
+	}
+	
+	public void copyMPUOffsetsToTemplate(List<String> offsets) {
+		if(offsets != null)
+			for(int i = 0; i < offsets.size() && i < 6; i++) { //Write 
+				this.modifyCell(i, 0, offsets.get(i));
+			}
 	}
 	
 	public void writeModuleParams(List<Integer> params) {
-		for(int i = 6; i < params.size(); i++) {
-			this.modifyCell(i+1, 0, Integer.toString(params.get(i))); //Add one to i in first parameter of modify cell to write to correct location
+		for(int i = 6; i < params.size()-2; i++) {
+			this.modifyCell(i+5, 1, Integer.toString(params.get(i))); //Add one to i in first parameter of modify cell to write to correct 
 		}
 	}
 	
-	private void copyDataToTemplate(int rowOffset, List<String> CSVData) {					//copy data from datafile to sheet starting at rowOffset to rowCount     
-		int countX=0;																				//Count rows written
-		
-		//Loop rows of sheet
-		for (int r = rowOffset; r < CSVData.size(); r++) {
-		    //If the data was not null
+	public void copyDataToTemplate(int rowOffset, List<List<Double>> CSVData) {					//copy data from datafile to sheet starting at rowOffset to rowCount     
+		for(int axi = 1; axi < 10; axi++) {
 			if(CSVData != null) {
-		    	 int modfiedRowLength = sheet.getModfiedRowLength();								//See current Row to write
-		    	 CSVData.get(countX);
-		         String[] RowData = CSVData.get(countX).split(",");									//Copy all datapoints in row
-		         //Loop for each cell of a row
-		         for(int i=0;i<RowData.length;i++) {												
-		        	 sheet.modify(r, i, RowData[i], null);							//Write each datapoint(RowData[i]) to sheet by row(modifiedRowLength) and position in row(i) with style 'null'
-		         }
-		         countX++;
-		    }
+				List<Double> RowData = CSVData.get(axi);
+				for(int i = 0; i < RowData.size(); i++) {
+					if(RowData.get(i) == null) continue;
+					this.modifyCell(rowOffset+i, axi-1, String.valueOf(RowData.get(i)));
+				}
+			}
 		}
 	}
 	

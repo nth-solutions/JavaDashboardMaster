@@ -1291,6 +1291,7 @@ public class EducatorMode extends JFrame {
 	public EducatorMode() {
 		setTitle("Adventure Modules - Educator Mode");
 		initComponents();
+		setVisible(true);
 		findModuleCommPort();
 	}
 
@@ -1692,6 +1693,7 @@ public class EducatorMode extends JFrame {
 		group.add(dataExcelRadioBtn);
 
 		JRadioButton motionVisualizationRadioBtn = new JRadioButton("Motion Visualization");
+		motionVisualizationRadioBtn.setEnabled(false);
 		motionVisualizationRadioBtn.setBounds(112, 188, 317, 36);
 		outputPanel.add(motionVisualizationRadioBtn);
 		motionVisualizationRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1699,18 +1701,19 @@ public class EducatorMode extends JFrame {
 		group.add(motionVisualizationRadioBtn);
 
 		JRadioButton graphRadioBtn = new JRadioButton("Graph (Using template)");
+		graphRadioBtn.setEnabled(false);
 		graphRadioBtn.setBounds(112, 101, 317, 48);
 		outputPanel.add(graphRadioBtn);
 		graphRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		graphRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
-		graphRadioBtn.setEnabled(false);
 		group.add(graphRadioBtn);
 
-		JRadioButton rdbtnBothgraphingAnd = new JRadioButton("Both (Graphing and Spreadsheet output)");
-		rdbtnBothgraphingAnd.setEnabled(false);
-		rdbtnBothgraphingAnd.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		rdbtnBothgraphingAnd.setBounds(112, 157, 317, 23);
-		outputPanel.add(rdbtnBothgraphingAnd);
+		JRadioButton graphAndSpreadSheetOutputRadioBtn = new JRadioButton("Both (Graphing and Spreadsheet output)");
+		graphAndSpreadSheetOutputRadioBtn.setEnabled(false);
+		graphAndSpreadSheetOutputRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		graphAndSpreadSheetOutputRadioBtn.setBounds(112, 157, 317, 23);
+		outputPanel.add(graphAndSpreadSheetOutputRadioBtn);
+		group.add(graphAndSpreadSheetOutputRadioBtn);
 		
 		lblNewLabel_1 = new JLabel("Step 3: Select your output type");
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
