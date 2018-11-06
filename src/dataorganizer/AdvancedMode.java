@@ -2560,9 +2560,11 @@ public class AdvancedMode extends JFrame {
 		templatePanel.add(lblNewLabel_4);
 		
 		newTemplateNameTextField = new JTextField();
-		newTemplateNameTextField.setBounds(231, 116, 370, 20);
+		newTemplateNameTextField.setBounds(231, 116, 250, 20);
 		templatePanel.add(newTemplateNameTextField);
 		newTemplateNameTextField.setColumns(10);
+		newTemplateNameTextField.setEditable(false);
+	
 		
 		testSelectionSpinner = new JSpinner();
 		testSelectionSpinner.setModel(new SpinnerNumberModel(1, 1, 127, 1));
@@ -2572,7 +2574,25 @@ public class AdvancedMode extends JFrame {
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setBounds(10, 190, 605, 2);
 		templatePanel.add(separator_1);
-
+		
+		JButton browseBtn = new JButton("Browse");
+		browseBtn.setBounds(512, 115, 89, 23);
+		templatePanel.add(browseBtn);
+		browseBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser;
+				chooser = new JFileChooser(); 
+				chooser.setCurrentDirectory(new java.io.File("."));
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					newTemplateNameTextField.setText(chooser.getSelectedFile().toString());
+				}
+				else {
+					newTemplateNameTextField.setText(null);
+				}
+			}
+		});
 
 		erasePanel = new JPanel();
 		mainTabbedPanel.addTab("Test/Erase", null, erasePanel, null);

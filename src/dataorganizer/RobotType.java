@@ -31,10 +31,10 @@ public class RobotType {
 		 robot.delay(15000);																					//Initial delay for application startup
 		 robot.keyPress(KeyEvent.VK_LEFT);
 		 robot.keyPress(KeyEvent.VK_ENTER);
-		 robot.delay(200);
+		 robot.delay(2000);
 		 robot.keyRelease(KeyEvent.VK_LEFT);
 		 robot.keyRelease(KeyEvent.VK_ENTER);
-		 robot.delay(500);
+		 robot.delay(800);
 		 robot.keyPress(KeyEvent.VK_ENTER);
 		 robot.keyRelease(KeyEvent.VK_ENTER);
 		 robot.delay(2000);
