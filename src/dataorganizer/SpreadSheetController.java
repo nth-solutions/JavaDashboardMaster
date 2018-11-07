@@ -28,6 +28,12 @@ public class SpreadSheetController {
 	private Fill fill;
 	private CellStyle style;
 
+	
+	
+	/*
+	 * SpreadSheet Controller initialization method. We initialize the style of the cells we write to here. 
+	 * @param csv is a string containing the path of the csv file this is used to create a workbook.
+	 */
 	SpreadSheetController(String csv) {
 		workbook = new SimpleXLSXWorkbook(new File(csv));
 		font = workbook.createFont();
@@ -36,10 +42,14 @@ public class SpreadSheetController {
 		fill.setFgColor("00000000");
 		style = workbook.createStyle(font, fill);
 	}
-	
+
+	/*
+	 * SpreadSheet Controller initialization method. We initialize the style of the cells we write to here. 
+	 * @param csv is a string containing the path of the csv file this is used to create a workbook, and index is the sheet where we start at. 
+	 */
 	SpreadSheetController(String csv, int index) {
 		workbook = new SimpleXLSXWorkbook(new File(csv));		
-		sheet = workbook.getSheet(index);
+		sheet = workbook.getSheet(index, false);
 		font = workbook.createFont();
 		font.setColor("FFFFFFFF");
 		fill = workbook.createFill();
@@ -47,33 +57,54 @@ public class SpreadSheetController {
 		style = workbook.createStyle(font, fill);
 	}
 	
+	
+	/*
+	 * This method sets the index of the sheet to write to. Before modifying a sheet, this method must be called.
+	 * @param index is the number of the sheet that we are referencing.
+	 */
 	public void setActiveSheet(int index) {
 		sheetIndex = index;
-		sheet = workbook.getSheet(index);
+		sheet = workbook.getSheet(index, false);
 	}
 	
-	public int getActiveSheet(int index) {
+	/*
+	 * This method checks which sheet we are currently writing to. 
+	 */
+	public int getActiveSheet() {
 		return sheetIndex;
 	}
 	
+	
+	/* This method writes to the x(column), and y(row), the value of string, if the sheet is set. 
+	 */
 	public void modifyCell(int x, int y, String value) {
 		if(sheet != null) {
 			sheet.modify(x, y, value, null);
 		}
 	}
 	
+	/*
+	 * This method saves the file to the location passed by param
+	 */
 	public void save(String outputFile) throws Exception {
 		workbook.commit(new FileOutputStream(outputFile));
 	}
 	
-	public void writeDataSetOneWithParams(List<String> offsets, List<Integer> params, List<List<Double>> CSVData) {
+	/*
+	 * This method writes the module data and parameters of the test to the worksheet, we define these locations nowhere. 
+	 * @param offsets are the 
+	 */
+	public void writeDataSetOneWithParams(int[][] offsets, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(0);
 		copyDataToTemplate(2, CSVData);
 		setActiveSheet(1);
-		copyMPUOffsetsToTemplate(offsets);
+		writeMPUMaxMinToTemplate(offsets);
 		writeModuleParams(params);
 	}
 	
+	/*
+	 * This method 
+	 */
 	public void writeDataSetTwoWithParams(List<String> offsets, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(2);
 		copyDataToTemplate(2, CSVData);

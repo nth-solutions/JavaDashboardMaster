@@ -388,7 +388,7 @@ public class EducatorMode extends JFrame {
 		//8 Mag Sample Rate
 		testParams.add(96);
 		//9 Accel Sensitivity
-		testParams.add(8);
+		testParams.add(4);
 		//10 Gyro Sensitivity
 		testParams.add(1000);
 		//11 Accel Filter

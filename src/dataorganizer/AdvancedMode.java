@@ -279,6 +279,10 @@ public class AdvancedMode extends JFrame {
 	private JLabel testSelectorLabel;
 	private JLabel lblNewLabel_4;
 	private JTextField newTemplateNameTextField;
+	private JButton btnWriteModule;
+	private JTextField textField;
+	private JButton button_2;
+	private JLabel label_1;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -1996,11 +2000,8 @@ public class AdvancedMode extends JFrame {
 		List<Integer> params = dataOrgoList.get(dataOrgoListIndex).getTestParameters();
 		List<List<Double>> CSVData = dataOrgoList.get(dataOrgoListIndex).getRawDataSamples();
 		int[][] MpuMinMax = dataOrgoList.get(dataOrgoListIndex).MPUMinMax;
-		SSC.setActiveSheet(0);
-		SSC.copyDataToTemplate(2, CSVData);
-		SSC.setActiveSheet(1);
-		SSC.writeMPUMaxMinToTemplate(MpuMinMax);
-		SSC.writeModuleParams(params);
+		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+		
 		try {
 			SSC.save(newTemplateNameTextField.getText());
 		} catch (Exception e1) {
@@ -2506,7 +2507,7 @@ public class AdvancedMode extends JFrame {
 				
 			}
 		});
-		templateComboBox.setBounds(231, 73, 370, 20);
+		templateComboBox.setBounds(231, 73, 384, 20);
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
@@ -2531,7 +2532,7 @@ public class AdvancedMode extends JFrame {
 		testSelectorLabel.setBounds(10, 29, 534, 20);
 		templatePanel.add(testSelectorLabel);
 		
-		JButton writeToTemplateBtn = new JButton("Write to template");
+		JButton writeToTemplateBtn = new JButton("Write module 1 data.");
 		writeToTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -2544,14 +2545,14 @@ public class AdvancedMode extends JFrame {
 					
 					generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
 					//Create Robot
-					new RobotType().openAndRefreshTemplate((System.getProperty("user.dir")+"\\"+newTemplateNameTextField.getText()));
+					new RobotType().openAndRefreshTemplate(newTemplateNameTextField.getText());
 				}
 				else {
 					generalStatusLabel.setText("Failed to write template");
 				}
 			}
 		});
-		writeToTemplateBtn.setBounds(10, 156, 591, 23);
+		writeToTemplateBtn.setBounds(10, 156, 605, 23);
 		templatePanel.add(writeToTemplateBtn);
 		
 		lblNewLabel_4 = new JLabel("Name the template: ");
@@ -2568,7 +2569,7 @@ public class AdvancedMode extends JFrame {
 		
 		testSelectionSpinner = new JSpinner();
 		testSelectionSpinner.setModel(new SpinnerNumberModel(1, 1, 127, 1));
-		testSelectionSpinner.setBounds(554, 31, 39, 20);
+		testSelectionSpinner.setBounds(576, 31, 39, 20);
 		templatePanel.add(testSelectionSpinner);
 		
 		JSeparator separator_1 = new JSeparator();
@@ -2576,8 +2577,42 @@ public class AdvancedMode extends JFrame {
 		templatePanel.add(separator_1);
 		
 		JButton browseBtn = new JButton("Browse");
-		browseBtn.setBounds(512, 115, 89, 23);
+		browseBtn.setBounds(512, 115, 103, 23);
 		templatePanel.add(browseBtn);
+		
+		btnWriteModule = new JButton("Write module 2 data.");
+		btnWriteModule.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser;
+				chooser = new JFileChooser();
+				chooser.setCurrentDirectory(new java.io.File("."));
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					newTemplateNameTextField.setText(chooser.getSelectedFile().toString());
+				}
+				else {
+					newTemplateNameTextField.setText(null);
+				}
+			}
+		});
+		btnWriteModule.setBounds(10, 322, 605, 23);
+		templatePanel.add(btnWriteModule);
+		
+		textField = new JTextField();
+		textField.setEditable(false);
+		textField.setColumns(10);
+		textField.setBounds(231, 205, 250, 20);
+		templatePanel.add(textField);
+		
+		button_2 = new JButton("Browse");
+		button_2.setBounds(512, 204, 103, 23);
+		templatePanel.add(button_2);
+		
+		label_1 = new JLabel("Name the template: ");
+		label_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label_1.setBounds(10, 203, 176, 20);
+		templatePanel.add(label_1);
 		browseBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
