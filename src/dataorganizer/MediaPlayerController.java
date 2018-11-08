@@ -58,6 +58,7 @@ public class MediaPlayerController implements Initializable {
     private Media media;
     private int videoFrameRate;
     private double millisPerFrame;
+    private String currentFrame = "Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
 
     @FXML                                                                                                                                                       // FXML component Declarations
     private MediaView mediaView;
@@ -140,7 +141,7 @@ public class MediaPlayerController implements Initializable {
                     playbackTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
                     totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(media.getDuration().toSeconds()) + "s"));                 // Displays the total video length in seconds
 
-                    currentFrameCounterTextField.setText("Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())))); //updates the currentFrameCounterTextField to the current frame being displayed during playback
+                    currentFrameCounterTextField.setText("Current Frame: " + currentFrame); 															//updates the currentFrameCounterTextField to the current frame being displayed during playback
                 totalFrameTextField.setText("Total Frames: " + String.valueOf((new DecimalFormat("#").format(totalFrames))));                           // Sets the text within the totalFrameTextField equal to the totalFrames variable calculated during the handleFileOpener event
                 }
             });
@@ -240,7 +241,7 @@ public void handlePlayPauseVideo(ActionEvent event) {                           
                     playbackTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
                     totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(media.getDuration().toSeconds()) + "s"));                 // Displays the total video length in seconds
 
-                    currentFrameCounterTextField.setText("Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())))); //updates the currentFrameCounterTextField to the current frame being displayed during playback
+                    currentFrameCounterTextField.setText("Current Frame: " + currentFrame); 															//updates the currentFrameCounterTextField to the current frame being displayed during playback
                     totalFrameTextField.setText("Total Frames: " + String.valueOf((new DecimalFormat("#").format(totalFrames))));                       // Sets the text within the totalFrameTextField equal to the totalFrames variable calculated during the handleFileOpener event
                 }
             });
