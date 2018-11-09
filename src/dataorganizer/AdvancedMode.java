@@ -119,6 +119,7 @@ public class AdvancedMode extends JFrame {
 	//Labels
 	private JLabel generalStatusLabel;
 	private JLabel moduleSerialNumberLabel;
+	private JLabel testSelectorLabelTwo;
 	private JLabel hardwareIDLabel;
 	private JLabel firmwareIDLabel;
 
@@ -160,7 +161,7 @@ public class AdvancedMode extends JFrame {
 	private JComboBox gyroFilterCombobox;
 	
 	private JSpinner testSelectionSpinner;
-
+	private JSpinner testSelectionSpinnerTwo;
 	//Buttons
 	private JButton refreshPortButton;
 	private JButton disconnectButton;
@@ -192,6 +193,7 @@ public class AdvancedMode extends JFrame {
 	//UI Controllers
 	GraphController lineGraph;
 	MediaPlayerController mediaController;
+	SpreadSheetController SSC;
 	
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
@@ -273,16 +275,13 @@ public class AdvancedMode extends JFrame {
 	private JTextField xAxisMagTextField;
 	private JTextField yAxisMagTextField;
 	private JTextField zAxisMagTextField;
-	private JPanel templatePanel;
+	private JPanel panel9;
 	private JComboBox templateComboBox;
 	private JLabel lblSelectTheTemplate;
 	private JLabel testSelectorLabel;
 	private JLabel lblNewLabel_4;
 	private JTextField newTemplateNameTextField;
-	private JButton btnWriteModule;
-	private JTextField textField;
-	private JButton button_2;
-	private JLabel label_1;
+	private JButton btnWriteModuleTwoData;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -1001,7 +1000,7 @@ public class AdvancedMode extends JFrame {
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 					else {
-						generalStatusLabel.setText("Module Configured for Calibration, Use Configuration Tab to Exit");
+						generalStatusLabel.setText("Module Configured for Calibration");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
@@ -1392,6 +1391,7 @@ public class AdvancedMode extends JFrame {
 
 						expectedTestNum = testParameters.get(0);
 						testSelectorLabel.setText("There are "+ expectedTestNum +" stored tests, enter the test number you want to use a template with: ");
+						testSelectorLabelTwo.setText("There are "+ expectedTestNum +" stored tests, enter the test number you want to use a template with: ");
 						delayAfterStart = testParameters.get(2);
 
 						//Assign local variables to their newly received values from the module
@@ -1986,7 +1986,8 @@ public class AdvancedMode extends JFrame {
 
 	public boolean writeTemplateHandler() {
 		if(serialHandler == null) return false;
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		if(dataOrgoList == null) return false;
+		SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		int dataOrgoListIndex = (Integer)(testSelectionSpinner.getValue())-1;
 		List<String> offsets = null;
 		try {
@@ -2002,6 +2003,26 @@ public class AdvancedMode extends JFrame {
 		int[][] MpuMinMax = dataOrgoList.get(dataOrgoListIndex).MPUMinMax;
 		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
 		
+		return true;
+	}
+	
+	public boolean writeTemplateDataSetTwoHandler() {
+		if(serialHandler == null) return false;
+		int dataOrgoListIndex = (Integer)(testSelectionSpinner.getValue())-1;
+		List<String> offsets = null;
+		try {
+			dataOrgoList.get(dataOrgoListIndex).setMPUMinMax(serialHandler.getMPUMinMax());
+		} catch (IOException | PortInUseException | UnsupportedCommOperationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		offsets = dataOrgoList.get(dataOrgoListIndex).getMPUOffsetString();
+		List<Integer> params = dataOrgoList.get(dataOrgoListIndex).getTestParameters();
+		List<List<Double>> CSVData = dataOrgoList.get(dataOrgoListIndex).getRawDataSamples();
+		int[][] MpuMinMax = dataOrgoList.get(dataOrgoListIndex).MPUMinMax;
+		SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
+		
 		try {
 			SSC.save(newTemplateNameTextField.getText());
 		} catch (Exception e1) {
@@ -2011,6 +2032,7 @@ public class AdvancedMode extends JFrame {
 		}
 		return true;
 	}
+	
 	
 	public void setSerialNumberHandler() {
 		try {
@@ -2498,8 +2520,8 @@ public class AdvancedMode extends JFrame {
 		writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		configurationPanel.add(writeConfigsButton);
 		
-		templatePanel = new JPanel();
-		mainTabbedPanel.addTab("Spreadsheet Output", null, templatePanel, null);
+		panel9 = new JPanel();
+		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, null);
 		
 		templateComboBox = new JComboBox();
 		templateComboBox.addActionListener(new ActionListener() {
@@ -2519,50 +2541,64 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		});
-		templatePanel.setLayout(null);
+		panel9.setLayout(null);
 		
 		lblSelectTheTemplate = new JLabel("Select the template to use:");
 		lblSelectTheTemplate.setBounds(10, 60, 190, 43);
 		lblSelectTheTemplate.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		templatePanel.add(lblSelectTheTemplate);
-		templatePanel.add(templateComboBox);
+		panel9.add(lblSelectTheTemplate);
+		panel9.add(templateComboBox);
 		
 		testSelectorLabel = new JLabel("There are 0 stored tests, please read tests in the \"Read Tests\" tab.");
 		testSelectorLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		testSelectorLabel.setBounds(10, 29, 534, 20);
-		templatePanel.add(testSelectorLabel);
+		panel9.add(testSelectorLabel);
 		
 		JButton writeToTemplateBtn = new JButton("Write module 1 data.");
 		writeToTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
 				generalStatusLabel.setText("Writing to template. Please wait..");
-				
-				JFrame parent = new JFrame();
-				JOptionPane.showMessageDialog(parent, "Calculation, Creating File, Please Wait...", "File Loading", 0);
-				
 				if(writeTemplateHandler()) {
 					
-					generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
-					//Create Robot
-					new RobotType().openAndRefreshTemplate(newTemplateNameTextField.getText());
+					Object[] options = { "Yes", "No" };
+					Object answer = JOptionPane.showOptionDialog(null, "Would you like to save and open the template now?", "Question",
+							JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+							null, options, options[0]);
+					
+					if((int)answer == 0) {
+						try {
+							SSC.save(newTemplateNameTextField.getText());
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+							generalStatusLabel.setText("Failed to write template, Error saving file at that location.");
+							return;
+						}
+						generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
+						JFrame parent = new JFrame();
+						JOptionPane.showMessageDialog(parent, "Calculation, Creating File, Please Wait...", "File Loading", 0);
+						//Create Robot
+						new RobotType().openAndRefreshTemplate(newTemplateNameTextField.getText());
+					}else {
+						generalStatusLabel.setText("Successfully wrote template.");
+					}
 				}
 				else {
-					generalStatusLabel.setText("Failed to write template");
+					generalStatusLabel.setText("Failed to write template.");
 				}
 			}
 		});
 		writeToTemplateBtn.setBounds(10, 156, 605, 23);
-		templatePanel.add(writeToTemplateBtn);
+		panel9.add(writeToTemplateBtn);
 		
 		lblNewLabel_4 = new JLabel("Name the template: ");
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		lblNewLabel_4.setBounds(10, 114, 176, 20);
-		templatePanel.add(lblNewLabel_4);
+		panel9.add(lblNewLabel_4);
 		
 		newTemplateNameTextField = new JTextField();
 		newTemplateNameTextField.setBounds(231, 116, 250, 20);
-		templatePanel.add(newTemplateNameTextField);
+		panel9.add(newTemplateNameTextField);
 		newTemplateNameTextField.setColumns(10);
 		newTemplateNameTextField.setEditable(false);
 	
@@ -2570,49 +2606,46 @@ public class AdvancedMode extends JFrame {
 		testSelectionSpinner = new JSpinner();
 		testSelectionSpinner.setModel(new SpinnerNumberModel(1, 1, 127, 1));
 		testSelectionSpinner.setBounds(576, 31, 39, 20);
-		templatePanel.add(testSelectionSpinner);
+		panel9.add(testSelectionSpinner);
 		
 		JSeparator separator_1 = new JSeparator();
-		separator_1.setBounds(10, 190, 605, 2);
-		templatePanel.add(separator_1);
+		separator_1.setBounds(10, 201, 605, 2);
+		panel9.add(separator_1);
 		
 		JButton browseBtn = new JButton("Browse");
 		browseBtn.setBounds(512, 115, 103, 23);
-		templatePanel.add(browseBtn);
+		panel9.add(browseBtn);
 		
-		btnWriteModule = new JButton("Write module 2 data.");
-		btnWriteModule.addActionListener(new ActionListener() {
+		btnWriteModuleTwoData = new JButton("Write module 2 data.");
+		btnWriteModuleTwoData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser;
-				chooser = new JFileChooser();
-				chooser.setCurrentDirectory(new java.io.File("."));
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				chooser.setAcceptAllFileFilterUsed(false);
-				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					newTemplateNameTextField.setText(chooser.getSelectedFile().toString());
+				generalStatusLabel.setText("Writing to template. Please wait..");
+				
+				if(writeTemplateDataSetTwoHandler()) {
+					
+					generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
+					JFrame parent = new JFrame();
+					JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+					//Create Robot
+					new RobotType().openAndRefreshMultiModuleTemplate(newTemplateNameTextField.getText());
 				}
 				else {
-					newTemplateNameTextField.setText(null);
+					generalStatusLabel.setText("Failed to write template");
 				}
 			}
 		});
-		btnWriteModule.setBounds(10, 322, 605, 23);
-		templatePanel.add(btnWriteModule);
+		btnWriteModuleTwoData.setBounds(10, 306, 605, 23);
+		panel9.add(btnWriteModuleTwoData);
 		
-		textField = new JTextField();
-		textField.setEditable(false);
-		textField.setColumns(10);
-		textField.setBounds(231, 205, 250, 20);
-		templatePanel.add(textField);
+		testSelectorLabelTwo = new JLabel("There are 0 stored tests, please read tests in the \"Read Tests\" tab.");
+		testSelectorLabelTwo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		testSelectorLabelTwo.setBounds(10, 236, 534, 20);
+		panel9.add(testSelectorLabelTwo);
 		
-		button_2 = new JButton("Browse");
-		button_2.setBounds(512, 204, 103, 23);
-		templatePanel.add(button_2);
-		
-		label_1 = new JLabel("Name the template: ");
-		label_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		label_1.setBounds(10, 203, 176, 20);
-		templatePanel.add(label_1);
+		testSelectionSpinnerTwo = new JSpinner();
+		testSelectionSpinnerTwo.setModel(new SpinnerNumberModel(1, 1, 127, 1));
+		testSelectionSpinnerTwo.setBounds(576, 238, 39, 20);
+		panel9.add(testSelectionSpinnerTwo);
 		browseBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;

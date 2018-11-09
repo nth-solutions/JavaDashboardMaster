@@ -105,11 +105,11 @@ public class SpreadSheetController {
 	/*
 	 * This method 
 	 */
-	public void writeDataSetTwoWithParams(List<String> offsets, List<Integer> params, List<List<Double>> CSVData) {
+	public void writeDataSetTwoWithParams(int[][] offsets, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(2);
 		copyDataToTemplate(2, CSVData);
 		setActiveSheet(3);
-		copyMPUOffsetsToTemplate(offsets);
+		writeMPUMaxMinToTemplate(offsets);
 		writeModuleParams(params);
 	}
 	

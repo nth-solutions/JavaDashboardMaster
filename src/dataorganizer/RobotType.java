@@ -9,26 +9,66 @@ import java.io.IOException;
 
 public class RobotType {
 
+	private Robot robot;
 	
-	public void openAndRefreshTemplate(String excelTemplateLocation) {
-		
-		try {
-			Desktop.getDesktop().open(new File(excelTemplateLocation));
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		Robot robot=null;
-		 
+	public RobotType() {
 		try {
 			robot = new Robot();
 		} catch (AWTException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
-		//Robot to clear flags in excel and update cells
-		 robot.delay(9000);																					//Initial delay for application startup
+	}
+	
+
+	public void openAndRefreshTemplate(String excelTemplateLocation) {
+		openWorkbook(excelTemplateLocation);
+		robot.delay(9000);	//Delay for opening the excel workbook
+		goToFirstSheet();
+		refreshSheet();																	
+	}
+	
+
+	public void openAndRefreshMultiModuleTemplate(String excelTemplateLocation) {
+		openWorkbook(excelTemplateLocation);
+		robot.delay(9000);	//Delay for opening the excel workbook
+		goToFirstSheet();
+		refreshSheet();
+		nextDataSheet();
+		refreshSheet();
+		 
+	}
+	
+	public void openWorkbook(String excelTemplateLocation) {
+		try {
+			Desktop.getDesktop().open(new File(excelTemplateLocation));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	
+	public void goToFirstSheet() {
+		for(int i = 0; i < 14; i++) {
+			 robot.keyPress(KeyEvent.VK_CONTROL);
+			 robot.keyPress(KeyEvent.VK_PAGE_UP);
+			 robot.keyRelease(KeyEvent.VK_CONTROL);
+			 robot.keyRelease(KeyEvent.VK_PAGE_UP);
+		}
+	}
+	
+	public void nextDataSheet() {
+		 robot.keyPress(KeyEvent.VK_CONTROL);
+		 robot.keyPress(KeyEvent.VK_PAGE_DOWN);
+		 robot.keyRelease(KeyEvent.VK_CONTROL);
+		 robot.keyRelease(KeyEvent.VK_PAGE_DOWN);
+		 robot.keyPress(KeyEvent.VK_CONTROL);
+		 robot.keyPress(KeyEvent.VK_PAGE_DOWN);
+		 robot.keyRelease(KeyEvent.VK_CONTROL);
+		 robot.keyRelease(KeyEvent.VK_PAGE_DOWN);
+	}
+	
+	public void refreshSheet() {																				//Initial delay for application startup
 		 robot.keyPress(KeyEvent.VK_CONTROL);																//Press CTRL
 		 robot.keyPress(KeyEvent.VK_A);																		//Press A
 		 robot.delay(500);																					//Make sure Excel has all selected
@@ -45,9 +85,8 @@ public class RobotType {
 		 try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
-		
+			e.printStackTrace();
 		}
-																								//Delete the outputFile from disk (Held in ram by Excel)
-}
+	}
 	
 }

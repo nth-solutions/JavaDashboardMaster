@@ -46,14 +46,13 @@ public class BlackFrameAnalysis {
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(ffmpeg.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
 			String lineText;                                                                                                       //will store the command line outputs   
 
-
 			while ((lineText = stdError.readLine()) != null) { 		//Read until end of time length
-
 				//If line contains the string "[P"
 				if(lineText.substring(0,2).equals("[P")){
 					if (i == 1) {
 						preLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]);   			//parses the number of the frames from the line
 					}else {
+						i = 3;
 						postLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]); 
 						postLitBFNum += (115 * videoFPS); 
 						break;
@@ -62,19 +61,16 @@ public class BlackFrameAnalysis {
 			}
 		}
 		
-		System.out.println(preLitBFNum);
-		System.out.println(postLitBFNum);
-		
 	}
 
 
 
 	public int getDelayAfterStart() {
-		return (int)((1.0/videoFPS) * (videoFPS * DELAY_IN_SECONDS_BEFORE_LIGHT - preLitBFNum) * 1000);	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
+		return (int)(T_INTERVAL * (preLitBFNum) * 1000);	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
 	}
 
 	public int getTMR0Offset() {
-		double timeError =  (double)((postLitBFNum - preLitBFNum) - (lengthOfTest * videoFPS)) *  T_INTERVAL;  //Error in seconds; formula = (Actual - Expected) * (period); Amount of frames off times period equals error in seconds
+		double timeError =  (double)((lengthOfTest * videoFPS) - postLitBFNum) *  T_INTERVAL;  //Error in seconds; formula = (Actual - Expected) * (period); Amount of frames off times period equals error in seconds
 		//System.out.println(timeError);
 		double sampleDrift = (timeError /(moduleSPS * lengthOfTest)) * 1000000000 ;		//Error over each sample in nano seconds; formula = (Error / TotalNumSample) * 1 billion; Total error divided evenly over every individual sample times 1E9 to convert to nano seconds
 		double tmr0Adj = sampleDrift / 250;		//Each bit of TMR0 offset is 250 nano seconds; converts SampleDrift to clock cycles
@@ -94,11 +90,11 @@ public class BlackFrameAnalysis {
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
 	public String cmdWrapper(String videoName, int commandNum) {
-		String CMD = "ffmpeg -i " + videoName + " -vf blackframe -f rawvideo -y NUL";//Analyzes full video
+		String CMD = "ffmpeg -i \"" + videoName + "\" -vf blackframe -f rawvideo -y NUL";//Analyzes full video
 		//String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
 		//String CMD2 = "ffmpeg -ss 00:01:55 -i " + videoName + " -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:04 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD2 = "ffmpeg -ss 00:00:04 -i " + videoName + " -to 00:00:10 -vf blackframe -f rawvideo -y NUL"; 
+		String CMD1 = "ffmpeg -i \"" + videoName + "\" -to 00:00:04 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
+		String CMD2 = "ffmpeg -ss 00:01:55 -i \"" + videoName + "\" -to 00:00:20 -vf blackframe -f rawvideo -y NUL"; 
 		
 
 		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();

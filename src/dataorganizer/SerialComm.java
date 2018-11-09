@@ -544,8 +544,8 @@ public class SerialComm {
 				
 			}
 			
-			outputStream.write(calData[dataIndex] / 255);
-			outputStream.write(calData[dataIndex] % 255);
+			outputStream.write(calData[dataIndex] / 256);
+			outputStream.write(calData[dataIndex] % 256);
 
 
 			int temp = -1;
@@ -555,11 +555,14 @@ public class SerialComm {
 				if (inputStream.available() >= 3) {
 					
 					addFlagSerialRead = inputStream.read();		//Reads the state of the add flag
-					temp = inputStream.read()*255 + inputStream.read();
+					temp = inputStream.read()*256 + inputStream.read();
 					//Set a flag to break the loop
 					break;
 				}	
 			}
+			
+			System.out.println(temp);
+			System.out.println(calData[dataIndex]);
 			
 			//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
 			if (temp == calData[dataIndex] && addFlagSerialRead == addFlag) {
