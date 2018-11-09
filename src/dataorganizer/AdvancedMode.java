@@ -119,7 +119,6 @@ public class AdvancedMode extends JFrame {
 	//Labels
 	private JLabel generalStatusLabel;
 	private JLabel moduleSerialNumberLabel;
-	private JLabel testSelectorLabelTwo;
 	private JLabel hardwareIDLabel;
 	private JLabel firmwareIDLabel;
 
@@ -161,7 +160,6 @@ public class AdvancedMode extends JFrame {
 	private JComboBox gyroFilterCombobox;
 	
 	private JSpinner testSelectionSpinner;
-	private JSpinner testSelectionSpinnerTwo;
 	//Buttons
 	private JButton refreshPortButton;
 	private JButton disconnectButton;
@@ -282,6 +280,7 @@ public class AdvancedMode extends JFrame {
 	private JLabel lblNewLabel_4;
 	private JTextField newTemplateNameTextField;
 	private JButton btnWriteModuleTwoData;
+	private JTextField csvFileLocationTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -1385,13 +1384,13 @@ public class AdvancedMode extends JFrame {
 
 					//Read test parameters from module and store it in testParameters
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
+					int[][] mpuMinMax = serialHandler.getMPUMinMax();
+					
 					//Executes if the reading of the test parameters was successful
 					if (testParameters != null) {
 
 						expectedTestNum = testParameters.get(0);
 						testSelectorLabel.setText("There are "+ expectedTestNum +" stored tests, enter the test number you want to use a template with: ");
-						testSelectorLabelTwo.setText("There are "+ expectedTestNum +" stored tests, enter the test number you want to use a template with: ");
 						delayAfterStart = testParameters.get(2);
 
 						//Assign local variables to their newly received values from the module
@@ -1475,6 +1474,7 @@ public class AdvancedMode extends JFrame {
 									String tempNameOfFile = "(#" + (testIndex+1) + ")" + nameOfFile; 
 
 									DataOrganizer dataOrgo = new DataOrganizer(testParameters, tempNameOfFile);
+									dataOrgo.setMPUMinMax(mpuMinMax);
 									dataOrgoList.add(dataOrgo);
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
@@ -2008,19 +2008,12 @@ public class AdvancedMode extends JFrame {
 	
 	public boolean writeTemplateDataSetTwoHandler() {
 		if(serialHandler == null) return false;
-		int dataOrgoListIndex = (Integer)(testSelectionSpinner.getValue())-1;
 		List<String> offsets = null;
-		try {
-			dataOrgoList.get(dataOrgoListIndex).setMPUMinMax(serialHandler.getMPUMinMax());
-		} catch (IOException | PortInUseException | UnsupportedCommOperationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		offsets = dataOrgoList.get(dataOrgoListIndex).getMPUOffsetString();
-		List<Integer> params = dataOrgoList.get(dataOrgoListIndex).getTestParameters();
-		List<List<Double>> CSVData = dataOrgoList.get(dataOrgoListIndex).getRawDataSamples();
-		int[][] MpuMinMax = dataOrgoList.get(dataOrgoListIndex).MPUMinMax;
+		DataOrganizer dataOrgo = new DataOrganizer();
+		dataOrgo.readAndSetTestParameters(csvFileLocationTextField.getText()+'p');
+		List<Integer> params = dataOrgo.getTestParameters();
+		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
+		int[][] MpuMinMax = dataOrgo.MPUMinMax;
 		SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
 		
 		try {
@@ -2612,9 +2605,9 @@ public class AdvancedMode extends JFrame {
 		separator_1.setBounds(10, 201, 605, 2);
 		panel9.add(separator_1);
 		
-		JButton browseBtn = new JButton("Browse");
-		browseBtn.setBounds(512, 115, 103, 23);
-		panel9.add(browseBtn);
+		JButton browseTemplateBtn = new JButton("Browse");
+		browseTemplateBtn.setBounds(512, 115, 103, 23);
+		panel9.add(browseTemplateBtn);
 		
 		btnWriteModuleTwoData = new JButton("Write module 2 data.");
 		btnWriteModuleTwoData.addActionListener(new ActionListener() {
@@ -2637,16 +2630,36 @@ public class AdvancedMode extends JFrame {
 		btnWriteModuleTwoData.setBounds(10, 306, 605, 23);
 		panel9.add(btnWriteModuleTwoData);
 		
-		testSelectorLabelTwo = new JLabel("There are 0 stored tests, please read tests in the \"Read Tests\" tab.");
-		testSelectorLabelTwo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		testSelectorLabelTwo.setBounds(10, 236, 534, 20);
-		panel9.add(testSelectorLabelTwo);
+		JLabel lblModuleCsv = new JLabel("Module 2 CSV data file:");
+		lblModuleCsv.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblModuleCsv.setBounds(10, 231, 176, 20);
+		panel9.add(lblModuleCsv);
 		
-		testSelectionSpinnerTwo = new JSpinner();
-		testSelectionSpinnerTwo.setModel(new SpinnerNumberModel(1, 1, 127, 1));
-		testSelectionSpinnerTwo.setBounds(576, 238, 39, 20);
-		panel9.add(testSelectionSpinnerTwo);
-		browseBtn.addActionListener(new ActionListener() {
+		csvFileLocationTextField = new JTextField();
+		csvFileLocationTextField.setEditable(false);
+		csvFileLocationTextField.setColumns(10);
+		csvFileLocationTextField.setBounds(231, 233, 250, 20);
+		panel9.add(csvFileLocationTextField);
+		
+		JButton browseCSVBtn = new JButton("Browse");
+		browseCSVBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser;
+				chooser = new JFileChooser(); 
+				chooser.setCurrentDirectory(new java.io.File("."));
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					csvFileLocationTextField.setText(chooser.getSelectedFile().toString());
+				}
+				else {
+					csvFileLocationTextField.setText(null);
+				}
+			}
+		});
+		browseCSVBtn.setBounds(512, 232, 103, 23);
+		panel9.add(browseCSVBtn);
+		browseTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
 				chooser = new JFileChooser(); 

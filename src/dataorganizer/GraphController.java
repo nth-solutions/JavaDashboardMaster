@@ -200,13 +200,12 @@ public class GraphController implements Initializable{
 			yAxis.setUpperBound(yMax);																					//Sets the maximum y-Axis value to the last valid value of yMax
 			yAxis.setLowerBound(yMin);																					//Sets the minimum y-Axis value to the last valid value of yMin
 		}
-
 	}
 
 	@FXML
 	public void addTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +10 data samples
 		XOffsetCounter += 10;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +10 and stores it in the XOffsetCounter variable
-		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
 		repopulateData();																								//TODO
@@ -216,7 +215,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -10 data samples
 		XOffsetCounter -= 10;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -10 and stores it in the XOffsetCounter variable
-		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
 		repopulateData();																								//TODO
@@ -226,7 +225,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +1 data samples
 		XOffsetCounter += 1;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +1 and stores it in the XOffsetCounter variable
-		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
 		repopulateData();																								//TODO
@@ -236,7 +235,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -1 data samples
 		XOffsetCounter -= 1;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -1 and stores it in the XOffsetCounter variable
-		for(final DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
 		repopulateData();																								//TODO
@@ -248,7 +247,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addTenNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo += 10;
-		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
@@ -258,7 +257,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subTenNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo -= 10;
-		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
@@ -268,7 +267,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addOneNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo += 1;
-		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
@@ -278,7 +277,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subOneNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo -= 1;
-		for(final DataSeries axisOfDataSeries: dataSeriesTwo) {
+		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
@@ -301,7 +300,7 @@ public class GraphController implements Initializable{
 				loadCSVData();																														//Calls the loadCSV method
 			}
 
-		} catch (NullPointerException e) {}																											//Catches the NullPointer exception
+		} catch (NullPointerException e) {e.printStackTrace();}																											//Catches the NullPointer exception
 	}
 
 	/** RESUME COMMENTING HERE**/
@@ -963,7 +962,7 @@ public class GraphController implements Initializable{
 
 			for(int i = 0; i < dataOrgo.getByConversionType(dataConversionType).get(dof).size() + offset; i++) { //Loop to "end of data (int given axis) + offset"
 				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
-					dataAxis.add(i, null);
+					dataAxis.add(0, null);
 					continue;
 				}
 				dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //If we have enough padding, start adding the samples

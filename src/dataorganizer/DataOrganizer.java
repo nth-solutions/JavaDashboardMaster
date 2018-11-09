@@ -31,6 +31,7 @@ public class DataOrganizer {
 	private int magSensitivity;
 	private double lengthOfTest;
 	private int numDof = 9;
+	private int numParams = 13;
 	private String dataSourceID;
 	private int sourceID;
 	private String moduleSerialID;
@@ -234,6 +235,10 @@ public class DataOrganizer {
 		for(int i = 0; i < testParameters.size(); i++) { //Write all parameters to the file. We really only needed like 3 at the time of writing but this was easier and probably more effective in the future.
 			dataFile.println(testParameters.get(i).toString());
 		}
+		for(int i = 0; i < 9; i++) {
+			dataFile.println(MPUMinMax[i][0]);
+			dataFile.println(MPUMinMax[i][1]);
+		}
 		dataFile.close();
 		return 0;
 	}
@@ -257,10 +262,17 @@ public class DataOrganizer {
 		}
 
 		try {
-			while((lineText = CSVPFile.readLine()) != null){ //Read until EOF
+			for(int i = 0; i < numParams; i++){ 
+				lineText = CSVPFile.readLine();
 				testParameters.add(testParameters.size(), Integer.parseInt(lineText)); //Parse as an int and add to test params
 			}
+			MPUMinMax = new int[9][2];
+			for(int i = 0; i < 9; i++) {
+				MPUMinMax[i][0] = Integer.valueOf(CSVPFile.readLine());
+				MPUMinMax[i][1] = Integer.valueOf(CSVPFile.readLine());
+			}
 		} catch (NumberFormatException e) {
+			e.printStackTrace();
 			//NFE really shouldn't happen but it would mean that the file is corrupt.
 			try {
 				CSVPFile.close(); //Try to close the file
@@ -269,12 +281,13 @@ public class DataOrganizer {
 			}
 			return -2;	//Corrupt .CSVP
 		} catch( IOException e) {
+			e.printStackTrace();
 			try {
 				CSVPFile.close();
 			} catch (IOException e1) {
 				// I guess we can't close the corrupt file either.
 			}
-			return -3; //Permissions error as well.
+			return -1; //Permissions error as well.
 		}
 
 

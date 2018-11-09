@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="bin/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="bin/jna-4.0.0.jar"/>
 	<classpathentry kind="lib" path="bin/purejavacomm.jar"/>
-	<classpathentry kind="lib" path="bin/sjxlsx-mod-1.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Mason/eclipse-workspace/JavaDashboardMaster/bin/sjxlsx-mod-1.0.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
