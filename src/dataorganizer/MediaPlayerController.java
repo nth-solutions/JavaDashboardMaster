@@ -58,7 +58,7 @@ public class MediaPlayerController implements Initializable {
     private Media media;
     private int videoFrameRate;
     private double millisPerFrame;
-    private String currentFrame = "Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
+    private String currentFrame;
 
     @FXML                                                                                                                                                       // FXML component Declarations
     private MediaView mediaView;
@@ -126,6 +126,7 @@ public class MediaPlayerController implements Initializable {
                     frameByFrameCheckbox.setDisable(false);
 
                     mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
+                    currentFrame = "Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
                     playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
                     timeStampSlider.setMax(round(media.getDuration().toMillis()));
                     totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file

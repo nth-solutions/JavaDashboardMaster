@@ -158,8 +158,6 @@ public class AdvancedMode extends JFrame {
 	private JComboBox gyroSensitivityCombobox;
 	private JComboBox accelFilterCombobox;
 	private JComboBox gyroFilterCombobox;
-	
-	private JSpinner testSelectionSpinner;
 	//Buttons
 	private JButton refreshPortButton;
 	private JButton disconnectButton;
@@ -191,7 +189,6 @@ public class AdvancedMode extends JFrame {
 	//UI Controllers
 	GraphController lineGraph;
 	MediaPlayerController mediaController;
-	SpreadSheetController SSC;
 	
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
@@ -276,11 +273,10 @@ public class AdvancedMode extends JFrame {
 	private JPanel panel9;
 	private JComboBox templateComboBox;
 	private JLabel lblSelectTheTemplate;
-	private JLabel testSelectorLabel;
 	private JLabel lblNewLabel_4;
-	private JTextField newTemplateNameTextField;
-	private JButton btnWriteModuleTwoData;
-	private JTextField csvFileLocationTextField;
+	private JTextField csvFileOneLocationTextField;
+	private JTextField csvFileTwoLocationTextField;
+	private JTextField outputFileTextField;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -1390,7 +1386,6 @@ public class AdvancedMode extends JFrame {
 					if (testParameters != null) {
 
 						expectedTestNum = testParameters.get(0);
-						testSelectorLabel.setText("There are "+ expectedTestNum +" stored tests, enter the test number you want to use a template with: ");
 						delayAfterStart = testParameters.get(2);
 
 						//Assign local variables to their newly received values from the module
@@ -1984,40 +1979,47 @@ public class AdvancedMode extends JFrame {
 
 	}
 
-	public boolean writeTemplateHandler() {
-		if(serialHandler == null) return false;
-		if(dataOrgoList == null) return false;
-		SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
-		int dataOrgoListIndex = (Integer)(testSelectionSpinner.getValue())-1;
-		List<String> offsets = null;
-		try {
-			dataOrgoList.get(dataOrgoListIndex).setMPUMinMax(serialHandler.getMPUMinMax());
-		} catch (IOException | PortInUseException | UnsupportedCommOperationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		offsets = dataOrgoList.get(dataOrgoListIndex).getMPUOffsetString();
-		List<Integer> params = dataOrgoList.get(dataOrgoListIndex).getTestParameters();
-		List<List<Double>> CSVData = dataOrgoList.get(dataOrgoListIndex).getRawDataSamples();
-		int[][] MpuMinMax = dataOrgoList.get(dataOrgoListIndex).MPUMinMax;
-		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+	public boolean writeTemplateWithOneDataSetHandler(DataOrganizer dataOrgo) {
+		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		
-		return true;
-	}
-	
-	public boolean writeTemplateDataSetTwoHandler() {
-		if(serialHandler == null) return false;
-		List<String> offsets = null;
-		DataOrganizer dataOrgo = new DataOrganizer();
-		dataOrgo.readAndSetTestParameters(csvFileLocationTextField.getText()+'p');
+
+		dataOrgo.createDataSamplesFromCSV(csvFileOneLocationTextField.getText());
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
+		
+		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+		
+		try {
+			SSC.save(outputFileTextField.getText());
+			System.out.println("Wrote data set one");
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	
+	public boolean writeTemplateWithTwoDataSetsHandler(DataOrganizer dataOrgo, DataOrganizer dataOrgoTwo) {
+		dataOrgo.createDataSamplesFromCSV(csvFileTwoLocationTextField.getText());
+		List<Integer> params = dataOrgo.getTestParameters();
+		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
+		int[][] MpuMinMax = dataOrgo.MPUMinMax;
+		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+
+		dataOrgoTwo.createDataSamplesFromCSV(csvFileTwoLocationTextField.getText());
+		params = dataOrgoTwo.getTestParameters();
+		CSVData = dataOrgoTwo.getRawDataSamples();
+		MpuMinMax = dataOrgoTwo.MPUMinMax;
+		
 		SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
 		
 		try {
-			SSC.save(newTemplateNameTextField.getText());
+			SSC.save(outputFileTextField.getText());
+			System.out.println("Wrote data set two");
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -2164,7 +2166,7 @@ public class AdvancedMode extends JFrame {
 	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		DataOrganizer dataOrgo = new DataOrganizer();
 		dataOrgo.createDataSamplesFromCSV(calibrationCSV);
-		dataOrgo.readAndSetTestParameters(calibrationCSV+'p');
+		dataOrgo.readAndSetTestParameters(calibrationCSV);
 		dataOrgo.getSignedData();
 		int[] offsets = dataOrgo.getCalibrationOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
 	
@@ -2517,12 +2519,7 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, null);
 		
 		templateComboBox = new JComboBox();
-		templateComboBox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-			}
-		});
-		templateComboBox.setBounds(231, 73, 384, 20);
+		templateComboBox.setBounds(231, 24, 384, 20);
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
@@ -2537,109 +2534,40 @@ public class AdvancedMode extends JFrame {
 		panel9.setLayout(null);
 		
 		lblSelectTheTemplate = new JLabel("Select the template to use:");
-		lblSelectTheTemplate.setBounds(10, 60, 190, 43);
+		lblSelectTheTemplate.setBounds(10, 11, 190, 43);
 		lblSelectTheTemplate.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		panel9.add(lblSelectTheTemplate);
 		panel9.add(templateComboBox);
 		
-		testSelectorLabel = new JLabel("There are 0 stored tests, please read tests in the \"Read Tests\" tab.");
-		testSelectorLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		testSelectorLabel.setBounds(10, 29, 534, 20);
-		panel9.add(testSelectorLabel);
-		
-		JButton writeToTemplateBtn = new JButton("Write module 1 data.");
-		writeToTemplateBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				generalStatusLabel.setText("Writing to template. Please wait..");
-				if(writeTemplateHandler()) {
-					
-					Object[] options = { "Yes", "No" };
-					Object answer = JOptionPane.showOptionDialog(null, "Would you like to save and open the template now?", "Question",
-							JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
-							null, options, options[0]);
-					
-					if((int)answer == 0) {
-						try {
-							SSC.save(newTemplateNameTextField.getText());
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-							generalStatusLabel.setText("Failed to write template, Error saving file at that location.");
-							return;
-						}
-						generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
-						JFrame parent = new JFrame();
-						JOptionPane.showMessageDialog(parent, "Calculation, Creating File, Please Wait...", "File Loading", 0);
-						//Create Robot
-						new RobotType().openAndRefreshTemplate(newTemplateNameTextField.getText());
-					}else {
-						generalStatusLabel.setText("Successfully wrote template.");
-					}
-				}
-				else {
-					generalStatusLabel.setText("Failed to write template.");
-				}
-			}
-		});
-		writeToTemplateBtn.setBounds(10, 156, 605, 23);
-		panel9.add(writeToTemplateBtn);
-		
-		lblNewLabel_4 = new JLabel("Name the template: ");
+		lblNewLabel_4 = new JLabel("Module 1 CSV data file:");
 		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel_4.setBounds(10, 114, 176, 20);
+		lblNewLabel_4.setBounds(10, 65, 176, 20);
 		panel9.add(lblNewLabel_4);
 		
-		newTemplateNameTextField = new JTextField();
-		newTemplateNameTextField.setBounds(231, 116, 250, 20);
-		panel9.add(newTemplateNameTextField);
-		newTemplateNameTextField.setColumns(10);
-		newTemplateNameTextField.setEditable(false);
-	
-		
-		testSelectionSpinner = new JSpinner();
-		testSelectionSpinner.setModel(new SpinnerNumberModel(1, 1, 127, 1));
-		testSelectionSpinner.setBounds(576, 31, 39, 20);
-		panel9.add(testSelectionSpinner);
+		csvFileOneLocationTextField = new JTextField();
+		csvFileOneLocationTextField.setBounds(231, 67, 250, 20);
+		panel9.add(csvFileOneLocationTextField);
+		csvFileOneLocationTextField.setColumns(10);
+		csvFileOneLocationTextField.setEditable(false);
 		
 		JSeparator separator_1 = new JSeparator();
-		separator_1.setBounds(10, 201, 605, 2);
+		separator_1.setBounds(10, 113, 605, 2);
 		panel9.add(separator_1);
 		
 		JButton browseTemplateBtn = new JButton("Browse");
-		browseTemplateBtn.setBounds(512, 115, 103, 23);
+		browseTemplateBtn.setBounds(512, 66, 103, 23);
 		panel9.add(browseTemplateBtn);
-		
-		btnWriteModuleTwoData = new JButton("Write module 2 data.");
-		btnWriteModuleTwoData.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				generalStatusLabel.setText("Writing to template. Please wait..");
-				
-				if(writeTemplateDataSetTwoHandler()) {
-					
-					generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
-					JFrame parent = new JFrame();
-					JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-					//Create Robot
-					new RobotType().openAndRefreshMultiModuleTemplate(newTemplateNameTextField.getText());
-				}
-				else {
-					generalStatusLabel.setText("Failed to write template");
-				}
-			}
-		});
-		btnWriteModuleTwoData.setBounds(10, 306, 605, 23);
-		panel9.add(btnWriteModuleTwoData);
 		
 		JLabel lblModuleCsv = new JLabel("Module 2 CSV data file:");
 		lblModuleCsv.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblModuleCsv.setBounds(10, 231, 176, 20);
+		lblModuleCsv.setBounds(10, 134, 176, 20);
 		panel9.add(lblModuleCsv);
 		
-		csvFileLocationTextField = new JTextField();
-		csvFileLocationTextField.setEditable(false);
-		csvFileLocationTextField.setColumns(10);
-		csvFileLocationTextField.setBounds(231, 233, 250, 20);
-		panel9.add(csvFileLocationTextField);
+		csvFileTwoLocationTextField = new JTextField();
+		csvFileTwoLocationTextField.setEditable(false);
+		csvFileTwoLocationTextField.setColumns(10);
+		csvFileTwoLocationTextField.setBounds(231, 136, 250, 20);
+		panel9.add(csvFileTwoLocationTextField);
 		
 		JButton browseCSVBtn = new JButton("Browse");
 		browseCSVBtn.addActionListener(new ActionListener() {
@@ -2650,15 +2578,85 @@ public class AdvancedMode extends JFrame {
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setAcceptAllFileFilterUsed(false);
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					csvFileLocationTextField.setText(chooser.getSelectedFile().toString());
+					csvFileTwoLocationTextField.setText(chooser.getSelectedFile().toString());
 				}
 				else {
-					csvFileLocationTextField.setText(null);
+					csvFileTwoLocationTextField.setText(null);
 				}
 			}
 		});
-		browseCSVBtn.setBounds(512, 232, 103, 23);
+		browseCSVBtn.setBounds(512, 135, 103, 23);
 		panel9.add(browseCSVBtn);
+		
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setBounds(10, 179, 605, 2);
+		panel9.add(separator_2);
+		
+		JButton createTemplateBtn = new JButton("Create Template");
+		createTemplateBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(outputFileTextField.getText().isEmpty()) { generalStatusLabel.setText("Please choose the output file location."); }
+
+				if(!csvFileOneLocationTextField.getText().isEmpty() && csvFileTwoLocationTextField.getText().isEmpty()) {
+					DataOrganizer dataSetOne = new DataOrganizer();
+					if(writeTemplateWithOneDataSetHandler(dataSetOne)) {
+
+						generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
+						JFrame parent = new JFrame();
+						JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+						
+						new RobotType().openAndRefreshMultiModuleTemplate(outputFileTextField.getText());
+					}
+				}
+				
+				
+				if(!csvFileOneLocationTextField.getText().isEmpty() && !csvFileTwoLocationTextField.getText().isEmpty()) {
+					DataOrganizer dataSetOne = new DataOrganizer();
+					DataOrganizer dataSetTwo = new DataOrganizer();
+					if(writeTemplateWithTwoDataSetsHandler(dataSetOne, dataSetTwo)) {
+
+						generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
+						JFrame parent = new JFrame();
+						JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+						
+						new RobotType().openAndRefreshMultiModuleTemplate(outputFileTextField.getText());
+					}
+				}
+				
+			}
+		});
+		createTemplateBtn.setBounds(10, 230, 605, 104);
+		panel9.add(createTemplateBtn);
+		
+		JLabel lblNewLabel_5 = new JLabel("Output File:");
+		lblNewLabel_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblNewLabel_5.setBounds(10, 199, 126, 20);
+		panel9.add(lblNewLabel_5);
+		
+		outputFileTextField = new JTextField();
+		outputFileTextField.setEditable(false);
+		outputFileTextField.setColumns(10);
+		outputFileTextField.setBounds(231, 199, 250, 20);
+		panel9.add(outputFileTextField);
+		
+		JButton button_1 = new JButton("Browse");
+		button_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser;
+				chooser = new JFileChooser(); 
+				chooser.setCurrentDirectory(new java.io.File("."));
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					outputFileTextField.setText(chooser.getSelectedFile().toString());
+				}
+				else {
+					outputFileTextField.setText(null);
+				}
+			}
+		});
+		button_1.setBounds(512, 196, 103, 23);
+		panel9.add(button_1);
 		browseTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
@@ -2667,10 +2665,10 @@ public class AdvancedMode extends JFrame {
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				chooser.setAcceptAllFileFilterUsed(false);
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					newTemplateNameTextField.setText(chooser.getSelectedFile().toString());
+					csvFileOneLocationTextField.setText(chooser.getSelectedFile().toString());
 				}
 				else {
-					newTemplateNameTextField.setText(null);
+					csvFileOneLocationTextField.setText(null);
 				}
 			}
 		});

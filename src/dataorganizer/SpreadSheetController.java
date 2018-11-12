@@ -87,35 +87,39 @@ public class SpreadSheetController {
 	 * This method saves the file to the location passed by param
 	 */
 	public void save(String outputFile) throws Exception {
-		workbook.commit(new FileOutputStream(outputFile));
+		System.out.println(outputFile);
+		FileOutputStream outputStream = new FileOutputStream(outputFile);
+		workbook.commit(outputStream);
 	}
 	
 	/*
 	 * This method writes the module data and parameters of the test to the worksheet, we define these locations nowhere. 
 	 * @param offsets are the 
 	 */
-	public void writeDataSetOneWithParams(int[][] offsets, List<Integer> params, List<List<Double>> CSVData) {
+	public void writeDataSetOneWithParams(int[][] MpuMinMax, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(0);
 		copyDataToTemplate(2, CSVData);
 		setActiveSheet(1);
-		writeMPUMaxMinToTemplate(offsets);
+		writeMPUMaxMinToTemplate(MpuMinMax);
 		writeModuleParams(params);
 	}
 	
 	/*
 	 * This method 
 	 */
-	public void writeDataSetTwoWithParams(int[][] offsets, List<Integer> params, List<List<Double>> CSVData) {
+	public void writeDataSetTwoWithParams(int[][] MpuMinMax, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(2);
 		copyDataToTemplate(2, CSVData);
 		setActiveSheet(3);
-		writeMPUMaxMinToTemplate(offsets);
+		writeMPUMaxMinToTemplate(MpuMinMax);
 		writeModuleParams(params);
 	}
 	
 	
 	public void writeMPUMaxMinToTemplate(int[][] MpuOffsets) {
 		for(int axi = 0; axi < MpuOffsets.length; axi++ ) {
+			System.out.println(MpuOffsets[axi][0]);
+			System.out.println(MpuOffsets[axi][1]);
 			this.modifyCell(axi+2, 1, Integer.toString(MpuOffsets[axi][0]));
 			this.modifyCell(axi+2, 2, Integer.toString(MpuOffsets[axi][1]));
 		}
@@ -137,10 +141,14 @@ public class SpreadSheetController {
 	public void copyDataToTemplate(int rowOffset, List<List<Double>> CSVData) {					//copy data from datafile to sheet starting at rowOffset to rowCount     
 		for(int axi = 1; axi < 10; axi++) {
 			if(CSVData != null) {
-				List<Double> RowData = CSVData.get(axi);
-				for(int i = 0; i < RowData.size(); i++) {
-					if(RowData.get(i) == null) continue;
-					this.modifyCell(rowOffset+i, axi-1, String.valueOf(RowData.get(i)));
+				List<Double> ColumnData = CSVData.get(axi);
+				for(int i = 0; i < ColumnData.size(); i++) {
+					if(axi > 6 && i%10==0) {
+						this.modifyCell(rowOffset+i, axi-1, String.valueOf(ColumnData.get(i)));
+						continue;
+					}
+					
+					this.modifyCell(rowOffset+i, axi-1, String.valueOf(ColumnData.get(i)));
 				}
 			}
 		}
