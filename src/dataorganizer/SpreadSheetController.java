@@ -1,16 +1,7 @@
 package dataorganizer;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import com.incesoft.tools.excel.xlsx.CellStyle;
@@ -18,7 +9,6 @@ import com.incesoft.tools.excel.xlsx.Fill;
 import com.incesoft.tools.excel.xlsx.Font;
 import com.incesoft.tools.excel.xlsx.Sheet;
 import com.incesoft.tools.excel.xlsx.SimpleXLSXWorkbook;
-import com.incesoft.tools.excel.xlsx.SimpleXLSXWorkbook.Commiter;
 
 public class SpreadSheetController {
 	private SimpleXLSXWorkbook workbook;
@@ -79,7 +69,7 @@ public class SpreadSheetController {
 	 */
 	public void modifyCell(int x, int y, String value) {
 		if(sheet != null) {
-			sheet.modify(x, y, value, null);
+			sheet.modify(x, y, value, style);
 		}
 	}
 	
@@ -87,7 +77,6 @@ public class SpreadSheetController {
 	 * This method saves the file to the location passed by param
 	 */
 	public void save(String outputFile) throws Exception {
-		System.out.println(outputFile);
 		FileOutputStream outputStream = new FileOutputStream(outputFile);
 		workbook.commit(outputStream);
 	}
@@ -118,8 +107,6 @@ public class SpreadSheetController {
 	
 	public void writeMPUMaxMinToTemplate(int[][] MpuOffsets) {
 		for(int axi = 0; axi < MpuOffsets.length; axi++ ) {
-			System.out.println(MpuOffsets[axi][0]);
-			System.out.println(MpuOffsets[axi][1]);
 			this.modifyCell(axi+2, 1, Integer.toString(MpuOffsets[axi][0]));
 			this.modifyCell(axi+2, 2, Integer.toString(MpuOffsets[axi][1]));
 		}

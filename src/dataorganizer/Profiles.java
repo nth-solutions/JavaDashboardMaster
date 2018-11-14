@@ -120,10 +120,6 @@ public class Profiles extends JFrame {
 		});
 	}
 	
-	private void disposeGUI() {
-		this.dispose();
-	}
-	
 	private void AdventureBtnActionListener() {
 		
 	}

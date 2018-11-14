@@ -25,7 +25,9 @@ public class RobotType {
 		openWorkbook(excelTemplateLocation);
 		robot.delay(9000);	//Delay for opening the excel workbook
 		goToFirstSheet();
-		refreshSheet();																	
+		refreshSheet();		
+		nextDataSheet();
+		refreshSheet();															
 	}
 	
 
@@ -36,7 +38,10 @@ public class RobotType {
 		refreshSheet();
 		nextDataSheet();
 		refreshSheet();
-		 
+		nextDataSheet();
+		refreshSheet();
+		nextDataSheet();
+		refreshSheet();
 	}
 	
 	public void openWorkbook(String excelTemplateLocation) {
@@ -58,10 +63,6 @@ public class RobotType {
 	}
 	
 	public void nextDataSheet() {
-		 robot.keyPress(KeyEvent.VK_CONTROL);
-		 robot.keyPress(KeyEvent.VK_PAGE_DOWN);
-		 robot.keyRelease(KeyEvent.VK_CONTROL);
-		 robot.keyRelease(KeyEvent.VK_PAGE_DOWN);
 		 robot.keyPress(KeyEvent.VK_CONTROL);
 		 robot.keyPress(KeyEvent.VK_PAGE_DOWN);
 		 robot.keyRelease(KeyEvent.VK_CONTROL);

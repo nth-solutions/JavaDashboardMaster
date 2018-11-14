@@ -1,15 +1,11 @@
 package dataorganizer;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JSplitPane;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JButton;
@@ -19,21 +15,16 @@ import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.awt.CardLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import javax.swing.JTabbedPane;
 
+@SuppressWarnings("serial")
 public class SettingsWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField saveDirectoryTextField;
 	private JCheckBox saveOnReadCheckBox;
-	private JComboBox profileComboBox;
+	private JComboBox<String> profileComboBox;
 
 	/**
 	 * Launch the application.

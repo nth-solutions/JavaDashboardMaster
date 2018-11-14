@@ -6,12 +6,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
-
-import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileSystemView;
 
-import com.sun.corba.se.impl.orb.ParserTable.TestBadServerIdHandler;
-import com.sun.javafx.collections.MappingChange.Map;
 
 public class CSVBuilder {        //Class for Creating .CSV files
 	

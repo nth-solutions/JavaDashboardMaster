@@ -2,7 +2,6 @@
 package dataorganizer;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,23 +16,16 @@ import javax.swing.JFileChooser;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 
-import java.awt.CardLayout;
-import javax.swing.GroupLayout;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Component;
 import javax.swing.JCheckBox;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -41,10 +33,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
-import purejavacomm.PureJavaIllegalStateException;
-import purejavacomm.SerialPort;
 import purejavacomm.UnsupportedCommOperationException;
 
 import javax.swing.UIManager;
@@ -53,29 +42,16 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import java.awt.event.ActionListener;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
 
 /**
  * AdvancedMode.java
@@ -256,20 +232,8 @@ public class AdvancedMode extends JFrame {
 	private String moduleSerialID;
 	private JTextField serialNumberTextField;
 	private JTextField modelNumberTextField;
-	private JTextField xAxisAccelTextField;
-	private JTextField yAxisAccelTextField;
-	private JTextField zAxisAccelTextField;
-	private JTextField calibrationCSVTextField;
-	private JTextField readBlockLengthTextField;
-	private JTextField stdDevMaxTextField;
 	private JTextField passwordTextField;
 	private JPanel adminPanelContent;
-	private JTextField xAxisGyroTextField;
-	private JTextField yAxisGyroTextField;
-	private JTextField zAxisGyroTextField;
-	private JTextField xAxisMagTextField;
-	private JTextField yAxisMagTextField;
-	private JTextField zAxisMagTextField;
 	private JPanel panel9;
 	private JComboBox templateComboBox;
 	private JLabel lblSelectTheTemplate;
@@ -277,6 +241,20 @@ public class AdvancedMode extends JFrame {
 	private JTextField csvFileOneLocationTextField;
 	private JTextField csvFileTwoLocationTextField;
 	private JTextField outputFileTextField;
+	private JPanel mpuCalibrationPanel;
+	private JTextField xAxisAccelTextField;
+	private JTextField xAxisGyroTextField;
+	private JTextField xAxisMagTextField;
+	private JTextField yAxisAccelTextField;
+	private JTextField yAxisGyroTextField;
+	private JTextField yAxisMagTextField;
+	private JTextField zAxisAccelTextField;
+	private JTextField zAxisGyroTextField;
+	private JTextField zAxisMagTextField;
+	private JTextField calibrationCSVTextField;
+	private JTextField readBlockLengthTextField;
+	private JTextField stdDevMaxTextField;
+	private JButton btnNewButton;
 	
 	/**
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
@@ -2003,7 +1981,7 @@ public class AdvancedMode extends JFrame {
 	
 	
 	public boolean writeTemplateWithTwoDataSetsHandler(DataOrganizer dataOrgo, DataOrganizer dataOrgoTwo) {
-		dataOrgo.createDataSamplesFromCSV(csvFileTwoLocationTextField.getText());
+		dataOrgo.createDataSamplesFromCSV(csvFileOneLocationTextField.getText());
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
@@ -2019,7 +1997,6 @@ public class AdvancedMode extends JFrame {
 		
 		try {
 			SSC.save(outputFileTextField.getText());
-			System.out.println("Wrote data set two");
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -2280,6 +2257,123 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel = new JTabbedPane(JTabbedPane.TOP);
 		mainTabbedPanel.setPreferredSize(new Dimension(630, 400));
 		mainPanelContainer.add(mainTabbedPanel);
+		
+				JPanel configurationPanel = new JPanel();
+				configurationPanel.setPreferredSize(new Dimension(500, 1000));
+				configurationPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+				mainTabbedPanel.addTab("Configure Test Parameters", null, configurationPanel, null);
+				configurationPanel.setLayout(new GridLayout(0, 2, 0, 0));
+				
+						timedTestCheckbox = new JCheckBox("Timed Test");
+						timedTestCheckbox.setSelected(true);
+						timedTestCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+						configurationPanel.add(timedTestCheckbox);
+						
+								timedTestCheckbox.addActionListener(new ActionListener() {
+									public void actionPerformed(ActionEvent arg0) {
+										updateDataFields();
+									}
+								});
+								
+										triggerOnReleaseCheckbox = new JCheckBox("Trigger on Release");
+										triggerOnReleaseCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+										triggerOnReleaseCheckbox.setSelected(true);
+										configurationPanel.add(triggerOnReleaseCheckbox);
+										
+										
+												accelGyroSampleRateCombobox = new JComboBox();
+												accelGyroSampleRateCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+												accelGyroSampleRateCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+												configurationPanel.add(accelGyroSampleRateCombobox);
+												accelGyroSampleRateCombobox.addActionListener(new ActionListener() {
+													public void actionPerformed(ActionEvent arg0) {
+														updateMagSampleRate();
+														updateTickThresh();
+													}
+												});
+												
+														magSampleRateTextField = new JTextField();
+														magSampleRateTextField.setEditable(false);
+														magSampleRateTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
+														magSampleRateTextField.setText("96");
+														magSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+														magSampleRateTextField.setColumns(10);
+														magSampleRateTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Magnetometer Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+														configurationPanel.add(magSampleRateTextField);
+														
+																accelSensitivityCombobox = new JComboBox();
+																accelSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																accelSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Sensitivity (G)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																configurationPanel.add(accelSensitivityCombobox);
+																
+																		gyroSensitivityCombobox = new JComboBox();
+																		gyroSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																		gyroSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Sensitivity (d/s)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																		configurationPanel.add(gyroSensitivityCombobox);
+																		
+																				accelFilterCombobox = new JComboBox();
+																				accelFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																				accelFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																				configurationPanel.add(accelFilterCombobox);
+																				
+																						gyroFilterCombobox = new JComboBox();
+																						gyroFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																						gyroFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																						configurationPanel.add(gyroFilterCombobox);
+																						
+																								testLengthTextField = new JTextField();
+																								testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
+																								testLengthTextField.setText("25");
+																								testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																								testLengthTextField.setColumns(10);
+																								testLengthTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Duration (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																								configurationPanel.add(testLengthTextField);
+																								
+																										batteryTimeoutTextField = new JTextField();
+																										batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
+																										batteryTimeoutTextField.setText("300");
+																										batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																										batteryTimeoutTextField.setColumns(10);
+																										batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																										configurationPanel.add(batteryTimeoutTextField);
+																										
+																												timer0TickThreshTextField = new JTextField();
+																												timer0TickThreshTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																												timer0TickThreshTextField.setEditable(false);
+																												timer0TickThreshTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Tick Threshold (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																												configurationPanel.add(timer0TickThreshTextField);
+																												timer0TickThreshTextField.setColumns(10);
+																												
+																														delayAfterStartTextField = new JTextField();
+																														delayAfterStartTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																														delayAfterStartTextField.setEditable(false);
+																														delayAfterStartTextField.setColumns(10);
+																														delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Milliseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
+																														configurationPanel.add(delayAfterStartTextField);
+																														
+																																writeConfigsButton = new JButton("Write Configurations");
+																																writeConfigsButton.setToolTipText("Sends new test configurations to the module");
+																																writeConfigsButton.setEnabled(false);
+																																writeConfigsButton.setBorder(null);
+																																writeConfigsButton.addActionListener(new ActionListener() {
+																																	public void actionPerformed(ActionEvent arg0) {
+																																		writeButtonHandler();
+																																	}
+																																});
+																																
+																																		getCurrentConfigurationsButton = new JButton("Get Current Configurations");
+																																		getCurrentConfigurationsButton.setToolTipText("Reads and displays current module configurations on this tab");
+																																		getCurrentConfigurationsButton.setEnabled(false);	
+																																		getCurrentConfigurationsButton.addActionListener(new ActionListener() {
+																																			public void actionPerformed(ActionEvent arg0) {
+																																				getConfigsHandler();
+																																			}
+																																		});
+																																		
+																																		
+																																				configurationPanel.add(getCurrentConfigurationsButton);
+																																				writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																																				configurationPanel.add(writeConfigsButton);
 
 		JPanel readPanel = new JPanel();
 		readPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -2397,123 +2491,6 @@ public class AdvancedMode extends JFrame {
 				testRecordationPanel = new JPanel();
 				mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
 				testRecordationPanel.setLayout(null);
-
-		JPanel configurationPanel = new JPanel();
-		configurationPanel.setPreferredSize(new Dimension(500, 1000));
-		configurationPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		mainTabbedPanel.addTab("Configure Test Parameters", null, configurationPanel, null);
-		configurationPanel.setLayout(new GridLayout(0, 2, 0, 0));
-
-		timedTestCheckbox = new JCheckBox("Timed Test");
-		timedTestCheckbox.setSelected(true);
-		timedTestCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		configurationPanel.add(timedTestCheckbox);
-
-		timedTestCheckbox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				updateDataFields();
-			}
-		});
-
-		triggerOnReleaseCheckbox = new JCheckBox("Trigger on Release");
-		triggerOnReleaseCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		triggerOnReleaseCheckbox.setSelected(true);
-		configurationPanel.add(triggerOnReleaseCheckbox);
-
-
-		accelGyroSampleRateCombobox = new JComboBox();
-		accelGyroSampleRateCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		accelGyroSampleRateCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(accelGyroSampleRateCombobox);
-		accelGyroSampleRateCombobox.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				updateMagSampleRate();
-				updateTickThresh();
-			}
-		});
-
-		magSampleRateTextField = new JTextField();
-		magSampleRateTextField.setEditable(false);
-		magSampleRateTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
-		magSampleRateTextField.setText("96");
-		magSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		magSampleRateTextField.setColumns(10);
-		magSampleRateTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Magnetometer Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(magSampleRateTextField);
-
-		accelSensitivityCombobox = new JComboBox();
-		accelSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		accelSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Sensitivity (G)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(accelSensitivityCombobox);
-
-		gyroSensitivityCombobox = new JComboBox();
-		gyroSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		gyroSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Sensitivity (d/s)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(gyroSensitivityCombobox);
-
-		accelFilterCombobox = new JComboBox();
-		accelFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		accelFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(accelFilterCombobox);
-
-		gyroFilterCombobox = new JComboBox();
-		gyroFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		gyroFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(gyroFilterCombobox);
-
-		testLengthTextField = new JTextField();
-		testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
-		testLengthTextField.setText("25");
-		testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		testLengthTextField.setColumns(10);
-		testLengthTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Duration (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(testLengthTextField);
-
-		batteryTimeoutTextField = new JTextField();
-		batteryTimeoutTextField.setToolTipText("Minimum of 1 second, maximum of 65535 seconds");
-		batteryTimeoutTextField.setText("300");
-		batteryTimeoutTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		batteryTimeoutTextField.setColumns(10);
-		batteryTimeoutTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Battery Timeout Length (Seconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(batteryTimeoutTextField);
-
-		timer0TickThreshTextField = new JTextField();
-		timer0TickThreshTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		timer0TickThreshTextField.setEditable(false);
-		timer0TickThreshTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Tick Threshold (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(timer0TickThreshTextField);
-		timer0TickThreshTextField.setColumns(10);
-
-		delayAfterStartTextField = new JTextField();
-		delayAfterStartTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		delayAfterStartTextField.setEditable(false);
-		delayAfterStartTextField.setColumns(10);
-		delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Milliseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
-		configurationPanel.add(delayAfterStartTextField);
-
-		writeConfigsButton = new JButton("Write Configurations");
-		writeConfigsButton.setToolTipText("Sends new test configurations to the module");
-		writeConfigsButton.setEnabled(false);
-		writeConfigsButton.setBorder(null);
-		writeConfigsButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				writeButtonHandler();
-			}
-		});
-
-		getCurrentConfigurationsButton = new JButton("Get Current Configurations");
-		getCurrentConfigurationsButton.setToolTipText("Reads and displays current module configurations on this tab");
-		getCurrentConfigurationsButton.setEnabled(false);	
-		getCurrentConfigurationsButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				getConfigsHandler();
-			}
-		});
-
-
-		configurationPanel.add(getCurrentConfigurationsButton);
-		writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
-		configurationPanel.add(writeConfigsButton);
 		
 		panel9 = new JPanel();
 		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, null);
@@ -2782,6 +2759,230 @@ public class AdvancedMode extends JFrame {
 		delayAfterTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (milliseconds)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 		calOffsetsPanel.add(delayAfterTextField);
 		calibrationPanel.add(applyOffsetButton);
+		
+		mpuCalibrationPanel = new JPanel();
+		mainTabbedPanel.addTab("MPU Calibration", null, mpuCalibrationPanel, null);
+		mpuCalibrationPanel.setLayout(null);
+		
+		JLabel label = new JLabel("Accel");
+		label.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label.setBounds(152, 13, 39, 14);
+		mpuCalibrationPanel.add(label);
+		
+		JLabel label_1 = new JLabel("X Axis");
+		label_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label_1.setBounds(30, 36, 46, 14);
+		mpuCalibrationPanel.add(label_1);
+		
+		JLabel label_2 = new JLabel("Y Axis");
+		label_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label_2.setBounds(30, 72, 46, 14);
+		mpuCalibrationPanel.add(label_2);
+		
+		JLabel label_3 = new JLabel("Z Axis");
+		label_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label_3.setBounds(30, 103, 46, 14);
+		mpuCalibrationPanel.add(label_3);
+		
+		JLabel label_4 = new JLabel("Gyro");
+		label_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label_4.setBounds(293, 11, 39, 18);
+		mpuCalibrationPanel.add(label_4);
+		
+		JLabel label_5 = new JLabel("Mag");
+		label_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		label_5.setBounds(441, 13, 31, 18);
+		mpuCalibrationPanel.add(label_5);
+		
+		xAxisAccelTextField = new JTextField();
+		xAxisAccelTextField.setColumns(10);
+		xAxisAccelTextField.setBounds(124, 35, 86, 20);
+		mpuCalibrationPanel.add(xAxisAccelTextField);
+		
+		xAxisGyroTextField = new JTextField();
+		xAxisGyroTextField.setColumns(10);
+		xAxisGyroTextField.setBounds(267, 36, 86, 20);
+		mpuCalibrationPanel.add(xAxisGyroTextField);
+		
+		xAxisMagTextField = new JTextField();
+		xAxisMagTextField.setColumns(10);
+		xAxisMagTextField.setBounds(414, 37, 86, 20);
+		mpuCalibrationPanel.add(xAxisMagTextField);
+		
+		yAxisAccelTextField = new JTextField();
+		yAxisAccelTextField.setColumns(10);
+		yAxisAccelTextField.setBounds(124, 71, 86, 20);
+		mpuCalibrationPanel.add(yAxisAccelTextField);
+		
+		yAxisGyroTextField = new JTextField();
+		yAxisGyroTextField.setColumns(10);
+		yAxisGyroTextField.setBounds(267, 72, 86, 20);
+		mpuCalibrationPanel.add(yAxisGyroTextField);
+		
+		yAxisMagTextField = new JTextField();
+		yAxisMagTextField.setColumns(10);
+		yAxisMagTextField.setBounds(414, 73, 86, 20);
+		mpuCalibrationPanel.add(yAxisMagTextField);
+		
+		zAxisAccelTextField = new JTextField();
+		zAxisAccelTextField.setColumns(10);
+		zAxisAccelTextField.setBounds(124, 102, 86, 20);
+		mpuCalibrationPanel.add(zAxisAccelTextField);
+		
+		zAxisGyroTextField = new JTextField();
+		zAxisGyroTextField.setColumns(10);
+		zAxisGyroTextField.setBounds(267, 102, 86, 20);
+		mpuCalibrationPanel.add(zAxisGyroTextField);
+		
+		zAxisMagTextField = new JTextField();
+		zAxisMagTextField.setColumns(10);
+		zAxisMagTextField.setBounds(414, 104, 86, 20);
+		mpuCalibrationPanel.add(zAxisMagTextField);
+		
+		JButton writeOffsetsBtn = new JButton("Write Offsets");
+		writeOffsetsBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int[] offsets = {
+								Integer.parseInt(xAxisAccelTextField.getText()), Integer.parseInt(yAxisAccelTextField.getText()), Integer.parseInt(zAxisAccelTextField.getText()),
+								Integer.parseInt(xAxisGyroTextField.getText()), Integer.parseInt(yAxisGyroTextField.getText()), Integer.parseInt(zAxisGyroTextField.getText()),
+								Integer.parseInt(xAxisMagTextField.getText()), Integer.parseInt(yAxisMagTextField.getText()), Integer.parseInt(zAxisMagTextField.getText()),
+					};
+					if(serialHandler.setMPUOffsets(offsets)) {
+						generalStatusLabel.setText("Successfully wrote all offsets");
+					}
+				} catch (NumberFormatException e1) {
+					generalStatusLabel.setText("Please enter valid offsets (0-65535)");
+				} catch (IOException e1) {
+					generalStatusLabel.setText("Please reconnect module.");
+				} catch (PortInUseException e1) {
+					generalStatusLabel.setText("There was an issue, please reconnect module");
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (UnsupportedCommOperationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		writeOffsetsBtn.setBounds(336, 133, 104, 23);
+		mpuCalibrationPanel.add(writeOffsetsBtn);
+		
+		JButton readOffsetsBtn = new JButton("Read Offsets");
+		readOffsetsBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					DataOrganizer dataOrgo = new DataOrganizer();
+					int[][] mpuMinMax = serialHandler.getMPUMinMax();
+					dataOrgo.setMPUMinMax(mpuMinMax);
+					int[] offsets = dataOrgo.getMPUOffsets();
+					
+					generalStatusLabel.setText("MPU offsets received.");
+					
+					xAxisAccelTextField.setText(Integer.toString(offsets[0]));
+					yAxisAccelTextField.setText(Integer.toString(offsets[1]));
+					zAxisAccelTextField.setText(Integer.toString(offsets[2]));
+					
+					xAxisGyroTextField.setText(Integer.toString(offsets[3]));
+					yAxisGyroTextField.setText(Integer.toString(offsets[4]));
+					zAxisGyroTextField.setText(Integer.toString(offsets[5]));
+					
+					xAxisMagTextField.setText(Integer.toString(offsets[6]));
+					yAxisMagTextField.setText(Integer.toString(offsets[7]));
+					zAxisMagTextField.setText(Integer.toString(offsets[8]));
+					
+					
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (PortInUseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedCommOperationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		readOffsetsBtn.setBounds(183, 133, 104, 23);
+		mpuCalibrationPanel.add(readOffsetsBtn);
+		
+		JLabel label_6 = new JLabel("CSV Location: ");
+		label_6.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		label_6.setBounds(10, 180, 89, 14);
+		mpuCalibrationPanel.add(label_6);
+		
+		calibrationCSVTextField = new JTextField();
+		calibrationCSVTextField.setColumns(10);
+		calibrationCSVTextField.setBounds(109, 178, 407, 20);
+		mpuCalibrationPanel.add(calibrationCSVTextField);
+		
+		JButton calibrationBtn = new JButton("Calibrate");
+		calibrationBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()));
+				} catch (NumberFormatException e1) {
+					generalStatusLabel.setText("Please use valid numbers for read block and standard deviation");
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (PortInUseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (UnsupportedCommOperationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+		calibrationBtn.setBounds(10, 250, 605, 95);
+		mpuCalibrationPanel.add(calibrationBtn);
+		
+		readBlockLengthTextField = new JTextField();
+		readBlockLengthTextField.setText("500");
+		readBlockLengthTextField.setColumns(10);
+		readBlockLengthTextField.setBounds(134, 219, 39, 20);
+		mpuCalibrationPanel.add(readBlockLengthTextField);
+		
+		JLabel lblRollingBlockLength = new JLabel("Rolling block length:");
+		lblRollingBlockLength.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblRollingBlockLength.setBounds(10, 221, 114, 14);
+		mpuCalibrationPanel.add(lblRollingBlockLength);
+		
+		JLabel lblStandardDeviationMax = new JLabel("Standard deviation max: ");
+		lblStandardDeviationMax.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStandardDeviationMax.setBounds(315, 221, 136, 14);
+		mpuCalibrationPanel.add(lblStandardDeviationMax);
+		
+		stdDevMaxTextField = new JTextField();
+		stdDevMaxTextField.setText("15");
+		stdDevMaxTextField.setColumns(10);
+		stdDevMaxTextField.setBounds(461, 219, 39, 20);
+		mpuCalibrationPanel.add(stdDevMaxTextField);
+		
+		JSeparator separator_3 = new JSeparator();
+		separator_3.setBounds(10, 165, 605, 2);
+		mpuCalibrationPanel.add(separator_3);
+		
+		btnNewButton = new JButton("Browse");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooser;
+				chooser = new JFileChooser(); 
+				chooser.setCurrentDirectory(new java.io.File("."));
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setAcceptAllFileFilterUsed(false);
+				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					calibrationCSVTextField.setText(chooser.getSelectedFile().toString());
+				}
+				else {
+					calibrationCSVTextField.setText(null);
+				}
+			}
+		});
+		btnNewButton.setBounds(526, 177, 89, 20);
+		mpuCalibrationPanel.add(btnNewButton);
 
 		remoteTab = new JPanel();
 		mainTabbedPanel.addTab("Remote Control", null, remoteTab, null);
@@ -2825,7 +3026,7 @@ public class AdvancedMode extends JFrame {
 		RemoteButtonPanel.add(exitTestModeButton);
 				
 				adminPanelContent = new JPanel();
-				adminPanelContent.setBounds(0, 0, 625, 356);
+				adminPanelContent.setBounds(10, 0, 625, 356);
 				adminPanelContent.setLayout(null);
 				
 				
@@ -2856,203 +3057,6 @@ public class AdvancedMode extends JFrame {
 				JButton button = new JButton("Write");
 				button.setBounds(251, 33, 89, 23);
 				adminPanelContent.add(button);
-				
-				JLabel lblNewLabel = new JLabel("X Axis");
-				lblNewLabel.setBounds(0, 114, 46, 14);
-				adminPanelContent.add(lblNewLabel);
-				lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				
-				xAxisAccelTextField = new JTextField();
-				xAxisAccelTextField.setBounds(56, 113, 86, 20);
-				adminPanelContent.add(xAxisAccelTextField);
-				xAxisAccelTextField.setColumns(10);
-				
-				yAxisAccelTextField = new JTextField();
-				yAxisAccelTextField.setBounds(56, 149, 86, 20);
-				adminPanelContent.add(yAxisAccelTextField);
-				yAxisAccelTextField.setColumns(10);
-				
-				zAxisAccelTextField = new JTextField();
-				zAxisAccelTextField.setBounds(56, 180, 86, 20);
-				adminPanelContent.add(zAxisAccelTextField);
-				zAxisAccelTextField.setColumns(10);
-				
-				JLabel lblZAxis = new JLabel("Z Axis");
-				lblZAxis.setBounds(0, 181, 46, 14);
-				adminPanelContent.add(lblZAxis);
-				lblZAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				
-				JButton btnNewButton = new JButton("Read Offsets");
-				btnNewButton.setBounds(417, 128, 104, 23);
-				adminPanelContent.add(btnNewButton);
-				
-				JButton btnWriteOffsets = new JButton("Write Offsets");
-				btnWriteOffsets.setBounds(417, 162, 104, 23);
-				adminPanelContent.add(btnWriteOffsets);
-				
-				calibrationCSVTextField = new JTextField();
-				calibrationCSVTextField.setBounds(106, 223, 175, 20);
-				adminPanelContent.add(calibrationCSVTextField);
-				calibrationCSVTextField.setText("C:\\users\\Mason\\Documents\\(#1) 960-96 16G-92 2000dps-92 MAG-N 23OCT18.csv");
-				calibrationCSVTextField.setColumns(10);
-				
-				readBlockLengthTextField = new JTextField();
-				readBlockLengthTextField.setBounds(106, 254, 175, 20);
-				adminPanelContent.add(readBlockLengthTextField);
-				readBlockLengthTextField.setText("500");
-				readBlockLengthTextField.setColumns(10);
-				
-				stdDevMaxTextField = new JTextField();
-				stdDevMaxTextField.setBounds(106, 285, 175, 20);
-				adminPanelContent.add(stdDevMaxTextField);
-				stdDevMaxTextField.setText("15");
-				stdDevMaxTextField.setColumns(10);
-				
-				JButton getCalibrationOffsets = new JButton("Calibrate");
-				getCalibrationOffsets.setBounds(294, 253, 89, 23);
-				adminPanelContent.add(getCalibrationOffsets);
-				
-				JLabel lblNewLabel_1 = new JLabel("CSV Location: ");
-				lblNewLabel_1.setBounds(0, 226, 89, 14);
-				adminPanelContent.add(lblNewLabel_1);
-				
-				JLabel lblBlockLength = new JLabel("Block Length: ");
-				lblBlockLength.setBounds(0, 257, 89, 14);
-				adminPanelContent.add(lblBlockLength);
-				
-				JLabel lblStddevMax = new JLabel("STDDev Max: ");
-				lblStddevMax.setBounds(0, 288, 89, 14);
-				adminPanelContent.add(lblStddevMax);
-				
-				JLabel lblYAxis = new JLabel("Y Axis");
-				lblYAxis.setBounds(0, 150, 46, 14);
-				adminPanelContent.add(lblYAxis);
-				lblYAxis.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				
-				xAxisGyroTextField = new JTextField();
-				xAxisGyroTextField.setColumns(10);
-				xAxisGyroTextField.setBounds(174, 114, 86, 20);
-				adminPanelContent.add(xAxisGyroTextField);
-				
-				yAxisGyroTextField = new JTextField();
-				yAxisGyroTextField.setColumns(10);
-				yAxisGyroTextField.setBounds(174, 150, 86, 20);
-				adminPanelContent.add(yAxisGyroTextField);
-				
-				zAxisGyroTextField = new JTextField();
-				zAxisGyroTextField.setColumns(10);
-				zAxisGyroTextField.setBounds(174, 181, 86, 20);
-				adminPanelContent.add(zAxisGyroTextField);
-				
-				xAxisMagTextField = new JTextField();
-				xAxisMagTextField.setColumns(10);
-				xAxisMagTextField.setBounds(297, 113, 86, 20);
-				adminPanelContent.add(xAxisMagTextField);
-				
-				yAxisMagTextField = new JTextField();
-				yAxisMagTextField.setColumns(10);
-				yAxisMagTextField.setBounds(297, 149, 86, 20);
-				adminPanelContent.add(yAxisMagTextField);
-				
-				zAxisMagTextField = new JTextField();
-				zAxisMagTextField.setColumns(10);
-				zAxisMagTextField.setBounds(297, 180, 86, 20);
-				adminPanelContent.add(zAxisMagTextField);
-				
-				JLabel lblNewLabel_3 = new JLabel("Accel");
-				lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblNewLabel_3.setBounds(84, 91, 39, 14);
-				adminPanelContent.add(lblNewLabel_3);
-				
-				JLabel lblGyro = new JLabel("Gyro");
-				lblGyro.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblGyro.setBounds(200, 89, 39, 18);
-				adminPanelContent.add(lblGyro);
-				
-				JLabel lblMag = new JLabel("Mag");
-				lblMag.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				lblMag.setBounds(324, 89, 31, 18);
-				adminPanelContent.add(lblMag);
-				getCalibrationOffsets.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						try {
-							applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()));
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (PortInUseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedCommOperationException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-				btnWriteOffsets.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-
-						try {
-							int[] offsets = {
-										Integer.parseInt(xAxisAccelTextField.getText()), Integer.parseInt(yAxisAccelTextField.getText()), Integer.parseInt(zAxisAccelTextField.getText()),
-										Integer.parseInt(xAxisGyroTextField.getText()), Integer.parseInt(yAxisGyroTextField.getText()), Integer.parseInt(zAxisGyroTextField.getText()),
-										Integer.parseInt(xAxisMagTextField.getText()), Integer.parseInt(yAxisMagTextField.getText()), Integer.parseInt(zAxisMagTextField.getText()),
-							};
-							if(serialHandler.setMPUOffsets(offsets)) {
-								generalStatusLabel.setText("Successfully wrote all offsets");
-							}
-						} catch (NumberFormatException e) {
-							generalStatusLabel.setText("Please enter valid offsets (0-65535)");
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (PortInUseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedCommOperationException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-				btnNewButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent arg0) {
-						try {
-							DataOrganizer dataOrgo = new DataOrganizer();
-							int[][] mpuMinMax = serialHandler.getMPUMinMax();
-							dataOrgo.setMPUMinMax(mpuMinMax);
-							int[] offsets = dataOrgo.getMPUOffsets();
-							
-							generalStatusLabel.setText("MPU offsets received.");
-							
-							xAxisAccelTextField.setText(Integer.toString(offsets[0]));
-							yAxisAccelTextField.setText(Integer.toString(offsets[1]));
-							zAxisAccelTextField.setText(Integer.toString(offsets[2]));
-							
-							xAxisGyroTextField.setText(Integer.toString(offsets[3]));
-							yAxisGyroTextField.setText(Integer.toString(offsets[4]));
-							zAxisGyroTextField.setText(Integer.toString(offsets[5]));
-							
-							xAxisMagTextField.setText(Integer.toString(offsets[6]));
-							yAxisMagTextField.setText(Integer.toString(offsets[7]));
-							zAxisMagTextField.setText(Integer.toString(offsets[8]));
-							
-							
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (PortInUseException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (UnsupportedCommOperationException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
 				button.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						setModelNumberHandler();

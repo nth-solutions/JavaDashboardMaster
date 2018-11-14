@@ -5,7 +5,6 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.JTabbedPane;
 import java.awt.GridLayout;
 import javax.swing.JComboBox;
@@ -15,7 +14,6 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.border.CompoundBorder;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 
 import javafx.application.Platform;
@@ -29,29 +27,21 @@ import purejavacomm.UnsupportedCommOperationException;
 import javax.swing.UIManager;
 import java.awt.Color;
 import javax.swing.JTextField;
-import javax.swing.border.EtchedBorder;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
-import java.beans.PropertyChangeEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.CardLayout;
 
 import javax.swing.AbstractButton;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.SwingConstants;
 import javax.swing.JRadioButton;
-import javax.swing.JToggleButton;
 import javax.swing.JCheckBox;
-import java.awt.FlowLayout;
 import javax.swing.JProgressBar;
-import javax.swing.border.SoftBevelBorder;
 import java.awt.SystemColor;
 import javax.swing.border.LineBorder;
 

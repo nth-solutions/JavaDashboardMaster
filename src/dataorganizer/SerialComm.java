@@ -1,21 +1,15 @@
 package dataorganizer;
 
-import java.awt.Color;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-import com.sun.javafx.collections.MappingChange.Map;
 
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
@@ -1003,8 +997,6 @@ public class SerialComm {
 					while(echoAttemptCounter < 5) {
 						int ackPreamble = -1;
 						int ackValue = -1;
-						//Create start time so a timeout can be calculated
-						long ackStart = System.currentTimeMillis();
 						//Executes until timeout occurs or data is received
 						while (((System.currentTimeMillis() - echoStart) < 500)) {
 							//Wait until there are at least 2 bytes in the input buffer

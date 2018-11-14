@@ -7,22 +7,14 @@ package dataorganizer;
 
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 /**
  *
  * @author Mobile2
  */
 public class BlackFrameAnalysis {
 	private int videoFPS = 240;
-	private final int DELAY_IN_SECONDS_BEFORE_LIGHT = 2;
 	private final int moduleSPS = 960;
 	private final int lengthOfTest = 120;
 	private final double T_INTERVAL = (1.0/(double)videoFPS);

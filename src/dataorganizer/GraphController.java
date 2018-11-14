@@ -101,9 +101,6 @@ public class GraphController implements Initializable{
 	private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();								//Initializes the list of series
 	private DataOrganizer[] dataCollector = new DataOrganizer[2];
 	private String csvFilePath;
-	private int selectionRangeType;
-	private double xRangeLow;
-	private double xRangeHigh;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle userCreatedZoomRectangleBox = new Rectangle();
 	private final Rectangle baselineRect = new Rectangle();
@@ -542,6 +539,7 @@ public class GraphController implements Initializable{
 		numDataSets--;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void createListenersResize() {
 		graphingPane.heightProperty().addListener(new ChangeListener() {
 			@Override
@@ -673,9 +671,6 @@ public class GraphController implements Initializable{
 	}
 	
 	public void getBaselineRange(Rectangle rect, LineChart<Number, Number> chart) {
-		final double MagicNumberOne, MagicNumberTwo;
-		MagicNumberOne = 1;
-		MagicNumberTwo = 0.7;
 		Point2D zoomTopLeft = new Point2D(userCreatedZoomRectangleBox.getX(), userCreatedZoomRectangleBox.getY());
 		Point2D zoomBottomRight = new Point2D(userCreatedZoomRectangleBox.getX() + userCreatedZoomRectangleBox.getWidth(), userCreatedZoomRectangleBox.getY() + userCreatedZoomRectangleBox.getHeight());
 		final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
@@ -687,8 +682,8 @@ public class GraphController implements Initializable{
 		double xAxisScale = xAxis.getScale();
 		double yAxisScale = yAxis.getScale();
 		
-		xRangeLow = (xAxis.getLowerBound() + xOffset / xAxisScale) - MagicNumberOne;
-		xRangeHigh = Double.parseDouble(roundTime.format((xAxis.getLowerBound() + userCreatedZoomRectangleBox.getWidth() / xAxisScale) - MagicNumberTwo) );
+		//xRangeLow = (xAxis.getLowerBound() + xOffset / xAxisScale) - MagicNumberOne;
+		//xRangeHigh = Double.parseDouble(roundTime.format((xAxis.getLowerBound() + userCreatedZoomRectangleBox.getWidth() / xAxisScale) - MagicNumberTwo) );
 	}
 	
 	/*** Sets Up and Performs Zooming ***/
