@@ -26,6 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -260,7 +262,7 @@ public class AdvancedMode extends JFrame {
 	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-17");
+		setTitle("JavaDashboard Rev-18");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -1006,6 +1008,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public void importCalDataHandler() {
+		generalStatusLabel.setText("Calculating Timer0 and Delay After start...");
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {	
 				configForCalButton.setEnabled(false);
@@ -1025,9 +1028,12 @@ public class AdvancedMode extends JFrame {
 					applyOffsetButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
+					
+					generalStatusLabel.setText("Timer0 and Delay After Start calculated, you may now apply them.");
 
 				} catch (IOException e) {
-					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+					e.printStackTrace();
+					generalStatusLabel.setText("Error reading file.");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
@@ -2142,11 +2148,27 @@ public class AdvancedMode extends JFrame {
 	
 	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		DataOrganizer dataOrgo = new DataOrganizer();
-		dataOrgo.createDataSamplesFromCSV(calibrationCSV);
-		dataOrgo.readAndSetTestParameters(calibrationCSV);
+		switch(dataOrgo.createDataSamplesFromCSV(calibrationCSV)) {
+		case -1:
+			generalStatusLabel.setText("File not found");
+		case -2:
+			generalStatusLabel.setText("Your CSVP file was corrupted. ");
+		case -3:
+			generalStatusLabel.setText("Could not read the file. Please close the file if it is open elsewhere.");
+		}
 		dataOrgo.getSignedData();
 		int[] offsets = dataOrgo.getCalibrationOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
-	
+		
+		xAxisAccelTextField.setText(Integer.toString(offsets[0]));
+		yAxisAccelTextField.setText(Integer.toString(offsets[1]));
+		zAxisAccelTextField.setText(Integer.toString(offsets[2]));
+		xAxisGyroTextField.setText(Integer.toString(offsets[3]));
+		yAxisGyroTextField.setText(Integer.toString(offsets[4]));
+		zAxisGyroTextField.setText(Integer.toString(offsets[5]));
+		xAxisMagTextField.setText(Integer.toString(offsets[6]));
+		yAxisMagTextField.setText(Integer.toString(offsets[7]));
+		zAxisMagTextField.setText(Integer.toString(offsets[8]));
+		
 		serialHandler.setMPUMinMax(dataOrgo.MPUMinMax);
 	}
 	
@@ -2553,6 +2575,8 @@ public class AdvancedMode extends JFrame {
 				chooser = new JFileChooser(); 
 				chooser.setCurrentDirectory(new java.io.File("."));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
+				chooser.setFileFilter(filter);
 				chooser.setAcceptAllFileFilterUsed(false);
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					csvFileTwoLocationTextField.setText(chooser.getSelectedFile().toString());
@@ -2623,9 +2647,16 @@ public class AdvancedMode extends JFrame {
 				chooser = new JFileChooser(); 
 				chooser.setCurrentDirectory(new java.io.File("."));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Workbook", "xlsx");
+				chooser.setFileFilter(filter);
 				chooser.setAcceptAllFileFilterUsed(false);
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-					outputFileTextField.setText(chooser.getSelectedFile().toString());
+					if(!chooser.getSelectedFile().toString().contains(".xlsx")) {
+
+						outputFileTextField.setText(chooser.getSelectedFile().toString()+".xlsx");
+					}else {
+						outputFileTextField.setText(chooser.getSelectedFile().toString());
+					}
 				}
 				else {
 					outputFileTextField.setText(null);
@@ -2640,6 +2671,8 @@ public class AdvancedMode extends JFrame {
 				chooser = new JFileChooser(); 
 				chooser.setCurrentDirectory(new java.io.File("."));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
+				chooser.setFileFilter(filter);
 				chooser.setAcceptAllFileFilterUsed(false);
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					csvFileOneLocationTextField.setText(chooser.getSelectedFile().toString());
@@ -2839,35 +2872,6 @@ public class AdvancedMode extends JFrame {
 		zAxisMagTextField.setBounds(414, 104, 86, 20);
 		mpuCalibrationPanel.add(zAxisMagTextField);
 		
-		JButton writeOffsetsBtn = new JButton("Write Offsets");
-		writeOffsetsBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					int[] offsets = {
-								Integer.parseInt(xAxisAccelTextField.getText()), Integer.parseInt(yAxisAccelTextField.getText()), Integer.parseInt(zAxisAccelTextField.getText()),
-								Integer.parseInt(xAxisGyroTextField.getText()), Integer.parseInt(yAxisGyroTextField.getText()), Integer.parseInt(zAxisGyroTextField.getText()),
-								Integer.parseInt(xAxisMagTextField.getText()), Integer.parseInt(yAxisMagTextField.getText()), Integer.parseInt(zAxisMagTextField.getText()),
-					};
-					if(serialHandler.setMPUOffsets(offsets)) {
-						generalStatusLabel.setText("Successfully wrote all offsets");
-					}
-				} catch (NumberFormatException e1) {
-					generalStatusLabel.setText("Please enter valid offsets (0-65535)");
-				} catch (IOException e1) {
-					generalStatusLabel.setText("Please reconnect module.");
-				} catch (PortInUseException e1) {
-					generalStatusLabel.setText("There was an issue, please reconnect module");
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (UnsupportedCommOperationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			}
-		});
-		writeOffsetsBtn.setBounds(336, 133, 104, 23);
-		mpuCalibrationPanel.add(writeOffsetsBtn);
-		
 		JButton readOffsetsBtn = new JButton("Read Offsets");
 		readOffsetsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2904,7 +2908,7 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		});
-		readOffsetsBtn.setBounds(183, 133, 104, 23);
+		readOffsetsBtn.setBounds(10, 133, 605, 23);
 		mpuCalibrationPanel.add(readOffsetsBtn);
 		
 		JLabel label_6 = new JLabel("CSV Location: ");
@@ -2972,6 +2976,8 @@ public class AdvancedMode extends JFrame {
 				chooser = new JFileChooser(); 
 				chooser.setCurrentDirectory(new java.io.File("."));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
+				chooser.setFileFilter(filter);
 				chooser.setAcceptAllFileFilterUsed(false);
 				if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					calibrationCSVTextField.setText(chooser.getSelectedFile().toString());
@@ -3031,31 +3037,31 @@ public class AdvancedMode extends JFrame {
 				
 				
 				serialNumberTextField = new JTextField();
-				serialNumberTextField.setBounds(99, 0, 132, 23);
+				serialNumberTextField.setBounds(99, 37, 132, 23);
 				adminPanelContent.add(serialNumberTextField);
 				serialNumberTextField.setColumns(10);
 				
 				JButton writeSerialNumberBtn = new JButton("Write");
-				writeSerialNumberBtn.setBounds(251, 0, 89, 23);
+				writeSerialNumberBtn.setBounds(251, 37, 89, 23);
 				adminPanelContent.add(writeSerialNumberBtn);
 				
 				JLabel lblSerialNumber = new JLabel("Serial Number");
-				lblSerialNumber.setBounds(0, 0, 89, 23);
+				lblSerialNumber.setBounds(0, 37, 89, 23);
 				adminPanelContent.add(lblSerialNumber);
 				lblSerialNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				
 				JLabel lblModelNumber = new JLabel("Model Number");
-				lblModelNumber.setBounds(0, 33, 89, 23);
+				lblModelNumber.setBounds(0, 70, 89, 23);
 				adminPanelContent.add(lblModelNumber);
 				lblModelNumber.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				
 				modelNumberTextField = new JTextField();
-				modelNumberTextField.setBounds(99, 33, 132, 23);
+				modelNumberTextField.setBounds(99, 70, 132, 23);
 				adminPanelContent.add(modelNumberTextField);
 				modelNumberTextField.setColumns(10);
 				
 				JButton button = new JButton("Write");
-				button.setBounds(251, 33, 89, 23);
+				button.setBounds(251, 70, 89, 23);
 				adminPanelContent.add(button);
 				button.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
@@ -3113,8 +3119,8 @@ public class AdvancedMode extends JFrame {
 				
 				JPanel passwordPanel = new JPanel();
 				passwordPanel.setBounds(0, 0, 625, 356);
-				//adminPanel.add(passwordPanel);
-				adminPanel.add(adminPanelContent);
+				adminPanel.add(passwordPanel);
+				//adminPanel.add(adminPanelContent);
 				passwordPanel.setLayout(null);
 				
 				passwordTextField = new JTextField();

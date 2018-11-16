@@ -122,7 +122,7 @@ public class MediaPlayerController implements Initializable {
                     frameByFrameCheckbox.setDisable(false);
 
                     mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
-                    currentFrame = "Current Frame: " + String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
+                    currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
                     playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
                     timeStampSlider.setMax(round(media.getDuration().toMillis()));
                     totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
@@ -135,6 +135,7 @@ public class MediaPlayerController implements Initializable {
 
                     timeStampSlider.setValue(round(newValue.toMillis()));                                                                                       // Updates the slider circle to be located wherever the video is along playback
 
+                    currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
                     playbackTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
                     totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(media.getDuration().toSeconds()) + "s"));                 // Displays the total video length in seconds
 

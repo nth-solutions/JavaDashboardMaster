@@ -224,7 +224,6 @@ public class DataOrganizer {
 		PrintWriter dataFile = null;
 		try {
 			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); //Create new file in CSVDirectory, file extension is .csvp 
-			//System.out.println(CSVPath + File.separator + nameOfTest + "p");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -278,14 +277,14 @@ public class DataOrganizer {
 				// I guess we can't close the corrupt file either.
 			}
 			return -2;	//Corrupt .CSVP
-		} catch( IOException e) {
+		} catch(IOException e) {
 			e.printStackTrace();
 			try {
 				CSVPFile.close();
 			} catch (IOException e1) {
 				// I guess we can't close the corrupt file either.
 			}
-			return -1; //Permissions error as well.
+			return -3; //Permissions error as well.
 		}
 
 
@@ -389,8 +388,11 @@ public class DataOrganizer {
 	}
 
 
-	public void createDataSamplesFromCSV(String CSVFilePath) { 
-		readAndSetTestParameters(CSVFilePath + 'p'); //CSVP file. Should be kept with CSV File
+	public int createDataSamplesFromCSV(String CSVFilePath) { 
+		int errNum;
+		if((errNum = readAndSetTestParameters(CSVFilePath + 'p')) != 0) { //CSVP file. Should be kept with CSV File
+			return errNum;
+		}
 		dataSamples = new ArrayList<List<Double>>();	
 
 		double interval = (1.0 / sampleRate);
@@ -423,7 +425,7 @@ public class DataOrganizer {
 				}
 			}
 		} catch (FileNotFoundException ex) {
-			System.out.println(" NO FIle FOUND");
+			System.out.println("NO FILE FOUND");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -439,6 +441,7 @@ public class DataOrganizer {
 		for(int i = 0; i <dataSamples.get(1).size();i++) {
 			dataSamples.get(0).add( (double)i / (double)sampleRate);
 		}
+		return 0;
 	}
 
 
@@ -758,7 +761,9 @@ public class DataOrganizer {
 
 		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 
 			MpuMinMax[axi][0] = Collections.min(inRangeMeans.get(axi));
+			System.out.println(MpuMinMax[axi][0]);
 			MpuMinMax[axi][1] = Collections.max(inRangeMeans.get(axi));
+			System.out.println(MpuMinMax[axi][1]);
 			int offset = ((MpuMinMax[axi][0]+MpuMinMax[axi][1])/2);
 			if(offset > 1024) return null;
 			axisOffsets[axi-1] = offset;
