@@ -2581,7 +2581,9 @@ public class AdvancedMode extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
 				chooser = new JFileChooser(); 
-				chooser.setCurrentDirectory(new java.io.File("."));
+				Settings settings = new Settings();
+				settings.loadConfigFile();
+				chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
 				chooser.setFileFilter(filter);
@@ -2652,8 +2654,10 @@ public class AdvancedMode extends JFrame {
 		button_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
-				chooser = new JFileChooser(); 
-				chooser.setCurrentDirectory(new java.io.File("."));
+				chooser = new JFileChooser();
+				Settings settings = new Settings();
+				settings.loadConfigFile();
+				chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel Workbook", "xlsx");
 				chooser.setFileFilter(filter);
@@ -2677,7 +2681,9 @@ public class AdvancedMode extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
 				chooser = new JFileChooser(); 
-				chooser.setCurrentDirectory(new java.io.File("."));
+				Settings settings = new Settings();
+				settings.loadConfigFile();
+				chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
 				chooser.setFileFilter(filter);
