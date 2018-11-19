@@ -2426,8 +2426,10 @@ public class AdvancedMode extends JFrame {
 		panel.setLayout(new GridLayout(2, 2, 0, 0));
 
 		checkBoxLabelCSV = new JCheckBox("Label Data in .CSV");
+		checkBoxLabelCSV.setToolTipText("If checked, we will add a time axis, and column headers.\r\n\r\nThe headers are \"t, AccelX, AccelY, AccelZ, GyroX, GyroY, GyroZ, MagX, MagY, MagZ\"");
 
 		checkBoxSignedData = new JCheckBox("Signed Data");
+		checkBoxSignedData.setToolTipText("If checked, the data written to the CSV will be signed. ");
 
 		panel.add(checkBoxSignedData);
 		panel.add(checkBoxLabelCSV);
