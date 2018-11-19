@@ -674,10 +674,10 @@ public class DataOrganizer {
 			inRangeMeans.add(new ArrayList<Integer>());
 			offsetIndexes.add(new ArrayList<Integer>());
 			int avg = 0;
-			for(int i = 0; i < means.get(axi).size(); i++) {
-				if(means.get(axi).get(i) < (-2048 + 1800) && means.get(axi).get(i) > (-2048 - 1800)) { //If the lowest mean is inside tolerancess
-					if(stdDevMax > stdDevBlock.get(axi).get(i)) {
-						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
+			for(int i = 0; i < means.get(axi).size(); i++) { //iterate through means
+				if(means.get(axi).get(i) < (-2048 + 1800) && means.get(axi).get(i) > (-2048 - 1800)) { //find means inside -1g range
+					if(stdDevMax > stdDevBlock.get(axi).get(i)) { //confirm std deviation is in range
+						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) { //create average for sample block
 							int curVal = (int)Math.round(dataSamples.get(axi).get(offsetCalcSampleCounter));
 							if (curVal > 32768) {
 								curVal -= 65535;
@@ -689,9 +689,9 @@ public class DataOrganizer {
 						inRangeMeans.get(axi).add(avg);
 					}
 				}
-				else if(means.get(axi).get(i) < (2048 + 1800) && means.get(axi).get(i) > (2048 - 1800)) { //If the lowest mean is inside tolerancess
-					if(stdDevMax > stdDevBlock.get(axi).get(i)) {
-						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) {
+				else if(means.get(axi).get(i) < (2048 + 1800) && means.get(axi).get(i) > (2048 - 1800)) { //find means inside +1g range
+					if(stdDevMax > stdDevBlock.get(axi).get(i)) { //confirm std deviation is in range
+						for(int offsetCalcSampleCounter = i*readBlockLength; offsetCalcSampleCounter < i*readBlockLength+readBlockLength; offsetCalcSampleCounter++) { //create average for sample block
 							int curVal = (int)Math.round(dataSamples.get(axi).get(offsetCalcSampleCounter));
 							if (curVal > 32768) {
 								curVal -= 65535;
@@ -761,11 +761,8 @@ public class DataOrganizer {
 
 		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 
 			MpuMinMax[axi][0] = Collections.min(inRangeMeans.get(axi));
-			System.out.println(MpuMinMax[axi][0]);
 			MpuMinMax[axi][1] = Collections.max(inRangeMeans.get(axi));
-			System.out.println(MpuMinMax[axi][1]);
 			int offset = ((MpuMinMax[axi][0]+MpuMinMax[axi][1])/2);
-			if(offset > 1024) return null;
 			axisOffsets[axi-1] = offset;
 		}
 

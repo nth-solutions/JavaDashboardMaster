@@ -287,6 +287,9 @@ public class GraphController implements Initializable{
 		try {																																		//Try/Catch that catches Null Pointer Exception when no file is selected
 			FileChooser fileChooser = new FileChooser();																							//Creates a FileChooser Object
 			fileChooser.setTitle("Select a CSV");																									//Sets the title of the FileChooser object
+			Settings settings = new Settings();
+			settings.loadConfigFile();
+			fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
 			FileChooser.ExtensionFilter filterCSVs  = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");		//Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
 			fileChooser.getExtensionFilters().add(filterCSVs);																						//Adds the filter to the FileChooser
 			File fileChosen = fileChooser.showOpenDialog(null);																		//Assigns the user's selected file to the fileChosen variable

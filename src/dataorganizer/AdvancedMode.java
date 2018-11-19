@@ -578,6 +578,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(false);
 				disconnectButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
+				exitTestModeButton.setEnabled(false);
 
 				generalStatusLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
 				progressBar.setValue(0);
@@ -619,6 +620,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(true);
 				disconnectButton.setEnabled(true);
 				getModuleIDButton.setEnabled(true);
+				exitTestModeButton.setEnabled(true);
 
 
 			}
@@ -644,6 +646,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(false);
 				disconnectButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
+				exitTestModeButton.setEnabled(false);
 				disableTabChanges();
 
 				generalStatusLabel.setText("Unpairing all Remotes...");
@@ -675,6 +678,7 @@ public class AdvancedMode extends JFrame {
 				testRemotesButton.setEnabled(true);
 				disconnectButton.setEnabled(true);
 				getModuleIDButton.setEnabled(true);
+				exitTestModeButton.setEnabled(true);
 				enableTabChanges();
 
 				generalStatusLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
@@ -2281,9 +2285,10 @@ public class AdvancedMode extends JFrame {
 		mainPanelContainer.add(mainTabbedPanel);
 		
 				JPanel configurationPanel = new JPanel();
+				configurationPanel.setToolTipText("");
 				configurationPanel.setPreferredSize(new Dimension(500, 1000));
 				configurationPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				mainTabbedPanel.addTab("Configure Test Parameters", null, configurationPanel, null);
+				mainTabbedPanel.addTab("Configure Test Parameters", null, configurationPanel, "Configure module sample rate, sensitivities, filters, and time intervals.");
 				configurationPanel.setLayout(new GridLayout(0, 2, 0, 0));
 				
 						timedTestCheckbox = new JCheckBox("Timed Test");
@@ -2398,8 +2403,9 @@ public class AdvancedMode extends JFrame {
 																																				configurationPanel.add(writeConfigsButton);
 
 		JPanel readPanel = new JPanel();
+		readPanel.setToolTipText("");
 		readPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		mainTabbedPanel.addTab("Read Tests", null, readPanel, null);
+		mainTabbedPanel.addTab("Read Tests", null, readPanel, "Read test data and output to csv.");
 		readPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
 		fileNamePanel = new JPanel();
@@ -2511,11 +2517,13 @@ public class AdvancedMode extends JFrame {
 		paramPanel.add(gyroFilterTextFieldRead);
 		
 				testRecordationPanel = new JPanel();
-				mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, null);
+				testRecordationPanel.setToolTipText("");
+				mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, "Here you will find a list of tests you have just read from a module. From here you can quickly launch graphs and use SINC Technology.");
 				testRecordationPanel.setLayout(null);
 		
 		panel9 = new JPanel();
-		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, null);
+		panel9.setToolTipText("");
+		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
 		
 		templateComboBox = new JComboBox();
 		templateComboBox.setBounds(231, 24, 384, 20);
@@ -2684,7 +2692,7 @@ public class AdvancedMode extends JFrame {
 		});
 
 		erasePanel = new JPanel();
-		mainTabbedPanel.addTab("Test/Erase", null, erasePanel, null);
+		mainTabbedPanel.addTab("Test/Erase", null, erasePanel, "Erase test data, Sector Erase is quick but prone to failure. Use Bulk Erase to ensure all test data has been deleted from the module.");
 		erasePanel.setLayout(new GridLayout(3, 1, 0, 0));
 
 		eraseButtonPanel = new JPanel();
@@ -2721,7 +2729,7 @@ public class AdvancedMode extends JFrame {
 		erasePanel.add(startTestBtn);
 
 		JPanel calibrationPanel = new JPanel();
-		mainTabbedPanel.addTab("SINC\u2122 Calibration", null, calibrationPanel, null);
+		mainTabbedPanel.addTab("SINC\u2122 Calibration", null, calibrationPanel, "BioForce module-camera synchronization");
 		calibrationPanel.setLayout(new GridLayout(0, 1, 0, 0));
 
 		configForCalButton = new JButton("Configure Module for Calibration");
@@ -2794,7 +2802,7 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(applyOffsetButton);
 		
 		mpuCalibrationPanel = new JPanel();
-		mainTabbedPanel.addTab("MPU Calibration", null, mpuCalibrationPanel, null);
+		mainTabbedPanel.addTab("MPU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
 		mpuCalibrationPanel.setLayout(null);
 		
 		JLabel label = new JLabel("Accel");
@@ -2974,7 +2982,9 @@ public class AdvancedMode extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser;
 				chooser = new JFileChooser(); 
-				chooser.setCurrentDirectory(new java.io.File("."));
+				Settings settings = new Settings();
+				settings.loadConfigFile();
+				chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
 				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 				FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
 				chooser.setFileFilter(filter);
@@ -2991,7 +3001,7 @@ public class AdvancedMode extends JFrame {
 		mpuCalibrationPanel.add(btnNewButton);
 
 		remoteTab = new JPanel();
-		mainTabbedPanel.addTab("Remote Control", null, remoteTab, null);
+		mainTabbedPanel.addTab("Remote Control", null, remoteTab, "Remote controls can be paired, tested, and removed here.");
 		remoteTab.setLayout(new GridLayout(0, 1, 0, 0));
 
 		RemoteButtonPanel = new JPanel();
@@ -3075,7 +3085,7 @@ public class AdvancedMode extends JFrame {
 				});
 		
 		launcherPane = new JPanel();
-		mainTabbedPanel.addTab("Launchers", null, launcherPane, null);
+		mainTabbedPanel.addTab("Launchers", null, launcherPane, "Graph and media-player launchers");
 		launcherPane.setLayout(null);
 		
 		graphLauncherBtn = new JButton("Graph");
@@ -3114,7 +3124,7 @@ public class AdvancedMode extends JFrame {
 		launcherPane.add(mediaPlayerLauncherBtn);
 		
 				adminPanel = new JPanel();
-				mainTabbedPanel.addTab("Admin Panel", null, adminPanel, null);
+				mainTabbedPanel.addTab("Admin Panel", null, adminPanel, "Secret!");
 				adminPanel.setLayout(null);
 				
 				JPanel passwordPanel = new JPanel();
