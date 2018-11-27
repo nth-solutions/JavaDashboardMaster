@@ -85,6 +85,9 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void handleFileOpener(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();                                                                                                            // Creates a FileChooser Object
+        Settings settings = new Settings();
+        settings.loadConfigFile();
+        fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
         fileChooser.setTitle("Select a Video File");                                                                                                            // Sets the title of the file selector
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");                           // Creates a filter that limits fileChooser's search parameters to *.mp4 files
         fileChooser.getExtensionFilters().add(filter);                                                                                                          // Initializes the filter into the fileChooser object
@@ -92,13 +95,14 @@ public class MediaPlayerController implements Initializable {
         File file = fileChooser.showOpenDialog(null);                                                                                              // Specifies the parent component for the dialog
 
         fileCopy = file;                                                                                                                                        // File object necessary for use in the reset handler
-
+        
         try {
 			readFileFPSFromFFMpeg();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
         
         if (file != null) {                                                                                                                                     // If the filepath contains a valid file the following code is initiated ->
             filePath = file.toURI().toString();                                                                                                                 // Sets the user's selection to a file path that will be used to select the video file to be displayed
@@ -110,7 +114,7 @@ public class MediaPlayerController implements Initializable {
             selectFileButton.setDisable(true);                                                                                                                  // Disables the button used to select a file following a selection
             generalStatusText.setText("");                                                                                                                      // Removes the status text from the top of the player after the user selects a file
             noVideoSelectedText.setVisible(false);
-
+            
             mediaPlayer.setOnReady(new Runnable() {                                                                                                             // Sets the maximum value of the slider bar equal to the total duration of the file
                 @Override
                 public void run() {
@@ -121,6 +125,7 @@ public class MediaPlayerController implements Initializable {
                     rateChangeSlider.setDisable(false);
                     frameByFrameCheckbox.setDisable(false);
 
+                    System.out.println("Here we play.");
                     mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
                     currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
                     playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
@@ -144,21 +149,6 @@ public class MediaPlayerController implements Initializable {
                 }
             });
         }
-    }
-
-    @FXML
-    public void handleFrameRateSelection(ActionEvent event) {
-            resetButton.setDisable(false);                                                                                                                      // Enables buttons following a valid file selection
-            playPauseButton.setDisable(false);
-            timeStampSlider.setDisable(false);
-            rateChangeSlider.setDisable(false);
-            frameByFrameCheckbox.setDisable(false);
-
-            mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
-            playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
-
-
-            totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
     }
 
     @FXML

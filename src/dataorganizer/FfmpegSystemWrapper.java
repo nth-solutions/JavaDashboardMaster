@@ -32,7 +32,7 @@ public class FfmpegSystemWrapper {
 	 */
 	public String getBinRoot() {
 		if(OSName.toLowerCase().contains("windows") && Arch.contains("64")) {
-			return "ffmpeg-win64-static\\bin\\";
+			return "ffmpeg\\ffmpeg-win64-static\\bin\\";
 		}
 		return null;
 	}

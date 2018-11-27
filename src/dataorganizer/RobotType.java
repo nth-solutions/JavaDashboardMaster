@@ -27,11 +27,12 @@ public class RobotType {
 		goToFirstSheet();
 		refreshSheet();		
 		nextDataSheet();
-		refreshSheet();															
+		refreshSheet();	
+		nextDataSheet();														
 	}
 	
 
-	public void openAndRefreshMultiModuleTemplate(String excelTemplateLocation) {
+	public void openAndRefreshTwoModuleTemplate(String excelTemplateLocation) {
 		openWorkbook(excelTemplateLocation);
 		robot.delay(9000);	//Delay for opening the excel workbook
 		goToFirstSheet();
@@ -42,6 +43,7 @@ public class RobotType {
 		refreshSheet();
 		nextDataSheet();
 		refreshSheet();
+		nextDataSheet();
 	}
 	
 	public void openWorkbook(String excelTemplateLocation) {

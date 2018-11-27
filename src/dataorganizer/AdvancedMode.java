@@ -259,10 +259,10 @@ public class AdvancedMode extends JFrame {
 	private JButton btnNewButton;
 	
 	/**
-	 * Dashboard constructor that initialzies the name of the window, all the components on it, and the data within the necessary text fields
+	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-18");
+		setTitle("JavaDashboard Rev-19");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -1968,7 +1968,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public boolean writeTemplateWithOneDataSetHandler(DataOrganizer dataOrgo) {
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		
 
 		dataOrgo.createDataSamplesFromCSV(csvFileOneLocationTextField.getText());
@@ -1995,7 +1995,7 @@ public class AdvancedMode extends JFrame {
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.dir")+"\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
 
 		dataOrgoTwo.createDataSamplesFromCSV(csvFileTwoLocationTextField.getText());
@@ -2292,6 +2292,7 @@ public class AdvancedMode extends JFrame {
 				configurationPanel.setLayout(new GridLayout(0, 2, 0, 0));
 				
 						timedTestCheckbox = new JCheckBox("Timed Test");
+						timedTestCheckbox.setToolTipText("Use predefined test length?");
 						timedTestCheckbox.setSelected(true);
 						timedTestCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 						configurationPanel.add(timedTestCheckbox);
@@ -2302,13 +2303,15 @@ public class AdvancedMode extends JFrame {
 									}
 								});
 								
-										triggerOnReleaseCheckbox = new JCheckBox("Trigger on Release");
+										triggerOnReleaseCheckbox = new JCheckBox("Trigger on release");
+										triggerOnReleaseCheckbox.setToolTipText("If checked, the module will  start a test on release of the push button.  Unchecked will be on push. (If you are using multiple modules with a remote, we recommend leaving this checked.)");
 										triggerOnReleaseCheckbox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 										triggerOnReleaseCheckbox.setSelected(true);
 										configurationPanel.add(triggerOnReleaseCheckbox);
 										
 										
 												accelGyroSampleRateCombobox = new JComboBox();
+												accelGyroSampleRateCombobox.setToolTipText("Sample rate for Accelerometer and Gyroscope");
 												accelGyroSampleRateCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 												accelGyroSampleRateCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 												configurationPanel.add(accelGyroSampleRateCombobox);
@@ -2321,7 +2324,7 @@ public class AdvancedMode extends JFrame {
 												
 														magSampleRateTextField = new JTextField();
 														magSampleRateTextField.setEditable(false);
-														magSampleRateTextField.setToolTipText("Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
+														magSampleRateTextField.setToolTipText("Read Only. Automatically updates based on Accel/Gyro Sample Rate. Type desired sample rate then press 'Enter'");
 														magSampleRateTextField.setText("96");
 														magSampleRateTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 														magSampleRateTextField.setColumns(10);
@@ -2329,27 +2332,31 @@ public class AdvancedMode extends JFrame {
 														configurationPanel.add(magSampleRateTextField);
 														
 																accelSensitivityCombobox = new JComboBox();
+																accelSensitivityCombobox.setToolTipText("Accelerometer maximum reading before overflow.");
 																accelSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																accelSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Sensitivity (G)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 																configurationPanel.add(accelSensitivityCombobox);
 																
 																		gyroSensitivityCombobox = new JComboBox();
+																		gyroSensitivityCombobox.setToolTipText("Gyroscope maximum reading before overflow");
 																		gyroSensitivityCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																		gyroSensitivityCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Sensitivity (d/s)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 																		configurationPanel.add(gyroSensitivityCombobox);
 																		
 																				accelFilterCombobox = new JComboBox();
+																				accelFilterCombobox.setToolTipText("Noise filter level");
 																				accelFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																				accelFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 																				configurationPanel.add(accelFilterCombobox);
 																				
 																						gyroFilterCombobox = new JComboBox();
+																						gyroFilterCombobox.setToolTipText("Noise filter level");
 																						gyroFilterCombobox.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																						gyroFilterCombobox.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 																						configurationPanel.add(gyroFilterCombobox);
 																						
 																								testLengthTextField = new JTextField();
-																								testLengthTextField.setToolTipText("Minimum of 2 seconds, maximum of 65535 seconds");
+																								testLengthTextField.setToolTipText("Set predefined test length. Minimum of 2 seconds, maximum of 65535 seconds");
 																								testLengthTextField.setText("25");
 																								testLengthTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																								testLengthTextField.setColumns(10);
@@ -2365,6 +2372,7 @@ public class AdvancedMode extends JFrame {
 																										configurationPanel.add(batteryTimeoutTextField);
 																										
 																												timer0TickThreshTextField = new JTextField();
+																												timer0TickThreshTextField.setToolTipText("Read Only. ");
 																												timer0TickThreshTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																												timer0TickThreshTextField.setEditable(false);
 																												timer0TickThreshTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Tick Threshold (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
@@ -2372,6 +2380,7 @@ public class AdvancedMode extends JFrame {
 																												timer0TickThreshTextField.setColumns(10);
 																												
 																														delayAfterStartTextField = new JTextField();
+																														delayAfterStartTextField.setToolTipText("Read Only.");
 																														delayAfterStartTextField.setFont(new Font("Tahoma", Font.PLAIN, 13));
 																														delayAfterStartTextField.setEditable(false);
 																														delayAfterStartTextField.setColumns(10);
@@ -2418,6 +2427,7 @@ public class AdvancedMode extends JFrame {
 		startReadButtonPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
 		readDataButton = new JButton("Read Data from Module");
+		readDataButton.setToolTipText("Press to read tests from your module. View your tests from \"Stored Tests\" tab. ");
 		readDataButton.setEnabled(false);
 		startReadButtonPanel.add(readDataButton);
 
@@ -2458,6 +2468,7 @@ public class AdvancedMode extends JFrame {
 		fileLocationPanel.setLayout(null);
 		
 		fileNameTextField = new JTextField();
+		fileNameTextField.setToolTipText("Auto-generated file name will included your parameters. Include your own details in the \"File Name Prefix\", or \"File Name Suffix\"  text fields.");
 		fileNameTextField.setBounds(0, 0, 630, 50);
 		fileNameTextField.setMinimumSize(new Dimension(600, 50));
 		fileNameTextField.setMaximumSize(new Dimension(500, 50));
@@ -2471,48 +2482,56 @@ public class AdvancedMode extends JFrame {
 		paramPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
 		numTestsTextFieldRead = new JTextField();
+		numTestsTextFieldRead.setToolTipText("(Read Only.) Number of tests being read from the module");
 		numTestsTextFieldRead.setEditable(false);
 		numTestsTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Number Of Tests", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(numTestsTextFieldRead);
 		numTestsTextFieldRead.setColumns(10);
 
 		testLengthTextFieldRead = new JTextField();
+		testLengthTextFieldRead.setToolTipText("(Read Only.) Length of each test. (If you ran an untimed tests, this will be reported as 0)");
 		testLengthTextFieldRead.setEditable(false);
 		testLengthTextFieldRead.setColumns(10);
 		testLengthTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Test Length (s)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(testLengthTextFieldRead);
 
 		accelGyroSampleRateTextFieldRead = new JTextField();
+		accelGyroSampleRateTextFieldRead.setToolTipText("(Read Only.) Sample rate for Accelerometer and Gyroscope");
 		accelGyroSampleRateTextFieldRead.setEditable(false);
 		accelGyroSampleRateTextFieldRead.setColumns(10);
 		accelGyroSampleRateTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accel/Gyro Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(accelGyroSampleRateTextFieldRead);
 
 		magSampleRateTextFieldRead = new JTextField();
+		magSampleRateTextFieldRead.setToolTipText("(Read Only.) Magnetometer  sample rate. ");
 		magSampleRateTextFieldRead.setEditable(false);
 		magSampleRateTextFieldRead.setColumns(10);
 		magSampleRateTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Mag Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(magSampleRateTextFieldRead);
 
 		accelSensitivityTextFieldRead = new JTextField();
+		accelSensitivityTextFieldRead.setToolTipText("(Read Only.) ");
 		accelSensitivityTextFieldRead.setEditable(false);
 		accelSensitivityTextFieldRead.setColumns(10);
 		accelSensitivityTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Sensitivity (G)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(accelSensitivityTextFieldRead);
 
 		gyroSensitivityTextFieldRead = new JTextField();
+		gyroSensitivityTextFieldRead.setToolTipText("(Read Only.)");
 		gyroSensitivityTextFieldRead.setEditable(false);
 		gyroSensitivityTextFieldRead.setColumns(10);
 		gyroSensitivityTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Sample Rate (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(gyroSensitivityTextFieldRead);
 
 		accelFilterTextFieldRead = new JTextField();
+		accelFilterTextFieldRead.setToolTipText("(Read Only.)");
 		accelFilterTextFieldRead.setEditable(false);
 		accelFilterTextFieldRead.setColumns(10);
 		accelFilterTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Accelerometer Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		paramPanel.add(accelFilterTextFieldRead);
 
 		gyroFilterTextFieldRead = new JTextField();
+		gyroFilterTextFieldRead.setToolTipText("(Read Only.)");
 		gyroFilterTextFieldRead.setEditable(false);
 		gyroFilterTextFieldRead.setColumns(10);
 		gyroFilterTextFieldRead.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Gyroscope Filter (Hz)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -2528,11 +2547,12 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
 		
 		templateComboBox = new JComboBox();
+		templateComboBox.setToolTipText("Select the template. To put data in.");
 		templateComboBox.setBounds(231, 24, 384, 20);
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				File[] listOfFiles = new File(System.getProperty("user.dir")+"\\EducatorTemplates").listFiles();
+				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\").listFiles();
 				for(File file : listOfFiles) {
 					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
 						templateComboBox.addItem(file.getName());	
@@ -2554,6 +2574,7 @@ public class AdvancedMode extends JFrame {
 		panel9.add(lblNewLabel_4);
 		
 		csvFileOneLocationTextField = new JTextField();
+		csvFileOneLocationTextField.setToolTipText("Use the browse button on the right to select the data file for the first module.");
 		csvFileOneLocationTextField.setBounds(231, 67, 250, 20);
 		panel9.add(csvFileOneLocationTextField);
 		csvFileOneLocationTextField.setColumns(10);
@@ -2573,6 +2594,7 @@ public class AdvancedMode extends JFrame {
 		panel9.add(lblModuleCsv);
 		
 		csvFileTwoLocationTextField = new JTextField();
+		csvFileTwoLocationTextField.setToolTipText("Use the browse button on the right to select the data file for the second module.");
 		csvFileTwoLocationTextField.setEditable(false);
 		csvFileTwoLocationTextField.setColumns(10);
 		csvFileTwoLocationTextField.setBounds(231, 136, 250, 20);
@@ -2606,9 +2628,10 @@ public class AdvancedMode extends JFrame {
 		panel9.add(separator_2);
 		
 		JButton createTemplateBtn = new JButton("Create Template");
+		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		createTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if(outputFileTextField.getText().isEmpty()) { generalStatusLabel.setText("Please choose the output file location."); }
+				if(outputFileTextField.getText().isEmpty()) { generalStatusLabel.setText("Please choose the output file location."); return;}
 
 				if(!csvFileOneLocationTextField.getText().isEmpty() && csvFileTwoLocationTextField.getText().isEmpty()) {
 					generalStatusLabel.setText("Reading template and data...");
@@ -2617,7 +2640,7 @@ public class AdvancedMode extends JFrame {
 						JFrame parent = new JFrame();
 						JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
 						
-						new RobotType().openAndRefreshMultiModuleTemplate(outputFileTextField.getText());
+						new RobotType().openAndRefreshTemplate(outputFileTextField.getText());
 					}
 				}
 				
@@ -2631,7 +2654,7 @@ public class AdvancedMode extends JFrame {
 						JFrame parent = new JFrame();
 						JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
 						
-						new RobotType().openAndRefreshMultiModuleTemplate(outputFileTextField.getText());
+						new RobotType().openAndRefreshTwoModuleTemplate(outputFileTextField.getText());
 					}
 				}
 				generalStatusLabel.setText("");
@@ -2646,6 +2669,7 @@ public class AdvancedMode extends JFrame {
 		panel9.add(lblNewLabel_5);
 		
 		outputFileTextField = new JTextField();
+		outputFileTextField.setToolTipText("Use the browse button on the right to select the output file.");
 		outputFileTextField.setEditable(false);
 		outputFileTextField.setColumns(10);
 		outputFileTextField.setBounds(231, 199, 250, 20);
@@ -2739,7 +2763,8 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel.addTab("SINC\u2122 Calibration", null, calibrationPanel, "BioForce module-camera synchronization");
 		calibrationPanel.setLayout(new GridLayout(0, 1, 0, 0));
 
-		configForCalButton = new JButton("Configure Module for Calibration");
+		configForCalButton = new JButton("Configure Module for SINC Calibration");
+		configForCalButton.setToolTipText("This will put the module into calibration mode,  so the next test you run will be  for SINC calibration.");
 		configForCalButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		configForCalButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2749,6 +2774,7 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(configForCalButton);
 
 		importCalDataButton = new JButton("Import Calibration Data and Calculate Offset");
+		importCalDataButton.setToolTipText("This button will analyze the video you recorded and calculate the  Timer0 and Delay After Start text fields.");
 		importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		importCalDataButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2761,6 +2787,7 @@ public class AdvancedMode extends JFrame {
 		videoBrowsePanel.setLayout(new BoxLayout(videoBrowsePanel, BoxLayout.X_AXIS));
 
 		videoFilePathTextField = new JTextField();
+		videoFilePathTextField.setToolTipText("Use the browse button to select the video you recorded.");
 		videoFilePathTextField.setMaximumSize(new Dimension(500, 2147483647));
 		videoFilePathTextField.setMinimumSize(new Dimension(500, 100));
 		videoFilePathTextField.setColumns(10);
@@ -2780,6 +2807,7 @@ public class AdvancedMode extends JFrame {
 		calibrationPanel.add(importCalDataButton);
 
 		applyOffsetButton = new JButton("Apply Offset to Module");
+		applyOffsetButton.setToolTipText("This will write the calculate offsets above to your module.");
 		applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		applyOffsetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2792,6 +2820,8 @@ public class AdvancedMode extends JFrame {
 		calOffsetsPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
 		tmr0OffsetTextField = new JTextField();
+		tmr0OffsetTextField.setEditable(false);
+		tmr0OffsetTextField.setToolTipText("(Read Only.)");
 		calOffsetsPanel.add(tmr0OffsetTextField);
 		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		tmr0OffsetTextField.setText("0");
@@ -2800,6 +2830,8 @@ public class AdvancedMode extends JFrame {
 		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (Ticks)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
 		delayAfterTextField = new JTextField();
+		delayAfterTextField.setEditable(false);
+		delayAfterTextField.setToolTipText("(Read Only.)");
 		delayAfterTextField.setText("0");
 		delayAfterTextField.setHorizontalAlignment(SwingConstants.LEFT);
 		delayAfterTextField.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -2843,51 +2875,61 @@ public class AdvancedMode extends JFrame {
 		mpuCalibrationPanel.add(label_5);
 		
 		xAxisAccelTextField = new JTextField();
+		xAxisAccelTextField.setEditable(false);
 		xAxisAccelTextField.setColumns(10);
 		xAxisAccelTextField.setBounds(124, 35, 86, 20);
 		mpuCalibrationPanel.add(xAxisAccelTextField);
 		
 		xAxisGyroTextField = new JTextField();
+		xAxisGyroTextField.setEditable(false);
 		xAxisGyroTextField.setColumns(10);
 		xAxisGyroTextField.setBounds(267, 36, 86, 20);
 		mpuCalibrationPanel.add(xAxisGyroTextField);
 		
 		xAxisMagTextField = new JTextField();
+		xAxisMagTextField.setEditable(false);
 		xAxisMagTextField.setColumns(10);
 		xAxisMagTextField.setBounds(414, 37, 86, 20);
 		mpuCalibrationPanel.add(xAxisMagTextField);
 		
 		yAxisAccelTextField = new JTextField();
+		yAxisAccelTextField.setEditable(false);
 		yAxisAccelTextField.setColumns(10);
 		yAxisAccelTextField.setBounds(124, 71, 86, 20);
 		mpuCalibrationPanel.add(yAxisAccelTextField);
 		
 		yAxisGyroTextField = new JTextField();
+		yAxisGyroTextField.setEditable(false);
 		yAxisGyroTextField.setColumns(10);
 		yAxisGyroTextField.setBounds(267, 72, 86, 20);
 		mpuCalibrationPanel.add(yAxisGyroTextField);
 		
 		yAxisMagTextField = new JTextField();
+		yAxisMagTextField.setEditable(false);
 		yAxisMagTextField.setColumns(10);
 		yAxisMagTextField.setBounds(414, 73, 86, 20);
 		mpuCalibrationPanel.add(yAxisMagTextField);
 		
 		zAxisAccelTextField = new JTextField();
+		zAxisAccelTextField.setEditable(false);
 		zAxisAccelTextField.setColumns(10);
 		zAxisAccelTextField.setBounds(124, 102, 86, 20);
 		mpuCalibrationPanel.add(zAxisAccelTextField);
 		
 		zAxisGyroTextField = new JTextField();
+		zAxisGyroTextField.setEditable(false);
 		zAxisGyroTextField.setColumns(10);
 		zAxisGyroTextField.setBounds(267, 102, 86, 20);
 		mpuCalibrationPanel.add(zAxisGyroTextField);
 		
 		zAxisMagTextField = new JTextField();
+		zAxisMagTextField.setEditable(false);
 		zAxisMagTextField.setColumns(10);
 		zAxisMagTextField.setBounds(414, 104, 86, 20);
 		mpuCalibrationPanel.add(zAxisMagTextField);
 		
 		JButton readOffsetsBtn = new JButton("Read Offsets");
+		readOffsetsBtn.setToolTipText("This will read the internal IMU offsets ");
 		readOffsetsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -2932,11 +2974,13 @@ public class AdvancedMode extends JFrame {
 		mpuCalibrationPanel.add(label_6);
 		
 		calibrationCSVTextField = new JTextField();
+		calibrationCSVTextField.setToolTipText("Use the browse button to select the  calibration test you have run. This will calculate the IMU offsets for your module.");
 		calibrationCSVTextField.setColumns(10);
 		calibrationCSVTextField.setBounds(109, 178, 407, 20);
 		mpuCalibrationPanel.add(calibrationCSVTextField);
 		
 		JButton calibrationBtn = new JButton("Calibrate");
+		calibrationBtn.setToolTipText("Populates the IMU min and max readings and writes them to the module. This will also display the corresponding offset.");
 		calibrationBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -2959,6 +3003,7 @@ public class AdvancedMode extends JFrame {
 		mpuCalibrationPanel.add(calibrationBtn);
 		
 		readBlockLengthTextField = new JTextField();
+		readBlockLengthTextField.setToolTipText("Length of samples to average.");
 		readBlockLengthTextField.setText("500");
 		readBlockLengthTextField.setColumns(10);
 		readBlockLengthTextField.setBounds(134, 219, 39, 20);
@@ -2975,6 +3020,7 @@ public class AdvancedMode extends JFrame {
 		mpuCalibrationPanel.add(lblStandardDeviationMax);
 		
 		stdDevMaxTextField = new JTextField();
+		stdDevMaxTextField.setToolTipText("Highest standard deviation to consider a rolling block average  for offset calculation.");
 		stdDevMaxTextField.setText("15");
 		stdDevMaxTextField.setColumns(10);
 		stdDevMaxTextField.setBounds(461, 219, 39, 20);
@@ -3029,6 +3075,7 @@ public class AdvancedMode extends JFrame {
 		RemoteButtonPanel.add(unpairAllRemotesButton);
 
 		testRemotesButton = new JButton("Test Paired Remotes");
+		testRemotesButton.setToolTipText("Enter test mode and press buttons to test your pairing. You can see this on the module and in the status label.");
 		testRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		testRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -3039,6 +3086,7 @@ public class AdvancedMode extends JFrame {
 		RemoteButtonPanel.add(testRemotesButton);
 
 		exitTestModeButton = new JButton("Exit Test Mode");
+		exitTestModeButton.setToolTipText("Exit test mode.");
 		exitTestModeButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		exitTestModeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
