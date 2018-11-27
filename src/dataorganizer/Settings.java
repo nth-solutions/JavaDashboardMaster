@@ -1,5 +1,6 @@
 package dataorganizer;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -25,7 +26,11 @@ public class Settings {
 	//Loads saved configurations from DataOrganizer.prop
 	public void loadConfigFile(){				
 		try{
-			this.prop.load(new FileInputStream("DataOrganizer.prop"));
+			File SettingsDirectory = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\");
+			if(!SettingsDirectory.exists()) {
+				SettingsDirectory.mkdirs();
+			}
+			this.prop.load(new FileInputStream(System.getProperty("user.home")+"\\.BioForce Dashboard\\"+"DataOrganizer.prop"));
 		}catch(FileNotFoundException e) {
 			this.restoreDefaultConfig();
 		}catch(IOException e) {
@@ -41,7 +46,11 @@ public class Settings {
 	//saves configuration to DataOrganizer.prop file
 	public void saveConfig() {
 		try {
-			this.prop.store(new FileOutputStream("DataOrganizer.prop"), null);
+			File SettingsDirectory = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\");
+			if(!SettingsDirectory.exists()) {
+				SettingsDirectory.mkdirs();
+			}
+			this.prop.store(new FileOutputStream(System.getProperty("user.home")+"\\.BioForce Dashboard\\"+"DataOrganizer.prop"), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -2611,10 +2611,9 @@ public class AdvancedMode extends JFrame {
 				if(outputFileTextField.getText().isEmpty()) { generalStatusLabel.setText("Please choose the output file location."); }
 
 				if(!csvFileOneLocationTextField.getText().isEmpty() && csvFileTwoLocationTextField.getText().isEmpty()) {
+					generalStatusLabel.setText("Reading template and data...");
 					DataOrganizer dataSetOne = new DataOrganizer();
 					if(writeTemplateWithOneDataSetHandler(dataSetOne)) {
-
-						generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
 						JFrame parent = new JFrame();
 						JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
 						
@@ -2624,18 +2623,18 @@ public class AdvancedMode extends JFrame {
 				
 				
 				if(!csvFileOneLocationTextField.getText().isEmpty() && !csvFileTwoLocationTextField.getText().isEmpty()) {
+					generalStatusLabel.setText("Reading template and data...");
 					DataOrganizer dataSetOne = new DataOrganizer();
 					DataOrganizer dataSetTwo = new DataOrganizer();
 					if(writeTemplateWithTwoDataSetsHandler(dataSetOne, dataSetTwo)) {
 
-						generalStatusLabel.setText("Successfully wrote template. Opening and evaluating...");
 						JFrame parent = new JFrame();
 						JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
 						
 						new RobotType().openAndRefreshMultiModuleTemplate(outputFileTextField.getText());
 					}
 				}
-				
+				generalStatusLabel.setText("");
 			}
 		});
 		createTemplateBtn.setBounds(10, 230, 605, 104);
