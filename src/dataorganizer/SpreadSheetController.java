@@ -130,10 +130,7 @@ public class SpreadSheetController {
 			if(CSVData != null) {
 				List<Double> ColumnData = CSVData.get(axi);
 				for(int i = 0; i < ColumnData.size(); i++) {
-					if(axi > 6 && i%10==0) {
-						this.modifyCell(rowOffset+i, axi-1, String.valueOf(ColumnData.get(i)));
-						continue;
-					}
+					if(ColumnData.get(i) == null) continue;
 					
 					this.modifyCell(rowOffset+i, axi-1, String.valueOf(ColumnData.get(i)));
 				}

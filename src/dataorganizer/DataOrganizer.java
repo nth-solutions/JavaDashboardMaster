@@ -410,10 +410,17 @@ public class DataOrganizer {
 			br = new BufferedReader(new FileReader(CSVFilePath));
 
 			while ((line = br.readLine()) != null) {
-
+				
 				String[] sample = line.split(",");
-
+				
+				if(sample.length < 7) {
+					dataSamples.get(7).add(null);
+					dataSamples.get(8).add(null);
+					dataSamples.get(9).add(null);
+				}
+				
 				for (int str = 0; str < sample.length; str++) {
+					
 					try {
 						dataSamples.get(str+1).add(Double.parseDouble(sample[str]));
 						min = Math.min(Double.parseDouble(sample[str]), min);
