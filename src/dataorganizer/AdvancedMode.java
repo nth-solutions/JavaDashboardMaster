@@ -363,6 +363,7 @@ public class AdvancedMode extends JFrame {
 												progressBar.setForeground(new Color(255, 0, 0));	
 											}
 											else {
+												getConfigsHandler();
 												enableTabChanges();
 												generalStatusLabel.setText("Successfully Connected to Module");
 												progressBar.setValue(100);
@@ -450,6 +451,9 @@ public class AdvancedMode extends JFrame {
 
 					//Disable COMM port combobox so the user doesn't accidentally reopen a port
 					commPortCombobox.setEnabled(false);
+					
+					
+					
 				}
 			}
 		}
@@ -2219,6 +2223,20 @@ public class AdvancedMode extends JFrame {
 		commPortCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				portSelectedHandler();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				getModuleInfoButtonHandler();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				getConfigsHandler();
 				enableTabChanges();
 			}
 		});

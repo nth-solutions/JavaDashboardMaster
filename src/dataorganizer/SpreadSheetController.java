@@ -131,7 +131,6 @@ public class SpreadSheetController {
 				List<Double> ColumnData = CSVData.get(axi);
 				for(int i = 0; i < ColumnData.size(); i++) {
 					if(ColumnData.get(i) == null) continue;
-					
 					this.modifyCell(rowOffset+i, axi-1, String.valueOf(ColumnData.get(i)));
 				}
 			}
