@@ -52,7 +52,7 @@ public class GraphController implements Initializable{
 	@FXML
 	private Pane chartContainer;
 	@FXML
-	private Pane graphingPane;
+	private SplitPane graphingPane;
 	@FXML
 	private Button zoomButton;
 	@FXML
@@ -89,7 +89,8 @@ public class GraphController implements Initializable{
 	private TextField baselineLowerBound;
 	@FXML
 	private TextField baselineUpperBound;
-
+	@FXML
+	private Pane backgroundPane;
 
 	public void setDataCollector(DataOrganizer dataCollector, int index) {
 		this.dataCollector[index] = dataCollector;
@@ -601,7 +602,7 @@ public class GraphController implements Initializable{
 				restyleSeries();
 			});
 		}
-
+		
 		final BooleanBinding disableControls = userCreatedZoomRectangleBox.widthProperty().lessThan(5).or(userCreatedZoomRectangleBox.heightProperty().lessThan(0));
 		zoomButton.disableProperty().bind(disableControls);
 
@@ -726,8 +727,8 @@ public class GraphController implements Initializable{
 		Point2D yAxisInScene = yAxis.localToScene(0, 0);
 		final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
 		Point2D xAxisInScene = xAxis.localToScene(0, 0);
-		double xOffset = zoomTopLeft.getX() - yAxisInScene.getX() - 45;
-		double yOffset = zoomBottomRight.getY() - xAxisInScene.getY() + 55;
+		double xOffset = zoomTopLeft.getX() - yAxisInScene.getX() - 0;
+		double yOffset = zoomBottomRight.getY() - xAxisInScene.getY() + 103;
 		double xAxisScale = xAxis.getScale();
 		double yAxisScale = yAxis.getScale();
 		xAxis.setLowerBound((xAxis.getLowerBound() + xOffset / xAxisScale));
