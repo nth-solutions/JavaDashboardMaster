@@ -720,22 +720,19 @@ public class GraphController implements Initializable{
 	}
 
 	private void doZoom(Rectangle userCreatedZoomRectangleBox, LineChart<Number, Number> chart) {
-		final double MagicNumberOne, MagicNumberTwo;
-		MagicNumberOne = 1.1;
-		MagicNumberTwo = 0.7;
 		Point2D zoomTopLeft = new Point2D(userCreatedZoomRectangleBox.getX(), userCreatedZoomRectangleBox.getY());
 		Point2D zoomBottomRight = new Point2D(userCreatedZoomRectangleBox.getX() + userCreatedZoomRectangleBox.getWidth(), userCreatedZoomRectangleBox.getY() + userCreatedZoomRectangleBox.getHeight());
 		final NumberAxis yAxis = (NumberAxis) chart.getYAxis();
 		Point2D yAxisInScene = yAxis.localToScene(0, 0);
 		final NumberAxis xAxis = (NumberAxis) chart.getXAxis();
 		Point2D xAxisInScene = xAxis.localToScene(0, 0);
-		double xOffset = zoomTopLeft.getX() - yAxisInScene.getX();
-		double yOffset = zoomBottomRight.getY() - xAxisInScene.getY();
+		double xOffset = zoomTopLeft.getX() - yAxisInScene.getX() - 45;
+		double yOffset = zoomBottomRight.getY() - xAxisInScene.getY() + 55;
 		double xAxisScale = xAxis.getScale();
 		double yAxisScale = yAxis.getScale();
-		xAxis.setLowerBound((xAxis.getLowerBound() + xOffset / xAxisScale) - MagicNumberOne);
+		xAxis.setLowerBound((xAxis.getLowerBound() + xOffset / xAxisScale));
 		xAxis.setUpperBound(Double.parseDouble(roundTime.format(xAxis.getLowerBound() + userCreatedZoomRectangleBox.getWidth() / xAxisScale)));
-		yAxis.setLowerBound((yAxis.getLowerBound() + yOffset / yAxisScale) - MagicNumberTwo);
+		yAxis.setLowerBound((yAxis.getLowerBound() + yOffset / yAxisScale));
 		yAxis.setUpperBound(yAxis.getLowerBound() - userCreatedZoomRectangleBox.getHeight() / yAxisScale);
 		userCreatedZoomRectangleBox.setWidth(0);
 		userCreatedZoomRectangleBox.setHeight(0);

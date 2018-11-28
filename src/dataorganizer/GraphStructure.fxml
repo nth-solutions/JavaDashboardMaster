@@ -29,7 +29,7 @@
                <children>
                   <LineChart fx:id="lineChart" animated="false" createSymbols="false" prefHeight="850.0" prefWidth="1220.0" title="   ">
                     <xAxis>
-                      <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
+                      <NumberAxis animated="false" autoRanging="false" label="Time (s)" minorTickCount="15" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
                     </xAxis>
                     <yAxis>
                       <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" minorTickVisible="false" side="LEFT" tickUnit="0.5" upperBound="5.0" />
