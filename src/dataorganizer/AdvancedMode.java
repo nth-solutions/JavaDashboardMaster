@@ -334,19 +334,18 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				try {
 					ArrayList<String> commPortIDList = serialHandler.findPorts();
+					updateCommPortComboBox();
 					boolean moduleFound = false;
 					int commPortIndex = 0;
 					if(commPortIDList != null)
 						while (!moduleFound && commPortIndex < commPortIDList.size()) {
-	
 							//Get the string identifier (name) of the current port
 							String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();      
 	
 							//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
 							if(serialHandler.openSerialPort(selectedCommID)){
-	
 								int attemptCounter = 0;
-								while (attemptCounter < 10 && !moduleFound) {
+								while (attemptCounter < 3 && !moduleFound) {
 									try {
 										ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
 	
@@ -393,6 +392,9 @@ public class AdvancedMode extends JFrame {
 									catch (UnsupportedCommOperationException e) {
 										attemptCounter++;
 									}
+									catch(NullPointerException e) {
+										attemptCounter++;
+									}
 								}
 	
 							}
@@ -414,7 +416,7 @@ public class AdvancedMode extends JFrame {
 					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
+				} 
 			}
 		};
 		Thread findModuleThread = new Thread(findModuleOperation);

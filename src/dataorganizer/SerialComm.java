@@ -962,10 +962,10 @@ public class SerialComm {
 			long startTime = System.currentTimeMillis();
 
 			//Executes while it is still receiving ID info and a timeout has not occured
-			while (idCounter < numIDParams && (System.currentTimeMillis() - startTime) < 1500) {
+			while (idCounter < numIDParams && (System.currentTimeMillis() - startTime) < 250) {
 				if (!preambleFlag) {
 					//Wait for a preamble, exits method if the preamble times out
-					if(!waitForPreamble(1, 4, 500)) {
+					if(!waitForPreamble(1, 4, 100)) {
 						return null;
 					}
 					preambleFlag = true;
@@ -998,7 +998,7 @@ public class SerialComm {
 						int ackPreamble = -1;
 						int ackValue = -1;
 						//Executes until timeout occurs or data is received
-						while (((System.currentTimeMillis() - echoStart) < 500)) {
+						while (((System.currentTimeMillis() - echoStart) < 250)) {
 							//Wait until there are at least 2 bytes in the input buffer
 							if (inputStream.available() >= 2) {
 								//Read ack preamble
