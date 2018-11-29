@@ -245,6 +245,7 @@ public class DataOrganizer {
 	 * extension .csvp (extension is misleading. They are really separated by newlines, which is actually data inefficient I realize as I write this. \cr\lf is two bytes and a comma is one. no biggie right? )
 	 */
 	public int readAndSetTestParameters(String pathToFile) {
+		System.out.println("testParameters: " + pathToFile);
 		File f = new File(pathToFile); //Create a file object of the .csvp, just to get the file name. I was told this way is more efficient than substrings. Its definitely shorter than string manipulation. Plus I would have had to taken other OS file separators into account
 		this.nameOfTest = f.getName(); //set the name of the test
 		settings.loadConfigFile(); //need to load keys from settings file. This tells us where CSV's are stored
@@ -310,6 +311,7 @@ public class DataOrganizer {
 
 	public List<List<Double>> rollingBlock(int dataSet, int rollRange, int dof) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+		System.out.println(dataSet);
 		switch(dataSet) {
 		case 0:
 			modifiedDataSmps = dataSamples;
@@ -318,10 +320,11 @@ public class DataOrganizer {
 			modifiedDataSmps = signedDataSamples;
 			break;
 		}
-
+		
 		for(int j = 0; j < modifiedDataSmps.get(dof).size(); j++) { //iterate smps
 			double avg = 0.0;
 			for(int i = 0; i < rollRange && i+j < modifiedDataSmps.get(dof).size(); i++) { //Sum 10 smps, do not exceed size of dof data size
+				if(dof > 6 && modifiedDataSmps.get(dof).get(i+j) == null) continue;
 				avg += modifiedDataSmps.get(dof).get(j+i);
 			}
 			avg = avg/rollRange; //divide for average
