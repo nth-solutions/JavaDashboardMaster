@@ -26,7 +26,7 @@
    <children>
       <SplitPane fx:id="graphingPane" dividerPositions="0.7" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1440.0">
          <items>
-            <Pane>
+            <Pane maxHeight="783.0" maxWidth="1004.0" minHeight="783.0" minWidth="1004.0" prefHeight="783.0" prefWidth="1004.0">
                <children>
                   <VBox prefHeight="783.0" prefWidth="1004.0" spacing="20.0">
                      <children>
