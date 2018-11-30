@@ -1204,7 +1204,6 @@ public class AdvancedMode extends JFrame {
 						}
 						else {
 							timedTestCheckbox.setSelected(false);
-							testLengthTextField.setEnabled(false);
 						}
 						if(triggerOnReleaseFlag > 0) {
 							triggerOnReleaseCheckbox.setSelected(true);
@@ -1975,8 +1974,6 @@ public class AdvancedMode extends JFrame {
 	    primaryStage.setResizable(false);
 	    return loader.getController();
 	}
-	
-	
 
 	public GraphController startGraphing() {
 		Stage primaryStage = new Stage();
@@ -1989,11 +1986,11 @@ public class AdvancedMode extends JFrame {
 			e.printStackTrace();
 		}
 
-		if(root!=null) primaryStage.setScene(new Scene(root, 1600, 900));
+		if(root!=null) primaryStage.setScene(new Scene(root, 1440, 810));
 		
 	    primaryStage.setTitle("Graph");
 		primaryStage.show();
-		primaryStage.setResizable(true);
+		primaryStage.setResizable(false);
 		
 		return loader.getController();
 	}
@@ -2686,13 +2683,14 @@ public class AdvancedMode extends JFrame {
 		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		btnCreateTwoModule.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				writeTemplateWithTwoDataSetsHandler();
-				Settings settings = new Settings();
-				settings.loadConfigFile();
-				JFrame parent = new JFrame();
-				JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-				
-				new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
+				if(writeTemplateWithTwoDataSetsHandler()) {
+					Settings settings = new Settings();
+					settings.loadConfigFile();
+					JFrame parent = new JFrame();
+					JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+					
+					new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
+				}
 			}
 		});
 		btnCreateTwoModule.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");

@@ -8,5 +8,10 @@
 	<classpathentry kind="lib" path="bin/jna-4.0.0.jar"/>
 	<classpathentry kind="lib" path="bin/purejavacomm.jar"/>
 	<classpathentry kind="lib" path="bin/sjxlsx-mod-1.0.0.jar"/>
+	<classpathentry kind="lib" path="bin/aspose-cells-18.11.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/JavaDashboardMasterSpreadSheetOneClick/bin/aspose-cells-18.11-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

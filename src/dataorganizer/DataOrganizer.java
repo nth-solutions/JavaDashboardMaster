@@ -161,7 +161,7 @@ public class DataOrganizer {
 
 		return dataSamples;
 	}
-
+	
 	public List<List<Double>> getSignedData() {
 		signedDataSamples = new ArrayList<List<Double>>();
 		for (int dof = 0; dof < 10; dof++) {
@@ -245,7 +245,6 @@ public class DataOrganizer {
 	 * extension .csvp (extension is misleading. They are really separated by newlines, which is actually data inefficient I realize as I write this. \cr\lf is two bytes and a comma is one. no biggie right? )
 	 */
 	public int readAndSetTestParameters(String pathToFile) {
-		System.out.println("testParameters: " + pathToFile);
 		File f = new File(pathToFile); //Create a file object of the .csvp, just to get the file name. I was told this way is more efficient than substrings. Its definitely shorter than string manipulation. Plus I would have had to taken other OS file separators into account
 		this.nameOfTest = f.getName(); //set the name of the test
 		settings.loadConfigFile(); //need to load keys from settings file. This tells us where CSV's are stored
@@ -309,9 +308,17 @@ public class DataOrganizer {
 		return 0;
 	}
 
+	public void setTestParameters(List<Integer> params) {
+		lengthOfTest = params.get(6);
+		sampleRate = params.get(7);
+		magSampleRate = params.get(8);
+		accelSensitivity = params.get(9);
+		gyroSensitivity = params.get(10);
+		magSensitivity = 4800; 
+	}
+	
 	public List<List<Double>> rollingBlock(int dataSet, int rollRange, int dof) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
-		System.out.println(dataSet);
 		switch(dataSet) {
 		case 0:
 			modifiedDataSmps = dataSamples;

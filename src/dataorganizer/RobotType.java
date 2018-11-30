@@ -23,18 +23,18 @@ public class RobotType {
 
 	public void openAndRefreshTemplate(String excelTemplateLocation) {
 		openWorkbook(excelTemplateLocation);
-		robot.delay(9000);	//Delay for opening the excel workbook
+		robot.delay(20000);	//Delay for opening the excel workbook
 		goToFirstSheet();
 		refreshSheet();		
 		nextDataSheet();
 		refreshSheet();	
-		nextDataSheet();														
+		nextDataSheet();	
 	}
 	
 
 	public void openAndRefreshTwoModuleTemplate(String excelTemplateLocation) {
 		openWorkbook(excelTemplateLocation);
-		robot.delay(9000);	//Delay for opening the excel workbook
+		robot.delay(20000);	//Delay for opening the excel workbook
 		goToFirstSheet();
 		refreshSheet();
 		nextDataSheet();
@@ -44,6 +44,14 @@ public class RobotType {
 		nextDataSheet();
 		refreshSheet();
 		nextDataSheet();
+		goToMomentum();
+	}
+	
+	public void goToMomentum() {
+		goToFirstSheet();
+		for(int i = 0 ; i < 10; i++) {
+			nextDataSheet();
+		}
 	}
 	
 	public void openWorkbook(String excelTemplateLocation) {

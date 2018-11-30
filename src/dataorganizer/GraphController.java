@@ -100,8 +100,11 @@ public class GraphController implements Initializable{
 
 	private ObservableList<DataSeries> dataSeries = FXCollections.observableArrayList();								//Initializes the list of series
 	private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();								//Initializes the list of series
+	private ObservableList<TemplateDataSeries> dataTemplateSeries = FXCollections.observableArrayList();								//Initializes the list of series
+	private ObservableList<TemplateDataSeries> dataTemplateSeriesTwo = FXCollections.observableArrayList();								//Initializes the list of series
 	private DataOrganizer[] dataCollector = new DataOrganizer[2];
 	private String csvFilePath;
+	private String conservationOfMomentumFilePath;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
 	private final Rectangle userCreatedZoomRectangleBox = new Rectangle();
 	private final Rectangle baselineRect = new Rectangle();
@@ -156,6 +159,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void handleDisplayRawData(ActionEvent event) {																//Event handler that updates the data series to be raw data, then repopulates it within the lineChart
 		displaySignedDataCheckbox.setSelected(false);																	//Deselects the displaySignedDataCheckbox
+		//displayNormalizedDataCheckbox.setSelected(false);																		//Deselects the displayRawDataCheckbox
 		lineChart.getData().clear();																				    //Removes all series currently displayed on the graph to prevent multiple data series from populating the lineChart
 		for (DataSeries axisOfDataSeries: dataSeries) {																	//Iterates through each axis of the first data series
 			axisOfDataSeries.setDataConversionType(0);																	//Sets the data conversion type to 0 (0 is the numeral used to indicate a conversion to raw data) and applies the conversion to each axis of the first data series
@@ -168,9 +172,24 @@ public class GraphController implements Initializable{
 	@FXML
 	public void handleDisplaySignedData(ActionEvent event) {															//Event handler that updates the data series to be signed data, then repopulates it within the lineChart
 		displayRawDataCheckbox.setSelected(false);																		//Deselects the displayRawDataCheckbox
+		//displayNormalizedDataCheckbox.setSelected(false);																		//Deselects the displayRawDataCheckbox
 		lineChart.getData().clear();																					//Removes all series currently displayed on the graph to prevent multiple data series from populating the lineChart
 		for (DataSeries axisOfDataSeries: dataSeries) {																	//Iterates through each axis of the first data series
 			axisOfDataSeries.setDataConversionType(1);																	//Sets the data conversion type to 1 (1 is the numeral used to indicate a conversion to signed data) and applies the conversion to each axis of the first data series
+			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());									//Updates the boundaries of the graph for each axis of the first data series
+		}
+		populateData(dataSeries, lineChart);																			//Repopulates the lineChart with the updated data within the dataSeries object
+		styleSeries(dataSeries, lineChart);																				//TODO
+
+	}
+	
+	@FXML
+	public void handleDisplayNormalizedData(ActionEvent event) {														//Event handler that updates the data series to be signed data, then repopulates it within the lineChart
+		displayRawDataCheckbox.setSelected(false);																		//Deselects the displayRawDataCheckbox
+		displaySignedDataCheckbox.setSelected(false);																	//Deselects the displayRawDataCheckbox
+		lineChart.getData().clear();																					//Removes all series currently displayed on the graph to prevent multiple data series from populating the lineChart
+		for (DataSeries axisOfDataSeries: dataSeries) {																	//Iterates through each axis of the first data series
+			axisOfDataSeries.setDataConversionType(2);																	//Sets the data conversion type to 1 (1 is the numeral used to indicate a conversion to signed data) and applies the conversion to each axis of the first data series
 			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());									//Updates the boundaries of the graph for each axis of the first data series
 		}
 		populateData(dataSeries, lineChart);																			//Repopulates the lineChart with the updated data within the dataSeries object
@@ -340,6 +359,62 @@ public class GraphController implements Initializable{
 		}
 	}
 
+	@FXML
+	public void graphMomentum() {
+		try {																																		//Try/Catch that catches Null Pointer Exception when no file is selected
+			FileChooser fileChooser = new FileChooser();																							//Creates a FileChooser Object
+			fileChooser.setTitle("Select a CSV");																									//Sets the title of the FileChooser object
+			Settings settings = new Settings();
+			settings.loadConfigFile();
+			fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+			FileChooser.ExtensionFilter filterCSVs  = new FileChooser.ExtensionFilter("Select a File (*.xlsx)", "*.xlsx");		//Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
+			fileChooser.getExtensionFilters().add(filterCSVs);																						//Adds the filter to the FileChooser
+			File fileChosen = fileChooser.showOpenDialog(null);																		//Assigns the user's selected file to the fileChosen variable
+
+			conservationOfMomentumFilePath = fileChosen.toString();																									//Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
+
+			if (conservationOfMomentumFilePath != null) {																												//Checks to make sure the given file path contains a valid value
+				loadConservationOfMomentumTemplate();																														//Calls the loadCSV method
+			}
+
+		} catch (NullPointerException e) {e.printStackTrace();}		
+	}
+	
+	public void loadConservationOfMomentumTemplate() {
+		AsposeSpreadSheetController assc = null;
+		try {
+			assc = new AsposeSpreadSheetController(conservationOfMomentumFilePath);
+		} catch (Exception e) {
+			generalStatusLabel.setText("Failed to read your template.");
+			e.printStackTrace();
+		}
+		if(assc == null) return;
+		
+		GraphDataOrganizer GDO = new GraphDataOrganizer();
+		GDO.setTestParams(assc.getTestParameters());
+		GDO.setMomentumSamples(assc.getMomentumSamples());
+		for (int numDof = 0; numDof < 3; numDof++) {
+			dataTemplateSeries.add(new TemplateDataSeries(GDO, numDof));
+		}
+		populateTemplateData(dataTemplateSeries, lineChart);
+		
+		System.out.println(GDO.getLengthOfTest());
+		xAxis.setUpperBound(GDO.getLengthOfTest());
+		xAxis.setLowerBound(0);
+
+		userCreatedZoomRectangleBox.setManaged(true);
+		userCreatedZoomRectangleBox.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
+		baselineRect.setManaged(true);
+		baselineRect.setFill(Color.LIGHTGOLDENRODYELLOW.deriveColor(0, 1, 1, 0.5));
+		chartContainer.getChildren().remove(userCreatedZoomRectangleBox);
+		chartContainer.getChildren().add(userCreatedZoomRectangleBox);
+		chartContainer.getChildren().remove(baselineRect);
+		chartContainer.getChildren().add(baselineRect);
+
+		setUpZooming(userCreatedZoomRectangleBox, lineChart);
+		
+	}
+	
 	public void loadCSVData() {
 		createListenersResize();
 		DataOrganizer dataOrgoObject = new DataOrganizer();
@@ -760,7 +835,12 @@ public class GraphController implements Initializable{
 			}
 		}
 	}
-
+	
+	private void populateTemplateData(final ObservableList<TemplateDataSeries> axisOfDataSeries, final LineChart<Number, Number> lineChart) {
+		for (TemplateDataSeries data : axisOfDataSeries) {
+			lineChart.getData().addAll(data.getSeries());
+		}
+	}
 
 	private void repopulateData() {
 		lineChart.getData().clear();
@@ -855,6 +935,35 @@ public class GraphController implements Initializable{
 		return FXCollections.observableArrayList(Collections.singleton(series));
 	}
 
+	
+	public class TemplateDataSeries{
+		private ObservableList<XYChart.Series<Number, Number>> series;
+		private GraphDataOrganizer GDO;
+		private int index;
+		private String name;
+		private String color;
+		public TemplateDataSeries(GraphDataOrganizer GraphDataOrganizerObj, int index) {
+			this.index = index;
+			GDO = GraphDataOrganizerObj;
+			switch(this.index) {
+			case(0):
+				name = "Momentum X"; color = "FireBrick";
+				break;
+			case(1): 
+				name = "Momentum Y"; color = "DodgerBlue";
+				break;
+			case(2): 
+				name = "Momentum Z"; color = "ForestGreen";
+				break;
+			}
+			
+			series = createSeries(name, GDO.getZoomedSeries(0, index));
+		}
+	
+		public ObservableList<XYChart.Series<Number, Number>> getSeries() {
+			return series;
+		}
+	}
 
 	// See Robs email
 	public class DataSeries{
