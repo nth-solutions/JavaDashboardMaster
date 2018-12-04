@@ -125,7 +125,6 @@ public class MediaPlayerController implements Initializable {
                     rateChangeSlider.setDisable(false);
                     frameByFrameCheckbox.setDisable(false);
 
-                    System.out.println("Here we play.");
                     mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
                     currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
                     playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event

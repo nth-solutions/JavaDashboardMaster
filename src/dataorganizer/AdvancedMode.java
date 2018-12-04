@@ -258,7 +258,7 @@ public class AdvancedMode extends JFrame {
 	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-19A");
+		setTitle("JavaDashboard Rev-20");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -1986,7 +1986,7 @@ public class AdvancedMode extends JFrame {
 			e.printStackTrace();
 		}
 
-		if(root!=null) primaryStage.setScene(new Scene(root, 1440, 810));
+		if(root!=null) primaryStage.setScene(new Scene(root, 1430, 800));
 		
 	    primaryStage.setTitle("Graph");
 		primaryStage.show();
@@ -2214,7 +2214,7 @@ public class AdvancedMode extends JFrame {
 								while(currentFrame != MPC.getCurrentFrame()) {
 									Thread.sleep(10);
 									if(graph != null)
-										graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
+										graph.updateCirclePos(MPC.getCurrentFrame()*3, MPC.getFPS());
 									currentFrame = MPC.getCurrentFrame();
 								}
 							}
@@ -2687,9 +2687,16 @@ public class AdvancedMode extends JFrame {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
 					JFrame parent = new JFrame();
-					JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+						}
+					});
+					t.start();
 					
 					new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
+					parent.dispose();
 				}
 			}
 		});

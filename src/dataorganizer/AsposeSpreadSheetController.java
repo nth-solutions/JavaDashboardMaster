@@ -12,7 +12,8 @@ import com.aspose.cells.Worksheet;
 
 public class AsposeSpreadSheetController {
 
-	Workbook workbook;
+	private Workbook workbook;
+	private int numSamples;
 	
 	public AsposeSpreadSheetController(String workbookPath) throws Exception {
 		workbook = new Workbook(workbookPath);
@@ -44,14 +45,41 @@ public class AsposeSpreadSheetController {
 		return parameters;
 	}
 	
-	public List<List<Double>> getMomentumSamples() {
+	public int getNumberOfSamplesModuleOne() {
 		Worksheet sheet = workbook.getWorksheets().get(4);
 		Cells cells = sheet.getCells();
-		FindOptions findOptions=  new FindOptions();
-		findOptions.setLookAtType(LookAtType.ENTIRE_CONTENT);
-		int numSamples = cells.get(19, 2).getIntValue();
-		sheet = workbook.getWorksheets().get(5);
-		cells = sheet.getCells();
+		numSamples = cells.get(19, 2).getIntValue();
+		return numSamples;
+	}
+	
+	public int getNumberOfSamplesModuleTwo() {
+		Worksheet sheet = workbook.getWorksheets().get(4);
+		Cells cells = sheet.getCells();
+		numSamples = cells.get(20, 2).getIntValue();
+		return numSamples;
+	}
+	
+	public List<List<Double>> getMomentumSamplesModuleOne() {
+		Worksheet sheet = workbook.getWorksheets().get(5);
+		Cells cells = sheet.getCells();
+		getNumberOfSamplesModuleOne();
+		Object[][] cellArray =  cells.exportArray(5, 41, numSamples, 3);
+		List<List<Double>> momentumSamples = new ArrayList<List<Double>>();
+		momentumSamples.add(new ArrayList<Double>());
+		momentumSamples.add(new ArrayList<Double>());
+		momentumSamples.add(new ArrayList<Double>());
+		for(int i = 0; i < numSamples; i++) {
+			momentumSamples.get(0).add(new Double(cellArray[i][0].toString()));
+			momentumSamples.get(1).add(new Double(cellArray[i][1].toString()));
+			momentumSamples.get(2).add(new Double(cellArray[i][2].toString()));
+		}
+		return momentumSamples;
+	}
+	
+	public List<List<Double>> getMomentumSamplesModuleTwo() {
+		Worksheet sheet = workbook.getWorksheets().get(6);
+		Cells cells = sheet.getCells();
+		getNumberOfSamplesModuleTwo();
 		Object[][] cellArray =  cells.exportArray(5, 41, numSamples, 3);
 		List<List<Double>> momentumSamples = new ArrayList<List<Double>>();
 		momentumSamples.add(new ArrayList<Double>());

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -103,6 +105,7 @@ public class GraphController implements Initializable{
 	private ObservableList<TemplateDataSeries> dataTemplateSeries = FXCollections.observableArrayList();								//Initializes the list of series
 	private ObservableList<TemplateDataSeries> dataTemplateSeriesTwo = FXCollections.observableArrayList();								//Initializes the list of series
 	private DataOrganizer[] dataCollector = new DataOrganizer[2];
+	private GraphDataOrganizer GDO;
 	private String csvFilePath;
 	private String conservationOfMomentumFilePath;
 	private Rectangle currentTimeInMediaPlayer;																			//Frame-By-Frame Analysis Bar
@@ -131,7 +134,10 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void handleReset(ActionEvent event) {																		//Resets the Graph to its default parameters (y-Axis scale, x-Axis scale and userCreatedZoomRectangleBox is reset to (0,0))
-		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[0].getLengthOfTest())));					//Sets the Graph's x-Axis maximum value to the total time of the test
+		if(dataCollector[0]!=null) {
+			xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[0].getLengthOfTest())));					//Sets the Graph's x-Axis maximum value to the total time of the test
+		}
+		if(GDO != null) xAxis.setUpperBound(GDO.getLengthOfTest());
 		xAxis.setLowerBound(0);																							//Sets the Graph's x-Axis minimum value to 0 - the location of the very first data sample
 		yAxis.setUpperBound(yMax);																						//Sets the Graph's y-Axis maximum value to the defined y-Axis maximum (5 by default - varies based on user entry)
 		yAxis.setLowerBound(yMin);																						//Sets the Graph's y-Axis minimum value to the defined y-Axis minimum (-5 by default - varies based on user entry)
@@ -151,8 +157,13 @@ public class GraphController implements Initializable{
 			}	
 		}
 		
-		repopulateData();																								//TODO
-		restyleSeries();																								//TODO
+		if(dataTemplateSeries != null) {
+			for (final TemplateDataSeries axisOfTemplate : dataTemplateSeries) {												//Iterates through each axis of the second data series
+				axisOfTemplate.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());							//Updates the boundaries of the graph for each axis of the second data series
+			}	
+		}
+		
+		repopulateData();																									//TODO
 
 	}
 
@@ -226,7 +237,6 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
 		repopulateData();																								//TODO
-		restyleSeries();																								//TODO
 	}
 
 	@FXML
@@ -236,7 +246,6 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
 		repopulateData();																								//TODO
-		restyleSeries();																								//TODO
 	}
 
 	@FXML
@@ -245,18 +254,16 @@ public class GraphController implements Initializable{
 		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
 			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 		}
-		repopulateData();																								//TODO
-		restyleSeries();																								//TODO
+		repopulateData();																								//TODO																							//TODO
 	}
 
 	@FXML
 	public void subOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -1 data samples
 		XOffsetCounter -= 1;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -1 and stores it in the XOffsetCounter variable
-		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
-			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
-		}
-		repopulateData();																								//TODO
-		restyleSeries();																								//TODO
+			for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+				axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+			}
+		repopulateData();																									//TODO
 	}
 
 	//Data Shift for the Second Data Set.
@@ -268,7 +275,6 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
-		restyleSeries();
 	}
 
 	@FXML
@@ -278,7 +284,6 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
-		restyleSeries();
 	}
 
 	@FXML
@@ -288,7 +293,6 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
-		restyleSeries();
 	}
 
 	@FXML
@@ -298,7 +302,6 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.addNulls(XOffsetCounterTwo);
 		}
 		repopulateData();
-		restyleSeries();
 	}
 
 	@FXML
@@ -382,6 +385,14 @@ public class GraphController implements Initializable{
 	
 	public void loadConservationOfMomentumTemplate() {
 		AsposeSpreadSheetController assc = null;
+		JFrame parent = new JFrame();
+		Thread t = new Thread(new Runnable() {
+			public void run() {
+				JOptionPane.showMessageDialog(parent, "Working...", "File Loading", 0);
+			}
+		});
+		t.start();
+		
 		try {
 			assc = new AsposeSpreadSheetController(conservationOfMomentumFilePath);
 		} catch (Exception e) {
@@ -390,15 +401,55 @@ public class GraphController implements Initializable{
 		}
 		if(assc == null) return;
 		
-		GraphDataOrganizer GDO = new GraphDataOrganizer();
+		GDO = new GraphDataOrganizer();
 		GDO.setTestParams(assc.getTestParameters());
-		GDO.setMomentumSamples(assc.getMomentumSamples());
+		GDO.setMomentumSamples(assc.getMomentumSamplesModuleOne());
 		for (int numDof = 0; numDof < 3; numDof++) {
-			dataTemplateSeries.add(new TemplateDataSeries(GDO, numDof));
+			dataTemplateSeries.add(new TemplateDataSeries("Module One: ", GDO, numDof));
 		}
-		populateTemplateData(dataTemplateSeries, lineChart);
 		
-		System.out.println(GDO.getLengthOfTest());
+		GDO = new GraphDataOrganizer();
+		GDO.setTestParams(assc.getTestParameters());
+		GDO.setMomentumSamples(assc.getMomentumSamplesModuleTwo());
+		for (int numDof = 0; numDof < 3; numDof++) {
+			dataTemplateSeriesTwo.add(new TemplateDataSeries("Module Two: ", GDO, numDof));
+		}
+		
+		for (TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
+			final CheckBox dataToDisplayCheckBox = new CheckBox(axisOfDataSeries.getName());
+			dataToDisplayCheckBox.setSelected(false);
+			if(axisOfDataSeries.index == 0) dataToDisplayCheckBox.setSelected(true);
+			dataToDisplayCheckBox.setPadding(new Insets(5));
+			// Line line = new Line(0, 10, 50, 10);
+
+			// box.setGraphic(line);
+			dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
+			dataToDisplayCheckBox.setOnAction(action -> {
+				axisOfDataSeries.setActive(dataToDisplayCheckBox.isSelected());
+				repopulateData();
+			});
+		}
+		
+		for (TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
+			final CheckBox dataToDisplayCheckBox = new CheckBox(axisOfDataSeries.getName());
+			dataToDisplayCheckBox.setSelected(false);
+			if(axisOfDataSeries.index == 0) dataToDisplayCheckBox.setSelected(true);
+			dataToDisplayCheckBox.setPadding(new Insets(5));
+			// Line line = new Line(0, 10, 50, 10);
+
+			// box.setGraphic(line);
+			dataDisplayCheckboxesFlowPaneTwo.getChildren().add(dataToDisplayCheckBox);
+			dataToDisplayCheckBox.setOnAction(action -> {
+				axisOfDataSeries.setActive(dataToDisplayCheckBox.isSelected());
+				repopulateData();
+			});
+		}
+		
+		GDO.setMinMaxYAxis();
+		yMin = GDO.yMin;
+		yMax = GDO.yMax;
+		yAxis.setUpperBound(yMax);
+		yAxis.setLowerBound(yMin);
 		xAxis.setUpperBound(GDO.getLengthOfTest());
 		xAxis.setLowerBound(0);
 
@@ -412,7 +463,9 @@ public class GraphController implements Initializable{
 		chartContainer.getChildren().add(baselineRect);
 
 		setUpZooming(userCreatedZoomRectangleBox, lineChart);
-		
+		populateTemplateData(dataTemplateSeries, lineChart);
+		populateTemplateData(dataTemplateSeriesTwo, lineChart);
+		parent.dispose();
 	}
 	
 	public void loadCSVData() {
@@ -695,14 +748,14 @@ public class GraphController implements Initializable{
 
 	private Rectangle drawRect(int x, int y, int FPS) {
 		double lineChartHeight = lineChart.getHeight();
-		currentTimeInMediaPlayer = new Rectangle(0, -512, 1, lineChartHeight - lineChartHeight/8);
+		currentTimeInMediaPlayer = new Rectangle(0, -515, 1, lineChartHeight - lineChartHeight/6);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX() + 4;  //+4 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
 		double lineChartWidth = lineChart.getWidth() - 84; //Magic number 84, because the linechart doesn't know its own width.
 		if(dataCollector[0] != null)
 			x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //multiply the width of the chart by the frame number and divide by the number of frames in the first data set (The index of which data set should not matter, if the tests are equal.)
 		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + $length (of chart)
-		currentTimeInMediaPlayer.setY(40);
+		currentTimeInMediaPlayer.setY(14);
 		currentTimeInMediaPlayer.setStroke(Color.RED);
 		currentTimeInMediaPlayer.setStrokeWidth(1);
 		return currentTimeInMediaPlayer;
@@ -714,6 +767,7 @@ public class GraphController implements Initializable{
 			Platform.runLater(new Runnable() {
 				@Override public void run() {
 					chartContainer.getChildren().remove(currentTimeInMediaPlayer);
+					if(xAxis.getLowerBound() != 0) return;
 					chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, (int)FPS));
 				}
 			});
@@ -838,7 +892,9 @@ public class GraphController implements Initializable{
 	
 	private void populateTemplateData(final ObservableList<TemplateDataSeries> axisOfDataSeries, final LineChart<Number, Number> lineChart) {
 		for (TemplateDataSeries data : axisOfDataSeries) {
-			lineChart.getData().addAll(data.getSeries());
+			if(data.isActive()) {
+				lineChart.getData().addAll(data.getSeries());
+			}
 		}
 	}
 
@@ -860,7 +916,16 @@ public class GraphController implements Initializable{
 				lineChart.getData().addAll(data.getSeries());
 			}
 		}
-		
+		for(TemplateDataSeries data : dataTemplateSeries) {
+			if(data.isActive()) {
+				lineChart.getData().addAll(data.getSeries());
+			}
+		}
+		for(TemplateDataSeries data : dataTemplateSeriesTwo) {
+			if(data.isActive()) {
+				lineChart.getData().addAll(data.getSeries());
+			}
+		}
 	}
 
 
@@ -885,6 +950,34 @@ public class GraphController implements Initializable{
 			}
 		}
 		for (DataSeries dof : dataSeriesTwo) {
+			if (!dof.isActive()) continue;
+			for (int j = 0; j < dof.getSeries().size(); j++) {
+				XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+				Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+				for (Node n : nodes) {
+					StringBuilder style = new StringBuilder();
+					style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
+
+					n.setStyle(style.toString());
+				}
+				nSeries++;
+			}
+		}
+		for (TemplateDataSeries dof : dataTemplateSeries) {
+			if (!dof.isActive()) continue;
+			for (int j = 0; j < dof.getSeries().size(); j++) {
+				XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+				Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+				for (Node n : nodes) {
+					StringBuilder style = new StringBuilder();
+					style.append("-fx-stroke: " +dof.getColor() + "; -fx-background-color: "+ dof.getColor() + ", white; ");
+
+					n.setStyle(style.toString());
+				}
+				nSeries++;
+			}
+		}
+		for (TemplateDataSeries dof : dataTemplateSeriesTwo) {
 			if (!dof.isActive()) continue;
 			for (int j = 0; j < dof.getSeries().size(); j++) {
 				XYChart.Series<Number, Number> series = dof.getSeries().get(j);
@@ -936,33 +1029,56 @@ public class GraphController implements Initializable{
 	}
 
 	
-	public class TemplateDataSeries{
+	public class TemplateDataSeries {
 		private ObservableList<XYChart.Series<Number, Number>> series;
 		private GraphDataOrganizer GDO;
 		private int index;
 		private String name;
 		private String color;
-		public TemplateDataSeries(GraphDataOrganizer GraphDataOrganizerObj, int index) {
+		private boolean active;
+		
+		public TemplateDataSeries(String origin, GraphDataOrganizer GraphDataOrganizerObj, int index) {
 			this.index = index;
 			GDO = GraphDataOrganizerObj;
 			switch(this.index) {
 			case(0):
-				name = "Momentum X"; color = "FireBrick";
+				name = origin + "Momentum X"; active = true;
 				break;
 			case(1): 
-				name = "Momentum Y"; color = "DodgerBlue";
+				name = origin + "Momentum Y"; active = false;
 				break;
 			case(2): 
-				name = "Momentum Z"; color = "ForestGreen";
+				name = origin + "Momentum Z";  active = false;
 				break;
 			}
 			
 			series = createSeries(name, GDO.getZoomedSeries(0, index));
 		}
+		
+		public String getColor() {
+			return color;
+		}
+		
+		public void updateZoom(double start, double end) {
+			series = createSeries(name, GDO.updateZoom(start, end, index));
+		}
 	
 		public ObservableList<XYChart.Series<Number, Number>> getSeries() {
 			return series;
 		}
+		
+		public boolean isActive() {
+			return active;
+		}
+		
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+		
+		public String getName() {
+			return name;
+		}
+
 	}
 
 	// See Robs email
