@@ -2688,6 +2688,7 @@ public class AdvancedMode extends JFrame {
 					Thread t = new Thread(new Runnable() {
 						public void run() {
 							JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+							parent.isAlwaysOnTop();
 						}
 					});
 					t.start();

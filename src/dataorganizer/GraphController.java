@@ -242,9 +242,9 @@ public class GraphController implements Initializable{
 		if(dataTemplateSeries != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
 				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
+		
 		repopulateData();																								//TODO
 	}
 
@@ -260,7 +260,6 @@ public class GraphController implements Initializable{
 		if(dataTemplateSeries != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
 				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
 		repopulateData();																								//TODO
@@ -278,7 +277,6 @@ public class GraphController implements Initializable{
 		if(dataTemplateSeries != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
 				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
 		repopulateData();																								//TODO																							//TODO
@@ -296,7 +294,6 @@ public class GraphController implements Initializable{
 		if(dataTemplateSeries != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
 				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
 		repopulateData();																									//TODO
@@ -315,8 +312,7 @@ public class GraphController implements Initializable{
 		
 		if(dataTemplateSeriesTwo != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
-				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
 			}
 		}
 		repopulateData();
@@ -333,8 +329,7 @@ public class GraphController implements Initializable{
 		
 		if(dataTemplateSeriesTwo != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
-				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
 			}
 		}
 		repopulateData();
@@ -351,8 +346,7 @@ public class GraphController implements Initializable{
 		
 		if(dataTemplateSeriesTwo != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
-				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
 			}
 		}
 		repopulateData();
@@ -369,8 +363,7 @@ public class GraphController implements Initializable{
 		
 		if(dataTemplateSeriesTwo != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
-				axisOfDataSeries.addNulls(XOffsetCounter);
-				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
 			}
 		}
 		repopulateData();
@@ -389,6 +382,7 @@ public class GraphController implements Initializable{
 			fileChooser.getExtensionFilters().add(filterCSVs);																						//Adds the filter to the FileChooser
 			File fileChosen = fileChooser.showOpenDialog(null);																		//Assigns the user's selected file to the fileChosen variable
 
+			if(fileChosen == null) return;
 			csvFilePath = fileChosen.toString();																									//Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
 
 			if (csvFilePath != null) {																												//Checks to make sure the given file path contains a valid value
@@ -461,6 +455,7 @@ public class GraphController implements Initializable{
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				JOptionPane.showMessageDialog(parent, "Working...", "File Loading", 0);
+				parent.isAlwaysOnTop();
 			}
 		});
 		t.start();
@@ -641,8 +636,23 @@ public class GraphController implements Initializable{
 			axisOfDataSeries.rollingBlock(rollingBlockValue);
 			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 		}	
+		
+		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
+			axisOfDataSeries.rollingBlock(rollingBlockValue);
+			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		}	
+
+		for(TemplateDataSeries axisOfDataSeries: dataTemplateSeries) {
+			axisOfDataSeries.rollingBlock(rollingBlockValue);
+			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		}	
+		
+		for(TemplateDataSeries axisOfDataSeries: dataTemplateSeriesTwo) {
+			axisOfDataSeries.rollingBlock(rollingBlockValue);
+			axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+		}	
+		
 		repopulateData();
-		restyleSeries();
 	}
 	
 	@FXML
@@ -1127,8 +1137,29 @@ public class GraphController implements Initializable{
 			series = createSeries(name, GDO.getZoomedSeries(0, index));
 		}
 		
-		public void addNulls(int xOffsetCounter) {
-			GDO.addNulls(xOffsetCounter);
+		/*
+		 * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left. 
+		 */
+		public void addNulls(int offset) {
+			System.out.println(offset);
+			List<List<Double>> seriesData = new ArrayList<List<Double>>();
+			List<Double> timeAxis = new ArrayList<Double>();
+			List<Double> dataAxis = new ArrayList<Double>();
+
+			timeAxis.addAll(GDO.createTimeAxis(xAxis.getLowerBound())); 
+
+			for(int i = 0; i < GDO.momentumSamples.get(index).size() + offset; i++) { //Loop to "end of data (int given axis) + offset"
+				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
+					dataAxis.add(0, null);
+					continue;
+				}
+				dataAxis.add(i, GDO.momentumSamples.get(index).get(i - offset)); //If we have enough padding, start adding the samples
+			}
+
+			seriesData.add(timeAxis);
+			seriesData.add(dataAxis);
+
+			series = createSeries(name, seriesData); //create a series for the linechart
 		}
 
 		public String getColor() {
@@ -1155,6 +1186,9 @@ public class GraphController implements Initializable{
 			return name;
 		}
 
+		public void rollingBlock(int rollRange) {
+			GDO.rollingBlock(rollRange, index);
+		}
 	}
 
 	// See Robs email
