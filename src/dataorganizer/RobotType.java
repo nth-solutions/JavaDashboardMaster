@@ -19,7 +19,6 @@ public class RobotType {
 			e.printStackTrace();
 		}	
 	}
-	
 
 	public void openAndRefreshTemplate(String excelTemplateLocation) {
 		openWorkbook(excelTemplateLocation);

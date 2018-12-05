@@ -233,8 +233,28 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +10 data samples
 		XOffsetCounter += 10;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +10 and stores it in the XOffsetCounter variable
-		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
-			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+		if(dataSeries != null) {
+			for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+				axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+			}
+		}
+		
+		if(dataSeriesTwo != null) {
+			for(DataSeries axisOfDataSeries : dataSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+			}
+		}
+		
+		if(dataTemplateSeries != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+			}
+		}
+
+		if(dataTemplateSeriesTwo != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+			}
 		}
 		repopulateData();																								//TODO
 	}
@@ -1055,6 +1075,10 @@ public class GraphController implements Initializable{
 			series = createSeries(name, GDO.getZoomedSeries(0, index));
 		}
 		
+		public void addNulls(int xOffsetCounter) {
+			GDO.addNulls(xOffsetCounter);
+		}
+
 		public String getColor() {
 			return color;
 		}

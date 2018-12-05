@@ -2032,7 +2032,20 @@ public class AdvancedMode extends JFrame {
 		}
 
 		DataOrganizer dataOrgo = new DataOrganizer();
-		dataOrgo.createDataSamplesFromCSV(CSVLocation + "\\" + ModuleOneFileName);
+		int errNum;
+		if((errNum = dataOrgo.createDataSamplesFromCSV(CSVLocation + "\\" + ModuleOneFileName)) != 0) {
+			switch(errNum) {
+				case -1:
+					generalStatusLabel.setText("Could not find your file, has it been labeled Module 1?");
+					break;
+				case -2: 
+					generalStatusLabel.setText("CSVP file corrupt");
+					break;
+				default:
+					generalStatusLabel.setText("File permissions error. Could not read file.");
+					break;
+			}
+		}
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
@@ -2667,13 +2680,20 @@ public class AdvancedMode extends JFrame {
 		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		createTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				writeTemplateWithOneDataSetHandler();
-				Settings settings = new Settings();
-				settings.loadConfigFile();
-				JFrame parent = new JFrame();
-				JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-				
-				new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
+				if(writeTemplateWithOneDataSetHandler()) {
+					Settings settings = new Settings();
+					settings.loadConfigFile();
+					
+					JFrame parent = new JFrame();
+					Thread t = new Thread(new Runnable() {
+						public void run() {
+							JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
+						}
+					});
+					t.start();
+					
+					new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
+				}
 			}
 		});
 		createTemplateBtn.setBounds(10, 65, 302, 269);
