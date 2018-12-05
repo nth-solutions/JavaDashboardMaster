@@ -239,21 +239,10 @@ public class GraphController implements Initializable{
 			}
 		}
 		
-		if(dataSeriesTwo != null) {
-			for(DataSeries axisOfDataSeries : dataSeriesTwo) {
-				axisOfDataSeries.addNulls(XOffsetCounter);
-			}
-		}
-		
 		if(dataTemplateSeries != null) {
 			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
 				axisOfDataSeries.addNulls(XOffsetCounter);
-			}
-		}
-
-		if(dataTemplateSeriesTwo != null) {
-			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
-				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
 			}
 		}
 		repopulateData();																								//TODO
@@ -261,28 +250,55 @@ public class GraphController implements Initializable{
 
 	@FXML
 	public void subTenNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -10 data samples
-		XOffsetCounter -= 10;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -10 and stores it in the XOffsetCounter variable
-		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
-			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+		XOffsetCounter -= 10;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +10 and stores it in the XOffsetCounter variable
+		if(dataSeries != null) {
+			for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+				axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+			}
+		}
+		
+		if(dataTemplateSeries != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
 		}
 		repopulateData();																								//TODO
 	}
 
 	@FXML
 	public void addOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by +1 data samples
-		XOffsetCounter += 1;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +1 and stores it in the XOffsetCounter variable
-		for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
-			axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+		XOffsetCounter += 1;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +10 and stores it in the XOffsetCounter variable
+		if(dataSeries != null) {
+			for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
+				axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
+			}
+		}
+		
+		if(dataTemplateSeries != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
 		}
 		repopulateData();																								//TODO																							//TODO
 	}
 
 	@FXML
 	public void subOneNullButtonHandler(ActionEvent event) {															//Event handler that shifts the data being displayed on the line chart by -1 data samples
-		XOffsetCounter -= 1;																							//Decrementer that decrements the amount offset that has been applied to the X-Axis by -1 and stores it in the XOffsetCounter variable
+		XOffsetCounter -= 1;																							//Incrementer that increments the amount offset that has been applied to the X-Axis by +10 and stores it in the XOffsetCounter variable
+		if(dataSeries != null) {
 			for(DataSeries axisOfDataSeries: dataSeries) {															//Iterates through each axis of the data series
 				axisOfDataSeries.addNulls(XOffsetCounter);																	//Calls the addNulls method, passing the updated xOffset variable to each axis of data
 			}
+		}
+		
+		if(dataTemplateSeries != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeries) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
+		}
 		repopulateData();																									//TODO
 	}
 
@@ -291,8 +307,17 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addTenNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo += 10;
-		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
-			axisOfDataSeries.addNulls(XOffsetCounterTwo);
+		if(dataSeriesTwo != null) {
+			for(DataSeries axisOfDataSeries: dataSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
+			}
+		}
+		
+		if(dataTemplateSeriesTwo != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
 		}
 		repopulateData();
 	}
@@ -300,8 +325,17 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subTenNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo -= 10;
-		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
-			axisOfDataSeries.addNulls(XOffsetCounterTwo);
+		if(dataSeriesTwo != null) {
+			for(DataSeries axisOfDataSeries: dataSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
+			}
+		}
+		
+		if(dataTemplateSeriesTwo != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
 		}
 		repopulateData();
 	}
@@ -309,8 +343,17 @@ public class GraphController implements Initializable{
 	@FXML
 	public void addOneNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo += 1;
-		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
-			axisOfDataSeries.addNulls(XOffsetCounterTwo);
+		if(dataSeriesTwo != null) {
+			for(DataSeries axisOfDataSeries: dataSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
+			}
+		}
+		
+		if(dataTemplateSeriesTwo != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
 		}
 		repopulateData();
 	}
@@ -318,8 +361,17 @@ public class GraphController implements Initializable{
 	@FXML
 	public void subOneNullButtonHandlerTwo(ActionEvent event) {
 		XOffsetCounterTwo -= 1;
-		for(DataSeries axisOfDataSeries: dataSeriesTwo) {
-			axisOfDataSeries.addNulls(XOffsetCounterTwo);
+		if(dataSeriesTwo != null) {
+			for(DataSeries axisOfDataSeries: dataSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounterTwo);
+			}
+		}
+		
+		if(dataTemplateSeriesTwo != null) {
+			for(TemplateDataSeries axisOfDataSeries : dataTemplateSeriesTwo) {
+				axisOfDataSeries.addNulls(XOffsetCounter);
+				axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());
+			}
 		}
 		repopulateData();
 	}
