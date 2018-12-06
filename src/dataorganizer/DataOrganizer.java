@@ -251,13 +251,11 @@ public class DataOrganizer {
 		BufferedReader CSVPFile = null; //Reader for reading from the file
 		String lineText = "";
 		testParameters = new ArrayList<Integer>(); //Reinstantiate the testParameters object. Just for a quick while loop. 
-
 		try {
 			CSVPFile = new BufferedReader(new FileReader(pathToFile)); //open the file for reading
 		} catch (FileNotFoundException e) {
 			return -1;			//File Permissions error
 		}
-
 		try {
 			for(int i = 0; i < numParams; i++){ 
 				lineText = CSVPFile.readLine();

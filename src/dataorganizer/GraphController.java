@@ -1141,7 +1141,6 @@ public class GraphController implements Initializable{
 		 * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left. 
 		 */
 		public void addNulls(int offset) {
-			System.out.println(offset);
 			List<List<Double>> seriesData = new ArrayList<List<Double>>();
 			List<Double> timeAxis = new ArrayList<Double>();
 			List<Double> dataAxis = new ArrayList<Double>();

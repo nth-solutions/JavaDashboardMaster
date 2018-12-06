@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.Dimension;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -42,6 +43,7 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -209,6 +211,7 @@ public class AdvancedMode extends JFrame {
 	//Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
+	private boolean hideWindow = false;
 
 	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
 	private JPanel calOffsetsPanel;
@@ -1049,56 +1052,6 @@ public class AdvancedMode extends JFrame {
 		Thread getConfigsOperationThread = new Thread(getConfigsOperation);
 		getConfigsOperationThread.start();
 
-	}
-
-	public void writeSpreadOneModuleSheetOneClickHandler() {
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-		if(writeTemplateWithOneDataSetHandler()) {
-			JFrame parent = new JFrame();
-			JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-			
-			new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
-		}
-	}
-	
-	public void writeSpreadTwoModuleSheetOneClickHandler() {
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-		if(writeTemplateWithTwoDataSetsHandler()) {
-
-			JFrame parent = new JFrame();
-			JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-			
-			new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
-		}
-	}
-	
-	public void writeSpreadSheetWithCSVsHandler(JTextField csvFileOneLocationTextField, JTextField csvFileTwoLocationTextField, JTextField outputFileTextField) {
-		if(outputFileTextField.getText().isEmpty()) { generalStatusLabel.setText("Please choose the output file location."); return;}
-
-		if(!csvFileOneLocationTextField.getText().isEmpty() && csvFileTwoLocationTextField.getText().isEmpty()) {
-			generalStatusLabel.setText("Reading template and data...");
-			if(writeTemplateWithOneDataSetHandler()) {
-				JFrame parent = new JFrame();
-				JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-				
-				new RobotType().openAndRefreshTemplate(outputFileTextField.getText());
-			}
-		}
-		
-		
-		if(!csvFileOneLocationTextField.getText().isEmpty() && !csvFileTwoLocationTextField.getText().isEmpty()) {
-			generalStatusLabel.setText("Reading template and data...");
-			if(writeTemplateWithTwoDataSetsHandler()) {
-
-				JFrame parent = new JFrame();
-				JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-				
-				new RobotType().openAndRefreshTwoModuleTemplate(outputFileTextField.getText());
-			}
-		}
-		generalStatusLabel.setText("");
 	}
 
 	public void applyOffsetsHandler() {
@@ -2022,7 +1975,7 @@ public class AdvancedMode extends JFrame {
 		File[] ListOfFiles = new File(CSVLocation).listFiles();
 		String ModuleOneFileName = null;
 		for(int i = 0; i < ListOfFiles.length; i++) {
-			if(ListOfFiles[i].toString().contains("Module 1")) {
+			if(ListOfFiles[i].toString().contains("Module 1") && ListOfFiles[i].toString().substring(ListOfFiles[i].toString().length()-4, ListOfFiles[i].toString().length()).equals(".csv")) {
 				ModuleOneFileName = ListOfFiles[i].toString();
 			}
 		}
@@ -2033,7 +1986,7 @@ public class AdvancedMode extends JFrame {
 
 		DataOrganizer dataOrgo = new DataOrganizer();
 		int errNum;
-		if((errNum = dataOrgo.createDataSamplesFromCSV(CSVLocation + "\\" + ModuleOneFileName)) != 0) {
+		if((errNum = dataOrgo.createDataSamplesFromCSV(ModuleOneFileName)) != 0) {
 			switch(errNum) {
 				case -1:
 					generalStatusLabel.setText("Could not find your file, has it been labeled Module 1?");
@@ -2227,7 +2180,7 @@ public class AdvancedMode extends JFrame {
 								while(currentFrame != MPC.getCurrentFrame()) {
 									Thread.sleep(10);
 									if(graph != null)
-										graph.updateCirclePos(MPC.getCurrentFrame()*3, MPC.getFPS());
+										graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
 									currentFrame = MPC.getCurrentFrame();
 								}
 							}
@@ -2656,7 +2609,7 @@ public class AdvancedMode extends JFrame {
 		
 		templateComboBox = new JComboBox();
 		templateComboBox.setToolTipText("Select the template. To put data in.");
-		templateComboBox.setBounds(231, 24, 384, 20);
+		templateComboBox.setBounds(180, 24, 314, 20);
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
@@ -2680,20 +2633,24 @@ public class AdvancedMode extends JFrame {
 		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		createTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				JDialog dialog = new JDialog();
+				dialog.setTitle("Working...");
+				dialog.setBounds(1680, 900, 200, 100);
+				dialog.getContentPane().add(new JLabel("                           Working..."));
+				dialog.setVisible(true);
+				
 				if(writeTemplateWithOneDataSetHandler()) {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
-					
-					JFrame parent = new JFrame();
-					Thread t = new Thread(new Runnable() {
-						public void run() {
-							JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-							parent.isAlwaysOnTop();
-						}
-					});
-					t.start();
-					
-					new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
+
+					new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					dialog.dispose();
 				}
 			}
 		});
@@ -2704,26 +2661,43 @@ public class AdvancedMode extends JFrame {
 		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		btnCreateTwoModule.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+			
+				JDialog dialog = new JDialog();
+				dialog.setTitle("Working...");
+				dialog.setBounds(1680, 900, 200, 100);
+				dialog.getContentPane().add(new JLabel("                           Working..."));
+				dialog.setVisible(true);
+				
 				if(writeTemplateWithTwoDataSetsHandler()) {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
-					JFrame parent = new JFrame();
 
-					Thread t = new Thread(new Runnable() {
-						public void run() {
-							JOptionPane.showMessageDialog(parent, "Calculating, Creating File, Please Wait...", "File Loading", 0);
-						}
-					});
-					t.start();
-					
-					new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString());
-					parent.dispose();
+					new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
+
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					dialog.dispose();
 				}
 			}
 		});
+		
 		btnCreateTwoModule.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		btnCreateTwoModule.setBounds(313, 65, 302, 269);
 		panel9.add(btnCreateTwoModule);
+		
+		JCheckBox hideWindowChckbx = new JCheckBox("Hide Excel Window");
+		hideWindowChckbx.setBounds(500, 23, 115, 23);
+		panel9.add(hideWindowChckbx);
+		
+		hideWindowChckbx.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				hideWindow = hideWindowChckbx.isSelected();
+			}
+		});
 
 		erasePanel = new JPanel();
 		mainTabbedPanel.addTab("Test/Erase", null, erasePanel, "Erase test data, Sector Erase is quick but prone to failure. Use Bulk Erase to ensure all test data has been deleted from the module.");
@@ -2823,7 +2797,6 @@ public class AdvancedMode extends JFrame {
 		calOffsetsPanel.setLayout(new GridLayout(0, 2, 0, 0));
 
 		tmr0OffsetTextField = new JTextField();
-		tmr0OffsetTextField.setEditable(false);
 		tmr0OffsetTextField.setToolTipText("(Read Only.)");
 		calOffsetsPanel.add(tmr0OffsetTextField);
 		tmr0OffsetTextField.setHorizontalAlignment(SwingConstants.LEFT);
@@ -2833,7 +2806,6 @@ public class AdvancedMode extends JFrame {
 		tmr0OffsetTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Timer0 Calibration Offset (Ticks)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 
 		delayAfterTextField = new JTextField();
-		delayAfterTextField.setEditable(false);
 		delayAfterTextField.setToolTipText("(Read Only.)");
 		delayAfterTextField.setText("0");
 		delayAfterTextField.setHorizontalAlignment(SwingConstants.LEFT);
