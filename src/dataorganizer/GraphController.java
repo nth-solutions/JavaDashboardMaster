@@ -470,14 +470,14 @@ public class GraphController implements Initializable{
 		
 		GDO = new GraphDataOrganizer();
 		GDO.setTestParams(assc.getTestParameters());
-		GDO.setMomentumSamples(assc.getMomentumSamplesModuleOne());
+		GDO.setSamples(assc.getMomentumSamplesModuleOne());
 		for (int numDof = 0; numDof < 3; numDof++) {
 			dataTemplateSeries.add(new TemplateDataSeries("Module One: ", GDO, numDof));
 		}
 		
 		GDO = new GraphDataOrganizer();
 		GDO.setTestParams(assc.getTestParameters());
-		GDO.setMomentumSamples(assc.getMomentumSamplesModuleTwo());
+		GDO.setSamples(assc.getMomentumSamplesModuleTwo());
 		for (int numDof = 0; numDof < 3; numDof++) {
 			dataTemplateSeriesTwo.add(new TemplateDataSeries("Module Two: ", GDO, numDof));
 		}
@@ -1147,12 +1147,12 @@ public class GraphController implements Initializable{
 
 			timeAxis.addAll(GDO.createTimeAxis(xAxis.getLowerBound())); 
 
-			for(int i = 0; i < GDO.momentumSamples.get(index).size() + offset; i++) { //Loop to "end of data (int given axis) + offset"
+			for(int i = 0; i < GDO.samples.get(index).size() + offset; i++) { //Loop to "end of data (int given axis) + offset"
 				if(offset >= i) { //if offset is still greater than the current sample (i) continue adding padding
 					dataAxis.add(0, null);
 					continue;
 				}
-				dataAxis.add(i, GDO.momentumSamples.get(index).get(i - offset)); //If we have enough padding, start adding the samples
+				dataAxis.add(i, GDO.samples.get(index).get(i - offset)); //If we have enough padding, start adding the samples
 			}
 
 			seriesData.add(timeAxis);

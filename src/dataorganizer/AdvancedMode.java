@@ -168,7 +168,7 @@ public class AdvancedMode extends JFrame {
 
 	//UI Controllers
 	GraphController lineGraph;
-	MediaPlayerController mediaController;
+	VLCJMediaPlayerController mediaController;
 	
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
@@ -1901,14 +1901,20 @@ public class AdvancedMode extends JFrame {
 						lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
 					if(mediaPlayerBtn.get(i) == e.getSource()) {
-						mediaController = startMediaPlayer();
-						mediaController.scaleVideoAtStart();
+						mediaController = startVLCJMediaPlayer();
+						//mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				}
 			}
 		});
 	}
+	
+	public VLCJMediaPlayerController startVLCJMediaPlayer() {
+		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
+		return vlcjController;
+	}
+
 	
 	public MediaPlayerController startMediaPlayer() {
 		Stage primaryStage = new Stage();
@@ -1947,6 +1953,8 @@ public class AdvancedMode extends JFrame {
 		
 		return loader.getController();
 	}
+	
+	
 	
 	public HelpMenuController startHelpMenu() {
 		Stage primaryStage = new Stage();
@@ -2169,7 +2177,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-	public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
+	public void shareFrameGraphAndMedia(GraphController graph, VLCJMediaPlayerController MPC) {
 		Runnable updatePosInGraph = new Runnable() {
 			public void run() {
 				try {
@@ -2196,6 +2204,9 @@ public class AdvancedMode extends JFrame {
 		Thread updatePosInGraphThread = new Thread(updatePosInGraph);
 		updatePosInGraphThread.start();
 	}
+	
+	
+	
 	
 	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		DataOrganizer dataOrgo = new DataOrganizer();
@@ -3142,8 +3153,8 @@ public class AdvancedMode extends JFrame {
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
-						mediaController = startMediaPlayer();
-						mediaController.scaleVideoAtStart();
+						mediaController = startVLCJMediaPlayer();
+						//mediaController.scaleVideoAtStart();
 						shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
