@@ -40,10 +40,6 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 
-//TODO: Time-keeping w/ Frame-by-Frame Analysis (Possible use of position)
-//TODO: Frame-by-Frame Analysis
-//TODO: +/- 1 Frame Incrementors
-//TODO: Total/Current Frame Boxes
 
 public class VLCJMediaPlayerController {
 	JFrame frame;
@@ -51,8 +47,7 @@ public class VLCJMediaPlayerController {
 	private JButton playBtn;
 	private JLabel statusLabel;
 	private JLabel timeTrackerLabel;
-	private String userProfile = FileSystemView.getFileSystemView().getDefaultDirectory().getPath() + "\\..\\";
-	
+	Settings settings;
 
 	private MediaPlayerFactory mediaPlayerFactory;
 	private EmbeddedMediaPlayer mediaPlayer;
@@ -65,6 +60,7 @@ public class VLCJMediaPlayerController {
 	private String totalTime;
 	private float videoLength;
 	private int frameNumber;
+	private float fps;
 	private volatile boolean stopSteppingBoolean;
 	
 	private Thread vlcjFrameStepperThread;
@@ -98,8 +94,11 @@ public class VLCJMediaPlayerController {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setBounds(100, 100, 1180, 720);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
+		frame.setResizable(false);
+
+		settings = new Settings();
 		
 		JPanel SouthContainer = new JPanel();
 		SouthContainer.setBounds(0, 597, 1167, 84);
@@ -145,25 +144,35 @@ public class VLCJMediaPlayerController {
 		timeTrackerLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		SouthContainer.add(timeTrackerLabel);
 		
-		JLabel frameNumberLabel = new JLabel("Enter a Frame Number:");
+		JLabel frameNumberLabel = new JLabel("Current a Frame Number:");
 		frameNumberLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		frameNumberLabel.setBounds(795, 19, 130, 14);
 		SouthContainer.add(frameNumberLabel);
 		
 		frameNumberTextField = new JTextField();
 		frameNumberTextField.setHorizontalAlignment(SwingConstants.RIGHT);
-		frameNumberTextField.setBounds(935, 16, 85, 20);
+		frameNumberTextField.setBounds(935, 16, 90, 20);
 		SouthContainer.add(frameNumberTextField);
 		frameNumberTextField.setColumns(10);
 		
 		JButton seekToFrameNumberBtn = new JButton("Seek");
 		seekToFrameNumberBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				int frameNumber = Integer.parseInt(frameNumberTextField.getText());
-				seekToFrame(frameNumber);
+				try {
+					if (!videoLoaded) return;
+					statusLabel.setVisible(false);
+					int frameNumber = Integer.parseInt(frameNumberTextField.getText());
+					seekToFrame(frameNumber);
+				} catch(NumberFormatException e) {
+					statusLabel.setVisible(true);
+					statusLabel.setText("Invalid Frame");
+				}
+					
+				
+				
 			}
 		});
-		seekToFrameNumberBtn.setBounds(1030, 16, 73, 20);
+		seekToFrameNumberBtn.setBounds(1035, 16, 90, 20);
 		SouthContainer.add(seekToFrameNumberBtn);
 		
 		JButton subFrameBtn = new JButton("-1 Frame");
@@ -172,7 +181,7 @@ public class VLCJMediaPlayerController {
 				seekLastFrame();
 			}
 		});
-		subFrameBtn.setBounds(805, 50, 89, 23);
+		subFrameBtn.setBounds(935, 47, 90, 20);
 		SouthContainer.add(subFrameBtn);
 		
 		JButton addFrameBtn = new JButton("+1 Frame");
@@ -181,7 +190,7 @@ public class VLCJMediaPlayerController {
 				seekNextFrame();
 			}
 		});
-		addFrameBtn.setBounds(1040, 50, 89, 23);
+		addFrameBtn.setBounds(1035, 47, 90, 20);
 		SouthContainer.add(addFrameBtn);
 		
 		statusLabel = new JLabel("Select a video");
@@ -225,16 +234,15 @@ public class VLCJMediaPlayerController {
 	}
 	
 	public float getFPS() {
-		return mediaPlayer.getFps();
+		return fps;
 	}
 	
 	public int getCurrentFrame() {
-		System.out.println(frameNumber);
 		return frameNumber;
 	}
 	
 	public float getTotalFrames() {
-		return (mediaPlayer.getFps() * mediaPlayer.getLength()/1000);
+		return (fps * mediaPlayer.getLength()/1000);
 	}
 	
 	public boolean hasVideoSelected() {
@@ -282,7 +290,7 @@ public class VLCJMediaPlayerController {
 
 	
 	private void seekLastFrame() {
-		
+		if(!videoLoaded) return;
 		frameNumber -= 2; //Decrement frame number by two
 		seekToFrame(frameNumber); //Seek frame
 		
@@ -306,6 +314,7 @@ public class VLCJMediaPlayerController {
 	}
 	
 	private void seekNextFrame() {
+		if(!videoLoaded) return;
 		frameNumber++;
 		seekToFrame(frameNumber); //Seek frame
 		
@@ -318,33 +327,30 @@ public class VLCJMediaPlayerController {
 	//Modified to not advance frames, only keep time 
 	public void playByFrameStep() {
 		videoLength = (float)mediaPlayer.getLength()/1000; //getLength returns duration in ms, videoLength is in seconds
-		totalTime = String.valueOf(videoLength);
+		//totalTime = String.valueOf(videoLength);
 		float totalFrames = getTotalFrames();
 		double msPerFrame = getMsPerFrame();
-		long threadPauseTime = (long)msPerFrame;
+		long threadPauseTime = (long)msPerFrame; //
+		
+		String totalTimeString = String.valueOf(new DecimalFormat("#.00").format(videoLength));
+		
 		for(frameNumber = 0; frameNumber < totalFrames && stopSteppingBoolean == false; frameNumber++) {			
 			
 			try {
-				Thread.sleep(threadPauseTime);
+				Thread.sleep(threadPauseTime, (int)((msPerFrame - threadPauseTime)*1000));
 			} catch (InterruptedException e) {
 				System.out.println("Thread Interrupted");
 			}
 			
-			/**
-			 * TEST: Checks the current time using VLCJs default methods, as well as a mathematical calculation. They're pretty close together. I think it may be a type conversion issue, but I think it's better to 
-			 * have slight imprecision than a product that doesn't work in entirety. Run this a few times and let me know what you think. If you think it's do-able, we can implement the media player play()/pause() 
-			 * methods and move forward with development. If not, let's start this brainstorming day 2. ALSO: I noticed that VLCJ's frame count stays constant for several frames before changing (??? No idea why but
-			 * we should look into it)
-			 */
+			frameNumberTextField.setText(String.valueOf(frameNumber));
 			float currentTime = (float) (frameNumber * msPerFrame / 1000.0);
-			float vlcjTime = (float) (mediaPlayer.getTime() / 1000.0);
-		/*	System.out.println("MS Per Frame: " + msPerFrame);
-			System.out.println("Current Frame Number: " + frameNumber);
-			System.out.println("Current Time (VLCJ): " + vlcjTime);
-			System.out.println("Current Time (Counter): " + currentTime);*/
+			
+		
 			
 			String currentTimeString = String.valueOf(new DecimalFormat("#.00").format(currentTime));
-			timeTrackerLabel.setText(currentTimeString + " / " + totalTime);
+			
+			
+			timeTrackerLabel.setText(currentTimeString + " / " + totalTimeString);
 		}
 		
 	}
@@ -355,8 +361,8 @@ public class VLCJMediaPlayerController {
 	 */
 	public void importVideo() {
 		JFileChooser chooser = new JFileChooser();
-		System.out.println(userProfile);
-		chooser.setCurrentDirectory(new File(userProfile + "\\Videos\\"));  
+		settings.loadConfigFile();
+		chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));  
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setAcceptAllFileFilterUsed(false);
 		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -388,7 +394,7 @@ public class VLCJMediaPlayerController {
 			e.printStackTrace();
 		}
 		
-		
+		fps = mediaPlayer.getFps();
 		
 		 
 		 mediaPlayer.setPause(true);													
@@ -408,7 +414,7 @@ public class VLCJMediaPlayerController {
 	}
 	
 	
-	//TODO: Needs to be finished 
+	
 	public void seekToFrame(int frameNumber) {
 		try {
 			this.frameNumber = frameNumber;

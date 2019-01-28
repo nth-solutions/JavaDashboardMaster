@@ -15,7 +15,7 @@ public class GraphDataOrganizer {
 	public int accelSensitivity;
 	public int gyroSensitivity;
 	private int magSensitivity;
-	private double lengthOfTest;
+	private float lengthOfTest;
 	public int yMin;
 	public int yMax;
 	
@@ -141,17 +141,17 @@ public class GraphDataOrganizer {
 		}
 	}
 	
-	public double getLengthOfTest() {
+	public float getLengthOfTest() {
 		return lengthOfTest;
 	}
 	
 	public void setSamples(List<List<Double>> newSamples) {
+		lengthOfTest = (float)newSamples.get(0).size() / sampleRate;
 		samples = newSamples;
 	}
 	
 	public void setTestParams(List<Integer> testParameters) {
 		sampleRate = testParameters.get(7);
-		lengthOfTest = testParameters.get(6);
 		magSampleRate = testParameters.get(8);
 		accelSensitivity = testParameters.get(9);
 		gyroSensitivity = testParameters.get(10);

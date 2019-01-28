@@ -135,7 +135,7 @@ public class GraphController implements Initializable{
 	@FXML
 	public void handleReset(ActionEvent event) {																		//Resets the Graph to its default parameters (y-Axis scale, x-Axis scale and userCreatedZoomRectangleBox is reset to (0,0))
 		if(dataCollector[0]!=null) {
-			xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[0].getLengthOfTest())));					//Sets the Graph's x-Axis maximum value to the total time of the test
+			xAxis.setUpperBound(dataCollector[0].getLengthOfTest());					//Sets the Graph's x-Axis maximum value to the total time of the test
 		}
 		if(GDO != null) xAxis.setUpperBound(GDO.getLengthOfTest());
 		xAxis.setLowerBound(0);																							//Sets the Graph's x-Axis minimum value to 0 - the location of the very first data sample
@@ -455,7 +455,6 @@ public class GraphController implements Initializable{
 		Thread t = new Thread(new Runnable() {
 			public void run() {
 				JOptionPane.showMessageDialog(parent, "Working...", "File Loading", 0);
-				parent.isAlwaysOnTop();
 			}
 		});
 		t.start();
@@ -568,7 +567,7 @@ public class GraphController implements Initializable{
 			styleSeries(dataSeriesTwo, lineChart);
 		}
 
-		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[numDataSets].getLengthOfTest())));
+		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
 		xAxis.setLowerBound(0);
 
 		userCreatedZoomRectangleBox.setManaged(true);
@@ -777,7 +776,7 @@ public class GraphController implements Initializable{
 	public void graphSettingsOnStart(String moduleSerialID){
 		createListenersResize();
 		dataSourceTitledPane.setText("Module Serial ID: " + moduleSerialID);
-		xAxis.setUpperBound(Double.parseDouble(roundTime.format(dataCollector[numDataSets].getLengthOfTest())));
+		xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
 		xAxis.setMinorTickCount(dataCollector[numDataSets].getSampleRate()/16);
 
 		lineChart.setTitle(dataCollector[numDataSets].getName());
@@ -833,9 +832,13 @@ public class GraphController implements Initializable{
 		currentTimeInMediaPlayer = new Rectangle(0, -515, 1, lineChartHeight - lineChartHeight/6);
 		Node chartPlotArea = lineChart.lookup(".chart-plot-background");
 		double xAxisOrigin = chartPlotArea.getLayoutX() + 4;  //+4 to align to the x axis origin. XOrigin is slightly not aligned, reason unknown. 
-		double lineChartWidth = lineChart.getWidth() - 84; //Magic number 84, because the linechart doesn't know its own width.
-		if(dataCollector[0] != null)
+		double lineChartWidth = lineChart.getWidth() - 91; //Magic number 91, because the linechart doesn't know its own width.
+		if(dataCollector[0] != null) {
 			x = (int) (lineChartWidth*x/(FPS * dataCollector[0].getLengthOfTest())); //multiply the width of the chart by the frame number and divide by the number of frames in the first data set (The index of which data set should not matter, if the tests are equal.)
+		}
+		if(GDO != null) {
+			x = (int) (lineChartWidth*x/(FPS * GDO.getLengthOfTest())); //multiply the width of the chart by the frame number and divide by the number of frames in the first data set (The index of which data set should not matter, if the tests are equal.)
+		}
 		currentTimeInMediaPlayer.setX(xAxisOrigin + x);			//range is XOrigin -> XOrigin + $length (of chart)
 		currentTimeInMediaPlayer.setY(14);
 		currentTimeInMediaPlayer.setStroke(Color.RED);
@@ -844,17 +847,13 @@ public class GraphController implements Initializable{
 	}
 
 	public void updateCirclePos(int frameInMediaPlayer, double FPS) {
-		int lastFrame = -2;
-		if(frameInMediaPlayer != lastFrame){
-			Platform.runLater(new Runnable() {
-				@Override public void run() {
-					chartContainer.getChildren().remove(currentTimeInMediaPlayer);
-					if(xAxis.getLowerBound() != 0) return;
-					chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, (int)FPS));
-				}
-			});
-			lastFrame = frameInMediaPlayer;
-		}
+		Platform.runLater(new Runnable() {
+			@Override public void run() {
+				chartContainer.getChildren().remove(currentTimeInMediaPlayer);
+				if(xAxis.getLowerBound() != 0) return;
+				chartContainer.getChildren().add(drawRect(frameInMediaPlayer, 0, (int)FPS));
+			}
+		});
 	}
 
 
@@ -943,7 +942,7 @@ public class GraphController implements Initializable{
 		double xAxisScale = xAxis.getScale();
 		double yAxisScale = yAxis.getScale();
 		xAxis.setLowerBound((xAxis.getLowerBound() + xOffset / xAxisScale));
-		xAxis.setUpperBound(Double.parseDouble(roundTime.format(xAxis.getLowerBound() + userCreatedZoomRectangleBox.getWidth() / xAxisScale)));
+		xAxis.setUpperBound(xAxis.getLowerBound() + userCreatedZoomRectangleBox.getWidth() / xAxisScale);
 		yAxis.setLowerBound((yAxis.getLowerBound() + yOffset / yAxisScale));
 		yAxis.setUpperBound(yAxis.getLowerBound() - userCreatedZoomRectangleBox.getHeight() / yAxisScale);
 		userCreatedZoomRectangleBox.setWidth(0);

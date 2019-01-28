@@ -197,9 +197,9 @@
                                                 </VBox>
                                              </content>
                                           </TitledPane>
-                                          <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="150.0" text="Data Series">
+                                          <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="133.0" prefWidth="202.0" text="Data Series">
                                              <content>
-                                                <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" />
+                                                <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="93.0" prefWidth="200.0" />
                                              </content>
                                           </TitledPane>
                                        </children>
@@ -250,7 +250,7 @@
                                                 </VBox>
                                              </content>
                                           </TitledPane>
-                                          <TitledPane fx:id="dataDisplayTitledPaneTwo" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="150.0" text="Data Series">
+                                          <TitledPane fx:id="dataDisplayTitledPaneTwo" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="133.0" prefWidth="202.0" text="Data Series">
                                              <content>
                                                 <FlowPane fx:id="dataDisplayCheckboxesFlowPaneTwo" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" />
                                              </content>

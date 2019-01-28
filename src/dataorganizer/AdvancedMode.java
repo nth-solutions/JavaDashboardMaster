@@ -1912,6 +1912,7 @@ public class AdvancedMode extends JFrame {
 	
 	public VLCJMediaPlayerController startVLCJMediaPlayer() {
 		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
+		vlcjController.frame.setVisible(true);
 		return vlcjController;
 	}
 
@@ -2186,7 +2187,7 @@ public class AdvancedMode extends JFrame {
 						if(MPC != null) 
 							if(MPC.hasVideoSelected()) {
 								while(currentFrame != MPC.getCurrentFrame()) {
-									Thread.sleep(10);
+									Thread.sleep(75);
 									if(graph != null)
 										graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
 									currentFrame = MPC.getCurrentFrame();
