@@ -44,6 +44,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JProgressBar;
 import java.awt.SystemColor;
 import javax.swing.border.LineBorder;
+import javax.swing.JLayeredPane;
 
 public class EducatorMode extends JFrame {
 
@@ -79,6 +80,7 @@ public class EducatorMode extends JFrame {
 	private JPanel stepTwo;
 	private JPanel stepThree;
 	private JPanel stepFour;
+	private JPanel testParametersPanel;
 	private JLabel generalStatusLabelOne;
 	private JLabel generalStatusLabelTwo;
 	private JLabel generalStatusLabelThree;
@@ -1319,24 +1321,30 @@ public class EducatorMode extends JFrame {
 		testTypeCombobox = new JComboBox();
 		testTypeCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				stepOne.remove(momentumLabPane);
-				stepOne.remove(conservationOfEnergyLabPane);
-				stepOne.add(spinnyStoolDemo);
-				
+//				stepOne.remove(momentumLabPane);
+//				stepOne.remove(conservationOfEnergyLabPane);
+//				stepOne.add(spinnyStoolDemo);
+//				
 				fillTestTypeHashMap(timedTestCheckbox.isSelected()?1:0);
 				testType = testTypeCombobox.getSelectedItem().toString();
 				testTypeHashMap.get(testTypeCombobox.getSelectedItem());
 				
 				switch(testType) {
 					case "Conservation of Momentum (Elastic Collision)":
-						stepOne.add(momentumLabPane);
+						testParametersPanel.removeAll();
+						testParametersPanel.add(momentumLabPane);
 						break;
 					case "Conservation of Energy":
-						stepOne.add(conservationOfEnergyLabPane);
+						testParametersPanel.removeAll();
+						testParametersPanel.add(conservationOfEnergyLabPane);
 						break;
 					case "Spinny Stool":
-						stepOne.add(spinnyStoolDemo);
+						testParametersPanel.removeAll();
+						testParametersPanel.add(spinnyStoolDemo);
 						break;
+					case "Physical Pendulum":
+						testParametersPanel.removeAll();
+						//testParametersPanel.add(physicalPendulumLabPane);		//TODO: Create Pendulum Lab Pane
 				}
 				repaint();
 				
@@ -1398,6 +1406,10 @@ public class EducatorMode extends JFrame {
 		lblStepaApply.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblStepaApply.setBounds(10, 306, 229, 31);
 		stepOne.add(lblStepaApply);
+		
+		testParametersPanel = new JPanel();
+		testParametersPanel.setBounds(10, 98, 506, 200);
+		stepOne.add(testParametersPanel);
 		
 		spinnyStoolDemo = new JPanel();
 		spinnyStoolDemo.setBounds(10, 111, 506, 184);

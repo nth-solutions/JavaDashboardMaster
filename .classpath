@@ -15,7 +15,7 @@
 	<classpathentry kind="lib" path="bin/vlcj-3.10.1.jar"/>
 	<classpathentry kind="lib" path="bin/slf4j-api-1.7.25.jar"/>
 	<classpathentry kind="lib" path="bin/slf4j-simple-1.7.25.jar"/>
-	<classpathentry kind="lib" path="jna-3.5.2.jar"/>
 	<classpathentry kind="lib" path="jna-platform-3.5.2.jar"/>
+	<classpathentry kind="lib" path="bin/jna-4.0.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
