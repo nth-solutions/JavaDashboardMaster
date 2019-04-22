@@ -203,6 +203,11 @@ public class EducatorMode extends JFrame {
 		}
 	}
 
+	/***
+	 *  Fills the testTypeHashMap with the module settings associated with each test type
+	 *
+	 * @param timedTest
+	 */
 	public void fillTestTypeHashMap(int timedTest) {
 		ArrayList<Integer> testParams = new ArrayList<Integer>();
 
@@ -391,6 +396,8 @@ public class EducatorMode extends JFrame {
 		testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
 
 		testParams.clear();
+
+		//TODO: Finish adding test type parameters
 	}
 	
 	public void initFX(DataOrganizer dataOrgo, ActionEvent e) {

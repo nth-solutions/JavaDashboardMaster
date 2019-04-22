@@ -19,7 +19,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -49,7 +49,7 @@
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="75.0" prefWidth="200.0">
                                              <children>
-                                                <Label text="General Status Text">
+                                                <Label fx:id="generalStatusLabel" text="General Status Text">
                                                    <font>
                                                       <Font name="System Bold" size="18.0" />
                                                    </font>
@@ -300,33 +300,33 @@
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="180.0">
                                              <children>
-                                                <Button mnemonicParsing="false" prefHeight="80.0" prefWidth="480.0" text="Configure Module for Calibration" />
+                                                <Button fx:id="configureForCalibrationButton" mnemonicParsing="false" prefHeight="80.0" prefWidth="480.0" text="Configure Module for Calibration" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" layoutX="10.0" layoutY="210.0" prefHeight="100.0" prefWidth="180.0" spacing="10.0">
                                              <children>
-                                                <TextField prefHeight="80.0" prefWidth="390.0" promptText="File Name">
+                                                <TextField fx:id="videoFilePathTextField" prefHeight="80.0" prefWidth="390.0" promptText="File Name">
                                                    <font>
                                                       <Font size="18.0" />
                                                    </font>
                                                 </TextField>
-                                                <Button mnemonicParsing="false" prefHeight="80.0" prefWidth="80.0" text="Browse" />
+                                                <Button mnemonicParsing="false" onAction="#browseVideoFile" prefHeight="80.0" prefWidth="80.0" text="Browse" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" layoutX="10.0" layoutY="260.0" prefHeight="100.0" prefWidth="180.0">
                                              <children>
-                                                <Button mnemonicParsing="false" prefHeight="80.0" prefWidth="480.0" text="Import Calibration Data and Calculate Offset" />
+                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" prefHeight="80.0" prefWidth="480.0" text="Import Calibration Data and Calculate Offset" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" layoutX="10.0" layoutY="310.0" prefHeight="100.0" prefWidth="180.0" spacing="10.0">
                                              <children>
-                                                <TextField prefHeight="80.0" prefWidth="235.0" promptText="Timer0 Offset Calibration (Ticks)" />
-                                                <TextField prefHeight="80.0" prefWidth="235.0" promptText="Delay After Start (milliseconds)" />
+                                                <TextField fx:id="timer0OffsetTextField" prefHeight="80.0" prefWidth="235.0" promptText="Timer0 Offset Calibration (Ticks)" />
+                                                <TextField fx:id="delayAfterStartTextField" prefHeight="80.0" prefWidth="235.0" promptText="Delay After Start (milliseconds)" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" layoutX="10.0" layoutY="360.0" prefHeight="100.0" prefWidth="180.0">
                                              <children>
-                                                <Button mnemonicParsing="false" prefHeight="80.0" prefWidth="480.0" text="Apply Offset" />
+                                                <Button fx:id="applyOffsetButton" mnemonicParsing="false" prefHeight="80.0" prefWidth="480.0" text="Apply Offset" />
                                              </children>
                                           </HBox>
                                        </children>
