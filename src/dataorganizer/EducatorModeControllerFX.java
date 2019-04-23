@@ -5,11 +5,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -48,6 +52,17 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     ComboBox<String> testTypeComboBox;
 
+    //Experiment FXML Components
+    @FXML
+    Button pairNewRemoteButton;
+    @FXML
+    Button unpairAllRemotesButton;
+    @FXML
+    Button testRemotesButton;
+
+
+
+
     //Calibration FXML Components
     @FXML
     Button configureForCalibrationButton;
@@ -56,7 +71,9 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Button applyOffsetButton;
     @FXML
-    Label generalStatusLabel;
+    Label generalStatusCalibrationLabel;
+    @FXML
+    Label generalStatusExperimentLabel;
     @FXML
     TextField videoFilePathTextField;
     @FXML
@@ -73,7 +90,6 @@ public class EducatorModeControllerFX implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Angular Momentum", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spinny Stool", "Spring Test - Simple Harmonics");
         backButton.setVisible(false);
-
         serialHandler = new SerialComm();
     }
 
@@ -115,7 +131,7 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void nextTab(ActionEvent event) {
-        generalStatusLabel.setText(""); // Refreshes the General Status Label back to blank with each tab change
+        generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
 
         if (experimentTabIndex == 4) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
             experimentTabIndex = -1;
@@ -140,7 +156,7 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void backTab(ActionEvent event) {
-        generalStatusLabel.setText(""); // Refreshes the General Status Label back to blank with each tab change
+        generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
 
         if (experimentTabIndex != 0) {  // If the index does not equal 0 (the first pane), the index will decrement
             experimentTabIndex -= 1;
@@ -168,8 +184,58 @@ public class EducatorModeControllerFX implements Initializable {
 
     /* Begin Experiment Tab Methods */
 
+    @FXML
+    private void pairNewRemote(ActionEvent event) {
 
-    //TODO: Analyze method implementation in Swing and convert all methods to FX
+        Runnable pairNewRemoteOperation = () -> {
+            //Disable buttons that should not be used in the middle of a sequence
+            pairNewRemoteButton.setDisable(true);
+            unpairAllRemotesButton.setDisable(true);
+            testRemotesButton.setDisable(true);
+
+            generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
+
+            try {
+                if(serialHandler.pairNewRemote()) {
+                    generalStatusExperimentLabel.setText("New Remote Successfully Paired");
+
+                }
+                else {
+                    generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
+
+                }
+
+
+            }
+            catch (IOException e) {
+                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+
+            }
+            catch (PortInUseException e) {
+                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+
+            }
+            catch (UnsupportedCommOperationException e) {
+                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+
+            }
+
+            //Enable buttons that can now be used since the bulk erase completed
+            pairNewRemoteButton.setDisable(false);
+            unpairAllRemotesButton.setDisable(false);
+            testRemotesButton.setDisable(false);
+
+
+        };
+
+        //Define a new thread to run the operation previously defined
+        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
+        //Start the thread
+        pairNewRemoteThread.start();
+    }
+
+
+
 
 
 
@@ -185,34 +251,34 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void configureModuleForCalibration(ActionEvent event) {
-        backButton.setDisable(true);
-        importCalibrationDataButton.setDisable(false);
-        applyOffsetButton.setDisable(true);
 
-        try {
-            if(!serialHandler.configForCalibration()) {
-                generalStatusLabel.setText("Error Communicating With Module");
-            }
-            else {
-                generalStatusLabel.setText("Module Configured for Calibration, Use Configuration Tab to Exit");
-            }
-
-            backButton.setDisable(false);
+        Runnable calforConfigOperation = () -> {
+            backButton.setDisable(true);
             importCalibrationDataButton.setDisable(false);
-            applyOffsetButton.setDisable(false);
-        }
-        catch (IOException e) {
-            generalStatusLabel.setText("Error Communicating With Serial Dongle");
-        }
-        catch (PortInUseException e) {
-            generalStatusLabel.setText("Serial Port Already In Use");
-        }
-        catch (UnsupportedCommOperationException e) {
-            generalStatusLabel.setText("Check Dongle Compatability");
-        }
+            applyOffsetButton.setDisable(true);
 
-//		Thread calConfigThread = new Thread(calforConfigOperation);                                                     //TODO: Figure out this import
-//                calConfigThread.start();
+            try {
+                if (!serialHandler.configForCalibration()) {
+                    generalStatusCalibrationLabel.setText("Error Communicating With Module");
+                } else {
+                    generalStatusCalibrationLabel.setText("Module Configured for Calibration, Use Configuration Tab to Exit");
+                }
+
+                backButton.setDisable(false);
+                importCalibrationDataButton.setDisable(false);
+                applyOffsetButton.setDisable(false);
+            } catch (IOException e) {
+                generalStatusCalibrationLabel.setText("Error Communicating With Serial Dongle");
+            } catch (PortInUseException e) {
+                generalStatusCalibrationLabel.setText("Serial Port Already In Use");
+            } catch (UnsupportedCommOperationException e) {
+                generalStatusCalibrationLabel.setText("Check Dongle Compatability");
+            }
+
+        };
+
+        Thread calConfigThread = new Thread(calforConfigOperation);
+        calConfigThread.start();
     }
 
     /**
@@ -239,26 +305,27 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void importCalibrationData(ActionEvent event) {
 
-        configureForCalibrationButton.setDisable(true);
-        importCalibrationDataButton.setDisable(true);
-        applyOffsetButton.setDisable(true);
-        try {
+        Runnable getConfigsOperation = () -> {
+            configureForCalibrationButton.setDisable(true);
+            importCalibrationDataButton.setDisable(true);
+            applyOffsetButton.setDisable(true);
+            try {
 
-            BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
+                BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
 
-            delayAfterStartTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
-            timer0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset()));
+                delayAfterStartTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
+                timer0OffsetTextField.setText(Integer.toString(bfo.getTMR0Offset()));
 
-            configureForCalibrationButton.setDisable(false);
-            importCalibrationDataButton.setDisable(false);
-            applyOffsetButton.setDisable(false);
+                configureForCalibrationButton.setDisable(false);
+                importCalibrationDataButton.setDisable(false);
+                applyOffsetButton.setDisable(false);
 
-        } catch (IOException e) {
-            generalStatusLabel.setText("Error Communicating With Serial Dongle");
-        }
-
-//        Thread getConfigsOperationThread = new Thread(getConfigsOperation);                                             //TODO: Figure out what this does
-//        getConfigsOperationThread.start();
+            } catch (IOException e) {
+                generalStatusCalibrationLabel.setText("Error Communicating With Serial Dongle");
+            }
+        };
+        Thread getConfigsOperationThread = new Thread(getConfigsOperation);
+        getConfigsOperationThread.start();
     }
 
     /**
@@ -267,39 +334,46 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void applyOffset(ActionEvent event) {
-        configureForCalibrationButton.setDisable(true);
-        importCalibrationDataButton.setDisable(true);
-        applyOffsetButton.setDisable(true);
 
-        try {
-            if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(timer0OffsetTextField.getText()), Integer.parseInt(delayAfterStartTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
-                generalStatusLabel.setText("Error Communicating With Module");
+        Runnable getConfigsOperation = () -> {
+            configureForCalibrationButton.setDisable(true);
+            importCalibrationDataButton.setDisable(true);
+            applyOffsetButton.setDisable(true);
+
+            try {
+                if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(timer0OffsetTextField.getText()), Integer.parseInt(delayAfterStartTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
+                    generalStatusCalibrationLabel.setText("Error Communicating With Module");
+
+                }
+                else {
+                    generalStatusCalibrationLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+
+                }
+
+                configureForCalibrationButton.setDisable(false);
+                importCalibrationDataButton.setDisable(false);
+                applyOffsetButton.setDisable(false);
 
             }
-            else {
-                generalStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
-
+            catch (IOException e) {
+                generalStatusCalibrationLabel.setText("Error Communicating With Serial Dongle");
             }
+            catch (PortInUseException e) {
+                generalStatusCalibrationLabel.setText("Serial Port Already In Use");
+            }
+            catch (UnsupportedCommOperationException e) {
+                generalStatusCalibrationLabel.setText("Check Dongle Compatability");
+            }
+        };
 
-            configureForCalibrationButton.setDisable(false);
-            importCalibrationDataButton.setDisable(false);
-            applyOffsetButton.setDisable(false);
 
-        }
-        catch (IOException e) {
-            generalStatusLabel.setText("Error Communicating With Serial Dongle");
-        }
-        catch (PortInUseException e) {
-            generalStatusLabel.setText("Serial Port Already In Use");
-        }
-        catch (UnsupportedCommOperationException e) {
-            generalStatusLabel.setText("Check Dongle Compatability");
-        }
-//        Thread applyOffsetsHandlerThread = new Thread(getConfigsOperation);                                             //TODO: Figure out what this does
-//        applyOffsetsHandlerThread.start();
+        Thread applyOffsetsHandlerThread = new Thread(getConfigsOperation);
+        applyOffsetsHandlerThread.start();
     }
 
     /* End Calibration Tab Methods*/
+
+
 
 
     /*Begin Motion Visualization Tab Methods*/
@@ -307,6 +381,8 @@ public class EducatorModeControllerFX implements Initializable {
     //Under Development... Will have methods soon
 
     /*End Motion Visualization Tab Methods*/
+
+
 
 
     /* Module Parameter Settings */
