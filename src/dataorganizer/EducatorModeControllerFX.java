@@ -54,6 +54,8 @@ public class EducatorModeControllerFX implements Initializable {
 
     //Experiment FXML Components
     @FXML
+    Label generalStatusExperimentLabel;
+    @FXML
     Button pairNewRemoteButton;
     @FXML
     Button unpairAllRemotesButton;
@@ -72,8 +74,6 @@ public class EducatorModeControllerFX implements Initializable {
     Button applyOffsetButton;
     @FXML
     Label generalStatusCalibrationLabel;
-    @FXML
-    Label generalStatusExperimentLabel;
     @FXML
     TextField videoFilePathTextField;
     @FXML
