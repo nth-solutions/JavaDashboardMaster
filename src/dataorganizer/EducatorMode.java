@@ -28,10 +28,7 @@ import javax.swing.UIManager;
 import java.awt.Color;
 import javax.swing.JTextField;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.CardLayout;
@@ -180,7 +177,18 @@ public class EducatorMode extends JFrame {
 	double pendulumModuleMassDouble;
 	double pendulumModulePositionDouble;
 
-//	PendulumSpreadsheetController pendulumSpreadsheetController;
+	JRadioButton dataExcelRadioBtn;
+
+	AsposeSpreadSheetController SSC;
+	{
+		try {
+			SSC = new AsposeSpreadSheetController("C:\\"); //TODO: Fill with path
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	//	PendulumSpreadsheetController pendulumSpreadsheetController;
 //	{
 //		try {
 //			pendulumSpreadsheetController = new PendulumSpreadsheetController("C:\\Users\\Kinobo\\Documents\\JavaDashboardMaster\\Current Version\\JavaDashboardMaster - 2019-04-23 - EndOfDay - Working Copy\\src\\dataorganizer\\Pendulum Template REV-Q3.xlsx");
@@ -1243,7 +1251,11 @@ public class EducatorMode extends JFrame {
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 
+											//TODO: Add if-else statement to check which radio button is selected
+											if (dataExcelRadioBtn.isSelected()) {
+												List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
 
+											}
 
 
 											//Organize data into .CSV
@@ -1927,7 +1939,7 @@ public class EducatorMode extends JFrame {
 
 		group = new ButtonGroup();
 
-		JRadioButton dataExcelRadioBtn = new JRadioButton("Data (Spreadsheet)");
+		dataExcelRadioBtn = new JRadioButton("Data (Spreadsheet)");
 		dataExcelRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		dataExcelRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		dataExcelRadioBtn.setBounds(112, 48, 317, 50);
