@@ -44,6 +44,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JProgressBar;
 import java.awt.SystemColor;
 import javax.swing.border.LineBorder;
+import java.awt.FlowLayout;
 
 public class EducatorMode extends JFrame {
 
@@ -51,7 +52,7 @@ public class EducatorMode extends JFrame {
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
-	public static final int CURRENT_FIRMWARE_ID = 23;
+	public static final int CURRENT_FIRMWARE_ID = 26;
 	private DataOrganizer dataOrgo;
 
 	private JPanel contentPane;
@@ -153,12 +154,41 @@ public class EducatorMode extends JFrame {
 	private JTextField pendulumLengthTextField;
 	private JLabel lblpendulumMass;
 	private JTextField pendulumMassTextField;
-	private JLabel lblpendulumInertia;
-	private JTextField pendulumInertiaTextField;
+	private JLabel lblpendulumModuleMass;
+	private JTextField pendulumModuleMassTextField;
+	private JLabel lblpendulumModulePosition;
+	private JTextField pendulumModulePositionTextField;
+	
+	private JLabel lblnewLabel_7;
+	
 
 
 	private JButton mediaPlayerBtn;
 	private JButton graphTestBtn;
+	private JLabel lblStepaDisconnect;
+	private JLabel lblStepbClick;
+
+	
+	Color DeepBlue = new Color(31, 120, 209);
+	Color LightBlue = new Color(76, 165, 255);
+	Color LightOrange = new Color(255, 105, 40);
+	Color DarkGreen = new Color(51, 204, 51);
+	private JLabel lblStepIf;
+	
+	double pendulumLengthDouble;
+	double pendulumMassDouble;
+	double pendulumModuleMassDouble;
+	double pendulumModulePositionDouble;
+
+//	PendulumSpreadsheetController pendulumSpreadsheetController;
+//	{
+//		try {
+//			pendulumSpreadsheetController = new PendulumSpreadsheetController("C:\\Users\\Kinobo\\Documents\\JavaDashboardMaster\\Current Version\\JavaDashboardMaster - 2019-04-23 - EndOfDay - Working Copy\\src\\dataorganizer\\Pendulum Template REV-Q3.xlsx");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
+	PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
 
 
 	/**
@@ -505,6 +535,7 @@ public class EducatorMode extends JFrame {
 					applyOffsetButton.setEnabled(true);
 
 				} catch (IOException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -594,11 +625,13 @@ public class EducatorMode extends JFrame {
 
 				try {
 					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
+						generalStatusLabel.setForeground(Color.RED);
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 					else {
+						generalStatusLabel.setForeground(DarkGreen);
 						generalStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
@@ -610,16 +643,19 @@ public class EducatorMode extends JFrame {
 
 				}
 				catch (IOException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -658,11 +694,13 @@ public class EducatorMode extends JFrame {
 
 				try {
 					if(!serialHandler.configForCalibration()) {
+						generalStatusLabel.setForeground(Color.RED);
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 					else {
+						generalStatusLabel.setForeground(DarkGreen);
 						generalStatusLabel.setText("Module Configured for Calibration, Use Configuration Tab to Exit");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
@@ -673,16 +711,19 @@ public class EducatorMode extends JFrame {
 					applyOffsetButton.setEnabled(true);
 				}
 				catch (IOException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabel.setForeground(Color.RED);
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -705,17 +746,20 @@ public class EducatorMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 
+				generalStatusLabelTwo.setForeground(Color.BLACK);
 				generalStatusLabelTwo.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
 					if(serialHandler.pairNewRemote()) {
+						generalStatusLabelTwo.setForeground(DarkGreen);
 						generalStatusLabelTwo.setText("New Remote Successfully Paired");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
 					}
 					else {
+						generalStatusLabelTwo.setForeground(Color.RED);
 						generalStatusLabelTwo.setText("Pair Unsuccessful, Receiver Timed Out");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -724,16 +768,19 @@ public class EducatorMode extends JFrame {
 
 				}
 				catch (IOException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -767,6 +814,7 @@ public class EducatorMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 
+				generalStatusLabelTwo.setForeground(Color.BLACK);
 				generalStatusLabelTwo.setText("Unpairing all Remotes...");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
@@ -775,16 +823,19 @@ public class EducatorMode extends JFrame {
 					serialHandler.unpairAllRemotes();
 				}
 				catch (IOException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -795,6 +846,7 @@ public class EducatorMode extends JFrame {
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
 
+				generalStatusLabelTwo.setForeground(Color.BLACK);
 				generalStatusLabelTwo.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
@@ -825,28 +877,33 @@ public class EducatorMode extends JFrame {
 
 
 				//Notify the user that the bulk erase sequence has began
+				generalStatusLabelTwo.setForeground(Color.BLACK);
 				generalStatusLabelTwo.setText("Press a Button on a Remote to Test if it is Paired");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
 					if(!serialHandler.testRemotes(generalStatusLabelTwo)) {
+						generalStatusLabelTwo.setForeground(Color.RED);
 						generalStatusLabelTwo.setText("Error Communicating with Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 				}
 				catch (IOException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelTwo.setForeground(Color.RED);
 					generalStatusLabelTwo.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -861,6 +918,7 @@ public class EducatorMode extends JFrame {
 				nextBtnTwo.setEnabled(true);
 
 				//Notify the user that the sequence has completed
+				generalStatusLabelTwo.setForeground(DarkGreen);
 				generalStatusLabelTwo.setText("Test Mode Successfully Exited");
 				progressBar.setValue(100);
 				progressBar.setForeground(new Color(51, 204, 51));
@@ -927,6 +985,7 @@ public class EducatorMode extends JFrame {
 				//Disable buttons that should not be used in the middle of a sequence
 				eraseBtn.setEnabled(false);
 				//Notify the user that the bulk erase sequence has began
+				generalStatusLabelFive.setForeground(Color.BLACK);
 				generalStatusLabelFive.setText("Sector Erasing...");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
@@ -934,6 +993,7 @@ public class EducatorMode extends JFrame {
 				try {
 					if(serialHandler.sectorEraseModule()) {
 						//Notify the user that the sequence has completed
+						generalStatusLabelFive.setForeground(Color.BLACK);
 						generalStatusLabelFive.setText("Sector Erase Complete");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
@@ -941,6 +1001,7 @@ public class EducatorMode extends JFrame {
 					else {
 
 						//Notify the user that the sequence has failed
+						generalStatusLabelFive.setForeground(Color.RED);
 						generalStatusLabelFive.setText("Sector Erase Failed");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -949,16 +1010,19 @@ public class EducatorMode extends JFrame {
 					eraseBtn.setEnabled(true);
 				}
 				catch (IOException e) {
+					generalStatusLabelFive.setForeground(Color.RED);
 					generalStatusLabelFive.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelFive.setForeground(Color.RED);
 					generalStatusLabelFive.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelFive.setForeground(Color.RED);
 					generalStatusLabelFive.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -1009,9 +1073,11 @@ public class EducatorMode extends JFrame {
 										moduleFound = true;
 
 										if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+											generalStatusLabelOne.setForeground(Color.RED);
 											generalStatusLabelOne.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
 										}
 										else {
+											generalStatusLabelOne.setForeground(DarkGreen);
 											generalStatusLabelOne.setText("Successfully Connected to Module");
 										}
 									}
@@ -1034,16 +1100,19 @@ public class EducatorMode extends JFrame {
 						commPortIndex++;
 					}
 					if (!moduleFound) {
+						generalStatusLabelOne.setForeground(Color.RED);
 						generalStatusLabelOne.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 						th.setStatus(false);
 					}
 
 				}
 				catch (IOException e) {
+					generalStatusLabelOne.setForeground(Color.RED);
 					generalStatusLabelOne.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 					th.setStatus(false);
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelOne.setForeground(Color.RED);
 					generalStatusLabelOne.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 					th.setStatus(false);
 				}
@@ -1104,6 +1173,7 @@ public class EducatorMode extends JFrame {
 				readTestBtn.setEnabled(false);
 
 				try {
+					generalStatusLabelThree.setForeground(Color.BLACK);
 					generalStatusLabelThree.setText("Reading Data from Module...");
 
 					//Read test parameters from module and store it in testParameters
@@ -1149,6 +1219,7 @@ public class EducatorMode extends JFrame {
 							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
 							testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabelThree);
 
+							generalStatusLabelThree.setForeground(DarkGreen);
 							generalStatusLabelThree.setText("All Data Received from Module");
 
 							//Executes if the data was received properly (null = fail)
@@ -1171,12 +1242,16 @@ public class EducatorMode extends JFrame {
 									//Define operation that can be run in separate thread
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
+
+
+
+
 											//Organize data into .CSV
 											dataOrgo.createDataSmpsRawData(finalData);
 											dataOrgo.getSignedData();
 											dataOrgo.createCSVP();
 											dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-											//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters);
+											//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
 										}
 									};
 
@@ -1187,18 +1262,21 @@ public class EducatorMode extends JFrame {
 								}
 							}
 							else {
+								generalStatusLabelThree.setForeground(Color.RED);
 								generalStatusLabelThree.setText("Error Reading From Module, Try Again");
 								progressBar.setValue(100);
 								progressBar.setForeground(new Color(255, 0, 0));
 							}
 						}
 						else {
+							generalStatusLabelThree.setForeground(Color.RED);
 							generalStatusLabelThree.setText("No Tests Found on Module");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
 						}
 					}
 					else {
+						generalStatusLabelThree.setForeground(Color.RED);
 						generalStatusLabelThree.setText("Error Reading From Module, Try Again");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -1207,16 +1285,19 @@ public class EducatorMode extends JFrame {
 				}
 
 				catch (IOException e) {
+					generalStatusLabelThree.setForeground(Color.RED);
 					generalStatusLabelThree.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelThree.setForeground(Color.RED);
 					generalStatusLabelThree.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelThree.setForeground(Color.RED);
 					generalStatusLabelThree.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -1249,26 +1330,33 @@ public class EducatorMode extends JFrame {
 				applyConfigurationsBtn.setEnabled(false);
 				nextBtnOne.setEnabled(false);
 				if(findModuleCommPort()) {
+					generalStatusLabelOne.setForeground(DarkGreen);
 					generalStatusLabelOne.setText("Initial connection to module successful");
 				}
 				try {
 					if(!serialHandler.sendTestParams(testTypeHashMap.get(testTypeCombobox.getSelectedItem().toString()))) {
+						generalStatusLabelOne.setForeground(Color.RED);
 						generalStatusLabelOne.setText("Module Not Responding, parameter write failed.");
 					}
 					else {
+						generalStatusLabelOne.setForeground(DarkGreen);
 						generalStatusLabelOne.setText("Module Configuration Successful, Parameters Have Been Updated");
 					}
 				}
 				catch (NumberFormatException e) {
+					generalStatusLabelOne.setForeground(Color.RED);
 					generalStatusLabelOne.setText("Please Fill out Every Field");
 				}
 				catch (IOException e) {
+					generalStatusLabelOne.setForeground(Color.RED);
 					generalStatusLabelOne.setText("Error Communicating With Serial Dongle");
 				}
 				catch (PortInUseException e) {
+					generalStatusLabelOne.setForeground(Color.RED);
 					generalStatusLabelOne.setText("Serial Port Already In Use");
 				}
 				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelOne.setForeground(Color.RED);
 					generalStatusLabelOne.setText("Check Dongle Compatability");
 				}
 
@@ -1284,6 +1372,30 @@ public class EducatorMode extends JFrame {
 		//Start the new thread
 		paramThread.start();
 	}
+	
+	private void getPendulumParameters() {
+		String pendulumLength = pendulumLengthTextField.getText();
+		String pendulumMass = pendulumMassTextField.getText();
+		String pendulumModuleMass = pendulumModuleMassTextField.getText();
+		String pendulumModulePosition = pendulumModulePositionTextField.getText();
+
+		try {
+			pendulumLengthDouble = Double.parseDouble(pendulumLength);
+			pendulumMassDouble = Double.parseDouble(pendulumMass);
+			pendulumModuleMassDouble = Double.parseDouble(pendulumModuleMass);
+			pendulumModulePositionDouble = Double.parseDouble(pendulumModulePosition);
+
+
+
+		} catch (NumberFormatException e) {
+			generalStatusLabelOne.setForeground(Color.RED);
+			generalStatusLabelOne.setText("Invalid Data Entered");
+		}
+	}
+	
+	
+	
+	
 
 
 	/**
@@ -1311,14 +1423,16 @@ public class EducatorMode extends JFrame {
 		mainPanel.setLayout(new GridLayout(0, 1, 0, 0));
 
 		JTabbedPane mainTabbedPane = new JTabbedPane(JTabbedPane.LEFT);
+		mainTabbedPane.setBackground(new Color(0, 102, 255));
 		mainTabbedPane.setForeground(SystemColor.windowText);
 		mainTabbedPane.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		mainPanel.add(mainTabbedPane);
 
 		testTakingPanel = new JPanel();
-		testTakingPanel.setForeground(Color.DARK_GRAY);
-		testTakingPanel.setBackground(Color.DARK_GRAY);
+		testTakingPanel.setForeground(Color.BLUE);
+		testTakingPanel.setBackground(Color.BLUE);
 		mainTabbedPane.addTab("Run Experiment", null, testTakingPanel, null);
+		mainTabbedPane.setForegroundAt(0, DeepBlue);
 		mainTabbedPane.setEnabledAt(0, true);
 		testTakingPanel.setLayout(new CardLayout(0, 0));
 
@@ -1383,20 +1497,16 @@ public class EducatorMode extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				writeButtonHandler();
 				readExtraTestParamsForTemplate();
+				getPendulumParameters();
 			}
 		});
-		applyConfigurationsBtn.setBounds(10, 348, 506, 39);
+		applyConfigurationsBtn.setBounds(10, 310, 506, 39);
 		stepOne.add(applyConfigurationsBtn);
 
 		JPanel navPanelOne = new JPanel();
 		navPanelOne.setBounds(10, 398, 506, 108);
 		stepOne.add(navPanelOne);
 		navPanelOne.setLayout(null);
-
-		generalStatusLabelOne = new JLabel("");
-		generalStatusLabelOne.setHorizontalAlignment(SwingConstants.CENTER);
-		generalStatusLabelOne.setBounds(22, 37, 365, 26);
-		navPanelOne.add(generalStatusLabelOne);
 
 		nextBtnOne = new JButton("Next");
 		nextBtnOne.addActionListener(new ActionListener() {
@@ -1406,10 +1516,10 @@ public class EducatorMode extends JFrame {
 		});
 		nextBtnOne.setBounds(413, 20, 93, 88);
 		navPanelOne.add(nextBtnOne);
-
+		
 		timedTestCheckbox = new JCheckBox("Timed Test");
 		timedTestCheckbox.setBounds(0, 0, 97, 23);
-		navPanelOne.add(timedTestCheckbox);
+		//navPanelOne.add(timedTestCheckbox);
 
 		noBtn = new JButton("New button");
 		noBtn.addActionListener(new ActionListener() {
@@ -1421,14 +1531,23 @@ public class EducatorMode extends JFrame {
 		stepOne.add(noBtn);
 
 		JLabel lblStepSelect = new JLabel("Step 1: Select the test you would like to perform.");
+		lblStepSelect.setForeground(new Color(31, 120, 209));
 		lblStepSelect.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepSelect.setBounds(10, 24, 350, 25);
+		lblStepSelect.setBounds(100, 25, 350, 25);
 		stepOne.add(lblStepSelect);
 
 		JLabel lblStepaApply = new JLabel("Step 1B: Apply your configurations");
-		lblStepaApply.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblStepaApply.setBounds(10, 306, 229, 31);
+		lblStepaApply.setForeground(new Color(31, 120, 209));
+		lblStepaApply.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepaApply.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStepaApply.setBounds(100, 268, 350, 31);
 		stepOne.add(lblStepaApply);
+		
+				generalStatusLabelOne = new JLabel("");
+				generalStatusLabelOne.setBounds(10, 360, 506, 59);
+				stepOne.add(generalStatusLabelOne);
+				generalStatusLabelOne.setFont(new Font("Tahoma", Font.BOLD, 14));
+				generalStatusLabelOne.setHorizontalAlignment(SwingConstants.CENTER);
 
 		spinnyStoolDemo = new JPanel();
 		spinnyStoolDemo.setBounds(10, 111, 506, 184);
@@ -1440,8 +1559,9 @@ public class EducatorMode extends JFrame {
 		handMassTextField.setColumns(10);
 
 		JLabel lblStepaEnter_1 = new JLabel("Step 1A: Enter the masses and distances");
-		lblStepaEnter_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblStepaEnter_1.setBounds(10, 11, 231, 20);
+		lblStepaEnter_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStepaEnter_1.setForeground(new Color (31, 120, 209));
+		lblStepaEnter_1.setBounds(100, 11, 650, 20);
 		spinnyStoolDemo.add(lblStepaEnter_1);
 
 		lblNewLabel_3 = new JLabel("Mass of the hand weights");
@@ -1504,8 +1624,9 @@ public class EducatorMode extends JFrame {
 		conservationOfEnergyLabPane.setLayout(null);
 
 		lblNewLabel_4 = new JLabel("Step 1A: Enter the following parameters");
-		lblNewLabel_4.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNewLabel_4.setBounds(10, 11, 236, 14);
+		lblNewLabel_4.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblNewLabel_4.setForeground(new Color (31, 120, 209));
+		lblNewLabel_4.setBounds(100, 11, 650, 14);
 		conservationOfEnergyLabPane.add(lblNewLabel_4);
 
 		lblDistanceDModule = new JLabel("Distance module falls from rest");
@@ -1599,8 +1720,9 @@ public class EducatorMode extends JFrame {
 		momentumLabPane.add(lblMassOfSecond);
 
 		lblStepaEnter = new JLabel("Step 1A: Enter the masses of the gliders and modules");
-		lblStepaEnter.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblStepaEnter.setBounds(10, 23, 307, 14);
+		lblStepaEnter.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStepaEnter.setForeground(new Color (31, 120, 209));
+		lblStepaEnter.setBounds(100, 23, 650, 20);
 		momentumLabPane.add(lblStepaEnter);
 
 		//Created Physical Pendulum Panel and added labels for length, mass, and inertia with text fields and si units
@@ -1609,8 +1731,9 @@ public class EducatorMode extends JFrame {
 		physicalPendulumDemo.setLayout(null);
 
 		lblStepaEnter_1 = new JLabel("Step 1A: Enter the Mass, Length and Moment of Inertia for Pendulum");
-		lblStepaEnter_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblStepaEnter_1.setBounds(10, 11, 500, 20);
+		lblStepaEnter_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStepaEnter_1.setForeground(new Color (31, 120, 209));
+		lblStepaEnter_1.setBounds(10, 11, 650, 20);
 		physicalPendulumDemo.add(lblStepaEnter_1);
 
 		lblpendulumLength = new JLabel("Length of the Pendulum");
@@ -1623,7 +1746,7 @@ public class EducatorMode extends JFrame {
 		physicalPendulumDemo.add(pendulumLengthTextField);
 		pendulumLengthTextField.setColumns(10);
 
-		String pendulumLength = pendulumLengthTextField.getText();
+		
 
 		lblpendulumMass = new JLabel("Mass of the Pendulum");
 		lblpendulumMass.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -1635,31 +1758,48 @@ public class EducatorMode extends JFrame {
 		pendulumMassTextField.setBounds(10, 129, 86, 20);
 		physicalPendulumDemo.add(pendulumMassTextField);
 
-		String pendulumMass = pendulumMassTextField.getText();
+		
 
-		lblpendulumInertia = new JLabel("Moment of Inertia");
-		lblpendulumInertia.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblpendulumInertia.setBounds(275, 52, 267, 20);
-		physicalPendulumDemo.add(lblpendulumInertia);
+		lblpendulumModuleMass = new JLabel("Mass of Module");
+		lblpendulumModuleMass.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblpendulumModuleMass.setBounds(275, 106, 267, 20);
+		physicalPendulumDemo.add(lblpendulumModuleMass);
 
-		pendulumInertiaTextField = new JTextField();
-		pendulumInertiaTextField.setColumns(10);
-		pendulumInertiaTextField.setBounds(275, 75, 86, 20);
-		physicalPendulumDemo.add(pendulumInertiaTextField);
+		pendulumModuleMassTextField = new JTextField();
+		pendulumModuleMassTextField.setColumns(10);
+		pendulumModuleMassTextField.setBounds(275, 129, 86, 20);
+		physicalPendulumDemo.add(pendulumModuleMassTextField);
+		
+		
+		lblpendulumModulePosition = new JLabel("Position of Module");
+		lblpendulumModulePosition.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblpendulumModulePosition.setBounds(275, 52, 267, 20);
+		physicalPendulumDemo.add(lblpendulumModulePosition);
 
-		String pendulumInertia = pendulumInertiaTextField.getText();
+		pendulumModulePositionTextField = new JTextField();
+		pendulumModulePositionTextField.setColumns(10);
+		pendulumModulePositionTextField.setBounds(275, 75, 86, 20);
+		physicalPendulumDemo.add(pendulumModulePositionTextField);
+
+		
 
 		lblNewLabel_6 = new JLabel("m");
 		lblNewLabel_6.setBounds(106, 78, 46, 14);
 		physicalPendulumDemo.add(lblNewLabel_6);
+		
+		lblnewLabel_7 = new JLabel("m");
+		lblnewLabel_7.setBounds(371, 78, 46, 14);
+		physicalPendulumDemo.add(lblnewLabel_7);
 
 		label_2 = new JLabel("kg");
 		label_2.setBounds(106, 132, 46, 14);
 		physicalPendulumDemo.add(label_2);
 
-		lblM = new JLabel("kg m^2");
-		lblM.setBounds(371, 78, 46, 14);
+		lblM = new JLabel("kg");
+		lblM.setBounds(371, 132, 46, 14);
 		physicalPendulumDemo.add(lblM);
+		
+		
 
 		stepTwo = new JPanel();
 		stepTwo.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -1667,10 +1807,9 @@ public class EducatorMode extends JFrame {
 
 		pairNewRemoteButton = new JButton("Pair New Remote");
 		pairNewRemoteButton.setBounds(2, 31, 540, 50);
-		Color DeepBlue = new Color(31, 120, 209);
-		pairNewRemoteButton.setBackground(DeepBlue);
-		pairNewRemoteButton.setOpaque(false);
-		pairNewRemoteButton.setForeground(DeepBlue);
+	//	pairNewRemoteButton.setBackground(DeepBlue);
+	//	pairNewRemoteButton.setOpaque(false);
+	//	pairNewRemoteButton.setForeground(DeepBlue);
 		pairNewRemoteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pairNewRemoteHandler();
@@ -1679,6 +1818,7 @@ public class EducatorMode extends JFrame {
 		stepTwo.setLayout(null);
 
 		lblNewLabel = new JLabel("Step 2: Pair a remote");
+		lblNewLabel.setForeground(new Color (31, 120, 209));
 		lblNewLabel.setBounds(204, 11, 300, 15);
 		stepTwo.add(lblNewLabel);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
@@ -1687,6 +1827,9 @@ public class EducatorMode extends JFrame {
 
 		unpairAllRemotesButton = new JButton("Unpair All Remotes");
 		unpairAllRemotesButton.setBounds(2, 78, 540, 50);
+		//unpairAllRemotesButton.setBackground(DeepBlue);
+		//unpairAllRemotesButton.setOpaque(false);
+		//unpairAllRemotesButton.setForeground(DeepBlue);
 		unpairAllRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				unpairAllRemotesHandler();
@@ -1695,8 +1838,11 @@ public class EducatorMode extends JFrame {
 		unpairAllRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		stepTwo.add(unpairAllRemotesButton);
 
-		testRemotesButton = new JButton("Test Paired Remotes");
+		testRemotesButton = new JButton("Test Paired Remote");
 		testRemotesButton.setBounds(2, 165, 540, 50);
+		//testRemotesButton.setBackground(DeepBlue);
+		//testRemotesButton.setOpaque(false);
+		//testRemotesButton.setForeground(DeepBlue);
 		testRemotesButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				testRemotesHandler();
@@ -1707,6 +1853,9 @@ public class EducatorMode extends JFrame {
 
 		exitTestModeButton = new JButton("Exit Test Mode");
 		exitTestModeButton.setBounds(2, 245, 540, 50);
+		//exitTestModeButton.setBackground(DeepBlue);
+		//exitTestModeButton.setOpaque(false);
+		//exitTestModeButton.setForeground(DeepBlue);
 		exitTestModeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				exitTestModeHandler();
@@ -1720,11 +1869,6 @@ public class EducatorMode extends JFrame {
 		navPanelTwo.setBounds(12, 407, 504, 98);
 		stepTwo.add(navPanelTwo);
 		navPanelTwo.setLayout(null);
-
-		generalStatusLabelTwo = new JLabel("");
-		generalStatusLabelTwo.setHorizontalAlignment(SwingConstants.CENTER);
-		generalStatusLabelTwo.setBounds(113, 33, 284, 24);
-		navPanelTwo.add(generalStatusLabelTwo);
 
 		nextBtnTwo = new JButton("Next");
 		nextBtnTwo.addActionListener(new ActionListener() {
@@ -1745,14 +1889,30 @@ public class EducatorMode extends JFrame {
 		navPanelTwo.add(backBtnTwo);
 
 		lblStepaTest = new JLabel("Step 2A: Test the paired remote");
+		lblStepaTest.setForeground(new Color (31, 120, 209));
 		lblStepaTest.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblStepaTest.setBounds(170, 139, 300, 15);
 		stepTwo.add(lblStepaTest);
 
 		lblStepbExit = new JLabel("Step 2B: Exit remote testing");
+		lblStepbExit.setForeground(new Color (31, 120, 209));
 		lblStepbExit.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblStepbExit.setBounds(182, 215, 300, 23);
 		stepTwo.add(lblStepbExit);
+		
+		JLabel lblStepcDisconnect_1 = new JLabel("Step 2C: Disconnect Module, Run Experiment, Reconnect Module");
+		lblStepcDisconnect_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepcDisconnect_1.setForeground(new Color (31, 120, 209));
+		lblStepcDisconnect_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStepcDisconnect_1.setBounds(12, 306, 522, 23);
+		stepTwo.add(lblStepcDisconnect_1);
+		
+				generalStatusLabelTwo = new JLabel("");
+				generalStatusLabelTwo.setBounds(52, 362, 452, 34);
+				stepTwo.add(generalStatusLabelTwo);
+				generalStatusLabelTwo.setFont(new Font("Tahoma", Font.BOLD, 14));
+				generalStatusLabelTwo.setForeground(Color.RED);
+				generalStatusLabelTwo.setHorizontalAlignment(SwingConstants.CENTER);
 
 		stepThree = new JPanel();
 		stepThree.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -1767,7 +1927,7 @@ public class EducatorMode extends JFrame {
 
 		group = new ButtonGroup();
 
-		JRadioButton dataExcelRadioBtn = new JRadioButton("Data (CSV)");
+		JRadioButton dataExcelRadioBtn = new JRadioButton("Data (Spreadsheet)");
 		dataExcelRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		dataExcelRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		dataExcelRadioBtn.setBounds(112, 48, 317, 50);
@@ -1799,8 +1959,10 @@ public class EducatorMode extends JFrame {
 		group.add(graphAndSpreadSheetOutputRadioBtn);
 
 		lblNewLabel_1 = new JLabel("Step 3: Select your output type");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNewLabel_1.setBounds(173, 11, 184, 14);
+		lblNewLabel_1.setForeground(new Color (31, 120, 209));
+		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblNewLabel_1.setBounds(145, 11, 254, 30);
 		outputPanel.add(lblNewLabel_1);
 
 		readTestBtn = new JButton("Read Test");
@@ -1808,6 +1970,7 @@ public class EducatorMode extends JFrame {
 		readTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				readButtonHandler();
+				pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
 			}
 		});
 		readTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -1821,6 +1984,7 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelThree = new JLabel("");
 		generalStatusLabelThree.setHorizontalAlignment(SwingConstants.CENTER);
 		generalStatusLabelThree.setBounds(103, 63, 300, 25);
+		generalStatusLabelThree.setFont(new Font("Tahoma",Font.BOLD, 14));
 		navPanelThree.add(generalStatusLabelThree);
 
 		backBtnThree = new JButton("Back");
@@ -1846,9 +2010,11 @@ public class EducatorMode extends JFrame {
 		navPanelThree.add(progressBar);
 
 		lblStepRead = new JLabel("Step 3A: Read all tests from your Adventure Module.");
-		lblStepRead.setBounds(151, 273, 301, 14);
+		lblStepRead.setForeground(new Color (31, 120, 209));
+		lblStepRead.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepRead.setBounds(10, 244, 506, 68);
 		stepThree.add(lblStepRead);
-		lblStepRead.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblStepRead.setFont(new Font("Tahoma", Font.BOLD, 14));
 
 		stepFour = new JPanel();
 		stepFour.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -1856,7 +2022,15 @@ public class EducatorMode extends JFrame {
 		stepFour.setLayout(new GridLayout(5, 1, 0, 0));
 
 		panel_5 = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) panel_5.getLayout();
+		flowLayout.setVgap(40);
 		stepFour.add(panel_5);
+		
+		lblStepIf = new JLabel("Step 4: If not using SINC Technology, Click Next");
+		lblStepIf.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepIf.setForeground(new Color(31, 120, 209));
+		lblStepIf.setFont(new Font("Tahoma", Font.BOLD, 18));
+		panel_5.add(lblStepIf);
 
 		JPanel panel_4 = new JPanel();
 		stepFour.add(panel_4);
@@ -1864,6 +2038,7 @@ public class EducatorMode extends JFrame {
 
 		btnLaunchMotionVisualization = new JButton("Launch SINC Technology");
 		btnLaunchMotionVisualization.setFont(new Font("Tahoma", Font.PLAIN, 40));
+		btnLaunchMotionVisualization.setEnabled(false);
 		panel_4.add(btnLaunchMotionVisualization);
 
 		JPanel panel_3 = new JPanel();
@@ -1932,17 +2107,37 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelFive = new JLabel("");
 		generalStatusLabelFive.setHorizontalAlignment(SwingConstants.CENTER);
 		generalStatusLabelFive.setBounds(113, 30, 293, 28);
+		generalStatusLabelFive.setFont(new Font("Tahoma",Font.BOLD, 14));
 		navPanel.add(generalStatusLabelFive);
 		eraseBtn.setFont(new Font("Tahoma", Font.PLAIN, 24));
-		eraseBtn.setBounds(10, 60, 506, 345);
+		eraseBtn.setBounds(10, 144, 524, 95);
 		stepFive.add(eraseBtn);
 
 		JLabel lblStepErase = new JLabel("Step 5: Erase the data from the module. ");
-		lblStepErase.setBounds(242, 23, 46, 14);
+		lblStepErase.setForeground(new Color (31, 120, 209));
+		lblStepErase.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepErase.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblStepErase.setBounds(10, 96, 524, 37);
 		stepFive.add(lblStepErase);
+		
+		lblStepaDisconnect = new JLabel("Step 5A: Disconnect the Module and Clean Up Workspace ");
+		lblStepaDisconnect.setForeground(new Color (31, 120, 209));
+		lblStepaDisconnect.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepaDisconnect.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblStepaDisconnect.setBounds(10, 281, 524, 38);
+		stepFive.add(lblStepaDisconnect);
+		
+		lblStepbClick = new JLabel("Step 5B: Click Next to Begin New Trial ");
+		lblStepbClick.setForeground(new Color (31, 120, 209));
+		lblStepbClick.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepbClick.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblStepbClick.setBounds(10, 330, 524, 38);
+		stepFive.add(lblStepbClick);
 
 		JPanel calibrationPanel = new JPanel();
+		calibrationPanel.setForeground(new Color(0, 0, 0));
 		mainTabbedPane.addTab("Calibration Panel", null, calibrationPanel, null);
+		mainTabbedPane.setForegroundAt(1, LightOrange);
 		calibrationPanel.setLayout(new GridLayout(6, 1, 0, 0));
 
 		configForCalButton = new JButton("Configure Module for Calibration");
@@ -2010,9 +2205,11 @@ public class EducatorMode extends JFrame {
 
 		JPanel motionVisualizationPanel = new JPanel();
 		mainTabbedPane.addTab("SINC Technology", null, motionVisualizationPanel, null);
+		mainTabbedPane.setForegroundAt(2, LightBlue);
 		motionVisualizationPanel.setLayout(null);
 
 		graphTestBtn = new JButton("Graph");
+		graphTestBtn.setEnabled(false);
 		graphTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		graphTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -2023,6 +2220,7 @@ public class EducatorMode extends JFrame {
 		motionVisualizationPanel.add(graphTestBtn);
 
 		mediaPlayerBtn = new JButton("Media Player");
+		mediaPlayerBtn.setEnabled(false);
 		mediaPlayerBtn.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		mediaPlayerBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
