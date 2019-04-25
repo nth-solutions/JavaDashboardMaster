@@ -10,7 +10,7 @@ public class PendulumSpreadsheetController {
     //TODO: Test if Workbook can be saved to a different location than its origin (Ex. Leave template in src and save the updated version to Documents)
     //TODO: Dynamically get path of template
     private Workbook workbook;
-    private String workbookPath = "C:\\Users\\Conference\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
+    private String workbookPath = "C:\\Users\\Mason\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
 
 
 
@@ -19,7 +19,7 @@ public class PendulumSpreadsheetController {
             workbook = new Workbook(workbookPath);
         }
         catch(Exception eg){
-            System.out.println("test");
+            System.out.println("Failed to open workbook");
         }
         workbook.getWorksheets().get(4).getCells().get("C7").setValue(pendulumLength);
         workbook.getWorksheets().get(4).getCells().get("C8").setValue(pendulumMass);

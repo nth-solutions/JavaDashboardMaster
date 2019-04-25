@@ -1224,7 +1224,6 @@ public class EducatorMode extends JFrame {
 											break;
 										}
 									}
-									System.out.println("Pre Create Smaples");
 									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
 									dataOrgo = new DataOrganizer(testParameters, tempName);
 									//Define operation that can be run in separate thread
@@ -1233,12 +1232,10 @@ public class EducatorMode extends JFrame {
 											
 											//Organize data into .CSV
 											dataOrgo.createDataSmpsRawData(finalData);
-											System.out.println("Post Create Smaples");
 
 											if (dataExcelRadioBtn.isSelected()) {
 												//TODO: Test this
 												List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
-												System.out.println("DataSamples" + dataSamples.get(0).get(9));
 
 												//TODO: Add Constructor with Dynamic Path Getting
 												PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
@@ -1382,7 +1379,6 @@ public class EducatorMode extends JFrame {
 			pendulumMassDouble = Double.parseDouble(pendulumMass);
 			pendulumModuleMassDouble = Double.parseDouble(pendulumModuleMass);
 			pendulumModulePositionDouble = Double.parseDouble(pendulumModulePosition);
-
 
 
 		} catch (NumberFormatException e) {
