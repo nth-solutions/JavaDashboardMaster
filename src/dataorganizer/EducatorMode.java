@@ -179,16 +179,7 @@ public class EducatorMode extends JFrame {
 
 	JRadioButton dataExcelRadioBtn;
 
-	//TODO SpreadSheetController Import
-
-	//	PendulumSpreadsheetController pendulumSpreadsheetController;
-//	{
-//		try {
-//			pendulumSpreadsheetController = new PendulumSpreadsheetController("C:\\Users\\Kinobo\\Documents\\JavaDashboardMaster\\Current Version\\JavaDashboardMaster - 2019-04-23 - EndOfDay - Working Copy\\src\\dataorganizer\\Pendulum Template REV-Q3.xlsx");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	//TODO: Add Constructor with Dynamic Path Getting
 	PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
 
 
@@ -468,7 +459,6 @@ public class EducatorMode extends JFrame {
 						Thread.sleep(100);
 					}
 				}catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -485,7 +475,6 @@ public class EducatorMode extends JFrame {
 		try {
 			root = loader.load();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -505,7 +494,6 @@ public class EducatorMode extends JFrame {
 		try {
 			root = loader.load();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -1246,8 +1234,9 @@ public class EducatorMode extends JFrame {
 
 
 											if (dataExcelRadioBtn.isSelected()) {
+												//TODO: Test this
 												List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
-												//TODO SpreadSheetController.copyDataToTemplates(dataSamples)
+												pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
 
 											}
 
