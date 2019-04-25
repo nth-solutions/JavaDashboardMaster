@@ -179,14 +179,7 @@ public class EducatorMode extends JFrame {
 
 	JRadioButton dataExcelRadioBtn;
 
-	AsposeSpreadSheetController SSC;
-	{
-		try {
-			SSC = new AsposeSpreadSheetController("C:\\"); //TODO: Fill with path
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	//TODO SpreadSheetController Import
 
 	//	PendulumSpreadsheetController pendulumSpreadsheetController;
 //	{
@@ -1251,9 +1244,10 @@ public class EducatorMode extends JFrame {
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
 
-											//TODO: Add if-else statement to check which radio button is selected
+
 											if (dataExcelRadioBtn.isSelected()) {
 												List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+												//TODO SpreadSheetController.copyDataToTemplates(dataSamples)
 
 											}
 
