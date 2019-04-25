@@ -179,8 +179,6 @@ public class EducatorMode extends JFrame {
 
 	JRadioButton dataExcelRadioBtn;
 
-	//TODO: Add Constructor with Dynamic Path Getting
-	PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
 
 
 	/**
@@ -1226,26 +1224,31 @@ public class EducatorMode extends JFrame {
 											break;
 										}
 									}
+									System.out.println("Pre Create Smaples");
 									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
-									dataOrgo = new DataOrganizer();
+									dataOrgo = new DataOrganizer(testParameters, tempName);
 									//Define operation that can be run in separate thread
 									Runnable organizerOperation = new Runnable() {
 										public void run() {
-
+											
+											//Organize data into .CSV
+											dataOrgo.createDataSmpsRawData(finalData);
+											System.out.println("Post Create Smaples");
 
 											if (dataExcelRadioBtn.isSelected()) {
 												//TODO: Test this
 												List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
-												pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+												System.out.println("DataSamples" + dataSamples.get(0).get(9));
 
+												//TODO: Add Constructor with Dynamic Path Getting
+												PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+												pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
+												pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
 											}
 
 
-											//Organize data into .CSV
-											dataOrgo.createDataSmpsRawData(finalData);
-											dataOrgo.getSignedData();
-											dataOrgo.createCSVP();
-											dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+											//dataOrgo.createCSVP();
+											//dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
 											//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
 										}
 									};
@@ -1965,7 +1968,6 @@ public class EducatorMode extends JFrame {
 		readTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				readButtonHandler();
-				pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
 			}
 		});
 		readTestBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
