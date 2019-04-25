@@ -77,6 +77,7 @@ public class EducatorMode extends JFrame {
 	private JPanel stepTwo;
 	private JPanel stepThree;
 	private JPanel stepFour;
+	private JPanel instructionsPanel;
 	private JLabel generalStatusLabelOne;
 	private JLabel generalStatusLabelTwo;
 	private JLabel generalStatusLabelThree;
@@ -199,7 +200,11 @@ public class EducatorMode extends JFrame {
 			public void run() {
 				try {
 					EducatorMode frame = new EducatorMode();
+					frame.setResizable(false);
+
 					frame.setVisible(true);
+
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -951,8 +956,10 @@ public class EducatorMode extends JFrame {
 				testTakingPanel.add(stepFour);
 			case 5:
 				testTakingPanel.add(stepFive);
+			case 6:
+				testTakingPanel.add(instructionsPanel);
 			default:
-				if(index>5) {
+				if(index>6) {
 					testTakingPanel.add(stepOne);
 					wIndex = 1;
 					repaint();
@@ -1159,125 +1166,143 @@ public class EducatorMode extends JFrame {
 				nextBtnThree.setEnabled(false);
 				readTestBtn.setEnabled(false);
 
-				try {
-					generalStatusLabelThree.setForeground(Color.BLACK);
-					generalStatusLabelThree.setText("Reading Data from Module...");
+					try {
+						generalStatusLabelThree.setForeground(Color.BLACK);
+						generalStatusLabelThree.setText("Reading Data from Module...");
 
-					//Read test parameters from module and store it in testParameters
-					ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+						//Read test parameters from module and store it in testParameters
+						ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
-					//Executes if the reading of the test parameters was successful
-					if (testParameters != null) {
+						//Executes if the reading of the test parameters was successful
+						if (testParameters != null) {
 
-						int expectedTestNum = testParameters.get(0);
+							int expectedTestNum = testParameters.get(0);
 
-						//Assign local variables to their newly received values from the module
-						int timedTestFlag = testParameters.get(4);
-						//Trigger on release is 8
-						int testLength = testParameters.get(6);
-						int accelGyroSampleRate = testParameters.get(7);
-						int magSampleRate = testParameters.get(8);
-						int accelSensitivity = testParameters.get(9);
-						int gyroSensitivity = testParameters.get(10);
-						int accelFilter = testParameters.get(11);
-						int gyroFilter = testParameters.get(12);
-
-
-						double bytesPerSample = 18;
-						if (accelGyroSampleRate / magSampleRate == 10) {
-							bytesPerSample = 12.6;
-						}
+							//Assign local variables to their newly received values from the module
+							int timedTestFlag = testParameters.get(4);
+							//Trigger on release is 8
+							int testLength = testParameters.get(6);
+							int accelGyroSampleRate = testParameters.get(7);
+							int magSampleRate = testParameters.get(8);
+							int accelSensitivity = testParameters.get(9);
+							int gyroSensitivity = testParameters.get(10);
+							int accelFilter = testParameters.get(11);
+							int gyroFilter = testParameters.get(12);
 
 
+							double bytesPerSample = 18;
+							if (accelGyroSampleRate / magSampleRate == 10) {
+								bytesPerSample = 12.6;
+							}
 
-						String nameOfFile = "";
 
-						//Executes if there are tests on the module
-						if(expectedTestNum > 0) {
 
-							//Get date for file name
-							Date date = new Date();
+							String nameOfFile = "";
 
-							//Assign file name
-							nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+							//Executes if there are tests on the module
+							if(expectedTestNum > 0) {
 
-							HashMap<Integer, ArrayList<Integer>> testData;
+								//Get date for file name
+								Date date = new Date();
 
-							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-							testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabelThree);
+								//Assign file name
+								nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
-							generalStatusLabelThree.setForeground(DarkGreen);
-							generalStatusLabelThree.setText("All Data Received from Module");
+								HashMap<Integer, ArrayList<Integer>> testData;
 
-							//Executes if the data was received properly (null = fail)
-							if(testData != null) {
-								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+								//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+								testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabelThree);
 
-									int [] finalData = new int[testData.get(testIndex).size()];
+								generalStatusLabelThree.setForeground(DarkGreen);
+								generalStatusLabelThree.setText("All Data Received from Module");
 
-									for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-										if (testData.get(testIndex).get(byteIndex) != -1){
-											finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-										}
-										else {
-											finalData[byteIndex] = -1;
-											break;
-										}
-									}
-									String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
-									dataOrgo = new DataOrganizer(testParameters, tempName);
-									//Define operation that can be run in separate thread
-									Runnable organizerOperation = new Runnable() {
-										public void run() {
-											
-											//Organize data into .CSV
-											dataOrgo.createDataSmpsRawData(finalData);
+								//Executes if the data was received properly (null = fail)
+								if(testData != null) {
+									for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
-											if (dataExcelRadioBtn.isSelected()) {
-												//TODO: Test this
-												List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+										int [] finalData = new int[testData.get(testIndex).size()];
 
-												//TODO: Add Constructor with Dynamic Path Getting
-												PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
-												pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
-												pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+										for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+											if (testData.get(testIndex).get(byteIndex) != -1){
+												finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
 											}
-
-
-											//dataOrgo.createCSVP();
-											//dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-											//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+											else {
+												finalData[byteIndex] = -1;
+												break;
+											}
 										}
-									};
+										System.out.println("Pre Create Smaples");
+										String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
+										dataOrgo = new DataOrganizer(testParameters, tempName);
+										//Define operation that can be run in separate thread
+										Runnable organizerOperation = new Runnable() {
+											public void run() {
 
-									//Set thread to execute previously defined operation
-									Thread organizerThread = new Thread(organizerOperation);
-									//Start thread
-									organizerThread.start();
+												//Organize data into .CSV
+												dataOrgo.createDataSmpsRawData(finalData);
+												System.out.println("Post Create Smaples");
+
+												if (dataExcelRadioBtn.isSelected()) {
+
+													List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+													System.out.println("DataSamples" + dataSamples.get(0).get(9));
+
+													
+
+													//TODO: Add Constructor with Dynamic Path Getting
+													generalStatusLabelThree.setForeground(Color.BLACK);
+													generalStatusLabelThree.setText("Writing data to spreadsheet");
+													
+													
+													PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+												//	pendulumSpreadsheetController.chooseoutputPath();
+													pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
+													pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+													pendulumSpreadsheetController.saveWorkbook("C:\\Users\\Conference\\Desktop\\Pendulum Template REV-Q3.xlsx");
+													//pendulumSpreadsheetController.saveWorkbook("C:\\Users\\Kinobo\\Desktop\\Pendulum Template REV-Q3.xlsx");
+												//	pendulumSpreadsheetController.saveWorkbook();
+													
+													generalStatusLabelThree.setForeground(DarkGreen);
+													generalStatusLabelThree.setText("Data Sucessfully Written");
+
+												}
+
+												dataOrgo.getSignedData();
+												dataOrgo.createCSVP();
+												dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+												
+												//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+											}
+										};
+
+										//Set thread to execute previously defined operation
+										Thread organizerThread = new Thread(organizerOperation);
+										//Start thread
+										organizerThread.start();
+									}
+								}
+								else {
+									generalStatusLabelThree.setForeground(Color.RED);
+									generalStatusLabelThree.setText("Error Reading From Module, Try Again");
+									progressBar.setValue(100);
+									progressBar.setForeground(new Color(255, 0, 0));
 								}
 							}
 							else {
 								generalStatusLabelThree.setForeground(Color.RED);
-								generalStatusLabelThree.setText("Error Reading From Module, Try Again");
+								generalStatusLabelThree.setText("No Tests Found on Module");
 								progressBar.setValue(100);
 								progressBar.setForeground(new Color(255, 0, 0));
 							}
 						}
 						else {
 							generalStatusLabelThree.setForeground(Color.RED);
-							generalStatusLabelThree.setText("No Tests Found on Module");
+							generalStatusLabelThree.setText("Error Reading From Module, Try Again");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
 						}
-					}
-					else {
-						generalStatusLabelThree.setForeground(Color.RED);
-						generalStatusLabelThree.setText("Error Reading From Module, Try Again");
-						progressBar.setValue(100);
-						progressBar.setForeground(new Color(255, 0, 0));
-					}
 
-				}
+					}
 
 				catch (IOException e) {
 					generalStatusLabelThree.setForeground(Color.RED);
@@ -1381,6 +1406,7 @@ public class EducatorMode extends JFrame {
 			pendulumModulePositionDouble = Double.parseDouble(pendulumModulePosition);
 
 
+
 		} catch (NumberFormatException e) {
 			generalStatusLabelOne.setForeground(Color.RED);
 			generalStatusLabelOne.setText("Invalid Data Entered");
@@ -1398,6 +1424,8 @@ public class EducatorMode extends JFrame {
 	public EducatorMode() {
 		setTitle("Adventure Modules - Educator Mode");
 		initComponents();
+		setSize(704, 560);
+		setResizable(false);
 		setVisible(true);
 		findModuleCommPort();
 	}
@@ -2014,6 +2042,7 @@ public class EducatorMode extends JFrame {
 		testTakingPanel.add(stepFour, "name_96253525137854");
 		stepFour.setLayout(new GridLayout(5, 1, 0, 0));
 
+		
 		panel_5 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_5.getLayout();
 		flowLayout.setVgap(40);
@@ -2126,6 +2155,31 @@ public class EducatorMode extends JFrame {
 		lblStepbClick.setFont(new Font("Tahoma", Font.BOLD, 18));
 		lblStepbClick.setBounds(10, 330, 524, 38);
 		stepFive.add(lblStepbClick);
+		
+		instructionsPanel = new JPanel();
+		instructionsPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
+		instructionsPanel.setLayout(null);
+		testTakingPanel.add(instructionsPanel);
+		instructionsPanel.setVisible(true);
+		
+		JButton btnBack = new JButton("Back");
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex -= 1));
+			}
+		});
+		btnBack.setBounds(12, 419, 93, 88);
+		instructionsPanel.add(btnBack);
+		
+		JButton btnNext = new JButton("Next");
+		btnNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex += 1));
+			}
+		});
+		btnNext.setBounds(421, 419, 93, 88);
+		instructionsPanel.add(btnNext);
+
 
 		JPanel calibrationPanel = new JPanel();
 		calibrationPanel.setForeground(new Color(0, 0, 0));
