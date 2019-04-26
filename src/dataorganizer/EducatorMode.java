@@ -163,8 +163,6 @@ public class EducatorMode extends JFrame {
 
 	private JButton mediaPlayerBtn;
 	private JButton graphTestBtn;
-	private JLabel lblStepaDisconnect;
-	private JLabel lblStepbClick;
 
 	
 	Color DeepBlue = new Color(31, 120, 209);
@@ -179,6 +177,18 @@ public class EducatorMode extends JFrame {
 	double pendulumModulePositionDouble;
 
 	JRadioButton dataExcelRadioBtn;
+	private JLabel lblRunExperiment;
+	private JLabel lblReconnectModule;
+	private JPanel newTestPanel;
+	private JLabel lbltemplateLoadingMessage;
+	private JLabel lblPleaseWaitApproximately;
+	private JLabel lblAfterWaiting;
+	private JLabel lblOnTheDesktop;
+	private JLabel lblViewTemplate;
+	private JButton btnBackNewTest;
+	private JButton btnNextNewTest;
+	private JLabel lblStepaDisconnect;
+	private JLabel lblStepaClick;
 
 
 
@@ -955,11 +965,15 @@ public class EducatorMode extends JFrame {
 			case 4:
 				testTakingPanel.add(stepFour);
 			case 5:
-				testTakingPanel.add(stepFive);
-			case 6:
 				testTakingPanel.add(instructionsPanel);
+			case 6:
+				testTakingPanel.add(stepFive);
+			case 7: 
+				testTakingPanel.add(newTestPanel);
+				
+				
 			default:
-				if(index>6) {
+				if(index>7) {
 					testTakingPanel.add(stepOne);
 					wIndex = 1;
 					repaint();
@@ -1252,6 +1266,7 @@ public class EducatorMode extends JFrame {
 													//TODO: Add Constructor with Dynamic Path Getting
 													generalStatusLabelThree.setForeground(Color.BLACK);
 													generalStatusLabelThree.setText("Writing data to spreadsheet");
+													
 													
 													
 													PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
@@ -1922,19 +1937,40 @@ public class EducatorMode extends JFrame {
 		lblStepbExit.setBounds(182, 215, 300, 23);
 		stepTwo.add(lblStepbExit);
 		
-		JLabel lblStepcDisconnect_1 = new JLabel("Step 2C: Disconnect Module, Run Experiment, Reconnect Module");
+		JLabel lblStepcDisconnect_1 = new JLabel("Step 2C:");
 		lblStepcDisconnect_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStepcDisconnect_1.setForeground(new Color (31, 120, 209));
 		lblStepcDisconnect_1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepcDisconnect_1.setBounds(12, 306, 522, 23);
+		lblStepcDisconnect_1.setBounds(108, 306, 75, 20);
 		stepTwo.add(lblStepcDisconnect_1);
 		
 				generalStatusLabelTwo = new JLabel("");
-				generalStatusLabelTwo.setBounds(52, 362, 452, 34);
+				generalStatusLabelTwo.setBounds(52, 378, 452, 34);
 				stepTwo.add(generalStatusLabelTwo);
 				generalStatusLabelTwo.setFont(new Font("Tahoma", Font.BOLD, 14));
 				generalStatusLabelTwo.setForeground(Color.RED);
 				generalStatusLabelTwo.setHorizontalAlignment(SwingConstants.CENTER);
+				
+				JLabel lblDisconnectModule = new JLabel("\u2022 Disconnect Module");
+				lblDisconnectModule.setHorizontalAlignment(SwingConstants.LEFT);
+				lblDisconnectModule.setFont(new Font("Tahoma", Font.BOLD, 14));
+				lblDisconnectModule.setBounds(193, 306, 186, 20);
+				lblDisconnectModule.setForeground(DeepBlue);
+				stepTwo.add(lblDisconnectModule);
+				
+				lblRunExperiment = new JLabel("\u2022 Run Experiment");
+				lblRunExperiment.setHorizontalAlignment(SwingConstants.LEFT);
+				lblRunExperiment.setFont(new Font("Tahoma", Font.BOLD, 14));
+				lblRunExperiment.setBounds(193, 327, 186, 20);
+				lblRunExperiment.setForeground(DeepBlue);
+				stepTwo.add(lblRunExperiment);
+				
+				lblReconnectModule = new JLabel("\u2022 Reconnect Module");
+				lblReconnectModule.setHorizontalAlignment(SwingConstants.LEFT);
+				lblReconnectModule.setFont(new Font("Tahoma", Font.BOLD, 14));
+				lblReconnectModule.setBounds(193, 347, 186, 20);
+				lblReconnectModule.setForeground(DeepBlue);
+				stepTwo.add(lblReconnectModule);
 
 		stepThree = new JPanel();
 		stepThree.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -2090,6 +2126,65 @@ public class EducatorMode extends JFrame {
 		});
 		nextBtnFour.setBounds(419, 0, 93, 88);
 		navPanelFour.add(nextBtnFour);
+		
+		instructionsPanel = new JPanel();
+		instructionsPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
+		instructionsPanel.setLayout(null);
+		testTakingPanel.add(instructionsPanel);
+		instructionsPanel.setVisible(true);
+		
+		JButton btnBack = new JButton("Back");
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex -= 1));
+			}
+		});
+		btnBack.setBounds(12, 419, 93, 88);
+		instructionsPanel.add(btnBack);
+		
+		JButton btnNext = new JButton("Next");
+		btnNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex += 1));
+			}
+		});
+		btnNext.setBounds(421, 419, 93, 88);
+		instructionsPanel.add(btnNext);
+		
+		lbltemplateLoadingMessage = new JLabel("A template is now being created with your test data");
+		lbltemplateLoadingMessage.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lbltemplateLoadingMessage.setHorizontalAlignment(SwingConstants.CENTER);
+		lbltemplateLoadingMessage.setBounds(12, 79, 532, 40);
+		lbltemplateLoadingMessage.setForeground(DeepBlue);
+		instructionsPanel.add(lbltemplateLoadingMessage);
+		
+		lblPleaseWaitApproximately = new JLabel("Please Wait Approximately 20 Seconds for the template to be properly filled");
+		lblPleaseWaitApproximately.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblPleaseWaitApproximately.setHorizontalAlignment(SwingConstants.CENTER);
+		lblPleaseWaitApproximately.setBounds(12, 135, 532, 40);
+		lblPleaseWaitApproximately.setForeground(DeepBlue);
+		instructionsPanel.add(lblPleaseWaitApproximately);
+		
+		lblAfterWaiting = new JLabel("After waiting 20 seconds, please navigate to the desktop ");
+		lblAfterWaiting.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblAfterWaiting.setHorizontalAlignment(SwingConstants.CENTER);
+		lblAfterWaiting.setBounds(12, 186, 532, 40);
+		lblAfterWaiting.setForeground(DeepBlue);
+		instructionsPanel.add(lblAfterWaiting);
+		
+		lblOnTheDesktop = new JLabel("Please double click the file labeled 'Pendulum Template REV-Q3.xlsx' ");
+		lblOnTheDesktop.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblOnTheDesktop.setHorizontalAlignment(SwingConstants.CENTER);
+		lblOnTheDesktop.setBounds(12, 239, 532, 40);
+		lblOnTheDesktop.setForeground(DeepBlue);
+		instructionsPanel.add(lblOnTheDesktop);
+		
+		lblViewTemplate = new JLabel("You may now review the results of the data within the template");
+		lblViewTemplate.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblViewTemplate.setHorizontalAlignment(SwingConstants.CENTER);
+		lblViewTemplate.setBounds(12, 290, 532, 40);
+		lblViewTemplate.setForeground(DeepBlue);
+		instructionsPanel.add(lblViewTemplate);
 
 		stepFive = new JPanel();
 		stepFive.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -2142,43 +2237,45 @@ public class EducatorMode extends JFrame {
 		lblStepErase.setBounds(10, 96, 524, 37);
 		stepFive.add(lblStepErase);
 		
-		lblStepaDisconnect = new JLabel("Step 5A: Disconnect the Module and Clean Up Workspace ");
-		lblStepaDisconnect.setForeground(new Color (31, 120, 209));
-		lblStepaDisconnect.setHorizontalAlignment(SwingConstants.CENTER);
-		lblStepaDisconnect.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblStepaDisconnect.setBounds(10, 281, 524, 38);
-		stepFive.add(lblStepaDisconnect);
+		newTestPanel = new JPanel();
+		newTestPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		testTakingPanel.add(newTestPanel, "name_567625430099202");
 		
-		lblStepbClick = new JLabel("Step 5B: Click Next to Begin New Trial ");
-		lblStepbClick.setForeground(new Color (31, 120, 209));
-		lblStepbClick.setHorizontalAlignment(SwingConstants.CENTER);
-		lblStepbClick.setFont(new Font("Tahoma", Font.BOLD, 18));
-		lblStepbClick.setBounds(10, 330, 524, 38);
-		stepFive.add(lblStepbClick);
-		
-		instructionsPanel = new JPanel();
-		instructionsPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
-		instructionsPanel.setLayout(null);
-		testTakingPanel.add(instructionsPanel);
-		instructionsPanel.setVisible(true);
-		
-		JButton btnBack = new JButton("Back");
-		btnBack.addActionListener(new ActionListener() {
+		btnBackNewTest = new JButton("Back");
+		btnBackNewTest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateBywIndex((wIndex -= 1));
 			}
 		});
-		btnBack.setBounds(12, 419, 93, 88);
-		instructionsPanel.add(btnBack);
+		newTestPanel.setLayout(null);
+		btnBackNewTest.setBounds(12, 419, 93, 88);
+		newTestPanel.add(btnBackNewTest);
 		
-		JButton btnNext = new JButton("Next");
-		btnNext.addActionListener(new ActionListener() {
+		
+		btnNextNewTest = new JButton("Next");
+		btnNextNewTest.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateBywIndex((wIndex += 1));
 			}
 		});
-		btnNext.setBounds(421, 419, 93, 88);
-		instructionsPanel.add(btnNext);
+		
+		btnNextNewTest.setBounds(421, 419, 93, 88);
+		newTestPanel.add(btnNextNewTest);
+		
+		lblStepaDisconnect = new JLabel("Step 6: Disconnect the Module and Clean Up Workspace ");
+		lblStepaDisconnect.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepaDisconnect.setForeground(new Color(31, 120, 209));
+		lblStepaDisconnect.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblStepaDisconnect.setBounds(12, 138, 532, 38);
+		newTestPanel.add(lblStepaDisconnect);
+		
+		lblStepaClick = new JLabel("Step 6A: Click Next to Begin New Trial ");
+		lblStepaClick.setHorizontalAlignment(SwingConstants.CENTER);
+		lblStepaClick.setForeground(new Color(31, 120, 209));
+		lblStepaClick.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblStepaClick.setBounds(12, 216, 532, 38);
+		newTestPanel.add(lblStepaClick);
+		
 
 
 		JPanel calibrationPanel = new JPanel();
