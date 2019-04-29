@@ -223,7 +223,7 @@ public class DataOrganizer {
 		String CSVPath = settings.getKeyVal("CSVSaveLocation"); //Pull up the directory of chosen as CSV location files
 		PrintWriter dataFile = null;
 		try {
-			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); //Create new file in CSVDirectory, file extension is .csvp 
+			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); //Create new file in CSV Directory, file extension is .csvp 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

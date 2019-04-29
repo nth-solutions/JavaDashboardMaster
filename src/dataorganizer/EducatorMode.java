@@ -61,7 +61,6 @@ public class EducatorMode extends JFrame {
 	private GraphController lineGraph;
 	private MediaPlayerController mediaController;
 	private JButton applyConfigurationsBtn;
-	private JButton nextBtnOne;
 	private JButton backBtnThree;
 	private JButton nextBtnThree;
 	private JButton readTestBtn;
@@ -181,14 +180,15 @@ public class EducatorMode extends JFrame {
 	private JLabel lblReconnectModule;
 	private JPanel newTestPanel;
 	private JLabel lbltemplateLoadingMessage;
-	private JLabel lblPleaseWaitApproximately;
 	private JLabel lblAfterWaiting;
 	private JLabel lblOnTheDesktop;
 	private JLabel lblViewTemplate;
 	private JButton btnBackNewTest;
 	private JButton btnNextNewTest;
+	private JButton nextBtnOne;
 	private JLabel lblStepaDisconnect;
 	private JLabel lblStepaClick;
+	private JPanel navInstructions;
 
 
 
@@ -687,6 +687,25 @@ public class EducatorMode extends JFrame {
 		}
 	}
 
+	public String chooseSpreadsheetOutputPath(JLabel label) {
+		JFileChooser chooser;
+		chooser = new JFileChooser();
+		chooser.setVisible(true);
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		//chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			String fileout = chooser.getSelectedFile().toString();
+			if(!fileout.endsWith(".xlsx"))
+				return fileout+".xlsx";
+			else
+				return fileout;
+		}
+		else {
+			return "Invalid File Path";
+		}
+	}
+
 	public void configForCalHandler() {
 		Runnable calforConfigOperation = new Runnable() {
 			public void run() {
@@ -953,8 +972,9 @@ public class EducatorMode extends JFrame {
 		return null;
 	}
 
-	public void updateBywIndex(Integer index) {
+	public void updateBywIndex(Integer index, ActionEvent e) {
 		testTakingPanel.removeAll();
+		repaint();
 		switch(index) {
 			case 1:
 				testTakingPanel.add(stepOne);
@@ -1043,7 +1063,70 @@ public class EducatorMode extends JFrame {
 		//Start the thread
 		sectorEraseThread.start();
 	}
+	
+	
+	/**
+	 * Handles the button press of the bulk erase button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
+	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume.
+	 */
+	public void bulkEraseHandler() {
+		//Specify new operation that can be run in a separate thread
+		Runnable bulkEraseOperation = new Runnable() {
+			public void run() {
+				//Disable buttons that should not be used in the middle of a sequence
+				eraseBtn.setEnabled(false);
+				
+				//Notify the user that the bulk erase sequence has began
+				generalStatusLabelFive.setForeground(Color.BLACK);
+				generalStatusLabelFive.setText("Bulk Erasing...");
+				progressBar.setValue(0);
+				progressBar.setForeground(new Color(51, 204, 51));
 
+				try {
+					if(serialHandler.bulkEraseModule()) {
+						//Notify the user that the sequence has completed
+						generalStatusLabelFive.setForeground(DarkGreen);
+						generalStatusLabelFive.setText("Bulk Erase Complete");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(51, 204, 51));
+					}
+					else {
+
+						//Notify the user that the sequence has failed
+						generalStatusLabelFive.setForeground(Color.RED);
+						generalStatusLabelFive.setText("Bulk Erase Failed");
+						progressBar.setValue(100);
+						progressBar.setForeground(new Color(255, 0, 0));
+					}
+					//Enable buttons that can now be used since the sector erase completed
+					eraseBtn.setEnabled(true);
+				}
+				catch (IOException e) {
+					generalStatusLabelFive.setForeground(Color.RED);
+					generalStatusLabelFive.setText("Error Communicating With Serial Dongle");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (PortInUseException e) {
+					generalStatusLabelFive.setForeground(Color.RED);
+					generalStatusLabelFive.setText("Serial Port Already In Use");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+				catch (UnsupportedCommOperationException e) {
+					generalStatusLabelFive.setForeground(Color.RED);
+					generalStatusLabelFive.setText("Check Dongle Compatability");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				}
+			}
+		};
+
+		//Define a new thread to run the operation previously defined
+		Thread bulkEraseThread = new Thread(bulkEraseOperation);
+		//Start the thread
+		bulkEraseThread.start();
+	}
 
 	public boolean findModuleCommPort() {
 		class threadHack{
@@ -1172,9 +1255,17 @@ public class EducatorMode extends JFrame {
 	 * on what this handler actually does.
 	 */
 	public void readButtonHandler() {
+		generalStatusLabelThree.setForeground(Color.BLACK);
+		generalStatusLabelThree.setText("Copying File Template...");
+		String path = chooseSpreadsheetOutputPath(generalStatusLabelThree);
+		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+		generalStatusLabelThree.setForeground(DarkGreen);
+		generalStatusLabelThree.setText("File Copy finished!");
+		
 		//Define operation that can be run in separate thread
 		Runnable readOperation = new Runnable() {
 			public void run() {
+				generalStatusLabelThree.setForeground(Color.BLACK);
 				//Disable read button while read is in progress
 				backBtnThree.setEnabled(false);
 				nextBtnThree.setEnabled(false);
@@ -1245,7 +1336,6 @@ public class EducatorMode extends JFrame {
 												break;
 											}
 										}
-										System.out.println("Pre Create Smaples");
 										String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
 										dataOrgo = new DataOrganizer(testParameters, tempName);
 										//Define operation that can be run in separate thread
@@ -1254,12 +1344,10 @@ public class EducatorMode extends JFrame {
 
 												//Organize data into .CSV
 												dataOrgo.createDataSmpsRawData(finalData);
-												System.out.println("Post Create Smaples");
 
 												if (dataExcelRadioBtn.isSelected()) {
-
+													
 													List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
-													System.out.println("DataSamples" + dataSamples.get(0).get(9));
 
 													
 
@@ -1268,14 +1356,9 @@ public class EducatorMode extends JFrame {
 													generalStatusLabelThree.setText("Writing data to spreadsheet");
 													
 													
-													
-													PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
-												//	pendulumSpreadsheetController.chooseoutputPath();
 													pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
 													pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-													pendulumSpreadsheetController.saveWorkbook("C:\\Users\\Conference\\Desktop\\Pendulum Template REV-Q3.xlsx");
-													//pendulumSpreadsheetController.saveWorkbook("C:\\Users\\Kinobo\\Desktop\\Pendulum Template REV-Q3.xlsx");
-												//	pendulumSpreadsheetController.saveWorkbook();
+													pendulumSpreadsheetController.saveWorkbook(path);
 													
 													generalStatusLabelThree.setForeground(DarkGreen);
 													generalStatusLabelThree.setText("Data Sucessfully Written");
@@ -1283,8 +1366,8 @@ public class EducatorMode extends JFrame {
 												}
 
 												dataOrgo.getSignedData();
-												dataOrgo.createCSVP();
-												dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+												//dataOrgo.createCSVP();
+												//dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
 												
 												//CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
 											}
@@ -1294,6 +1377,7 @@ public class EducatorMode extends JFrame {
 										Thread organizerThread = new Thread(organizerOperation);
 										//Start thread
 										organizerThread.start();
+
 									}
 								}
 								else {
@@ -1349,7 +1433,7 @@ public class EducatorMode extends JFrame {
 		Thread readThread = new Thread(readOperation);
 		//Start thread
 		readThread.start();
-
+		
 	}
 
 	/**
@@ -1415,6 +1499,7 @@ public class EducatorMode extends JFrame {
 		String pendulumModulePosition = pendulumModulePositionTextField.getText();
 
 		try {
+			
 			pendulumLengthDouble = Double.parseDouble(pendulumLength);
 			pendulumMassDouble = Double.parseDouble(pendulumMass);
 			pendulumModuleMassDouble = Double.parseDouble(pendulumModuleMass);
@@ -1442,7 +1527,6 @@ public class EducatorMode extends JFrame {
 		setSize(704, 560);
 		setResizable(false);
 		setVisible(true);
-		findModuleCommPort();
 	}
 
 	public void initComponents() {
@@ -1525,7 +1609,7 @@ public class EducatorMode extends JFrame {
 			}
 		});
 
-		testTypeCombobox.setBounds(10, 61, 506, 26);
+		testTypeCombobox.setBounds(10, 61, 534, 26);
 		stepOne.add(testTypeCombobox);
 		testTypeCombobox.setModel(new DefaultComboBoxModel(new String[] {"Select a Test","Conservation of Momentum (Elastic Collision)", "Conservation of Angular Momentum", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spinny Stool", "Spring Test - Simple Harmonics"}));
 
@@ -1537,22 +1621,8 @@ public class EducatorMode extends JFrame {
 				getPendulumParameters();
 			}
 		});
-		applyConfigurationsBtn.setBounds(10, 310, 506, 39);
+		applyConfigurationsBtn.setBounds(10, 310, 534, 39);
 		stepOne.add(applyConfigurationsBtn);
-
-		JPanel navPanelOne = new JPanel();
-		navPanelOne.setBounds(10, 398, 506, 108);
-		stepOne.add(navPanelOne);
-		navPanelOne.setLayout(null);
-
-		nextBtnOne = new JButton("Next");
-		nextBtnOne.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				updateBywIndex((wIndex += 1));
-			}
-		});
-		nextBtnOne.setBounds(413, 20, 93, 88);
-		navPanelOne.add(nextBtnOne);
 		
 		timedTestCheckbox = new JCheckBox("Timed Test");
 		timedTestCheckbox.setBounds(0, 0, 97, 23);
@@ -1568,23 +1638,38 @@ public class EducatorMode extends JFrame {
 		stepOne.add(noBtn);
 
 		JLabel lblStepSelect = new JLabel("Step 1: Select the test you would like to perform.");
+		lblStepSelect.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStepSelect.setForeground(new Color(31, 120, 209));
 		lblStepSelect.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepSelect.setBounds(100, 25, 350, 25);
+		lblStepSelect.setBounds(10, 25, 534, 25);
 		stepOne.add(lblStepSelect);
 
 		JLabel lblStepaApply = new JLabel("Step 1B: Apply your configurations");
 		lblStepaApply.setForeground(new Color(31, 120, 209));
 		lblStepaApply.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStepaApply.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepaApply.setBounds(100, 268, 350, 31);
+		lblStepaApply.setBounds(10, 268, 534, 31);
 		stepOne.add(lblStepaApply);
 		
 				generalStatusLabelOne = new JLabel("");
-				generalStatusLabelOne.setBounds(10, 360, 506, 59);
+				generalStatusLabelOne.setBounds(10, 360, 534, 59);
 				stepOne.add(generalStatusLabelOne);
 				generalStatusLabelOne.setFont(new Font("Tahoma", Font.BOLD, 14));
 				generalStatusLabelOne.setHorizontalAlignment(SwingConstants.CENTER);
+				
+				JPanel navPanelOne = new JPanel();
+				navPanelOne.setLayout(null);
+				navPanelOne.setBounds(10, 425, 534, 90);
+				stepOne.add(navPanelOne);
+				
+				nextBtnOne = new JButton("Next");
+				nextBtnOne.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						updateBywIndex((wIndex += 1), arg0);
+					}
+				});
+				nextBtnOne.setBounds(444, 0, 90, 90);
+				navPanelOne.add(nextBtnOne);
 
 		spinnyStoolDemo = new JPanel();
 		spinnyStoolDemo.setBounds(10, 111, 506, 184);
@@ -1843,7 +1928,7 @@ public class EducatorMode extends JFrame {
 		testTakingPanel.add(stepTwo, "name_92124154026185");
 
 		pairNewRemoteButton = new JButton("Pair New Remote");
-		pairNewRemoteButton.setBounds(2, 31, 540, 50);
+		pairNewRemoteButton.setBounds(12, 41, 534, 50);
 	//	pairNewRemoteButton.setBackground(DeepBlue);
 	//	pairNewRemoteButton.setOpaque(false);
 	//	pairNewRemoteButton.setForeground(DeepBlue);
@@ -1855,15 +1940,16 @@ public class EducatorMode extends JFrame {
 		stepTwo.setLayout(null);
 
 		lblNewLabel = new JLabel("Step 2: Pair a remote");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setForeground(new Color (31, 120, 209));
-		lblNewLabel.setBounds(204, 11, 300, 15);
+		lblNewLabel.setBounds(12, 11, 534, 20);
 		stepTwo.add(lblNewLabel);
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 		pairNewRemoteButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		stepTwo.add(pairNewRemoteButton);
 
 		unpairAllRemotesButton = new JButton("Unpair All Remotes");
-		unpairAllRemotesButton.setBounds(2, 78, 540, 50);
+		unpairAllRemotesButton.setBounds(12, 89, 534, 50);
 		//unpairAllRemotesButton.setBackground(DeepBlue);
 		//unpairAllRemotesButton.setOpaque(false);
 		//unpairAllRemotesButton.setForeground(DeepBlue);
@@ -1876,7 +1962,7 @@ public class EducatorMode extends JFrame {
 		stepTwo.add(unpairAllRemotesButton);
 
 		testRemotesButton = new JButton("Test Paired Remote");
-		testRemotesButton.setBounds(2, 165, 540, 50);
+		testRemotesButton.setBounds(12, 165, 534, 50);
 		//testRemotesButton.setBackground(DeepBlue);
 		//testRemotesButton.setOpaque(false);
 		//testRemotesButton.setForeground(DeepBlue);
@@ -1889,7 +1975,7 @@ public class EducatorMode extends JFrame {
 		stepTwo.add(testRemotesButton);
 
 		exitTestModeButton = new JButton("Exit Test Mode");
-		exitTestModeButton.setBounds(2, 245, 540, 50);
+		exitTestModeButton.setBounds(12, 245, 534, 50);
 		//exitTestModeButton.setBackground(DeepBlue);
 		//exitTestModeButton.setOpaque(false);
 		//exitTestModeButton.setForeground(DeepBlue);
@@ -1903,45 +1989,47 @@ public class EducatorMode extends JFrame {
 		stepTwo.add(exitTestModeButton);
 
 		JPanel navPanelTwo = new JPanel();
-		navPanelTwo.setBounds(12, 407, 504, 98);
+		navPanelTwo.setBounds(10, 425, 534, 90);
 		stepTwo.add(navPanelTwo);
 		navPanelTwo.setLayout(null);
 
 		nextBtnTwo = new JButton("Next");
 		nextBtnTwo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex += 1));
+				updateBywIndex((wIndex += 1), e);
 			}
 		});
-		nextBtnTwo.setBounds(411, 11, 93, 88);
+		nextBtnTwo.setBounds(444, 0, 90, 90);
 		navPanelTwo.add(nextBtnTwo);
 
 		backBtnTwo = new JButton("Back");
 		backBtnTwo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex -= 1));
+				updateBywIndex((wIndex -= 1), e);
 			}
 		});
-		backBtnTwo.setBounds(0, 11, 93, 88);
+		backBtnTwo.setBounds(0, 0, 90, 90);
 		navPanelTwo.add(backBtnTwo);
 
 		lblStepaTest = new JLabel("Step 2A: Test the paired remote");
+		lblStepaTest.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStepaTest.setForeground(new Color (31, 120, 209));
 		lblStepaTest.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepaTest.setBounds(170, 139, 300, 15);
+		lblStepaTest.setBounds(12, 139, 534, 20);
 		stepTwo.add(lblStepaTest);
 
 		lblStepbExit = new JLabel("Step 2B: Exit remote testing");
+		lblStepbExit.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStepbExit.setForeground(new Color (31, 120, 209));
 		lblStepbExit.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepbExit.setBounds(182, 215, 300, 23);
+		lblStepbExit.setBounds(12, 219, 534, 20);
 		stepTwo.add(lblStepbExit);
 		
 		JLabel lblStepcDisconnect_1 = new JLabel("Step 2C:");
 		lblStepcDisconnect_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblStepcDisconnect_1.setForeground(new Color (31, 120, 209));
 		lblStepcDisconnect_1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblStepcDisconnect_1.setBounds(108, 306, 75, 20);
+		lblStepcDisconnect_1.setBounds(146, 306, 75, 20);
 		stepTwo.add(lblStepcDisconnect_1);
 		
 				generalStatusLabelTwo = new JLabel("");
@@ -1954,21 +2042,21 @@ public class EducatorMode extends JFrame {
 				JLabel lblDisconnectModule = new JLabel("\u2022 Disconnect Module");
 				lblDisconnectModule.setHorizontalAlignment(SwingConstants.LEFT);
 				lblDisconnectModule.setFont(new Font("Tahoma", Font.BOLD, 14));
-				lblDisconnectModule.setBounds(193, 306, 186, 20);
+				lblDisconnectModule.setBounds(231, 306, 150, 20);
 				lblDisconnectModule.setForeground(DeepBlue);
 				stepTwo.add(lblDisconnectModule);
 				
 				lblRunExperiment = new JLabel("\u2022 Run Experiment");
 				lblRunExperiment.setHorizontalAlignment(SwingConstants.LEFT);
 				lblRunExperiment.setFont(new Font("Tahoma", Font.BOLD, 14));
-				lblRunExperiment.setBounds(193, 327, 186, 20);
+				lblRunExperiment.setBounds(231, 326, 150, 20);
 				lblRunExperiment.setForeground(DeepBlue);
 				stepTwo.add(lblRunExperiment);
 				
 				lblReconnectModule = new JLabel("\u2022 Reconnect Module");
 				lblReconnectModule.setHorizontalAlignment(SwingConstants.LEFT);
 				lblReconnectModule.setFont(new Font("Tahoma", Font.BOLD, 14));
-				lblReconnectModule.setBounds(193, 347, 186, 20);
+				lblReconnectModule.setBounds(231, 347, 150, 20);
 				lblReconnectModule.setForeground(DeepBlue);
 				stepTwo.add(lblReconnectModule);
 
@@ -1979,23 +2067,24 @@ public class EducatorMode extends JFrame {
 
 		JPanel outputPanel = new JPanel();
 		outputPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
-		outputPanel.setBounds(10, 11, 506, 234);
+		outputPanel.setBounds(10, 11, 534, 234);
 		stepThree.add(outputPanel);
 		outputPanel.setLayout(null);
 
 		group = new ButtonGroup();
 
 		dataExcelRadioBtn = new JRadioButton("Data (Spreadsheet)");
+		dataExcelRadioBtn.setSelected(true);
 		dataExcelRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		dataExcelRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		dataExcelRadioBtn.setBounds(112, 48, 317, 50);
+		dataExcelRadioBtn.setBounds(10, 48, 514, 40);
 		outputPanel.add(dataExcelRadioBtn);
 
 		group.add(dataExcelRadioBtn);
 
 		JRadioButton motionVisualizationRadioBtn = new JRadioButton("Motion Visualization");
 		motionVisualizationRadioBtn.setEnabled(false);
-		motionVisualizationRadioBtn.setBounds(112, 188, 317, 36);
+		motionVisualizationRadioBtn.setBounds(10, 177, 514, 40);
 		outputPanel.add(motionVisualizationRadioBtn);
 		motionVisualizationRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		motionVisualizationRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -2003,16 +2092,17 @@ public class EducatorMode extends JFrame {
 
 		JRadioButton graphRadioBtn = new JRadioButton("Graph (Using template)");
 		graphRadioBtn.setEnabled(false);
-		graphRadioBtn.setBounds(112, 101, 317, 48);
+		graphRadioBtn.setBounds(10, 91, 514, 40);
 		outputPanel.add(graphRadioBtn);
 		graphRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		graphRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		group.add(graphRadioBtn);
 
 		JRadioButton graphAndSpreadSheetOutputRadioBtn = new JRadioButton("Both (Graphing and Spreadsheet output)");
+		graphAndSpreadSheetOutputRadioBtn.setHorizontalAlignment(SwingConstants.CENTER);
 		graphAndSpreadSheetOutputRadioBtn.setEnabled(false);
 		graphAndSpreadSheetOutputRadioBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		graphAndSpreadSheetOutputRadioBtn.setBounds(112, 157, 317, 23);
+		graphAndSpreadSheetOutputRadioBtn.setBounds(10, 134, 514, 40);
 		outputPanel.add(graphAndSpreadSheetOutputRadioBtn);
 		group.add(graphAndSpreadSheetOutputRadioBtn);
 
@@ -2020,11 +2110,11 @@ public class EducatorMode extends JFrame {
 		lblNewLabel_1.setForeground(new Color (31, 120, 209));
 		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblNewLabel_1.setBounds(145, 11, 254, 30);
+		lblNewLabel_1.setBounds(10, 11, 514, 30);
 		outputPanel.add(lblNewLabel_1);
 
 		readTestBtn = new JButton("Read Test");
-		readTestBtn.setBounds(10, 311, 506, 77);
+		readTestBtn.setBounds(10, 311, 534, 77);
 		readTestBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				readButtonHandler();
@@ -2034,7 +2124,7 @@ public class EducatorMode extends JFrame {
 		stepThree.add(readTestBtn);
 
 		JPanel navPanelThree = new JPanel();
-		navPanelThree.setBounds(10, 404, 506, 101);
+		navPanelThree.setBounds(10, 425, 534, 90);
 		stepThree.add(navPanelThree);
 		navPanelThree.setLayout(null);
 
@@ -2047,39 +2137,40 @@ public class EducatorMode extends JFrame {
 		backBtnThree = new JButton("Back");
 		backBtnThree.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex -= 1));
+				updateBywIndex((wIndex -= 1), e);
 			}
 		});
-		backBtnThree.setBounds(0, 11, 93, 88);
+		backBtnThree.setBounds(0, 0, 90, 90);
 		navPanelThree.add(backBtnThree);
 
 		nextBtnThree = new JButton("Next");
 		nextBtnThree.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex += 1));
+				updateBywIndex((wIndex += 1), e);
 			}
 		});
-		nextBtnThree.setBounds(413, 11, 93, 88);
+		nextBtnThree.setBounds(444, 0, 90, 90);
 		navPanelThree.add(nextBtnThree);
 
 		progressBar = new JProgressBar();
-		progressBar.setBounds(103, 39, 300, 14);
+		progressBar.setBounds(115, 38, 300, 14);
 		navPanelThree.add(progressBar);
 
 		lblStepRead = new JLabel("Step 3A: Read all tests from your Adventure Module.");
 		lblStepRead.setForeground(new Color (31, 120, 209));
 		lblStepRead.setHorizontalAlignment(SwingConstants.CENTER);
-		lblStepRead.setBounds(10, 244, 506, 68);
+		lblStepRead.setBounds(10, 245, 534, 68);
 		stepThree.add(lblStepRead);
 		lblStepRead.setFont(new Font("Tahoma", Font.BOLD, 14));
 
 		stepFour = new JPanel();
 		stepFour.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepFour, "name_96253525137854");
-		stepFour.setLayout(new GridLayout(5, 1, 0, 0));
+		stepFour.setLayout(null);
 
 		
 		panel_5 = new JPanel();
+		panel_5.setBounds(2, 2, 550, 87);
 		FlowLayout flowLayout = (FlowLayout) panel_5.getLayout();
 		flowLayout.setVgap(40);
 		stepFour.add(panel_5);
@@ -2091,6 +2182,7 @@ public class EducatorMode extends JFrame {
 		panel_5.add(lblStepIf);
 
 		JPanel panel_4 = new JPanel();
+		panel_4.setBounds(2, 89, 550, 87);
 		stepFour.add(panel_4);
 		panel_4.setLayout(new BorderLayout(0, 0));
 
@@ -2100,56 +2192,41 @@ public class EducatorMode extends JFrame {
 		panel_4.add(btnLaunchMotionVisualization);
 
 		JPanel panel_3 = new JPanel();
+		panel_3.setBounds(2, 176, 550, 87);
 		stepFour.add(panel_3);
 
 		JPanel panel_2 = new JPanel();
+		panel_2.setBounds(2, 263, 550, 87);
 		stepFour.add(panel_2);
 
 		JPanel navPanelFour = new JPanel();
+		navPanelFour.setBounds(10, 425, 534, 90);
+		navPanelFour.setBorder(null);
 		stepFour.add(navPanelFour);
-		navPanelFour.setLayout(null);
 
 		JButton backBtnFour = new JButton("Back");
+		backBtnFour.setBounds(0, 0, 90, 90);
 		backBtnFour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex -= 1));
+				updateBywIndex((wIndex -= 1), e);
 			}
 		});
-		backBtnFour.setBounds(10, 0, 93, 88);
+		navPanelFour.setLayout(null);
 		navPanelFour.add(backBtnFour);
 
 		JButton nextBtnFour = new JButton("Next");
+		nextBtnFour.setBounds(444, 0, 90, 90);
 		nextBtnFour.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex += 1));
+				updateBywIndex((wIndex += 1), e);
 			}
 		});
-		nextBtnFour.setBounds(419, 0, 93, 88);
 		navPanelFour.add(nextBtnFour);
 		
 		instructionsPanel = new JPanel();
 		instructionsPanel.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		instructionsPanel.setLayout(null);
 		testTakingPanel.add(instructionsPanel);
-		instructionsPanel.setVisible(true);
-		
-		JButton btnBack = new JButton("Back");
-		btnBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex -= 1));
-			}
-		});
-		btnBack.setBounds(12, 419, 93, 88);
-		instructionsPanel.add(btnBack);
-		
-		JButton btnNext = new JButton("Next");
-		btnNext.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex += 1));
-			}
-		});
-		btnNext.setBounds(421, 419, 93, 88);
-		instructionsPanel.add(btnNext);
 		
 		lbltemplateLoadingMessage = new JLabel("A template is now being created with your test data");
 		lbltemplateLoadingMessage.setFont(new Font("Tahoma", Font.BOLD, 20));
@@ -2158,33 +2235,49 @@ public class EducatorMode extends JFrame {
 		lbltemplateLoadingMessage.setForeground(DeepBlue);
 		instructionsPanel.add(lbltemplateLoadingMessage);
 		
-		lblPleaseWaitApproximately = new JLabel("Please Wait Approximately 20 Seconds for the template to be properly filled");
-		lblPleaseWaitApproximately.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblPleaseWaitApproximately.setHorizontalAlignment(SwingConstants.CENTER);
-		lblPleaseWaitApproximately.setBounds(12, 135, 532, 40);
-		lblPleaseWaitApproximately.setForeground(DeepBlue);
-		instructionsPanel.add(lblPleaseWaitApproximately);
-		
-		lblAfterWaiting = new JLabel("After waiting 20 seconds, please navigate to the desktop ");
+		lblAfterWaiting = new JLabel("After waiting, navigate to the file location you selected in the previous step");
 		lblAfterWaiting.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblAfterWaiting.setHorizontalAlignment(SwingConstants.CENTER);
-		lblAfterWaiting.setBounds(12, 186, 532, 40);
+		lblAfterWaiting.setBounds(12, 152, 532, 40);
 		lblAfterWaiting.setForeground(DeepBlue);
 		instructionsPanel.add(lblAfterWaiting);
 		
-		lblOnTheDesktop = new JLabel("Please double click the file labeled 'Pendulum Template REV-Q3.xlsx' ");
+		lblOnTheDesktop = new JLabel("Please double click the XLSX file you saved in the previous step ");
 		lblOnTheDesktop.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblOnTheDesktop.setHorizontalAlignment(SwingConstants.CENTER);
-		lblOnTheDesktop.setBounds(12, 239, 532, 40);
+		lblOnTheDesktop.setBounds(12, 203, 532, 40);
 		lblOnTheDesktop.setForeground(DeepBlue);
 		instructionsPanel.add(lblOnTheDesktop);
 		
 		lblViewTemplate = new JLabel("You may now review the results of the data within the template");
 		lblViewTemplate.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lblViewTemplate.setHorizontalAlignment(SwingConstants.CENTER);
-		lblViewTemplate.setBounds(12, 290, 532, 40);
+		lblViewTemplate.setBounds(12, 254, 532, 40);
 		lblViewTemplate.setForeground(DeepBlue);
 		instructionsPanel.add(lblViewTemplate);
+		
+		navInstructions = new JPanel();
+		navInstructions.setBounds(10, 425, 534, 90);
+		instructionsPanel.add(navInstructions);
+		navInstructions.setLayout(null);
+		
+		JButton btnBack = new JButton("Back");
+		btnBack.setBounds(0, 0, 90, 90);
+		navInstructions.add(btnBack);
+		
+		JButton btnNext = new JButton("Next");
+		btnNext.setBounds(444, 0, 90, 90);
+		navInstructions.add(btnNext);
+		btnNext.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex += 1), e);
+			}
+		});
+		btnBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex -= 1), e);
+			}
+		});
 
 		stepFive = new JPanel();
 		stepFive.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
@@ -2194,20 +2287,20 @@ public class EducatorMode extends JFrame {
 		eraseBtn = new JButton("Erase");
 		eraseBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				sectorEraseHandler();
+				bulkEraseHandler();
 			}
 		});
 
 		navPanel = new JPanel();
-		navPanel.setBounds(10, 406, 506, 101);
+		navPanel.setBounds(10, 425, 534, 90);
 		stepFive.add(navPanel);
 		navPanel.setLayout(null);
 
 		backBtnFive = new JButton("Back");
-		backBtnFive.setBounds(0, 11, 93, 88);
+		backBtnFive.setBounds(0, 0, 90, 90);
 		backBtnFive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex -= 1));
+				updateBywIndex((wIndex -= 1), e);
 			}
 		});
 		navPanel.add(backBtnFive);
@@ -2215,10 +2308,10 @@ public class EducatorMode extends JFrame {
 		nextBtnFive = new JButton("Next");
 		nextBtnFive.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex += 1));
+				updateBywIndex((wIndex += 1), e);
 			}
 		});
-		nextBtnFive.setBounds(413, 11, 93, 88);
+		nextBtnFive.setBounds(444, 0, 90, 90);
 		navPanel.add(nextBtnFive);
 
 		generalStatusLabelFive = new JLabel("");
@@ -2240,27 +2333,7 @@ public class EducatorMode extends JFrame {
 		newTestPanel = new JPanel();
 		newTestPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 		testTakingPanel.add(newTestPanel, "name_567625430099202");
-		
-		btnBackNewTest = new JButton("Back");
-		btnBackNewTest.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex -= 1));
-			}
-		});
 		newTestPanel.setLayout(null);
-		btnBackNewTest.setBounds(12, 419, 93, 88);
-		newTestPanel.add(btnBackNewTest);
-		
-		
-		btnNextNewTest = new JButton("Next");
-		btnNextNewTest.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				updateBywIndex((wIndex += 1));
-			}
-		});
-		
-		btnNextNewTest.setBounds(421, 419, 93, 88);
-		newTestPanel.add(btnNextNewTest);
 		
 		lblStepaDisconnect = new JLabel("Step 6: Disconnect the Module and Clean Up Workspace ");
 		lblStepaDisconnect.setHorizontalAlignment(SwingConstants.CENTER);
@@ -2275,6 +2348,30 @@ public class EducatorMode extends JFrame {
 		lblStepaClick.setFont(new Font("Tahoma", Font.BOLD, 18));
 		lblStepaClick.setBounds(12, 216, 532, 38);
 		newTestPanel.add(lblStepaClick);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(10, 425, 534, 90);
+		newTestPanel.add(panel);
+		panel.setLayout(null);
+		
+		btnBackNewTest = new JButton("Back");
+		btnBackNewTest.setBounds(0, 0, 90, 90);
+		panel.add(btnBackNewTest);
+		
+		
+		btnNextNewTest = new JButton("Next");
+		btnNextNewTest.setBounds(444, 0, 90, 90);
+		panel.add(btnNextNewTest);
+		btnNextNewTest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex += 1), e);
+			}
+		});
+		btnBackNewTest.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateBywIndex((wIndex -= 1), e);
+			}
+		});
 		
 
 

@@ -15,18 +15,15 @@ public class PendulumSpreadsheetController {
 
     //TODO: Test if Workbook can be saved to a different location than its origin (Ex. Leave template in src and save the updated version to Documents)
     //TODO: Dynamically get path of template
-    private Workbook workbook;
-    private String workbookPath = "C:\\Users\\Conference\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
-    //private String workbookPath = "C:\\Users\\Kinobo\\Desktop\\JavaDashboardMaster\\Pendulum Template REV-Q3.xlsx";
-    
+    private Workbook workbook; 
     private String documentsPath;
     
     public PendulumSpreadsheetController() {
-        documentsPath = System.getProperty("user.home") + "/Documents" + "/Lab Templates" +"Pendulum Template REV-Q3.xlsx";
-
+        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
         try {
-            this.workbook = new Workbook(workbookPath);
+            this.workbook = new Workbook(documentsPath);
         }catch(Exception e){
+        	e.printStackTrace();
             System.out.println("Invalid Workbook Path");
         }
     }
@@ -62,9 +59,12 @@ public class PendulumSpreadsheetController {
     	
     public void saveWorkbook(String outputPath){
         try {
+        	System.out.println(outputPath);
             workbook.save(outputPath, FileFormatType.XLSX);
 
         }catch(Exception e){
+        	System.out.println(e.getMessage());
+        	System.out.println(e.getCause());
             System.out.println("Invalid output path");
         }
 
