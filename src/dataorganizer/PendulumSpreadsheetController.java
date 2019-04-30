@@ -28,34 +28,6 @@ public class PendulumSpreadsheetController {
         }
     }
     
-//    public void chooseoutputPath() {
-////    	JFrame outputpathChooser = new JFrame();
-////    	String test = JOptionPane.showInputDialog(outputpathChooser, "Enter or choose the save location for spreadsheet");
-////    	
-//    	JFrame output = new JFrame();
-//    	
-//    	JFileChooser outputpathChooser;
-//    	outputpathChooser = new JFileChooser();
-//    	
-//    	output.add(outputpathChooser);
-//    	output.setVisible(true);
-//    	
-//    	System.out.println(test);
-//    }
-    
-//    public void chooseoutputPath(JLabel label ) {
-//		JFileChooser chooser;
-//		chooser = new JFileChooser();
-//		chooser.setCurrentDirectory(new java.io.File("."));
-//		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-//		chooser.setAcceptAllFileFilterUsed(false);
-//		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-//			saveWorkbook(chooser.getSelectedFile().toString());
-//		}
-//		else {
-//			label.setText("Invalid File Path");
-//		}
-//	}
     	
     public void saveWorkbook(String outputPath){
         try {

@@ -1360,11 +1360,23 @@ public class EducatorMode extends JFrame {
 													pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
 													pendulumSpreadsheetController.saveWorkbook(path);
 													
+													try {
+														Thread.sleep(10000);
+														
+													}catch(Exception exceptionalexception) {
+														System.out.println("If you got this error, something went seriously wrong");
+													}
+													
+													
 													generalStatusLabelThree.setForeground(DarkGreen);
-													generalStatusLabelThree.setText("Data Sucessfully Written");
+													generalStatusLabelThree.setText("Data Successfully Written");
 
-												}
-
+													//Re-enable read button upon read completion
+													backBtnThree.setEnabled(true);
+													nextBtnThree.setEnabled(true);
+													readTestBtn.setEnabled(true);
+												
+												}			
 												dataOrgo.getSignedData();
 												//dataOrgo.createCSVP();
 												//dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
@@ -1404,28 +1416,38 @@ public class EducatorMode extends JFrame {
 					}
 
 				catch (IOException e) {
+
+					//Re-enable read button upon read completion
+					backBtnThree.setEnabled(true);
+					nextBtnThree.setEnabled(true);
+					readTestBtn.setEnabled(true);
 					generalStatusLabelThree.setForeground(Color.RED);
 					generalStatusLabelThree.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (PortInUseException e) {
+
+					//Re-enable read button upon read completion
+					backBtnThree.setEnabled(true);
+					nextBtnThree.setEnabled(true);
+					readTestBtn.setEnabled(true);
 					generalStatusLabelThree.setForeground(Color.RED);
 					generalStatusLabelThree.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 				catch (UnsupportedCommOperationException e) {
+
+					//Re-enable read button upon read completion
+					backBtnThree.setEnabled(true);
+					nextBtnThree.setEnabled(true);
+					readTestBtn.setEnabled(true);
 					generalStatusLabelThree.setForeground(Color.RED);
 					generalStatusLabelThree.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
-
-				//Re-enable read button upon read completion
-				backBtnThree.setEnabled(true);
-				nextBtnThree.setEnabled(true);
-				readTestBtn.setEnabled(true);
 			}
 		};
 
@@ -1576,21 +1598,18 @@ public class EducatorMode extends JFrame {
 				String oldTestType = testType;
 				switch(testType) {
 					case "Conservation of Momentum (Elastic Collision)":
-						//stepOne.removeAll();
 						stepOne.remove(spinnyStoolDemo);
 						stepOne.remove(physicalPendulumDemo);
 						stepOne.remove(conservationOfEnergyLabPane);
 						stepOne.add(momentumLabPane);
 						break;
 					case "Conservation of Energy":
-						//stepOne.removeAll();
 						stepOne.remove(spinnyStoolDemo);
 						stepOne.remove(physicalPendulumDemo);
 						stepOne.remove(momentumLabPane);
 						stepOne.add(conservationOfEnergyLabPane);
 						break;
 					case "Spinny Stool":
-						//stepOne.removeAll();
 						stepOne.remove(conservationOfEnergyLabPane);
 						stepOne.remove(physicalPendulumDemo);
 						stepOne.remove(momentumLabPane);
@@ -1601,8 +1620,7 @@ public class EducatorMode extends JFrame {
 						stepOne.remove(momentumLabPane);
 						stepOne.remove(spinnyStoolDemo);
 						stepOne.add(physicalPendulumDemo);
-
-
+						break; 
 				}
 				repaint();
 
