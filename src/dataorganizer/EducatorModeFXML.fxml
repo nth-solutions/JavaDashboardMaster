@@ -2,15 +2,14 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -27,9 +26,15 @@
                <children>
                   <VBox alignment="TOP_CENTER" prefHeight="500.0" prefWidth="200.0">
                      <children>
-                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="100.0" prefWidth="200.0" text="Experiment" />
-                        <Button alignment="CENTER" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#selectCalibrationTab" prefHeight="100.0" prefWidth="200.0" text="Calibration" />
-                        <Button alignment="CENTER" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="100.0" prefWidth="200.0" text="Motion Visualization" />
+                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="235.0" prefWidth="200.0" text="Experiment" textFill="#1f78d1">
+                           <font>
+                              <Font size="18.0" />
+                           </font></Button>
+                        <Button alignment="CENTER" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
+                           <font>
+                              <Font size="18.0" />
+                           </font></Button>
+                        <Button mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="Settings" />
                      </children>
                   </VBox>
                </children>
@@ -49,7 +54,7 @@
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                                              <children>
-                                                <Label fx:id="generalStatusExperimentLabel" text="General Status Text">
+                                                <Label fx:id="generalStatusExperimentLabel" prefHeight="20.0" text="General Status Text">
                                                    <font>
                                                       <Font name="System Bold" size="18.0" />
                                                    </font>
@@ -62,9 +67,9 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="10.0">
+                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="5.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Step 1: Select the test you would like to perform">
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Step 1: Select the test you would like to perform" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font></Label>
@@ -75,25 +80,46 @@
                                                                         <content>
                                                                           <AnchorPane prefHeight="200.0" prefWidth="400.0">
                                                                                  <children>
-                                                                                    <Text layoutX="125.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Conservation of Momentum" />
+                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                       <children>
+                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Right Module (kg)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Right Glider (kg)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Left Module (kg)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Left Glider (kg)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                       </children>
+                                                                                    </VBox>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                         </content>
                                                                       </Tab>
-                                                                        <Tab text="Conservation of Angular Momentum">
-                                                                           <content>
-                                                                              <AnchorPane>
-                                                                                 <children>
-                                                                                    <Text layoutX="103.0" layoutY="96.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Conservation of Angular Momentum" />
-                                                                                 </children>
-                                                                              </AnchorPane>
-                                                                           </content>
-                                                                        </Tab>
                                                                         <Tab text="Conservation of Energy">
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="139.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Conservation of Energy" />
+                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                       <children>
+                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Total Drop Distance (m)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Module &amp; Holder (kg)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Radius of Torque Arm (m)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                       </children>
+                                                                                    </VBox>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>
@@ -102,7 +128,10 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="163.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Inclined Plane" />
+                                                                                    <Text layoutX="122.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                       <font>
+                                                                                          <Font size="14.0" />
+                                                                                       </font></Text>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>
@@ -111,25 +140,22 @@
                                                                            <content>
                                                                               <AnchorPane prefHeight="175.0">
                                                                                  <children>
-                                                                                    <VBox alignment="CENTER" prefHeight="150.0" prefWidth="400.0" spacing="15.0">
+                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
-                                                                                          <TextField promptText="Length of Meterstick (m)" />
-                                                                                          <TextField promptText="Mass of Module (kg)" />
-                                                                                          <TextField promptText="Mass of Meterstick (kg)" />
+                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Length of Pendulum (m)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Distance from Pivot (m)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Module (kg)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Mass of Pendulum (kg)" />
+                                                                                             </children>
+                                                                                          </HBox>
                                                                                        </children>
-                                                                                       <padding>
-                                                                                          <Insets left="50.0" right="50.0" />
-                                                                                       </padding>
                                                                                     </VBox>
-                                                                                 </children>
-                                                                              </AnchorPane>
-                                                                           </content>
-                                                                        </Tab>
-                                                                        <Tab text="Spinny Stool">
-                                                                           <content>
-                                                                              <AnchorPane>
-                                                                                 <children>
-                                                                                    <Text layoutX="125.0" layoutY="96.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spinny Stool Demo" textAlignment="CENTER" wrappingWidth="149.203125" />
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>
@@ -138,23 +164,41 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="77.0" layoutY="96.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Spring Test - Simple Harmonic Motion" textAlignment="CENTER" wrappingWidth="245.203125" />
+                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                       <children>
+                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Spring Constant (N/m)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Total Hanging Mass (kg)">
+                                                                                                   <tooltip>
+                                                                                                      <Tooltip text="This includes the mass of the module, holder, and any additional weights." />
+                                                                                                   </tooltip>
+                                                                                                </TextField>
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                             <children>
+                                                                                                <TextField prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
+                                                                                                <TextField prefWidth="175.0" promptText="Radius of Torque Arm (m)">
+                                                                                                   <tooltip>
+                                                                                                      <Tooltip text="The torque arm is the radius of the disc around which the string is wrapped." />
+                                                                                                   </tooltip>
+                                                                                                </TextField>
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                       </children>
+                                                                                    </VBox>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>
                                                                         </Tab>
                                                                     </tabs>
                                                                   </TabPane>
-                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Step 1B: Apply Configurations">
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Step 1B: Apply your configurations" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <HBox>
-                                                                     <children>
-                                                                        <CheckBox mnemonicParsing="false" text="Timed Test" />
-                                                                     </children>
-                                                                  </HBox>
                                                                   <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Apply Configurations" />
                                                                </children>
                                                                <padding>
@@ -169,29 +213,62 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="20.0">
+                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="5.0">
                                                                <children>
-                                                                  <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="450.0" text="Pair New Remote">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2: Pair a remote" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <VBox alignment="CENTER" prefWidth="400.0">
+                                                                     <children>
+                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
+                                                                           <font>
+                                                                              <Font size="14.0" />
+                                                                           </font>
+                                                                        </Button>
+                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Unpair All Remotes">
+                                                                           <font>
+                                                                              <Font size="14.0" />
+                                                                           </font>
+                                                                        </Button>
+                                                                     </children>
+                                                                  </VBox>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2A: Test the paired remote" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button fx:id="testRemotesButton" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Button fx:id="unpairAllRemotesButton" layoutX="20.0" layoutY="169.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="450.0" text="Unpair All Remotes">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2B: Exit remote testing" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Separator prefWidth="500.0" style="-fx-background-color: #868b92;" />
-                                                                  <Button fx:id="testRemotesButton" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="450.0" text="Test Paired Remotes">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2C: • Disconnect Module" textFill="#1f78d1">
                                                                      <font>
-                                                                        <Font size="14.0" />
+                                                                        <Font name="System Bold" size="14.0" />
                                                                      </font>
-                                                                  </Button>
-                                                                  <Button layoutX="20.0" layoutY="219.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="450.0" text="Exit Test Mode">
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="          • Run Experiment" textFill="#1f78d1">
                                                                      <font>
-                                                                        <Font size="14.0" />
+                                                                        <Font name="System Bold" size="14.0" />
                                                                      </font>
-                                                                  </Button>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="               • Reconnect Module" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
                                                                </children>
                                                                <padding>
                                                                   <Insets left="25.0" right="25.0" />
@@ -205,15 +282,20 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="25.0">
+                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="15.0">
                                                                <children>
                                                                   <Pane prefHeight="225.0" prefWidth="200.0" style="-fx-background-color: #DCDCDC;">
                                                                      <effect>
                                                                         <InnerShadow height="5.0" radius="2.0" width="5.0" />
                                                                      </effect>
                                                                      <children>
-                                                                        <VBox alignment="CENTER" prefHeight="225.0" prefWidth="450.0" spacing="10.0">
+                                                                        <VBox alignment="CENTER" prefHeight="225.0" prefWidth="450.0" spacing="15.0">
                                                                            <children>
+                                                                              <Label alignment="CENTER" prefWidth="400.0" text="Step 3: Select your output type" textFill="#1f78d1">
+                                                                                 <font>
+                                                                                    <Font name="System Bold" size="14.0" />
+                                                                                 </font>
+                                                                              </Label>
                                                                               <RadioButton mnemonicParsing="false" prefWidth="300.0" text="Data (CSV)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
@@ -238,10 +320,15 @@
                                                                         </VBox>
                                                                      </children>
                                                                   </Pane>
-                                                                  <VBox prefHeight="68.0" prefWidth="450.0" spacing="5.0">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2C: Read all tests from your Adventure Module" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <VBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="450.0" spacing="20.0">
                                                                      <children>
-                                                                        <ProgressBar prefWidth="450.0" progress="0.0" />
                                                                         <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="450.0" text="Read Test" />
+                                                                        <ProgressBar prefHeight="20.0" prefWidth="450.0" progress="0.0" />
                                                                      </children>
                                                                   </VBox>
                                                                </children>
@@ -257,9 +344,14 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Button disable="true" mnemonicParsing="false" prefHeight="200.0" prefWidth="450.0" text="Motion Visualization">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4: If not using SINC Technology, Click Next" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button disable="true" mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -274,13 +366,28 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0">
+                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Button mnemonicParsing="false" prefHeight="200.0" prefWidth="450.0" text="Erase Data">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5: Erase the data from the module" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="Erase">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
                                                                   </Button>
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5A: Disconnect the Module" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 5B: Click Next to begin a new trial or clean up your workspace" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
                                                                </children>
                                                             </VBox>
                                                          </children>
@@ -289,10 +396,10 @@
                                                 </Tab>
                                              </tabs>
                                           </TabPane>
-                                          <HBox alignment="CENTER" prefHeight="75.0" prefWidth="200.0" spacing="240.0">
+                                          <HBox alignment="CENTER" prefHeight="70.0" prefWidth="50.0" spacing="320.0">
                                              <children>
-                                                <Button fx:id="backButton" mnemonicParsing="false" onAction="#backTab" prefHeight="50.0" prefWidth="100.0" text="Back" />
-                                                <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextTab" prefHeight="50.0" prefWidth="100.0" text="Next" />
+                                                <Button fx:id="backButton" mnemonicParsing="false" onAction="#backTab" prefHeight="75.0" prefWidth="75.0" text="Back" />
+                                                <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextTab" prefHeight="70.0" prefWidth="70.0" text="Next" />
                                              </children>
                                           </HBox>
                                        </children>
@@ -301,58 +408,6 @@
                               </AnchorPane>
                           </content>
                         </Tab>
-                      <Tab fx:id="calibrationTab" text="Calibration">
-                        <content>
-                          <AnchorPane>
-                                 <children>
-                                    <VBox fx:id="calibrationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                       <children>
-                                          <HBox alignment="CENTER" prefHeight="75.0" prefWidth="200.0">
-                                             <children>
-                                                <Label fx:id="generalStatusCalibrationLabel" text="General Status Text">
-                                                   <font>
-                                                      <Font name="System Bold" size="18.0" />
-                                                   </font>
-                                                </Label>
-                                             </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="180.0">
-                                             <children>
-                                                <Button fx:id="configureForCalibrationButton" mnemonicParsing="false" onAction="#configureModuleForCalibration" prefHeight="80.0" prefWidth="480.0" text="Configure Module for Calibration" />
-                                             </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER" layoutX="10.0" layoutY="210.0" prefHeight="100.0" prefWidth="180.0" spacing="10.0">
-                                             <children>
-                                                <TextField fx:id="videoFilePathTextField" prefHeight="80.0" prefWidth="390.0" promptText="File Name">
-                                                   <font>
-                                                      <Font size="18.0" />
-                                                   </font>
-                                                </TextField>
-                                                <Button mnemonicParsing="false" onAction="#browseVideoFile" prefHeight="80.0" prefWidth="80.0" text="Browse" />
-                                             </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER" layoutX="10.0" layoutY="260.0" prefHeight="100.0" prefWidth="180.0">
-                                             <children>
-                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#importCalibrationData" prefHeight="80.0" prefWidth="480.0" text="Import Calibration Data and Calculate Offset" />
-                                             </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER" layoutX="10.0" layoutY="310.0" prefHeight="100.0" prefWidth="180.0" spacing="10.0">
-                                             <children>
-                                                <TextField fx:id="timer0OffsetTextField" prefHeight="80.0" prefWidth="235.0" promptText="Timer0 Offset Calibration (Ticks)" />
-                                                <TextField fx:id="delayAfterStartTextField" prefHeight="80.0" prefWidth="235.0" promptText="Delay After Start (milliseconds)" />
-                                             </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER" layoutX="10.0" layoutY="360.0" prefHeight="100.0" prefWidth="180.0">
-                                             <children>
-                                                <Button fx:id="applyOffsetButton" mnemonicParsing="false" onAction="#applyOffset" prefHeight="80.0" prefWidth="480.0" text="Apply Offset" />
-                                             </children>
-                                          </HBox>
-                                       </children>
-                                    </VBox>
-                                 </children>
-                              </AnchorPane>
-                        </content>
-                      </Tab>
                       <Tab fx:id="motionVisualizationTab" text="Motion Visualization">
                         <content>
                           <AnchorPane>
@@ -367,6 +422,15 @@
                               </AnchorPane>
                         </content>
                       </Tab>
+                        <Tab fx:id="settingsTab" text="Settings">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutX="171.0" layoutY="242.0" text="Future Home of Cool Settings" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </Tab>
                     </tabs>
                   </TabPane>
                </children>
