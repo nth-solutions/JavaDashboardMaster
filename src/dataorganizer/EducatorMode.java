@@ -184,6 +184,20 @@ public class EducatorMode extends JFrame {
 	double pendulumMassDouble;
 	double pendulumModuleMassDouble;
 	double pendulumModulePositionDouble;
+	
+	double springConstantDouble;
+	double totalMassDouble;
+	double amplitudeDouble;
+	double massOfSpringDouble;
+	
+	double massHandWeightsDouble;
+	double wingSpanDouble;
+	double shoulderWidthDouble;
+	double massOfPersonDouble;
+	
+	double gliderOneMassDouble;
+	double gliderTwoMassDouble;
+	
 
 	JRadioButton dataExcelRadioBtn;
 	private JLabel lblRunExperiment;
@@ -1551,10 +1565,10 @@ public class EducatorMode extends JFrame {
 
 		try {
 			
-			pendulumLengthDouble = Double.parseDouble(springConstant);
-			pendulumMassDouble = Double.parseDouble(totalMass);
-			pendulumModuleMassDouble = Double.parseDouble(amplitude);
-			pendulumModulePositionDouble = Double.parseDouble(massOfSpring);
+			springConstantDouble = Double.parseDouble(springConstant);
+			totalMassDouble = Double.parseDouble(totalMass);
+			amplitudeDouble = Double.parseDouble(amplitude);
+			massOfSpringDouble = Double.parseDouble(massOfSpring);
 
 		} catch (NumberFormatException e) {
 			generalStatusLabelOne.setForeground(Color.RED);
@@ -1562,8 +1576,38 @@ public class EducatorMode extends JFrame {
 		}
 	}
 	
-	public void getSpinnyStoolParameters() {
+	private void getSpinnyStoolParameters() {
+		String massHandWeights = handMassTextField.getText();
+		String wingSpan = wingSpanTextField.getText();
+		String massOfPerson = personMassTextField.getText();
+		String shoulderWidth = shoulderWidthTextField.getText();
 		
+		try {
+			
+			massHandWeightsDouble = Double.parseDouble(massHandWeights);
+			wingSpanDouble = Double.parseDouble(wingSpan);
+			massOfPersonDouble = Double.parseDouble(massOfPerson);
+			pendulumModulePositionDouble = Double.parseDouble(shoulderWidth);
+
+		} catch (NumberFormatException e) {
+			generalStatusLabelOne.setForeground(Color.RED);
+			generalStatusLabelOne.setText("Invalid Data Entered");
+		}
+	}
+	
+	private void getConservationofMomentumParameters() {
+		String gliderOneMass = firstGliderAndModuleMassTextField.getText();
+		String gliderTwoMass = secondGliderAndModuleMassTextField.getText();
+		
+		try {
+			
+			gliderOneMassDouble = Double.parseDouble(gliderOneMass);
+			gliderTwoMassDouble = Double.parseDouble(gliderTwoMass);
+
+		} catch (NumberFormatException e) {
+			generalStatusLabelOne.setForeground(Color.RED);
+			generalStatusLabelOne.setText("Invalid Data Entered");
+		}
 	}
 	
 	
@@ -1689,6 +1733,7 @@ public class EducatorMode extends JFrame {
 				readExtraTestParamsForTemplate();
 				getPendulumParameters();
 				getSpringTestParameters();
+				getSpinnyStoolParameters();
 			}
 		});
 		applyConfigurationsBtn.setBounds(10, 310, 534, 39);
