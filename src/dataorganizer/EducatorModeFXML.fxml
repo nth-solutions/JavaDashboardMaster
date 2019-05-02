@@ -34,7 +34,7 @@
                            <font>
                               <Font size="18.0" />
                            </font></Button>
-                        <Button mnemonicParsing="false" prefHeight="30.0" prefWidth="200.0" text="Settings" />
+                        <Button mnemonicParsing="false" onAction="#selectSettingsTab" prefHeight="30.0" prefWidth="200.0" text="Settings" />
                      </children>
                   </VBox>
                </children>
@@ -67,14 +67,14 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="5.0">
+                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="10.0">
                                                                <children>
                                                                   <Label alignment="CENTER" prefWidth="500.0" text="Step 1: Select the test you would like to perform" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font></Label>
                                                                   <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="50.0" prefWidth="400.0" promptText="Select a Test" />
-                                                                  <TabPane fx:id="testParametersTabPane" prefHeight="175.0" prefWidth="200.0" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
+                                                                  <TabPane fx:id="testParametersTabPane" prefHeight="175.0" prefWidth="200.0" style="-fx-border-color: DarkGray;" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
                                                                     <tabs>
                                                                       <Tab text="Conservation of Momentum">
                                                                         <content>
@@ -82,13 +82,13 @@
                                                                                  <children>
                                                                                     <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
-                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Right Module (kg)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Right Glider (kg)" />
                                                                                              </children>
                                                                                           </HBox>
-                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Left Module (kg)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Left Glider (kg)" />
@@ -106,13 +106,13 @@
                                                                                  <children>
                                                                                     <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
-                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Total Drop Distance (m)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Module &amp; Holder (kg)" />
                                                                                              </children>
                                                                                           </HBox>
-                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Radius of Torque Arm (m)" />
@@ -142,13 +142,13 @@
                                                                                  <children>
                                                                                     <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
-                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Length of Pendulum (m)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Distance from Pivot (m)" />
                                                                                              </children>
                                                                                           </HBox>
-                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Module (kg)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Mass of Pendulum (kg)" />
@@ -166,7 +166,7 @@
                                                                                  <children>
                                                                                     <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
-                                                                                          <HBox alignment="CENTER" prefWidth="400.0" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Spring Constant (N/m)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Total Hanging Mass (kg)">
@@ -176,7 +176,7 @@
                                                                                                 </TextField>
                                                                                              </children>
                                                                                           </HBox>
-                                                                                          <HBox alignment="CENTER" spacing="50.0">
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
                                                                                                 <TextField prefWidth="175.0" promptText="Radius of Torque Arm (m)">
@@ -222,7 +222,7 @@
                                                                   </Label>
                                                                   <VBox alignment="CENTER" prefWidth="400.0">
                                                                      <children>
-                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
+                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
                                                                            <font>
                                                                               <Font size="14.0" />
                                                                            </font>
@@ -356,6 +356,16 @@
                                                                         <Font size="36.0" />
                                                                      </font>
                                                                   </Button>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
                                                                </children>
                                                             </VBox>
                                                          </children>

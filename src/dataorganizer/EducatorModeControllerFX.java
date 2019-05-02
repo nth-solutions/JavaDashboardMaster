@@ -1,6 +1,7 @@
 package dataorganizer;
 
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -170,55 +171,57 @@ public class EducatorModeControllerFX implements Initializable {
 
     /* Begin Experiment Tab Methods */
 
-    @FXML
-    private void pairNewRemote(ActionEvent event) {
+//    @FXML
+//    private void pairNewRemote(ActionEvent event) {
+//
+//        Runnable pairNewRemoteOperation = () -> {
+//            //Disable buttons that should not be used in the middle of a sequence
+//            pairNewRemoteButton.setDisable(true);
+//            unpairAllRemotesButton.setDisable(true);
+//            testRemotesButton.setDisable(true);
+//
+//            generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
+//
+//            try {
+//                if(serialHandler.pairNewRemote()) {
+//                    generalStatusExperimentLabel.setText("New Remote Successfully Paired");
+//
+//                }
+//                else {
+//                    generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
+//
+//                }
+//
+//
+//            }
+//            catch (IOException e) {
+//                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//
+//            }
+//            catch (PortInUseException e) {
+//                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//
+//            }
+//            catch (UnsupportedCommOperationException e) {
+//                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//
+//            }
+//
+//            //Enable buttons that can now be used since the bulk erase completed
+//            pairNewRemoteButton.setDisable(false);
+//            unpairAllRemotesButton.setDisable(false);
+//            testRemotesButton.setDisable(false);
+//
+//
+//        };
+//
+//        //Define a new thread to run the operation previously defined
+//        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
+//        //Start the thread
+//        pairNewRemoteThread.start();
+//    }
 
-        Runnable pairNewRemoteOperation = () -> {
-            //Disable buttons that should not be used in the middle of a sequence
-            pairNewRemoteButton.setDisable(true);
-            unpairAllRemotesButton.setDisable(true);
-            testRemotesButton.setDisable(true);
 
-            generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-
-            try {
-                if(serialHandler.pairNewRemote()) {
-                    generalStatusExperimentLabel.setText("New Remote Successfully Paired");
-
-                }
-                else {
-                    generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
-
-                }
-
-
-            }
-            catch (IOException e) {
-                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-
-            }
-            catch (PortInUseException e) {
-                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-
-            }
-            catch (UnsupportedCommOperationException e) {
-                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-
-            }
-
-            //Enable buttons that can now be used since the bulk erase completed
-            pairNewRemoteButton.setDisable(false);
-            unpairAllRemotesButton.setDisable(false);
-            testRemotesButton.setDisable(false);
-
-
-        };
-
-        //Define a new thread to run the operation previously defined
-        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
-        //Start the thread
-        pairNewRemoteThread.start();
-    }
 
 
 
