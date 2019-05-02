@@ -1562,6 +1562,10 @@ public class EducatorMode extends JFrame {
 		}
 	}
 	
+	public void getSpinnyStoolParameters() {
+		
+	}
+	
 	
 
 	/**
