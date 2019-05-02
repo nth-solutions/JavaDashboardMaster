@@ -45,6 +45,9 @@ import java.awt.FlowLayout;
 
 public class EducatorMode extends JFrame {
 
+	public String getTestType(){
+		return testType;
+	}
 
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
@@ -84,7 +87,7 @@ public class EducatorMode extends JFrame {
 
 	private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
 	ArrayList<Integer> testParams = new ArrayList<Integer>();
-	private String testType;
+	public static String testType;
 	private JPanel stepFive;
 	private JPanel navPanel;
 	private JButton backBtnFive;
@@ -1283,6 +1286,7 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelThree.setText("Copying File Template...");
 		String path = chooseSpreadsheetOutputPath(generalStatusLabelThree);
 		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+		SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
 		generalStatusLabelThree.setForeground(DarkGreen);
 		generalStatusLabelThree.setText("File Copy finished!");
 		
@@ -1378,12 +1382,32 @@ public class EducatorMode extends JFrame {
 													//TODO: Add Constructor with Dynamic Path Getting
 													generalStatusLabelThree.setForeground(Color.BLACK);
 													generalStatusLabelThree.setText("Writing data to spreadsheet");
-													
-													
-													pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
-													pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-													pendulumSpreadsheetController.saveWorkbook(path);
-													
+
+													if (testType == "Conservation of Momentum (Elastic Collision)"){
+
+													}
+													else if(testType == "Conservation of Angular Momentum"){
+
+													}
+													else if(testType == "Conservation of Energy"){
+
+													}
+													else if(testType == "Inclined Plane") {
+													}
+													else if(testType == "Physical Pendulum"){
+														pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
+														pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														pendulumSpreadsheetController.saveWorkbook(path);
+
+													}else if(testType == "Spinny Stool"){
+														spinnyStoolSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
+														spinnyStoolSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														spinnyStoolSpreadsheetController.saveWorkbook(path);
+
+													}else if(testType == "Spring Test - Simple Haromincs"){
+
+													}
+
 													try {
 														Thread.sleep(10000);
 														
@@ -1537,7 +1561,8 @@ public class EducatorMode extends JFrame {
 		//Start the new thread
 		paramThread.start();
 	}
-	
+
+
 	private void getPendulumParameters() {
 		String pendulumLength = pendulumLengthTextField.getText();
 		String pendulumMass = pendulumMassTextField.getText();
@@ -1659,15 +1684,11 @@ public class EducatorMode extends JFrame {
 		testTypeCombobox = new JComboBox();
 		testTypeCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			/*	stepOne.remove(momentumLabPane);
-				stepOne.remove(conservationOfEnergyLabPane);
-				stepOne.add(spinnyStoolDemo); */
 
 				fillTestTypeHashMap(timedTestCheckbox.isSelected()?1:0);
 				testType = testTypeCombobox.getSelectedItem().toString();
 				testTypeHashMap.get(testTypeCombobox.getSelectedItem());
 
-				String oldTestType = testType;
 				switch(testType) {
 					case "Conservation of Momentum (Elastic Collision)":
 						stepOne.remove(spinnyStoolDemo);
@@ -2660,3 +2681,4 @@ public class EducatorMode extends JFrame {
 		}
 	}
 }
+
