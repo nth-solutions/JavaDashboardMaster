@@ -45,6 +45,9 @@ import java.awt.FlowLayout;
 
 public class EducatorMode extends JFrame {
 
+	public String getTestType(){
+		return testType;
+	}
 
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
@@ -84,7 +87,7 @@ public class EducatorMode extends JFrame {
 
 	private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
 	ArrayList<Integer> testParams = new ArrayList<Integer>();
-	private String testType;
+	public static String testType;
 	private JPanel stepFive;
 	private JPanel navPanel;
 	private JButton backBtnFive;
@@ -145,6 +148,8 @@ public class EducatorMode extends JFrame {
 	private JLabel label_2;
 	private JLabel lblM;
 	private JLabel label_3;
+	
+	private JPanel inclinedPlane;
 
 	private JPanel physicalPendulumDemo;
 	private JLabel lblpendulumLength;
@@ -156,9 +161,17 @@ public class EducatorMode extends JFrame {
 	private JLabel lblpendulumModulePosition;
 	private JTextField pendulumModulePositionTextField;
 	
-	private JLabel lblnewLabel_7;
+	private JPanel springTest;
+	private JLabel lblspringConstant;
+	private JTextField springConstantTextField;
+	private JLabel lbltotalMass;
+	private JTextField totalMassTextField;
+	private JLabel lblamplitude;
+	private JTextField amplitudeTextField;
+	private JLabel lblmassOfSpring;
+	private JTextField massOfSpringTextField;
 	
-
+	private JLabel lblnewLabel_7;
 
 	private JButton mediaPlayerBtn;
 	private JButton graphTestBtn;
@@ -174,6 +187,20 @@ public class EducatorMode extends JFrame {
 	double pendulumMassDouble;
 	double pendulumModuleMassDouble;
 	double pendulumModulePositionDouble;
+	
+	double springConstantDouble;
+	double totalMassDouble;
+	double amplitudeDouble;
+	double massOfSpringDouble;
+	
+	double massHandWeightsDouble;
+	double wingSpanDouble;
+	double shoulderWidthDouble;
+	double massOfPersonDouble;
+	
+	double gliderOneMassDouble;
+	double gliderTwoMassDouble;
+	
 
 	JRadioButton dataExcelRadioBtn;
 	private JLabel lblRunExperiment;
@@ -1259,6 +1286,7 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelThree.setText("Copying File Template...");
 		String path = chooseSpreadsheetOutputPath(generalStatusLabelThree);
 		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+		SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
 		generalStatusLabelThree.setForeground(DarkGreen);
 		generalStatusLabelThree.setText("File Copy finished!");
 		
@@ -1354,12 +1382,32 @@ public class EducatorMode extends JFrame {
 													//TODO: Add Constructor with Dynamic Path Getting
 													generalStatusLabelThree.setForeground(Color.BLACK);
 													generalStatusLabelThree.setText("Writing data to spreadsheet");
-													
-													
-													pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
-													pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-													pendulumSpreadsheetController.saveWorkbook(path);
-													
+
+													if (testType == "Conservation of Momentum (Elastic Collision)"){
+
+													}
+													else if(testType == "Conservation of Angular Momentum"){
+
+													}
+													else if(testType == "Conservation of Energy"){
+
+													}
+													else if(testType == "Inclined Plane") {
+													}
+													else if(testType == "Physical Pendulum"){
+														pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
+														pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														pendulumSpreadsheetController.saveWorkbook(path);
+
+													}else if(testType == "Spinny Stool"){
+														spinnyStoolSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
+														spinnyStoolSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														spinnyStoolSpreadsheetController.saveWorkbook(path);
+
+													}else if(testType == "Spring Test - Simple Haromincs"){
+
+													}
+
 													try {
 														Thread.sleep(10000);
 														
@@ -1513,7 +1561,8 @@ public class EducatorMode extends JFrame {
 		//Start the new thread
 		paramThread.start();
 	}
-	
+
+
 	private void getPendulumParameters() {
 		String pendulumLength = pendulumLengthTextField.getText();
 		String pendulumMass = pendulumMassTextField.getText();
@@ -1527,7 +1576,58 @@ public class EducatorMode extends JFrame {
 			pendulumModuleMassDouble = Double.parseDouble(pendulumModuleMass);
 			pendulumModulePositionDouble = Double.parseDouble(pendulumModulePosition);
 
+		} catch (NumberFormatException e) {
+			generalStatusLabelOne.setForeground(Color.RED);
+			generalStatusLabelOne.setText("Invalid Data Entered");
+		}
+	}
+	
+	private void getSpringTestParameters() {
+		String springConstant = springConstantTextField.getText();
+		String totalMass = totalMassTextField.getText();
+		String amplitude = amplitudeTextField.getText();
+		String massOfSpring = massOfSpringTextField.getText();
 
+		try {
+			
+			springConstantDouble = Double.parseDouble(springConstant);
+			totalMassDouble = Double.parseDouble(totalMass);
+			amplitudeDouble = Double.parseDouble(amplitude);
+			massOfSpringDouble = Double.parseDouble(massOfSpring);
+
+		} catch (NumberFormatException e) {
+			generalStatusLabelOne.setForeground(Color.RED);
+			generalStatusLabelOne.setText("Invalid Data Entered");
+		}
+	}
+	
+	private void getSpinnyStoolParameters() {
+		String massHandWeights = handMassTextField.getText();
+		String wingSpan = wingSpanTextField.getText();
+		String massOfPerson = personMassTextField.getText();
+		String shoulderWidth = shoulderWidthTextField.getText();
+		
+		try {
+			
+			massHandWeightsDouble = Double.parseDouble(massHandWeights);
+			wingSpanDouble = Double.parseDouble(wingSpan);
+			massOfPersonDouble = Double.parseDouble(massOfPerson);
+			pendulumModulePositionDouble = Double.parseDouble(shoulderWidth);
+
+		} catch (NumberFormatException e) {
+			generalStatusLabelOne.setForeground(Color.RED);
+			generalStatusLabelOne.setText("Invalid Data Entered");
+		}
+	}
+	
+	private void getConservationofMomentumParameters() {
+		String gliderOneMass = firstGliderAndModuleMassTextField.getText();
+		String gliderTwoMass = secondGliderAndModuleMassTextField.getText();
+		
+		try {
+			
+			gliderOneMassDouble = Double.parseDouble(gliderOneMass);
+			gliderTwoMassDouble = Double.parseDouble(gliderTwoMass);
 
 		} catch (NumberFormatException e) {
 			generalStatusLabelOne.setForeground(Color.RED);
@@ -1536,9 +1636,6 @@ public class EducatorMode extends JFrame {
 	}
 	
 	
-	
-	
-
 
 	/**
 	 * Create the frame.
@@ -1587,40 +1684,59 @@ public class EducatorMode extends JFrame {
 		testTypeCombobox = new JComboBox();
 		testTypeCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			/*	stepOne.remove(momentumLabPane);
-				stepOne.remove(conservationOfEnergyLabPane);
-				stepOne.add(spinnyStoolDemo); */
 
 				fillTestTypeHashMap(timedTestCheckbox.isSelected()?1:0);
 				testType = testTypeCombobox.getSelectedItem().toString();
 				testTypeHashMap.get(testTypeCombobox.getSelectedItem());
 
-				String oldTestType = testType;
 				switch(testType) {
 					case "Conservation of Momentum (Elastic Collision)":
 						stepOne.remove(spinnyStoolDemo);
 						stepOne.remove(physicalPendulumDemo);
 						stepOne.remove(conservationOfEnergyLabPane);
+						stepOne.remove(inclinedPlane);
+						stepOne.remove(springTest);
 						stepOne.add(momentumLabPane);
-						break;
+						break;						
 					case "Conservation of Energy":
 						stepOne.remove(spinnyStoolDemo);
 						stepOne.remove(physicalPendulumDemo);
 						stepOne.remove(momentumLabPane);
+						stepOne.remove(inclinedPlane);
+						stepOne.remove(springTest);
 						stepOne.add(conservationOfEnergyLabPane);
+						break;
+					case "Inclined Plane":
+						stepOne.remove(spinnyStoolDemo);
+						stepOne.remove(physicalPendulumDemo);
+						stepOne.remove(momentumLabPane);
+						stepOne.remove(conservationOfEnergyLabPane);
+						stepOne.remove(springTest);
+						stepOne.add(inclinedPlane);
 						break;
 					case "Spinny Stool":
 						stepOne.remove(conservationOfEnergyLabPane);
 						stepOne.remove(physicalPendulumDemo);
+						stepOne.remove(inclinedPlane);
 						stepOne.remove(momentumLabPane);
+						stepOne.remove(springTest);
 						stepOne.add(spinnyStoolDemo);
 						break;
 					case "Physical Pendulum":
 						stepOne.remove(conservationOfEnergyLabPane);
+						stepOne.remove(inclinedPlane);
 						stepOne.remove(momentumLabPane);
 						stepOne.remove(spinnyStoolDemo);
+						stepOne.remove(springTest);
 						stepOne.add(physicalPendulumDemo);
 						break; 
+					case "Spring Test - Simple Harmonics":
+						stepOne.remove(conservationOfEnergyLabPane);
+						stepOne.remove(inclinedPlane);
+						stepOne.remove(momentumLabPane);
+						stepOne.remove(spinnyStoolDemo);
+						stepOne.remove(physicalPendulumDemo);
+						stepOne.add(springTest);
 				}
 				repaint();
 
@@ -1637,6 +1753,8 @@ public class EducatorMode extends JFrame {
 				writeButtonHandler();
 				readExtraTestParamsForTemplate();
 				getPendulumParameters();
+				getSpringTestParameters();
+				getSpinnyStoolParameters();
 			}
 		});
 		applyConfigurationsBtn.setBounds(10, 310, 534, 39);
@@ -1824,7 +1942,17 @@ public class EducatorMode extends JFrame {
 		lblRadiusOfThe.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblRadiusOfThe.setBounds(238, 120, 243, 14);
 		conservationOfEnergyLabPane.add(lblRadiusOfThe);
-
+		
+		inclinedPlane = new JPanel();
+		inclinedPlane.setBounds(10, 109, 506, 196);
+		inclinedPlane.setLayout(null);
+		
+		lblStepaEnter_1 = new JLabel("Step 1A: No Parameters Required for this Type of Lab");
+		lblStepaEnter_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblStepaEnter_1.setForeground(new Color (31, 120, 209));
+		lblStepaEnter_1.setBounds(10, 11, 650, 20);
+		inclinedPlane.add(lblStepaEnter_1);
+	
 		momentumLabPane = new JPanel();
 		momentumLabPane.setBounds(10, 109, 506, 196);
 		momentumLabPane.setLayout(null);
@@ -1886,8 +2014,6 @@ public class EducatorMode extends JFrame {
 		physicalPendulumDemo.add(pendulumLengthTextField);
 		pendulumLengthTextField.setColumns(10);
 
-		
-
 		lblpendulumMass = new JLabel("Mass of the Pendulum");
 		lblpendulumMass.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblpendulumMass.setBounds(10, 106, 175, 20);
@@ -1898,8 +2024,6 @@ public class EducatorMode extends JFrame {
 		pendulumMassTextField.setBounds(10, 129, 86, 20);
 		physicalPendulumDemo.add(pendulumMassTextField);
 
-		
-
 		lblpendulumModuleMass = new JLabel("Mass of Module");
 		lblpendulumModuleMass.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblpendulumModuleMass.setBounds(275, 106, 267, 20);
@@ -1909,8 +2033,7 @@ public class EducatorMode extends JFrame {
 		pendulumModuleMassTextField.setColumns(10);
 		pendulumModuleMassTextField.setBounds(275, 129, 86, 20);
 		physicalPendulumDemo.add(pendulumModuleMassTextField);
-		
-		
+				
 		lblpendulumModulePosition = new JLabel("Position of Module");
 		lblpendulumModulePosition.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblpendulumModulePosition.setBounds(275, 52, 267, 20);
@@ -1919,9 +2042,7 @@ public class EducatorMode extends JFrame {
 		pendulumModulePositionTextField = new JTextField();
 		pendulumModulePositionTextField.setColumns(10);
 		pendulumModulePositionTextField.setBounds(275, 75, 86, 20);
-		physicalPendulumDemo.add(pendulumModulePositionTextField);
-
-		
+		physicalPendulumDemo.add(pendulumModulePositionTextField);	
 
 		lblNewLabel_6 = new JLabel("m");
 		lblNewLabel_6.setBounds(106, 78, 46, 14);
@@ -1939,8 +2060,73 @@ public class EducatorMode extends JFrame {
 		lblM.setBounds(371, 132, 46, 14);
 		physicalPendulumDemo.add(lblM);
 		
+		springTest = new JPanel();
+		springTest.setBounds(10, 109, 506, 196);
+		springTest.setLayout(null);
 		
+		lblStepaEnter_1 = new JLabel("Step 1A: Enter the Spring Constant, Total Mass, Amplitude, Mass of the Spring");
+		lblStepaEnter_1.setFont(new Font("Tahoma", Font.BOLD, 12));
+		lblStepaEnter_1.setForeground(new Color (31, 120, 209));
+		lblStepaEnter_1.setBounds(10, 11, 650, 20);
+		springTest.add(lblStepaEnter_1);
+		
+		lblspringConstant = new JLabel("Spring Constant");
+		lblspringConstant.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblspringConstant.setBounds(10, 52, 175, 20);
+		springTest.add(lblspringConstant);
 
+		springConstantTextField = new JTextField();
+		springConstantTextField.setBounds(10, 75, 86, 20);
+		springTest.add(springConstantTextField);
+		springConstantTextField.setColumns(10);
+		
+		lbltotalMass = new JLabel("Total Mass");
+		lbltotalMass.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lbltotalMass.setBounds(10, 106, 175, 20);
+		springTest.add(lbltotalMass);
+
+		totalMassTextField = new JTextField();
+		totalMassTextField.setColumns(10);
+		totalMassTextField.setBounds(10, 129, 86, 20);
+		springTest.add(totalMassTextField);
+		
+		lblamplitude = new JLabel("Amplitude");
+		lblamplitude.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblamplitude.setBounds(275, 106, 267, 20);
+		springTest.add(lblamplitude);
+
+		amplitudeTextField = new JTextField();
+		amplitudeTextField.setColumns(10);
+		amplitudeTextField.setBounds(275, 129, 86, 20);
+		springTest.add(amplitudeTextField);
+				
+		lblmassOfSpring = new JLabel("Mass of Spring");
+		lblmassOfSpring.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		lblmassOfSpring.setBounds(275, 52, 267, 20);
+		springTest.add(lblmassOfSpring);
+
+		massOfSpringTextField = new JTextField();
+		massOfSpringTextField.setColumns(10);
+		massOfSpringTextField.setBounds(275, 75, 86, 20);
+		springTest.add(massOfSpringTextField);
+		
+		lblNewLabel_6 = new JLabel("N/m");
+		lblNewLabel_6.setBounds(106, 78, 46, 14);
+		springTest.add(lblNewLabel_6);
+		
+		lblnewLabel_7 = new JLabel("kg");
+		lblnewLabel_7.setBounds(371, 78, 46, 14); 
+		springTest.add(lblnewLabel_7);
+
+		label_2 = new JLabel("kg");
+		label_2.setBounds(106, 132, 46, 14);
+		springTest.add(label_2);
+
+		lblM = new JLabel("m");
+		lblM.setBounds(371, 132, 46, 14);
+		springTest.add(lblM);
+		
+		
 		stepTwo = new JPanel();
 		stepTwo.setBorder(new LineBorder(Color.LIGHT_GRAY, 2, true));
 		testTakingPanel.add(stepTwo, "name_92124154026185");
@@ -2495,3 +2681,4 @@ public class EducatorMode extends JFrame {
 		}
 	}
 }
+

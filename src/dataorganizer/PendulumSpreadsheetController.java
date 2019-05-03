@@ -4,12 +4,6 @@ import com.aspose.cells.*;
 
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JFileChooser;
-
 public class PendulumSpreadsheetController {
 
 
