@@ -1751,6 +1751,7 @@ public class EducatorMode extends JFrame {
 		applyConfigurationsBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				writeButtonHandler();
+				//TODO: Add in Following 4 Methods/ Redesign for FX
 				readExtraTestParamsForTemplate();
 				getPendulumParameters();
 				getSpringTestParameters();

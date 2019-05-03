@@ -9,12 +9,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -49,6 +50,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Tab settingsTab;
     @FXML
+    Button nextButton;
+    @FXML
     Button backButton;
     @FXML
     ComboBox<String> testTypeComboBox;
@@ -57,18 +60,28 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Label generalStatusExperimentLabel;
     @FXML
+    Button applyConfigurationsButton;
+    @FXML
     Button pairNewRemoteButton;
     @FXML
     Button unpairAllRemotesButton;
     @FXML
     Button testRemotesButton;
 
+    //Test Parameter Variables and Constants
+    public static final int NUM_TEST_PARAMETERS = 13;
+    public static final int NUM_ID_INFO_PARAMETERS = 3;
+    public static final int CURRENT_FIRMWARE_ID = 26;
+    private DataOrganizer dataOrgo;
 
-
-
+    Color DeepBlue = Color.rgb(31, 120, 209);
+    Color LightBlue = Color.rgb(76, 165, 255);
+    Color LightOrange = Color.rgb(255, 105, 40);
+    Color DarkGreen = Color.rgb(51, 204, 51);
 
 
     private int experimentTabIndex = 0;
+    int selectedIndex; //TODO: Create a method that takes this index into account when reading from lab type text Fields
     private static SerialComm serialHandler;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
 
@@ -77,6 +90,7 @@ public class EducatorModeControllerFX implements Initializable {
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics");
         backButton.setVisible(false);
         serialHandler = new SerialComm();
+
     }
 
 
@@ -164,62 +178,73 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void displayTestParameterTab(ActionEvent event) {
-        int selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex();
+        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex();
         testParametersTabPane.getSelectionModel().select(selectedIndex);
     }
 
 
     /* Begin Experiment Tab Methods */
 
-//    @FXML
-//    private void pairNewRemote(ActionEvent event) {
-//
-//        Runnable pairNewRemoteOperation = () -> {
-//            //Disable buttons that should not be used in the middle of a sequence
-//            pairNewRemoteButton.setDisable(true);
-//            unpairAllRemotesButton.setDisable(true);
-//            testRemotesButton.setDisable(true);
-//
-//            generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-//
-//            try {
-//                if(serialHandler.pairNewRemote()) {
-//                    generalStatusExperimentLabel.setText("New Remote Successfully Paired");
-//
-//                }
-//                else {
-//                    generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
-//
-//                }
-//
-//
-//            }
-//            catch (IOException e) {
-//                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//
-//            }
-//            catch (PortInUseException e) {
-//                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//
-//            }
-//            catch (UnsupportedCommOperationException e) {
-//                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//
-//            }
-//
-//            //Enable buttons that can now be used since the bulk erase completed
-//            pairNewRemoteButton.setDisable(false);
-//            unpairAllRemotesButton.setDisable(false);
-//            testRemotesButton.setDisable(false);
-//
-//
-//        };
-//
-//        //Define a new thread to run the operation previously defined
-//        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
-//        //Start the thread
-//        pairNewRemoteThread.start();
-//    }
+    /**
+     * ActionEvent that writes the selected parameters and module configurations to the module for testing
+     * @param event
+     */
+    @FXML
+    private void applyConfigurations(ActionEvent event) {
+        writeButtonHandler();
+    }
+
+    private void writeButtonHandler() {
+        //Define no operation that can be run in a thread
+        Runnable sendParamOperation = new Runnable() {
+            public void run() {
+                //Disable write config button while the sendParameters() method is running
+                applyConfigurationsButton.setDisable(true);;
+                nextButton.setDisable(true);
+                if(findModuleCommPort()) {
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Initial connection to module successful");
+                }
+                try {
+                    if(!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem().toString()))) {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+                    }
+                    else {
+                        generalStatusExperimentLabel.setTextFill(DarkGreen);
+                        generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    }
+                }
+                catch (NumberFormatException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
+                }
+                catch (IOException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                }
+                catch (PortInUseException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                }
+                catch (UnsupportedCommOperationException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                }
+
+                //Re-enable the write config button when the routine has completed
+                applyConfigurationsButton.setDisable(false);
+                nextButton.setDisable(false);
+            }
+        };
+
+
+        //Assign new operation to a thread so that it can be run in the background
+        Thread paramThread = new Thread(sendParamOperation);
+        //Start the new thread
+        paramThread.start();
+    }
+
 
 
 
@@ -469,6 +494,91 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
 
+    public boolean findModuleCommPort() {
+        class threadHack{
+            private boolean status = false;
+
+            public boolean getStatus(){
+                return status;
+            }
+            public void setStatus(boolean x) {
+                status = x;
+            }
+        }
+        final threadHack th = new threadHack();
+
+        Runnable findModuleOperation = new Runnable() {
+            public void run() {
+                try {
+                    ArrayList<String> commPortIDList = serialHandler.findPorts();
+                    boolean moduleFound = false;
+                    int commPortIndex = 0;
+                    while (!moduleFound && commPortIndex < commPortIDList.size()) {
+
+                        //Get the string identifier (name) of the current port
+                        String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();
+
+                        //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+                        if(serialHandler.openSerialPort(selectedCommID)){
+
+                            int attemptCounter = 0;
+                            while (attemptCounter < 3 && !moduleFound) {
+                                try {
+                                    ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+
+                                    if (moduleIDInfo != null) {
+                                        moduleFound = true;
+
+                                        if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+                                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                                            generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
+                                        }
+                                        else {
+                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+                                            generalStatusExperimentLabel.setText("Successfully Connected to Module");
+                                        }
+                                    }
+                                    else {
+                                        attemptCounter++;
+                                    }
+                                }
+                                catch (IOException e) {
+                                    attemptCounter++;
+                                }
+                                catch (PortInUseException e) {
+                                    attemptCounter++;
+                                }
+                                catch (UnsupportedCommOperationException e) {
+                                    attemptCounter++;
+                                }
+                            }
+
+                        }
+                        commPortIndex++;
+                    }
+                    if (!moduleFound) {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                        th.setStatus(false);
+                    }
+
+                }
+                catch (IOException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                    th.setStatus(false);
+                }
+                catch (PortInUseException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                    th.setStatus(false);
+                }
+            }
+        };
+        Thread findModuleThread = new Thread(findModuleOperation);
+        findModuleThread.run();
+        return th.getStatus();
+    }
 
 }
 
