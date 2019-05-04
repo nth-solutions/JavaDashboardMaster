@@ -49,7 +49,6 @@ public class SerialComm {
 
 	/**
 	 * Builds a list the names of all the serial ports to place in the combo box
-	 * @param evt event pasted in by any button or action that this method was called by (method of passing info related to the source)
 	 */
 	public ArrayList<String> findPorts() {
 		//Fills the portEnum data structure (functions like arrayList) with ports (data type that encapsulates the name and hardware interface info)
@@ -483,7 +482,7 @@ public class SerialComm {
 	/**
 	 * This method sends the passed in offset to the module with built in handshakes. This is the only means by which the offset
 	 * variable can be overriden in the firmware.
-	 * @param offset positive or negative number that will be sent to the module to be applied to the TMR0 tick threshold
+	 * @param tmr0Offset positive or negative number that will be sent to the module to be applied to the TMR0 tick threshold
 	 * @return boolean that allows for easy exiting of the method if the method is successful or fails
 	 */
 	public boolean applyCalibrationOffsets(int tmr0Offset, int delayAfterStart) throws IOException, PortInUseException, UnsupportedCommOperationException {

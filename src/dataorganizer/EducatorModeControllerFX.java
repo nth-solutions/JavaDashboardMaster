@@ -67,6 +67,44 @@ public class EducatorModeControllerFX implements Initializable {
     Button unpairAllRemotesButton;
     @FXML
     Button testRemotesButton;
+    
+    //Extra Test Parameter TextFields
+    @FXML
+    TextField massOfLeftModuleTextField;
+    @FXML
+    TextField massOfLeftGliderTextField;
+    @FXML
+    TextField massOfRightModuleTextField;
+    @FXML
+    TextField massOfRightGliderTextField;
+    
+    @FXML
+    TextField totalDropDistanceTextField;
+    @FXML
+    TextField massOfModuleAndHolderTextField;
+    @FXML
+    TextField momentOfInertiaCOETextField;
+    @FXML
+    TextField radiusOfTorqueArmCOETextField;
+    
+    @FXML
+    TextField lengthOfPendulumTextField;
+    @FXML
+    TextField distanceFromPivotTextField;
+    @FXML
+    TextField massOfModuleTextField;
+    @FXML
+    TextField massOfHolderTextField;
+    @FXML
+    TextField springConstantTextField;
+    @FXML
+    TextField totalHangingMassTextField;
+    @FXML
+    TextField momentOfIntertiaSpringTextField;
+    @FXML
+    TextField radiusOfTorqueArmSpringTextField;
+    
+    
 
     //Test Parameter Variables and Constants
     public static final int NUM_TEST_PARAMETERS = 13;
@@ -74,16 +112,43 @@ public class EducatorModeControllerFX implements Initializable {
     public static final int CURRENT_FIRMWARE_ID = 26;
     private DataOrganizer dataOrgo;
 
+    //Color Palette
     Color DeepBlue = Color.rgb(31, 120, 209);
     Color LightBlue = Color.rgb(76, 165, 255);
     Color LightOrange = Color.rgb(255, 105, 40);
     Color DarkGreen = Color.rgb(51, 204, 51);
 
 
+    //Dashboard Background Functionality
     private int experimentTabIndex = 0;
-    int selectedIndex; //TODO: Create a method that takes this index into account when reading from lab type text Fields
+    int selectedIndex; 
     private static SerialComm serialHandler;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
+    
+    //Extra Module Parameters - CoM
+    double massOfRightModule;
+    double massOfRightGlider;
+    double massOfLeftModule;
+    double massOfLeftGlider;
+    
+    //Extra Module Parameters - CoE
+    double totalDropDistance;
+    double massOfModuleAndHolder;
+    double momentOfInertiaCOE;
+    double radiusOfTorqueArmCOE;
+    
+    //Extra Module Parameters - Pendulum
+    double lengthOfPendulum;
+    double distanceFromPivot;
+    double massOfModule;
+    double massOfHolder;
+     
+    //Extra Module Parameters - Spring
+    double springConstant;
+    double totalHangingMass;
+    double momentOfIntertiaSpring;
+    double radiusOfTorqueArmSpring;
+    
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -191,7 +256,9 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void applyConfigurations(ActionEvent event) {
-        writeButtonHandler();
+        getExtraParameters(selectedIndex);
+        //writeButtonHandler();		//TODO: Fix Threading Issue
+        //TODO: Import readExtraTestParamsForTemplate()
     }
 
     private void writeButtonHandler() {
@@ -245,6 +312,121 @@ public class EducatorModeControllerFX implements Initializable {
         paramThread.start();
     }
 
+    
+    /**
+     * Fills extra test parameter class fields according to what textfields are shown
+     * @param comboBoxIndex Selected ComboBox Index that defines what parameter TextFields are shown for the UI
+     */
+    @FXML
+    private void getExtraParameters(int comboBoxIndex) {
+    	generalStatusExperimentLabel.setText("");
+        switch (comboBoxIndex){
+            case 0:
+                //CoM
+        		try {
+        		    massOfRightModule = Double.parseDouble(massOfRightModuleTextField.getText());
+        		    massOfRightGlider = Double.parseDouble(massOfRightGliderTextField.getText());
+        		    massOfLeftModule = Double.parseDouble(massOfLeftModuleTextField.getText());
+        		    massOfLeftGlider = Double.parseDouble(massOfLeftGliderTextField.getText());
+        			
+        		} catch (NumberFormatException e) {
+        			generalStatusExperimentLabel.setTextFill(Color.RED);
+        			generalStatusExperimentLabel.setText("Invalid or Missing Data");
+        		}
+        		
+                break;
+            case 1:
+                //CoE
+                try {
+                    totalDropDistance = Double.parseDouble(totalDropDistanceTextField.getText());
+                    massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
+                    momentOfInertiaCOE = Double.parseDouble(momentOfInertiaCOETextField.getText());
+                    radiusOfTorqueArmCOE = Double.parseDouble(radiusOfTorqueArmCOETextField.getText());
+        			
+        		} catch (NumberFormatException e) {
+        			generalStatusExperimentLabel.setTextFill(Color.RED);
+        			generalStatusExperimentLabel.setText("Invalid or Missing Data");
+        		}
+                
+                break;
+            case 2:
+            	//IP
+            	// No Extra Parameters Needed
+                break;
+            case 3:
+            	//Pendulum
+            	try {
+            	    lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
+            	    distanceFromPivot = Double.parseDouble(distanceFromPivotTextField.getText());
+            	    massOfModule = Double.parseDouble(massOfModuleTextField.getText());
+            	    massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
+
+        		} catch (NumberFormatException e) {
+        			generalStatusExperimentLabel.setTextFill(Color.RED);
+        			generalStatusExperimentLabel.setText("Invalid or Missing Data");
+        		}
+                
+                break;
+            case 4:
+                //Spring
+                try {
+                    springConstant = Double.parseDouble(springConstantTextField.getText());
+                    totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
+                    momentOfIntertiaSpring = Double.parseDouble(momentOfIntertiaSpringTextField.getText());
+                    radiusOfTorqueArmSpring = Double.parseDouble(radiusOfTorqueArmSpringTextField.getText());
+
+
+        		} catch (NumberFormatException e) {
+        			generalStatusExperimentLabel.setTextFill(Color.RED);
+        			generalStatusExperimentLabel.setText("Invalid or Missing Data");
+        		}
+                
+                break;
+            default:
+                break;
+        }
+    }
+    
+    
+    //TODO: Implement Methods
+    @FXML
+    private void pairNewRemote(ActionEvent event) {
+    	
+    }
+    
+    @FXML
+    private void unpairRemotes(ActionEvent event) {
+    	
+    }
+    
+    @FXML
+    private void testPairedRemote(ActionEvent event) {
+    	
+    }
+    
+    @FXML
+    private void exitRemoteTestingMode(ActionEvent event) {
+    	
+    }
+    
+    @FXML
+    private void readTestsFromModule(ActionEvent event) {
+    	
+    }
+    
+    @FXML
+    private void launchMotionVisualization(ActionEvent event) {
+    	//TODO: Implement @ a Later Data
+    }
+    
+    @FXML
+    private void eraseTestsFromModule(ActionEvent event) {
+    	
+    }
+    
+    
+    
+    
 
 
 

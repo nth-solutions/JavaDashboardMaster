@@ -627,6 +627,7 @@ public class EducatorMode extends JFrame {
 				cell.X = 3;
 				cell.Y = 3;
 				cell.content = testTypeHashMap.get(testType).get(7).toString();	//Sample Rate
+
 				param.put("sampleRate", cell);
 
 				cell.X = 3;
