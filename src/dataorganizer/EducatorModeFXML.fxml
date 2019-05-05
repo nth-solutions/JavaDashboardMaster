@@ -222,12 +222,12 @@
                                                                   </Label>
                                                                   <VBox alignment="CENTER" prefWidth="400.0">
                                                                      <children>
-                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
+                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
                                                                            <font>
                                                                               <Font size="14.0" />
                                                                            </font>
                                                                         </Button>
-                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Unpair All Remotes">
+                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="50.0" prefWidth="400.0" text="Unpair All Remotes">
                                                                            <font>
                                                                               <Font size="14.0" />
                                                                            </font>
@@ -239,7 +239,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="testRemotesButton" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
+                                                                  <Button fx:id="testRemotesButton" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" onAction="#testPairedRemote" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
@@ -249,7 +249,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
+                                                                  <Button fx:id="exitTestModeButton" disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" onAction="#exitRemoteTestingMode" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
@@ -296,22 +296,22 @@
                                                                                     <Font name="System Bold" size="14.0" />
                                                                                  </font>
                                                                               </Label>
-                                                                              <RadioButton mnemonicParsing="false" prefWidth="300.0" text="Data (CSV)">
+                                                                              <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" text="Data (Spreadsheet)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton layoutX="192.0" layoutY="114.0" mnemonicParsing="false" prefWidth="300.0" text="Graph (Using Template)">
+                                                                              <RadioButton fx:id="graphRadioButton" layoutX="192.0" layoutY="114.0" mnemonicParsing="false" prefWidth="365.0" text="Graph (Using Template)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefWidth="300.0" text="Both (Graphing and CSV Output)">
+                                                                              <RadioButton fx:id="graphAndCSVRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="300.0" text="Motion Visualization">
+                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="SINC Technology">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -327,8 +327,8 @@
                                                                   </Label>
                                                                   <VBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="450.0" spacing="20.0">
                                                                      <children>
-                                                                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="450.0" text="Read Test" />
-                                                                        <ProgressBar prefHeight="20.0" prefWidth="450.0" progress="0.0" />
+                                                                        <Button fx:id="readTestButton" mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="50.0" prefWidth="450.0" text="Read Test" />
+                                                                        <ProgressBar fx:id="progressBar" prefHeight="20.0" prefWidth="450.0" progress="0.0" />
                                                                      </children>
                                                                   </VBox>
                                                                </children>
@@ -351,7 +351,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button disable="true" mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                                                  <Button disable="true" mnemonicParsing="false" onAction="#launchMotionVisualization" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -383,7 +383,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="450.0" text="Erase">
+                                                                  <Button fx:id="eraseButton" mnemonicParsing="false" onAction="#eraseTestsFromModule" prefHeight="100.0" prefWidth="450.0" text="Erase">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>

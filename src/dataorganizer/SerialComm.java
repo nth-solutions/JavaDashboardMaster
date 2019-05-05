@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 
+import javafx.scene.control.Label;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 import purejavacomm.PureJavaIllegalStateException;
@@ -886,6 +887,52 @@ public class SerialComm {
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
 	public boolean testRemotes(JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+
+		//Set module to enter test remote mode
+		if(!selectMode('=')) {
+			return false;
+		}
+		//Set flag so class knows that it is in test mode
+		remoteTestActive = true;
+
+		//Loops until the remoteTestActive boolean is set to false externally
+		while (remoteTestActive) {
+
+			//If there is data, see if it corresponds to a button being pressed, update the status label accordingly
+			if (inputStream.available() > 0) {
+				int temp = inputStream.read();
+				if (temp == (int)'@') {
+					statusLabel.setText("'A' Button is being Pressed");
+				}
+				else if (temp == (int)'!') {
+					statusLabel.setText("'B' Button is being Pressed");
+				}
+				else {
+					statusLabel.setText("No Button is being Pressed");
+				}
+			}
+
+		}
+
+		//If the test mode was exited externally by setting the remoteTestActive boolean to false, send the exit command to the module and listen for an echo
+		if(!selectMode('#')) {
+			return false;
+		}
+
+		//Method successful, return true
+		return true;
+	}
+
+
+	/*
+	 * Puts the module in a test mode that allows the user to press remote buttons to verify if they are being received by the transmitter. This mode can only be
+	 * exited by setting the remoteTestActive boolean to false which is what the exitRemoteTest() method does.
+	 * @return allows for easy exiting of the method
+	 * @throws IOException Means that there is an error communicating with dongle, thrown to caller for cleaner handling
+	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
+	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
+	 */
+	public boolean testRemotesFX(Label statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
 
 		//Set module to enter test remote mode
 		if(!selectMode('=')) {
