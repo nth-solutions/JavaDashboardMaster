@@ -285,9 +285,13 @@ public class EducatorModeControllerFX implements Initializable {
         
         getExtraParameters(selectedIndex);
         writeButtonHandler();
-        
-        //readExtraTestParamsForTemplate();
+        readExtraTestParamsForTemplate();
     }
+    
+    
+    
+    //TODO: Fix UI Lock-up (Look into Tasks)
+    //TODO: Fix inability to program the module multiple times
 
     /**
      * A handler method called within the applyConfigurations() ActionEvent that writes pre-defined optimal parameters
