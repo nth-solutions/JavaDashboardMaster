@@ -306,7 +306,7 @@
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphAndCSVRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
+                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>

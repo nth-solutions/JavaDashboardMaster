@@ -12,6 +12,7 @@ import javax.swing.JProgressBar;
 
 
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 import purejavacomm.PureJavaIllegalStateException;
@@ -1439,6 +1440,179 @@ public class SerialComm {
 					break;
 
 				}  
+			}
+			//Method successful, return the map of test data
+			return testData;
+		}
+		//Method failed, return null
+		return null;
+	}
+
+	/**
+	 * Tells the module to export it's test data and stores the info in a temporary buffer before calling the external organizer class to format the data into a .CSV
+	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
+	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
+	 */
+	public HashMap<Integer, ArrayList<Integer>> readTestDataFX(int expectedTestNum, ProgressBar progressBar, Label statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		//Put module into export test data mode, exit method if that routine fails
+		if(!selectMode('E')) {
+			statusLabel.setText("Could not configure the module to export.");
+			return null;
+		}
+
+		//Configure serial port for an import (higher baud rate). NOTE: This clears the inputStream buffer so avoid sending data to dashboard when calling this
+		configureForImport();
+
+		//Executes if the data streams are initialized and the program was not aborted externally
+		if (dataStreamsInitialized) {
+
+			//This Hashmap holds all the testing data. The key is the test number and the element is the arraylist of data from that test
+			HashMap<Integer, ArrayList<Integer>> testData = new HashMap<Integer, ArrayList<Integer>>();
+
+			//Just used to pull the TX line low for firmware handshake
+			byte[] pullLow = {0,0,0,0};
+
+
+			//Loops until it all of the tests are collected
+			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
+
+				//Sector tracking variables for progress calculation
+				int numSectors = 0;
+				int sectorCounter = 0;
+
+				statusLabel.setText("Transferring Test #" + (testNum + 1) + "...");
+
+
+				//Wait for start condition (preamble)
+				if(!waitForPreamble(1, 8, 1500)) {
+					statusLabel.setText("Lost communication with module. Please reconnect to the port.");
+					return null;
+				}
+
+
+				//Notify that the dashboard is ready for test data
+				outputStream.write(pullLow);
+
+				//Wait for 2 bytes to be received
+				while(inputStream.available() < 2) {
+				}
+
+				//Read the 2 bytes into the numSectors variable
+				numSectors = inputStream.read() * 256 + inputStream.read();
+
+				byte [] tempTestData;
+
+				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
+				while (true) {
+
+					//Assign an empty arraylist to the test number that is currently being stored
+					ArrayList<Integer> rawData = new ArrayList<Integer>();
+
+					//Preamble tracking variable for program flow control
+					boolean preambleFlag = false;
+
+					while(true) {
+
+						//Executes if the preamble has not yet been received for this block read sequence
+						if (!preambleFlag) {
+							//Wait for a preamble, exits method if the preamble times out
+							if(!waitForPreamble(1, 4, 1500)) {
+								statusLabel.setText("Lost communication with module. Please reconnect to the port.");
+								return null;
+							}
+							//Set preamble flag
+							preambleFlag = true;
+						}
+
+
+						if (inputStream.available() > 0) {
+
+							//Reset preamble flag
+							preambleFlag = false;
+
+							//Read the block type identifier. (1st character after the 1234 sequence)
+							int temp = inputStream.read();
+
+							//Executes when the module specifies that the next block is a full block of data (5 sectors)
+							if (temp == (int)'M') {
+								//Wait for the whole block to be transferred
+								while (inputStream.available() < 2520) {
+								}
+
+								//Clear the data in tempTestData
+								tempTestData = new byte[2520];
+
+								//Bulk read the sector that was just received
+								inputStream.read(tempTestData, 0, 2520);
+
+								//Update sector counter
+								sectorCounter += 5;
+
+								//Display calculated progress
+								progressBar.setProgress((int)(((double)(sectorCounter)/(double)(numSectors)) * 100));
+
+								//Values from bulk read method are saved as signed bytes, must convert to unsigned
+								for (byte data : tempTestData) {
+
+									//Add the bulk read data to the rawData arraylist. IMPORTANT: & 255 converts it from a signed byte to an unsigned byte when using bulk read
+									rawData.add((int)data & 255);
+								}
+
+								//Handshake to Module
+								outputStream.write(pullLow);
+							}
+
+							//Executes if module specified that the next block is a partial block (less than 5 sectors)
+							else if (temp == (int)'P') {
+								for(int counter = 8; counter >= 1;) {
+									//Store newly read byte in the temp variable
+									if (inputStream.available() > 0) {
+
+										//
+										temp = inputStream.read();
+
+										rawData.add(temp);
+
+										//Executes of the byte received is equal to the current value of counter
+										if (temp == counter) {
+											//Decrement counter by 1
+											counter--;
+										}
+
+										//Executes if the counter != temp
+										else {
+											//Reset the counter
+											counter = 8;
+										}
+									}
+								}
+								sectorCounter++;
+								break;
+							}
+
+						}
+					}
+					int rmIndex = rawData.size() -1;
+					while(rawData.get(rmIndex) != 255) {
+						rawData.remove(rmIndex);
+						rmIndex--;
+					}
+
+
+					while(rawData.get(rmIndex) == 255) {
+						rawData.remove(rmIndex);
+						rmIndex--;
+					}
+
+					rawData.add(-1);
+
+					testData.put(testNum, rawData);
+
+					outputStream.write(pullLow);
+
+					break;
+
+				}
 			}
 			//Method successful, return the map of test data
 			return testData;

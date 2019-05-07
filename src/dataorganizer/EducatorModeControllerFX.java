@@ -9,10 +9,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -136,6 +138,7 @@ public class EducatorModeControllerFX implements Initializable {
     private static SerialComm serialHandler;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
     ToggleGroup outputType = new ToggleGroup();
+    private String testType;
     
     //Extra Module Parameters - CoM
     double massOfRightModule;
@@ -279,8 +282,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void applyConfigurations(ActionEvent event) {
         getExtraParameters(selectedIndex);
-        //writeButtonHandler();		//TODO: Fix Threading Issue
-        //TODO: Import readExtraTestParamsForTemplate()
+        writeButtonHandler();
+        readExtraTestParamsForTemplate();
     }
 
     /**
@@ -354,7 +357,7 @@ public class EducatorModeControllerFX implements Initializable {
         		    massOfRightGlider = Double.parseDouble(massOfRightGliderTextField.getText());
         		    massOfLeftModule = Double.parseDouble(massOfLeftModuleTextField.getText());
         		    massOfLeftGlider = Double.parseDouble(massOfLeftGliderTextField.getText());
-        			
+        			testType = "Conservation of Momentum (Elastic Collision)";
         		} catch (NumberFormatException e) {
         			generalStatusExperimentLabel.setTextFill(Color.RED);
         			generalStatusExperimentLabel.setText("Invalid or Missing Data");
@@ -368,7 +371,7 @@ public class EducatorModeControllerFX implements Initializable {
                     massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
                     momentOfInertiaCOE = Double.parseDouble(momentOfInertiaCOETextField.getText());
                     radiusOfTorqueArmCOE = Double.parseDouble(radiusOfTorqueArmCOETextField.getText());
-        			
+                    testType = "Conservation of Energy";
         		} catch (NumberFormatException e) {
         			generalStatusExperimentLabel.setTextFill(Color.RED);
         			generalStatusExperimentLabel.setText("Invalid or Missing Data");
@@ -377,7 +380,7 @@ public class EducatorModeControllerFX implements Initializable {
                 break;
             case 2:
             	//IP
-            	// No Extra Parameters Needed
+            	testType = "Inclined Plane";
                 break;
             case 3:
             	//Pendulum
@@ -386,6 +389,7 @@ public class EducatorModeControllerFX implements Initializable {
             	    distanceFromPivot = Double.parseDouble(distanceFromPivotTextField.getText());
             	    massOfModule = Double.parseDouble(massOfModuleTextField.getText());
             	    massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
+                    testType = "Physical Pendulum";
 
         		} catch (NumberFormatException e) {
         			generalStatusExperimentLabel.setTextFill(Color.RED);
@@ -400,7 +404,7 @@ public class EducatorModeControllerFX implements Initializable {
                     totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
                     momentOfIntertiaSpring = Double.parseDouble(momentOfIntertiaSpringTextField.getText());
                     radiusOfTorqueArmSpring = Double.parseDouble(radiusOfTorqueArmSpringTextField.getText());
-
+                    testType = "Spring Test - Simple Harmonics";
 
         		} catch (NumberFormatException e) {
         			generalStatusExperimentLabel.setTextFill(Color.RED);
@@ -629,230 +633,225 @@ public class EducatorModeControllerFX implements Initializable {
     }
     
     //TODO: Finish Coversion
-//    @FXML
-//    private void readTestsFromModule(ActionEvent event) {
-//        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//        generalStatusExperimentLabel.setText("Copying File Template...");
-//        String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
-//        PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
-//        SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
-//        generalStatusExperimentLabel.setTextFill(DarkGreen);
-//        generalStatusExperimentLabel.setText("File Copy finished!");
-//
-//        //Define operation that can be run in separate thread
-//        Runnable readOperation = new Runnable() {
-//            public void run() {
-//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                //Disable read button while read is in progress
-//                backButton.setDisable(true);
-//                nextButton.setDisable(true);
-//                readTestButton.setDisable(true);
-//
-//                try {
-//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                    generalStatusExperimentLabel.setText("Reading Data from Module...");
-//
-//                    //Read test parameters from module and store it in testParameters
-//                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-//
-//                    //Executes if the reading of the test parameters was successful
-//                    if (testParameters != null) {
-//
-//                        int expectedTestNum = testParameters.get(0);
-//
-//                        //Assign local variables to their newly received values from the module
-//                        int timedTestFlag = testParameters.get(4);
-//                        //Trigger on release is 8
-//                        int testLength = testParameters.get(6);
-//                        int accelGyroSampleRate = testParameters.get(7);
-//                        int magSampleRate = testParameters.get(8);
-//                        int accelSensitivity = testParameters.get(9);
-//                        int gyroSensitivity = testParameters.get(10);
-//                        int accelFilter = testParameters.get(11);
-//                        int gyroFilter = testParameters.get(12);
-//
-//
-//                        double bytesPerSample = 18;
-//                        if (accelGyroSampleRate / magSampleRate == 10) {
-//                            bytesPerSample = 12.6;
-//                        }
-//
-//
-//
-//                        String nameOfFile = "";
-//
-//                        //Executes if there are tests on the module
-//                        if(expectedTestNum > 0) {
-//
-//                            //Get date for file name
-//                            Date date = new Date();
-//
-//                            //Assign file name
-//                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-//
-//                            HashMap<Integer, ArrayList<Integer>> testData;
-//
-//                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-//                            testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusExperimentLabel);
-//
-//                            generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                            generalStatusExperimentLabel.setText("All Data Received from Module");
-//
-//                            //Executes if the data was received properly (null = fail)
-//                            if(testData != null) {
-//                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-//
-//                                    int [] finalData = new int[testData.get(testIndex).size()];
-//
-//                                    for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-//                                        if (testData.get(testIndex).get(byteIndex) != -1){
-//                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-//                                        }
-//                                        else {
-//                                            finalData[byteIndex] = -1;
-//                                            break;
-//                                        }
-//                                    }
-//                                    String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
-//                                    dataOrgo = new DataOrganizer(testParameters, tempName);
-//                                    //Define operation that can be run in separate thread
-//                                    Runnable organizerOperation = new Runnable() {
-//                                        public void run() {
-//
-//                                            //Organize data into .CSV
-//                                            dataOrgo.createDataSmpsRawData(finalData);
-//
-//                                            if (spreadsheetRadioButton.isSelected()) {
-//
-//                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
-//
-//
-//
-//                                                //TODO: Add Constructor with Dynamic Path Getting
-//                                                generalStatusExperimentLabel.setForeground(Color.BLACK);
-//                                                generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-//
-//                                                if (testType == "Conservation of Momentum (Elastic Collision)"){
-//
-//                                                }
-//                                                else if(testType == "Conservation of Angular Momentum"){
-//
-//                                                }
-//                                                else if(testType == "Conservation of Energy"){
-//
-//                                                }
-//                                                else if(testType == "Inclined Plane") {
-//                                                }
-//                                                else if(testType == "Physical Pendulum"){
-//                                                    pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
-//                                                    pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-//                                                    pendulumSpreadsheetController.saveWorkbook(path);
-//
-//                                                }else if(testType == "Spinny Stool"){
-//                                                    spinnyStoolSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
-//                                                    spinnyStoolSpreadsheetController.fillTemplateWithData(2, dataSamples);
-//                                                    spinnyStoolSpreadsheetController.saveWorkbook(path);
-//
-//                                                }else if(testType == "Spring Test - Simple Haromincs"){
-//
-//                                                }
-//
-//                                                try {
-//                                                    Thread.sleep(10000);
-//
-//                                                }catch(Exception exceptionalexception) {
-//                                                    System.out.println("If you got this error, something went seriously wrong");
-//                                                }
-//
-//
-//                                                generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                                                generalStatusExperimentLabel.setText("Data Successfully Written");
-//
-//                                                //Re-enable read button upon read completion
-//                                                backButton.setDisable(false);
-//                                                nextButton.setDisable(false);
-//                                                readTestButton.setDisable(false);
-//
-//                                            }
-//                                            dataOrgo.getSignedData();
-//                                            //dataOrgo.createCSVP();
-//                                            //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-//
-//                                            //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
-//                                        }
-//                                    };
-//
-//                                    //Set thread to execute previously defined operation
-//                                    Thread organizerThread = new Thread(organizerOperation);
-//                                    //Start thread
-//                                    organizerThread.start();
-//
-//                                }
-//                            }
-//                            else {
-//                                generalStatusExperimentLabel.setForeground(Color.RED);
-//                                generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-//                                progressBar.setValue(100);
-//                                progressBar.setForeground(new Color(255, 0, 0));
-//                            }
-//                        }
-//                        else {
-//                            generalStatusExperimentLabel.setForeground(Color.RED);
-//                            generalStatusExperimentLabel.setText("No Tests Found on Module");
-//                            progressBar.setValue(100);
-//                            progressBar.setForeground(new Color(255, 0, 0));
-//                        }
-//                    }
-//                    else {
-//                        generalStatusExperimentLabel.setForeground(Color.RED);
-//                        generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-//                        progressBar.setValue(100);
-//                        progressBar.setForeground(new Color(255, 0, 0));
-//                    }
-//
-//                }
-//
-//                catch (IOException e) {
-//
-//                    //Re-enable read button upon read completion
-//                    backButton.setEnabled(true);
-//                    nextButton.setEnabled(true);
-//                    readTestBtn.setEnabled(true);
-//                    generalStatusExperimentLabel.setForeground(Color.RED);
-//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                    progressBar.setValue(100);
-//                    progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//                catch (PortInUseException e) {
-//
-//                    //Re-enable read button upon read completion
-//                    backButton.setEnabled(true);
-//                    nextButton.setEnabled(true);
-//                    readTestBtn.setEnabled(true);
-//                    generalStatusExperimentLabel.setForeground(Color.RED);
-//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                    progressBar.setValue(100);
-//                    progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//                catch (UnsupportedCommOperationException e) {
-//
-//                    //Re-enable read button upon read completion
-//                    backButton.setEnabled(true);
-//                    nextButton.setEnabled(true);
-//                    readTestBtn.setEnabled(true);
-//                    generalStatusExperimentLabel.setForeground(Color.RED);
-//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                    progressBar.setValue(100);
-//                    progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//            }
-//        };
-//
-//        //Set thread to execute previously defined operation
-//        Thread readThread = new Thread(readOperation);
-//        //Start thread
-//        readThread.start();
-//    }
+    @FXML
+    private void readTestsFromModule(ActionEvent event) {
+        generalStatusExperimentLabel.setTextFill(Color.BLACK);
+        generalStatusExperimentLabel.setText("Copying File Template...");
+        String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
+        PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+
+        generalStatusExperimentLabel.setTextFill(DarkGreen);
+        generalStatusExperimentLabel.setText("File Copy finished!");
+
+        //Define operation that can be run in separate thread
+        Runnable readOperation = new Runnable() {
+            public void run() {
+                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                //Disable read button while read is in progress
+                backButton.setDisable(true);
+                nextButton.setDisable(true);
+                readTestButton.setDisable(true);
+
+                try {
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    generalStatusExperimentLabel.setText("Reading Data from Module...");
+
+                    //Read test parameters from module and store it in testParameters
+                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+
+                    //Executes if the reading of the test parameters was successful
+                    if (testParameters != null) {
+
+                        int expectedTestNum = testParameters.get(0);
+
+                        //Assign local variables to their newly received values from the module
+                        int timedTestFlag = testParameters.get(4);
+                        //Trigger on release is 8
+                        int testLength = testParameters.get(6);
+                        int accelGyroSampleRate = testParameters.get(7);
+                        int magSampleRate = testParameters.get(8);
+                        int accelSensitivity = testParameters.get(9);
+                        int gyroSensitivity = testParameters.get(10);
+                        int accelFilter = testParameters.get(11);
+                        int gyroFilter = testParameters.get(12);
+
+
+                        double bytesPerSample = 18;
+                        if (accelGyroSampleRate / magSampleRate == 10) {
+                            bytesPerSample = 12.6;
+                        }
+
+
+
+                        String nameOfFile = "";
+
+                        //Executes if there are tests on the module
+                        if(expectedTestNum > 0) {
+
+                            //Get date for file name
+                            Date date = new Date();
+
+                            //Assign file name
+                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+
+                            HashMap<Integer, ArrayList<Integer>> testData;
+
+                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                            //TODO: Update method
+                            testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+
+                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+                            generalStatusExperimentLabel.setText("All Data Received from Module");
+
+                            //Executes if the data was received properly (null = fail)
+                            if(testData != null) {
+                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+
+                                    int [] finalData = new int[testData.get(testIndex).size()];
+
+                                    for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+                                        if (testData.get(testIndex).get(byteIndex) != -1){
+                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+                                        }
+                                        else {
+                                            finalData[byteIndex] = -1;
+                                            break;
+                                        }
+                                    }
+                                    String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
+                                    dataOrgo = new DataOrganizer(testParameters, tempName);
+                                    //Define operation that can be run in separate thread
+                                    Runnable organizerOperation = new Runnable() {
+                                        public void run() {
+
+                                            //Organize data into .CSV
+                                            dataOrgo.createDataSmpsRawData(finalData);
+
+
+                                            if (spreadsheetRadioButton.isSelected()) {
+
+                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+
+
+
+                                                //TODO: Add Constructor with Dynamic Path Getting
+                                                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                                                generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+
+                                                if (testType == "Conservation of Momentum (Elastic Collision)"){
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                }
+                                                else if(testType == "Conservation of Energy"){
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                }
+                                                else if(testType == "Inclined Plane") {
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                }
+                                                else if(testType == "Physical Pendulum"){
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                    pendulumSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                    pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                    pendulumSpreadsheetController.saveWorkbook(path);
+                                                }else if(testType == "Spring Test - Simple Harmonics"){
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                }
+
+                                                try {
+                                                    Thread.sleep(10000);
+
+                                                }catch(Exception exceptionalexception) {
+                                                    System.out.println("If you got this error, something went seriously wrong");
+                                                }
+
+
+                                                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                                                generalStatusExperimentLabel.setText("Data Successfully Written");
+
+                                                //Re-enable read button upon read completion
+                                                backButton.setDisable(false);
+                                                nextButton.setDisable(false);
+                                                readTestButton.setDisable(false);
+
+                                            }
+                                            dataOrgo.getSignedData();
+                                            //dataOrgo.createCSVP();
+                                            //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+
+                                            //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+                                        }
+                                    };
+
+                                    //Set thread to execute previously defined operation
+                                    Thread organizerThread = new Thread(organizerOperation);
+                                    //Start thread
+                                    organizerThread.start();
+
+                                }
+                            }
+                            else {
+                                generalStatusExperimentLabel.setTextFill(Color.RED);
+                                generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                progressBar.setProgress(100);
+                                //progressBar.setForeground(new Color(255, 0, 0));
+                            }
+                        }
+                        else {
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            generalStatusExperimentLabel.setText("No Tests Found on Module");
+                            progressBar.setProgress(100);
+                            //progressBar.setForeground(new Color(255, 0, 0));
+                        }
+                    }
+                    else {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                        progressBar.setProgress(100);
+                        //progressBar.setForeground(new Color(255, 0, 0));
+                    }
+
+                }
+
+                catch (IOException e) {
+
+                    //Re-enable read button upon read completion
+                    backButton.setDisable(false);
+                    nextButton.setDisable(false);
+                    readTestButton.setDisable(false);
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                    progressBar.setProgress(100);
+                    //progressBar.setForeground(new Color(255, 0, 0));
+                }
+                catch (PortInUseException e) {
+
+                    //Re-enable read button upon read completion
+                    backButton.setDisable(false);
+                    nextButton.setDisable(false);
+                    readTestButton.setDisable(false);
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                    progressBar.setProgress(100);
+                    //progressBar.setForeground(new Color(255, 0, 0));
+                }
+                catch (UnsupportedCommOperationException e) {
+
+                    //Re-enable read button upon read completion
+                    backButton.setDisable(false);
+                    nextButton.setDisable(false);
+                    readTestButton.setDisable(false);
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                    progressBar.setProgress(100);
+                    //progressBar.setForeground(new Color(255, 0, 0));
+                }
+            }
+        };
+
+        //Set thread to execute previously defined operation
+        Thread readThread = new Thread(readOperation);
+        //Start thread
+        readThread.start();
+    }
     
     @FXML
     private void launchMotionVisualization(ActionEvent event) {
@@ -1254,6 +1253,128 @@ public class EducatorModeControllerFX implements Initializable {
         Thread findModuleThread = new Thread(findModuleOperation);
         findModuleThread.run();
         return th.getStatus();
+    }
+
+    public String chooseSpreadsheetOutputPath(Label label) {
+        FileChooser chooser;
+        chooser = new FileChooser();
+        chooser.setInitialDirectory(new java.io.File(".") );
+
+        File file = chooser.showOpenDialog(null);
+        if (file != null) {
+            String fileout = file.toString();
+
+            if(!fileout.endsWith(".xlsx"))
+                return fileout+".xlsx";
+            else
+                return fileout;
+        } else {
+            return "Invalid File Path";
+        }
+    }
+
+    /**
+     * Gets a 3 letter abbreviation for the passed in month for the automatic test title generation
+     * @param month an integer 0-11 that corresponds to the month with 0 = January and 11 = December
+     * @return The 3 letter abbreviation for the month
+     */
+    public String getMonth(int month) {
+        switch (month) {
+            case (0):
+                return "JAN";
+            case (1):
+                return "FEB";
+            case (2):
+                return "MAR";
+            case (3):
+                return "APR";
+            case (4):
+                return "MAY";
+            case (5):
+                return "JUN";
+            case (6):
+                return "JUL";
+            case (7):
+                return "AUG";
+            case (8):
+                return "SEP";
+            case (9):
+                return "OCT";
+            case (10):
+                return "NOV";
+            case (11):
+                return "DEC";
+        }
+        return "NOP";
+    }
+
+    //Not Sure why this method is needed but the program will not work without it for some reason
+    public void readExtraTestParamsForTemplate(){
+        //params.put(testType).put(variable) = x,y,content
+        class CellData{
+            public int X;
+            public int Y;
+            public String content;
+        }
+
+        HashMap<String, CellData> param = new HashMap<>();
+        CellData cell = new CellData();
+
+
+        switch(testType) {
+            case "Conservation of Momentum (Elastic Collision)":
+
+                //Write param to hashmap and location of template to write in
+                cell.X = 3;
+                cell.Y = 3;
+                cell.content = testTypeHashMap.get(testType).get(7).toString();	//Sample Rate
+                param.put("SampleRate", cell);
+
+                //Write param to hashmap and location of template to write in
+                cell.X = 3;
+                cell.Y = 4;
+                cell.content = testTypeHashMap.get(testType).get(9).toString();	//Accel Sensitivity
+                param.put("AccelSensitivity", cell);
+
+
+                //Write param to hashmap and location of template to write in
+                cell.X = 3;
+                cell.Y = 5;
+                cell.content = testTypeHashMap.get(testType).get(10).toString();	//Gyro Rate
+                param.put("GyroSensitivity", cell);
+
+                cell.X = 3;
+                cell.Y = 8;
+                cell.content = massOfLeftGliderTextField.getText();
+                param.put("firstGliderAndModuleMassTextField", cell);
+
+                cell.X = 3;
+                cell.Y = 9;
+                cell.content = massOfRightGliderTextField.getText();
+                param.put("secondGliderAndModuleMassTextField", cell);
+                break;
+
+
+            case "Physical Spring":
+                cell.X = 3;
+                cell.Y = 3;
+                cell.content = testTypeHashMap.get(testType).get(7).toString();	//Sample Rate
+
+                param.put("sampleRate", cell);
+
+                cell.X = 3;
+                cell.Y = 4;
+                cell.content = testTypeHashMap.get(testType).get(9).toString();	//Accel Sensitivity
+                param.put("AccelSensitivity", cell);
+
+                cell.X = 3;
+                cell.Y = 5;
+                cell.content = testTypeHashMap.get(testType).get(10).toString();//Gyro Sensitivity
+                param.put("GyroSensitivity", cell);
+                break;
+            case "Spinny Stool":
+
+        }
     }
 
 }
