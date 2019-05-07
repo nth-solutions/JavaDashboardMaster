@@ -1,6 +1,7 @@
 package dataorganizer;
 
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -281,9 +282,11 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void applyConfigurations(ActionEvent event) {
+        
         getExtraParameters(selectedIndex);
         writeButtonHandler();
-        readExtraTestParamsForTemplate();
+        
+        //readExtraTestParamsForTemplate();
     }
 
     /**
@@ -291,54 +294,95 @@ public class EducatorModeControllerFX implements Initializable {
      * to the module's firmware for use in one of several experiments
      */
     private void writeButtonHandler() {
-        //Define no operation that can be run in a thread
-        Runnable sendParamOperation = new Runnable() {
-            public void run() {
-                //Disable write config button while the sendParameters() method is running
-                applyConfigurationsButton.setDisable(true);;
-                nextButton.setDisable(true);
-                if(findModuleCommPort()) {
-                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                    generalStatusExperimentLabel.setText("Initial connection to module successful");
-                }
-                try {
-                    if(!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem().toString()))) {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
-                    }
-                    else {
-                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                        generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
-                    }
-                }
-                catch (NumberFormatException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
-                }
-                catch (IOException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                }
-                catch (PortInUseException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                }
-                catch (UnsupportedCommOperationException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                }
 
-                //Re-enable the write config button when the routine has completed
-                applyConfigurationsButton.setDisable(false);
-                nextButton.setDisable(false);
+        Platform.runLater(() -> {
+            //Disable write config button while the sendParameters() method is running
+            applyConfigurationsButton.setDisable(true);
+            nextButton.setDisable(true);
+            if(findModuleCommPort()) {
+                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                generalStatusExperimentLabel.setText("Initial connection to module successful");
             }
-        };
+            try {
+                if(!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem().toString()))) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+                }
+                else {
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                }
+            }
+            catch (NumberFormatException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Please Fill out Every Field");
+            }
+            catch (IOException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+            }
+            catch (PortInUseException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+            }
+            catch (UnsupportedCommOperationException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+            }
 
+            //Re-enable the write config button when the routine has completed
+            applyConfigurationsButton.setDisable(false);
+            nextButton.setDisable(false);
+        });
 
-        //Assign new operation to a thread so that it can be run in the background
-        Thread paramThread = new Thread(sendParamOperation);
-        //Start the new thread
-        paramThread.start();
+//        //Define no operation that can be run in a thread
+//        Runnable sendParamOperation = new Runnable() {
+//            public void run() {
+//                //Disable write config button while the sendParameters() method is running
+//                applyConfigurationsButton.setDisable(true);;
+//                nextButton.setDisable(true);
+//                if(findModuleCommPort()) {
+//                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                    generalStatusExperimentLabel.setText("Initial connection to module successful");
+//                }
+//                try {
+//                    if(!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem().toString()))) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+//                    }
+//                    else {
+//                        generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                        generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+//                    }
+//                }
+//                catch (NumberFormatException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
+//                }
+//                catch (IOException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                }
+//                catch (PortInUseException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                }
+//                catch (UnsupportedCommOperationException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                }
+//
+//                //Re-enable the write config button when the routine has completed
+//                applyConfigurationsButton.setDisable(false);
+//                nextButton.setDisable(false);
+//            }
+//        };
+//
+//
+//        //Assign new operation to a thread so that it can be run in the background
+//        Thread paramThread = new Thread(sendParamOperation);
+//        //Start the new thread
+//        paramThread.start();
     }
 
     
@@ -415,6 +459,7 @@ public class EducatorModeControllerFX implements Initializable {
             default:
                 break;
         }
+    
     }
     
     //TODO: Fix Threading Issue on all following FXML ActionEvents
@@ -427,66 +472,119 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void pairNewRemote(ActionEvent event) {
-        Runnable pairNewRemoteOperation = new Runnable() {
-            public void run() {
-                //Disable buttons that should not be used in the middle of a sequence
-                pairNewRemoteButton.setDisable(true);
-                unpairAllRemotesButton.setDisable(true);
-                testRemotesButton.setDisable(true);
+    	Platform.runLater(() -> {
+    		//Disable buttons that should not be used in the middle of a sequence
+            pairNewRemoteButton.setDisable(true);
+            unpairAllRemotesButton.setDisable(true);
+            testRemotesButton.setDisable(true);
 
-                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-                progressBar.setProgress(0);
-                //progressBar.setForeground(Color.RED);
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
+            progressBar.setProgress(0);
+            //progressBar.setForeground(Color.RED);
 
-                try {
-                    if(serialHandler.pairNewRemote()) {
-                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                        generalStatusExperimentLabel.setText("New Remote Successfully Paired");
-                        progressBar.setProgress(100);
-                        //progressBar.setForeground(new Color(51, 204, 51));
-                    }
-                    else {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
-                        progressBar.setProgress(100);
-                        //progressBar.setForeground(Color.RED);
-                    }
-
-
+            try {
+                if(serialHandler.pairNewRemote()) {
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("New Remote Successfully Paired");
+                    progressBar.setProgress(100);
+                    //progressBar.setForeground(new Color(51, 204, 51));
                 }
-                catch (IOException e) {
+                else {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                    generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(Color.RED);
                 }
-                catch (PortInUseException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(Color.RED);
-                }
-                catch (UnsupportedCommOperationException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(Color.RED);
-                }
-
-                //Enable buttons that can now be used since the bulk erase completed
-                pairNewRemoteButton.setDisable(false);
-                unpairAllRemotesButton.setDisable(false);
-                testRemotesButton.setDisable(false);
 
 
             }
-        };
+            catch (IOException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                progressBar.setProgress(100);
+                //progressBar.setForeground(Color.RED);
+            }
+            catch (PortInUseException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                progressBar.setProgress(100);
+                //progressBar.setForeground(Color.RED);
+            }
+            catch (UnsupportedCommOperationException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                progressBar.setProgress(100);
+                //progressBar.setForeground(Color.RED);
+            }
 
-        //Define a new thread to run the operation previously defined
-        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
-        //Start the thread
-        pairNewRemoteThread.start();
+            //Enable buttons that can now be used since the bulk erase completed
+            pairNewRemoteButton.setDisable(false);
+            unpairAllRemotesButton.setDisable(false);
+            testRemotesButton.setDisable(false);
+
+    	});
+    	
+//        Runnable pairNewRemoteOperation = new Runnable() {
+//            public void run() {
+//                //Disable buttons that should not be used in the middle of a sequence
+//                pairNewRemoteButton.setDisable(true);
+//                unpairAllRemotesButton.setDisable(true);
+//                testRemotesButton.setDisable(true);
+//
+//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
+//                progressBar.setProgress(0);
+//                //progressBar.setForeground(Color.RED);
+//
+//                try {
+//                    if(serialHandler.pairNewRemote()) {
+//                        generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                        generalStatusExperimentLabel.setText("New Remote Successfully Paired");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(51, 204, 51));
+//                    }
+//                    else {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(Color.RED);
+//                    }
+//
+//
+//                }
+//                catch (IOException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(Color.RED);
+//                }
+//                catch (PortInUseException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(Color.RED);
+//                }
+//                catch (UnsupportedCommOperationException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(Color.RED);
+//                }
+//
+//                //Enable buttons that can now be used since the bulk erase completed
+//                pairNewRemoteButton.setDisable(false);
+//                unpairAllRemotesButton.setDisable(false);
+//                testRemotesButton.setDisable(false);
+//
+//
+//            }
+//        };
+//
+//        //Define a new thread to run the operation previously defined
+//        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
+//        //Start the thread
+//        pairNewRemoteThread.start();
     }
 
     /**
@@ -496,67 +594,107 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void unpairRemotes(ActionEvent event) {
-        Runnable unpairAllRemotesOperation = new Runnable() {
-            public void run() {
-                //Disable buttons that should not be used in the middle of a sequence
-                pairNewRemoteButton.setDisable(true);
-                unpairAllRemotesButton.setDisable(true);
-                testRemotesButton.setDisable(true);
+        Platform.runLater(() -> {
+            //Disable buttons that should not be used in the middle of a sequence
+            pairNewRemoteButton.setDisable(true);
+            unpairAllRemotesButton.setDisable(true);
+            testRemotesButton.setDisable(true);
 
-                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                generalStatusExperimentLabel.setText("Unpairing all Remotes...");
-                progressBar.setProgress(0);
-                //progressBar.setForeground(new Color(51, 204, 51));
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            generalStatusExperimentLabel.setText("Unpairing all Remotes...");
+            progressBar.setProgress(0);
+            //progressBar.setForeground(new Color(51, 204, 51));
 
-                try {
-                    serialHandler.unpairAllRemotes();
-                }
-                catch (IOException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (PortInUseException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (UnsupportedCommOperationException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(new Color(255, 0, 0));
-                }
-
-
-                pairNewRemoteButton.setDisable(false);
-                unpairAllRemotesButton.setDisable(false);
-                testRemotesButton.setDisable(false);
-
-                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-                progressBar.setProgress(0);
-                //progressBar.setForeground(new Color(51, 204, 51));
+            try {
+                serialHandler.unpairAllRemotes();
+            } catch (IOException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                progressBar.setProgress(100);
+                //progressBar.setForeground(new Color(255, 0, 0));
+            } catch (PortInUseException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                progressBar.setProgress(100);
+                //progressBar.setForeground(new Color(255, 0, 0));
+            } catch (UnsupportedCommOperationException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                progressBar.setProgress(100);
+                //progressBar.setForeground(new Color(255, 0, 0));
             }
-        };
 
-        //Define a new thread to run the operation previously defined
-        Thread unpairAllRemotesThread = new Thread(unpairAllRemotesOperation);
-        //Start the thread
-        unpairAllRemotesThread.start();
+
+            pairNewRemoteButton.setDisable(false);
+            unpairAllRemotesButton.setDisable(false);
+            testRemotesButton.setDisable(false);
+
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
+            progressBar.setProgress(0);
+            //progressBar.setForeground(new Color(51, 204, 51));
+        });
+
+//        Runnable unpairAllRemotesOperation = new Runnable() {
+//            public void run() {
+//                //Disable buttons that should not be used in the middle of a sequence
+//                pairNewRemoteButton.setDisable(true);
+//                unpairAllRemotesButton.setDisable(true);
+//                testRemotesButton.setDisable(true);
+//
+//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                generalStatusExperimentLabel.setText("Unpairing all Remotes...");
+//                progressBar.setProgress(0);
+//                //progressBar.setForeground(new Color(51, 204, 51));
+//
+//                try {
+//                    serialHandler.unpairAllRemotes();
+//                }
+//                catch (IOException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(new Color(255, 0, 0));
+//                }
+//                catch (PortInUseException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(new Color(255, 0, 0));
+//                }
+//                catch (UnsupportedCommOperationException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(new Color(255, 0, 0));
+//                }
+//
+//
+//                pairNewRemoteButton.setDisable(false);
+//                unpairAllRemotesButton.setDisable(false);
+//                testRemotesButton.setDisable(false);
+//
+//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
+//                progressBar.setProgress(0);
+//                //progressBar.setForeground(new Color(51, 204, 51));
+//            }
+//        };
+//
+//        //Define a new thread to run the operation previously defined
+//        Thread unpairAllRemotesThread = new Thread(unpairAllRemotesOperation);
+//        //Start the thread
+//        unpairAllRemotesThread.start();
     }
 
-    /**
-     * ActionEvent that puts the module into a testing mode using functionality from the SerialComm Class, wherein the
-     * module records no data, but only detects when and which button the user is pressing on their remote
-     * @param event
-     */
-    @FXML
-    private void testPairedRemote(ActionEvent event) {
-        Runnable testRemoteOperation = new Runnable() {
-            public void run() {
+        /**
+         * ActionEvent that puts the module into a testing mode using functionality from the SerialComm Class, wherein the
+         * module records no data, but only detects when and which button the user is pressing on their remote
+         * @param event
+         */
+        @FXML
+        private void testPairedRemote (ActionEvent event){
+            Platform.runLater(()-> {
                 //Disable buttons that should not be used in the middle of a sequence
                 pairNewRemoteButton.setDisable(true);
                 unpairAllRemotesButton.setDisable(true);
@@ -573,26 +711,23 @@ public class EducatorModeControllerFX implements Initializable {
                 //progressBar.setForeground(new Color(51, 204, 51));
 
                 try {
-                    if(!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
+                    if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Error Communicating with Module");
                         progressBar.setProgress(100);
                         //progressBar.setForeground(new Color(255, 0, 0));
                     }
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (PortInUseException e) {
+                } catch (PortInUseException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Serial Port Already In Use");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (UnsupportedCommOperationException e) {
+                } catch (UnsupportedCommOperationException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Check Dongle Compatability");
                     progressBar.setProgress(100);
@@ -612,40 +747,95 @@ public class EducatorModeControllerFX implements Initializable {
                 generalStatusExperimentLabel.setText("Test Mode Successfully Exited");
                 progressBar.setProgress(100);
                 //progressBar.setForeground(DarkGreen);
-            }
-        };
+            });
 
-        //Define a new thread to run the operation previously defined
-        Thread testRemoteThread = new Thread(testRemoteOperation);
-        //Start the thread
-        testRemoteThread.start();
-    }
+//            Runnable testRemoteOperation = new Runnable() {
+//                public void run() {
+//                    //Disable buttons that should not be used in the middle of a sequence
+//                    pairNewRemoteButton.setDisable(true);
+//                    unpairAllRemotesButton.setDisable(true);
+//                    testRemotesButton.setDisable(true);
+//                    backButton.setDisable(true);
+//                    nextButton.setDisable(true);
+//                    exitTestModeButton.setDisable(false);
+//
+//
+//                    //Notify the user that the bulk erase sequence has began
+//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                    generalStatusExperimentLabel.setText("Press a Button on a Remote to Test if it is Paired");
+//                    progressBar.setProgress(0);
+//                    //progressBar.setForeground(new Color(51, 204, 51));
+//
+//                    try {
+//                        if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
+//                            generalStatusExperimentLabel.setTextFill(Color.RED);
+//                            generalStatusExperimentLabel.setText("Error Communicating with Module");
+//                            progressBar.setProgress(100);
+//                            //progressBar.setForeground(new Color(255, 0, 0));
+//                        }
+//                    } catch (IOException e) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    } catch (PortInUseException e) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    } catch (UnsupportedCommOperationException e) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    }
+//
+//                    //Enable button
+//                    pairNewRemoteButton.setDisable(false);
+//                    unpairAllRemotesButton.setDisable(false);
+//                    testRemotesButton.setDisable(false);
+//                    exitTestModeButton.setDisable(true);
+//                    backButton.setDisable(false);
+//                    nextButton.setDisable(false);
+//
+//                    //Notify the user that the sequence has completed
+//                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                    generalStatusExperimentLabel.setText("Test Mode Successfully Exited");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(DarkGreen);
+//                }
+//            };
+//
+//            //Define a new thread to run the operation previously defined
+//            Thread testRemoteThread = new Thread(testRemoteOperation);
+//            //Start the thread
+//            testRemoteThread.start();
+        }
 
-    /**
-     * ActionEvent that sets flag that will cause the testRemoteThread to exit the test remote mode, executed when
-     * exit remote test mode button is pressed. Since this is an action event, it must complete before GUI changes
-     * will be visible
-     * @param event
-     */
-    @FXML
-    private void exitRemoteTestingMode(ActionEvent event) {
-        serialHandler.exitRemoteTest();
-    }
-    
-    //TODO: Finish Coversion
-    @FXML
-    private void readTestsFromModule(ActionEvent event) {
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        generalStatusExperimentLabel.setText("Copying File Template...");
-        String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
-        PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+        /**
+         * ActionEvent that sets flag that will cause the testRemoteThread to exit the test remote mode, executed when
+         * exit remote test mode button is pressed. Since this is an action event, it must complete before GUI changes
+         * will be visible
+         * @param event
+         */
+        @FXML
+        private void exitRemoteTestingMode (ActionEvent event){
+            serialHandler.exitRemoteTest();
+        }
 
-        generalStatusExperimentLabel.setTextFill(DarkGreen);
-        generalStatusExperimentLabel.setText("File Copy finished!");
+        //TODO: Finish Coversion
+        @FXML
+        private void readTestsFromModule (ActionEvent event){
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            generalStatusExperimentLabel.setText("Copying File Template...");
+            String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
+            PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
 
-        //Define operation that can be run in separate thread
-        Runnable readOperation = new Runnable() {
-            public void run() {
+            generalStatusExperimentLabel.setTextFill(DarkGreen);
+            generalStatusExperimentLabel.setText("File Copy finished!");
+
+            //Define operation that can be run in separate thread
+            Platform.runLater(() -> {
                 generalStatusExperimentLabel.setTextFill(Color.BLACK);
                 //Disable read button while read is in progress
                 backButton.setDisable(true);
@@ -682,11 +872,10 @@ public class EducatorModeControllerFX implements Initializable {
                         }
 
 
-
                         String nameOfFile = "";
 
                         //Executes if there are tests on the module
-                        if(expectedTestNum > 0) {
+                        if (expectedTestNum > 0) {
 
                             //Get date for file name
                             Date date = new Date();
@@ -704,21 +893,20 @@ public class EducatorModeControllerFX implements Initializable {
                             generalStatusExperimentLabel.setText("All Data Received from Module");
 
                             //Executes if the data was received properly (null = fail)
-                            if(testData != null) {
+                            if (testData != null) {
                                 for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
-                                    int [] finalData = new int[testData.get(testIndex).size()];
+                                    int[] finalData = new int[testData.get(testIndex).size()];
 
-                                    for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                        if (testData.get(testIndex).get(byteIndex) != -1){
+                                    for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+                                        if (testData.get(testIndex).get(byteIndex) != -1) {
                                             finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                        }
-                                        else {
+                                        } else {
                                             finalData[byteIndex] = -1;
                                             break;
                                         }
                                     }
-                                    String tempName = "(#" + (testIndex+1) + ") " + nameOfFile;
+                                    String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgo = new DataOrganizer(testParameters, tempName);
                                     //Define operation that can be run in separate thread
                                     Runnable organizerOperation = new Runnable() {
@@ -733,33 +921,29 @@ public class EducatorModeControllerFX implements Initializable {
                                                 List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
 
 
-
                                                 //TODO: Add Constructor with Dynamic Path Getting
                                                 generalStatusExperimentLabel.setTextFill(Color.BLACK);
                                                 generalStatusExperimentLabel.setText("Writing data to spreadsheet");
 
-                                                if (testType == "Conservation of Momentum (Elastic Collision)"){
+                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
                                                     //TODO: Fill with Spreadsheet Controller
-                                                }
-                                                else if(testType == "Conservation of Energy"){
+                                                } else if (testType == "Conservation of Energy") {
                                                     //TODO: Fill with Spreadsheet Controller
-                                                }
-                                                else if(testType == "Inclined Plane") {
+                                                } else if (testType == "Inclined Plane") {
                                                     //TODO: Fill with Spreadsheet Controller
-                                                }
-                                                else if(testType == "Physical Pendulum"){
+                                                } else if (testType == "Physical Pendulum") {
                                                     //TODO: Fill with Spreadsheet Controller
                                                     pendulumSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
                                                     pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     pendulumSpreadsheetController.saveWorkbook(path);
-                                                }else if(testType == "Spring Test - Simple Harmonics"){
+                                                } else if (testType == "Spring Test - Simple Harmonics") {
                                                     //TODO: Fill with Spreadsheet Controller
                                                 }
 
                                                 try {
                                                     Thread.sleep(10000);
 
-                                                }catch(Exception exceptionalexception) {
+                                                } catch (Exception exceptionalexception) {
                                                     System.out.println("If you got this error, something went seriously wrong");
                                                 }
 
@@ -787,31 +971,26 @@ public class EducatorModeControllerFX implements Initializable {
                                     organizerThread.start();
 
                                 }
-                            }
-                            else {
+                            } else {
                                 generalStatusExperimentLabel.setTextFill(Color.RED);
                                 generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
                                 progressBar.setProgress(100);
                                 //progressBar.setForeground(new Color(255, 0, 0));
                             }
-                        }
-                        else {
+                        } else {
                             generalStatusExperimentLabel.setTextFill(Color.RED);
                             generalStatusExperimentLabel.setText("No Tests Found on Module");
                             progressBar.setProgress(100);
                             //progressBar.setForeground(new Color(255, 0, 0));
                         }
-                    }
-                    else {
+                    } else {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
                         progressBar.setProgress(100);
                         //progressBar.setForeground(new Color(255, 0, 0));
                     }
 
-                }
-
-                catch (IOException e) {
+                } catch (IOException e) {
 
                     //Re-enable read button upon read completion
                     backButton.setDisable(false);
@@ -821,8 +1000,7 @@ public class EducatorModeControllerFX implements Initializable {
                     generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (PortInUseException e) {
+                } catch (PortInUseException e) {
 
                     //Re-enable read button upon read completion
                     backButton.setDisable(false);
@@ -832,8 +1010,7 @@ public class EducatorModeControllerFX implements Initializable {
                     generalStatusExperimentLabel.setText("Serial Port Already In Use");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (UnsupportedCommOperationException e) {
+                } catch (UnsupportedCommOperationException e) {
 
                     //Re-enable read button upon read completion
                     backButton.setDisable(false);
@@ -844,24 +1021,212 @@ public class EducatorModeControllerFX implements Initializable {
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
                 }
-            }
-        };
+            });
 
-        //Set thread to execute previously defined operation
-        Thread readThread = new Thread(readOperation);
-        //Start thread
-        readThread.start();
-    }
-    
-    @FXML
-    private void launchMotionVisualization(ActionEvent event) {
-    	//TODO: Implement @ a Later Data
-    }
-    
-    @FXML
-    private void eraseTestsFromModule(ActionEvent event) {
-        Runnable bulkEraseOperation = new Runnable() {
-            public void run() {
+//            Runnable readOperation = new Runnable() {
+//                public void run() {
+//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                    //Disable read button while read is in progress
+//                    backButton.setDisable(true);
+//                    nextButton.setDisable(true);
+//                    readTestButton.setDisable(true);
+//
+//                    try {
+//                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                        generalStatusExperimentLabel.setText("Reading Data from Module...");
+//
+//                        //Read test parameters from module and store it in testParameters
+//                        ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+//
+//                        //Executes if the reading of the test parameters was successful
+//                        if (testParameters != null) {
+//
+//                            int expectedTestNum = testParameters.get(0);
+//
+//                            //Assign local variables to their newly received values from the module
+//                            int timedTestFlag = testParameters.get(4);
+//                            //Trigger on release is 8
+//                            int testLength = testParameters.get(6);
+//                            int accelGyroSampleRate = testParameters.get(7);
+//                            int magSampleRate = testParameters.get(8);
+//                            int accelSensitivity = testParameters.get(9);
+//                            int gyroSensitivity = testParameters.get(10);
+//                            int accelFilter = testParameters.get(11);
+//                            int gyroFilter = testParameters.get(12);
+//
+//
+//                            double bytesPerSample = 18;
+//                            if (accelGyroSampleRate / magSampleRate == 10) {
+//                                bytesPerSample = 12.6;
+//                            }
+//
+//
+//                            String nameOfFile = "";
+//
+//                            //Executes if there are tests on the module
+//                            if (expectedTestNum > 0) {
+//
+//                                //Get date for file name
+//                                Date date = new Date();
+//
+//                                //Assign file name
+//                                nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+//
+//                                HashMap<Integer, ArrayList<Integer>> testData;
+//
+//                                //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+//                                //TODO: Update method
+//                                testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+//
+//                                generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                                generalStatusExperimentLabel.setText("All Data Received from Module");
+//
+//                                //Executes if the data was received properly (null = fail)
+//                                if (testData != null) {
+//                                    for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+//
+//                                        int[] finalData = new int[testData.get(testIndex).size()];
+//
+//                                        for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+//                                            if (testData.get(testIndex).get(byteIndex) != -1) {
+//                                                finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+//                                            } else {
+//                                                finalData[byteIndex] = -1;
+//                                                break;
+//                                            }
+//                                        }
+//                                        String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
+//                                        dataOrgo = new DataOrganizer(testParameters, tempName);
+//                                        //Define operation that can be run in separate thread
+//                                        Runnable organizerOperation = new Runnable() {
+//                                            public void run() {
+//
+//                                                //Organize data into .CSV
+//                                                dataOrgo.createDataSmpsRawData(finalData);
+//
+//
+//                                                if (spreadsheetRadioButton.isSelected()) {
+//
+//                                                    List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+//
+//
+//                                                    //TODO: Add Constructor with Dynamic Path Getting
+//                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+//
+//                                                    if (testType == "Conservation of Momentum (Elastic Collision)") {
+//                                                        //TODO: Fill with Spreadsheet Controller
+//                                                    } else if (testType == "Conservation of Energy") {
+//                                                        //TODO: Fill with Spreadsheet Controller
+//                                                    } else if (testType == "Inclined Plane") {
+//                                                        //TODO: Fill with Spreadsheet Controller
+//                                                    } else if (testType == "Physical Pendulum") {
+//                                                        //TODO: Fill with Spreadsheet Controller
+//                                                        pendulumSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+//                                                        pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                        pendulumSpreadsheetController.saveWorkbook(path);
+//                                                    } else if (testType == "Spring Test - Simple Harmonics") {
+//                                                        //TODO: Fill with Spreadsheet Controller
+//                                                    }
+//
+//                                                    try {
+//                                                        Thread.sleep(10000);
+//
+//                                                    } catch (Exception exceptionalexception) {
+//                                                        System.out.println("If you got this error, something went seriously wrong");
+//                                                    }
+//
+//
+//                                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                                                    generalStatusExperimentLabel.setText("Data Successfully Written");
+//
+//                                                    //Re-enable read button upon read completion
+//                                                    backButton.setDisable(false);
+//                                                    nextButton.setDisable(false);
+//                                                    readTestButton.setDisable(false);
+//
+//                                                }
+//                                                dataOrgo.getSignedData();
+//                                                //dataOrgo.createCSVP();
+//                                                //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+//
+//                                                //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+//                                            }
+//                                        };
+//
+//                                        //Set thread to execute previously defined operation
+//                                        Thread organizerThread = new Thread(organizerOperation);
+//                                        //Start thread
+//                                        organizerThread.start();
+//
+//                                    }
+//                                } else {
+//                                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+//                                    progressBar.setProgress(100);
+//                                    //progressBar.setForeground(new Color(255, 0, 0));
+//                                }
+//                            } else {
+//                                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                generalStatusExperimentLabel.setText("No Tests Found on Module");
+//                                progressBar.setProgress(100);
+//                                //progressBar.setForeground(new Color(255, 0, 0));
+//                            }
+//                        } else {
+//                            generalStatusExperimentLabel.setTextFill(Color.RED);
+//                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+//                            progressBar.setProgress(100);
+//                            //progressBar.setForeground(new Color(255, 0, 0));
+//                        }
+//
+//                    } catch (IOException e) {
+//
+//                        //Re-enable read button upon read completion
+//                        backButton.setDisable(false);
+//                        nextButton.setDisable(false);
+//                        readTestButton.setDisable(false);
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    } catch (PortInUseException e) {
+//
+//                        //Re-enable read button upon read completion
+//                        backButton.setDisable(false);
+//                        nextButton.setDisable(false);
+//                        readTestButton.setDisable(false);
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    } catch (UnsupportedCommOperationException e) {
+//
+//                        //Re-enable read button upon read completion
+//                        backButton.setDisable(false);
+//                        nextButton.setDisable(false);
+//                        readTestButton.setDisable(false);
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    }
+//                }
+//            };
+//
+//            //Set thread to execute previously defined operation
+//            Thread readThread = new Thread(readOperation);
+//            //Start thread
+//            readThread.start();
+        }
+
+        @FXML
+        private void launchMotionVisualization (ActionEvent event){
+            //TODO: Implement @ a Later Data
+        }
+
+        @FXML
+        private void eraseTestsFromModule (ActionEvent event){
+            Platform.runLater(() -> {
                 //Disable buttons that should not be used in the middle of a sequence
                 eraseButton.setDisable(true);
 
@@ -872,14 +1237,13 @@ public class EducatorModeControllerFX implements Initializable {
                 //progressBar.setForeground(new Color(51, 204, 51));
 
                 try {
-                    if(serialHandler.bulkEraseModule()) {
+                    if (serialHandler.bulkEraseModule()) {
                         //Notify the user that the sequence has completed
                         generalStatusExperimentLabel.setTextFill(DarkGreen);
                         generalStatusExperimentLabel.setText("Bulk Erase Complete");
                         progressBar.setProgress(100);
                         //progressBar.setForeground(new Color(51, 204, 51));
-                    }
-                    else {
+                    } else {
 
                         //Notify the user that the sequence has failed
                         generalStatusExperimentLabel.setTextFill(Color.RED);
@@ -889,287 +1253,330 @@ public class EducatorModeControllerFX implements Initializable {
                     }
                     //Enable buttons that can now be used since the sector erase completed
                     eraseButton.setDisable(false);
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (PortInUseException e) {
+                } catch (PortInUseException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Serial Port Already In Use");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
-                }
-                catch (UnsupportedCommOperationException e) {
+                } catch (UnsupportedCommOperationException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Check Dongle Compatability");
                     progressBar.setProgress(100);
                     //progressBar.setForeground(new Color(255, 0, 0));
                 }
-            }
-        };
+            });
 
-        //Define a new thread to run the operation previously defined
-        Thread bulkEraseThread = new Thread(bulkEraseOperation);
-        //Start the thread
-        bulkEraseThread.start();
-    }
-    
-    
-    
-    
-
-
-
-
-
-
-
-
-    /*End Experiment Tab Methods*/
-
-
-
-
-
-
-
-    /*Begin Motion Visualization Tab Methods*/
-
-    //Under Development... Will have methods soon
-
-    /*End Motion Visualization Tab Methods*/
-
-
-
-
-    /* Module Parameter Settings */
-
-    /**
-     * Get the desired tick threshold for the desired sample rate. This effectively sets the sample rate of the module
-     * @param accelGyroSampleRate
-     * @return
-     */
-    public int getTickThreshold(int accelGyroSampleRate) {
-        switch (accelGyroSampleRate) {
-            case(60):
-                return 33173;
-            case(120):
-                return 33021;
-            case (240):
-                return 16343;
-            case (480):
-                return 8021;
-            case (500):
-                return 7679;
-            case (960):
-                return 3848;
-            default:	//960-96
-                return 3813;
+//            Runnable bulkEraseOperation = new Runnable() {
+//                public void run() {
+//                    //Disable buttons that should not be used in the middle of a sequence
+//                    eraseButton.setDisable(true);
+//
+//                    //Notify the user that the bulk erase sequence has began
+//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                    generalStatusExperimentLabel.setText("Bulk Erasing...");
+//                    progressBar.setProgress(0);
+//                    //progressBar.setForeground(new Color(51, 204, 51));
+//
+//                    try {
+//                        if (serialHandler.bulkEraseModule()) {
+//                            //Notify the user that the sequence has completed
+//                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                            generalStatusExperimentLabel.setText("Bulk Erase Complete");
+//                            progressBar.setProgress(100);
+//                            //progressBar.setForeground(new Color(51, 204, 51));
+//                        } else {
+//
+//                            //Notify the user that the sequence has failed
+//                            generalStatusExperimentLabel.setTextFill(Color.RED);
+//                            generalStatusExperimentLabel.setText("Bulk Erase Failed");
+//                            progressBar.setProgress(100);
+//                            //progressBar.setForeground(new Color(255, 0, 0));
+//                        }
+//                        //Enable buttons that can now be used since the sector erase completed
+//                        eraseButton.setDisable(false);
+//                    } catch (IOException e) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    } catch (PortInUseException e) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    } catch (UnsupportedCommOperationException e) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    }
+//                }
+//            };
+//
+//            //Define a new thread to run the operation previously defined
+//            Thread bulkEraseThread = new Thread(bulkEraseOperation);
+//            //Start the thread
+//            bulkEraseThread.start();
         }
-    }
-
-    /***
-     *  Fills the testTypeHashMap with the module settings associated with each test type
-     *
-     * @param timedTest
-     */
-    public void fillTestTypeHashMap(int timedTest) {
-        ArrayList<Integer> testParams = new ArrayList<Integer>();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(4);
-        //10 Gyro Sensitivity
-        testParams.add(1000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
-
-        testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParams);
-
-        testParams.clear();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(4);
-        //10 Gyro Sensitivity
-        testParams.add(2000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
-
-        testTypeHashMap.put("Conservation of Angular Momentum", testParams);
-
-        testParams.clear();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(16);
-        //10 Gyro Sensitivity
-        testParams.add(2000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
-
-        testTypeHashMap.put("Conservation of Energy", testParams);
-
-        testParams.clear();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(4);
-        //10 Gyro Sensitivity
-        testParams.add(1000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
-
-        testTypeHashMap.put("Inclined Plane", testParams);
-
-        testParams.clear();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(8);
-        //10 Gyro Sensitivity
-        testParams.add(2000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
-
-        testTypeHashMap.put("Physical Pendulum", testParams);
-
-        testParams.clear();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(4);
-        //10 Gyro Sensitivity
-        testParams.add(1000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
-
-        testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
-
-        testParams.clear();
-
-        //TODO: Finish adding test type parameters
-    }
 
 
-    public boolean findModuleCommPort() {
+
+
+
+
+
+
+
+
+
+
+        /*End Experiment Tab Methods*/
+
+
+
+
+
+
+
+        /*Begin Motion Visualization Tab Methods*/
+
+        //Under Development... Will have methods soon
+
+        /*End Motion Visualization Tab Methods*/
+
+
+
+
+        /* Module Parameter Settings */
+
+        /**
+         * Get the desired tick threshold for the desired sample rate. This effectively sets the sample rate of the module
+         * @param accelGyroSampleRate
+         * @return
+         */
+        public int getTickThreshold ( int accelGyroSampleRate){
+            switch (accelGyroSampleRate) {
+                case (60):
+                    return 33173;
+                case (120):
+                    return 33021;
+                case (240):
+                    return 16343;
+                case (480):
+                    return 8021;
+                case (500):
+                    return 7679;
+                case (960):
+                    return 3848;
+                default:    //960-96
+                    return 3813;
+            }
+        }
+
+        /***
+         *  Fills the testTypeHashMap with the module settings associated with each test type
+         *
+         * @param timedTest
+         */
+        public void fillTestTypeHashMap ( int timedTest){
+            ArrayList<Integer> testParams = new ArrayList<Integer>();
+
+            //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+            testParams.add(0);
+            //1 Timer0 Tick Threshold
+            testParams.add(getTickThreshold(960));
+            //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+            testParams.add(0);
+            //3 Battery timeout flag
+            testParams.add(300);
+            //4 Timed test flag
+            testParams.add(timedTest);
+            //5 Trigger on release flag
+            testParams.add(1);
+            //6 Test Length
+            testParams.add(30);
+            //7 Accel Gyro Sample Rate
+            testParams.add(960);
+            //8 Mag Sample Rate
+            testParams.add(96);
+            //9 Accel Sensitivity
+            testParams.add(4);
+            //10 Gyro Sensitivity
+            testParams.add(1000);
+            //11 Accel Filter
+            testParams.add(92);
+            //12 Gyro Filter
+            testParams.add(92);
+
+            testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParams);
+
+            testParams.clear();
+
+            //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+            testParams.add(0);
+            //1 Timer0 Tick Threshold
+            testParams.add(getTickThreshold(960));
+            //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+            testParams.add(0);
+            //3 Battery timeout flag
+            testParams.add(300);
+            //4 Timed test flag
+            testParams.add(timedTest);
+            //5 Trigger on release flag
+            testParams.add(1);
+            //6 Test Length
+            testParams.add(30);
+            //7 Accel Gyro Sample Rate
+            testParams.add(960);
+            //8 Mag Sample Rate
+            testParams.add(96);
+            //9 Accel Sensitivity
+            testParams.add(4);
+            //10 Gyro Sensitivity
+            testParams.add(2000);
+            //11 Accel Filter
+            testParams.add(92);
+            //12 Gyro Filter
+            testParams.add(92);
+
+            testTypeHashMap.put("Conservation of Angular Momentum", testParams);
+
+            testParams.clear();
+
+            //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+            testParams.add(0);
+            //1 Timer0 Tick Threshold
+            testParams.add(getTickThreshold(960));
+            //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+            testParams.add(0);
+            //3 Battery timeout flag
+            testParams.add(300);
+            //4 Timed test flag
+            testParams.add(timedTest);
+            //5 Trigger on release flag
+            testParams.add(1);
+            //6 Test Length
+            testParams.add(30);
+            //7 Accel Gyro Sample Rate
+            testParams.add(960);
+            //8 Mag Sample Rate
+            testParams.add(96);
+            //9 Accel Sensitivity
+            testParams.add(16);
+            //10 Gyro Sensitivity
+            testParams.add(2000);
+            //11 Accel Filter
+            testParams.add(92);
+            //12 Gyro Filter
+            testParams.add(92);
+
+            testTypeHashMap.put("Conservation of Energy", testParams);
+
+            testParams.clear();
+
+            //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+            testParams.add(0);
+            //1 Timer0 Tick Threshold
+            testParams.add(getTickThreshold(960));
+            //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+            testParams.add(0);
+            //3 Battery timeout flag
+            testParams.add(300);
+            //4 Timed test flag
+            testParams.add(timedTest);
+            //5 Trigger on release flag
+            testParams.add(1);
+            //6 Test Length
+            testParams.add(30);
+            //7 Accel Gyro Sample Rate
+            testParams.add(960);
+            //8 Mag Sample Rate
+            testParams.add(96);
+            //9 Accel Sensitivity
+            testParams.add(4);
+            //10 Gyro Sensitivity
+            testParams.add(1000);
+            //11 Accel Filter
+            testParams.add(92);
+            //12 Gyro Filter
+            testParams.add(92);
+
+            testTypeHashMap.put("Inclined Plane", testParams);
+
+            testParams.clear();
+
+            //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+            testParams.add(0);
+            //1 Timer0 Tick Threshold
+            testParams.add(getTickThreshold(960));
+            //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+            testParams.add(0);
+            //3 Battery timeout flag
+            testParams.add(300);
+            //4 Timed test flag
+            testParams.add(timedTest);
+            //5 Trigger on release flag
+            testParams.add(1);
+            //6 Test Length
+            testParams.add(30);
+            //7 Accel Gyro Sample Rate
+            testParams.add(960);
+            //8 Mag Sample Rate
+            testParams.add(96);
+            //9 Accel Sensitivity
+            testParams.add(8);
+            //10 Gyro Sensitivity
+            testParams.add(2000);
+            //11 Accel Filter
+            testParams.add(92);
+            //12 Gyro Filter
+            testParams.add(92);
+
+            testTypeHashMap.put("Physical Pendulum", testParams);
+
+            testParams.clear();
+
+            //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+            testParams.add(0);
+            //1 Timer0 Tick Threshold
+            testParams.add(getTickThreshold(960));
+            //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+            testParams.add(0);
+            //3 Battery timeout flag
+            testParams.add(300);
+            //4 Timed test flag
+            testParams.add(timedTest);
+            //5 Trigger on release flag
+            testParams.add(1);
+            //6 Test Length
+            testParams.add(30);
+            //7 Accel Gyro Sample Rate
+            testParams.add(960);
+            //8 Mag Sample Rate
+            testParams.add(96);
+            //9 Accel Sensitivity
+            testParams.add(4);
+            //10 Gyro Sensitivity
+            testParams.add(1000);
+            //11 Accel Filter
+            testParams.add(92);
+            //12 Gyro Filter
+            testParams.add(92);
+
+            testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
+
+            testParams.clear();
+
+            //TODO: Finish adding test type parameters
+        }
+
+
+    public boolean findModuleCommPort(){
         class threadHack{
             private boolean status = false;
 
@@ -1182,76 +1589,144 @@ public class EducatorModeControllerFX implements Initializable {
         }
         final threadHack th = new threadHack();
 
-        Runnable findModuleOperation = new Runnable() {
-            public void run() {
-                try {
-                    ArrayList<String> commPortIDList = serialHandler.findPorts();
-                    boolean moduleFound = false;
-                    int commPortIndex = 0;
-                    while (!moduleFound && commPortIndex < commPortIDList.size()) {
 
-                        //Get the string identifier (name) of the current port
-                        String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();
+        Platform.runLater(() -> {
+            try {
+                ArrayList<String> commPortIDList = serialHandler.findPorts();
+                boolean moduleFound = false;
+                int commPortIndex = 0;
+                while (!moduleFound && commPortIndex < commPortIDList.size()) {
 
-                        //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-                        if(serialHandler.openSerialPort(selectedCommID)){
+                    //Get the string identifier (name) of the current port
+                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();
 
-                            int attemptCounter = 0;
-                            while (attemptCounter < 3 && !moduleFound) {
-                                try {
-                                    ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+                    //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+                    if(serialHandler.openSerialPort(selectedCommID)){
 
-                                    if (moduleIDInfo != null) {
-                                        moduleFound = true;
+                        int attemptCounter = 0;
+                        while (attemptCounter < 3 && !moduleFound) {
+                            try {
+                                ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
 
-                                        if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-                                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                                            generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
-                                        }
-                                        else {
-                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                            generalStatusExperimentLabel.setText("Successfully Connected to Module");
-                                        }
+                                if (moduleIDInfo != null) {
+                                    moduleFound = true;
+
+                                    if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+                                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                                        generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
                                     }
                                     else {
-                                        attemptCounter++;
+                                        generalStatusExperimentLabel.setTextFill(DarkGreen);
+                                        generalStatusExperimentLabel.setText("Successfully Connected to Module");
                                     }
                                 }
-                                catch (IOException e) {
-                                    attemptCounter++;
-                                }
-                                catch (PortInUseException e) {
-                                    attemptCounter++;
-                                }
-                                catch (UnsupportedCommOperationException e) {
+                                else {
                                     attemptCounter++;
                                 }
                             }
-
+                            catch (IOException e) {
+                                attemptCounter++;
+                            }
+                            catch (PortInUseException e) {
+                                attemptCounter++;
+                            }
+                            catch (UnsupportedCommOperationException e) {
+                                attemptCounter++;
+                            }
                         }
-                        commPortIndex++;
-                    }
-                    if (!moduleFound) {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                        th.setStatus(false);
-                    }
 
+                    }
+                    commPortIndex++;
                 }
-                catch (IOException e) {
+                if (!moduleFound) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
                     th.setStatus(false);
                 }
-                catch (PortInUseException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                    th.setStatus(false);
-                }
+
             }
-        };
-        Thread findModuleThread = new Thread(findModuleOperation);
-        findModuleThread.run();
+            catch (IOException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                th.setStatus(false);
+            }
+            catch (PortInUseException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                th.setStatus(false);
+            }
+        });
+
+//        Runnable findModuleOperation = new Runnable() {
+//            public void run() {
+//                try {
+//                    ArrayList<String> commPortIDList = serialHandler.findPorts();
+//                    boolean moduleFound = false;
+//                    int commPortIndex = 0;
+//                    while (!moduleFound && commPortIndex < commPortIDList.size()) {
+//
+//                        //Get the string identifier (name) of the current port
+//                        String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();
+//
+//                        //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+//                        if(serialHandler.openSerialPort(selectedCommID)){
+//
+//                            int attemptCounter = 0;
+//                            while (attemptCounter < 3 && !moduleFound) {
+//                                try {
+//                                    ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+//
+//                                    if (moduleIDInfo != null) {
+//                                        moduleFound = true;
+//
+//                                        if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+//                                            generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                            generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
+//                                        }
+//                                        else {
+//                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                                            generalStatusExperimentLabel.setText("Successfully Connected to Module");
+//                                        }
+//                                    }
+//                                    else {
+//                                        attemptCounter++;
+//                                    }
+//                                }
+//                                catch (IOException e) {
+//                                    attemptCounter++;
+//                                }
+//                                catch (PortInUseException e) {
+//                                    attemptCounter++;
+//                                }
+//                                catch (UnsupportedCommOperationException e) {
+//                                    attemptCounter++;
+//                                }
+//                            }
+//
+//                        }
+//                        commPortIndex++;
+//                    }
+//                    if (!moduleFound) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+//                        th.setStatus(false);
+//                    }
+//
+//                }
+//                catch (IOException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+//                    th.setStatus(false);
+//                }
+//                catch (PortInUseException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+//                    th.setStatus(false);
+//                }
+//            }
+//        };
+//        Thread findModuleThread = new Thread(findModuleOperation);
+//        findModuleThread.run();
         return th.getStatus();
     }
 
