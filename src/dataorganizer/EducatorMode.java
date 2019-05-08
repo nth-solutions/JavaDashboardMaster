@@ -1288,6 +1288,7 @@ public class EducatorMode extends JFrame {
 		String path = chooseSpreadsheetOutputPath(generalStatusLabelThree);
 		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
 		SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
+		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 		generalStatusLabelThree.setForeground(DarkGreen);
 		generalStatusLabelThree.setText("File Copy finished!");
 		
@@ -1385,27 +1386,38 @@ public class EducatorMode extends JFrame {
 													generalStatusLabelThree.setText("Writing data to spreadsheet");
 
 													if (testType == "Conservation of Momentum (Elastic Collision)"){
-
+														parameterSpreadsheetController.loadConservationofMomentumParameters(gliderOneMassDouble, gliderTwoMassDouble);
+														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														parameterSpreadsheetController.saveWorkbook(path);
 													}
 													else if(testType == "Conservation of Angular Momentum"){
 
 													}
 													else if(testType == "Conservation of Energy"){
 
+														parameterSpreadsheetController.loadConservationofEnergyParameters();
+														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														parameterSpreadsheetController.saveWorkbook(path);
+
 													}
 													else if(testType == "Inclined Plane") {
+
 													}
 													else if(testType == "Physical Pendulum"){
-														pendulumSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
-														pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														pendulumSpreadsheetController.saveWorkbook(path);
+
+														parameterSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
+														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														parameterSpreadsheetController.saveWorkbook(path);
 
 													}else if(testType == "Spinny Stool"){
-														spinnyStoolSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
-														spinnyStoolSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														spinnyStoolSpreadsheetController.saveWorkbook(path);
+														parameterSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
+														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														parameterSpreadsheetController.saveWorkbook(path);
 
 													}else if(testType == "Spring Test - Simple Haromincs"){
+														parameterSpreadsheetController.loadSpringTestParameters(springConstantDouble, totalMassDouble, amplitudeDouble, massOfSpringDouble);
+														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														parameterSpreadsheetController.saveWorkbook(path);
 
 													}
 
@@ -1620,13 +1632,14 @@ public class EducatorMode extends JFrame {
 			generalStatusLabelOne.setText("Invalid Data Entered");
 		}
 	}
-	
+
+
 	private void getConservationofMomentumParameters() {
 		String gliderOneMass = firstGliderAndModuleMassTextField.getText();
 		String gliderTwoMass = secondGliderAndModuleMassTextField.getText();
 		
 		try {
-			
+
 			gliderOneMassDouble = Double.parseDouble(gliderOneMass);
 			gliderTwoMassDouble = Double.parseDouble(gliderTwoMass);
 
@@ -1635,7 +1648,10 @@ public class EducatorMode extends JFrame {
 			generalStatusLabelOne.setText("Invalid Data Entered");
 		}
 	}
-	
+
+	private void getConservationofEnergyParameters(){
+
+	}
 	
 
 	/**
@@ -1754,9 +1770,28 @@ public class EducatorMode extends JFrame {
 				writeButtonHandler();
 				//TODO: Add in Following 4 Methods/ Redesign for FX
 				readExtraTestParamsForTemplate();
-				getPendulumParameters();
-				getSpringTestParameters();
-				getSpinnyStoolParameters();
+
+				if (testType == "Conservation of Momentum (Elastic Collision)"){
+					getConservationofMomentumParameters();
+
+				}
+				else if(testType == "Conservation of Angular Momentum"){
+
+				}
+				else if(testType == "Conservation of Energy"){
+					getConservationofEnergyParameters();
+				}
+				else if(testType == "Inclined Plane") {
+				}
+				else if(testType == "Physical Pendulum"){
+					getPendulumParameters();
+
+				}else if(testType == "Spinny Stool"){
+					getSpinnyStoolParameters();
+
+				}else if(testType == "Spring Test - Simple Haromincs"){
+					getSpringTestParameters();
+				}
 			}
 		});
 		applyConfigurationsBtn.setBounds(10, 310, 534, 39);
@@ -1799,7 +1834,7 @@ public class EducatorMode extends JFrame {
 				navPanelOne.setLayout(null);
 				navPanelOne.setBounds(10, 425, 534, 90);
 				stepOne.add(navPanelOne);
-				
+
 				nextBtnOne = new JButton("Next");
 				nextBtnOne.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {

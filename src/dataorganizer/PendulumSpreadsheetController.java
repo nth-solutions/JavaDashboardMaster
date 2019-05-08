@@ -43,11 +43,6 @@ public class PendulumSpreadsheetController {
         workbook.getWorksheets().get(4).getCells().get("C9").setValue(moduleMass);
         workbook.getWorksheets().get(4).getCells().get("C10").setValue(moduleDistanceFromAOR);
 
-//        System.out.println(pendulumLength);
-//        System.out.println(pendulumMass);
-//        System.out.println(moduleMass);
-//        System.out.println(moduleDistanceFromAOR);
-
     }
 
 

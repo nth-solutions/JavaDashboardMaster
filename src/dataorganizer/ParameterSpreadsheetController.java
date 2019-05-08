@@ -13,9 +13,9 @@ public class ParameterSpreadsheetController {
 
     public ParameterSpreadsheetController() {
 
-        testType = EducatorMode.testType;
+        testType = EducatorMode.testType; // gets the selected test from Educator mode
 
-        if (testType == "Conservation of Momentum (Elastic Collision)"){
+        if (testType == "Conservation of Momentum (Elastic Collision)"){ // changes the end of the file path to match the test. This file path is the location of the unaltered template
 
             testTypeFileName = "";
         }
@@ -67,7 +67,7 @@ public class ParameterSpreadsheetController {
     public void test(){
         System.out.println(testType);
     }
-    public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){
+    public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){ //writes the PendulumParameters to their correct locations in the spreadsheet. Following load parameter classes do them same thing but for their respective test.
         workbook.getWorksheets().get(4).getCells().get("C7").setValue(pendulumLength);
         workbook.getWorksheets().get(4).getCells().get("C8").setValue(pendulumMass);
         workbook.getWorksheets().get(4).getCells().get("C9").setValue(moduleMass);
@@ -82,17 +82,20 @@ public class ParameterSpreadsheetController {
     }
 
     public void loadSpringTestParameters(double springConstant, double totalMass, double amplitude, double massOfSpring) {
-        workbook.getWorksheets().get(4).getCells().get("C7").setValue(springConstant);
-        workbook.getWorksheets().get(4).getCells().get("C8").setValue(totalMass);
+        workbook.getWorksheets().get(4).getCells().get("C8").setValue(springConstant);
+        workbook.getWorksheets().get(4).getCells().get("C7").setValue(totalMass);
         workbook.getWorksheets().get(4).getCells().get("C9").setValue(amplitude);
         workbook.getWorksheets().get(4).getCells().get("C10").setValue(massOfSpring);
     }
-//    public void loadConservationofMomentumParameters (){
-//        workbook.getWorksheets().get(4).getCells().get("C7").setValue(pendulumLength);
-//        workbook.getWorksheets().get(4).getCells().get("C8").setValue(pendulumMass);
-//        workbook.getWorksheets().get(4).getCells().get("C9").setValue(moduleMass);
-//        workbook.getWorksheets().get(4).getCells().get("C10").setValue(moduleDistanceFromAOR);
-//    }
+    public void loadConservationofMomentumParameters (double gliderOneMass, double gliderTwoMass){
+        workbook.getWorksheets().get(4).getCells().get("C8").setValue(gliderOneMass);
+        workbook.getWorksheets().get(4).getCells().get("C9").setValue(gliderTwoMass);
+    }
+
+    public void loadConservationofEnergyParameters() {
+
+    }
+
     /**
      * Fills the Pendulum Template with all of the data recorded during a module test
      * @param rowOffset The offset integer used to identify the first row for data to be added
