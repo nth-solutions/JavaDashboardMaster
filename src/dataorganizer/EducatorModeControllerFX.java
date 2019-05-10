@@ -206,6 +206,8 @@ public class EducatorModeControllerFX implements Initializable {
     private void nextTab(ActionEvent event) {
         generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
+        progressBar.setProgress(0);
+        progressBar.setStyle("-fx-accent: #1f78d1;");
 
         if (experimentTabIndex == 4) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
             experimentTabIndex = -1;
@@ -232,6 +234,8 @@ public class EducatorModeControllerFX implements Initializable {
     private void backTab(ActionEvent event) {
         generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
+        progressBar.setProgress(0);
+        progressBar.setStyle("-fx-accent: #1f78d1;");
 
         if (experimentTabIndex != 0) {  // If the index does not equal 0 (the first pane), the index will decrement
             experimentTabIndex -= 1;
@@ -396,10 +400,6 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    //TODO: Fix Threading Issue on all following FXML ActionEvents
-    //TODO: Find a way to dynamically change the progress bar's color
-    //TODO: Find a way to Change General Status Color Dynamically
-
     /**
      * ActionEvent that configures the module using functionality from the SerialComm Class for pairing with an RF remote
      * control
@@ -408,114 +408,87 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void pairNewRemote(ActionEvent event) {
-        
-        //Disable buttons that should not be used in the middle of a sequence
-        pairNewRemoteButton.setDisable(true);
-        unpairAllRemotesButton.setDisable(true);
-        testRemotesButton.setDisable(true);
 
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-        progressBar.setProgress(0);
-        //progressBar.setForeground(Color.RED);
+        Task<Void> pairNewRemoteTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                int maxProgress = 100;
+                updateMessage("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
+                updateProgress(0, maxProgress);
 
-        try {
-            if (serialHandler.pairNewRemote()) {
-                generalStatusExperimentLabel.setTextFill(DarkGreen);
-                generalStatusExperimentLabel.setText("New Remote Successfully Paired");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(51, 204, 51));
-            } else {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(Color.RED);
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    progressBar.setStyle("-fx-accent: #1f78d1;");
+                });
+
+                try {
+                    if (serialHandler.pairNewRemote()) {
+                        updateMessage("New Remote Successfully Paired");
+                        updateProgress(100, maxProgress);
+
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                            progressBar.setStyle("-fx-accent: #1f78d1;");
+                        });
+
+                    } else {
+                        updateMessage("Pair Unsuccessful, Receiver Timed Out");
+                        updateProgress(100, maxProgress);
+
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            progressBar.setStyle("-fx-accent: red;");
+                        });
+                    }
+
+                } catch (IOException e) {
+                    updateMessage("Error Communicating With Serial Dongle");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (PortInUseException e) {
+                    updateMessage("Serial Port Already In Use");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+                    updateMessage("Check Dongle Compatability");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                }
+                return null;
             }
+        };
 
+        pairNewRemoteButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
+        unpairAllRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
+        testRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
+        generalStatusExperimentLabel.textProperty().bind(pairNewRemoteTask.messageProperty());
+        progressBar.progressProperty().bind(pairNewRemoteTask.progressProperty());
 
-        } catch (IOException e) {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(Color.RED);
-        } catch (PortInUseException e) {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Serial Port Already In Use");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(Color.RED);
-        } catch (UnsupportedCommOperationException e) {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Check Dongle Compatability");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(Color.RED);
-        }
+        pairNewRemoteTask.setOnSucceeded(e -> {
+            pairNewRemoteButton.disableProperty().unbind();
+            unpairAllRemotesButton.disableProperty().unbind();
+            testRemotesButton.disableProperty().unbind();
+            generalStatusExperimentLabel.textProperty().unbind();
+            progressBar.progressProperty().unbind();
+        });
 
-        //Enable buttons that can now be used since the bulk erase completed
-        pairNewRemoteButton.setDisable(false);
-        unpairAllRemotesButton.setDisable(false);
-        testRemotesButton.setDisable(false);
+        new Thread(pairNewRemoteTask).start();
 
-
-//        Runnable pairNewRemoteOperation = new Runnable() {
-//            public void run() {
-//                //Disable buttons that should not be used in the middle of a sequence
-//                pairNewRemoteButton.setDisable(true);
-//                unpairAllRemotesButton.setDisable(true);
-//                testRemotesButton.setDisable(true);
-//
-//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-//                progressBar.setProgress(0);
-//                //progressBar.setForeground(Color.RED);
-//
-//                try {
-//                    if(serialHandler.pairNewRemote()) {
-//                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                        generalStatusExperimentLabel.setText("New Remote Successfully Paired");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(51, 204, 51));
-//                    }
-//                    else {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(Color.RED);
-//                    }
-//
-//
-//                }
-//                catch (IOException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(Color.RED);
-//                }
-//                catch (PortInUseException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(Color.RED);
-//                }
-//                catch (UnsupportedCommOperationException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(Color.RED);
-//                }
-//
-//                //Enable buttons that can now be used since the bulk erase completed
-//                pairNewRemoteButton.setDisable(false);
-//                unpairAllRemotesButton.setDisable(false);
-//                testRemotesButton.setDisable(false);
-//
-//
-//            }
-//        };
-//
-//        //Define a new thread to run the operation previously defined
-//        Thread pairNewRemoteThread = new Thread(pairNewRemoteOperation);
-//        //Start the thread
-//        pairNewRemoteThread.start();
     }
 
     /**
@@ -526,98 +499,91 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void unpairRemotes(ActionEvent event) {
-        Platform.runLater(() -> {
-            //Disable buttons that should not be used in the middle of a sequence
-            pairNewRemoteButton.setDisable(true);
-            unpairAllRemotesButton.setDisable(true);
-            testRemotesButton.setDisable(true);
 
-            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-            generalStatusExperimentLabel.setText("Unpairing all Remotes...");
-            progressBar.setProgress(0);
-            //progressBar.setForeground(new Color(51, 204, 51));
+        Task<Void> unpairRemotesTask = new Task<Void>() {
 
-            try {
-                serialHandler.unpairAllRemotes();
-            } catch (IOException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
-            } catch (PortInUseException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
-            } catch (UnsupportedCommOperationException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
+            @Override
+            protected Void call() throws Exception {
+                int maxProgress = 100;
+
+                updateMessage("Unpairing All Remotes...");
+                updateProgress(0, maxProgress);
+
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    progressBar.setStyle("-fx-accent: #1f78d1;");
+                });
+
+                try {
+                    serialHandler.unpairAllRemotes();
+                } catch (IOException e) {
+
+                    updateMessage("Error Communicating With Serial Dongle");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (PortInUseException e) {
+
+                    updateMessage("Serial Port Already In Use");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+
+                    updateMessage("Check Dongle Compatability");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                }
+
+                updateMessage("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
+                updateProgress(0, maxProgress);
+
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    progressBar.setStyle("-fx-accent: #1f78d1;");
+                });
+
+                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
+                progressBar.setProgress(0);
+                //progressBar.setForeground(new Color(51, 204, 51));
+
+                return null;
             }
+        };
 
+        pairNewRemoteButton.disableProperty().bind(unpairRemotesTask.runningProperty());
+        unpairAllRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
+        testRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
+        generalStatusExperimentLabel.textProperty().bind(unpairRemotesTask.messageProperty());
+        progressBar.progressProperty().bind(unpairRemotesTask.progressProperty());
 
-            pairNewRemoteButton.setDisable(false);
-            unpairAllRemotesButton.setDisable(false);
-            testRemotesButton.setDisable(false);
-
-            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-            generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-            progressBar.setProgress(0);
-            //progressBar.setForeground(new Color(51, 204, 51));
+        unpairRemotesTask.setOnSucceeded(e -> {
+            pairNewRemoteButton.disableProperty().unbind();
+            unpairAllRemotesButton.disableProperty().unbind();
+            testRemotesButton.disableProperty().unbind();
+            generalStatusExperimentLabel.textProperty().unbind();
+            progressBar.progressProperty().unbind();
         });
 
-//        Runnable unpairAllRemotesOperation = new Runnable() {
-//            public void run() {
-//                //Disable buttons that should not be used in the middle of a sequence
-//                pairNewRemoteButton.setDisable(true);
-//                unpairAllRemotesButton.setDisable(true);
-//                testRemotesButton.setDisable(true);
-//
-//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                generalStatusExperimentLabel.setText("Unpairing all Remotes...");
-//                progressBar.setProgress(0);
-//                //progressBar.setForeground(new Color(51, 204, 51));
-//
-//                try {
-//                    serialHandler.unpairAllRemotes();
-//                }
-//                catch (IOException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//                catch (PortInUseException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//                catch (UnsupportedCommOperationException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//
-//
-//                pairNewRemoteButton.setDisable(false);
-//                unpairAllRemotesButton.setDisable(false);
-//                testRemotesButton.setDisable(false);
-//
-//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-//                progressBar.setProgress(0);
-//                //progressBar.setForeground(new Color(51, 204, 51));
-//            }
-//        };
-//
-//        //Define a new thread to run the operation previously defined
-//        Thread unpairAllRemotesThread = new Thread(unpairAllRemotesOperation);
-//        //Start the thread
-//        unpairAllRemotesThread.start();
+        new Thread(unpairRemotesTask).start();
+
     }
+
+    //TODO: Continue Task Creation Here
 
     /**
      * ActionEvent that puts the module into a testing mode using functionality from the SerialComm Class, wherein the
@@ -681,68 +647,6 @@ public class EducatorModeControllerFX implements Initializable {
             progressBar.setProgress(100);
             //progressBar.setForeground(DarkGreen);
         });
-
-//            Runnable testRemoteOperation = new Runnable() {
-//                public void run() {
-//                    //Disable buttons that should not be used in the middle of a sequence
-//                    pairNewRemoteButton.setDisable(true);
-//                    unpairAllRemotesButton.setDisable(true);
-//                    testRemotesButton.setDisable(true);
-//                    backButton.setDisable(true);
-//                    nextButton.setDisable(true);
-//                    exitTestModeButton.setDisable(false);
-//
-//
-//                    //Notify the user that the bulk erase sequence has began
-//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                    generalStatusExperimentLabel.setText("Press a Button on a Remote to Test if it is Paired");
-//                    progressBar.setProgress(0);
-//                    //progressBar.setForeground(new Color(51, 204, 51));
-//
-//                    try {
-//                        if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
-//                            generalStatusExperimentLabel.setTextFill(Color.RED);
-//                            generalStatusExperimentLabel.setText("Error Communicating with Module");
-//                            progressBar.setProgress(100);
-//                            //progressBar.setForeground(new Color(255, 0, 0));
-//                        }
-//                    } catch (IOException e) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    } catch (PortInUseException e) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    } catch (UnsupportedCommOperationException e) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    }
-//
-//                    //Enable button
-//                    pairNewRemoteButton.setDisable(false);
-//                    unpairAllRemotesButton.setDisable(false);
-//                    testRemotesButton.setDisable(false);
-//                    exitTestModeButton.setDisable(true);
-//                    backButton.setDisable(false);
-//                    nextButton.setDisable(false);
-//
-//                    //Notify the user that the sequence has completed
-//                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                    generalStatusExperimentLabel.setText("Test Mode Successfully Exited");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(DarkGreen);
-//                }
-//            };
-//
-//            //Define a new thread to run the operation previously defined
-//            Thread testRemoteThread = new Thread(testRemoteOperation);
-//            //Start the thread
-//            testRemoteThread.start();
     }
 
     /**
@@ -950,201 +854,7 @@ public class EducatorModeControllerFX implements Initializable {
                 //progressBar.setForeground(new Color(255, 0, 0));
             }
         });
-
-//            Runnable readOperation = new Runnable() {
-//                public void run() {
-//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                    //Disable read button while read is in progress
-//                    backButton.setDisable(true);
-//                    nextButton.setDisable(true);
-//                    readTestButton.setDisable(true);
-//
-//                    try {
-//                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                        generalStatusExperimentLabel.setText("Reading Data from Module...");
-//
-//                        //Read test parameters from module and store it in testParameters
-//                        ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-//
-//                        //Executes if the reading of the test parameters was successful
-//                        if (testParameters != null) {
-//
-//                            int expectedTestNum = testParameters.get(0);
-//
-//                            //Assign local variables to their newly received values from the module
-//                            int timedTestFlag = testParameters.get(4);
-//                            //Trigger on release is 8
-//                            int testLength = testParameters.get(6);
-//                            int accelGyroSampleRate = testParameters.get(7);
-//                            int magSampleRate = testParameters.get(8);
-//                            int accelSensitivity = testParameters.get(9);
-//                            int gyroSensitivity = testParameters.get(10);
-//                            int accelFilter = testParameters.get(11);
-//                            int gyroFilter = testParameters.get(12);
-//
-//
-//                            double bytesPerSample = 18;
-//                            if (accelGyroSampleRate / magSampleRate == 10) {
-//                                bytesPerSample = 12.6;
-//                            }
-//
-//
-//                            String nameOfFile = "";
-//
-//                            //Executes if there are tests on the module
-//                            if (expectedTestNum > 0) {
-//
-//                                //Get date for file name
-//                                Date date = new Date();
-//
-//                                //Assign file name
-//                                nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-//
-//                                HashMap<Integer, ArrayList<Integer>> testData;
-//
-//                                //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-//                                //TODO: Update method
-//                                testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-//
-//                                generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                                generalStatusExperimentLabel.setText("All Data Received from Module");
-//
-//                                //Executes if the data was received properly (null = fail)
-//                                if (testData != null) {
-//                                    for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-//
-//                                        int[] finalData = new int[testData.get(testIndex).size()];
-//
-//                                        for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-//                                            if (testData.get(testIndex).get(byteIndex) != -1) {
-//                                                finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-//                                            } else {
-//                                                finalData[byteIndex] = -1;
-//                                                break;
-//                                            }
-//                                        }
-//                                        String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-//                                        dataOrgo = new DataOrganizer(testParameters, tempName);
-//                                        //Define operation that can be run in separate thread
-//                                        Runnable organizerOperation = new Runnable() {
-//                                            public void run() {
-//
-//                                                //Organize data into .CSV
-//                                                dataOrgo.createDataSmpsRawData(finalData);
-//
-//
-//                                                if (spreadsheetRadioButton.isSelected()) {
-//
-//                                                    List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
-//
-//
-//                                                    //TODO: Add Constructor with Dynamic Path Getting
-//                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-//
-//                                                    if (testType == "Conservation of Momentum (Elastic Collision)") {
-//                                                        //TODO: Fill with Spreadsheet Controller
-//                                                    } else if (testType == "Conservation of Energy") {
-//                                                        //TODO: Fill with Spreadsheet Controller
-//                                                    } else if (testType == "Inclined Plane") {
-//                                                        //TODO: Fill with Spreadsheet Controller
-//                                                    } else if (testType == "Physical Pendulum") {
-//                                                        //TODO: Fill with Spreadsheet Controller
-//                                                        pendulumSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-//                                                        pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-//                                                        pendulumSpreadsheetController.saveWorkbook(path);
-//                                                    } else if (testType == "Spring Test - Simple Harmonics") {
-//                                                        //TODO: Fill with Spreadsheet Controller
-//                                                    }
-//
-//                                                    try {
-//                                                        Thread.sleep(10000);
-//
-//                                                    } catch (Exception exceptionalexception) {
-//                                                        System.out.println("If you got this error, something went seriously wrong");
-//                                                    }
-//
-//
-//                                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                                                    generalStatusExperimentLabel.setText("Data Successfully Written");
-//
-//                                                    //Re-enable read button upon read completion
-//                                                    backButton.setDisable(false);
-//                                                    nextButton.setDisable(false);
-//                                                    readTestButton.setDisable(false);
-//
-//                                                }
-//                                                dataOrgo.getSignedData();
-//                                                //dataOrgo.createCSVP();
-//                                                //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-//
-//                                                //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
-//                                            }
-//                                        };
-//
-//                                        //Set thread to execute previously defined operation
-//                                        Thread organizerThread = new Thread(organizerOperation);
-//                                        //Start thread
-//                                        organizerThread.start();
-//
-//                                    }
-//                                } else {
-//                                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-//                                    progressBar.setProgress(100);
-//                                    //progressBar.setForeground(new Color(255, 0, 0));
-//                                }
-//                            } else {
-//                                generalStatusExperimentLabel.setTextFill(Color.RED);
-//                                generalStatusExperimentLabel.setText("No Tests Found on Module");
-//                                progressBar.setProgress(100);
-//                                //progressBar.setForeground(new Color(255, 0, 0));
-//                            }
-//                        } else {
-//                            generalStatusExperimentLabel.setTextFill(Color.RED);
-//                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-//                            progressBar.setProgress(100);
-//                            //progressBar.setForeground(new Color(255, 0, 0));
-//                        }
-//
-//                    } catch (IOException e) {
-//
-//                        //Re-enable read button upon read completion
-//                        backButton.setDisable(false);
-//                        nextButton.setDisable(false);
-//                        readTestButton.setDisable(false);
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    } catch (PortInUseException e) {
-//
-//                        //Re-enable read button upon read completion
-//                        backButton.setDisable(false);
-//                        nextButton.setDisable(false);
-//                        readTestButton.setDisable(false);
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    } catch (UnsupportedCommOperationException e) {
-//
-//                        //Re-enable read button upon read completion
-//                        backButton.setDisable(false);
-//                        nextButton.setDisable(false);
-//                        readTestButton.setDisable(false);
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    }
-//                }
-//            };
-//
-//            //Set thread to execute previously defined operation
-//            Thread readThread = new Thread(readOperation);
-//            //Start thread
-//            readThread.start();
+        
     }
 
     @FXML
@@ -1170,25 +880,50 @@ public class EducatorModeControllerFX implements Initializable {
                 updateMessage("Bulk Erasing...");
                 updateProgress(0, maxProgress);
 
+                Platform.runLater(() -> {
+                    progressBar.setStyle("-fx-accent: #1f78d1;");
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                });
+
                 try {
 
                     if (serialHandler.bulkEraseModule()) {
                         //Notify the user that the sequence has completed
                         updateMessage("Bulk Erase Complete");
+                        Platform.runLater(() -> {
+                            progressBar.setStyle("-fx-accent: #1f78d1;");
+                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+                        });
                         updateProgress(100, maxProgress);
                     } else {
                         updateMessage("Bulk Erase Failed");
                         updateProgress(100, maxProgress);
+                        Platform.runLater(() -> {
+                            progressBar.setStyle("-fx-accent: red;");
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                        });
                     }
                 } catch (IOException e) {
                     updateMessage("Error Communicating With Serial Dongle");
                     updateProgress(100, maxProgress);
+                    Platform.runLater(() -> {
+                        progressBar.setStyle("-fx-accent: red;");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
                 } catch (PortInUseException e) {
                     updateMessage("Serial Port Already In Use");
                     updateProgress(100, maxProgress);
+                    Platform.runLater(() -> {
+                        progressBar.setStyle("-fx-accent: red;");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
                 } catch (UnsupportedCommOperationException e) {
                     updateMessage("Check Dongle Compatibility");
                     updateProgress(100, maxProgress);
+                    Platform.runLater(() -> {
+                        progressBar.setStyle("-fx-accent: red;");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
                 }
 
                 return null;
