@@ -3,41 +3,21 @@ package dataorganizer;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class EducatorModeControllerFX implements Initializable {
-
-
-
-    /*
-    GOALS:
-    1. Finish Test Parameters List
-    2. Incorporate all Methods into appropriate Buttons/ActionEvents
-    3. Add a way for data from the spring lab to be input into the templates (Brandon's help probably required)
-    4. In Output settings, disable read test until after a selection type has been made for output
-    5. Only allow one output radio button to be selected at a time
-     */
 
     //Primary UI Control FXML Components
     @FXML
@@ -418,6 +398,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     //TODO: Fix Threading Issue on all following FXML ActionEvents
     //TODO: Find a way to dynamically change the progress bar's color
+    //TODO: Find a way to Change General Status Color Dynamically
 
     /**
      * ActionEvent that configures the module using functionality from the SerialComm Class for pairing with an RF remote
@@ -427,65 +408,7 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void pairNewRemote(ActionEvent event) {
-
-//        Task<Void> pairRemoteTask = new Task<Void>() {
-//
-//            @Override
-//            protected Void call() throws Exception {
-//            pairNewRemoteButton.setDisable(true);
-//            unpairAllRemotesButton.setDisable(true);
-//            testRemotesButton.setDisable(true);
-//
-//            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//            generalStatusExperimentLabel.setText("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-//            progressBar.setProgress(0);
-//            //progressBar.setForeground(Color.RED);
-//
-//            try {
-//                if(serialHandler.pairNewRemote()) {
-//                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                    generalStatusExperimentLabel.setText("New Remote Successfully Paired");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(51, 204, 51));
-//                }
-//                else {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Pair Unsuccessful, Receiver Timed Out");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(Color.RED);
-//                }
-//
-//
-//            }
-//            catch (IOException e) {
-//                generalStatusExperimentLabel.setTextFill(Color.RED);
-//                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                progressBar.setProgress(100);
-//                //progressBar.setForeground(Color.RED);
-//            }
-//            catch (PortInUseException e) {
-//                generalStatusExperimentLabel.setTextFill(Color.RED);
-//                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                progressBar.setProgress(100);
-//                //progressBar.setForeground(Color.RED);
-//            }
-//            catch (UnsupportedCommOperationException e) {
-//                generalStatusExperimentLabel.setTextFill(Color.RED);
-//                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                progressBar.setProgress(100);
-//                //progressBar.setForeground(Color.RED);
-//            }
-//
-//            //Enable buttons that can now be used since the bulk erase completed
-//            pairNewRemoteButton.setDisable(false);
-//            unpairAllRemotesButton.setDisable(false);
-//            testRemotesButton.setDisable(false);
-//                return null;
-//            }
-//        };
-//
-//        new Thread(pairRemoteTask).start();
-
+        
         //Disable buttons that should not be used in the middle of a sequence
         pairNewRemoteButton.setDisable(true);
         unpairAllRemotesButton.setDisable(true);
@@ -834,7 +757,6 @@ public class EducatorModeControllerFX implements Initializable {
         serialHandler.exitRemoteTest();
     }
 
-    //TODO: Finish Coversion
     @FXML
     private void readTestsFromModule(ActionEvent event) {
         String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
@@ -1230,115 +1152,67 @@ public class EducatorModeControllerFX implements Initializable {
         //TODO: Implement @ a Later Data
     }
 
+
+    /**
+     * ActionEvent that handles bulk erasing the module's tests. Implements the Task Class, which essentially creates
+     * an FX Safe Thread. All relavant UI parameters are bound to specific ReadOnly Properties defined in the Worker
+     * Interface. After a successful Task run, all of the properties are unbound so as to be released back to the main
+     * UI Thread.
+     * @param event
+     */
     @FXML
     private void eraseTestsFromModule(ActionEvent event) {
 
-        //Disable buttons that should not be used in the middle of a sequence
-        eraseButton.setDisable(true);
+        Task<Void> eraseTestsTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                int maxProgress = 100;
+                updateMessage("Bulk Erasing...");
+                updateProgress(0, maxProgress);
 
-        //Notify the user that the bulk erase sequence has began
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        generalStatusExperimentLabel.setText("Bulk Erasing...");
-        progressBar.setProgress(0);
-        //progressBar.setForeground(new Color(51, 204, 51));
+                try {
 
-        try {
+                    if (serialHandler.bulkEraseModule()) {
+                        //Notify the user that the sequence has completed
+                        updateMessage("Bulk Erase Complete");
+                        updateProgress(100, maxProgress);
+                    } else {
+                        updateMessage("Bulk Erase Failed");
+                        updateProgress(100, maxProgress);
+                    }
+                } catch (IOException e) {
+                    updateMessage("Error Communicating With Serial Dongle");
+                    updateProgress(100, maxProgress);
+                } catch (PortInUseException e) {
+                    updateMessage("Serial Port Already In Use");
+                    updateProgress(100, maxProgress);
+                } catch (UnsupportedCommOperationException e) {
+                    updateMessage("Check Dongle Compatibility");
+                    updateProgress(100, maxProgress);
+                }
 
-            if (serialHandler.bulkEraseModule()) {
-                //Notify the user that the sequence has completed
-                generalStatusExperimentLabel.setTextFill(DarkGreen);
-                generalStatusExperimentLabel.setText("Bulk Erase Complete");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(51, 204, 51));
-            } else {
-
-                //Notify the user that the sequence has failed
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Bulk Erase Failed");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
+                return null;
             }
-            //Enable buttons that can now be used since the sector erase completed
-            eraseButton.setDisable(false);
-        } catch (IOException e) {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(new Color(255, 0, 0));
-        } catch (PortInUseException e) {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Serial Port Already In Use");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(new Color(255, 0, 0));
-        } catch (UnsupportedCommOperationException e) {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Check Dongle Compatability");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(new Color(255, 0, 0));
-        }
+        };
 
-//            Runnable bulkEraseOperation = new Runnable() {
-//                public void run() {
-//                    //Disable buttons that should not be used in the middle of a sequence
-//                    eraseButton.setDisable(true);
-//
-//                    //Notify the user that the bulk erase sequence has began
-//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                    generalStatusExperimentLabel.setText("Bulk Erasing...");
-//                    progressBar.setProgress(0);
-//                    //progressBar.setForeground(new Color(51, 204, 51));
-//
-//                    try {
-//                        if (serialHandler.bulkEraseModule()) {
-//                            //Notify the user that the sequence has completed
-//                            generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                            generalStatusExperimentLabel.setText("Bulk Erase Complete");
-//                            progressBar.setProgress(100);
-//                            //progressBar.setForeground(new Color(51, 204, 51));
-//                        } else {
-//
-//                            //Notify the user that the sequence has failed
-//                            generalStatusExperimentLabel.setTextFill(Color.RED);
-//                            generalStatusExperimentLabel.setText("Bulk Erase Failed");
-//                            progressBar.setProgress(100);
-//                            //progressBar.setForeground(new Color(255, 0, 0));
-//                        }
-//                        //Enable buttons that can now be used since the sector erase completed
-//                        eraseButton.setDisable(false);
-//                    } catch (IOException e) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    } catch (PortInUseException e) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    } catch (UnsupportedCommOperationException e) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    }
-//                }
-//            };
-//
-//            //Define a new thread to run the operation previously defined
-//            Thread bulkEraseThread = new Thread(bulkEraseOperation);
-//            //Start the thread
-//            bulkEraseThread.start();
+        generalStatusExperimentLabel.textProperty().bind(eraseTestsTask.messageProperty());
+        nextButton.disableProperty().bind(eraseTestsTask.runningProperty());
+        backButton.disableProperty().bind(eraseTestsTask.runningProperty());
+        eraseButton.disableProperty().bind(eraseTestsTask.runningProperty());
+        progressBar.progressProperty().bind(eraseTestsTask.progressProperty());
+
+        eraseTestsTask.setOnSucceeded(e -> {
+            generalStatusExperimentLabel.textProperty().unbind();
+            nextButton.disableProperty().unbind();
+            backButton.disableProperty().unbind();
+            eraseButton.disableProperty().unbind();
+            progressBar.progressProperty().unbind();
+
+        });
+
+        new Thread(eraseTestsTask).start();
+
     }
-
-
-
-
-
-
-
-
-
-
 
 
     /*End Experiment Tab Methods*/
