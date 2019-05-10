@@ -476,6 +476,8 @@ public class EducatorModeControllerFX implements Initializable {
         pairNewRemoteButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         unpairAllRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         testRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
+        nextButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
+        backButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         generalStatusExperimentLabel.textProperty().bind(pairNewRemoteTask.messageProperty());
         progressBar.progressProperty().bind(pairNewRemoteTask.progressProperty());
 
@@ -483,6 +485,8 @@ public class EducatorModeControllerFX implements Initializable {
             pairNewRemoteButton.disableProperty().unbind();
             unpairAllRemotesButton.disableProperty().unbind();
             testRemotesButton.disableProperty().unbind();
+            nextButton.disableProperty().unbind();
+            backButton.disableProperty().unbind();
             generalStatusExperimentLabel.textProperty().unbind();
             progressBar.progressProperty().unbind();
         });
@@ -568,6 +572,8 @@ public class EducatorModeControllerFX implements Initializable {
         pairNewRemoteButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         unpairAllRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         testRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
+        nextButton.disableProperty().bind(unpairRemotesTask.runningProperty());
+        backButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         generalStatusExperimentLabel.textProperty().bind(unpairRemotesTask.messageProperty());
         progressBar.progressProperty().bind(unpairRemotesTask.progressProperty());
 
@@ -575,6 +581,8 @@ public class EducatorModeControllerFX implements Initializable {
             pairNewRemoteButton.disableProperty().unbind();
             unpairAllRemotesButton.disableProperty().unbind();
             testRemotesButton.disableProperty().unbind();
+            nextButton.disableProperty().unbind();
+            backButton.disableProperty().unbind();
             generalStatusExperimentLabel.textProperty().unbind();
             progressBar.progressProperty().unbind();
         });
@@ -593,60 +601,85 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void testPairedRemote(ActionEvent event) {
-        Platform.runLater(() -> {
-            //Disable buttons that should not be used in the middle of a sequence
-            pairNewRemoteButton.setDisable(true);
-            unpairAllRemotesButton.setDisable(true);
-            testRemotesButton.setDisable(true);
-            backButton.setDisable(true);
-            nextButton.setDisable(true);
-            exitTestModeButton.setDisable(false);
 
 
-            //Notify the user that the bulk erase sequence has began
-            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-            generalStatusExperimentLabel.setText("Press a Button on a Remote to Test if it is Paired");
-            progressBar.setProgress(0);
-            //progressBar.setForeground(new Color(51, 204, 51));
+        Task<Void> testPairedRemoteTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                int maxProgress = 100;
 
-            try {
-                if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Error Communicating with Module");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(new Color(255, 0, 0));
-                }
-            } catch (IOException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
-            } catch (PortInUseException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
-            } catch (UnsupportedCommOperationException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
+                updateMessage("Press a Button on a Remote to Test if it is Paired");
+                updateProgress(0, maxProgress);
+
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    progressBar.setStyle("-fx-accent: #1f78d1;");
+                });
+
+                //TODO: MAJOR DEBUG: serialHandler.testRemotesFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
+                //TODO: WE WILL HAVE TO REWRITE THIS METHOD TO ACCOMMODATE.
+//                try {
+//                    if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Error Communicating with Module");
+//                        progressBar.setProgress(100);
+//                        //progressBar.setForeground(new Color(255, 0, 0));
+//                    }
+//                } catch (IOException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(new Color(255, 0, 0));
+//                } catch (PortInUseException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(new Color(255, 0, 0));
+//                } catch (UnsupportedCommOperationException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                    progressBar.setProgress(100);
+//                    //progressBar.setForeground(new Color(255, 0, 0));
+//                }
+//
+//
+//                //Notify the user that the sequence has completed
+//                generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                generalStatusExperimentLabel.setText("Test Mode Successfully Exited");
+//                progressBar.setProgress(100);
+//                //progressBar.setForeground(DarkGreen);
+//
+//
+
+                return null;
             }
+        };
 
-            //Enable button
-            pairNewRemoteButton.setDisable(false);
-            unpairAllRemotesButton.setDisable(false);
-            testRemotesButton.setDisable(false);
-            exitTestModeButton.setDisable(true);
-            backButton.setDisable(false);
-            nextButton.setDisable(false);
 
-            //Notify the user that the sequence has completed
-            generalStatusExperimentLabel.setTextFill(DarkGreen);
-            generalStatusExperimentLabel.setText("Test Mode Successfully Exited");
-            progressBar.setProgress(100);
-            //progressBar.setForeground(DarkGreen);
+        pairNewRemoteButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        unpairAllRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        testRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        nextButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        backButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        generalStatusExperimentLabel.textProperty().bind(testPairedRemoteTask.messageProperty());
+        progressBar.progressProperty().bind(testPairedRemoteTask.progressProperty());
+
+        Platform.runLater(() -> {
+            exitTestModeButton.setDisable(false);
         });
+
+        testPairedRemoteTask.setOnSucceeded(e -> {
+            pairNewRemoteButton.disableProperty().unbind();
+            unpairAllRemotesButton.disableProperty().unbind();
+            testRemotesButton.disableProperty().unbind();
+            nextButton.disableProperty().unbind();
+            backButton.disableProperty().unbind();
+            generalStatusExperimentLabel.textProperty().unbind();
+            progressBar.progressProperty().unbind();
+        });
+
+        new Thread(testPairedRemoteTask).start();
+
     }
 
     /**
@@ -661,6 +694,7 @@ public class EducatorModeControllerFX implements Initializable {
         serialHandler.exitRemoteTest();
     }
 
+    //TODO: Implement Task
     @FXML
     private void readTestsFromModule(ActionEvent event) {
         String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
