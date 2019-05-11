@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
 
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import purejavacomm.CommPortIdentifier;
@@ -949,13 +950,19 @@ public class SerialComm {
 			if (inputStream.available() > 0) {
 				int temp = inputStream.read();
 				if (temp == (int)'@') {
-					statusLabel.setText("'A' Button is being Pressed");
+					Platform.runLater(() -> {
+						statusLabel.setText("'A' Button is being Pressed");
+					});
+
 				}
 				else if (temp == (int)'!') {
-					statusLabel.setText("'B' Button is being Pressed");
+					Platform.runLater(() -> {statusLabel.setText("'B' Button is being Pressed");});
+
 				}
 				else {
-					statusLabel.setText("No Button is being Pressed");
+					Platform.runLater(() -> {
+                        statusLabel.setText("No Button is being Pressed");
+					});
 				}
 			}
 

@@ -14,6 +14,7 @@ import purejavacomm.UnsupportedCommOperationException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.PlatformManagedObject;
 import java.net.URL;
 import java.util.*;
 
@@ -591,8 +592,6 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    //TODO: Continue Task Creation Here
-
     /**
      * ActionEvent that puts the module into a testing mode using functionality from the SerialComm Class, wherein the
      * module records no data, but only detects when and which button the user is pressing on their remote
@@ -617,39 +616,56 @@ public class EducatorModeControllerFX implements Initializable {
                 });
 
                 //TODO: MAJOR DEBUG: serialHandler.testRemotesFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
-                //TODO: WE WILL HAVE TO REWRITE THIS METHOD TO ACCOMMODATE.
-//                try {
-//                    if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Error Communicating with Module");
-//                        progressBar.setProgress(100);
-//                        //progressBar.setForeground(new Color(255, 0, 0));
-//                    }
-//                } catch (IOException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(255, 0, 0));
-//                } catch (PortInUseException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(255, 0, 0));
-//                } catch (UnsupportedCommOperationException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                    progressBar.setProgress(100);
-//                    //progressBar.setForeground(new Color(255, 0, 0));
-//                }
-//
-//
-//                //Notify the user that the sequence has completed
-//                generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                generalStatusExperimentLabel.setText("Test Mode Successfully Exited");
-//                progressBar.setProgress(100);
-//                //progressBar.setForeground(DarkGreen);
-//
-//
+                //TODO: I Generated theee Platform.runLaters() within the testRemotesFX() method, but it is still an untested method
+                try {
+                    if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
+                        updateMessage("Error Communicating with Module");
+                        updateProgress(100, maxProgress);
+
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            progressBar.setStyle("-fx-accent: red;");
+                        });
+
+                    }
+                } catch (IOException e) {
+
+                    updateMessage("Error Communicating With Serial Dongle");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (PortInUseException e) {
+
+                    updateMessage("Serial Port Already In Use");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+
+                    updateMessage("Check Dongle Compatability");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+                }
+
+                updateMessage("Test Mode Successfully Exited");
+                updateProgress(100, maxProgress);
+
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    progressBar.setStyle("-fx-accent: #1f78d1;");
+                });
 
                 return null;
             }
@@ -698,7 +714,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void readTestsFromModule(ActionEvent event) {
         String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
-        PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+        ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 
         //Define operation that can be run in separate thread
         Platform.runLater(() -> {
@@ -799,9 +815,9 @@ public class EducatorModeControllerFX implements Initializable {
                                                 //TODO: Fill with Spreadsheet Controller
                                             } else if (testType == "Physical Pendulum") {
                                                 //TODO: Fill with Spreadsheet Controller
-                                                pendulumSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                pendulumSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                pendulumSpreadsheetController.saveWorkbook(path);
+                                                parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                parameterSpreadsheetController.saveWorkbook(path);
                                             } else if (testType == "Spring Test - Simple Harmonics") {
                                                 //TODO: Fill with Spreadsheet Controller
                                             }
@@ -910,18 +926,18 @@ public class EducatorModeControllerFX implements Initializable {
         Task<Void> eraseTestsTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                int maxProgress = 100;
-                updateMessage("Bulk Erasing...");
-                updateProgress(0, maxProgress);
+                int maxProgress = 100;  //Defines local variable for maximum Progress Bar progress
+                updateMessage("Bulk Erasing...");   //Updates the Task's readable message property in order to update generalStatusText
+                updateProgress(0, maxProgress); //Updates the Task's readable progress property in order to update the Progress Bar
 
-                Platform.runLater(() -> {
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    progressBar.setStyle("-fx-accent: #1f78d1;");   //Updates the progress bar's color style with a CSS call, setting its color back to its origin
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
                 });
 
                 try {
 
-                    if (serialHandler.bulkEraseModule()) {
+                    if (serialHandler.bulkEraseModule()) {  // Checks if the module is curently being bulk erased
                         //Notify the user that the sequence has completed
                         updateMessage("Bulk Erase Complete");
                         Platform.runLater(() -> {
@@ -964,13 +980,14 @@ public class EducatorModeControllerFX implements Initializable {
             }
         };
 
+        // Binds UI properties on the pairing tab to read only properties of the Task so that the UI may be edited in a thread different from the main UI thread
         generalStatusExperimentLabel.textProperty().bind(eraseTestsTask.messageProperty());
         nextButton.disableProperty().bind(eraseTestsTask.runningProperty());
         backButton.disableProperty().bind(eraseTestsTask.runningProperty());
         eraseButton.disableProperty().bind(eraseTestsTask.runningProperty());
         progressBar.progressProperty().bind(eraseTestsTask.progressProperty());
 
-        eraseTestsTask.setOnSucceeded(e -> {
+        eraseTestsTask.setOnSucceeded(e -> {    // If the task successfully completes its routine, the UI components are unbound, releasing their control back to the main UI thread
             generalStatusExperimentLabel.textProperty().unbind();
             nextButton.disableProperty().unbind();
             backButton.disableProperty().unbind();
@@ -979,7 +996,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         });
 
-        new Thread(eraseTestsTask).start();
+        new Thread(eraseTestsTask).start(); //Starts an anonymous thread, passing it the Task defined above
 
     }
 
