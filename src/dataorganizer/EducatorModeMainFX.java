@@ -14,7 +14,7 @@ public class EducatorModeMainFX extends Application {
         primaryStage.setTitle("Educator Mode");
         primaryStage.setScene(new Scene(root, 690, 500));
         primaryStage.show();
-        primaryStage.setResizable(false);
+        //primaryStage.setResizable(false);
     }
 
 

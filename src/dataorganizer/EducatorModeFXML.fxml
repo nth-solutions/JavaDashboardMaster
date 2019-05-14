@@ -18,7 +18,8 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -29,15 +30,20 @@
                         <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="235.0" prefWidth="200.0" text="Experiment" textFill="#1f78d1">
                            <font>
                               <Font size="18.0" />
-                           </font></Button>
+                           </font>
+                        </Button>
                         <Button alignment="CENTER" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
-                           </font></Button>
+                           </font>
+                        </Button>
                         <Button mnemonicParsing="false" onAction="#selectSettingsTab" prefHeight="30.0" prefWidth="200.0" text="Settings" />
                      </children>
                   </VBox>
                </children>
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
             </Pane>
             <Pane prefHeight="200.0" prefWidth="500.0" style="-fx-background-color: #d5d7d9;">
                <effect>
@@ -54,7 +60,7 @@
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                                              <children>
-                                                <Label fx:id="generalStatusExperimentLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="480.0" prefHeight="20.0" prefWidth="480.0">
+                                                <Label fx:id="generalStatusExperimentLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="480.0" prefHeight="50.0" prefWidth="480.0" textAlignment="CENTER" wrapText="true">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
@@ -67,20 +73,21 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="10.0">
+                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="15.0">
                                                                <children>
                                                                   <Label alignment="CENTER" prefWidth="500.0" text="Step 1: Select the test you would like to perform" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
-                                                                     </font></Label>
+                                                                     </font>
+                                                                  </Label>
                                                                   <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="50.0" prefWidth="400.0" promptText="Conservation of Momentum (Elastic Collision)" />
-                                                                  <TabPane fx:id="testParametersTabPane" prefHeight="175.0" prefWidth="200.0" style="-fx-border-color: DarkGray;" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
+                                                                  <TabPane fx:id="testParametersTabPane" prefHeight="150.0" prefWidth="200.0" style="-fx-border-color: DarkGray;" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
                                                                     <tabs>
                                                                       <Tab text="Conservation of Momentum">
                                                                         <content>
                                                                           <AnchorPane prefHeight="200.0" prefWidth="400.0">
                                                                                  <children>
-                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                    <VBox alignment="CENTER" prefHeight="150.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
@@ -104,7 +111,7 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                    <VBox alignment="CENTER" prefHeight="150.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
@@ -128,10 +135,11 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="122.0" layoutY="93.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
                                                                                        <font>
                                                                                           <Font size="14.0" />
-                                                                                       </font></Text>
+                                                                                       </font>
+                                                                                    </Text>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>
@@ -140,7 +148,7 @@
                                                                            <content>
                                                                               <AnchorPane prefHeight="175.0">
                                                                                  <children>
-                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                    <VBox alignment="CENTER" prefHeight="150.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
@@ -164,7 +172,7 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <VBox alignment="CENTER" prefHeight="175.0" prefWidth="400.0" spacing="15.0">
+                                                                                    <VBox alignment="CENTER" prefHeight="150.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
@@ -178,7 +186,7 @@
                                                                                           </HBox>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
-                                                                                                <TextField fx:id="momentOfIntertiaSpringTextField" prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
+                                                                                                <TextField fx:id="momentOfInertiaSpringTextField" prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
                                                                                                 <TextField fx:id="radiusOfTorqueArmSpringTextField" prefWidth="175.0" promptText="Radius of Torque Arm (m)">
                                                                                                    <tooltip>
                                                                                                       <Tooltip text="The torque arm is the radius of the disc around which the string is wrapped." />
@@ -407,12 +415,15 @@
                                           </TabPane>
                                           <HBox alignment="CENTER" prefHeight="70.0" prefWidth="333.0" spacing="50.0">
                                              <children>
-                                                <Button fx:id="backButton" mnemonicParsing="false" onAction="#backTab" prefHeight="75.0" prefWidth="75.0" text="Back" />
+                                                <Button fx:id="backButton" mnemonicParsing="false" onAction="#backTab" prefHeight="70.0" prefWidth="70.0" text="Back" />
                                                 <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" />
                                                 <Button fx:id="nextButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextTab" prefHeight="70.0" prefWidth="70.0" text="Next" />
                                              </children>
                                           </HBox>
                                        </children>
+                                       <padding>
+                                          <Insets left="5.0" right="5.0" />
+                                       </padding>
                                     </VBox>
                                  </children>
                               </AnchorPane>

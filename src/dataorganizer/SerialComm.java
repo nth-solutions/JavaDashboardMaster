@@ -12,6 +12,7 @@ import javax.swing.JProgressBar;
 
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import purejavacomm.CommPortIdentifier;
@@ -934,7 +935,7 @@ public class SerialComm {
 	 * @throws PortInUseException Means that the selected port is already in use, thrown to caller for cleaner handling
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
-	public boolean testRemotesFX(Label statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+	public boolean testRemotesFX(Label statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException{
 
 		//Set module to enter test remote mode
 		if(!selectMode('=')) {
@@ -948,22 +949,43 @@ public class SerialComm {
 
 			//If there is data, see if it corresponds to a button being pressed, update the status label accordingly
 			if (inputStream.available() > 0) {
+
 				int temp = inputStream.read();
-				if (temp == (int)'@') {
+
+					Task<Void> updateStatusTask = new Task<Void>() {
+						@Override
+						protected Void call() throws Exception {
+
+							if (temp == (int)'@') {
+								updateMessage("'A' Button is being Pressed");
+
+							}
+							else if (temp == (int)'!') {
+								updateMessage("'B' Button is being Pressed");
+
+							}
+							else {
+								updateMessage("No Button is being Pressed");
+							}
+
+							return null;
+						}
+					};
+
 					Platform.runLater(() -> {
-						statusLabel.setText("'A' Button is being Pressed");
+						statusLabel.textProperty().bind(updateStatusTask.messageProperty());
 					});
 
-				}
-				else if (temp == (int)'!') {
-					Platform.runLater(() -> {statusLabel.setText("'B' Button is being Pressed");});
 
-				}
-				else {
-					Platform.runLater(() -> {
-                        statusLabel.setText("No Button is being Pressed");
+					updateStatusTask.setOnSucceeded(e -> {
+						statusLabel.textProperty().unbind();
 					});
-				}
+
+					updateStatusTask.setOnCancelled(e -> {
+						statusLabel.textProperty().unbind();
+					});
+
+					updateStatusTask.run();
 			}
 
 		}

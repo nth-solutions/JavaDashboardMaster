@@ -14,9 +14,20 @@ import purejavacomm.UnsupportedCommOperationException;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.PlatformManagedObject;
 import java.net.URL;
 import java.util.*;
+
+/*
+GOALS:
+
+1. Re-Program Module
+2. Implement fillTestTypeHashMap
+3. Multi-test saving
+4. Implement ParameterSpreadsheetController class
+5. generalStatusExperimentLabel scaling
+ */
+
+
 
 public class EducatorModeControllerFX implements Initializable {
 
@@ -101,7 +112,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField totalHangingMassTextField;
     @FXML
-    TextField momentOfIntertiaSpringTextField;
+    TextField momentOfInertiaSpringTextField;
     @FXML
     TextField radiusOfTorqueArmSpringTextField;
 
@@ -112,19 +123,16 @@ public class EducatorModeControllerFX implements Initializable {
     public static final int CURRENT_FIRMWARE_ID = 26;
     private DataOrganizer dataOrgo;
 
-    //Color Palette
-    Color DeepBlue = Color.rgb(31, 120, 209);
-    Color LightBlue = Color.rgb(76, 165, 255);
-    Color LightOrange = Color.rgb(255, 105, 40);
-    Color DarkGreen = Color.rgb(51, 204, 51);
+    //Colors
+    private Color DarkGreen = Color.rgb(51, 204, 51);
 
 
     //Dashboard Background Functionality
     private int experimentTabIndex = 0;
-    int selectedIndex;
+    private int selectedIndex;
     private static SerialComm serialHandler;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
-    ToggleGroup outputType = new ToggleGroup();
+    private ToggleGroup outputType = new ToggleGroup();
     private String testType;
 
     //Extra Module Parameters - CoM
@@ -205,12 +213,13 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void nextTab(ActionEvent event) {
+        int numberOfTabs = 4; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
         generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
         progressBar.setProgress(0);
         progressBar.setStyle("-fx-accent: #1f78d1;");
 
-        if (experimentTabIndex == 4) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
+        if (experimentTabIndex == numberOfTabs) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
             experimentTabIndex = -1;
         }
 
@@ -258,8 +267,9 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void displayTestParameterTab(ActionEvent event) {
-        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex();
-        testParametersTabPane.getSelectionModel().select(selectedIndex);
+        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex(); //Gets the index of the test type selected by user within the combobox
+        testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
+                                                                         //selected index is used to select the matching tab pane index to display
     }
 
     /* Begin Experiment Tab Methods */
@@ -385,7 +395,7 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     springConstant = Double.parseDouble(springConstantTextField.getText());
                     totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
-                    momentOfIntertiaSpring = Double.parseDouble(momentOfIntertiaSpringTextField.getText());
+                    momentOfIntertiaSpring = Double.parseDouble(momentOfInertiaSpringTextField.getText());
                     radiusOfTorqueArmSpring = Double.parseDouble(radiusOfTorqueArmSpringTextField.getText());
                     testType = "Spring Test - Simple Harmonics";
 
@@ -607,6 +617,10 @@ public class EducatorModeControllerFX implements Initializable {
             protected Void call() throws Exception {
                 int maxProgress = 100;
 
+                Platform.runLater(() -> {
+                    exitTestModeButton.setDisable(false);   //Enables the exitTestModeButton when the user starts the testPairedRemoteTask
+                });
+
                 updateMessage("Press a Button on a Remote to Test if it is Paired");
                 updateProgress(0, maxProgress);
 
@@ -615,10 +629,13 @@ public class EducatorModeControllerFX implements Initializable {
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
-                //TODO: MAJOR DEBUG: serialHandler.testRemotesFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
-                //TODO: I Generated theee Platform.runLaters() within the testRemotesFX() method, but it is still an untested method
                 try {
+                    generalStatusExperimentLabel.textProperty().unbind(); //Unbinds the Label from the testPairedRemoteTask so that the new task created in testRemotesFX can take control over it
+
                     if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
+
+                        generalStatusExperimentLabel.textProperty().bind(messageProperty()); //Rebinds the Label to the testPairedRemotesTask
+
                         updateMessage("Error Communicating with Module");
                         updateProgress(100, maxProgress);
 
@@ -680,9 +697,6 @@ public class EducatorModeControllerFX implements Initializable {
         generalStatusExperimentLabel.textProperty().bind(testPairedRemoteTask.messageProperty());
         progressBar.progressProperty().bind(testPairedRemoteTask.progressProperty());
 
-        Platform.runLater(() -> {
-            exitTestModeButton.setDisable(false);
-        });
 
         testPairedRemoteTask.setOnSucceeded(e -> {
             pairNewRemoteButton.disableProperty().unbind();
@@ -692,6 +706,11 @@ public class EducatorModeControllerFX implements Initializable {
             backButton.disableProperty().unbind();
             generalStatusExperimentLabel.textProperty().unbind();
             progressBar.progressProperty().unbind();
+
+            Platform.runLater(() -> {
+                exitTestModeButton.setDisable(true);    //Disables the exitTestModeButton after the user has completed the testPairedRemoteTask
+                progressBar.setProgress(0);
+            });
         });
 
         new Thread(testPairedRemoteTask).start();
@@ -708,203 +727,242 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void exitRemoteTestingMode(ActionEvent event) {
         serialHandler.exitRemoteTest();
+        generalStatusExperimentLabel.setTextFill(Color.BLACK);
+        generalStatusExperimentLabel.setText("");
+
     }
 
     //TODO: Implement Task
     @FXML
     private void readTestsFromModule(ActionEvent event) {
-        String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
-        ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 
-        //Define operation that can be run in separate thread
-        Platform.runLater(() -> {
-            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-            //Disable read button while read is in progress
-            backButton.setDisable(true);
-            nextButton.setDisable(true);
-            readTestButton.setDisable(true);
+        Task<Void> readTestsFromModuleTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                int maxProgress = 100;
+                String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
+                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 
-            try {
-                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                generalStatusExperimentLabel.setText("Reading Data from Module...");
+                try {
+                    updateMessage("Reading Data from Module...");
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    });
 
-                //Read test parameters from module and store it in testParameters
-                ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+                    //Read test parameters from module and store it in testParameters
+                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
-                //Executes if the reading of the test parameters was successful
-                if (testParameters != null) {
+                    //Executes if the reading of the test parameters was successful
+                    if (testParameters != null) {
 
-                    int expectedTestNum = testParameters.get(0);
+                        int expectedTestNum = testParameters.get(0);
 
-                    //Assign local variables to their newly received values from the module
-                    int timedTestFlag = testParameters.get(4);
-                    //Trigger on release is 8
-                    int testLength = testParameters.get(6);
-                    int accelGyroSampleRate = testParameters.get(7);
-                    int magSampleRate = testParameters.get(8);
-                    int accelSensitivity = testParameters.get(9);
-                    int gyroSensitivity = testParameters.get(10);
-                    int accelFilter = testParameters.get(11);
-                    int gyroFilter = testParameters.get(12);
-
-
-                    double bytesPerSample = 18;
-                    if (accelGyroSampleRate / magSampleRate == 10) {
-                        bytesPerSample = 12.6;
-                    }
+                        //Assign local variables to their newly received values from the module
+                        int timedTestFlag = testParameters.get(4);
+                        //Trigger on release is 8
+                        int testLength = testParameters.get(6);
+                        int accelGyroSampleRate = testParameters.get(7);
+                        int magSampleRate = testParameters.get(8);
+                        int accelSensitivity = testParameters.get(9);
+                        int gyroSensitivity = testParameters.get(10);
+                        int accelFilter = testParameters.get(11);
+                        int gyroFilter = testParameters.get(12);
 
 
-                    String nameOfFile = "";
-
-                    //Executes if there are tests on the module
-                    if (expectedTestNum > 0) {
-
-                        //Get date for file name
-                        Date date = new Date();
-
-                        //Assign file name
-                        nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-
-                        HashMap<Integer, ArrayList<Integer>> testData;
-
-                        //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                        //TODO: Update method
-                        testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
-                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                        generalStatusExperimentLabel.setText("All Data Received from Module");
-
-                        //Executes if the data was received properly (null = fail)
-                        if (testData != null) {
-                            for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-
-                                int[] finalData = new int[testData.get(testIndex).size()];
-
-                                for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                    if (testData.get(testIndex).get(byteIndex) != -1) {
-                                        finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                    } else {
-                                        finalData[byteIndex] = -1;
-                                        break;
-                                    }
-                                }
-                                String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                dataOrgo = new DataOrganizer(testParameters, tempName);
-                                //Define operation that can be run in separate thread
-                                Runnable organizerOperation = new Runnable() {
-                                    public void run() {
-
-                                        //Organize data into .CSV
-                                        dataOrgo.createDataSmpsRawData(finalData);
+                        double bytesPerSample = 18;
+                        if (accelGyroSampleRate / magSampleRate == 10) {
+                            bytesPerSample = 12.6;
+                        }
 
 
-                                        if (spreadsheetRadioButton.isSelected()) {
+                        String nameOfFile = "";
 
-                                            List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+                        //Executes if there are tests on the module
+                        if (expectedTestNum > 0) {
 
+                            //Get date for file name
+                            Date date = new Date();
 
-                                            //TODO: Add Constructor with Dynamic Path Getting
-                                            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                            generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+                            //Assign file name
+                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
-                                            if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                //TODO: Fill with Spreadsheet Controller
-                                            } else if (testType == "Conservation of Energy") {
-                                                //TODO: Fill with Spreadsheet Controller
-                                            } else if (testType == "Inclined Plane") {
-                                                //TODO: Fill with Spreadsheet Controller
-                                            } else if (testType == "Physical Pendulum") {
-                                                //TODO: Fill with Spreadsheet Controller
-                                                parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                parameterSpreadsheetController.saveWorkbook(path);
-                                            } else if (testType == "Spring Test - Simple Harmonics") {
-                                                //TODO: Fill with Spreadsheet Controller
-                                            }
+                            HashMap<Integer, ArrayList<Integer>> testData;
 
-                                            try {
-                                                Thread.sleep(10000);
-
-                                            } catch (Exception exceptionalexception) {
-                                                System.out.println("If you got this error, something went seriously wrong");
-                                            }
+                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                            //TODO: MAJOR DEBUG: serialHandler.readTestDataFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
+                            testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
 
-                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                            generalStatusExperimentLabel.setText("Data Successfully Written");
+                            updateMessage("All Data Received from Module");
+                            Platform.runLater(() -> {
+                                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                            });
 
-                                            //Re-enable read button upon read completion
-                                            backButton.setDisable(false);
-                                            nextButton.setDisable(false);
-                                            readTestButton.setDisable(false);
+                            //Executes if the data was received properly (null = fail)
+                            if (testData != null) {
+                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
+                                    int[] finalData = new int[testData.get(testIndex).size()];
+
+                                    for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+                                        if (testData.get(testIndex).get(byteIndex) != -1) {
+                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+                                        } else {
+                                            finalData[byteIndex] = -1;
+                                            break;
                                         }
-                                        dataOrgo.getSignedData();
-                                        //dataOrgo.createCSVP();
-                                        //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-
-                                        //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
                                     }
-                                };
+                                    String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
+                                    dataOrgo = new DataOrganizer(testParameters, tempName);
+                                    //Define operation that can be run in separate thread
+                                    //TODO: This will probably throw an error
+                                    Runnable organizerOperation = new Runnable() {
+                                        public void run() {
 
-                                //Set thread to execute previously defined operation
-                                Thread organizerThread = new Thread(organizerOperation);
-                                //Start thread
-                                organizerThread.start();
+                                            //Organize data into .CSV
+                                            dataOrgo.createDataSmpsRawData(finalData);
+
+                                            //TODO: This will throw Errors because its handling UI components
+                                            if (spreadsheetRadioButton.isSelected()) {
+
+                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+
+
+                                                updateMessage("Writing data to spreadsheet");
+                                                Platform.runLater(() -> {
+                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                                                });
+
+
+                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                } else if (testType == "Conservation of Energy") {
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                } else if (testType == "Inclined Plane") {
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                } else if (testType == "Physical Pendulum") {
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                    parameterSpreadsheetController.saveWorkbook(path);
+                                                } else if (testType == "Spring Test - Simple Harmonics") {
+                                                    //TODO: Fill with Spreadsheet Controller
+                                                }
+
+                                                try {
+                                                    Thread.sleep(10000);
+
+                                                } catch (Exception exceptionalexception) {
+                                                    System.out.println("If you got this error, something went seriously wrong");
+                                                }
+
+                                                updateMessage("Data Successfully Written");
+                                                Platform.runLater(() -> {
+                                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                                                });
+
+                                            }
+
+                                            dataOrgo.getSignedData();
+                                            //dataOrgo.createCSVP();
+                                            //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+
+                                            //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+                                        }
+                                    };
+
+                                    //Set thread to execute previously defined operation
+                                    Thread organizerThread = new Thread(organizerOperation);
+                                    //Start thread
+                                    organizerThread.start();
+
+                                }
+                            } else {
+
+                                updateMessage("Error Reading From Module, Try Again");
+                                updateProgress(100, maxProgress);
+
+                                Platform.runLater(() -> {
+                                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                                    progressBar.setStyle("-fx-accent: red;");
+                                });
+
 
                             }
                         } else {
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                            progressBar.setProgress(100);
-                            //progressBar.setForeground(new Color(255, 0, 0));
+
+                            updateMessage("No Tests Found on Module");
+                            updateProgress(100, maxProgress);
+
+                            Platform.runLater(() -> {
+                                generalStatusExperimentLabel.setTextFill(Color.RED);
+                                progressBar.setStyle("-fx-accent: red;");
+                            });
+
                         }
                     } else {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        generalStatusExperimentLabel.setText("No Tests Found on Module");
-                        progressBar.setProgress(100);
-                        //progressBar.setForeground(new Color(255, 0, 0));
+
+                        updateMessage("Error Reading From Module, Try Again");
+                        updateProgress(100, maxProgress);
+
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            progressBar.setStyle("-fx-accent: red;");
+                        });
+
                     }
-                } else {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                    progressBar.setProgress(100);
-                    //progressBar.setForeground(new Color(255, 0, 0));
+
+                } catch (IOException e) {
+
+                    updateMessage("Error Communicating With Serial Dongle");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+                } catch (PortInUseException e) {
+
+                    updateMessage("Serial Port Already In Use");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
+
+                } catch (UnsupportedCommOperationException e) {
+
+                    updateMessage("Check Dongle Compatability");
+                    updateProgress(100, maxProgress);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                    });
+
                 }
 
-            } catch (IOException e) {
-
-                //Re-enable read button upon read completion
-                backButton.setDisable(false);
-                nextButton.setDisable(false);
-                readTestButton.setDisable(false);
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
-            } catch (PortInUseException e) {
-
-                //Re-enable read button upon read completion
-                backButton.setDisable(false);
-                nextButton.setDisable(false);
-                readTestButton.setDisable(false);
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
-            } catch (UnsupportedCommOperationException e) {
-
-                //Re-enable read button upon read completion
-                backButton.setDisable(false);
-                nextButton.setDisable(false);
-                readTestButton.setDisable(false);
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                progressBar.setProgress(100);
-                //progressBar.setForeground(new Color(255, 0, 0));
+                return null;
             }
+        };
+
+        generalStatusExperimentLabel.textProperty().bind(readTestsFromModuleTask.messageProperty());
+        backButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+        nextButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+        readTestButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+
+        readTestsFromModuleTask.setOnSucceeded(e -> {
+            generalStatusExperimentLabel.textProperty().unbind();
+            backButton.disableProperty().unbind();
+            nextButton.disableProperty().unbind();
+            readTestButton.disableProperty().unbind();
         });
-        
+
+        new Thread(readTestsFromModuleTask).start();
+
     }
 
     @FXML
@@ -1045,6 +1103,7 @@ public class EducatorModeControllerFX implements Initializable {
         }
     }
 
+    //TODO: Implement this method
     /***
      *  Fills the testTypeHashMap with the module settings associated with each test type
      *
@@ -1318,76 +1377,6 @@ public class EducatorModeControllerFX implements Initializable {
             }
         });
 
-//        Runnable findModuleOperation = new Runnable() {
-//            public void run() {
-//                try {
-//                    ArrayList<String> commPortIDList = serialHandler.findPorts();
-//                    boolean moduleFound = false;
-//                    int commPortIndex = 0;
-//                    while (!moduleFound && commPortIndex < commPortIDList.size()) {
-//
-//                        //Get the string identifier (name) of the current port
-//                        String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();
-//
-//                        //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-//                        if(serialHandler.openSerialPort(selectedCommID)){
-//
-//                            int attemptCounter = 0;
-//                            while (attemptCounter < 3 && !moduleFound) {
-//                                try {
-//                                    ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-//
-//                                    if (moduleIDInfo != null) {
-//                                        moduleFound = true;
-//
-//                                        if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-//                                            generalStatusExperimentLabel.setTextFill(Color.RED);
-//                                            generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
-//                                        }
-//                                        else {
-//                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                                            generalStatusExperimentLabel.setText("Successfully Connected to Module");
-//                                        }
-//                                    }
-//                                    else {
-//                                        attemptCounter++;
-//                                    }
-//                                }
-//                                catch (IOException e) {
-//                                    attemptCounter++;
-//                                }
-//                                catch (PortInUseException e) {
-//                                    attemptCounter++;
-//                                }
-//                                catch (UnsupportedCommOperationException e) {
-//                                    attemptCounter++;
-//                                }
-//                            }
-//
-//                        }
-//                        commPortIndex++;
-//                    }
-//                    if (!moduleFound) {
-//                        generalStatusExperimentLabel.setTextFill(Color.RED);
-//                        generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-//                        th.setStatus(false);
-//                    }
-//
-//                }
-//                catch (IOException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-//                    th.setStatus(false);
-//                }
-//                catch (PortInUseException e) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-//                    th.setStatus(false);
-//                }
-//            }
-//        };
-//        Thread findModuleThread = new Thread(findModuleOperation);
-//        findModuleThread.run();
         return th.getStatus();
     }
 
