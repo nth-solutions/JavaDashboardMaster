@@ -140,7 +140,7 @@ public class EducatorModeControllerFX implements Initializable {
     private Color DarkGreen = Color.rgb(51, 204, 51);
     //Dashboard Background Functionality
     private int experimentTabIndex = 0;
-    private int selectedIndex;
+    private int selectedIndex = 0;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
     private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
     private String testType;
@@ -263,8 +263,8 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void displayTestParameterTab(ActionEvent event) {
-        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex(); //Gets the index of the test type selected by user within the combobox
-        testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
+        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex() + 1; //Gets the index of the test type selected by user within the combobox
+        testParametersTabPane.getSelectionModel().select(selectedIndex ); //Since the number of tabs matches the length of the combobox selection model, the user's
                                                                          //selected index is used to select the matching tab pane index to display
     }
 
@@ -279,7 +279,6 @@ public class EducatorModeControllerFX implements Initializable {
     private void applyConfigurations(ActionEvent event) {
         writeButtonHandler();
         getExtraParameters(selectedIndex);
-        readExtraTestParamsForTemplate();
     }
 
 

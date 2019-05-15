@@ -79,33 +79,38 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="50.0" prefWidth="400.0" promptText="Conservation of Momentum (Elastic Collision)" />
+                                                                  <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="50.0" prefWidth="400.0" promptText="Select a Test" />
                                                                   <TabPane fx:id="testParametersTabPane" prefHeight="150.0" prefWidth="200.0" style="-fx-border-color: DarkGray;" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
                                                                     <tabs>
-                                                                      <Tab text="Conservation of Momentum">
+                                                                      <Tab text="Initial Tab">
                                                                         <content>
-                                                                          <AnchorPane prefHeight="200.0" prefWidth="400.0">
+                                                                          <AnchorPane prefHeight="200.0" prefWidth="400.0" />
+                                                                        </content>
+                                                                      </Tab>
+                                                                        <Tab text="Conservation of Momentum">
+                                                                           <content>
+                                                                              <AnchorPane prefHeight="200.0" prefWidth="400.0">
                                                                                  <children>
                                                                                     <VBox alignment="CENTER" prefHeight="150.0" prefWidth="400.0" spacing="15.0">
                                                                                        <children>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
-                                                                                                <TextField fx:id="massOfRightModuleTextField" prefWidth="175.0" promptText="Mass of Right Module (kg)" />
-                                                                                                <TextField fx:id="massOfRightGliderTextField" prefWidth="175.0" promptText="Mass of Right Glider (kg)" />
+                                                                                                <TextField fx:id="massOfRightModuleTextField1" prefWidth="175.0" promptText="Mass of Right Module (kg)" />
+                                                                                                <TextField fx:id="massOfRightGliderTextField1" prefWidth="175.0" promptText="Mass of Right Glider (kg)" />
                                                                                              </children>
                                                                                           </HBox>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
-                                                                                                <TextField fx:id="massOfLeftModuleTextField" prefWidth="175.0" promptText="Mass of Left Module (kg)" />
-                                                                                                <TextField fx:id="massOfLeftGliderTextField" prefWidth="175.0" promptText="Mass of Left Glider (kg)" />
+                                                                                                <TextField fx:id="massOfLeftModuleTextField1" prefWidth="175.0" promptText="Mass of Left Module (kg)" />
+                                                                                                <TextField fx:id="massOfLeftGliderTextField1" prefWidth="175.0" promptText="Mass of Left Glider (kg)" />
                                                                                              </children>
                                                                                           </HBox>
                                                                                        </children>
                                                                                     </VBox>
                                                                                  </children>
                                                                               </AnchorPane>
-                                                                        </content>
-                                                                      </Tab>
+                                                                           </content>
+                                                                        </Tab>
                                                                         <Tab text="Conservation of Energy">
                                                                            <content>
                                                                               <AnchorPane>
