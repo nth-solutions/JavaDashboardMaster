@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.concurrent.FutureTask;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
@@ -1309,7 +1310,8 @@ public class SerialComm {
 	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
 	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
 	 */
-	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum, JProgressBar progressBar, JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {  
+	public HashMap<Integer, ArrayList<Integer>> readTestData(int expectedTestNum, JProgressBar progressBar, JLabel statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+
 		//Put module into export test data mode, exit method if that routine fails
 		if(!selectMode('E')) {
 			statusLabel.setText("Could not configure the module to export.");

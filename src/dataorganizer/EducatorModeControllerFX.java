@@ -24,7 +24,6 @@ GOALS:
 2. Implement fillTestTypeHashMap
 3. Multi-test saving
 4. Implement ParameterSpreadsheetController class
-5. generalStatusExperimentLabel scaling
  */
 
 
@@ -151,7 +150,6 @@ public class EducatorModeControllerFX implements Initializable {
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics");
         backButton.setVisible(false);
         initializeToggleGroup();
-
 
     }
 
@@ -282,9 +280,7 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
 
-    //TODO: Fix UI Lock-up (Look into Tasks)
     //TODO: Fix inability to program the module multiple times
-
     /**
      * A handler method called within the applyConfigurations() ActionEvent that writes pre-defined optimal parameters
      * to the module's firmware for use in one of several experiments
@@ -740,6 +736,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void readTestsFromModule(ActionEvent event) {
 
+
         String outputSelected = getOutputTypeToggle();
 
         Task<Void> readTestsFromModuleTask = new Task<Void>() {
@@ -796,8 +793,15 @@ public class EducatorModeControllerFX implements Initializable {
 
                             //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                             //TODO: MAJOR DEBUG: serialHandler.readTestDataFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
+                            generalStatusExperimentLabel.textProperty().unbind();
+                            progressBar.progressProperty().unbind();
+
+
+                            //TODO: Edit this method
                             testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
+                            generalStatusExperimentLabel.textProperty().bind(messageProperty());
+                            progressBar.progressProperty().bind(progressProperty());
 
                             updateMessage("All Data Received from Module");
                             Platform.runLater(() -> {
