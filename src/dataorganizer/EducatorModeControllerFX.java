@@ -28,9 +28,13 @@ GOALS:
  */
 
 
-
 public class EducatorModeControllerFX implements Initializable {
 
+    //Test Parameter Variables and Constants
+    public static final int NUM_TEST_PARAMETERS = 13;
+    public static final int NUM_ID_INFO_PARAMETERS = 3;
+    public static final int CURRENT_FIRMWARE_ID = 26;
+    private static SerialComm serialHandler = new SerialComm();
     //Primary UI Control FXML Components
     @FXML
     TabPane primaryTabPane;
@@ -50,7 +54,6 @@ public class EducatorModeControllerFX implements Initializable {
     Button backButton;
     @FXML
     ComboBox<String> testTypeComboBox;
-
     //Experiment FXML Components
     @FXML
     Label generalStatusExperimentLabel;
@@ -78,8 +81,6 @@ public class EducatorModeControllerFX implements Initializable {
     ProgressBar progressBar;
     @FXML
     Button eraseButton;
-
-
     //Extra Test Parameter TextFields
     @FXML
     TextField massOfLeftModuleTextField;
@@ -89,7 +90,6 @@ public class EducatorModeControllerFX implements Initializable {
     TextField massOfRightModuleTextField;
     @FXML
     TextField massOfRightGliderTextField;
-
     @FXML
     TextField totalDropDistanceTextField;
     @FXML
@@ -98,7 +98,6 @@ public class EducatorModeControllerFX implements Initializable {
     TextField momentOfInertiaCOETextField;
     @FXML
     TextField radiusOfTorqueArmCOETextField;
-
     @FXML
     TextField lengthOfPendulumTextField;
     @FXML
@@ -116,64 +115,61 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField radiusOfTorqueArmSpringTextField;
 
-
-    //Test Parameter Variables and Constants
-    public static final int NUM_TEST_PARAMETERS = 13;
-    public static final int NUM_ID_INFO_PARAMETERS = 3;
-    public static final int CURRENT_FIRMWARE_ID = 26;
-    private DataOrganizer dataOrgo;
-
-    //Colors
-    private Color DarkGreen = Color.rgb(51, 204, 51);
-
-
-    //Dashboard Background Functionality
-    private int experimentTabIndex = 0;
-    private int selectedIndex;
-    private static SerialComm serialHandler;
-    private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
-    private ToggleGroup outputType = new ToggleGroup();
-    private String testType;
-
     //Extra Module Parameters - CoM
     double massOfRightModule;
     double massOfRightGlider;
     double massOfLeftModule;
     double massOfLeftGlider;
-
     //Extra Module Parameters - CoE
     double totalDropDistance;
     double massOfModuleAndHolder;
     double momentOfInertiaCOE;
     double radiusOfTorqueArmCOE;
-
     //Extra Module Parameters - Pendulum
     double lengthOfPendulum;
     double distanceFromPivot;
     double massOfModule;
     double massOfHolder;
-
     //Extra Module Parameters - Spring
     double springConstant;
     double totalHangingMass;
     double momentOfIntertiaSpring;
     double radiusOfTorqueArmSpring;
-
+    private DataOrganizer dataOrgo;
+    //Colors
+    private Color DarkGreen = Color.rgb(51, 204, 51);
+    //Dashboard Background Functionality
+    private int experimentTabIndex = 0;
+    private int selectedIndex;
+    private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
+    private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
+    private String testType;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics");
         backButton.setVisible(false);
-        serialHandler = new SerialComm();
+        initializeToggleGroup();
 
 
+    }
+
+    /**
+     * This method is utilized solely to clean up method implementation within the initialize() method. Essentially, this
+     * method adds several key UI radioButtons to the outputTypeToggleGroup ToggleGroup, and then assigns each button a userData
+     * object which is used to identify which toggle is being selected in the readTestsFromModule() ActionEvent called below
+     */
+    private void initializeToggleGroup() {
         //Prevents more than one output type from being selected
-        spreadsheetRadioButton.setToggleGroup(outputType);
-        graphRadioButton.setToggleGroup(outputType);
-        graphAndSpreadsheetRadioButton.setToggleGroup(outputType);
-        sincTechnologyRadioButton.setToggleGroup(outputType);
-
+        spreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);  //Adds a RadioButton to the outputTypeToggleGroup Toggle Group
+        spreadsheetRadioButton.setUserData("spreadSheetRadioButton");   //Assigns the RadioButton a userData object
+        graphRadioButton.setToggleGroup(outputTypeToggleGroup);
+        graphRadioButton.setUserData("graphRadioButton");
+        graphAndSpreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);
+        graphAndSpreadsheetRadioButton.setUserData("graphAndSpreadsheetRadioButton");
+        sincTechnologyRadioButton.setToggleGroup(outputTypeToggleGroup);
+        sincTechnologyRadioButton.setUserData("sincTechnologyRadioButton");
     }
 
     /**
@@ -732,9 +728,20 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    //TODO: Implement Task
+    /**
+     * This method gets the selected toggle and its assigned userData from the outputTypeToggleGroup ToggleGroup and returns it as
+     * a string.
+     * @return String that details what output type has been selected from the outputTypeToggleGroup ToggleGroup
+     */
+    private String getOutputTypeToggle() {
+        String outputSelected = outputTypeToggleGroup.getSelectedToggle().getUserData().toString();
+        return outputSelected;
+    }
+
     @FXML
     private void readTestsFromModule(ActionEvent event) {
+
+        String outputSelected = getOutputTypeToggle();
 
         Task<Void> readTestsFromModuleTask = new Task<Void>() {
             @Override
@@ -976,6 +983,7 @@ public class EducatorModeControllerFX implements Initializable {
      * an FX Safe Thread. All relavant UI parameters are bound to specific ReadOnly Properties defined in the Worker
      * Interface. After a successful Task run, all of the properties are unbound so as to be released back to the main
      * UI Thread.
+     *
      * @param event
      */
     @FXML
@@ -1104,6 +1112,7 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     //TODO: Implement this method
+
     /***
      *  Fills the testTypeHashMap with the module settings associated with each test type
      *
