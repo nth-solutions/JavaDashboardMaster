@@ -13,7 +13,7 @@ public class ParameterSpreadsheetController {
 
     public ParameterSpreadsheetController() {
 
-        testType = EducatorMode.testType; // gets the selected test from Educator mode
+        testType = EducatorModeControllerFX.testType; // gets the selected test from Educator mode
 
         if (testType == "Conservation of Momentum (Elastic Collision)"){ // changes the end of the file path to match the test. This file path is the location of the unaltered template
 
@@ -43,11 +43,11 @@ public class ParameterSpreadsheetController {
 
             testTypeFileName = "";
         }
-        testTypeFileName = "Pendulum Template REV-Q3.xlsx";
-        System.out.println(System.getProperty("user.home"));
-        System.out.println(testTypeFileName);
-        //documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName;
-        documentsPath = "C:\\Users\\Kinobo\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
+        //testTypeFileName = "Pendulum Template REV-Q3.xlsx";
+        //System.out.println(System.getProperty("user.home"));
+        //System.out.println(testTypeFileName);
+        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName;
+        //documentsPath = "C:\\Users\\Kinobo\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
         try {
             this.workbook = new Workbook(documentsPath);
         }catch(Exception e){

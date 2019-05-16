@@ -22,9 +22,7 @@ import java.util.concurrent.FutureTask;
 GOALS:
 
 1. Re-Program Module
-2. Implement fillTestTypeHashMap
 3. Multi-test saving
-4. Implement ParameterSpreadsheetController class
  */
 
 
@@ -143,7 +141,7 @@ public class EducatorModeControllerFX implements Initializable {
     private int selectedIndex = 0;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
     private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
-    private String testType;
+    public static String testType;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
