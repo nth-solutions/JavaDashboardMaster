@@ -43,7 +43,11 @@ public class ParameterSpreadsheetController {
 
             testTypeFileName = "";
         }
-        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName;
+        testTypeFileName = "Pendulum Template REV-Q3.xlsx";
+        System.out.println(System.getProperty("user.home"));
+        System.out.println(testTypeFileName);
+        //documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName;
+        documentsPath = "C:\\Users\\Kinobo\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
         try {
             this.workbook = new Workbook(documentsPath);
         }catch(Exception e){
@@ -81,11 +85,11 @@ public class ParameterSpreadsheetController {
         workbook.getWorksheets().get(4).getCells().get("C10").setValue(shoulderWidth);
     }
 
-    public void loadSpringTestParameters(double springConstant, double totalMass, double amplitude, double massOfSpring) {
+    public void loadSpringTestParameters(double springConstant, double totalMass, double momentofInertia, double radiusoftorquearm) {
         workbook.getWorksheets().get(4).getCells().get("C8").setValue(springConstant);
         workbook.getWorksheets().get(4).getCells().get("C7").setValue(totalMass);
-        workbook.getWorksheets().get(4).getCells().get("C9").setValue(amplitude);
-        workbook.getWorksheets().get(4).getCells().get("C10").setValue(massOfSpring);
+        workbook.getWorksheets().get(4).getCells().get("C9").setValue(momentofInertia);
+        workbook.getWorksheets().get(4).getCells().get("C10").setValue(radiusoftorquearm);
     }
     public void loadConservationofMomentumParameters (double gliderOneMass, double gliderTwoMass){
         workbook.getWorksheets().get(4).getCells().get("C8").setValue(gliderOneMass);

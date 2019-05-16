@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.FutureTask;
 
 /*
 GOALS:
@@ -275,6 +276,7 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void applyConfigurations(ActionEvent event) {
+        System.out.println(selectedIndex);
         writeButtonHandler();
         getExtraParameters(selectedIndex);
     }
@@ -333,7 +335,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void getExtraParameters(int comboBoxIndex) {
         generalStatusExperimentLabel.setText("");
-        switch (comboBoxIndex) {
+        switch (comboBoxIndex-1) {
             case 0:
                 //CoM
                 try {
@@ -429,7 +431,7 @@ public class EducatorModeControllerFX implements Initializable {
                         updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                            generalStatusExperimentLabel.setTextFill(Color.GREEN);
                             progressBar.setStyle("-fx-accent: #1f78d1;");
                         });
 
@@ -736,24 +738,28 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void readTestsFromModule(ActionEvent event) {
 
-
         String outputSelected = getOutputTypeToggle();
 
-        Task<Void> readTestsFromModuleTask = new Task<Void>() {
+        HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];
+
+        FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() {
             @Override
-            protected Void call() throws Exception {
+            public void run() {
                 int maxProgress = 100;
                 String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
                 ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 
                 try {
-                    updateMessage("Reading Data from Module...");
+                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+
+
                     Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Reading Data from Module...");
                         generalStatusExperimentLabel.setTextFill(Color.BLACK);
                     });
 
                     //Read test parameters from module and store it in testParameters
-                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+
 
                     //Executes if the reading of the test parameters was successful
                     if (testParameters != null) {
@@ -793,18 +799,15 @@ public class EducatorModeControllerFX implements Initializable {
 
                             //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                             //TODO: MAJOR DEBUG: serialHandler.readTestDataFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
-                            generalStatusExperimentLabel.textProperty().unbind();
-                            progressBar.progressProperty().unbind();
+                            //generalStatusExperimentLabel.textProperty().unbind();
+                            //progressBar.progressProperty().unbind();
 
 
                             //TODO: Edit this method
                             testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
-                            generalStatusExperimentLabel.textProperty().bind(messageProperty());
-                            progressBar.progressProperty().bind(progressProperty());
-
-                            updateMessage("All Data Received from Module");
                             Platform.runLater(() -> {
+                                generalStatusExperimentLabel.setText("All Data Received from Module");
                                 generalStatusExperimentLabel.setTextFill(DarkGreen);
                             });
 
@@ -837,26 +840,38 @@ public class EducatorModeControllerFX implements Initializable {
 
                                                 List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
 
-
-                                                updateMessage("Writing data to spreadsheet");
                                                 Platform.runLater(() -> {
+                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
                                                     generalStatusExperimentLabel.setTextFill(Color.BLACK);
                                                 });
 
+//                                                testType = "Physical Pendulum";
+//                                                lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
+//                                                distanceFromPivot = Double.parseDouble(distanceFromPivotTextField.getText());
+//                                                massOfModule = Double.parseDouble(massOfModuleTextField.getText());
+//                                                massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
 
                                                 if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    //TODO: Fill with Spreadsheet Controller
+                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                    parameterSpreadsheetController.saveWorkbook(path);
                                                 } else if (testType == "Conservation of Energy") {
-                                                    //TODO: Fill with Spreadsheet Controller
+                                                    parameterSpreadsheetController.loadConservationofEnergyParameters();
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                    parameterSpreadsheetController.saveWorkbook(path);
                                                 } else if (testType == "Inclined Plane") {
-                                                    //TODO: Fill with Spreadsheet Controller
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                    parameterSpreadsheetController.saveWorkbook(path);
                                                 } else if (testType == "Physical Pendulum") {
-                                                    //TODO: Fill with Spreadsheet Controller
+
                                                     parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);
+                                                    System.out.println("debug");
                                                 } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    //TODO: Fill with Spreadsheet Controller
+                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                    parameterSpreadsheetController.saveWorkbook(path);
                                                 }
 
                                                 try {
@@ -866,13 +881,13 @@ public class EducatorModeControllerFX implements Initializable {
                                                     System.out.println("If you got this error, something went seriously wrong");
                                                 }
 
-                                                updateMessage("Data Successfully Written");
+
                                                 Platform.runLater(() -> {
+                                                    generalStatusExperimentLabel.setText("Data Successfully Written");
                                                     generalStatusExperimentLabel.setTextFill(DarkGreen);
                                                 });
 
                                             }
-
                                             dataOrgo.getSignedData();
                                             //dataOrgo.createCSVP();
                                             //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
@@ -889,10 +904,12 @@ public class EducatorModeControllerFX implements Initializable {
                                 }
                             } else {
 
-                                updateMessage("Error Reading From Module, Try Again");
-                                updateProgress(100, maxProgress);
+                                //updateMessage("Error Reading From Module, Try Again");
+                                //updateProgress(100, maxProgress);
 
                                 Platform.runLater(() -> {
+                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                    //updateProgress(100, maxProgress);
                                     generalStatusExperimentLabel.setTextFill(Color.RED);
                                     progressBar.setStyle("-fx-accent: red;");
                                 });
@@ -900,44 +917,46 @@ public class EducatorModeControllerFX implements Initializable {
 
                             }
                         } else {
-
-                            updateMessage("No Tests Found on Module");
-                            updateProgress(100, maxProgress);
+                            //updateMessage("No Tests Found on Module");
+                            //updateProgress(100, maxProgress);
 
                             Platform.runLater(() -> {
+                                generalStatusExperimentLabel.setText("No Tests Found on Module");
+                                //updateProgress(100, maxProgress);
                                 generalStatusExperimentLabel.setTextFill(Color.RED);
                                 progressBar.setStyle("-fx-accent: red;");
                             });
-
                         }
                     } else {
-
-                        updateMessage("Error Reading From Module, Try Again");
-                        updateProgress(100, maxProgress);
+                        //updateMessage("Error Reading From Module, Try Again");
+                        //updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                            //updateProgress(100, maxProgress);
                             generalStatusExperimentLabel.setTextFill(Color.RED);
                             progressBar.setStyle("-fx-accent: red;");
                         });
-
                     }
-
                 } catch (IOException e) {
-
-                    updateMessage("Error Communicating With Serial Dongle");
-                    updateProgress(100, maxProgress);
+//                    updateMessage("Error Communicating With Serial Dongle");
+//                    updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                      updateProgress(100, maxProgress);
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
                 } catch (PortInUseException e) {
 
-                    updateMessage("Serial Port Already In Use");
-                    updateProgress(100, maxProgress);
+//                    updateMessage("Serial Port Already In Use");
+//                    updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                      updateProgress(100, maxProgress);
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
@@ -945,34 +964,39 @@ public class EducatorModeControllerFX implements Initializable {
 
                 } catch (UnsupportedCommOperationException e) {
 
-                    updateMessage("Check Dongle Compatability");
-                    updateProgress(100, maxProgress);
+//                    updateMessage("Check Dongle Compatability");
+//                    updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
+                       generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                      updateProgress(100, maxProgress);
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
                 }
 
-                return null;
+
             }
-        };
 
-        generalStatusExperimentLabel.textProperty().bind(readTestsFromModuleTask.messageProperty());
-        backButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
-        nextButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
-        readTestButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+        },testDataArray);
 
-        readTestsFromModuleTask.setOnSucceeded(e -> {
-            generalStatusExperimentLabel.textProperty().unbind();
-            backButton.disableProperty().unbind();
-            nextButton.disableProperty().unbind();
-            readTestButton.disableProperty().unbind();
-        });
+        readTestsFromModuleTask.run();
 
-        new Thread(readTestsFromModuleTask).start();
+//        generalStatusExperimentLabel.textProperty().bind(readTestsFromModuleTask.messageProperty());
+//        backButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+//        nextButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+//        readTestButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
+//
+//        readTestsFromModuleTask.setOnSucceeded(e -> {
+//            generalStatusExperimentLabel.textProperty().unbind();
+//            backButton.disableProperty().unbind();
+//            nextButton.disableProperty().unbind();
+//            readTestButton.disableProperty().unbind();
+//        });
 
+        //new Thread(readTestsFromModuleTask).start();
+                //testDataArray[0] = ;
     }
 
     @FXML
