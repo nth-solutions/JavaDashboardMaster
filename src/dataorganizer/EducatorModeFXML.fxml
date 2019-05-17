@@ -313,17 +313,17 @@
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphRadioButton" layoutX="192.0" layoutY="114.0" mnemonicParsing="false" prefWidth="365.0" text="Graph (Using Template)">
+                                                                              <RadioButton fx:id="graphRadioButton" disable="true" layoutX="192.0" layoutY="114.0" mnemonicParsing="false" prefWidth="365.0" text="Graph (Using Template)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
+                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" disable="true" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="SINC Technology">
+                                                                              <RadioButton fx:id="sincTechnologyRadioButton" disable="true" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="SINC Technology">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -421,7 +421,7 @@
                                              <children>
                                                 <Button fx:id="backButton" mnemonicParsing="false" onAction="#backTab" prefHeight="70.0" prefWidth="70.0" text="Back" />
                                                 <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" />
-                                                <Button fx:id="nextButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextTab" prefHeight="70.0" prefWidth="70.0" text="Next" />
+                                                <Button fx:id="nextButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#nextTab" prefHeight="70.0" prefWidth="70.0" text="Next" />
                                              </children>
                                           </HBox>
                                        </children>

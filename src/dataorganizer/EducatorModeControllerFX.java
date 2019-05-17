@@ -214,6 +214,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         if (experimentTabIndex == numberOfTabs) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
             experimentTabIndex = -1;
+            serialHandler.closeSerialPort(); //TODO: UNTESTED - Intended to close the serial port when the user is brought back to the initial configuration scene
         }
 
         experimentTabIndex += 1;    // Increments the tab index each time the ActionEvent is triggered
@@ -274,7 +275,6 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void applyConfigurations(ActionEvent event) {
-        System.out.println(selectedIndex);
         writeButtonHandler();
         getExtraParameters(selectedIndex);
     }
@@ -296,7 +296,7 @@ public class EducatorModeControllerFX implements Initializable {
                 generalStatusExperimentLabel.setText("Initial connection to module successful");
             }
             try {
-                if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem().toString()))) {
+                if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
                 } else {
@@ -743,7 +743,6 @@ public class EducatorModeControllerFX implements Initializable {
         FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() {
             @Override
             public void run() {
-                int maxProgress = 100;
                 String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
                 ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 
@@ -796,12 +795,6 @@ public class EducatorModeControllerFX implements Initializable {
                             HashMap<Integer, ArrayList<Integer>> testData;
 
                             //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                            //TODO: MAJOR DEBUG: serialHandler.readTestDataFX() WILL THROW ERROR BC ITS HANDLING UI COMPONENTS
-                            //generalStatusExperimentLabel.textProperty().unbind();
-                            //progressBar.progressProperty().unbind();
-
-
-                            //TODO: Edit this method
                             testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
                             Platform.runLater(() -> {
@@ -902,74 +895,58 @@ public class EducatorModeControllerFX implements Initializable {
                                 }
                             } else {
 
-                                //updateMessage("Error Reading From Module, Try Again");
-                                //updateProgress(100, maxProgress);
-
                                 Platform.runLater(() -> {
                                     generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                    //updateProgress(100, maxProgress);
                                     generalStatusExperimentLabel.setTextFill(Color.RED);
                                     progressBar.setStyle("-fx-accent: red;");
+                                    progressBar.setProgress(100);
                                 });
-
 
                             }
                         } else {
-                            //updateMessage("No Tests Found on Module");
-                            //updateProgress(100, maxProgress);
 
                             Platform.runLater(() -> {
                                 generalStatusExperimentLabel.setText("No Tests Found on Module");
-                                //updateProgress(100, maxProgress);
                                 generalStatusExperimentLabel.setTextFill(Color.RED);
                                 progressBar.setStyle("-fx-accent: red;");
+                                progressBar.setProgress(100);
                             });
                         }
                     } else {
-                        //updateMessage("Error Reading From Module, Try Again");
-                        //updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {
                             generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                            //updateProgress(100, maxProgress);
                             generalStatusExperimentLabel.setTextFill(Color.RED);
                             progressBar.setStyle("-fx-accent: red;");
+                            progressBar.setProgress(100);
                         });
                     }
                 } catch (IOException e) {
-//                    updateMessage("Error Communicating With Serial Dongle");
-//                    updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
                         generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-//                      updateProgress(100, maxProgress);
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
                     });
 
                 } catch (PortInUseException e) {
 
-//                    updateMessage("Serial Port Already In Use");
-//                    updateProgress(100, maxProgress);
-
                     Platform.runLater(() -> {
                         generalStatusExperimentLabel.setText("Serial Port Already In Use");
-//                      updateProgress(100, maxProgress);
+
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
                     });
-
 
                 } catch (UnsupportedCommOperationException e) {
 
-//                    updateMessage("Check Dongle Compatability");
-//                    updateProgress(100, maxProgress);
-
                     Platform.runLater(() -> {
                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
-//                      updateProgress(100, maxProgress);
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
                     });
 
                 }
@@ -981,20 +958,6 @@ public class EducatorModeControllerFX implements Initializable {
 
         readTestsFromModuleTask.run();
 
-//        generalStatusExperimentLabel.textProperty().bind(readTestsFromModuleTask.messageProperty());
-//        backButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
-//        nextButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
-//        readTestButton.disableProperty().bind(readTestsFromModuleTask.runningProperty());
-//
-//        readTestsFromModuleTask.setOnSucceeded(e -> {
-//            generalStatusExperimentLabel.textProperty().unbind();
-//            backButton.disableProperty().unbind();
-//            nextButton.disableProperty().unbind();
-//            readTestButton.disableProperty().unbind();
-//        });
-
-        //new Thread(readTestsFromModuleTask).start();
-                //testDataArray[0] = ;
     }
 
     @FXML
