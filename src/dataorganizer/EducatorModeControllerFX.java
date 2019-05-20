@@ -139,7 +139,7 @@ public class EducatorModeControllerFX implements Initializable {
     //Dashboard Background Functionality
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
-    private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<String, ArrayList<Integer>>();
+    private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<>();
     private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
     public static String testType;
 
@@ -149,6 +149,8 @@ public class EducatorModeControllerFX implements Initializable {
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics");
         backButton.setVisible(false);
         initializeToggleGroup();
+        //TODO: Untested Implementation
+        fillTestTypeHashMap();
 
     }
 
@@ -279,48 +281,121 @@ public class EducatorModeControllerFX implements Initializable {
         getExtraParameters(selectedIndex);
     }
 
-
-    //TODO: Fix inability to program the module multiple times
+    //TODO: Untested Task Implementation
     /**
      * A handler method called within the applyConfigurations() ActionEvent that writes pre-defined optimal parameters
      * to the module's firmware for use in one of several experiments
      */
     private void writeButtonHandler() {
 
-        Platform.runLater(() -> {
-            //Disable write config button while the sendParameters() method is running
-            applyConfigurationsButton.setDisable(true);
-            nextButton.setDisable(true);
-            if (findModuleCommPort()) {
-                generalStatusExperimentLabel.setTextFill(DarkGreen);
-                generalStatusExperimentLabel.setText("Initial connection to module successful");
-            }
-            try {
-                if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
-                } else {
-                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
-                }
-            } catch (NumberFormatException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Please Fill out Every Field");
-            } catch (IOException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-            } catch (PortInUseException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-            } catch (UnsupportedCommOperationException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-            }
+        Task<Void> writeParametersTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                if (findModuleCommPort()) {
 
-            //Re-enable the write config button when the routine has completed
-            applyConfigurationsButton.setDisable(false);
-            nextButton.setDisable(false);
+                    updateMessage("Initial connection to module successful");
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    });
+
+                }
+                try {
+                    if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
+
+                        updateMessage("Module Not Responding, parameter write failed.");
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                        });
+
+                    } else {
+
+                        updateMessage("Module Configuration Successful, Parameters Have Been Updated");
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+                        });
+
+                    }
+                } catch (NumberFormatException e) {
+
+                    updateMessage("Please Fill out Every Field");
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
+
+                } catch (IOException e) {
+
+                    updateMessage("Module Configuration Successful, Parameters Have Been Updated");
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
+
+
+                } catch (PortInUseException e) {
+
+                    updateMessage("Serial Port Already In Use");
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+
+                    updateMessage("Check Dongle Compatability");
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                    });
+
+                }
+
+                return null;
+            }
+        };
+
+        generalStatusExperimentLabel.textProperty().bind(writeParametersTask.messageProperty());
+        applyConfigurationsButton.disableProperty().bind(writeParametersTask.runningProperty());
+        nextButton.disableProperty().bind(writeParametersTask.runningProperty());
+
+        writeParametersTask.setOnSucceeded(e -> {
+            generalStatusExperimentLabel.textProperty().unbind();
+            applyConfigurationsButton.disableProperty().unbind();
+            nextButton.disableProperty().unbind();
         });
+
+        new Thread(writeParametersTask).start();
+
+//        Platform.runLater(() -> {
+//            //Disable write config button while the sendParameters() method is running
+//            applyConfigurationsButton.setDisable(true);
+//            nextButton.setDisable(true);
+//            if (findModuleCommPort()) {
+//                generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                generalStatusExperimentLabel.setText("Initial connection to module successful");
+//            }
+//            try {
+//                if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+//                } else {
+//                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+//                }
+//            } catch (NumberFormatException e) {
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("Please Fill out Every Field");
+//            } catch (IOException e) {
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//            } catch (PortInUseException e) {
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//            } catch (UnsupportedCommOperationException e) {
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//            }
+//
+//            //Re-enable the write config button when the routine has completed
+//            applyConfigurationsButton.setDisable(false);
+//            nextButton.setDisable(false);
+//        });
 
     }
 
@@ -733,6 +808,11 @@ public class EducatorModeControllerFX implements Initializable {
         return outputSelected;
     }
 
+    /**
+     * This method reads all of the data captured by the module during a testing period; then, depending on the output
+     * type selected (from a defined ToggleGroup of output options), the data is then handled accordingly.
+     * @param event
+     */
     @FXML
     private void readTestsFromModule(ActionEvent event) {
 
@@ -779,7 +859,6 @@ public class EducatorModeControllerFX implements Initializable {
                         if (accelGyroSampleRate / magSampleRate == 10) {
                             bytesPerSample = 12.6;
                         }
-
 
                         String nameOfFile = "";
 
@@ -835,12 +914,6 @@ public class EducatorModeControllerFX implements Initializable {
                                                     generalStatusExperimentLabel.setText("Writing data to spreadsheet");
                                                     generalStatusExperimentLabel.setTextFill(Color.BLACK);
                                                 });
-
-//                                                testType = "Physical Pendulum";
-//                                                lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
-//                                                distanceFromPivot = Double.parseDouble(distanceFromPivotTextField.getText());
-//                                                massOfModule = Double.parseDouble(massOfModuleTextField.getText());
-//                                                massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
 
                                                 if (testType == "Conservation of Momentum (Elastic Collision)") {
                                                     parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
@@ -1099,14 +1172,12 @@ public class EducatorModeControllerFX implements Initializable {
         }
     }
 
-    //TODO: Implement this method
-
+    //TODO: Untested implementation
     /***
      *  Fills the testTypeHashMap with the module settings associated with each test type
      *
-     * @param timedTest
      */
-    public void fillTestTypeHashMap(int timedTest) {
+    public void fillTestTypeHashMap() {
         ArrayList<Integer> testParams = new ArrayList<Integer>();
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
@@ -1117,8 +1188,6 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
@@ -1148,8 +1217,6 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
@@ -1179,8 +1246,6 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
@@ -1210,8 +1275,6 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
@@ -1241,8 +1304,6 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
@@ -1272,8 +1333,6 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
-        //4 Timed test flag
-        testParams.add(timedTest);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
