@@ -5,10 +5,14 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
@@ -22,8 +26,10 @@ import java.util.concurrent.FutureTask;
 GOALS:
 1. Fill-in Template Paths
 2. Multi-test saving
-3. Motion Visualization UI Opening
-4. Motion Visualization Fixing
+3. Other Test Output Types (Radio Button Options on Tab 3)
+4. General Debugging / Bug Testing
+5. Motion Visualization UI Opening
+6. Motion Visualization Fixing
  */
 
 
@@ -143,9 +149,8 @@ public class EducatorModeControllerFX implements Initializable {
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<>();
     private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
     public static String testType;
-
-
     private Boolean moduleConnected;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -156,6 +161,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         moduleConnected = findModuleCommPort();
     }
+
 
     /**
      * This method is utilized solely to clean up method implementation within the initialize() method. Essentially, this
@@ -267,7 +273,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void displayTestParameterTab(ActionEvent event) {
         selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex() + 1; //Gets the index of the test type selected by user within the combobox
-        testParametersTabPane.getSelectionModel().select(selectedIndex ); //Since the number of tabs matches the length of the combobox selection model, the user's
+        testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
                                                                          //selected index is used to select the matching tab pane index to display
     }
 
@@ -281,48 +287,48 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void applyConfigurations(ActionEvent event) {
         writeButtonHandler();
-        getExtraParameters(selectedIndex);
     }
 
-    //TODO: Untested Task Implementation
     /**
      * A handler method called within the applyConfigurations() ActionEvent that writes pre-defined optimal parameters
      * to the module's firmware for use in one of several experiments
      */
     private void writeButtonHandler() {
         Platform.runLater(() -> {
-            //Disable write config button while the sendParameters() method is running
-            applyConfigurationsButton.setDisable(true);
-            nextButton.setDisable(true);
-            if (moduleConnected) {  //If the moduleConnected Boolean is true, the UI will update to inform the user the module has been connected
-                generalStatusExperimentLabel.setTextFill(DarkGreen);
-                generalStatusExperimentLabel.setText("Initial connection to module successful");
-            }
-            try {
-                if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
+            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Select a Test Type");
+            } else {
+
+                //Disable write config button while the sendParameters() method is running
+                applyConfigurationsButton.setDisable(true);
+                nextButton.setDisable(true);
+
+                try {
+                    if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+                    } else {
+                        getExtraParameters(selectedIndex);
+                    }
+                } catch (NumberFormatException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
-                } else {
-                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
+                } catch (IOException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                } catch (PortInUseException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                } catch (UnsupportedCommOperationException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
                 }
-            } catch (NumberFormatException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Please Fill out Every Field");
-            } catch (IOException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-            } catch (PortInUseException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-            } catch (UnsupportedCommOperationException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+
+                //Re-enable the write config button when the routine has completed
+                applyConfigurationsButton.setDisable(false);
             }
 
-            //Re-enable the write config button when the routine has completed
-            applyConfigurationsButton.setDisable(false);
-            nextButton.setDisable(false);
         });
 
     }
@@ -336,8 +342,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void getExtraParameters(int comboBoxIndex) {
         generalStatusExperimentLabel.setText("");
-        switch (comboBoxIndex-1) {
-            case 0:
+        switch (comboBoxIndex) {
+            case 1:
                 //CoM
                 try {
                     massOfRightModule = Double.parseDouble(massOfRightModuleTextField.getText());
@@ -345,13 +351,17 @@ public class EducatorModeControllerFX implements Initializable {
                     massOfLeftModule = Double.parseDouble(massOfLeftModuleTextField.getText());
                     massOfLeftGlider = Double.parseDouble(massOfLeftGliderTextField.getText());
                     testType = "Conservation of Momentum (Elastic Collision)";
+
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    nextButton.setDisable(false);
+
                 } catch (NumberFormatException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Invalid or Missing Data");
                 }
-
                 break;
-            case 1:
+            case 2:
                 //CoE
                 try {
                     totalDropDistance = Double.parseDouble(totalDropDistanceTextField.getText());
@@ -359,17 +369,24 @@ public class EducatorModeControllerFX implements Initializable {
                     momentOfInertiaCOE = Double.parseDouble(momentOfInertiaCOETextField.getText());
                     radiusOfTorqueArmCOE = Double.parseDouble(radiusOfTorqueArmCOETextField.getText());
                     testType = "Conservation of Energy";
+
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    nextButton.setDisable(false);
+
                 } catch (NumberFormatException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Invalid or Missing Data");
                 }
-
-                break;
-            case 2:
-                //IP
-                testType = "Inclined Plane";
                 break;
             case 3:
+                //IP
+                testType = "Inclined Plane";
+                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                nextButton.setDisable(false);
+                break;
+            case 4:
                 //Pendulum
                 try {
                     lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
@@ -378,13 +395,17 @@ public class EducatorModeControllerFX implements Initializable {
                     massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
                     testType = "Physical Pendulum";
 
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    nextButton.setDisable(false);
+
                 } catch (NumberFormatException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Invalid or Missing Data");
                 }
 
                 break;
-            case 4:
+            case 5:
                 //Spring
                 try {
                     springConstant = Double.parseDouble(springConstantTextField.getText());
@@ -392,6 +413,10 @@ public class EducatorModeControllerFX implements Initializable {
                     momentOfIntertiaSpring = Double.parseDouble(momentOfInertiaSpringTextField.getText());
                     radiusOfTorqueArmSpring = Double.parseDouble(radiusOfTorqueArmSpringTextField.getText());
                     testType = "Spring Test - Simple Harmonics";
+
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    nextButton.setDisable(false);
 
                 } catch (NumberFormatException e) {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
@@ -432,7 +457,7 @@ public class EducatorModeControllerFX implements Initializable {
                         updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                            generalStatusExperimentLabel.setTextFill(DarkGreen);
                             progressBar.setStyle("-fx-accent: #1f78d1;");
                         });
 
@@ -827,65 +852,63 @@ public class EducatorModeControllerFX implements Initializable {
                                     dataOrgo = new DataOrganizer(testParameters, tempName);
                                     //Define operation that can be run in separate thread
                                     //TODO: This will probably throw an error
-                                    Runnable organizerOperation = new Runnable() {
-                                        public void run() {
+                                    Runnable organizerOperation = () -> {
 
-                                            //Organize data into .CSV
-                                            dataOrgo.createDataSmpsRawData(finalData);
+                                        //Organize data into .CSV
+                                        dataOrgo.createDataSmpsRawData(finalData);
 
-                                            //TODO: This will throw Errors because its handling UI components
-                                            if (spreadsheetRadioButton.isSelected()) {
+                                        //TODO: This will throw Errors because its handling UI components
+                                        if (spreadsheetRadioButton.isSelected()) {
 
-                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+                                            List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
 
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                                });
+                                            Platform.runLater(() -> {
+                                                generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+                                                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                                            });
 
-                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Conservation of Energy") {
-                                                    parameterSpreadsheetController.loadConservationofEnergyParameters();
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Inclined Plane") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Physical Pendulum") {
+                                            if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                                parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                parameterSpreadsheetController.saveWorkbook(path);
+                                            } else if (testType == "Conservation of Energy") {
+                                                parameterSpreadsheetController.loadConservationofEnergyParameters();
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                parameterSpreadsheetController.saveWorkbook(path);
+                                            } else if (testType == "Inclined Plane") {
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                parameterSpreadsheetController.saveWorkbook(path);
+                                            } else if (testType == "Physical Pendulum") {
 
-                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                    System.out.println("debug");
-                                                } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                }
-
-                                                try {
-                                                    Thread.sleep(10000);
-
-                                                } catch (Exception exceptionalexception) {
-                                                    System.out.println("If you got this error, something went seriously wrong");
-                                                }
-
-
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Data Successfully Written");
-                                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                                });
-
+                                                parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                parameterSpreadsheetController.saveWorkbook(path);
+                                                System.out.println("debug");
+                                            } else if (testType == "Spring Test - Simple Harmonics") {
+                                                parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                parameterSpreadsheetController.saveWorkbook(path);
                                             }
-                                            dataOrgo.getSignedData();
-                                            //dataOrgo.createCSVP();
-                                            //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
 
-                                            //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+                                            try {
+                                                Thread.sleep(10000);
+
+                                            } catch (Exception exceptionalexception) {
+                                                System.out.println("If you got this error, something went seriously wrong");
+                                            }
+
+
+                                            Platform.runLater(() -> {
+                                                generalStatusExperimentLabel.setText("Data Successfully Written");
+                                                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                                            });
+
                                         }
+                                        dataOrgo.getSignedData();
+                                        //dataOrgo.createCSVP();
+                                        //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+
+                                        //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
                                     };
 
                                     //Set thread to execute previously defined operation
@@ -1054,12 +1077,115 @@ public class EducatorModeControllerFX implements Initializable {
         new Thread(eraseTestsTask).start(); //Starts an anonymous thread, passing it the Task defined above
 
     }
-    
+
     /*End Experiment Tab Methods*/
 
+    //TODO: UNDER DEVELOPMENT - SEE SWING VERSION FOR GENERAL IDEA
     /*Begin Motion Visualization Tab Methods*/
+    private GraphController lineGraph;
+    private MediaPlayerController mediaController;
+    private MediaPlayerAndGraphController mediaPlayerAndGraphController;
 
-    //Under Development... Will have methods soon
+    @FXML
+    private void graphLoader(ActionEvent event) {
+//        lineGraph = startGraphing();
+//        lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
+//        lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
+
+        startSINC();
+        mediaPlayerAndGraphController.setDataCollector(dataOrgo, 0);
+        mediaPlayerAndGraphController.graphSettingsOnStart(dataOrgo.getSerialID());
+        mediaPlayerAndGraphController.scaleVideoAtStart();
+    }
+
+    @FXML
+    private void mediaPlayerLoader(ActionEvent event) {
+        mediaController = startMediaPlayer();
+        mediaController.scaleVideoAtStart();
+        shareFrameGraphAndMedia(lineGraph, mediaController);
+    }
+
+    public MediaPlayerAndGraphController startSINC() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MediaPlayerAndGraphCombined.fxml"));
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        primaryStage.setTitle("SINC Technology");
+        if(root!=null) primaryStage.setScene(new Scene(root, 1100, 700));
+        primaryStage.show();
+        primaryStage.setResizable(false);
+        return loader.getController();
+    }
+
+    public MediaPlayerController startMediaPlayer() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("MediaPlayerStructure.fxml"));
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        primaryStage.setTitle("Video Player");
+        if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
+        primaryStage.show();
+        primaryStage.setResizable(false);
+        return loader.getController();
+    }
+
+
+
+    public GraphController startGraphing() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructure.fxml"));
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(root!=null) primaryStage.setScene(new Scene(root, 1440, 810));
+
+        primaryStage.setTitle("Graph");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+
+        return loader.getController();
+    }
+
+    public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
+        Runnable updatePosInGraph = new Runnable() {
+            public void run() {
+                try {
+                    int currentFrame = -1;
+                    while(true) {
+                        if(MPC.hasVideoSelected()) {
+                            while(currentFrame != MPC.getCurrentFrame()) {
+                                Thread.sleep(10);
+                                graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
+                                currentFrame = MPC.getCurrentFrame();
+                            }
+                        }
+                        Thread.sleep(100);
+                    }
+                }catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread updatePosInGraphThread = new Thread(updatePosInGraph);
+        updatePosInGraphThread.start();
+    }
+
+
 
     /*End Motion Visualization Tab Methods*/
 

@@ -31,7 +31,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -57,9 +57,9 @@
                                  <children>
                                     <VBox prefHeight="500.0" prefWidth="500.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
+                                          <HBox alignment="CENTER">
                                              <children>
-                                                <Label fx:id="generalStatusExperimentLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="480.0" prefHeight="50.0" prefWidth="480.0" textAlignment="CENTER" wrapText="true">
+                                                <Label fx:id="generalStatusExperimentLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="480.0" prefHeight="50.0" prefWidth="490.0" textAlignment="CENTER" wrapText="true">
                                                    <font>
                                                       <Font name="System Bold" size="15.0" />
                                                    </font>
@@ -95,14 +95,14 @@
                                                                                        <children>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
-                                                                                                <TextField fx:id="massOfRightModuleTextField1" prefWidth="175.0" promptText="Mass of Right Module (kg)" />
-                                                                                                <TextField fx:id="massOfRightGliderTextField1" prefWidth="175.0" promptText="Mass of Right Glider (kg)" />
+                                                                                                <TextField fx:id="massOfRightModuleTextField" prefWidth="175.0" promptText="Mass of Right Module (kg)" />
+                                                                                                <TextField fx:id="massOfRightGliderTextField" prefWidth="175.0" promptText="Mass of Right Glider (kg)" />
                                                                                              </children>
                                                                                           </HBox>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
-                                                                                                <TextField fx:id="massOfLeftModuleTextField1" prefWidth="175.0" promptText="Mass of Left Module (kg)" />
-                                                                                                <TextField fx:id="massOfLeftGliderTextField1" prefWidth="175.0" promptText="Mass of Left Glider (kg)" />
+                                                                                                <TextField fx:id="massOfLeftModuleTextField" prefWidth="175.0" promptText="Mass of Left Module (kg)" />
+                                                                                                <TextField fx:id="massOfLeftGliderTextField" prefWidth="175.0" promptText="Mass of Left Glider (kg)" />
                                                                                              </children>
                                                                                           </HBox>
                                                                                        </children>
@@ -417,7 +417,7 @@
                                                 </Tab>
                                              </tabs>
                                           </TabPane>
-                                          <HBox alignment="CENTER" prefHeight="70.0" prefWidth="333.0" spacing="50.0">
+                                          <HBox alignment="CENTER" prefHeight="70.0" prefWidth="500.0" spacing="50.0">
                                              <children>
                                                 <Button fx:id="backButton" mnemonicParsing="false" onAction="#backTab" prefHeight="70.0" prefWidth="70.0" text="Back" />
                                                 <ProgressBar fx:id="progressBar" prefWidth="200.0" progress="0.0" />
@@ -425,9 +425,6 @@
                                              </children>
                                           </HBox>
                                        </children>
-                                       <padding>
-                                          <Insets left="5.0" right="5.0" />
-                                       </padding>
                                     </VBox>
                                  </children>
                               </AnchorPane>
@@ -439,8 +436,8 @@
                                  <children>
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
-                                          <Button disable="true" mnemonicParsing="false" prefHeight="200.0" prefWidth="400.0" text="Graph" />
-                                          <Button disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="400.0" text="Video Player" />
+                                          <Button mnemonicParsing="false" onAction="#graphLoader" prefHeight="200.0" prefWidth="400.0" text="Graph" />
+                                          <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#mediaPlayerLoader" prefHeight="200.0" prefWidth="400.0" text="Video Player" />
                                        </children>
                                     </VBox>
                                  </children>

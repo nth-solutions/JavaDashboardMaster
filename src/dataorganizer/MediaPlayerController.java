@@ -190,7 +190,7 @@ public class MediaPlayerController implements Initializable {
     }
 
     @FXML
-public void handlePlayPauseVideo(ActionEvent event) {                                                                                                           // Event listener responsible for changing the text and functionality of the playPauseButton button
+    public void handlePlayPauseVideo(ActionEvent event) {                                                                                                           // Event listener responsible for changing the text and functionality of the playPauseButton button
         if (playing) {                                                                                                                                          // When the button is pressed, if the Boolean Playing is true ->
             mediaPlayer.play();                                                                                                                                 // The mediaPlayer resumes playback
             playPauseButton.setText("Pause");                                                                                                                   // The playPauseButton is then set to display "Pause"
