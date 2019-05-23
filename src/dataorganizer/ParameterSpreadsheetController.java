@@ -17,19 +17,19 @@ public class ParameterSpreadsheetController {
 
         if (testType == "Conservation of Momentum (Elastic Collision)"){ // changes the end of the file path to match the test. This file path is the location of the unaltered template
 
-            testTypeFileName = "";
+            testTypeFileName = "Conservation of Momentum Template.xlsx";
         }
         else if(testType == "Conservation of Angular Momentum"){
 
-            testTypeFileName = "";
+            testTypeFileName = "Conservation of Angular Momentum Template.xlsx";
         }
         else if(testType == "Conservation of Energy"){
 
-            testTypeFileName = "";
+            testTypeFileName = "Conservation of Energy Template.xlsx";
         }
         else if(testType == "Inclined Plane") {
 
-            testTypeFileName = "";
+            testTypeFileName = "Inclined Plane Template.xlsx";
         }
         else if(testType == "Physical Pendulum"){
 
@@ -37,11 +37,11 @@ public class ParameterSpreadsheetController {
 
         }else if(testType == "Spinny Stool"){
 
-            testTypeFileName = "";
+            testTypeFileName = "Spinny Stool Template.xlsx";
 
         }else if(testType == "Spring Test - Simple Haromincs"){
 
-            testTypeFileName = "";
+            testTypeFileName = "Spring Test - Simple Haromincs Template.xlsx";
         }
         //testTypeFileName = "Pendulum Template REV-Q3.xlsx";
         //System.out.println(System.getProperty("user.home"));
@@ -66,7 +66,6 @@ public class ParameterSpreadsheetController {
             System.out.println(e.getCause());
             System.out.println("Invalid output path");
         }
-
     }
     public void test(){
         System.out.println(testType);
@@ -99,7 +98,6 @@ public class ParameterSpreadsheetController {
     public void loadConservationofEnergyParameters() {
 
     }
-
     /**
      * Fills the Pendulum Template with all of the data recorded during a module test
      * @param rowOffset The offset integer used to identify the first row for data to be added

@@ -21,7 +21,7 @@
                   <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                </yAxis>
             </LineChart>
-            <MediaView fx:id="mediaView" fitHeight="540.0" fitWidth="1000.0" opacity="0.5" />
+            <MediaView fx:id="mediaView" fitHeight="525.0" fitWidth="922.0" layoutX="64.0" layoutY="14.0" opacity="0.5" />
          </children>
       </Pane>
       <HBox layoutX="50.0" layoutY="636.0" prefWidth="1000.0" spacing="10.0">

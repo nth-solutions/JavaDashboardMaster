@@ -313,17 +313,17 @@
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphRadioButton" disable="true" layoutX="192.0" layoutY="114.0" mnemonicParsing="false" prefWidth="365.0" text="Graph (Using Template)">
+                                                                              <RadioButton fx:id="graphRadioButton" layoutX="192.0" layoutY="114.0" mnemonicParsing="false" prefWidth="365.0" text="Graph (Using Template)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" disable="true" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
+                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="sincTechnologyRadioButton" disable="true" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="SINC Technology">
+                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="SINC Technology">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -362,7 +362,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button disable="true" mnemonicParsing="false" onAction="#launchMotionVisualization" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualization" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>

@@ -179,11 +179,11 @@ public class MediaPlayerAndGraphController implements Initializable {
         Settings settings = new Settings();
         settings.loadConfigFile();
         fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
-        fileChooser.setTitle("Select a Video File");                                                                                                            // Sets the title of the file selector
+        fileChooser.setTitle("Select a MP4 File");                                                                                                            // Sets the title of the file selector
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");                           // Creates a filter that limits fileChooser's search parameters to *.mp4 files
         fileChooser.getExtensionFilters().add(filter);                                                                                                          // Initializes the filter into the fileChooser object
 
-        File file = fileChooser.showOpenDialog(null);                                                                                              // Specifies the parent component for the dialog
+        File file = fileChooser.showOpenDialog(null);                                                                                            // Specifies the parent component for the dialog
 
         fileCopy = file;                                                                                                                                        // File object necessary for use in the reset handler
 
@@ -203,23 +203,18 @@ public class MediaPlayerAndGraphController implements Initializable {
             videoLoaded = true;                                                                                                                                 // Boolean to check if a video has been loaded
 
             selectFileButton.setDisable(true);                                                                                                                  // Disables the button used to select a file following a selection
-            generalStatusText.setText("");                                                                                                                      // Removes the status text from the top of the player after the user selects a file
-            noVideoSelectedText.setVisible(false);
+
+
 
             mediaPlayer.setOnReady(new Runnable() {                                                                                                             // Sets the maximum value of the slider bar equal to the total duration of the file
                 @Override
                 public void run() {
 
-                    resetButton.setDisable(false);                                                                                                                      // Enables buttons following a valid file selection
                     playPauseButton.setDisable(false);
-                    timeStampSlider.setDisable(false);
-                    rateChangeSlider.setDisable(false);
-                    frameByFrameCheckbox.setDisable(false);
 
                     mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
                     currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
                     playPauseButton.setText("Pause");                                                                                                                   // Changes the playPauseButton's display text to Pause for UI changes necessary with the pause/play functionality switch of the handlePlayPauseVideo event
-                    timeStampSlider.setMax(round(media.getDuration().toMillis()));
                     totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
                 }
             });
@@ -227,16 +222,8 @@ public class MediaPlayerAndGraphController implements Initializable {
             mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {                                                                      // Displays a moving slider bar that corresponds to the current point of playback within the video sequence
                 @Override
                 public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-
-                    timeStampSlider.setValue(round(newValue.toMillis()));                                                                                       // Updates the slider circle to be located wherever the video is along playback
-
                     currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
-                    playbackTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(mediaPlayer.getCurrentTime().toSeconds()) + "s"));          // Changes current time counter according to playback time
-                    totalVideoTimeText.setText(String.valueOf(new DecimalFormat("#.0").format(media.getDuration().toSeconds()) + "s"));                 // Displays the total video length in seconds
-
-                    currentFrameCounterTextField.setText("Current Frame: " + currentFrame);                                                            //updates the currentFrameCounterTextField to the current frame being displayed during playback
-                    totalFrameTextField.setText("Total Frames: " + String.valueOf((new DecimalFormat("#").format(totalFrames))));                           // Sets the text within the totalFrameTextField equal to the totalFrames variable calculated during the handleFileOpener event
-                }
+                   }
             });
         }
     }
@@ -283,7 +270,7 @@ public class MediaPlayerAndGraphController implements Initializable {
     }
 
     @FXML
-    public void handlePlayPauseVideo(ActionEvent event) {                                                                                                           // Event listener responsible for changing the text and functionality of the playPauseButton button
+    public void handlePlayPauseVideo(ActionEvent event) {                                                                                                       // Event listener responsible for changing the text and functionality of the playPauseButton button
         if (playing) {                                                                                                                                          // When the button is pressed, if the Boolean Playing is true ->
             mediaPlayer.play();                                                                                                                                 // The mediaPlayer resumes playback
             playPauseButton.setText("Pause");                                                                                                                   // The playPauseButton is then set to display "Pause"
@@ -545,18 +532,18 @@ public class MediaPlayerAndGraphController implements Initializable {
     @FXML
     public void handleReset(ActionEvent event) {                                                                        //Resets the Graph to its default parameters (y-Axis scale, x-Axis scale and userCreatedZoomRectangleBox is reset to (0,0))
         if (dataCollector[0] != null) {
-            xAxis.setUpperBound(dataCollector[0].getLengthOfTest());                    //Sets the Graph's x-Axis maximum value to the total time of the test
+            xAxis.setUpperBound(dataCollector[0].getLengthOfTest());                                                     //Sets the Graph's x-Axis maximum value to the total time of the test
         }
         if (GDO != null) xAxis.setUpperBound(GDO.getLengthOfTest());
-        xAxis.setLowerBound(0);                                                                                            //Sets the Graph's x-Axis minimum value to 0 - the location of the very first data sample
+        xAxis.setLowerBound(0);                                                                                          //Sets the Graph's x-Axis minimum value to 0 - the location of the very first data sample
         yAxis.setUpperBound(yMax);                                                                                        //Sets the Graph's y-Axis maximum value to the defined y-Axis maximum (5 by default - varies based on user entry)
         yAxis.setLowerBound(yMin);                                                                                        //Sets the Graph's y-Axis minimum value to the defined y-Axis minimum (-5 by default - varies based on user entry)
 
-        userCreatedZoomRectangleBox.setWidth(0);                                                                        //Sets the Width of user's drag and drop zoom rectangle back to its original width value (0)
-        userCreatedZoomRectangleBox.setHeight(0);                                                                        //Sets the Height of the user's drag and drop zoom rectangle back to its original height value (0)
+        userCreatedZoomRectangleBox.setWidth(0);                                                                          //Sets the Width of user's drag and drop zoom rectangle back to its original width value (0)
+        userCreatedZoomRectangleBox.setHeight(0);                                                                         //Sets the Height of the user's drag and drop zoom rectangle back to its original height value (0)
 
-        if (dataSeries != null) {                                                                                        //If the first data series exists (contains data) ->
-            for (final DataSeries axisOfDataSeries : dataSeries) {                                                        //Iterates through each axis of the first data series
+        if (dataSeries != null) {                                                                                       //If the first data series exists (contains data) ->
+            for (final DataSeries axisOfDataSeries : dataSeries) {                                                       //Iterates through each axis of the first data series
                 axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());                                //Updates the boundaries of the graph for each axis of the first data series
             }
         }
@@ -574,7 +561,6 @@ public class MediaPlayerAndGraphController implements Initializable {
         }
 
         repopulateData();                                                                                                    //TODO
-
     }
 
     @FXML
