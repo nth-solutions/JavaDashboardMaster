@@ -992,11 +992,9 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualization(ActionEvent event) {
-        startSINC();
-
-//        mediaPlayerAndGraphController.setDataCollector(dataOrgo, 0);
-//        mediaPlayerAndGraphController.graphSettingsOnStart(dataOrgo.getSerialID());
-//        mediaPlayerAndGraphController.scaleVideoAtStart();
+        lineGraph = startGraphing();
+//        lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
+//        lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
     }
 
 
@@ -1094,13 +1092,13 @@ public class EducatorModeControllerFX implements Initializable {
     /*Begin Motion Visualization Tab Methods*/
     private GraphController lineGraph;
     private MediaPlayerController mediaController;
-    private MediaPlayerAndGraphController mediaPlayerAndGraphController;
 
     @FXML
     private void graphLoader(ActionEvent event) {
         lineGraph = startGraphing();
         lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
         lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
+
     }
 
     @FXML
@@ -1111,22 +1109,6 @@ public class EducatorModeControllerFX implements Initializable {
         shareFrameGraphAndMedia(lineGraph, mediaController);
     }
 
-    public MediaPlayerAndGraphController startSINC() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("MediaPlayerAndGraphCombined.fxml"));
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        primaryStage.setTitle("SINC Technology");
-        if(root!=null) primaryStage.setScene(new Scene(root, 1100, 700));
-        primaryStage.show();
-        primaryStage.setResizable(false);
-        return loader.getController();
-    }
 
     public MediaPlayerController startMediaPlayer() {
         Stage primaryStage = new Stage();
@@ -1148,7 +1130,7 @@ public class EducatorModeControllerFX implements Initializable {
     public GraphController startGraphing() {
         Stage primaryStage = new Stage();
         Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructure.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructureEducator.fxml"));
         try {
             root = loader.load();
         } catch (IOException e) {
@@ -1221,7 +1203,6 @@ public class EducatorModeControllerFX implements Initializable {
         }
     }
 
-    //TODO: Untested implementation
     /***
      *  Fills the testTypeHashMap with the module settings associated with each test type
      *

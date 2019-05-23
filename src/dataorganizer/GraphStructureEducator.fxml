@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.media.MediaView?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+   <children>
+      <SplitPane fx:id="graphingPane" dividerPositions="0.7" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1440.0">
+         <items>
+            <Pane maxHeight="783.0" maxWidth="1004.0" minHeight="783.0" minWidth="1004.0" prefHeight="783.0" prefWidth="1004.0">
+               <children>
+                  <VBox prefHeight="783.0" prefWidth="1004.0" spacing="20.0">
+                     <children>
+                        <HBox alignment="CENTER" prefHeight="20.0" prefWidth="904.0">
+                           <children>
+                              <Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0">
+                                 <font>
+                                    <Font name="Open Sans" size="24.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <Pane fx:id="chartContainer" prefHeight="508.5" prefWidth="904.0">
+                           <children>
+                              <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="-38.0" layoutY="-8.0" prefHeight="508.5" prefWidth="904.0">
+                                <xAxis>
+                                  <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
+                                </yAxis>
+                              </LineChart>
+                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="23.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
+                              <MediaView fx:id="mediaView" fitHeight="434.0" layoutX="25.0" layoutY="6.0" opacity="0.3">
+                                 <viewport>
+                                    <Rectangle2D height="434.0" width="825.0" />
+                                 </viewport>
+                              </MediaView>
+                              <Slider fx:id="playbackSlider" layoutY="494.0" onDragDetected="#updateTrackerPosition" prefHeight="14.0" prefWidth="904.0" />
+                           </children>
+                        </Pane>
+                        <Pane prefHeight="100.0" prefWidth="499.0">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                           <children>
+                              <HBox alignment="CENTER" layoutY="15.0" prefHeight="70.0" prefWidth="904.0" spacing="10.0">
+                                 <children>
+                                    <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
+                                    <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
+                                    <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" text="File" />
+                                    <CheckBox fx:id="videoVisibleCheckBox" mnemonicParsing="false" onAction="#toggleVideoVisibility" prefHeight="17.0" prefWidth="104.0" selected="true" text="Video Visible" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </HBox>
+                           </children>
+                        </Pane>
+                     </children>
+                     <padding>
+                        <Insets left="50.0" right="50.0" top="25.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </Pane>
+            <Pane>
+               <children>
+                  <Pane prefHeight="341.0" prefWidth="428.0">
+                     <children>
+                        <HBox alignment="CENTER" layoutX="127.0" layoutY="91.0" />
+                        <VBox layoutX="15.0" layoutY="22.0" prefHeight="297.0" prefWidth="404.0">
+                           <children>
+                              <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" spacing="5.0">
+                                 <children>
+                                    <HBox alignment="CENTER" prefHeight="50.0" prefWidth="341.0" spacing="15.0">
+                                       <children>
+                                          <CheckBox fx:id="displaySignedDataCheckbox" layoutX="175.0" layoutY="27.0" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="100.0" selected="true" text="Signed Data" textAlignment="CENTER" />
+                                          <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="100.0" text="Raw Data" textAlignment="CENTER" />
+                                       </children>
+                                    </HBox>
+                                    <Separator prefWidth="200.0" />
+                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="Y-Axis Scaling" textAlignment="CENTER">
+                                       <padding>
+                                          <Insets bottom="5.0" top="5.0" />
+                                       </padding>
+                                    </Label>
+                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="66.0">
+                                       <children>
+                                          <Label prefHeight="17.0" prefWidth="100.0" text="Y-Axis Maximum:" textAlignment="CENTER">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="maxYValueTextField" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="75.0" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="91.0">
+                                       <children>
+                                          <Label prefHeight="17.0" prefWidth="100.0" text="Y-Axis Minimum:" textAlignment="CENTER">
+                                             <HBox.margin>
+                                                <Insets />
+                                             </HBox.margin>
+                                          </Label>
+                                          <TextField fx:id="minYValueTextField" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="75.0" />
+                                       </children>
+                                    </HBox>
+                                    <Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#handleSetYRange" prefHeight="25.0" prefWidth="150.0" text="Set Y-Axis Range" />
+                                    <Separator prefWidth="200.0">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Separator>
+                                 </children>
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                              </VBox>
+                              <VBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
+                                       <padding>
+                                          <Insets bottom="5.0" top="5.0" />
+                                       </padding>
+                                    </Label>
+                                    <HBox alignment="CENTER">
+                                       <children>
+                                          <Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Sample Block Size: " />
+                                          <TextField fx:id="rollingBlockTextField" alignment="TOP_RIGHT" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="43.0">
+                                             <padding>
+                                                <Insets bottom="5.0" top="5.0" />
+                                             </padding>
+                                          </TextField>
+                                       </children>
+                                    </HBox>
+                                    <Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#rollingBlockHandler" prefHeight="25.0" prefWidth="120.0" text="Apply Average">
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
+                                 <padding>
+                                    <Insets left="5.0" right="5.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </Pane>
+                  <Accordion layoutX="-7.0" layoutY="341.0" prefHeight="250.0" prefWidth="438.0">
+                    <panes>
+                      <TitledPane fx:id="dataSourceTitledPane" animated="false" text="Data Set 1">
+                        <content>
+                          <AnchorPane prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <HBox layoutX="46.0" layoutY="14.0" spacing="10.0">
+                                       <children>
+                                          <TitledPane alignment="CENTER" animated="false" collapsible="false" layoutX="51.0" layoutY="14.0" prefHeight="150.0" text="Data Shift">
+                                             <content>
+                                                <VBox alignment="CENTER" prefWidth="120.0">
+                                                   <children>
+                                                      <HBox alignment="CENTER">
+                                                         <children>
+                                                            <Button mnemonicParsing="false" onAction="#subOneNullButtonHandler" prefWidth="50.0" text="-1">
+                                                               <HBox.margin>
+                                                                  <Insets right="5.0" />
+                                                               </HBox.margin>
+                                                            </Button>
+                                                            <Button mnemonicParsing="false" onAction="#addOneNullButtonHandler" prefWidth="50.0" text="+1" />
+                                                         </children>
+                                                      </HBox>
+                                                      <HBox alignment="CENTER">
+                                                         <children>
+                                                            <Button mnemonicParsing="false" onAction="#subTenNullButtonHandler" prefWidth="50.0" text="-10">
+                                                               <HBox.margin>
+                                                                  <Insets right="5.0" top="5.0" />
+                                                               </HBox.margin>
+                                                            </Button>
+                                                            <Button mnemonicParsing="false" onAction="#addTenNullButtonHandler" prefWidth="50.0" text="+10">
+                                                               <HBox.margin>
+                                                                  <Insets top="5.0" />
+                                                               </HBox.margin>
+                                                            </Button>
+                                                         </children>
+                                                      </HBox>
+                                                   </children>
+                                                </VBox>
+                                             </content>
+                                          </TitledPane>
+                                          <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="133.0" prefWidth="202.0" text="Data Series">
+                                             <content>
+                                                <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="93.0" prefWidth="200.0" />
+                                             </content>
+                                          </TitledPane>
+                                       </children>
+                                    </HBox>
+                                    <CheckBox fx:id="AccelMagnitudeCheckBox" layoutX="46.0" layoutY="172.0" mnemonicParsing="false" onAction="#magnitudeDatasetOneCheckBoxHandler" prefWidth="150.0" text="Accel Magnitude" />
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                      </TitledPane>
+                      <TitledPane fx:id="dataSourceTitledPaneTwo" animated="false" text="Data Set 2">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <HBox layoutX="46.0" layoutY="14.0" spacing="10.0">
+                                       <children>
+                                          <TitledPane alignment="CENTER" animated="false" collapsible="false" layoutX="51.0" layoutY="14.0" prefHeight="150.0" text="Data Shift">
+                                             <content>
+                                                <VBox alignment="CENTER" prefWidth="120.0" spacing="5.0">
+                                                   <children>
+                                                      <HBox alignment="CENTER">
+                                                         <children>
+                                                            <Button mnemonicParsing="false" onAction="#subTenNullButtonHandlerTwo" prefWidth="50.0" text="-10">
+                                                               <HBox.margin>
+                                                                  <Insets right="5.0" top="5.0" />
+                                                               </HBox.margin>
+                                                            </Button>
+                                                            <Button mnemonicParsing="false" onAction="#addTenNullButtonHandlerTwo" prefWidth="50.0" text="+10">
+                                                               <HBox.margin>
+                                                                  <Insets top="5.0" />
+                                                               </HBox.margin>
+                                                            </Button>
+                                                         </children>
+                                                      </HBox>
+                                                      <HBox alignment="CENTER">
+                                                         <children>
+                                                            <Button mnemonicParsing="false" onAction="#subOneNullButtonHandlerTwo" prefWidth="50.0" text="-1">
+                                                               <HBox.margin>
+                                                                  <Insets right="5.0" />
+                                                               </HBox.margin>
+                                                            </Button>
+                                                            <Button mnemonicParsing="false" onAction="#addOneNullButtonHandlerTwo" prefWidth="50.0" text="+1" />
+                                                         </children>
+                                                      </HBox>
+                                                   </children>
+                                                </VBox>
+                                             </content>
+                                          </TitledPane>
+                                          <TitledPane fx:id="dataDisplayTitledPaneTwo" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="133.0" prefWidth="202.0" text="Data Series">
+                                             <content>
+                                                <FlowPane fx:id="dataDisplayCheckboxesFlowPaneTwo" orientation="VERTICAL" prefHeight="200.0" prefWidth="200.0" />
+                                             </content>
+                                          </TitledPane>
+                                       </children>
+                                    </HBox>
+                                    <CheckBox fx:id="AccelMagnitudeCheckBoxTwo" layoutX="46.0" layoutY="172.0" mnemonicParsing="false" onAction="#magnitudeDatasetTwoCheckBoxHandler" prefWidth="150.0" text="Accel Magnitude" />
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                      </TitledPane>
+                    </panes>
+                  </Accordion>
+               </children>
+            </Pane>
+         </items>
+      </SplitPane>
+      <MenuBar layoutY="2.0" prefWidth="1440.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
+                  <MenuItem mnemonicParsing="false" onAction="#graphMomentum" text="Import Conservation of Momentum Test" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Data ">
+            <items>
+              <MenuItem mnemonicParsing="false" onAction="#clearDataAll" text="Clear Data: All" />
+                  <MenuItem mnemonicParsing="false" onAction="#clearDataSetOne" text="Clear Data: Set 1" />
+                  <MenuItem mnemonicParsing="false" onAction="#clearDataSetTwo" text="Clear Data: Set 2" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </children>
+</Pane>

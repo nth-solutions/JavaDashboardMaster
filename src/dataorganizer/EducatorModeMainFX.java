@@ -10,13 +10,13 @@ public class EducatorModeMainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        //primaryStage.setOnCloseRequest(e -> .exit());
         Parent root = FXMLLoader.load(getClass().getResource("EducatorModeFXML.fxml"));
         primaryStage.setTitle("Educator Mode");
         primaryStage.setScene(new Scene(root, 690, 500));
         primaryStage.show();
-        //primaryStage.setResizable(false);
+        primaryStage.setResizable(false);
     }
-
 
     public static void main(String[] args) {
         launch(args);

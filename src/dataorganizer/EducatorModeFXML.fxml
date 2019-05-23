@@ -31,7 +31,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -84,7 +84,10 @@
                                                                     <tabs>
                                                                       <Tab text="Initial Tab">
                                                                         <content>
-                                                                          <AnchorPane prefHeight="200.0" prefWidth="400.0" />
+                                                                          <AnchorPane prefHeight="200.0" prefWidth="400.0">
+                                                                                 <children>
+                                                                                    <Button layoutX="116.0" layoutY="62.0" mnemonicParsing="false" onAction="#launchMotionVisualization" text="Testing Motion Visualization" />
+                                                                                 </children></AnchorPane>
                                                                         </content>
                                                                       </Tab>
                                                                         <Tab text="Conservation of Momentum">
@@ -436,8 +439,8 @@
                                  <children>
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
-                                          <Button mnemonicParsing="false" onAction="#graphLoader" prefHeight="200.0" prefWidth="400.0" text="Graph" />
-                                          <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#mediaPlayerLoader" prefHeight="200.0" prefWidth="400.0" text="Video Player" />
+                                          <Button mnemonicParsing="false" prefHeight="200.0" prefWidth="400.0" text="Graph" />
+                                          <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="400.0" text="Video Player" />
                                        </children>
                                     </VBox>
                                  </children>

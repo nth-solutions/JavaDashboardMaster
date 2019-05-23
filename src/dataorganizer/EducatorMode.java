@@ -530,7 +530,7 @@ public class EducatorMode extends JFrame {
 	public GraphController startGraphing() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructure.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructureEducator.fxml"));
 		try {
 			root = loader.load();
 		} catch (IOException e) {

@@ -1,6 +1,9 @@
 package dataorganizer;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -30,14 +33,22 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.beans.binding.BooleanBinding;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.util.Duration;
+
+import static java.lang.Math.round;
 
 public class GraphController implements Initializable{
 
@@ -448,7 +459,7 @@ public class GraphController implements Initializable{
 
 		} catch (NullPointerException e) {e.printStackTrace();}		
 	}
-	
+
 	public void loadConservationOfMomentumTemplate() {
 		AsposeSpreadSheetController assc = null;
 		JFrame parent = new JFrame();
@@ -1308,6 +1319,129 @@ public class GraphController implements Initializable{
 			dataOrgo.rollingBlock(dataConversionType, rollRange, dof);
 		}
 	}
+
+	/* Media Player Controls*/
+
+	private MediaPlayer mediaPlayer;                                                                                                                            // Variable Declarations
+	private String filePath;
+	private double playbackRate;
+	private Boolean playing = false;
+	private File fileCopy;
+	private Boolean videoLoaded = false;
+	private double totalFrames;
+	private Media media;
+	private int videoFrameRate;
+	private double millisPerFrame;
+	private String currentFrame;
+
+	@FXML
+	private MediaView mediaView;
+	@FXML
+	private Button selectFileButton;
+	@FXML
+	CheckBox videoVisibleCheckBox;
+	@FXML
+	Slider playbackSlider;
+
+
+	@FXML
+	public void handleFileOpener(ActionEvent event) {
+		FileChooser fileChooser = new FileChooser();                                                                                                            // Creates a FileChooser Object
+		Settings settings = new Settings();
+		settings.loadConfigFile();
+		fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+		fileChooser.setTitle("Select a Video File");                                                                                                            // Sets the title of the file selector
+		FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");                           // Creates a filter that limits fileChooser's search parameters to *.mp4 files
+		fileChooser.getExtensionFilters().add(filter);                                                                                                          // Initializes the filter into the fileChooser object
+
+		File file = fileChooser.showOpenDialog(null);                                                                                              // Specifies the parent component for the dialog
+
+		fileCopy = file;                                                                                                                                        // File object necessary for use in the reset handler
+
+		try {
+			readFileFPSFromFFMpeg();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		if (file != null) {                                                                                                                                     // If the filepath contains a valid file the following code is initiated ->
+			filePath = file.toURI().toString();                                                                                                                 // Sets the user's selection to a file path that will be used to select the video file to be displayed
+			media = new Media(filePath);                                                                                                                        // Sets the media object to the selected file path
+			mediaPlayer = new MediaPlayer(media);                                                                                                               // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
+			mediaView.setMediaPlayer(mediaPlayer);                                                                                                              // Sets the mediaPlayer to be the controller for the mediaVew object
+			videoLoaded = true;                                                                                                                                 // Boolean to check if a video has been loaded
+			playbackSlider.setMax(media.getDuration().toMillis());
+			selectFileButton.setDisable(true);                                                                                                                  // Disables the button used to select a file following a selection
+
+			mediaPlayer.setOnReady(new Runnable() {                                                                                                             // Sets the maximum value of the slider bar equal to the total duration of the file
+				@Override
+				public void run() {
+
+
+
+					mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
+					currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
+					totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
+				}
+			});
+
+			mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {                                                                      // Displays a moving slider bar that corresponds to the current point of playback within the video sequence
+				@Override
+				public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+
+					currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
+					}
+			});
+		}
+	}
+
+	@FXML
+	private void toggleVideoVisibility(ActionEvent event) {
+		if (videoVisibleCheckBox.isSelected()) {
+			mediaView.setVisible(true);
+		} else {
+			mediaView.setVisible(false);
+		}
+	}
+
+	@FXML
+	private void updateTrackerPosition(DragEvent event) {
+		System.out.println("Hi");
+
+	}
+
+
+	public void readFileFPSFromFFMpeg() throws IOException {
+		FfmpegSystemWrapper FfmpegSystemWrapper = new FfmpegSystemWrapper();
+		FfmpegSystemWrapper.setSystemInfo();
+		Process runFfmpeg = Runtime.getRuntime().exec(FfmpegSystemWrapper.getBinRoot() + "ffmpeg.exe -i \"" + fileCopy + "\"");
+
+		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runFfmpeg.getErrorStream()));
+
+
+		String ffmpegOutputLine;
+		while ((ffmpegOutputLine = bufferedReader.readLine()) != null) {
+			if ((ffmpegOutputLine.contains("fps"))) {
+				String[] ffmpegOutputarray = ffmpegOutputLine.split(",");
+				for (int i = 0; i < ffmpegOutputarray.length; i ++){
+					if (ffmpegOutputarray[i].contains("fps")) {
+						String[] fpsCountArray = ffmpegOutputarray[i].split(" ");
+						videoFrameRate = (int)Math.ceil(Double.parseDouble(fpsCountArray[1]));
+						millisPerFrame = 1000/videoFrameRate;
+					}
+				}
+			}
+
+		}
+	}
+
+	public double getFPS() {
+		return videoFrameRate;
+	}
+
+
 }
 
 
