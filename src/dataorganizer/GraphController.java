@@ -52,8 +52,19 @@ import static java.lang.Math.round;
 
 public class GraphController implements Initializable{
 
+	@FXML
+	Rectangle trackerRectangle;
+
 	@Override
-	public void initialize(URL location, ResourceBundle resources){}
+	public void initialize(URL location, ResourceBundle resources){
+		playbackSlider.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				System.out.println(newValue.doubleValue());
+				trackerRectangle.setX(newValue.doubleValue() * 10);
+			}
+		});
+	}
 
 	//FXML Component Declarations
 	@FXML
@@ -1405,13 +1416,6 @@ public class GraphController implements Initializable{
 			mediaView.setVisible(false);
 		}
 	}
-
-	@FXML
-	private void updateTrackerPosition(DragEvent event) {
-		System.out.println("Hi");
-
-	}
-
 
 	public void readFileFPSFromFFMpeg() throws IOException {
 		FfmpegSystemWrapper FfmpegSystemWrapper = new FfmpegSystemWrapper();

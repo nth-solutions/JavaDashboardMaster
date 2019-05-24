@@ -53,13 +53,13 @@
                                   <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                                 </yAxis>
                               </LineChart>
-                              <Rectangle arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="23.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
+                              <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="25.0" layoutY="7.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
                               <MediaView fx:id="mediaView" fitHeight="434.0" layoutX="25.0" layoutY="6.0" opacity="0.3">
                                  <viewport>
                                     <Rectangle2D height="434.0" width="825.0" />
                                  </viewport>
                               </MediaView>
-                              <Slider fx:id="playbackSlider" layoutY="494.0" onDragDetected="#updateTrackerPosition" prefHeight="14.0" prefWidth="904.0" />
+                              <Slider fx:id="playbackSlider" layoutY="494.0" prefHeight="14.0" prefWidth="904.0" />
                            </children>
                         </Pane>
                         <Pane prefHeight="100.0" prefWidth="499.0">
