@@ -57,13 +57,7 @@ public class GraphController implements Initializable{
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources){
-		playbackSlider.valueProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				System.out.println(newValue.doubleValue());
-				trackerRectangle.setX(newValue.doubleValue() * 10);
-			}
-		});
+
 	}
 
 	//FXML Component Declarations
@@ -1344,6 +1338,7 @@ public class GraphController implements Initializable{
 	private int videoFrameRate;
 	private double millisPerFrame;
 	private String currentFrame;
+	private double totalDuration;
 
 	@FXML
 	private MediaView mediaView;
@@ -1369,12 +1364,13 @@ public class GraphController implements Initializable{
 
 		fileCopy = file;                                                                                                                                        // File object necessary for use in the reset handler
 
-		try {
-			readFileFPSFromFFMpeg();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//TODO: Uncomment - Prevents bugs for machines without FFMPEG
+//		try {
+//			readFileFPSFromFFMpeg();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 
 
 		if (file != null) {                                                                                                                                     // If the filepath contains a valid file the following code is initiated ->
@@ -1383,7 +1379,6 @@ public class GraphController implements Initializable{
 			mediaPlayer = new MediaPlayer(media);                                                                                                               // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
 			mediaView.setMediaPlayer(mediaPlayer);                                                                                                              // Sets the mediaPlayer to be the controller for the mediaVew object
 			videoLoaded = true;                                                                                                                                 // Boolean to check if a video has been loaded
-			playbackSlider.setMax(media.getDuration().toMillis());
 			selectFileButton.setDisable(true);                                                                                                                  // Disables the button used to select a file following a selection
 
 			mediaPlayer.setOnReady(new Runnable() {                                                                                                             // Sets the maximum value of the slider bar equal to the total duration of the file
@@ -1395,6 +1390,9 @@ public class GraphController implements Initializable{
 					mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
 					currentFrame = String.valueOf((new DecimalFormat("#").format(mediaPlayer.getCurrentTime().toSeconds() * getFPS())));
 					totalFrames = round(Double.parseDouble(new DecimalFormat("#.000").format(mediaPlayer.getTotalDuration().toSeconds())) * getFPS());   // Sets the totalFrames variable equal to the total number of frames in the selected file
+					totalDuration = mediaPlayer.getTotalDuration().toSeconds();
+					playbackSlider.setMax(totalDuration);
+					initializeSliderRectangle();
 				}
 			});
 
@@ -1407,6 +1405,45 @@ public class GraphController implements Initializable{
 			});
 		}
 	}
+
+	public void initializeSliderRectangle() {
+
+		double lineChartWidth = lineChart.getWidth();
+		double testLength = xAxis.getUpperBound();
+		double tickValue = xAxis.getTickLength();
+		double frameRate = getFPS();
+
+		double numberOfFrames = totalDuration * frameRate; //Seconds * (Frames/Seconds) = Frames
+
+		//GOAL: Make slider and Line Chart line up perfectly in sync.
+
+
+		mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
+			@Override
+			public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+				playbackSlider.setValue(newValue.toSeconds());
+
+			}
+		});
+
+		trackerRectangle.xProperty().bind(playbackSlider.valueProperty());
+
+
+		//Idea: Bind Rectangle X Position to position of Slider Button
+
+
+
+
+
+//		playbackSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+//			System.out.println(newValue.doubleValue());
+//			trackerRectangle.setX(newValue.doubleValue() /10 );
+//		});
+	}
+
+
+
+
 
 	@FXML
 	private void toggleVideoVisibility(ActionEvent event) {
