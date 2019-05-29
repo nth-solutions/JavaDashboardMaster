@@ -26,7 +26,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <children>
       <SplitPane fx:id="graphingPane" dividerPositions="0.7" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1440.0">
          <items>
@@ -43,9 +43,9 @@
                               </Text>
                            </children>
                         </HBox>
-                        <Pane fx:id="chartContainer" prefHeight="508.5" prefWidth="904.0">
+                        <Pane fx:id="chartContainer" prefHeight="540.0" prefWidth="904.0">
                            <children>
-                              <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="-38.0" layoutY="-8.0" prefHeight="508.5" prefWidth="904.0">
+                              <LineChart fx:id="lineChart" animated="false" createSymbols="false" prefHeight="508.5" prefWidth="904.0">
                                 <xAxis>
                                   <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
                                 </xAxis>
@@ -53,13 +53,17 @@
                                   <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                                 </yAxis>
                               </LineChart>
-                              <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="25.0" layoutY="7.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
-                              <MediaView fx:id="mediaView" fitHeight="434.0" layoutX="25.0" layoutY="6.0" opacity="0.3">
-                                 <viewport>
-                                    <Rectangle2D height="434.0" width="825.0" />
-                                 </viewport>
-                              </MediaView>
-                              <Slider fx:id="playbackSlider" layoutY="494.0" prefHeight="14.0" prefWidth="904.0" />
+                              <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="65.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
+                              <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="502.0" prefHeight="14.0" prefWidth="830.0" />
+                              <Pane fx:id="mediaViewPane" layoutX="63.0" layoutY="14.0" opacity="0.3" prefHeight="434.0" prefWidth="830.0">
+                                 <children>
+                                    <MediaView fx:id="mediaView" fitHeight="434.0" fitWidth="830.0">
+                                       <viewport>
+                                          <Rectangle2D />
+                                       </viewport>
+                                    </MediaView>
+                                 </children>
+                              </Pane>
                            </children>
                         </Pane>
                         <Pane prefHeight="100.0" prefWidth="499.0">
@@ -69,10 +73,12 @@
                            <children>
                               <HBox alignment="CENTER" layoutY="15.0" prefHeight="70.0" prefWidth="904.0" spacing="10.0">
                                  <children>
-                                    <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
-                                    <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
+                                    <Button fx:id="resetButton" disable="true" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
+                                    <Button fx:id="zoomButton" disable="true" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
                                     <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" text="File" />
+                                    <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#handlePlayPauseVideo" text="Play" />
                                     <CheckBox fx:id="videoVisibleCheckBox" mnemonicParsing="false" onAction="#toggleVideoVisibility" prefHeight="17.0" prefWidth="104.0" selected="true" text="Video Visible" />
+                                    <Label fx:id="timeStampLabel" text="Time Stamp" />
                                  </children>
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
