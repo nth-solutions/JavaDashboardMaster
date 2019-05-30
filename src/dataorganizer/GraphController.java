@@ -1176,8 +1176,7 @@ public class GraphController implements Initializable {
                 @Override
                 public void run() {
 
-                    mediaPlayer.play();                                                                                                                                 // Begins video playback on the opening of the file
-                    mediaPlayer.setRate(0.2);
+                    mediaPlayer.play();
                     totalDuration = mediaPlayer.getTotalDuration().toMillis();
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");
@@ -1205,6 +1204,8 @@ public class GraphController implements Initializable {
         return file;
     }
 
+
+    int numberOfOffsetsApplied = 0;
     /**
      * Helper function used to initialize the SINC Technology playback. Helps to correlate playback amongst
      * the media player, the playback slider bar, and the tracker rectangle
@@ -1217,14 +1218,27 @@ public class GraphController implements Initializable {
 
         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
             playbackSlider.setValue(newValue.toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
-            trackerRectangle.setX(newValue.toMillis() * xDistancePerMillisecond);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
+            trackerRectangle.setX(((newValue.toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
-
             timeStampLabel.setText(String.valueOf(newValue.toSeconds()));
         });
 
 
 
+    }
+
+    @FXML
+    public void moveTrackerRectanglePlusOne(ActionEvent event) {
+        double currentXPosition = trackerRectangle.getX();
+        trackerRectangle.setX(currentXPosition + 1);
+        numberOfOffsetsApplied += 1;
+    }
+
+    @FXML
+    public void moveTrackerRectangleMinusOne(ActionEvent event) {
+        double currentXPosition = trackerRectangle.getX();
+        trackerRectangle.setX(currentXPosition - 1);
+        numberOfOffsetsApplied -= 1;
     }
 
     /**
@@ -1271,8 +1285,6 @@ public class GraphController implements Initializable {
         mediaView.setFitWidth(mediaViewPane.getWidth());
         mediaView.setFitHeight(mediaViewPane.getHeight());
 
-        mediaView.setSmooth(true);
-        mediaView.setPreserveRatio(true);
     }
 
     @FXML

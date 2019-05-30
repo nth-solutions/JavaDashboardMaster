@@ -26,7 +26,6 @@ import java.util.concurrent.FutureTask;
 GOALS:
 2. Multi-test saving
 3. Other Test Output Types (Radio Button Options on Tab 3)
-4. General Debugging / Bug Testing
 5. Motion Visualization UI Opening
 6. Motion Visualization Fixing
  */

@@ -26,7 +26,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <children>
       <SplitPane fx:id="graphingPane" dividerPositions="0.7" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1440.0">
          <items>
@@ -57,7 +57,7 @@
                               <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="502.0" prefHeight="14.0" prefWidth="830.0" />
                               <Pane fx:id="mediaViewPane" layoutX="63.0" layoutY="14.0" opacity="0.3" prefHeight="434.0" prefWidth="830.0">
                                  <children>
-                                    <MediaView fx:id="mediaView" fitHeight="434.0" fitWidth="830.0">
+                                    <MediaView fx:id="mediaView" fitHeight="434.0" fitWidth="830.0" preserveRatio="false">
                                        <viewport>
                                           <Rectangle2D />
                                        </viewport>
@@ -79,6 +79,8 @@
                                     <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#handlePlayPauseVideo" text="Play" />
                                     <CheckBox fx:id="videoVisibleCheckBox" mnemonicParsing="false" onAction="#toggleVideoVisibility" prefHeight="17.0" prefWidth="104.0" selected="true" text="Video Visible" />
                                     <Label fx:id="timeStampLabel" text="Time Stamp" />
+                                    <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusOne" text="-1" />
+                                    <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusOne" text="+1" />
                                  </children>
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
