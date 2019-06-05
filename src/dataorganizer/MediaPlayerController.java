@@ -42,6 +42,7 @@ public class MediaPlayerController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
     }
 
+
     /*** BEGINNING OF PRIMARY VIDEO PLAYER COMPONENTS ***/
 
     private MediaPlayer mediaPlayer;                                                                                                                            // Variable Declarations

@@ -26,14 +26,19 @@
                <children>
                   <VBox alignment="TOP_CENTER" prefHeight="500.0" prefWidth="200.0">
                      <children>
-                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="235.0" prefWidth="200.0" text="Experiment" textFill="#1f78d1">
+                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="158.33" prefWidth="200.0" text="Experiment" textFill="#1f78d1">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" cancelButton="true" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="235.0" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" disable="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="158.33" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="sincCalibrationButton" disable="true" mnemonicParsing="false" onAction="#selectSINCCalibration" prefHeight="158.33" prefWidth="200.0" text="SINC Module Calibration" textFill="#4edd23">
+                           <font>
+                              <Font size="16.0" />
                            </font>
                         </Button>
                         <Button mnemonicParsing="false" onAction="#selectSettingsTab" prefHeight="30.0" prefWidth="200.0" text="Settings" />
@@ -447,6 +452,28 @@
                               </AnchorPane>
                         </content>
                       </Tab>
+                        <Tab fx:id="sincCalibrationTab" text="SINC Module Calibration">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox alignment="TOP_CENTER" layoutX="-1.0" layoutY="4.0" prefHeight="500.0" prefWidth="500.0">
+                                       <children>
+                                          <Label fx:id="sincCalibrationTabGeneralStatusLabel" text="Label" />
+                                          <Button mnemonicParsing="false" text="Configure Module for SINC Calibration" />
+                                          <Button mnemonicParsing="false" text="Import Calibration Data and Calculate Offset" />
+                                          <Button mnemonicParsing="false" text="Apply Offset to Module" />
+                                          <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
+                                             <children>
+                                                <TextField />
+                                                <Button mnemonicParsing="false" text="Browse" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </Tab>
                         <Tab fx:id="settingsTab" text="Settings">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

@@ -52,6 +52,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Tab settingsTab;
     @FXML
+    Tab sincCalibrationTab;
+    @FXML
     Button nextButton;
     @FXML
     Button backButton;
@@ -81,10 +83,17 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Button readTestButton;
     @FXML
+    Button sincCalibrationButton;
+    @FXML
     ProgressBar progressBar;
     @FXML
     Button eraseButton;
     //Extra Test Parameter TextFields
+
+    @FXML
+    Label sincCalibrationTabGeneralStatusLabel;
+
+
     @FXML
     TextField massOfLeftModuleTextField;
     @FXML
@@ -117,6 +126,7 @@ public class EducatorModeControllerFX implements Initializable {
     TextField momentOfInertiaSpringTextField;
     @FXML
     TextField radiusOfTorqueArmSpringTextField;
+
 
     //Extra Module Parameters - CoM
     double massOfRightModule;
@@ -158,7 +168,14 @@ public class EducatorModeControllerFX implements Initializable {
         fillTestTypeHashMap();
 
         moduleConnected = findModuleCommPort();
+
     }
+
+
+//    private void moduleStatus() {
+//        Boolean
+//    }
+
 
 
     /**
@@ -206,6 +223,11 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectMotionVisualizationTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(motionVisualizationTab);
+    }
+
+    @FXML
+    private void selectSINCCalibration(ActionEvent event) {
+        primaryTabPane.getSelectionModel().select(sincCalibrationTab);
     }
 
     /**
@@ -1172,6 +1194,13 @@ public class EducatorModeControllerFX implements Initializable {
 
     /*End Motion Visualization Tab Methods*/
 
+    /*Begin SINC Calibration Tab Methods*/
+
+
+
+
+
+    /*End SINC Calibration Tab Methods*/
 
 
 

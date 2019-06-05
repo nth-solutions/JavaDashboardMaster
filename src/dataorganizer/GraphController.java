@@ -19,6 +19,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
@@ -53,6 +54,10 @@ public class GraphController implements Initializable {
     @FXML
     Slider playbackSlider;
     //FXML Component Declarations
+
+    @FXML
+    Slider opacitySlider;
+
     @FXML
     private LineChart<Number, Number> lineChart;
     @FXML
@@ -97,6 +102,12 @@ public class GraphController implements Initializable {
     private TextField accelerometerZAxisOffsetTextField;
     @FXML
     private TextField baselineLowerBound;
+
+    @FXML
+    private Slider rateChangeSlider;
+
+    @FXML
+    private Label rateLabel;
 
     //Program Variable Declarations
     @FXML
@@ -751,22 +762,22 @@ public class GraphController implements Initializable {
 
     @FXML
     public void clearDataAll() {
-        lineChart.getData().clear();                                                                                    //Removes the data attached to the lineChart object
-        dataSourceTitledPane.setText("");                                                                               //Removes the name of the file being displayed on dataSourceTitledPane
-        dataSourceTitledPaneTwo.setText("");                                                                            //Removes the name of the file being displayed on dataSourceTitledPaneTwo
-        dataDisplayCheckboxesFlowPane.getChildren().clear();                                                            //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
-        dataDisplayCheckboxesFlowPaneTwo.getChildren().clear();                                                         //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
-        dataSeries = FXCollections.observableArrayList();                                                               //TODO
-        dataSeriesTwo = FXCollections.observableArrayList();                                                            //TODO
-        numDataSets = 0;                                                                                                //Sets numDataSets to 0 to indicate that zero active data sets are currently loaded
+        lineChart.getData().clear();    //Removes the data attached to the lineChart object
+        dataSourceTitledPane.setText("");   //Removes the name of the file being displayed on dataSourceTitledPane
+        dataSourceTitledPaneTwo.setText("");    //Removes the name of the file being displayed on dataSourceTitledPaneTwo
+        dataDisplayCheckboxesFlowPane.getChildren().clear();    //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
+        dataDisplayCheckboxesFlowPaneTwo.getChildren().clear();     //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
+        dataSeries = FXCollections.observableArrayList();
+        dataSeriesTwo = FXCollections.observableArrayList();
+        numDataSets = 0;    //Sets numDataSets to 0 to indicate that zero active data sets are currently loaded
     }
 
     @FXML
     public void clearDataSetOne() {
-        lineChart.getData().removeAll(dataSeries);                                                                      //Removes the First Data Series from the linechart object
-        dataDisplayCheckboxesFlowPane.getChildren().removeAll();                                                        //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
-        dataSourceTitledPane.setText("");                                                                               //Removes the name of the file being displayed on dataSourceTitledPane
-        dataSeries = dataSeriesTwo;                                                                                     //TODO
+        lineChart.getData().removeAll(dataSeries);  //Removes the First Data Series from the linechart object
+        dataDisplayCheckboxesFlowPane.getChildren().removeAll();    //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
+        dataSourceTitledPane.setText("");   //Removes the name of the file being displayed on dataSourceTitledPane
+        dataSeries = dataSeriesTwo;
         dataSeriesTwo = FXCollections.observableArrayList();
         populateData(dataSeries, lineChart);
         styleSeries(dataSeries, lineChart);
@@ -1144,16 +1155,17 @@ public class GraphController implements Initializable {
     @FXML
     Pane mediaViewPane;
     @FXML
-    Label timeStampLabel;
+    Label currentTimeStampLabel;
     @FXML
-    Slider rateChangeSlider;
+    Label totalTimeStampLabel;
 
 
+    boolean videoHasBeenLoaded = false;
 
     @FXML
     public void handleFileOpener(ActionEvent event) {
         File videoFile = createFileOpener();
-        fileCopy = videoFile;                                                                                                                                        // File object necessary for use in the reset handler
+        fileCopy = videoFile;   // File object necessary for use in the reset handler
 
         //TODO: Uncomment - Prevents bugs for machines without FFMPEG
 //		try {
@@ -1164,23 +1176,32 @@ public class GraphController implements Initializable {
 //		}
 
 
-        if (videoFile != null) {                                                                                                                                     // If the filepath contains a valid file the following code is initiated ->
-            filePath = videoFile.toURI().toString();                                                                                                                 // Sets the user's selection to a file path that will be used to select the video file to be displayed
-            media = new Media(filePath);                                                                                                                        // Sets the media object to the selected file path
-            mediaPlayer = new MediaPlayer(media);                                                                                                               // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
-            mediaView.setMediaPlayer(mediaPlayer);                                                                                                              // Sets the mediaPlayer to be the controller for the mediaVew object
-            videoLoaded = true;                                                                                                                                 // Boolean to check if a video has been loaded
-            selectFileButton.setDisable(true);                                                                                                                  // Disables the button used to select a file following a selection
+        if (videoFile != null) {    // If the filepath contains a valid file the following code is initiated ->
 
-            mediaPlayer.setOnReady(new Runnable() {                                                                                                             // Sets the maximum value of the slider bar equal to the total duration of the file
+            if (videoHasBeenLoaded) {   //If a video has been previously loaded, the current video is stopped to allow the new video to begin playback
+                mediaPlayer.stop();
+            }
+
+            filePath = videoFile.toURI().toString();    // Sets the user's selection to a file path that will be used to select the video file to be displayed
+            media = new Media(filePath);    // Sets the media object to the selected file path
+            mediaPlayer = new MediaPlayer(media);   // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
+            mediaView.setMediaPlayer(mediaPlayer);   // Sets the mediaPlayer to be the controller for the mediaVew object
+            videoLoaded = true;     // Boolean to check if a video has been loaded
+
+            videoHasBeenLoaded = true;  //After a video has been loaded for the first time, this boolean is set to true
+
+            mediaPlayer.setOnReady(new Runnable() {     // Sets the maximum value of the slider bar equal to the total duration of the file
                 @Override
                 public void run() {
 
                     mediaPlayer.play();
+//                    mediaPlayer.setRate(.2);
+
                     totalDuration = mediaPlayer.getTotalDuration().toMillis();
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");
-                    initializeSliderRectangle();
+                    totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration/1000))));
+                    initializeSINC();
                 }
             });
 
@@ -1206,11 +1227,12 @@ public class GraphController implements Initializable {
 
 
     int numberOfOffsetsApplied = 0;
+
     /**
      * Helper function used to initialize the SINC Technology playback. Helps to correlate playback amongst
      * the media player, the playback slider bar, and the tracker rectangle
      */
-    public void initializeSliderRectangle() {
+    public void initializeSINC() {
 
         double lineChartWidth = lineChart.getWidth();
         double lineChartOffset = 82;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
@@ -1220,11 +1242,35 @@ public class GraphController implements Initializable {
             playbackSlider.setValue(newValue.toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
             trackerRectangle.setX(((newValue.toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
-            timeStampLabel.setText(String.valueOf(newValue.toSeconds()));
+
+            currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(newValue.toSeconds()))));
+
         });
+    }
 
+    @FXML
+    public void updatePlaybackTime(MouseEvent event) {
+        mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
 
+    }
 
+    @FXML
+    private void pauseVideo(MouseEvent event) {
+        mediaPlayer.pause();
+        playPauseButton.setText("Play");
+        mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+    }
+
+    @FXML
+    private void unpauseVideo(MouseEvent event) {
+        mediaPlayer.play();
+        playPauseButton.setText("Pause");
+        mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+    }
+
+    @FXML
+    public void updateMediaViewOpacity(MouseEvent event) {
+        mediaViewPane.setOpacity(opacitySlider.getValue());
     }
 
     @FXML
@@ -1235,16 +1281,40 @@ public class GraphController implements Initializable {
     }
 
     @FXML
-    public void moveTrackerRectangleMinusOne(ActionEvent event) {
-        double currentXPosition = trackerRectangle.getX();
-        trackerRectangle.setX(currentXPosition - 1);
-        numberOfOffsetsApplied -= 1;
+    public void handleRateChange(MouseEvent event) {                                                                                                            // The rate method supports playback rates between 0.0 and 8.0. This mouse listener
+        playbackRate = rateChangeSlider.getValue();                                                                                                             // is responsible for gathering the rate assigned to the rateChangeSlider and changing
+        mediaPlayer.setRate(playbackRate);                                                                                                                      // the playback speed accordingly
+
+        rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");                                                              // Displays the current playback speed
     }
+
+    public void moveTrackerRectangleMinusOne(ActionEvent event) {
+
+        if (numberOfOffsetsApplied <= 0) {
+            numberOfOffsetsApplied = 0;
+        } else {
+            double currentXPosition = trackerRectangle.getX();
+            trackerRectangle.setX(currentXPosition - 1);
+            numberOfOffsetsApplied -= 1;
+        }
+    }
+
+    @FXML
+    private void resetMediaPlayer(ActionEvent event) {
+        try {
+            mediaPlayer.seek(Duration.millis(0));
+        }catch(Exception exception){
+            System.out.println("There is no video loaded");
+        }
+    }
+
+
 
     /**
      * ActionEvent that toggles the mediaPlayer Window as visible or non-visible for data interpretation by the user
+     *
      * @param event
-      */
+     */
     @FXML
     private void toggleVideoVisibility(ActionEvent event) {
         if (videoVisibleCheckBox.isSelected()) {
@@ -1280,7 +1350,7 @@ public class GraphController implements Initializable {
         }
     }
 
-    public void scaleVideoAtStart() {                                                                                                                           // Scales the selected video so it's centered and scaled to fit within the bounds of the video player
+    public void scaleVideoAtStart() {       // Scales the selected video so it's centered and scaled to fit within the bounds of the video player
 
         mediaView.setFitWidth(mediaViewPane.getWidth());
         mediaView.setFitHeight(mediaViewPane.getHeight());
@@ -1288,19 +1358,23 @@ public class GraphController implements Initializable {
     }
 
     @FXML
-    public void handlePlayPauseVideo(ActionEvent event) {                                                                                                           // Event listener responsible for changing the text and functionality of the playPauseButton button
-        if (playing) {                                                                                                                                          // When the button is pressed, if the Boolean Playing is true ->
-            mediaPlayer.play();                                                                                                                                 // The mediaPlayer resumes playback
-            playPauseButton.setText("Pause");                                                                                                                   // The playPauseButton is then set to display "Pause"
-            playing = false;                                                                                                                                    // The Boolean Playing is switched to false so as to activate the 'else' conditional of the code following a secondary press
-        } else {                                                                                                                                                // When the button is pressed, if the Boolean Playing is false ->
-            mediaPlayer.pause();                                                                                                                                // The mediaPlayer's playback is paused
-            playPauseButton.setText("Play");                                                                                                                    // The playPause button is then set to display "Play"
-            playing = true;                                                                                                                                     // The Boolean Playing is set to true so as to activate the 'if' conditional of the code following another press
+    public void handlePlayPauseVideo(ActionEvent event){    // Event listener responsible for changing the text and functionality of the playPauseButton button
+        try{
+        if (playing) {      // When the button is pressed, if the Boolean Playing is true ->
+            mediaPlayer.play();     // The mediaPlayer resumes playback
+            playPauseButton.setText("Pause");       // The playPauseButton is then set to display "Pause"
+            playing = false;        // The Boolean Playing is switched to false so as to activate the 'else' conditional of the code following a secondary press
+        } else {        // When the button is pressed, if the Boolean Playing is false ->
+            mediaPlayer.pause();        // The mediaPlayer's playback is paused
+            playPauseButton.setText("Play");        // The playPause button is then set to display "Play"
+            playing = true;     // The Boolean Playing is set to true so as to activate the 'if' conditional of the code following another press
+        }
+        }catch(Exception e){
+            System.out.println("There is no video loaded");
         }
     }
 
-        public double getFPS() {
+    public double getFPS() {
         return videoFrameRate;
     }
 
