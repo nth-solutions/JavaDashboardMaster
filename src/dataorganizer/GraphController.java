@@ -41,12 +41,38 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import static java.lang.Math.getExponent;
 import static java.lang.Math.round;
 
 public class GraphController implements Initializable {
 
     private final Rectangle userCreatedZoomRectangleBox = new Rectangle();
     private final Rectangle baselineRect = new Rectangle();
+
+    private Color rectangleColor;
+
+    @FXML
+    ColorPicker rectangleColorPicker;
+
+
+    @FXML
+    public void picker(ActionEvent event){
+
+
+     //    trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
+
+
+        trackerRectangle.setStyle("-fx-color: c");
+     //    trackerRectangle.setFill(rectangleColorPicker.getValue());
+
+       // int color = Color.parseColor(""+String.valueOf(rectangleColorPicker.getValue()));
+
+
+        // System.out.println((String.valueOf(rectangleColorPicker.getValue()).substring(2,8)).decod);
+
+
+    }
+
     @FXML
     Rectangle trackerRectangle;
     @FXML
@@ -1058,6 +1084,7 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
 
+                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
                     n.setStyle(style.toString());
                 }
                 nSeries++;
@@ -1071,6 +1098,10 @@ public class GraphController implements Initializable {
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+
+
+
+                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
 
                     n.setStyle(style.toString());
                 }
@@ -1086,6 +1117,8 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
 
+                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
+
                     n.setStyle(style.toString());
                 }
                 nSeries++;
@@ -1099,6 +1132,9 @@ public class GraphController implements Initializable {
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+
+
+                   // style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
 
                     n.setStyle(style.toString());
                 }
@@ -1119,7 +1155,9 @@ public class GraphController implements Initializable {
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+                    //style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+
+                    style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
 
                     n.setStyle(style.toString());
                 }
@@ -1241,12 +1279,14 @@ public class GraphController implements Initializable {
         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
             playbackSlider.setValue(newValue.toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
             trackerRectangle.setX(((newValue.toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
-                                                                                  The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
+                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
 
             currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(newValue.toSeconds()))));
 
         });
     }
+
+
 
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
@@ -1308,6 +1348,9 @@ public class GraphController implements Initializable {
         }
     }
 
+    public void updateSeriesColor(){
+
+    }
 
 
     /**
@@ -1491,43 +1534,54 @@ public class GraphController implements Initializable {
             switch (dof) {
                 case (1):
                     name = "Accel X";
-                    color = "FireBrick";
+                    //color = "FireBrick";
+                    //color = String.valueOf(rectangleColorPicker.getValue());
+                    //color = "128, 128, 128";
+                    //color = Color.web()
                     break;
                 case (2):
                     name = "Accel Y";
-                    color = "DodgerBlue";
+                    //color = "DodgerBlue";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (3):
                     name = "Accel Z";
-                    color = "ForestGreen";
+                    //color = "ForestGreen";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (4):
                     name = "Gyro X";
-                    color = "Gold";
+                    //color = "Gold";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (5):
                     name = "Gyro Y";
-                    color = "Coral";
+                    //color = "Coral";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (6):
                     name = "Gyro Z";
-                    color = "MediumBlue";
+                    //color = "MediumBlue";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (7):
                     name = "Mag X";
-                    color = "DarkViolet";
+                    //color = "DarkViolet";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (8):
                     name = "Mag Y";
-                    color = "DarkSlateGray";
+                    //color = "DarkSlateGray";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (9):
                     name = "Mag Z";
-                    color = "SaddleBrown";
+                    //color = "SaddleBrown";
+                    color = String.valueOf(rectangleColorPicker.getValue());
                     break;
                 case (10):
                     name = "Accel Magnitude";
-                    color = "Black";
+                    //color = "Black";
                     break;
             }
 
