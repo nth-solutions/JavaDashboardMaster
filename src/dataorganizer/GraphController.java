@@ -59,16 +59,67 @@ public class GraphController implements Initializable {
     public void picker(ActionEvent event){
 
 
-     //    trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
+     //trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
 
 
-        trackerRectangle.setStyle("-fx-color: c");
-     //    trackerRectangle.setFill(rectangleColorPicker.getValue());
+        //trackerRectangle.setStyle("-fx-color: #ffffff");
+
+
+        trackerRectangle.setFill(rectangleColorPicker.getValue());
+        int q = 0;
+        int nSeries = 0;
+
+//        for (DataSeries dof : dataSeries){
+//            for (int j  = 0; j < dof.getSeries().size(); j++){
+//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+//                for (Node n : nodes) {
+//
+//                    }
+//                }
+//
+//                dof.setColor("#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
+//
+//        }
+
+        for (DataSeries dof : dataSeries) {
+            if (!dof.isActive()) continue;
+            for (int j = 0; j < dof.getSeries().size(); j++) {
+                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+                for (Node n : nodes) {
+                    System.out.println(nSeries);
+                }
+                nSeries++;
+            }
+        }
+
+
+//        for (DataSeries dof : dataSeries) {
+//            if (!dof.isActive()) continue;
+//            for (int j = 0; j < dof.getSeries().size(); j++) {
+//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+//                for (Node n : nodes) {
+//                    StringBuilder style = new StringBuilder();
+//                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+//
+//                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
+//                    n.setStyle(style.toString());
+//                }
+//                nSeries++;
+//            }
+//        }
+
+        restyleSeries();
+
 
        // int color = Color.parseColor(""+String.valueOf(rectangleColorPicker.getValue()));
 
 
-        // System.out.println((String.valueOf(rectangleColorPicker.getValue()).substring(2,8)).decod);
+        //System.out.println((String.valueOf(rectangleColorPicker.getValue()).substring(2,8)));
+
+
 
 
     }
@@ -1081,11 +1132,23 @@ public class GraphController implements Initializable {
                 XYChart.Series<Number, Number> series = dof.getSeries().get(j);
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
-                    StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+//                    StringBuilder style = new StringBuilder();
+//                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8) + ", white; ");
+//                    System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
+//
+//                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
+//                    n.setStyle(style.toString());
+                    if (nSeries ==0){
+                    n.setStyle("-fx-stroke: #ff55ff");
+                    }
+                    if (nSeries == 1){
+                        n.setStyle("-fx-stroke: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
 
-                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-                    n.setStyle(style.toString());
+                        //n.setStyle("-fx-stroke:#00ffff");
+                    }
+                    if (nSeries == 2){
+                        n.setStyle("-fx-stroke:#00ffff");
+                    }
                 }
                 nSeries++;
             }
@@ -1503,6 +1566,15 @@ public class GraphController implements Initializable {
         }
     }
 
+    public static String AquireColor(int seriesnumber){
+        if (seriesnumber == 0){
+            return "#ff00ff";
+        }
+        if (seriesnumber == 1){
+            return "#00ffff";
+        }
+        return "#ffff00";
+    }
     // See Robs email
     public class DataSeries {
         private String name;
@@ -1526,6 +1598,15 @@ public class GraphController implements Initializable {
             this.dataOrgo = dataOrgo;
             series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
         }
+        public String obtainColor(int seriesnumber){
+            if (seriesnumber == 0){
+                return "#ff00ff";
+            }
+            if (seriesnumber == 1){
+                return "#00ffff";
+            }
+            return "#ffff00";
+        }
 
         public DataSeries(DataOrganizer dataOrgo, int dof) {
             this.dof = dof;
@@ -1534,50 +1615,50 @@ public class GraphController implements Initializable {
             switch (dof) {
                 case (1):
                     name = "Accel X";
-                    //color = "FireBrick";
-                    //color = String.valueOf(rectangleColorPicker.getValue());
-                    //color = "128, 128, 128";
-                    //color = Color.web()
+                    //color = "#ff00ff";
+                    color = obtainColor(1);
+                    //color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
                     break;
                 case (2):
                     name = "Accel Y";
                     //color = "DodgerBlue";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (3):
                     name = "Accel Z";
                     //color = "ForestGreen";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (4):
                     name = "Gyro X";
                     //color = "Gold";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (5):
                     name = "Gyro Y";
                     //color = "Coral";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (6):
                     name = "Gyro Z";
                     //color = "MediumBlue";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (7):
                     name = "Mag X";
                     //color = "DarkViolet";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (8):
                     name = "Mag Y";
                     //color = "DarkSlateGray";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (9):
                     name = "Mag Z";
                     //color = "SaddleBrown";
-                    color = String.valueOf(rectangleColorPicker.getValue());
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     break;
                 case (10):
                     name = "Accel Magnitude";
@@ -1602,6 +1683,10 @@ public class GraphController implements Initializable {
 
         public String getColor() {
             return color;
+        }
+
+        public void setColor(String seriescolor){
+            color = seriescolor;
         }
 
         public boolean isActive() {
