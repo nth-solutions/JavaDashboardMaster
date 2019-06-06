@@ -1120,6 +1120,19 @@ public class GraphController implements Initializable {
         }
     }
 
+    public String changeColorofSeries(int seriesType){                                                                   // This handles the changing of the color of the Series. An integer that corresponds to
+        if (seriesType == 0){
+            return "#ff55ff";
+        }
+        if (seriesType == 1){
+            return "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+        }
+        if (seriesType == 2){
+            return "#00ffff";
+        }
+        else return "#ffffff";
+    }
+
     private void restyleSeries() {
         // force a css layout pass to ensure that subsequent lookup calls work.
         lineChart.applyCss();
@@ -1132,23 +1145,10 @@ public class GraphController implements Initializable {
                 XYChart.Series<Number, Number> series = dof.getSeries().get(j);
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
-//                    StringBuilder style = new StringBuilder();
-//                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8) + ", white; ");
-//                    System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
-//
-//                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-//                    n.setStyle(style.toString());
-                    if (nSeries ==0){
-                    n.setStyle("-fx-stroke: #ff55ff");
-                    }
-                    if (nSeries == 1){
-                        n.setStyle("-fx-stroke: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
+                    StringBuilder style = new StringBuilder();
+                    style.append("-fx-stroke: " + changeColorofSeries(nSeries) + "; -fx-background-color: " + changeColorofSeries(nSeries) + ", white; ");
+                    n.setStyle(style.toString());
 
-                        //n.setStyle("-fx-stroke:#00ffff");
-                    }
-                    if (nSeries == 2){
-                        n.setStyle("-fx-stroke:#00ffff");
-                    }
                 }
                 nSeries++;
             }
