@@ -444,8 +444,11 @@
                                  <children>
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
-                                          <Button mnemonicParsing="false" prefHeight="200.0" prefWidth="400.0" text="Graph" />
-                                          <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="200.0" prefWidth="400.0" text="Video Player" />
+                                          <Button mnemonicParsing="false" onAction="#launchMotionVisualization" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                             <font>
+                                                <Font size="36.0" />
+                                             </font>
+                                          </Button>
                                        </children>
                                     </VBox>
                                  </children>

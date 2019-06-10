@@ -114,6 +114,7 @@
                               <Tooltip text="Slide to select a video playback speed (Range is between 0x and 8x)." />
                            </tooltip>
                         </Slider>
+                        <Button mnemonicParsing="false" onAction="#openLineColorPalette" text="Open Color Palette" />
                         <Label fx:id="rateLabel" text="1x">
                            <font>
                               <Font name="System Bold" size="12.0" />

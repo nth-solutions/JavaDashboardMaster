@@ -11,25 +11,31 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import javax.swing.*;
@@ -41,88 +47,10 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 
-import static java.lang.Math.getExponent;
-import static java.lang.Math.round;
-
 public class GraphController implements Initializable {
 
     private final Rectangle userCreatedZoomRectangleBox = new Rectangle();
     private final Rectangle baselineRect = new Rectangle();
-
-    private Color rectangleColor;
-
-    @FXML
-    ColorPicker rectangleColorPicker;
-
-
-    @FXML
-    public void picker(ActionEvent event){
-
-
-     //trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
-
-
-        //trackerRectangle.setStyle("-fx-color: #ffffff");
-
-
-        trackerRectangle.setFill(rectangleColorPicker.getValue());
-        int q = 0;
-        int nSeries = 0;
-
-//        for (DataSeries dof : dataSeries){
-//            for (int j  = 0; j < dof.getSeries().size(); j++){
-//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-//                for (Node n : nodes) {
-//
-//                    }
-//                }
-//
-//                dof.setColor("#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
-//
-//        }
-
-        for (DataSeries dof : dataSeries) {
-            if (!dof.isActive()) continue;
-            for (int j = 0; j < dof.getSeries().size(); j++) {
-                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-                for (Node n : nodes) {
-                    System.out.println(nSeries);
-                }
-                nSeries++;
-            }
-        }
-
-
-//        for (DataSeries dof : dataSeries) {
-//            if (!dof.isActive()) continue;
-//            for (int j = 0; j < dof.getSeries().size(); j++) {
-//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-//                for (Node n : nodes) {
-//                    StringBuilder style = new StringBuilder();
-//                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
-//
-//                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-//                    n.setStyle(style.toString());
-//                }
-//                nSeries++;
-//            }
-//        }
-
-        restyleSeries();
-
-
-       // int color = Color.parseColor(""+String.valueOf(rectangleColorPicker.getValue()));
-
-
-        //System.out.println((String.valueOf(rectangleColorPicker.getValue()).substring(2,8)));
-
-
-
-
-    }
 
     @FXML
     Rectangle trackerRectangle;
@@ -144,7 +72,7 @@ public class GraphController implements Initializable {
     @FXML
     private Pane chartContainer;
     @FXML
-    private SplitPane graphingPane;
+    private HBox graphingHbox;
     @FXML
     private Button zoomButton;
     @FXML
@@ -168,7 +96,7 @@ public class GraphController implements Initializable {
     @FXML
     private TextField minYValueTextField;
     @FXML
-    private Text generalStatusLabel;
+    private Label generalStatusLabel;
     @FXML
     private TextField rollingBlockTextField;
     @FXML
@@ -179,34 +107,32 @@ public class GraphController implements Initializable {
     private TextField accelerometerZAxisOffsetTextField;
     @FXML
     private TextField baselineLowerBound;
-
     @FXML
     private Slider rateChangeSlider;
-
     @FXML
     private Label rateLabel;
-
-    //Program Variable Declarations
     @FXML
     private TextField baselineUpperBound;
     @FXML
     private Pane backgroundPane;
-    private ObservableList<DataSeries> dataSeries = FXCollections.observableArrayList();                                //Initializes the list of series
-    private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();                                //Initializes the list of series
-    private ObservableList<TemplateDataSeries> dataTemplateSeries = FXCollections.observableArrayList();                                //Initializes the list of series
-    private ObservableList<TemplateDataSeries> dataTemplateSeriesTwo = FXCollections.observableArrayList();                                //Initializes the list of series
+
+
+    private ObservableList<DataSeries> dataSeries = FXCollections.observableArrayList();
+    private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();
+    private ObservableList<TemplateDataSeries> dataTemplateSeries = FXCollections.observableArrayList();
+    private ObservableList<TemplateDataSeries> dataTemplateSeriesTwo = FXCollections.observableArrayList();
     private DataOrganizer[] dataCollector = new DataOrganizer[2];
     private GraphDataOrganizer GDO;
     private String csvFilePath;
     private String conservationOfMomentumFilePath;
-    private Rectangle currentTimeInMediaPlayer;                                                                            //Frame-By-Frame Analysis Bar
+    private Rectangle currentTimeInMediaPlayer;
     private int XOffsetCounter = 0;
     private int XOffsetCounterTwo = 0;
     private double yMax = 5;
     private double yMin = -5;
     private int numDataSets;
     private DecimalFormat roundTime = new DecimalFormat("#.#");
-    private MediaPlayer mediaPlayer;                                                                                                                            // Variable Declarations
+    private MediaPlayer mediaPlayer;
     private String filePath;
     private double playbackRate;
     private Boolean playing = false;
@@ -225,9 +151,12 @@ public class GraphController implements Initializable {
     @FXML
     private Button selectFileButton;
 
+    @FXML
+    private Accordion dataAccordion;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        dataAccordion.setExpandedPane(dataSourceTitledPane);
     }
 
     public void setDataCollector(DataOrganizer dataCollector, int index) {
@@ -871,16 +800,17 @@ public class GraphController implements Initializable {
 
     /* Media Player Controls*/
 
+
     @SuppressWarnings("rawtypes")
     public void createListenersResize() {
-        graphingPane.heightProperty().addListener(new ChangeListener() {
+        graphingHbox.heightProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue arg0, Object arg1, Object arg2) {
                 double height = (double) arg2;
                 lineChart.setPrefHeight(height - 100);
             }
         });
-        graphingPane.widthProperty().addListener(new ChangeListener() {
+        graphingHbox.widthProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue arg0, Object arg1, Object arg2) {
                 double width = (double) arg2;
@@ -1120,17 +1050,16 @@ public class GraphController implements Initializable {
         }
     }
 
-    public String changeColorofSeries(int seriesType){                                                                   // This handles the changing of the color of the Series. An integer that corresponds to
-        if (seriesType == 0){
+    public String changeColorofSeries(int seriesType) {                                                                   // This handles the changing of the color of the Series. An integer that corresponds to
+        if (seriesType == 0) {
             return "#ff55ff";
         }
-        if (seriesType == 1){
-            return "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+        if (seriesType == 1) {
+            return "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
         }
-        if (seriesType == 2){
+        if (seriesType == 2) {
             return "#00ffff";
-        }
-        else return "#ffffff";
+        } else return "#ffffff";
     }
 
     private void restyleSeries() {
@@ -1161,7 +1090,6 @@ public class GraphController implements Initializable {
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
-
 
 
                     //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
@@ -1197,7 +1125,7 @@ public class GraphController implements Initializable {
                     style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
 
 
-                   // style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
+                    // style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
 
                     n.setStyle(style.toString());
                 }
@@ -1301,7 +1229,7 @@ public class GraphController implements Initializable {
                     totalDuration = mediaPlayer.getTotalDuration().toMillis();
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");
-                    totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration/1000))));
+                    totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000))));
                     initializeSINC();
                 }
             });
@@ -1336,7 +1264,7 @@ public class GraphController implements Initializable {
     public void initializeSINC() {
 
         double lineChartWidth = lineChart.getWidth();
-        double lineChartOffset = 82;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+        double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
         double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
 
         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
@@ -1350,30 +1278,48 @@ public class GraphController implements Initializable {
     }
 
 
-
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
-        mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+        try {
+            mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
+        }
 
     }
 
     @FXML
     private void pauseVideo(MouseEvent event) {
-        mediaPlayer.pause();
-        playPauseButton.setText("Play");
-        mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+        try {
+            mediaPlayer.pause();
+            playPauseButton.setText("Play");
+            mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
+        }
+
     }
 
     @FXML
     private void unpauseVideo(MouseEvent event) {
-        mediaPlayer.play();
-        playPauseButton.setText("Pause");
-        mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+        try {
+            mediaPlayer.play();
+            playPauseButton.setText("Pause");
+            mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
+        }
+
     }
 
     @FXML
     public void updateMediaViewOpacity(MouseEvent event) {
-        mediaViewPane.setOpacity(opacitySlider.getValue());
+        try {
+            mediaViewPane.setOpacity(opacitySlider.getValue());
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
+        }
+
     }
 
     @FXML
@@ -1384,11 +1330,16 @@ public class GraphController implements Initializable {
     }
 
     @FXML
-    public void handleRateChange(MouseEvent event) {                                                                                                            // The rate method supports playback rates between 0.0 and 8.0. This mouse listener
-        playbackRate = rateChangeSlider.getValue();                                                                                                             // is responsible for gathering the rate assigned to the rateChangeSlider and changing
-        mediaPlayer.setRate(playbackRate);                                                                                                                      // the playback speed accordingly
+    public void handleRateChange(MouseEvent event) {
+        try {
+            playbackRate = rateChangeSlider.getValue();
+            mediaPlayer.setRate(playbackRate);
 
-        rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");                                                              // Displays the current playback speed
+            rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
+        }
+
     }
 
     public void moveTrackerRectangleMinusOne(ActionEvent event) {
@@ -1406,12 +1357,12 @@ public class GraphController implements Initializable {
     private void resetMediaPlayer(ActionEvent event) {
         try {
             mediaPlayer.seek(Duration.millis(0));
-        }catch(Exception exception){
-            System.out.println("There is no video loaded");
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
         }
     }
 
-    public void updateSeriesColor(){
+    public void updateSeriesColor() {
 
     }
 
@@ -1464,19 +1415,19 @@ public class GraphController implements Initializable {
     }
 
     @FXML
-    public void handlePlayPauseVideo(ActionEvent event){    // Event listener responsible for changing the text and functionality of the playPauseButton button
-        try{
-        if (playing) {      // When the button is pressed, if the Boolean Playing is true ->
-            mediaPlayer.play();     // The mediaPlayer resumes playback
-            playPauseButton.setText("Pause");       // The playPauseButton is then set to display "Pause"
-            playing = false;        // The Boolean Playing is switched to false so as to activate the 'else' conditional of the code following a secondary press
-        } else {        // When the button is pressed, if the Boolean Playing is false ->
-            mediaPlayer.pause();        // The mediaPlayer's playback is paused
-            playPauseButton.setText("Play");        // The playPause button is then set to display "Play"
-            playing = true;     // The Boolean Playing is set to true so as to activate the 'if' conditional of the code following another press
-        }
-        }catch(Exception e){
-            System.out.println("There is no video loaded");
+    public void handlePlayPauseVideo(ActionEvent event) {    // Event listener responsible for changing the text and functionality of the playPauseButton button
+        try {
+            if (playing) {      // When the button is pressed, if the Boolean Playing is true ->
+                mediaPlayer.play();     // The mediaPlayer resumes playback
+                playPauseButton.setText("Pause");       // The playPauseButton is then set to display "Pause"
+                playing = false;        // The Boolean Playing is switched to false so as to activate the 'else' conditional of the code following a secondary press
+            } else {        // When the button is pressed, if the Boolean Playing is false ->
+                mediaPlayer.pause();        // The mediaPlayer's playback is paused
+                playPauseButton.setText("Play");        // The playPause button is then set to display "Play"
+                playing = true;     // The Boolean Playing is set to true so as to activate the 'if' conditional of the code following another press
+            }
+        } catch (NullPointerException e) {
+            generalStatusLabel.setText("No Video Loaded");
         }
     }
 
@@ -1566,15 +1517,16 @@ public class GraphController implements Initializable {
         }
     }
 
-    public static String AquireColor(int seriesnumber){
-        if (seriesnumber == 0){
+    public static String AquireColor(int seriesnumber) {
+        if (seriesnumber == 0) {
             return "#ff00ff";
         }
-        if (seriesnumber == 1){
+        if (seriesnumber == 1) {
             return "#00ffff";
         }
         return "#ffff00";
     }
+
     // See Robs email
     public class DataSeries {
         private String name;
@@ -1598,11 +1550,12 @@ public class GraphController implements Initializable {
             this.dataOrgo = dataOrgo;
             series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
         }
-        public String obtainColor(int seriesnumber){
-            if (seriesnumber == 0){
+
+        public String obtainColor(int seriesnumber) {
+            if (seriesnumber == 0) {
                 return "#ff00ff";
             }
-            if (seriesnumber == 1){
+            if (seriesnumber == 1) {
                 return "#00ffff";
             }
             return "#ffff00";
@@ -1618,47 +1571,47 @@ public class GraphController implements Initializable {
                     //color = "#ff00ff";
                     color = obtainColor(1);
                     //color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
-                    System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
+                    System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
                     break;
                 case (2):
                     name = "Accel Y";
                     //color = "DodgerBlue";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (3):
                     name = "Accel Z";
                     //color = "ForestGreen";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (4):
                     name = "Gyro X";
                     //color = "Gold";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (5):
                     name = "Gyro Y";
                     //color = "Coral";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (6):
                     name = "Gyro Z";
                     //color = "MediumBlue";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (7):
                     name = "Mag X";
                     //color = "DarkViolet";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (8):
                     name = "Mag Y";
                     //color = "DarkSlateGray";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (9):
                     name = "Mag Z";
                     //color = "SaddleBrown";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
+                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (10):
                     name = "Accel Magnitude";
@@ -1685,7 +1638,7 @@ public class GraphController implements Initializable {
             return color;
         }
 
-        public void setColor(String seriescolor){
+        public void setColor(String seriescolor) {
             color = seriescolor;
         }
 
@@ -1737,6 +1690,114 @@ public class GraphController implements Initializable {
             if (dof > 9) return;
             dataOrgo.rollingBlock(dataConversionType, rollRange, dof);
         }
+    }
+
+
+    ColorPaletteController colorPaletteController;
+    Color[] lineColors;
+
+
+    @FXML
+    public void openLineColorPalette(ActionEvent event) {
+        colorPaletteController = startColorPalette();
+        System.out.println();
+        //colorPaletteController.setGraphControllerObject(event.getSource());
+    }
+
+    public void setLineColors(Color[] lineColors){
+        this.lineColors = lineColors;
+    }
+
+    private ColorPaletteController startColorPalette() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("ColorPalette.fxml"));
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (root != null) primaryStage.setScene(new Scene(root, 600, 550));
+
+        primaryStage.setTitle("Color Palette");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+
+        return loader.getController();
+    }
+
+    private Color rectangleColor;
+
+    @FXML
+    ColorPicker rectangleColorPicker;
+
+
+    @FXML
+    public void picker(ActionEvent event) {
+
+
+        //trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
+
+
+        //trackerRectangle.setStyle("-fx-color: #ffffff");
+
+
+        trackerRectangle.setFill(rectangleColorPicker.getValue());
+        int q = 0;
+        int nSeries = 0;
+
+//        for (DataSeries dof : dataSeries){
+//            for (int j  = 0; j < dof.getSeries().size(); j++){
+//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+//                for (Node n : nodes) {
+//
+//                    }
+//                }
+//
+//                dof.setColor("#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
+//
+//        }
+
+        for (DataSeries dof : dataSeries) {
+            if (!dof.isActive()) continue;
+            for (int j = 0; j < dof.getSeries().size(); j++) {
+                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+                for (Node n : nodes) {
+                    System.out.println(nSeries);
+                }
+                nSeries++;
+            }
+        }
+
+
+//        for (DataSeries dof : dataSeries) {
+//            if (!dof.isActive()) continue;
+//            for (int j = 0; j < dof.getSeries().size(); j++) {
+//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
+//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
+//                for (Node n : nodes) {
+//                    StringBuilder style = new StringBuilder();
+//                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
+//
+//                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
+//                    n.setStyle(style.toString());
+//                }
+//                nSeries++;
+//            }
+//        }
+
+        restyleSeries();
+
+
+        // int color = Color.parseColor(""+String.valueOf(rectangleColorPicker.getValue()));
+
+
+        //System.out.println((String.valueOf(rectangleColorPicker.getValue()).substring(2,8)));
+
+
     }
 
 

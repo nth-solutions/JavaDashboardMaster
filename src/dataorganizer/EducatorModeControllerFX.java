@@ -167,7 +167,7 @@ public class EducatorModeControllerFX implements Initializable {
         initializeToggleGroup();
         fillTestTypeHashMap();
 
-        moduleConnected = findModuleCommPort();
+        //TODO: Commented for ease of testing -> moduleConnected = findModuleCommPort();
 
     }
 
@@ -1011,14 +1011,6 @@ public class EducatorModeControllerFX implements Initializable {
 //        }
     }
 
-    @FXML
-    private void launchMotionVisualization(ActionEvent event) {
-        lineGraph = startGraphing();
-//        lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
-//        lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
-    }
-
-
     /**
      * ActionEvent that handles bulk erasing the module's tests. Implements the Task Class, which essentially creates
      * an FX Safe Thread. All relavant UI parameters are bound to specific ReadOnly Properties defined in the Worker
@@ -1109,27 +1101,17 @@ public class EducatorModeControllerFX implements Initializable {
 
     /*End Experiment Tab Methods*/
 
-    //TODO: UNDER DEVELOPMENT - SEE SWING VERSION FOR GENERAL IDEA
     /*Begin Motion Visualization Tab Methods*/
+
     private GraphController lineGraph;
     private MediaPlayerController mediaController;
 
     @FXML
-    private void graphLoader(ActionEvent event) {
+    private void launchMotionVisualization(ActionEvent event) {
         lineGraph = startGraphing();
-        lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
-        lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
-
+//        lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
+//        lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
     }
-
-    @FXML
-    private void mediaPlayerLoader(ActionEvent event) {
-
-        mediaController = startMediaPlayer();
-        mediaController.scaleVideoAtStart();
-        shareFrameGraphAndMedia(lineGraph, mediaController);
-    }
-
 
     public MediaPlayerController startMediaPlayer() {
         Stage primaryStage = new Stage();
@@ -1151,45 +1133,20 @@ public class EducatorModeControllerFX implements Initializable {
     public GraphController startGraphing() {
         Stage primaryStage = new Stage();
         Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructureEducator.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdatedGraphStructureEducator.fxml"));
         try {
             root = loader.load();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if(root!=null) primaryStage.setScene(new Scene(root, 1440, 810));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1400, 800));
 
         primaryStage.setTitle("Graph");
         primaryStage.show();
         primaryStage.setResizable(false);
 
         return loader.getController();
-    }
-
-    public void shareFrameGraphAndMedia(GraphController graph, MediaPlayerController MPC) {
-        Runnable updatePosInGraph = new Runnable() {
-            public void run() {
-                try {
-                    int currentFrame = -1;
-                    while(true) {
-                        if(MPC.hasVideoSelected()) {
-                            while(currentFrame != MPC.getCurrentFrame()) {
-                                Thread.sleep(10);
-                                graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
-                                currentFrame = MPC.getCurrentFrame();
-                            }
-                        }
-                        Thread.sleep(100);
-                    }
-                }catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        Thread updatePosInGraphThread = new Thread(updatePosInGraph);
-        updatePosInGraphThread.start();
     }
 
     /*End Motion Visualization Tab Methods*/
