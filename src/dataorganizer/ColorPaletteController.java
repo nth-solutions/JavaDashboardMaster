@@ -1,11 +1,13 @@
 package dataorganizer;
 
+import com.sun.corba.se.impl.orbutil.graph.Graph;
 import com.sun.org.apache.xml.internal.security.Init;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -33,12 +35,45 @@ public class ColorPaletteController implements Initializable {
     @FXML
     private ColorPicker accelMagColorPicker;
 
-    private Color[] lineColors = new Color[10];
+
+
+    public Color[] lineColors = new Color[10];
 
     private GraphController Window;
 
+    public static String xAccelColor;
+    public static String yAccelColor;
+    public static String zAccelColor;
+
+    public static String xGyroColor;
+    public static String yGyroColor;
+    public static String zGyroColor;
+
+    public static String xMagColor;
+    public static String yMagColor;
+    public static String zMagColor;
+
+    public static String accelMagColor;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        xAccelColorPicker.setValue(Color.RED);
+        yAccelColorPicker.setValue(Color.DODGERBLUE);
+        zAccelColorPicker.setValue(Color.FORESTGREEN);
+
+        xGyroColorPicker.setValue(Color.GOLD);
+        yGyroColorPicker.setValue(Color.CORAL);
+        zGyroColorPicker.setValue(Color.MEDIUMBLUE);
+
+        xMagColorPicker.setValue(Color.DARKVIOLET);
+        yMagColorPicker.setValue(Color.DARKSLATEGRAY);
+        zMagColorPicker.setValue(Color.SADDLEBROWN);
+
+        accelMagColorPicker.setValue(Color.BLACK);
+    }
+
+    private void closeWindow(){
+       Stage stage = (Stage) xAccelColorPicker.getScene().getWindow();
+       stage.close();
     }
 
     /**
@@ -47,19 +82,19 @@ public class ColorPaletteController implements Initializable {
      */
     @FXML
     private void resetColorPickers(ActionEvent event) {
-        xAccelColorPicker.setValue(Color.WHITE);
-        yAccelColorPicker.setValue(Color.WHITE);
-        zAccelColorPicker.setValue(Color.WHITE);
+        xAccelColorPicker.setValue(Color.RED);
+        yAccelColorPicker.setValue(Color.DODGERBLUE);
+        zAccelColorPicker.setValue(Color.FORESTGREEN);
 
-        xGyroColorPicker.setValue(Color.WHITE);
-        yGyroColorPicker.setValue(Color.WHITE);
-        zGyroColorPicker.setValue(Color.WHITE);
+        xGyroColorPicker.setValue(Color.GOLD);
+        yGyroColorPicker.setValue(Color.CORAL);
+        zGyroColorPicker.setValue(Color.MEDIUMBLUE);
 
-        xMagColorPicker.setValue(Color.WHITE);
-        yMagColorPicker.setValue(Color.WHITE);
-        zMagColorPicker.setValue(Color.WHITE);
+        xMagColorPicker.setValue(Color.DARKVIOLET);
+        yMagColorPicker.setValue(Color.DARKSLATEGRAY);
+        zMagColorPicker.setValue(Color.SADDLEBROWN);
 
-        accelMagColorPicker.setValue(Color.WHITE);
+        accelMagColorPicker.setValue(Color.BLACK);
 
     }
 
@@ -68,34 +103,61 @@ public class ColorPaletteController implements Initializable {
      * @param event
      */
     @FXML
-    private void saveColorPickerColors(ActionEvent event) {
-        lineColors[0] = xAccelColorPicker.getValue();
-        lineColors[1] = yAccelColorPicker.getValue();
-        lineColors[2] = zAccelColorPicker.getValue();
+    public void saveColorPickerColors(ActionEvent event) {
+//        lineColors[0] = xAccelColorPicker.getValue();
+//        lineColors[1] = yAccelColorPicker.getValue();
+//        lineColors[2] = zAccelColorPicker.getValue();
+//
+//        lineColors[3] = xGyroColorPicker.getValue();
+//        lineColors[4] = yGyroColorPicker.getValue();
+//        lineColors[5] = zGyroColorPicker.getValue();
+//
+//        lineColors[6] = xMagColorPicker.getValue();
+//        lineColors[7] = yMagColorPicker.getValue();
+//        lineColors[8] = zMagColorPicker.getValue();
+//
+//        lineColors[9] = accelMagColorPicker.getValue();
 
-        lineColors[3] = xGyroColorPicker.getValue();
-        lineColors[4] = yGyroColorPicker.getValue();
-        lineColors[5] = zGyroColorPicker.getValue();
+        xAccelColor = xAccelColorPicker.getValue().toString();
+        yAccelColor = yAccelColorPicker.getValue().toString();
+        zAccelColor = zAccelColorPicker.getValue().toString();
 
-        lineColors[6] = xMagColorPicker.getValue();
-        lineColors[7] = yMagColorPicker.getValue();
-        lineColors[8] = zMagColorPicker.getValue();
+        xGyroColor = xGyroColorPicker.getValue().toString();
+        yGyroColor = yGyroColorPicker.getValue().toString();
+        zGyroColor = zGyroColorPicker.getValue().toString();
 
-        lineColors[9] = accelMagColorPicker.getValue();
+        xMagColor = xMagColorPicker.getValue().toString();
+        yMagColor = yMagColorPicker.getValue().toString();
+        zMagColor = zMagColorPicker.getValue().toString();
 
-        Window.setLineColors(lineColors);
+        accelMagColor = accelMagColorPicker.getValue().toString();
+
+        //Window.restyleSeries();
+        closeWindow();
+
+        System.out.println(xAccelColor);
+
+
+
+      //  Window.setLineColors(lineColors);
+
     }
 
     public void setGraphControllerObject(GraphController window){
         Window = window;
+
     }
 
     /**
      * Gets the array containing Color objects which are used to change line colors in the graph interface
      * @return
      */
-    public void setLineColors(GraphController window) {
+
+    public String getSavedColors(int dataSeries){
+        return lineColors[dataSeries].toString();
     }
+
+
 
 
 

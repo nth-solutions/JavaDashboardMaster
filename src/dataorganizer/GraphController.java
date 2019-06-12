@@ -59,10 +59,8 @@ public class GraphController implements Initializable {
     @FXML
     Slider playbackSlider;
     //FXML Component Declarations
-
     @FXML
     Slider opacitySlider;
-
     @FXML
     private LineChart<Number, Number> lineChart;
     @FXML
@@ -1050,19 +1048,43 @@ public class GraphController implements Initializable {
         }
     }
 
-    public String changeColorofSeries(int seriesType) {                                                                   // This handles the changing of the color of the Series. An integer that corresponds to
+    public String changeColorofSeries(int seriesType) {
+        System.out.println(ColorPaletteController.xAccelColor.toString());
         if (seriesType == 0) {
-            return "#ff55ff";
+            return "#" + ColorPaletteController.xAccelColor.substring(2,8);
         }
         if (seriesType == 1) {
-            return "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
+            return "#" + ColorPaletteController.yAccelColor.substring(2,8);
         }
         if (seriesType == 2) {
-            return "#00ffff";
-        } else return "#ffffff";
+            return "#" + ColorPaletteController.zAccelColor.substring(2,8);
+        }
+        if (seriesType == 3) {
+            return "#" + ColorPaletteController.xGyroColor.substring(2,8);
+        }
+        if (seriesType == 4) {
+            return "#" + ColorPaletteController.yGyroColor.substring(2,8);
+        }
+        if (seriesType == 5) {
+            return "#" + ColorPaletteController.zGyroColor.substring(2,8);
+        }
+        if (seriesType == 6) {
+            return "#" + ColorPaletteController.xMagColor.substring(2,8);
+        }
+        if (seriesType == 7) {
+            return "#" + ColorPaletteController.yMagColor.substring(2,8);
+        }
+        if (seriesType == 8) {
+            return "#" + ColorPaletteController.zMagColor.substring(2,8);
+        }
+        if (seriesType == 9) {
+            return "#" + ColorPaletteController.accelMagColor.substring(2,8);
+        }
+        return "#ffff00";
     }
 
-    private void restyleSeries() {
+
+    public void restyleSeries() {
         // force a css layout pass to ensure that subsequent lookup calls work.
         lineChart.applyCss();
 
@@ -1170,9 +1192,6 @@ public class GraphController implements Initializable {
 
         return FXCollections.observableArrayList(Collections.singleton(series));
     }
-
-
-
 
 
 
@@ -1519,9 +1538,33 @@ public class GraphController implements Initializable {
 
     public static String AquireColor(int seriesnumber) {
         if (seriesnumber == 0) {
-            return "#ff00ff";
+            return ColorPaletteController.xAccelColor.substring(2,8);
         }
         if (seriesnumber == 1) {
+            return ColorPaletteController.yAccelColor.substring(2, 8);
+        }
+        if (seriesnumber == 2) {
+            return ColorPaletteController.zAccelColor.substring(2 , 8);
+        }
+        if (seriesnumber == 3) {
+            return "#00ffff";
+        }
+        if (seriesnumber == 4) {
+            return "#ff00ff";
+        }
+        if (seriesnumber == 5) {
+            return "#00ffff";
+        }
+        if (seriesnumber == 6) {
+            return "#ff00ff";
+        }
+        if (seriesnumber == 7) {
+            return "#00ffff";
+        }
+        if (seriesnumber == 8) {
+            return "#ff00ff";
+        }
+        if (seriesnumber == 9) {
             return "#00ffff";
         }
         return "#ffff00";
@@ -1706,9 +1749,14 @@ public class GraphController implements Initializable {
 
     public void setLineColors(Color[] lineColors){
         this.lineColors = lineColors;
+
+        System.out.println(lineColors[3].toString());
+    }
+    public void test(){
+        System.out.println("test");
     }
 
-    private ColorPaletteController startColorPalette() {
+    public ColorPaletteController startColorPalette() {
         Stage primaryStage = new Stage();
         Parent root = null;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("ColorPalette.fxml"));
@@ -1732,10 +1780,8 @@ public class GraphController implements Initializable {
     @FXML
     ColorPicker rectangleColorPicker;
 
-
     @FXML
     public void picker(ActionEvent event) {
-
 
         //trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
 
@@ -1800,8 +1846,15 @@ public class GraphController implements Initializable {
 
     }
 
+    @FXML
+    public void updateColors(ActionEvent event){
+        restyleSeries();
+    }
+
 
 }
+
+
 
 
 
