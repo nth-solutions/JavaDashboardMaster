@@ -1049,7 +1049,6 @@ public class GraphController implements Initializable {
     }
 
     public String changeColorofSeries(String seriesType) {
-        System.out.println();
         if (seriesType == "Accel X") {
             return "#" + ColorPaletteController.xAccelColor.substring(2,8);
         }
@@ -1098,7 +1097,6 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
-
                 }
                 nSeries++;
             }
@@ -1285,7 +1283,6 @@ public class GraphController implements Initializable {
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
-
     }
 
     @FXML
@@ -1342,11 +1339,9 @@ public class GraphController implements Initializable {
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
-
     }
 
     public void moveTrackerRectangleMinusOne(ActionEvent event) {
-
         if (numberOfOffsetsApplied <= 0) {
             numberOfOffsetsApplied = 0;
         } else {
@@ -1406,7 +1401,6 @@ public class GraphController implements Initializable {
                     }
                 }
             }
-
         }
     }
 
@@ -1692,10 +1686,8 @@ public class GraphController implements Initializable {
                 }
                 dataAxis.add(i, dataOrgo.getByConversionType(dataConversionType).get(dof).get(i - offset)); //If we have enough padding, start adding the samples
             }
-
             seriesData.add(timeAxis);
             seriesData.add(dataAxis);
-
             series = createSeries(name, seriesData); //create a series for the linechart
         }
 

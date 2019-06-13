@@ -27,8 +27,6 @@ import java.util.concurrent.FutureTask;
 GOALS:
 2. Multi-test saving
 3. Other Test Output Types (Radio Button Options on Tab 3)
-5. Motion Visualization UI Opening
-6. Motion Visualization Fixing
  */
 
 
@@ -1155,14 +1153,88 @@ public class EducatorModeControllerFX implements Initializable {
 
     /*End Motion Visualization Tab Methods*/
 
-    /*Begin SINC Calibration Tab Methods*/
+    /*Begin SINC Module Calibration Tab Methods*/
 
+    public void configureModuleForCalibrationHandler(){
 
+        Task<Void> configureModuleForCalibrationTask = new Task<Void>() {
+            @Override
+            protected Void call(){
 
+                try{
+                    if(!serialHandler.configForCalibration()){
 
+                    }else{
 
-    /*End SINC Calibration Tab Methods*/
+                    }
+                }catch(IOException e){
 
+                }catch(PortInUseException e){
+
+                }catch(UnsupportedCommOperationException e){
+
+                }
+
+                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    progressBar.setStyle("-fx-accent: #1f78d1;");   //Updates the progress bar's color style with a CSS call, setting its color back to its origin
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
+                });
+
+                return null;
+            }
+        };
+
+//        // Binds UI properties on the pairing tab to read only properties of the Task so that the UI may be edited in a thread different from the main UI thread
+//        generalStatusExperimentLabel.textProperty().bind(eraseTestsTask.messageProperty());
+//        nextButton.disableProperty().bind(eraseTestsTask.runningProperty());
+//        backButton.disableProperty().bind(eraseTestsTask.runningProperty());
+//        eraseButton.disableProperty().bind(eraseTestsTask.runningProperty());
+//        progressBar.progressProperty().bind(eraseTestsTask.progressProperty());
+//
+//        eraseTestsTask.setOnSucceeded(e -> {    // If the task successfully completes its routine, the UI components are unbound, releasing their control back to the main UI thread
+//            generalStatusExperimentLabel.textProperty().unbind();
+//            nextButton.disableProperty().unbind();
+//            backButton.disableProperty().unbind();
+//            eraseButton.disableProperty().unbind();
+//            progressBar.progressProperty().unbind();
+//
+//        });
+
+        new Thread(configureModuleForCalibrationTask).start();
+    }
+    public void importCalibrationDataHandler(){
+
+    }
+    public void applyOffsetHandler(){
+        Task<Void> applyOffsetTask = new Task<Void>() {
+            @Override
+            protected Void call(){
+
+//                try{
+//                    if(true){
+//
+//                    }else{
+//
+//                    }
+//                }catch(IOException e){
+//
+//                }catch(PortInUseException e){
+//
+//                }catch(UnsupportedCommOperationException e){
+//
+//                }
+
+                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    progressBar.setStyle("-fx-accent: #1f78d1;");   //Updates the progress bar's color style with a CSS call, setting its color back to its origin
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
+                });
+
+                return null;
+            }
+        };
+    }
+
+    /*End SINC Module Calibration Tab Methods*/
 
 
     /* Module Parameter Settings */

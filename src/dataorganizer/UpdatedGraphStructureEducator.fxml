@@ -39,6 +39,15 @@
                   </Label>
                   <Pane fx:id="chartContainer" prefHeight="535.0" prefWidth="898.0">
                      <children>
+                        <Pane fx:id="mediaViewPane" layoutX="67.0" layoutY="14.0" opacity="0.3" prefHeight="434.0" prefWidth="842.0">
+                           <children>
+                              <MediaView fx:id="mediaView" fitHeight="434.0" fitWidth="842.0" preserveRatio="false">
+                                 <viewport>
+                                    <Rectangle2D />
+                                 </viewport>
+                              </MediaView>
+                           </children>
+                        </Pane>
                         <LineChart fx:id="lineChart" animated="false" createSymbols="false" prefHeight="509.0" prefWidth="917.0">
                            <xAxis>
                               <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
@@ -56,15 +65,6 @@
                            </children>
                         </HBox>
                         <Slider fx:id="playbackSlider" layoutX="67.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" onMouseReleased="#unpauseVideo" prefHeight="14.0" prefWidth="842.0" />
-                        <Pane fx:id="mediaViewPane" layoutX="67.0" layoutY="14.0" opacity="0.3" prefHeight="434.0" prefWidth="842.0">
-                           <children>
-                              <MediaView fx:id="mediaView" fitHeight="434.0" fitWidth="842.0" preserveRatio="false">
-                                 <viewport>
-                                    <Rectangle2D />
-                                 </viewport>
-                              </MediaView>
-                           </children>
-                        </Pane>
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="200.0">
