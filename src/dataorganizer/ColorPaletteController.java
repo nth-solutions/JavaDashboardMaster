@@ -54,6 +54,7 @@ public class ColorPaletteController implements Initializable {
     public static String zMagColor;
 
     public static String accelMagColor;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         xAccelColorPicker.setValue(Color.RED);
@@ -136,9 +137,6 @@ public class ColorPaletteController implements Initializable {
         closeWindow();
 
         System.out.println(xAccelColor);
-
-
-
       //  Window.setLineColors(lineColors);
 
     }

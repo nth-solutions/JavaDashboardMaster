@@ -253,7 +253,7 @@
                                                 </VBox>
                                              </content>
                                           </TitledPane>
-                                          <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="150.0" prefWidth="202.0" text="Data Series">
+                                          <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="136.0" prefWidth="202.0" text="Data Series">
                                              <content>
                                                 <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="93.0" prefWidth="200.0" />
                                              </content>

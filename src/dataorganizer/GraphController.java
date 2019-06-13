@@ -1048,36 +1048,36 @@ public class GraphController implements Initializable {
         }
     }
 
-    public String changeColorofSeries(int seriesType) {
-        System.out.println(ColorPaletteController.xAccelColor.toString());
-        if (seriesType == 0) {
+    public String changeColorofSeries(String seriesType) {
+        System.out.println();
+        if (seriesType == "Accel X") {
             return "#" + ColorPaletteController.xAccelColor.substring(2,8);
         }
-        if (seriesType == 1) {
+        if (seriesType == "Accel Y") {
             return "#" + ColorPaletteController.yAccelColor.substring(2,8);
         }
-        if (seriesType == 2) {
+        if (seriesType == "Accel Z") {
             return "#" + ColorPaletteController.zAccelColor.substring(2,8);
         }
-        if (seriesType == 3) {
+        if (seriesType == "Gyro X") {
             return "#" + ColorPaletteController.xGyroColor.substring(2,8);
         }
-        if (seriesType == 4) {
+        if (seriesType == "Gyro Y") {
             return "#" + ColorPaletteController.yGyroColor.substring(2,8);
         }
-        if (seriesType == 5) {
+        if (seriesType == "Gyro Z") {
             return "#" + ColorPaletteController.zGyroColor.substring(2,8);
         }
-        if (seriesType == 6) {
+        if (seriesType == "Mag X") {
             return "#" + ColorPaletteController.xMagColor.substring(2,8);
         }
-        if (seriesType == 7) {
+        if (seriesType == "Mag Y") {
             return "#" + ColorPaletteController.yMagColor.substring(2,8);
         }
-        if (seriesType == 8) {
+        if (seriesType == "Mag Z") {
             return "#" + ColorPaletteController.zMagColor.substring(2,8);
         }
-        if (seriesType == 9) {
+        if (seriesType == "Accel Magnitude") {
             return "#" + ColorPaletteController.accelMagColor.substring(2,8);
         }
         return "#ffff00";
@@ -1088,7 +1088,6 @@ public class GraphController implements Initializable {
         // force a css layout pass to ensure that subsequent lookup calls work.
         lineChart.applyCss();
 
-
         int nSeries = 0;
         for (DataSeries dof : dataSeries) {
             if (!dof.isActive()) continue;
@@ -1097,7 +1096,7 @@ public class GraphController implements Initializable {
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + changeColorofSeries(nSeries) + "; -fx-background-color: " + changeColorofSeries(nSeries) + ", white; ");
+                    style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
 
                 }
@@ -1111,11 +1110,7 @@ public class GraphController implements Initializable {
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
-
-
-                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-
+                    style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
                 }
                 nSeries++;
@@ -1128,10 +1123,7 @@ public class GraphController implements Initializable {
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
-
-                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-
+                    style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
                 }
                 nSeries++;
@@ -1144,11 +1136,7 @@ public class GraphController implements Initializable {
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
                     StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
-
-
-                    // style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-
+                    style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
                 }
                 nSeries++;
@@ -1193,10 +1181,7 @@ public class GraphController implements Initializable {
         return FXCollections.observableArrayList(Collections.singleton(series));
     }
 
-
-
     /* Media Player Functionality*/
-
 
     @FXML
     Button playPauseButton;
@@ -1223,13 +1208,11 @@ public class GraphController implements Initializable {
 //			e.printStackTrace();
 //		}
 
-
         if (videoFile != null) {    // If the filepath contains a valid file the following code is initiated ->
 
             if (videoHasBeenLoaded) {   //If a video has been previously loaded, the current video is stopped to allow the new video to begin playback
                 mediaPlayer.stop();
             }
-
             filePath = videoFile.toURI().toString();    // Sets the user's selection to a file path that will be used to select the video file to be displayed
             media = new Media(filePath);    // Sets the media object to the selected file path
             mediaPlayer = new MediaPlayer(media);   // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
@@ -1243,8 +1226,6 @@ public class GraphController implements Initializable {
                 public void run() {
 
                     mediaPlayer.play();
-//                    mediaPlayer.setRate(.2);
-
                     totalDuration = mediaPlayer.getTotalDuration().toMillis();
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");
@@ -1310,6 +1291,7 @@ public class GraphController implements Initializable {
     @FXML
     private void pauseVideo(MouseEvent event) {
         try {
+            playing = true;
             mediaPlayer.pause();
             playPauseButton.setText("Play");
             mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
@@ -1322,9 +1304,11 @@ public class GraphController implements Initializable {
     @FXML
     private void unpauseVideo(MouseEvent event) {
         try {
+            playing = false;
             mediaPlayer.play();
             playPauseButton.setText("Pause");
             mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
@@ -1427,10 +1411,8 @@ public class GraphController implements Initializable {
     }
 
     public void scaleVideoAtStart() {       // Scales the selected video so it's centered and scaled to fit within the bounds of the video player
-
         mediaView.setFitWidth(mediaViewPane.getWidth());
         mediaView.setFitHeight(mediaViewPane.getHeight());
-
     }
 
     @FXML
@@ -1594,25 +1576,13 @@ public class GraphController implements Initializable {
             series = createSeries(name, dataOrgo.getZoomedSeries(0, dataOrgo.getLengthOfTest(), dof, dataConversionType));
         }
 
-        public String obtainColor(int seriesnumber) {
-            if (seriesnumber == 0) {
-                return "#ff00ff";
-            }
-            if (seriesnumber == 1) {
-                return "#00ffff";
-            }
-            return "#ffff00";
-        }
-
         public DataSeries(DataOrganizer dataOrgo, int dof) {
             this.dof = dof;
             this.dataOrgo = dataOrgo;
-
             switch (dof) {
                 case (1):
                     name = "Accel X";
                     //color = "#ff00ff";
-                    color = obtainColor(1);
                     //color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
                     System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
                     break;
@@ -1775,80 +1745,22 @@ public class GraphController implements Initializable {
         return loader.getController();
     }
 
-    private Color rectangleColor;
-
     @FXML
     ColorPicker rectangleColorPicker;
 
     @FXML
     public void picker(ActionEvent event) {
-
-        //trackerRectangle.setStyle("-fx-color: #" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8));
-
-
-        //trackerRectangle.setStyle("-fx-color: #ffffff");
-
-
         trackerRectangle.setFill(rectangleColorPicker.getValue());
-        int q = 0;
-        int nSeries = 0;
-
-//        for (DataSeries dof : dataSeries){
-//            for (int j  = 0; j < dof.getSeries().size(); j++){
-//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-//                for (Node n : nodes) {
-//
-//                    }
-//                }
-//
-//                dof.setColor("#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
-//
-//        }
-
-        for (DataSeries dof : dataSeries) {
-            if (!dof.isActive()) continue;
-            for (int j = 0; j < dof.getSeries().size(); j++) {
-                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-                for (Node n : nodes) {
-                    System.out.println(nSeries);
-                }
-                nSeries++;
-            }
-        }
-
-
-//        for (DataSeries dof : dataSeries) {
-//            if (!dof.isActive()) continue;
-//            for (int j = 0; j < dof.getSeries().size(); j++) {
-//                XYChart.Series<Number, Number> series = dof.getSeries().get(j);
-//                Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
-//                for (Node n : nodes) {
-//                    StringBuilder style = new StringBuilder();
-//                    style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
-//
-//                    //style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
-//                    n.setStyle(style.toString());
-//                }
-//                nSeries++;
-//            }
-//        }
-
-        restyleSeries();
-
-
-        // int color = Color.parseColor(""+String.valueOf(rectangleColorPicker.getValue()));
-
-
-        //System.out.println((String.valueOf(rectangleColorPicker.getValue()).substring(2,8)));
-
-
     }
 
     @FXML
     public void updateColors(ActionEvent event){
-        restyleSeries();
+
+        try{
+            restyleSeries();
+        }catch(Exception e){
+            System.out.println("Please select colors to be updated.");
+        }
     }
 
 

@@ -1,6 +1,7 @@
 package dataorganizer;
 
 
+import com.sun.corba.se.impl.orbutil.graph.Graph;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -161,13 +162,15 @@ public class EducatorModeControllerFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+    	
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics");
         backButton.setVisible(false);
         initializeToggleGroup();
         fillTestTypeHashMap();
+        
 
-        //TODO: Commented for ease of testing -> moduleConnected = findModuleCommPort();
+        moduleConnected = findModuleCommPort();
 
     }
 
@@ -319,12 +322,12 @@ public class EducatorModeControllerFX implements Initializable {
                 generalStatusExperimentLabel.setTextFill(Color.RED);
                 generalStatusExperimentLabel.setText("Select a Test Type");
             } else {
-
                 //Disable write config button while the sendParameters() method is running
                 applyConfigurationsButton.setDisable(true);
                 nextButton.setDisable(true);
 
                 try {
+                    //findModuleCommPort();
                     if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
@@ -1108,7 +1111,8 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualization(ActionEvent event) {
-        lineGraph = startGraphing();
+           lineGraph = startGraphing();
+
 //        lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
 //        lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
     }
