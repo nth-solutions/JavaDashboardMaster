@@ -13,7 +13,9 @@ public class EducatorModeMainFX extends Application {
         //primaryStage.setOnCloseRequest(e -> .exit());
         Parent root = FXMLLoader.load(getClass().getResource("EducatorModeFXML.fxml"));
         primaryStage.setTitle("Educator Mode");
-        primaryStage.setScene(new Scene(root, 690, 500));
+        Scene scene = new Scene(root, 690, 500);
+        primaryStage.setScene(scene);
+        scene.getStylesheets().add(getClass().getResource("EducatorModeCSS.css").toExternalForm());
         primaryStage.show();
         primaryStage.setResizable(false);
     }
