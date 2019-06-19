@@ -36,7 +36,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button fx:id="sincCalibrationButton" disable="true" mnemonicParsing="false" onAction="#selectSINCCalibration" prefHeight="158.33" prefWidth="200.0" text="SINC Module Calibration" textFill="#4edd23">
+                        <Button fx:id="sincCalibrationButton" mnemonicParsing="false" onAction="#selectSINCCalibration" prefHeight="158.33" prefWidth="200.0" text="SINC Module Calibration" textFill="#4edd23">
                            <font>
                               <Font size="16.0" />
                            </font>
@@ -462,8 +462,8 @@
                                     <VBox alignment="TOP_CENTER" layoutX="-1.0" layoutY="4.0" prefHeight="500.0" prefWidth="500.0">
                                        <children>
                                           <Label fx:id="sincCalibrationTabGeneralStatusLabel" text="Label" />
-                                          <Button mnemonicParsing="false" text="Configure Module for SINC Calibration" />
-                                          <Button mnemonicParsing="false" text="Import Calibration Data and Calculate Offset" />
+                                          <Button fx:id="configureModuleForCalibrationButton" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" text="Configure Module for SINC Calibration" />
+                                          <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#importCalibrationDataHandler" text="Import Calibration Data and Calculate Offset" />
                                           <Button mnemonicParsing="false" text="Apply Offset to Module" />
                                           <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
                                              <children>

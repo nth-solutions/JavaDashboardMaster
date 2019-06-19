@@ -23,13 +23,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.FutureTask;
 
-/*
-GOALS:
-2. Multi-test saving
-3. Other Test Output Types (Radio Button Options on Tab 3)
- */
-
-
 public class EducatorModeControllerFX implements Initializable {
 
     //Test Parameter Variables and Constants
@@ -148,8 +141,10 @@ public class EducatorModeControllerFX implements Initializable {
     double momentOfIntertiaSpring;
     double radiusOfTorqueArmSpring;
     private DataOrganizer dataOrgo;
+
     //Colors
     private Color DarkGreen = Color.rgb(51, 204, 51);
+
     //Dashboard Background Functionality
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
@@ -160,24 +155,14 @@ public class EducatorModeControllerFX implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-    	
 
-        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics");
-        backButton.setVisible(false);
-        initializeToggleGroup();
-        fillTestTypeHashMap();
-        
+        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"); //Create combobox of test names so users can select Test type that he / she wants to perform.
+        backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
+        initializeToggleGroup();                                                                                        //See Method Comment
+        fillTestTypeHashMap();                                                                                          // See Method Comment
 
-        moduleConnected = findModuleCommPort();
-
+        moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
     }
-
-
-//    private void moduleStatus() {
-//        Boolean
-//    }
-
-
 
     /**
      * This method is utilized solely to clean up method implementation within the initialize() method. Essentially, this
@@ -251,13 +236,13 @@ public class EducatorModeControllerFX implements Initializable {
 
         experimentTabIndex += 1;    // Increments the tab index each time the ActionEvent is triggered
 
-        if (experimentTabIndex == 0) {   // If the tab index is 0, the back button is hidden because no previous pane exists
+        if (experimentTabIndex == 0) {   // If the tab index is 0, the back button is hidden because no previous pane exists, otherwise, the back button is shown
             backButton.setVisible(false);
         } else {
             backButton.setVisible(true);
         }
 
-        experimentTabPane.getSelectionModel().select(experimentTabIndex);
+        experimentTabPane.getSelectionModel().select(experimentTabIndex); // Sets the tab to reflect the new index.
 
     }
 
@@ -283,7 +268,7 @@ public class EducatorModeControllerFX implements Initializable {
             backButton.setVisible(true);
         }
 
-        experimentTabPane.getSelectionModel().select(experimentTabIndex);
+        experimentTabPane.getSelectionModel().select(experimentTabIndex); //Sets the tab to reflect the new index.
     }
 
     /**
@@ -316,7 +301,8 @@ public class EducatorModeControllerFX implements Initializable {
      */
     private void writeButtonHandler() {
         Platform.runLater(() -> {
-            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0) {
+
+            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){ // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
                 generalStatusExperimentLabel.setTextFill(Color.RED);
                 generalStatusExperimentLabel.setText("Select a Test Type");
             } else {
@@ -359,6 +345,9 @@ public class EducatorModeControllerFX implements Initializable {
      * Fills extra test parameter class fields according to what textfields are shown
      *
      * @param comboBoxIndex Selected ComboBox Index that defines what parameter TextFields are shown for the UI
+     *
+     * For give parameter text fields, variables of type double are used to store data inputed in text fields. getText and parseDouble are used to convert text field data to double for use in spreadsheet.
+     *
      */
     @FXML
     private void getExtraParameters(int comboBoxIndex) {
@@ -448,12 +437,14 @@ public class EducatorModeControllerFX implements Initializable {
             default:
                 break;
         }
-
     }
 
     /**
      * ActionEvent that configures the module using functionality from the SerialComm Class for pairing with an RF remote
      * control
+     *
+     * ***********IMPORTANT******This method and following methods use Tasks as UI Elements and backend elements must be modified concurrently. UI elements are bound to properties in the task. UpdateMessage and
+     * UpdateProgess therefore update bound UI elements.
      *
      * @param event
      */
@@ -461,7 +452,6 @@ public class EducatorModeControllerFX implements Initializable {
     private void pairNewRemote(ActionEvent event) {
 
         Task<Void> pairNewRemoteTask = new Task<Void>() {
-            @Override
             protected Void call() throws Exception {
                 int maxProgress = 100;
                 updateMessage("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
@@ -473,11 +463,11 @@ public class EducatorModeControllerFX implements Initializable {
                 });
 
                 try {
-                    if (serialHandler.pairNewRemote()) {
+                    if (serialHandler.pairNewRemote()) {                                                                // Attempts to pair remote and a boolean is returned that indicates if it was successful.
                         updateMessage("New Remote Successfully Paired");
                         updateProgress(100, maxProgress);
 
-                        Platform.runLater(() -> {
+                        Platform.runLater(() -> {                                                                       //Without the binding of elements to properties. Platform.runLater() allows UI elements to be modified in the task.
                             generalStatusExperimentLabel.setTextFill(DarkGreen);
                             progressBar.setStyle("-fx-accent: #1f78d1;");
                         });
@@ -524,6 +514,12 @@ public class EducatorModeControllerFX implements Initializable {
             }
         };
 
+        /**
+         * Here the UI elements are bound to properties so they can be modified in the Task
+         *
+         * After the task is completed, the UI elements are unbound.
+         */
+
         pairNewRemoteButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         unpairAllRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         testRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
@@ -543,7 +539,6 @@ public class EducatorModeControllerFX implements Initializable {
         });
 
         new Thread(pairNewRemoteTask).start();
-
     }
 
     /**
@@ -570,7 +565,7 @@ public class EducatorModeControllerFX implements Initializable {
                 });
 
                 try {
-                    serialHandler.unpairAllRemotes();
+                    serialHandler.unpairAllRemotes();                                                                   // Attempts to unpair all remotes
                 } catch (IOException e) {
 
                     updateMessage("Error Communicating With Serial Dongle");
@@ -614,7 +609,6 @@ public class EducatorModeControllerFX implements Initializable {
                 generalStatusExperimentLabel.setTextFill(Color.BLACK);
                 generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
                 progressBar.setProgress(0);
-                //progressBar.setForeground(new Color(51, 204, 51));
 
                 return null;
             }
@@ -727,7 +721,6 @@ public class EducatorModeControllerFX implements Initializable {
             }
         };
 
-
         pairNewRemoteButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
         unpairAllRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
         testRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
@@ -789,21 +782,19 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void readTestsFromModule(ActionEvent event) {
 
-        String outputSelected = getOutputTypeToggle();
-
+        String outputSelected = getOutputTypeToggle();                                                                  //variable for selected output is used to determine what will be run.
 
         //if (outputSelected == "spreadSheetRadioButton") {
-            HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];
+            HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
-            FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() {
+            FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
                 @Override
                 public void run() {
-                    String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
-                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
+                    String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
 
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
 
                         Platform.runLater(() -> {
                             generalStatusExperimentLabel.setText("Reading Data from Module...");
@@ -811,7 +802,6 @@ public class EducatorModeControllerFX implements Initializable {
                         });
 
                         //Read test parameters from module and store it in testParameters
-
 
                         //Executes if the reading of the test parameters was successful
                         if (testParameters != null) {
@@ -829,7 +819,6 @@ public class EducatorModeControllerFX implements Initializable {
                             int accelFilter = testParameters.get(11);
                             int gyroFilter = testParameters.get(12);
 
-
                             double bytesPerSample = 18;
                             if (accelGyroSampleRate / magSampleRate == 10) {
                                 bytesPerSample = 12.6;
@@ -843,7 +832,7 @@ public class EducatorModeControllerFX implements Initializable {
                                 //Get date for file name
                                 Date date = new Date();
 
-                                //Assign file name
+                                //Assigns the name of file
                                 nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
                                 HashMap<Integer, ArrayList<Integer>> testData;
@@ -856,7 +845,7 @@ public class EducatorModeControllerFX implements Initializable {
                                     generalStatusExperimentLabel.setTextFill(DarkGreen);
                                 });
 
-                                //Executes if the data was received properly (null = fail)
+                                //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
                                 if (testData != null) {
                                     for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
@@ -871,23 +860,28 @@ public class EducatorModeControllerFX implements Initializable {
                                             }
                                         }
                                         String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                        dataOrgo = new DataOrganizer(testParameters, tempName);
+                                        dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                         //Define operation that can be run in separate thread
                                         //TODO: This will probably throw an error
                                         Runnable organizerOperation = () -> {
 
-                                            //Organize data into .CSV
+                                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
                                             dataOrgo.createDataSmpsRawData(finalData);
 
                                             //TODO: This will throw Errors because its handling UI components
                                             if (spreadsheetRadioButton.isSelected()) {
 
-                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
                                                 Platform.runLater(() -> {
                                                     generalStatusExperimentLabel.setText("Writing data to spreadsheet");
                                                     generalStatusExperimentLabel.setTextFill(Color.BLACK);
                                                 });
+
+                                                /*
+                                                Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
+                                                The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
+                                                 */
 
                                                 if (testType == "Conservation of Momentum (Elastic Collision)") {
                                                     parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
@@ -905,7 +899,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                     parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);
-                                                    System.out.println("debug");
+
                                                 } else if (testType == "Spring Test - Simple Harmonics") {
                                                     parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
@@ -913,12 +907,11 @@ public class EducatorModeControllerFX implements Initializable {
                                                 }
 
                                                 try {
-                                                    Thread.sleep(10000);
+                                                    Thread.sleep(10000);                                          // Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
 
-                                                } catch (Exception exceptionalexception) {
+                                                } catch (Exception exceptionalexception) {                              // This error should never happen
                                                     System.out.println("If you got this error, something went seriously wrong");
                                                 }
-
 
                                                 Platform.runLater(() -> {
                                                     generalStatusExperimentLabel.setText("Data Successfully Written");
@@ -996,13 +989,11 @@ public class EducatorModeControllerFX implements Initializable {
                         });
 
                     }
-
-
                 }
 
             }, testDataArray);
 
-            readTestsFromModuleTask.run();
+            readTestsFromModuleTask.run(); // Runs the futureTask.
 //        } else if (outputSelected == "graphRadioButton") {
 //
 //        } else if (outputSelected == "graphAndSpreadsheetRadioButton"){
@@ -1155,6 +1146,18 @@ public class EducatorModeControllerFX implements Initializable {
 
     /*Begin SINC Module Calibration Tab Methods*/
 
+    private int timerCalibrationOffset;
+
+    private int delayAfterStart;
+
+    @FXML
+    private Button configureModuleForCalibrationButton;
+    @FXML
+    private Button importCalibrationDataButton;
+    @FXML
+    private Button applyOffsetToModuleButton;
+
+    @FXML
     public void configureModuleForCalibrationHandler(){
 
         Task<Void> configureModuleForCalibrationTask = new Task<Void>() {
@@ -1164,47 +1167,95 @@ public class EducatorModeControllerFX implements Initializable {
                 try{
                     if(!serialHandler.configForCalibration()){
 
+                        Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                        });
+
                     }else{
+
+                        Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Module Successfully Configured for Calibration");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
+                        });
 
                     }
                 }catch(IOException e){
 
+                    Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
+
                 }catch(PortInUseException e){
+
+                    Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
 
                 }catch(UnsupportedCommOperationException e){
 
-                }
+                    Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatability");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
 
-                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                    progressBar.setStyle("-fx-accent: #1f78d1;");   //Updates the progress bar's color style with a CSS call, setting its color back to its origin
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
-                });
+                }
 
                 return null;
             }
         };
-
-//        // Binds UI properties on the pairing tab to read only properties of the Task so that the UI may be edited in a thread different from the main UI thread
-//        generalStatusExperimentLabel.textProperty().bind(eraseTestsTask.messageProperty());
-//        nextButton.disableProperty().bind(eraseTestsTask.runningProperty());
-//        backButton.disableProperty().bind(eraseTestsTask.runningProperty());
-//        eraseButton.disableProperty().bind(eraseTestsTask.runningProperty());
-//        progressBar.progressProperty().bind(eraseTestsTask.progressProperty());
-//
-//        eraseTestsTask.setOnSucceeded(e -> {    // If the task successfully completes its routine, the UI components are unbound, releasing their control back to the main UI thread
-//            generalStatusExperimentLabel.textProperty().unbind();
-//            nextButton.disableProperty().unbind();
-//            backButton.disableProperty().unbind();
-//            eraseButton.disableProperty().unbind();
-//            progressBar.progressProperty().unbind();
-//
-//        });
-
         new Thread(configureModuleForCalibrationTask).start();
     }
+
+    public String chooseVideoFilePath(Label label) {
+
+        FileChooser chooser;
+        chooser = new FileChooser();
+        chooser.setInitialDirectory(new java.io.File("."));
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Name Output File (*.mp4)", "*.mp4"));
+        File file = chooser.showSaveDialog(null);
+        if (file != null) {
+
+            String fileout = file.toString();
+
+            generalStatusExperimentLabel.setTextFill(DarkGreen);
+            generalStatusExperimentLabel.setText("File Copy finished!");
+
+            if (!fileout.endsWith(".xlsx")) {
+                return fileout + ".xlsx";
+            } else {
+                return fileout;
+            }
+
+        } else {
+            generalStatusExperimentLabel.setTextFill(Color.RED);
+            generalStatusExperimentLabel.setText("Invalid File Path Entered");
+            return "Invalid File Path";
+        }
+    }
+
+    @FXML
     public void importCalibrationDataHandler(){
 
+        Task<Void> importCalibrationDataTask = new Task<Void>() {
+            @Override
+            protected Void call(){
+
+//                try{
+//
+//                }catch(IOException e){
+//
+//                }
+
+                return null;
+            }
+        };
+        new Thread(importCalibrationDataTask).start();
     }
+
+    @FXML
     public void applyOffsetHandler(){
         Task<Void> applyOffsetTask = new Task<Void>() {
             @Override
