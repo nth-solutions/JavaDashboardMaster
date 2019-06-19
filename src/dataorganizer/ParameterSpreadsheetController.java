@@ -46,15 +46,20 @@ public class ParameterSpreadsheetController {
         //testTypeFileName = "Pendulum Template REV-Q3.xlsx";
         //System.out.println(System.getProperty("user.home"));
         //System.out.println(testTypeFileName);
-        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName;
+        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
         //documentsPath = "C:\\Users\\Kinobo\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
         try {
-            this.workbook = new Workbook(documentsPath);
+            this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
         }catch(Exception e){
             e.printStackTrace();
             System.out.println("Invalid Workbook Path");
         }
     }
+
+    /**
+     * This method is used to save a modified template as a new spreadsheet at the desired output path.
+     * @param outputPath
+     */
 
     public void saveWorkbook(String outputPath){
         try {
@@ -67,10 +72,17 @@ public class ParameterSpreadsheetController {
             System.out.println("Invalid output path");
         }
     }
-    public void test(){
-        System.out.println(testType);
-    }
-    public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){ //writes the PendulumParameters to their correct locations in the spreadsheet. Following load parameter classes do them same thing but for their respective test.
+
+    /**
+     * These methods serve to write the specific parameters for each test to their correct locations in the template.
+     * They are called in EducatorModeControllerFX.
+     * @param pendulumLength
+     * @param pendulumMass
+     * @param moduleMass
+     * @param moduleDistanceFromAOR
+     */
+
+    public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){
         workbook.getWorksheets().get(4).getCells().get("C7").setValue(pendulumLength);
         workbook.getWorksheets().get(4).getCells().get("C8").setValue(pendulumMass);
         workbook.getWorksheets().get(4).getCells().get("C9").setValue(moduleMass);
@@ -104,7 +116,7 @@ public class ParameterSpreadsheetController {
      * @param dataSamples 2-D List containing all of the data the module recorded during testing
      */
     public void fillTemplateWithData(int rowOffset, List<List<Double>> dataSamples) {
-        for (int axis = 1; axis < 10; axis++) {
+        for (int axis = 1; axis < 10; axis++) { // There are 9 different sets of data points. Accel x, y, and z; Gyro x, y, and z; and Mag x, y, and z
             if (dataSamples != null) {
                 List<Double> ColumnData = dataSamples.get(axis);    //Splits the 2-D List into Individual Lists based on axis
                 for (int columnIndex = 0; columnIndex < ColumnData.size(); columnIndex++) { //Loops through every data point in the List

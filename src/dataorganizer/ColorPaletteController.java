@@ -55,6 +55,12 @@ public class ColorPaletteController implements Initializable {
 
     public static String accelMagColor;
 
+    /**
+     * Sets default values for the colorPicker.
+     * @param location
+     * @param resources
+     */
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         xAccelColorPicker.setValue(Color.RED);
@@ -72,13 +78,16 @@ public class ColorPaletteController implements Initializable {
         accelMagColorPicker.setValue(Color.BLACK);
     }
 
+    /**
+     * Closes the Window
+     */
     private void closeWindow(){
        Stage stage = (Stage) xAccelColorPicker.getScene().getWindow();
        stage.close();
     }
 
     /**
-     * ActionEvent that resets all of the ColorPickers within the window to their default color (Color.WHITE)
+     * ActionEvent that resets all of the ColorPickers within the window to their default color.
      * @param event
      */
     @FXML
@@ -100,7 +109,7 @@ public class ColorPaletteController implements Initializable {
     }
 
     /**
-     * ActionEvent that appends the values held by each ColorPicker object to the lineColors Array
+     * After the User clicks the save Button, the values of each colorPicker are saved to variables that are used to actually set the colors in the graph.
      * @param event
      */
     @FXML
@@ -135,33 +144,16 @@ public class ColorPaletteController implements Initializable {
 
         //Window.restyleSeries();
         closeWindow();
-
-        System.out.println(xAccelColor);
       //  Window.setLineColors(lineColors);
 
     }
 
     public void setGraphControllerObject(GraphController window){
         Window = window;
-
     }
 
     /**
      * Gets the array containing Color objects which are used to change line colors in the graph interface
      * @return
      */
-
-    public String getSavedColors(int dataSeries){
-        return lineColors[dataSeries].toString();
-    }
-
-
-
-
-
-
-
-
-
-
 }
