@@ -866,9 +866,9 @@ public class EducatorModeControllerFX implements Initializable {
                                         Runnable organizerOperation = () -> {
 
                                             //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+
                                             dataOrgo.createDataSmpsRawData(finalData);
 
-                                            //TODO: This will throw Errors because its handling UI components
                                             if (spreadsheetRadioButton.isSelected()) {
 
                                                 List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();

@@ -1286,8 +1286,8 @@ public class EducatorMode extends JFrame {
 		generalStatusLabelThree.setForeground(Color.BLACK);
 		generalStatusLabelThree.setText("Copying File Template...");
 		String path = chooseSpreadsheetOutputPath(generalStatusLabelThree);
-		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
-		SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
+//		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
+//		SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
 		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();
 		generalStatusLabelThree.setForeground(DarkGreen);
 		generalStatusLabelThree.setText("File Copy finished!");

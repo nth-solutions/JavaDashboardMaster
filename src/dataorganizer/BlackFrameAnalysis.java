@@ -21,9 +21,6 @@ public class BlackFrameAnalysis {
 	private int preLitBFNum = 0;		//sets integer for the last black frame at 0
 	private int postLitBFNum = 0;		
 
-
-	
-
 	/*
 	 * Reads module sample rate, video sample rate, and the video file. 
 	 * Returns the offset for TMR0

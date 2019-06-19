@@ -14,7 +14,7 @@ import javax.swing.filechooser.FileSystemView;
 
 public class DataOrganizer {
 
-	private List<List<Double>> dataSamples;
+	private List<List<Double>> dataSamples; // Can be thought of as 2-d list, the "x" can be thought of as each of the dofs, the y is the sample number and the correcting sample data for each dof.
 	private List<List<Double>> signedDataSamples;
 	private List<List<Double>> normalizedDataSamples;
 	private List<Integer> testParameters;
@@ -35,7 +35,7 @@ public class DataOrganizer {
 	private String moduleSerialID;
 	Settings settings = new Settings();
 
-	private int delayAfterStart;
+	private int delayAfterStart; //
 	private int lineNum;
 	private double max = 0;
 	private double min = 0;
@@ -94,7 +94,9 @@ public class DataOrganizer {
 			List<Double> temp = new ArrayList<Double>();
 			dataSamples.add(dof, temp);
 		}
-
+		/*
+		 // Adds null Samples for when the delay is less than 0 (DelayAfterStart depends on Camera Delay)
+		 */
 		if (delayAfterStart < 0) {
 			int delayAdditionalLineNums = (int) Math.round(((double) delayAfterStart / -1000.0) * (double) sampleRate);
 
@@ -119,12 +121,9 @@ public class DataOrganizer {
 			lineNum = 0;
 		}
 
-		// System.out.println(data.length);
-		// System.out.println(dataSmps);
-
 		while (!endCondition) {
 			for (int i = 0; i < magInterval && !endCondition; i++) {
-				dataSamples.get(0).add(lineNum, (double) lineNum / (double) sampleRate); // adds the time to the first column
+				dataSamples.get(0).add(lineNum, (double) lineNum / (double) sampleRate); // adds the time to the first column;
 
 				if (i == 0) {
 					for (int dof9 = 1; dof9 < 10; dof9++) { // starts at 1 because 0 is time
@@ -132,7 +131,6 @@ public class DataOrganizer {
 							endCondition = true;
 							break;
 						}
-						// System.out.println((data[byteCounter] * 256) + data[byteCounter + 1]);
 						dataSamples.get(dof9).add(lineNum, (double) ((data[byteCounter] * 256) + data[byteCounter + 1]));
 						byteCounter += 2;
 					}
@@ -155,10 +153,8 @@ public class DataOrganizer {
 			}
 
 		}
-		lineNum--;
-		lengthOfTest = (double) lineNum / (double) sampleRate;
-
-
+		lineNum--;// Subtracts 1 since there isn't actaully a sample for the final increment of lineNum
+		lengthOfTest = (double) lineNum / (double) sampleRate; // Dimension analysis principle; Samples / (Samples / Unit Time) = Time
 		return dataSamples;
 	}
 	
@@ -171,19 +167,18 @@ public class DataOrganizer {
 
 		signedDataSamples.get(0).addAll(dataSamples.get(0));
 
-
-		for (int dof = 1; dof < 10; dof++) {
-			if(dof < 7)
-				for (int smp = 0; smp < dataSamples.get(dof).size()-1; smp++) {
-					if (dof < 4) {
-						double curVal = dataSamples.get(dof).get(smp);
+		for (int dof = 1; dof < 10; dof++) { // For each degree of freedom
+			if(dof < 7) //If the dof is accel or gyro - Accel and Gyro and sampled differently than mag
+				for (int smp = 0; smp < dataSamples.get(dof).size()-1; smp++) { // smp - Sample ; For each sample
+					if (dof < 4) { // If the dof is accel
+						double curVal = dataSamples.get(dof).get(smp);// Actual Conversion and Raw Data to Signed Data
 						if (curVal > 32768) {
 							curVal -= 65535;
 						}
 						curVal = (curVal * accelSensitivity) / 32768;
 						signedDataSamples.get(dof).add(smp, curVal);
 					} 
-					else {
+					else { // This means the dof is Gyro
 						double curVal = dataSamples.get(dof).get(smp);
 						if (curVal > 32768) {
 							curVal -= 65535;
@@ -201,16 +196,11 @@ public class DataOrganizer {
 					//signedDataSamples.get(dof).add(smp, curVal);
 					//	}
 				}
-			if(dof > 6)
-				for(int smp = 0; smp < (dataSamples.get(0).size()/10); smp++) {
+			if(dof > 6) // When the dof in question is mag
+				for(int smp = 0; smp < (dataSamples.get(0).size()/10); smp++) { // Divided by 10 as MAG is sampled once for every 10 times that Accel is sampled.
 					signedDataSamples.get(dof).add(dataSamples.get(dof).get(smp));
 				}
 		}
-
-		// System.out.println("LineNum: " + lineNum);
-		// System.out.println("Length of test: " + lengthOfTest);
-		// System.out.println("Size of test: " + dataSmps.get(0).size());
-
 
 		return signedDataSamples;
 	}
@@ -285,7 +275,6 @@ public class DataOrganizer {
 			return -3; //Permissions error as well.
 		}
 
-
 		/*
 		 * Just set these variables because thats where we reference them from most of the time.
 		 */
@@ -314,6 +303,14 @@ public class DataOrganizer {
 		gyroSensitivity = params.get(10);
 		magSensitivity = 4800; 
 	}
+
+	/**
+	 * Creation of a modified data set with an applied Rolling Average. Used for applying in average in graphing to smooth data.
+	 * @param dataSet
+	 * @param rollRange
+	 * @param dof
+	 * @return
+	 */
 	
 	public List<List<Double>> rollingBlock(int dataSet, int rollRange, int dof) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
@@ -339,7 +336,7 @@ public class DataOrganizer {
 		return modifiedDataSmps;
 	}
 
-	public int createCSV(boolean labelData, boolean signedData) {
+	public int createCSV(boolean labelData, boolean signedData) { // The two passed booleans determine if there the output data is signed and labeled.
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 
 		if(!signedData)
@@ -561,6 +558,10 @@ public class DataOrganizer {
 		return dofData;
 	}
 
+	/**
+	 * Used in EducatorModerControllerFX
+	 * @return
+	 */
 
 	public List<List<Double>> getRawDataSamples() {
 		return dataSamples;
@@ -635,8 +636,8 @@ public class DataOrganizer {
 		}
 		return mpuOffsets;
 	}
-	
-	
+
+
 	/*
 	 *  Sets internal private variable MpuMinMax. First array is axis, and second is min[0]/max[1]
 	 *  @return the offsets for accel, gyro, and mag. (The offsets follow the same ordering convention we use with dataSamples, without the time axis (accel,gyro,mag)(x,y,z))
