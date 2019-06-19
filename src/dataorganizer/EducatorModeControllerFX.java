@@ -300,9 +300,9 @@ public class EducatorModeControllerFX implements Initializable {
      * to the module's firmware for use in one of several experiments
      */
     private void writeButtonHandler() {
-        Platform.runLater(() -> {
+        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
 
-            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){ // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
+            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){                                     // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
                 generalStatusExperimentLabel.setTextFill(Color.RED);
                 generalStatusExperimentLabel.setText("Select a Test Type");
             } else {
@@ -1123,6 +1123,10 @@ public class EducatorModeControllerFX implements Initializable {
         return loader.getController();
     }
 
+    /*
+     * Method creates a new window with a media player and a line graph with one overlapping the other for SINC Technology
+     */
+
     public GraphController startGraphing() {
         Stage primaryStage = new Stage();
         Parent root = null;
@@ -1165,16 +1169,16 @@ public class EducatorModeControllerFX implements Initializable {
             protected Void call(){
 
                 try{
-                    if(!serialHandler.configForCalibration()){
+                    if(!serialHandler.configForCalibration()){                                                          // Checks to see if the module is ready to be calibrated
 
-                        Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                         });
 
                     }else{
 
-                        Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("Module Successfully Configured for Calibration");
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
                         });
@@ -1182,21 +1186,21 @@ public class EducatorModeControllerFX implements Initializable {
                     }
                 }catch(IOException e){
 
-                    Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                         sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
                         sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                     });
 
                 }catch(PortInUseException e){
 
-                    Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                         sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
                         sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                     });
 
                 }catch(UnsupportedCommOperationException e){
 
-                    Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                         sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatability");
                         sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                     });
@@ -1209,6 +1213,10 @@ public class EducatorModeControllerFX implements Initializable {
         new Thread(configureModuleForCalibrationTask).start();
     }
 
+    /**
+     * Method allows user to choose their video file to be used to calibrate the module
+     * @return fileout
+     */
     public String chooseVideoFilePath(Label label) {
 
         FileChooser chooser;
@@ -1221,10 +1229,10 @@ public class EducatorModeControllerFX implements Initializable {
             String fileout = file.toString();
 
             generalStatusExperimentLabel.setTextFill(DarkGreen);
-            generalStatusExperimentLabel.setText("File Copy finished!");
+            generalStatusExperimentLabel.setText("File Copy Finished!");
 
-            if (!fileout.endsWith(".xlsx")) {
-                return fileout + ".xlsx";
+            if (!fileout.endsWith(".mp4")) {
+                return fileout + ".mp4";
             } else {
                 return fileout;
             }
@@ -1275,9 +1283,9 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //                }
 
-                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                    progressBar.setStyle("-fx-accent: #1f78d1;");   //Updates the progress bar's color style with a CSS call, setting its color back to its origin
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
+                Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    progressBar.setStyle("-fx-accent: #1f78d1;");                                                       //Updates the progress bar's color style with a CSS call, setting its color back to its origin
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);                                              //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
                 });
 
                 return null;
@@ -1317,7 +1325,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     /***
      *  Fills the testTypeHashMap with the module settings associated with each test type
-     *
+     *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
      */
     public void fillTestTypeHashMap() {
         ArrayList<Integer> testParams = new ArrayList<Integer>();
@@ -1351,32 +1359,36 @@ public class EducatorModeControllerFX implements Initializable {
 
         testParams.clear();
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
-        //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
-        //3 Battery timeout flag
-        testParams.add(300);
-        //5 Trigger on release flag
-        testParams.add(1);
-        //6 Test Length
-        testParams.add(30);
-        //7 Accel Gyro Sample Rate
-        testParams.add(960);
-        //8 Mag Sample Rate
-        testParams.add(96);
-        //9 Accel Sensitivity
-        testParams.add(4);
-        //10 Gyro Sensitivity
-        testParams.add(2000);
-        //11 Accel Filter
-        testParams.add(92);
-        //12 Gyro Filter
-        testParams.add(92);
+        /*
+         * ***IMPORTANT*** The following commented out code is no longer in use but is being kept in case that we do decide to bring this lab back ***IMPORTANT***
+         */
 
-        testTypeHashMap.put("Conservation of Angular Momentum", testParams);
+//        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+//        testParams.add(0);
+//        //1 Timer0 Tick Threshold
+//        testParams.add(getTickThreshold(960));
+//        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+//        testParams.add(0);
+//        //3 Battery timeout flag
+//        testParams.add(300);
+//        //5 Trigger on release flags
+//        testParams.add(1);
+//        //6 Test Length
+//        testParams.add(30);
+//        //7 Accel Gyro Sample Rate
+//        testParams.add(960);
+//        //8 Mag Sample Rate
+//        testParams.add(96);
+//        //9 Accel Sensitivity
+//        testParams.add(4);
+//        //10 Gyro Sensitivity
+//        testParams.add(2000);
+//        //11 Accel Filter
+//        testParams.add(92);
+//        //12 Gyro Filter
+//        testParams.add(92);
+//
+//        testTypeHashMap.put("Conservation of Angular Momentum", testParams);
 
         testParams.clear();
 
@@ -1495,11 +1507,12 @@ public class EducatorModeControllerFX implements Initializable {
         testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
 
         testParams.clear();
-
-        //TODO: Finish adding test type parameters
     }
 
-
+    /**
+     * Method "conducts" search for if a CommPort has a module connected
+     * @return th.getStatus(); (Boolean Value)
+     */
     public boolean findModuleCommPort() {
         class threadHack {
             private boolean status = false;
@@ -1515,18 +1528,16 @@ public class EducatorModeControllerFX implements Initializable {
         final threadHack th = new threadHack();
 
 
-        Platform.runLater(() -> {
-            try {
+        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+            try {                                                                                                       //Attempts to find ports for the module
                 ArrayList<String> commPortIDList = serialHandler.findPorts();
                 boolean moduleFound = false;
                 int commPortIndex = 0;
                 while (!moduleFound && commPortIndex < commPortIDList.size()) {
 
-                    //Get the string identifier (name) of the current port
-                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();
+                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
 
-                    //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-                    if (serialHandler.openSerialPort(selectedCommID)) {
+                    if (serialHandler.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
 
                         int attemptCounter = 0;
                         while (attemptCounter < 3 && !moduleFound) {
@@ -1578,6 +1589,9 @@ public class EducatorModeControllerFX implements Initializable {
         return th.getStatus();
     }
 
+    /*
+     * User selects an output path for the spreadsheet template
+     */
     public String chooseSpreadsheetOutputPath(Label label) {
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
         generalStatusExperimentLabel.setText("Copying File Template...");
@@ -1643,8 +1657,7 @@ public class EducatorModeControllerFX implements Initializable {
         return "NOP";
     }
 
-    //Not Sure why this method is needed but the program will not work without it for some reason
-    public void readExtraTestParamsForTemplate() {
+    public void readExtraTestParamsForTemplate() {                                                                      //Not sure why this method is needed but the program will not work without it for some reason
         //params.put(testType).put(variable) = x,y,content
         class CellData {
             public int X;
@@ -1670,7 +1683,6 @@ public class EducatorModeControllerFX implements Initializable {
                 cell.Y = 4;
                 cell.content = testTypeHashMap.get(testType).get(9).toString();    //Accel Sensitivity
                 param.put("AccelSensitivity", cell);
-
 
                 //Write param to hashmap and location of template to write in
                 cell.X = 3;
