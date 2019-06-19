@@ -300,9 +300,9 @@ public class EducatorModeControllerFX implements Initializable {
      * to the module's firmware for use in one of several experiments
      */
     private void writeButtonHandler() {
-        Platform.runLater(() -> {
+        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
 
-            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){ // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
+            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){                                     // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
                 generalStatusExperimentLabel.setTextFill(Color.RED);
                 generalStatusExperimentLabel.setText("Select a Test Type");
             } else {
@@ -1178,7 +1178,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                     }else{
 
-                        Platform.runLater(() -> {                                                                        // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("Module Successfully Configured for Calibration");
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
                         });
@@ -1213,8 +1213,9 @@ public class EducatorModeControllerFX implements Initializable {
         new Thread(configureModuleForCalibrationTask).start();
     }
 
-    /*
+    /**
      * Method allows user to choose their video file to be used to calibrate the module
+     * @return fileout
      */
     public String chooseVideoFilePath(Label label) {
 
@@ -1282,9 +1283,9 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //                }
 
-                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                    progressBar.setStyle("-fx-accent: #1f78d1;");   //Updates the progress bar's color style with a CSS call, setting its color back to its origin
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
+                Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    progressBar.setStyle("-fx-accent: #1f78d1;");                                                       //Updates the progress bar's color style with a CSS call, setting its color back to its origin
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);                                              //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
                 });
 
                 return null;
@@ -1527,7 +1528,7 @@ public class EducatorModeControllerFX implements Initializable {
         final threadHack th = new threadHack();
 
 
-        Platform.runLater(() -> {
+        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
             try {                                                                                                       //Attempts to find ports for the module
                 ArrayList<String> commPortIDList = serialHandler.findPorts();
                 boolean moduleFound = false;
