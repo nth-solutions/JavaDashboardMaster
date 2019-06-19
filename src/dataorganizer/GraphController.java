@@ -409,6 +409,11 @@ public class GraphController implements Initializable {
         repopulateData();
     }
 
+    /**
+     * This method is responsible for
+     * @param event
+     */
+
     @FXML
     public void importCSV(ActionEvent event) {                                                                                                        //Event handler that imports an external CSV into the graphing interface
 
@@ -1018,6 +1023,10 @@ public class GraphController implements Initializable {
         }
     }
 
+    /**
+     *
+     */
+
     private void repopulateData() {
         lineChart.getData().clear();
         try {
@@ -1048,9 +1057,18 @@ public class GraphController implements Initializable {
         }
     }
 
+
+    /**
+     * This method is responsible for helping to change the Color of the each dateSeries, or the lines shown on the graph.
+     * The method takes in the name of a series and returns the color selected for that series.
+     * The color is not the color type, but rather a hexidecimal string that represents the color. This string is used as a CSS modifier later to actually change the color.
+     * @param seriesType
+     * @return
+     */
+
     public String changeColorofSeries(String seriesType) {
-        if (seriesType == "Accel X") {
-            return "#" + ColorPaletteController.xAccelColor.substring(2,8);
+        if (seriesType == "Accel X") { // There is a if statement for each possible dof, as the color of each individual dataSeries can be adjusted.
+            return "#" + ColorPaletteController.xAccelColor.substring(2,8); // If the "Accel X" is passed to the method, the color of Accel X line wants to be changed. Therefore, the value of the Color picker corresponding to the X Accel is returned.
         }
         if (seriesType == "Accel Y") {
             return "#" + ColorPaletteController.yAccelColor.substring(2,8);
@@ -1079,28 +1097,36 @@ public class GraphController implements Initializable {
         if (seriesType == "Accel Magnitude") {
             return "#" + ColorPaletteController.accelMagColor.substring(2,8);
         }
-        return "#ffff00";
+        //Note: Each Color Picker has a default value so a value will always be returned.
+        return "#ffff00"; // This should never be returned, but is here to make sure the method always returns something.
     }
 
+    /**
+     * This method is responsible for updating the dataSeries that are shown on the lineGraph.
+     *
+     */
 
     public void restyleSeries() {
         // force a css layout pass to ensure that subsequent lookup calls work.
         lineChart.applyCss();
 
-        int nSeries = 0;
-        for (DataSeries dof : dataSeries) {
-            if (!dof.isActive()) continue;
-            for (int j = 0; j < dof.getSeries().size(); j++) {
+        int nSeries = 0; // A variable that represents which # of the selected series is being modified.
+        for (DataSeries dof : dataSeries) { // For each dof in dataSeries
+            if (!dof.isActive()) continue;  // Program only continues if the specific dof is ticked in the UI.
+            for (int j = 0; j < dof.getSeries().size(); j++) { // iterates through the entire dof within the series.
                 XYChart.Series<Number, Number> series = dof.getSeries().get(j);
                 Set<Node> nodes = lineChart.lookupAll(".series" + nSeries);
                 for (Node n : nodes) {
-                    StringBuilder style = new StringBuilder();
-                    style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
-                    n.setStyle(style.toString());
+                    StringBuilder style = new StringBuilder(); // String builder object on which style changes are appended.
+                    style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; "); //dof.getName returns the name of the current dof, This name is passed to the changeColorofSeries Method which returns the corresponding color string. These styles are appended to the style string.
+                    n.setStyle(style.toString()); // Sets the style of the dof to the string, which includes all the appended style changes.
                 }
-                nSeries++;
+                nSeries++; // moves to the next selected dof.
             }
         }
+        /*
+        The same is done for all dataSeries
+         */
         for (DataSeries dof : dataSeriesTwo) {
             if (!dof.isActive()) continue;
             for (int j = 0; j < dof.getSeries().size(); j++) {
@@ -1142,6 +1168,13 @@ public class GraphController implements Initializable {
         }
     }
 
+    /**
+     * Responsible for the initially Styling of the the series.
+     *
+     * @param dataSeries
+     * @param lineChart
+     */
+
     private void styleSeries(ObservableList<DataSeries> dataSeries, final LineChart<Number, Number> lineChart) {
         // force a css layout pass to ensure that subsequent lookup calls work.
         lineChart.applyCss();
@@ -1164,6 +1197,13 @@ public class GraphController implements Initializable {
             }
         }
     }
+
+    /**
+     *
+     * @param name
+     * @param data
+     * @return
+     */
 
     private ObservableList<XYChart.Series<Number, Number>> createSeries(String name, List<List<Double>> data) {
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
@@ -1193,9 +1233,13 @@ public class GraphController implements Initializable {
 
     boolean videoHasBeenLoaded = false;
 
+    /**
+     * Responsible for loading a video into the media player
+     * @param event
+     */
     @FXML
     public void handleFileOpener(ActionEvent event) {
-        File videoFile = createFileOpener();
+        File videoFile = createFileOpener(); // Create file opener provides the video file that is store as videoFile.
         fileCopy = videoFile;   // File object necessary for use in the reset handler
 
         //TODO: Uncomment - Prevents bugs for machines without FFMPEG
@@ -1223,11 +1267,11 @@ public class GraphController implements Initializable {
                 @Override
                 public void run() {
 
-                    mediaPlayer.play();
-                    totalDuration = mediaPlayer.getTotalDuration().toMillis();
-                    playbackSlider.setMax(totalDuration);
-                    playPauseButton.setText("Pause");
-                    totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000))));
+                    mediaPlayer.play(); // Starts playing the video as soon as it is loaded
+                    totalDuration = mediaPlayer.getTotalDuration().toMillis(); // total duration of the video. Used in creation of slider range.
+                    playbackSlider.setMax(totalDuration); //
+                    playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
+                    totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
                     initializeSINC();
                 }
             });
@@ -1253,7 +1297,7 @@ public class GraphController implements Initializable {
     }
 
 
-    int numberOfOffsetsApplied = 0;
+    int numberOfOffsetsApplied = 0; // Number of offsets helps determine the position of the trackerRectangle. Users can modify this variable from the UI to change the position of the rectangle.
 
     /**
      * Helper function used to initialize the SINC Technology playback. Helps to correlate playback amongst
@@ -1275,15 +1319,24 @@ public class GraphController implements Initializable {
         });
     }
 
+    /**
+     * Method that updates where the video plays from when then the playback slider is moved.
+     * @param event
+     */
 
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
         try {
-            mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+            mediaPlayer.seek(Duration.millis(playbackSlider.getValue())); // seeks to the duration of the value of the playbackSlider, Because the max value of the playbackSlider is the totalDuration of the video, the value of the slider corresponds to a location in the video, allowing for granular adjustment.
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
     }
+
+    /**
+     * For Pausing the video.
+     * @param event
+     */
 
     @FXML
     private void pauseVideo(MouseEvent event) {
@@ -1297,6 +1350,11 @@ public class GraphController implements Initializable {
         }
 
     }
+
+    /**
+     * For Playing the Video
+     * @param event
+     */
 
     @FXML
     private void unpauseVideo(MouseEvent event) {
@@ -1312,6 +1370,11 @@ public class GraphController implements Initializable {
 
     }
 
+    /**
+     * A slider adjusts the opacity of the video against the graph.
+     * @param event
+     */
+
     @FXML
     public void updateMediaViewOpacity(MouseEvent event) {
         try {
@@ -1319,15 +1382,24 @@ public class GraphController implements Initializable {
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
-
     }
+
+    /**
+     * For Moving the Tracker Rectangle one pixel to the right
+     * @param event
+     */
 
     @FXML
     public void moveTrackerRectanglePlusOne(ActionEvent event) {
         double currentXPosition = trackerRectangle.getX();
-        trackerRectangle.setX(currentXPosition + 1);
-        numberOfOffsetsApplied += 1;
+        trackerRectangle.setX(currentXPosition + 1); // Moves the rectangle one pixel to the right
+        numberOfOffsetsApplied += 1; // Tracks how many offsets there have been, so when the the rectangle is moved by the progression of the video, the offset applied stays.
     }
+
+    /**
+     * Handles changing the rate of Playback when the rateChange slider is dragged.
+     * @param event
+     */
 
     @FXML
     public void handleRateChange(MouseEvent event) {
@@ -1341,16 +1413,27 @@ public class GraphController implements Initializable {
         }
     }
 
+    /**
+     * For moving the tracker rectangle one pixel to the left
+     * @param event
+     */
+
     public void moveTrackerRectangleMinusOne(ActionEvent event) {
-        if (numberOfOffsetsApplied <= 0) {
+        if (numberOfOffsetsApplied <= 0) { // prevents the rectangle from moving left of the y axis.
             numberOfOffsetsApplied = 0;
         } else {
-            double currentXPosition = trackerRectangle.getX();
+            double currentXPosition = trackerRectangle.getX(); // See moveTRackerRectanglePlusOne
             trackerRectangle.setX(currentXPosition - 1);
             numberOfOffsetsApplied -= 1;
         }
     }
 
+
+    /**
+     * Resets the playback, so the video starts playing from the beginning again.
+     * NOTE: The location of the playbackslider and trackerRectangle depend on the time in the video, so those are reset by this as well.
+     * @param event
+     */
     @FXML
     private void resetMediaPlayer(ActionEvent event) {
         try {
@@ -1358,10 +1441,6 @@ public class GraphController implements Initializable {
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
-    }
-
-    public void updateSeriesColor() {
-
     }
 
 
@@ -1409,6 +1488,10 @@ public class GraphController implements Initializable {
         mediaView.setFitHeight(mediaViewPane.getHeight());
     }
 
+    /**
+     * Manages the pressing of the play/pause button.
+     * @param event
+     */
     @FXML
     public void handlePlayPauseVideo(ActionEvent event) {    // Event listener responsible for changing the text and functionality of the playPauseButton button
         try {
@@ -1512,40 +1595,6 @@ public class GraphController implements Initializable {
         }
     }
 
-    public static String AquireColor(int seriesnumber) {
-        if (seriesnumber == 0) {
-            return ColorPaletteController.xAccelColor.substring(2,8);
-        }
-        if (seriesnumber == 1) {
-            return ColorPaletteController.yAccelColor.substring(2, 8);
-        }
-        if (seriesnumber == 2) {
-            return ColorPaletteController.zAccelColor.substring(2 , 8);
-        }
-        if (seriesnumber == 3) {
-            return "#00ffff";
-        }
-        if (seriesnumber == 4) {
-            return "#ff00ff";
-        }
-        if (seriesnumber == 5) {
-            return "#00ffff";
-        }
-        if (seriesnumber == 6) {
-            return "#ff00ff";
-        }
-        if (seriesnumber == 7) {
-            return "#00ffff";
-        }
-        if (seriesnumber == 8) {
-            return "#ff00ff";
-        }
-        if (seriesnumber == 9) {
-            return "#00ffff";
-        }
-        return "#ffff00";
-    }
-
     // See Robs email
     public class DataSeries {
         private String name;
@@ -1576,53 +1625,33 @@ public class GraphController implements Initializable {
             switch (dof) {
                 case (1):
                     name = "Accel X";
-                    //color = "#ff00ff";
-                    //color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2,8);
-                    System.out.println(String.valueOf(rectangleColorPicker.getValue()).substring(2, 8));
                     break;
                 case (2):
                     name = "Accel Y";
-                    //color = "DodgerBlue";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (3):
                     name = "Accel Z";
-                    //color = "ForestGreen";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (4):
                     name = "Gyro X";
-                    //color = "Gold";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (5):
                     name = "Gyro Y";
-                    //color = "Coral";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (6):
                     name = "Gyro Z";
-                    //color = "MediumBlue";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (7):
                     name = "Mag X";
-                    //color = "DarkViolet";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (8):
                     name = "Mag Y";
-                    //color = "DarkSlateGray";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (9):
                     name = "Mag Z";
-                    //color = "SaddleBrown";
-                    color = "#" + String.valueOf(rectangleColorPicker.getValue()).substring(2, 8);
                     break;
                 case (10):
                     name = "Accel Magnitude";
-                    //color = "Black";
                     break;
             }
 
@@ -1697,25 +1726,22 @@ public class GraphController implements Initializable {
         }
     }
 
-
     ColorPaletteController colorPaletteController;
     Color[] lineColors;
 
+    /**
+     * Responsible for opening a separate window to change the colors of each dof in the dataSeries.
+     * @param event
+     */
 
     @FXML
     public void openLineColorPalette(ActionEvent event) {
         colorPaletteController = startColorPalette();
-        System.out.println();
         //colorPaletteController.setGraphControllerObject(event.getSource());
     }
 
     public void setLineColors(Color[] lineColors){
         this.lineColors = lineColors;
-
-        System.out.println(lineColors[3].toString());
-    }
-    public void test(){
-        System.out.println("test");
     }
 
     public ColorPaletteController startColorPalette() {
@@ -1740,16 +1766,26 @@ public class GraphController implements Initializable {
     @FXML
     ColorPicker rectangleColorPicker;
 
+    /**
+     * FXML Color Picker is used. When a Color is selected, the trackerRectangle's color is set to the value of the ColorPicker, which is the color selected.
+     * @param event
+     */
+
     @FXML
     public void picker(ActionEvent event) {
         trackerRectangle.setFill(rectangleColorPicker.getValue());
     }
 
+    /**
+     * Updates the colors when the update color button is pressed
+     * @param event
+     */
+
     @FXML
     public void updateColors(ActionEvent event){
 
         try{
-            restyleSeries();
+            restyleSeries(); // restyleseries also updates the colors.
         }catch(Exception e){
             System.out.println("Please select colors to be updated.");
         }
