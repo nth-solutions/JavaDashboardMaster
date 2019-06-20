@@ -94,7 +94,7 @@ public class SpreadSheetController {
 	}
 	
 	/*
-	 * This method 
+	 * This method does the same but for a second dataset.
 	 */
 	public void writeDataSetTwoWithParams(int[][] MpuMinMax, List<Integer> params, List<List<Double>> CSVData) {
 		setActiveSheet(2);
@@ -124,11 +124,17 @@ public class SpreadSheetController {
 			this.modifyCell(i+5, 1, Integer.toString(params.get(i))); //Add one to i in first parameter of modify cell to write to correct 
 		}
 	}
+
+	/**
+	 * Writes the actual sensor data to the spreadsheet.
+	 * @param rowOffset offset integer used to identify the first row in which data is added.
+	 * @param CSVData actual data that should be written to spreadsheet.
+	 */
 	
 	public void copyDataToTemplate(int rowOffset, List<List<Double>> CSVData) {					//copy data from datafile to sheet starting at rowOffset to rowCount     
-		for(int axi = 1; axi < 10; axi++) {
+		for(int axi = 1; axi < 10; axi++) {														// iterates through every axis, one for each dof
 			if(CSVData != null) {
-				List<Double> ColumnData = CSVData.get(axi);
+				List<Double> ColumnData = CSVData.get(axi);										// creates a list of doubles for each coloumn
 				for(int i = 0; i < ColumnData.size(); i++) {
 					if(ColumnData.get(i) == null) continue;
 					this.modifyCell(rowOffset+i, axi-1, String.valueOf(ColumnData.get(i)));

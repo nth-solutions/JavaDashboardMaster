@@ -994,7 +994,7 @@ public class EducatorModeControllerFX implements Initializable {
             }, testDataArray);
 
             readTestsFromModuleTask.run(); // Runs the futureTask.
-//        } else if (outputSelected == "graphRadioButton") {
+ //       } else if (outputSelected == "graphRadioButton") {
 //
 //        } else if (outputSelected == "graphAndSpreadsheetRadioButton"){
 //
@@ -1257,7 +1257,10 @@ public class EducatorModeControllerFX implements Initializable {
                     timerCalibrationOffset = bfo.getTMR0Offset();                                                       // sets offset to local variable
                     delayAfterStart = bfo.getDelayAfterStart();                                                         // sets delay to local variable
 
-                    if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished")
+                    System.out.println(timerCalibrationOffset);
+                    System.out.println(delayAfterStart);
+
+                    if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished!")
                     {
                         Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");

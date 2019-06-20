@@ -18,6 +18,10 @@ import java.awt.event.ActionListener;
 import java.awt.CardLayout;
 import javax.swing.JTabbedPane;
 
+/**
+ * This class is responsible for the UI of a Settings Tab that can be open from the Advanced Mode Dashboard.
+ * Modifications of the settings are handled through an object from the Settings class.
+ */
 @SuppressWarnings("serial")
 public class SettingsWindow extends JFrame {
 
@@ -85,10 +89,10 @@ public class SettingsWindow extends JFrame {
 	 * the file explorer and select a save location for the incoming data.
 	 */
 	public void saveDirectoryBrowseBtnHandler() {
-		JFileChooser chooser;
+		JFileChooser chooser;																							//File chooser is used for file selection
 		chooser = new JFileChooser(); 
 		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);													//A file save location need to be a directory.
 		chooser.setAcceptAllFileFilterUsed(false);
 		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			saveDirectoryTextField.setText(chooser.getSelectedFile().toString());
@@ -100,7 +104,7 @@ public class SettingsWindow extends JFrame {
 	
 	
 	/**
-	 * Create the frame.
+	 * Create the frame; adds needed buttons and text fields.
 	 */
 	public SettingsWindow() {
 		

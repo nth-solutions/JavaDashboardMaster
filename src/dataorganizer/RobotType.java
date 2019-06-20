@@ -7,6 +7,10 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * This class is responsible for the emulation of keystrokes, ultimately to write data onto a spreadsheet.
+ */
+
 public class RobotType {
 
 	private Robot robot;

@@ -44,7 +44,11 @@ public class GraphDataOrganizer {
 		getMin();
 		getMax();
 	}
-	
+
+	/**
+	 * Iterates through samples and updates yMin with the new minimum
+	 * @return
+	 */
 	public int getMin() {
 		for(int i = 0; i < samples.size(); i++) {
 			for(int j = 0; j < samples.get(i).size(); j++) {
@@ -54,6 +58,11 @@ public class GraphDataOrganizer {
 		}
 		return yMin;
 	}
+
+	/**
+	 * Iterates through samples and updates yMax with the new max
+	 * @return
+	 */
 	
 	public int getMax() {
 		for(int i = 0; i < samples.size(); i++) {
@@ -95,6 +104,13 @@ public class GraphDataOrganizer {
 
 		return dofData;
 	}
+
+	/**
+	 * Applies a rolling average to the data.
+	 * @param rollRange a value that indicates the interval for the rolling average.
+	 * @param dof Defree of freedom
+	 * @return
+	 */
 	
 	public List<List<Double>> rollingBlock(int rollRange, int dof) {
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
@@ -144,7 +160,7 @@ public class GraphDataOrganizer {
 	public float getLengthOfTest() {
 		return lengthOfTest;
 	}
-	
+
 	public void setSamples(List<List<Double>> newSamples) {
 		lengthOfTest = (float)newSamples.get(0).size() / sampleRate;
 		samples = newSamples;

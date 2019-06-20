@@ -7,6 +7,9 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
+/**
+ * This class helps to manage the selection of the two different modes, Educator and Advanced
+ */
 public class RootLauncher {
 
 	private JFrame frame;

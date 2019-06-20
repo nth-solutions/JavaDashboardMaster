@@ -40,6 +40,9 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.JTextPane;
 import javax.swing.JTextField;
 
+/**
+ *
+ */
 
 public class VLCJMediaPlayerController {
 	JFrame frame;

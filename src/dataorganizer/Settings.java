@@ -9,6 +9,9 @@ import java.util.Properties;
 
 import javax.swing.filechooser.FileSystemView;
 
+/**
+ * Responsible storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
+ */
 public class Settings {
 	Properties prop = new Properties();			//Defines properties
 	

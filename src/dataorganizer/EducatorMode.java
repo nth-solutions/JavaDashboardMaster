@@ -1395,9 +1395,9 @@ public class EducatorMode extends JFrame {
 													}
 													else if(testType == "Conservation of Energy"){
 
-														parameterSpreadsheetController.loadConservationofEnergyParameters();
-														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														parameterSpreadsheetController.saveWorkbook(path);
+//														parameterSpreadsheetController.loadConservationofEnergyParameters();
+//														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//														parameterSpreadsheetController.saveWorkbook(path);
 
 													}
 													else if(testType == "Inclined Plane") {

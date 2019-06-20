@@ -10,6 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.Pane;
 
+/**
+ * Manages the display of a help menu in the advanced mode dashboard.
+ */
+
 public class HelpMenuController implements Initializable{
 
 					//Index  //tab name

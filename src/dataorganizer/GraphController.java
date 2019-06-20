@@ -1274,6 +1274,7 @@ public class GraphController implements Initializable {
                     totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
 
                     initializeSINC();
+
                 }
             });
 
@@ -1309,16 +1310,15 @@ public class GraphController implements Initializable {
         double lineChartWidth = lineChart.getWidth();
         double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
         double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
-
         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue);
+
             playbackSlider.setValue(newValue.toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
             trackerRectangle.setX(((newValue.toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
                                                                                    The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
-
             currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(newValue.toSeconds()))));
 
         });
+
     }
 
     /**
@@ -1333,6 +1333,7 @@ public class GraphController implements Initializable {
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
+
     }
 
     /**
@@ -1347,10 +1348,9 @@ public class GraphController implements Initializable {
             mediaPlayer.pause();
             playPauseButton.setText("Play");
             mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
-        } catch (NullPointerException e) {
+        }catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
-
     }
 
     /**
@@ -1497,6 +1497,7 @@ public class GraphController implements Initializable {
     @FXML
     public void handlePlayPauseVideo(ActionEvent event) {    // Event listener responsible for changing the text and functionality of the playPauseButton button
         try {
+
             System.out.println("This is a test" + mediaPlayer.getCurrentTime());
             if (playing) {      // When the button is pressed, if the Boolean Playing is true ->
                 mediaPlayer.play();     // The mediaPlayer resumes playback

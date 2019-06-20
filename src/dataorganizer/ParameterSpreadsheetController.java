@@ -58,7 +58,7 @@ public class ParameterSpreadsheetController {
 
     /**
      * This method is used to save a modified template as a new spreadsheet at the desired output path.
-     * @param outputPath
+     * @param outputPath the file save location
      */
 
     public void saveWorkbook(String outputPath){

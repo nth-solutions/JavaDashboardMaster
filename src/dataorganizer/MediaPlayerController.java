@@ -440,29 +440,37 @@ public class MediaPlayerController implements Initializable {
     	return millisPerFrame;
     }
 
+    /**
+     * Obtains the FPS of a video file using ffmpeg by parsing an output string for the fps.
+     * The video framerate is needed for frame-by-frame analysis, among other purposes.
+     * @throws IOException
+     */
+
     public void readFileFPSFromFFMpeg() throws IOException {
-        FfmpegSystemWrapper FfmpegSystemWrapper = new FfmpegSystemWrapper();
+        FfmpegSystemWrapper FfmpegSystemWrapper = new FfmpegSystemWrapper();                                            //new object for reading analyzing video.
         FfmpegSystemWrapper.setSystemInfo();
-        Process runFfmpeg = Runtime.getRuntime().exec(FfmpegSystemWrapper.getBinRoot() + "ffmpeg.exe -i \"" + fileCopy + "\"");
+        Process runFfmpeg = Runtime.getRuntime().exec(FfmpegSystemWrapper.getBinRoot() + "ffmpeg.exe -i \"" + fileCopy + "\""); // Actaully runs ffmpeg
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runFfmpeg.getErrorStream()));
 
-
         String ffmpegOutputLine;
-        while ((ffmpegOutputLine = bufferedReader.readLine()) != null) {
-            if ((ffmpegOutputLine.contains("fps"))) {
-                String[] ffmpegOutputarray = ffmpegOutputLine.split(",");
-                for (int i = 0; i < ffmpegOutputarray.length; i ++){
-                    if (ffmpegOutputarray[i].contains("fps")) {
-                        String[] fpsCountArray = ffmpegOutputarray[i].split(" ");
-                        videoFrameRate = (int)Math.ceil(Double.parseDouble(fpsCountArray[1]));
+        while ((ffmpegOutputLine = bufferedReader.readLine()) != null) {                                                //Reads through line by line
+            if ((ffmpegOutputLine.contains("fps"))) {                                                                   //when it reaches the line with the fps
+                String[] ffmpegOutputarray = ffmpegOutputLine.split(",");                                         //uses regular expressions to find the fps string, as it is separated by commas
+                for (int i = 0; i < ffmpegOutputarray.length; i ++){                                                    //Iterates through each element of the ffmpegoutput array
+                    if (ffmpegOutputarray[i].contains("fps")) {                                                         // until the array element containing fps is reached
+                        String[] fpsCountArray = ffmpegOutputarray[i].split(" ");                                 //regular expressions to create another array
+                        videoFrameRate = (int)Math.ceil(Double.parseDouble(fpsCountArray[1]));                          // the fps is the second element of that array
                         millisPerFrame = 1000/videoFrameRate;
                     }
                 }
             }
-
         }
     }
+
+    /**
+     * So the Mediaplayer looks passable
+     */
     
     public void scaleVideoAtStart() {                                                                                                                           // Scales the selected video so it's centered and scaled to fit within the bounds of the video player
 
