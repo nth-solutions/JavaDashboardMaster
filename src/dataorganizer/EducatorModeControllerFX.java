@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -1169,7 +1170,7 @@ public class EducatorModeControllerFX implements Initializable {
             protected Void call(){
 
                 try{
-                    if(!serialHandler.configForCalibration()){                                                          // Checks to see if the module is ready to be calibrated
+                    if(!serialHandler.configForCalibration()){                                                          // Calibrates Module, returns a boolean indicating whether or not it was successful.
 
                         Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
@@ -1213,36 +1214,36 @@ public class EducatorModeControllerFX implements Initializable {
         new Thread(configureModuleForCalibrationTask).start();
     }
 
-    /**
-     * Method allows user to choose their video file to be used to calibrate the module
-     * @return fileout
-     */
-    public String chooseVideoFilePath(Label label) {
 
+    @FXML
+    public void videoFileHandler(ActionEvent event)
+    {
         FileChooser chooser;
         chooser = new FileChooser();
         chooser.setInitialDirectory(new java.io.File("."));
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Name Output File (*.mp4)", "*.mp4"));
-        File file = chooser.showSaveDialog(null);
-        if (file != null) {
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Select a video file", "*.mp4","*.avi","*.flac","*.mov"));
+        File fileChosen = chooser.showOpenDialog(null);
+        if (fileChosen != null) {
 
-            String fileout = file.toString();
-
-            generalStatusExperimentLabel.setTextFill(DarkGreen);
-            generalStatusExperimentLabel.setText("File Copy Finished!");
-
-            if (!fileout.endsWith(".mp4")) {
-                return fileout + ".mp4";
-            } else {
-                return fileout;
-            }
+            String fileout = fileChosen.toString();
+            Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                videoFilePathTextField.setAlignment(Pos.CENTER_LEFT);
+                videoFilePathTextField.setText(fileout);
+                sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
+                sincCalibrationTabGeneralStatusLabel.setText("File Copy Finished!");
+            });
 
         } else {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Invalid File Path Entered");
-            return "Invalid File Path";
+            Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                sincCalibrationTabGeneralStatusLabel.setText("Invalid File Path");
+                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+            });
         }
     }
+
+
+    @FXML
+    private TextField videoFilePathTextField;
 
     @FXML
     public void importCalibrationDataHandler(){
@@ -1251,11 +1252,23 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call(){
 
-//                try{
-//
-//                }catch(IOException e){
-//
-//                }
+                try{
+
+                    BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());                  // creates a new blackframe analysis object, video file path is passed and subsequently analysis to obtain offset and delay.
+                    timerCalibrationOffset = bfo.getTMR0Offset();                                                       // sets offset to local variable
+                    delayAfterStart = bfo.getDelayAfterStart();                                                         // sets delay to local variable
+
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Timer0 and Delay After Start calculated, you may now apply them.");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
+                    });
+
+                }catch(IOException e){
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
+                }
 
                 return null;
             }
@@ -1269,19 +1282,36 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call(){
 
-//                try{
-//                    if(true){
-//
-//                    }else{
-//
-//                    }
-//                }catch(IOException e){
-//
-//                }catch(PortInUseException e){
-//
-//                }catch(UnsupportedCommOperationException e){
-//
-//                }
+                try{
+                    if(!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)){                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
+                        });
+
+
+
+                    }else{
+                        Platform.runLater(() -> {
+                            sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+                        });
+
+                    }
+                }catch(IOException e){
+                    Platform.runLater(() -> {
+                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
+                    });
+
+                }catch(PortInUseException e){
+                    Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
+                    });
+
+                }catch(UnsupportedCommOperationException e){
+                    Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatability");
+                    });
+
+                }
 
                 Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                     progressBar.setStyle("-fx-accent: #1f78d1;");                                                       //Updates the progress bar's color style with a CSS call, setting its color back to its origin
@@ -1291,9 +1321,13 @@ public class EducatorModeControllerFX implements Initializable {
                 return null;
             }
         };
+
+        new Thread(applyOffsetTask).start();
     }
 
     /*End SINC Module Calibration Tab Methods*/
+
+
 
 
     /* Module Parameter Settings */
