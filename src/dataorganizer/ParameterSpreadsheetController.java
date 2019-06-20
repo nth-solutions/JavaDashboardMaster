@@ -46,8 +46,8 @@ public class ParameterSpreadsheetController {
         //testTypeFileName = "Pendulum Template REV-Q3.xlsx";
         //System.out.println(System.getProperty("user.home"));
         //System.out.println(testTypeFileName);
-        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
-        //documentsPath = "C:\\Users\\Kinobo\\Documents\\Lab Templates\\Pendulum Template REV-Q3.xlsx";
+        //documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
+        documentsPath = "C:\\Users\\Falcon\\Documents\\Github\\JavaDashBoardMaster\\Pendulum Template REV-Q3.xlsx";
         try {
             this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
         }catch(Exception e){

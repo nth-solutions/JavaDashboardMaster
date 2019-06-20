@@ -1395,7 +1395,7 @@ public class EducatorMode extends JFrame {
 													}
 													else if(testType == "Conservation of Energy"){
 
-														parameterSpreadsheetController.loadConservationofEnergyParameters();
+														//parameterSpreadsheetController.loadConservationofEnergyParameters();
 														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
 														parameterSpreadsheetController.saveWorkbook(path);
 
