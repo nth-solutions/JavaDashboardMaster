@@ -1223,7 +1223,7 @@ public class EducatorModeControllerFX implements Initializable {
         chooser.setInitialDirectory(new java.io.File("."));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Select a video file", "*.mp4","*.avi","*.flac","*.mov"));
         File fileChosen = chooser.showOpenDialog(null);
-        if (fileChosen != null) {
+        if (fileChosen != null && videoFilePathTextField.getText() != null) {
 
             String fileout = fileChosen.toString();
             Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
@@ -1258,10 +1258,18 @@ public class EducatorModeControllerFX implements Initializable {
                     timerCalibrationOffset = bfo.getTMR0Offset();                                                       // sets offset to local variable
                     delayAfterStart = bfo.getDelayAfterStart();                                                         // sets delay to local variable
 
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Timer0 and Delay After Start calculated, you may now apply them.");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                    });
+                    if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished")
+                    {
+                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                        });
+                    }else{
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Timer Offset and Delay After Start Calculated, you may now apply them.");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
+                        });
+                    }
 
                 }catch(IOException e){
                     Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring

@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -459,31 +459,56 @@
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
-                                    <VBox alignment="CENTER" layoutY="14.0" prefHeight="500.0" prefWidth="500.0">
+                                    <VBox alignment="TOP_CENTER" layoutY="14.0" prefHeight="500.0" prefWidth="500.0">
                                        <children>
-                                          <Label fx:id="sincCalibrationTabGeneralStatusLabel" alignment="CENTER" prefHeight="50.0" text="Hello">
-                                             <font>
-                                                <Font name="System Bold" size="16.0" />
-                                             </font></Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
                                              <children>
-                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" text="Configure Module for SINC Calibration" />
+                                                <Label fx:id="sincCalibrationTabGeneralStatusLabel" alignment="CENTER" prefHeight="50.0">
+                                                   <font>
+                                                      <Font name="System Bold" size="15.0" />
+                                                   </font>
+                                                </Label>
                                              </children>
                                           </HBox>
+                                          <Label prefHeight="50.0" text="Step 1: Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="300.0" promptText="Video File " />
+                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" text="Configure Module for SINC Calibration" />
+                                             </children>
+                                          </HBox>
+                                          <Label prefHeight="50.0" text="Step 1A: Follow Instructions for Calibrating the Module" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="50.0" text="Step 1B: Select the Video File of the Calibration" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                             <children>
+                                                <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="275.0" promptText="Video File " />
                                                 <Button mnemonicParsing="false" onAction="#videoFileHandler" prefHeight="25.0" text="Browse" />
                                              </children>
                                           </HBox>
+                                          <Label prefHeight="50.0" text="Step 1C: Hit the Following Buttons in Order" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#importCalibrationDataHandler" text="Import Calibration Data and Calculate Offset" />
+                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#importCalibrationDataHandler" prefHeight="30.0" text="Import Calibration Data and Calculate Offset" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" mnemonicParsing="false" onAction="#applyOffsetHandler" text="Apply Offset to Module" />
+                                                <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" mnemonicParsing="false" onAction="#applyOffsetHandler" prefHeight="30.0" text="Apply Offset to Module" />
                                              </children>
                                           </HBox>
                                        </children>
