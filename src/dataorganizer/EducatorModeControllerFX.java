@@ -889,14 +889,13 @@ public class EducatorModeControllerFX implements Initializable {
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);
                                                 } else if (testType == "Conservation of Energy") {
-                                                    parameterSpreadsheetController.loadConservationofEnergyParameters();
+                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);
                                                 } else if (testType == "Inclined Plane") {
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);
                                                 } else if (testType == "Physical Pendulum") {
-
                                                     parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);

@@ -107,8 +107,11 @@ public class ParameterSpreadsheetController {
         workbook.getWorksheets().get(4).getCells().get("C9").setValue(gliderTwoMass);
     }
 
-    public void loadConservationofEnergyParameters() {
-
+    public void loadConservationofEnergyParameters(double totalDropDistance, double massOfModuleAndHolder, double momentOfIntertia, double radiusOfTorqueArm) {
+        workbook.getWorksheets().get(4).getCells().get("C8").setValue(totalDropDistance);
+        workbook.getWorksheets().get(4).getCells().get("C7").setValue(massOfModuleAndHolder);
+        workbook.getWorksheets().get(4).getCells().get("C9").setValue(momentOfIntertia);
+        workbook.getWorksheets().get(4).getCells().get("C10").setValue(radiusOfTorqueArm);
     }
     /**
      * Fills the Pendulum Template with all of the data recorded during a module test
