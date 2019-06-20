@@ -26,7 +26,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="backgroundPane" prefHeight="810.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<AnchorPane fx:id="backgroundPane" prefHeight="810.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <children>
       <HBox fx:id="graphingHbox" alignment="CENTER" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1400.0">
          <children>
@@ -86,6 +86,7 @@
                                           <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusOne" text="-1" />
                                        </children>
                                     </HBox>
+                                    <ColorPicker fx:id="rectangleColorPicker" onAction="#picker" />
                                  </children>
                               </VBox>
                           </content>
@@ -99,7 +100,7 @@
                                           <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" prefHeight="40.0" prefWidth="70.0" text="File" />
                                           <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#handlePlayPauseVideo" prefHeight="40.0" prefWidth="75.0" text="Play" />
                                           <Button mnemonicParsing="false" onAction="#resetMediaPlayer" prefHeight="40.0" prefWidth="100.0" text="Reset Video" />
-                                          <Button mnemonicParsing="false" onAction="#updateColors" text="UpdateColors" />
+                                          <Button mnemonicParsing="false" onAction="#updateColors" prefHeight="40.0" prefWidth="100.0" text="Update Colors" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="CENTER" prefHeight="50.0" prefWidth="698.0" spacing="25.0">
@@ -118,7 +119,6 @@
                                     </HBox>
                                     <HBox alignment="CENTER" prefHeight="50.0" spacing="20.0">
                                        <children>
-                                          <ColorPicker fx:id="rectangleColorPicker" onAction="#picker" />
                                           <CheckBox fx:id="videoVisibleCheckBox" mnemonicParsing="false" onAction="#toggleVideoVisibility" prefHeight="17.0" prefWidth="104.0" selected="true" text="Video Visible" />
                                           <Label text="Video Opacity:" />
                                           <Slider fx:id="opacitySlider" max="1.0" onMouseDragged="#updateMediaViewOpacity" value="0.3" />
@@ -143,9 +143,10 @@
                <children>
                   <VBox alignment="CENTER" prefHeight="390.0" prefWidth="400.0">
                      <children>
+                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="Signed or Raw Data" />
                         <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" spacing="5.0">
                            <children>
-                              <HBox alignment="CENTER" prefHeight="50.0" prefWidth="341.0" spacing="15.0">
+                              <HBox alignment="CENTER" prefHeight="35.0" prefWidth="341.0" spacing="15.0">
                                  <children>
                                     <CheckBox fx:id="displaySignedDataCheckbox" layoutX="175.0" layoutY="27.0" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="100.0" selected="true" text="Signed Data" textAlignment="CENTER" />
                                     <CheckBox fx:id="displayRawDataCheckbox" mnemonicParsing="false" onAction="#handleDisplayRawData" prefHeight="25.0" prefWidth="100.0" text="Raw Data" textAlignment="CENTER" />
