@@ -2132,6 +2132,7 @@ public class AdvancedMode extends JFrame {
 				saveTestBtn.get(i).setBounds(355, 11, 70, 23);
 				saveTestBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						System.out.println("test");
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
 								if(dataOrgo.get(i).createCSVP() != 0) {

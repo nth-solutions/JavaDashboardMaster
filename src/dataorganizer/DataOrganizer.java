@@ -222,6 +222,9 @@ public class DataOrganizer {
 		for(int i = 0; i < testParameters.size(); i++) { //Write all parameters to the file. We really only needed like 3 at the time of writing but this was easier and probably more effective in the future.
 			dataFile.println(testParameters.get(i).toString());
 		}
+		for(int i = testParameters.size(); i<32; i++){ // This makes literally no sense but for some reason the data can't be graphed unless the csvp has 32 values. After the actual test parameters it doesn't matter what there is but there has to be something. It is unclear when this can be removed.
+			dataFile.println(0);
+		}
 //		for(int i = 0; i < 9; i++) {
 //			dataFile.println(MPUMinMax[i][0]);
 //			dataFile.println(MPUMinMax[i][1]);
