@@ -1399,6 +1399,10 @@ public class EducatorMode extends JFrame {
 //														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
 //														parameterSpreadsheetController.saveWorkbook(path);
 
+														//parameterSpreadsheetController.loadConservationofEnergyParameters();
+														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+														parameterSpreadsheetController.saveWorkbook(path);
+
 													}
 													else if(testType == "Inclined Plane") {
 

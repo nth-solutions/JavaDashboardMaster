@@ -64,7 +64,7 @@
                               <Label fx:id="totalTimeStampLabel" layoutX="73.0" layoutY="27.0" text="00.00" />
                            </children>
                         </HBox>
-                        <Slider fx:id="playbackSlider" layoutX="67.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" onMouseReleased="#unpauseVideo" prefHeight="14.0" prefWidth="842.0" />
+                        <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" onMouseReleased="#unpauseVideo" prefHeight="14.0" prefWidth="850.0" />
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="200.0">

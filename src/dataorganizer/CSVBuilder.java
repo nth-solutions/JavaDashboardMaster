@@ -13,7 +13,7 @@ public class CSVBuilder {        //Class for Creating .CSV files
 	
 	private static int additionalLineNums;
 
-    public static int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean elanCSV, boolean signedData, ArrayList<Integer> testParams) {
+    public static int sortData(int[] data, String NameOfFile, int magInterval, String fileOutputDirectory, boolean signedData, ArrayList<Integer> testParams) {
     
     	
     	PrintWriter DataFile = null;    //Object used to create .CSV file    
@@ -191,27 +191,27 @@ public class CSVBuilder {        //Class for Creating .CSV files
        
         StringBuilder builder = new StringBuilder();
         
-        if (!elanCSV) {
-	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
-	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
-	        		builder.append(test.get(lineNum).get(axis));
-	        		builder.append(",");
-	        	}
-	        	builder.append("\n");
-	        }
-        } else {
-        	builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,\n");
-	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
-	        	builder.append((double)(lineNum) * (1.0/ (double)(testParams.get(7)))).append(",");
-	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
-	        		if(axis <= 5 && elanCSV) {
-		        		builder.append(test.get(lineNum).get(axis));
-		        		builder.append(",");
-	        		}
-	        	}
-	        	builder.append("\n");
-	        }        		
-        }
+//        if (!elanCSV) {
+//	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
+//	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
+//	        		builder.append(test.get(lineNum).get(axis));
+//	        		builder.append(",");
+//	        	}
+//	        	builder.append("\n");
+//	        }
+//        } else {
+//        	builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,\n");
+//	        for (lineNum = 0; lineNum < endPosition; lineNum++) {
+//	        	builder.append((double)(lineNum) * (1.0/ (double)(testParams.get(7)))).append(",");
+//	        	for(int axis = 0; axis < test.get(lineNum).size(); axis++) {
+//	        		if(axis <= 5) {
+//		        		builder.append(test.get(lineNum).get(axis));
+//		        		builder.append(",");
+//	        		}
+//	        	}
+//	        	builder.append("\n");
+//	        }
+//        }
         
         
         try {

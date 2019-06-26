@@ -95,7 +95,6 @@ public class BlackFrameAnalysis {
 			case 1: return SysWrap.getBinRoot()+CMD1;		//First 3 seconds of video
 			case 2: return SysWrap.getBinRoot()+CMD2;		//Skips 115  seconds in; analyzes next ten seconds
 			case 0: default: return SysWrap.getBinRoot()+CMD; //Analyzes full video
-
 		}
 
 	}
