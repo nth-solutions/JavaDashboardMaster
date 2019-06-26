@@ -222,10 +222,10 @@ public class DataOrganizer {
 		for(int i = 0; i < testParameters.size(); i++) { //Write all parameters to the file. We really only needed like 3 at the time of writing but this was easier and probably more effective in the future.
 			dataFile.println(testParameters.get(i).toString());
 		}
-		for(int i = 0; i < 9; i++) {
-			dataFile.println(MPUMinMax[i][0]);
-			dataFile.println(MPUMinMax[i][1]);
-		}
+//		for(int i = 0; i < 9; i++) {
+//			dataFile.println(MPUMinMax[i][0]);
+//			dataFile.println(MPUMinMax[i][1]);
+//		}
 		dataFile.close();
 		return 0;
 	}
@@ -336,7 +336,7 @@ public class DataOrganizer {
 		return modifiedDataSmps;
 	}
 
-	public int createCSV(boolean labelData, boolean signedData) { // The two passed booleans determine if there the output data is signed and labeled.
+	public int createCSV(boolean labelData, boolean signedData) { // The two passed booleans determine if the output data is signed and labeled.
 		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
 
 		if(!signedData)
@@ -361,7 +361,7 @@ public class DataOrganizer {
 		} else {
 			builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,\n");
 			for (int smp = 0; smp < lineNum - 1; smp++) {
-				for (int dof = 0; dof <= numDof; dof++) {
+				for (int dof = 0; dof < numDof; dof++) {
 					if (modifiedDataSmps.get(dof).get(smp) != null) {
 						builder.append(modifiedDataSmps.get(dof).get(smp));
 						builder.append(",");

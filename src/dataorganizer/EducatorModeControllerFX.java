@@ -1010,9 +1010,8 @@ public class EducatorModeControllerFX implements Initializable {
             FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
                 @Override
                 public void run() {
-                    String path = chooseSpreadsheetOutputPathCSV(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
-                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
-
+                    //String path = chooseSpreadsheetOutputPathCSV(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+                    //ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -1096,61 +1095,16 @@ public class EducatorModeControllerFX implements Initializable {
 
                                                 List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                                });
-
-                                                /*
-                                                Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
-                                                The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
-                                                 */
-
-                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Conservation of Energy") {
-                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Inclined Plane") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Physical Pendulum") {
-                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                    //parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-
-                                                } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                }
-
-                                                try {
-                                                    Thread.sleep(10000);                                          // Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-
-                                                } catch (Exception exceptionalexception) {                              // This error should never happen
-                                                    System.out.println("If you got this error, something went seriously wrong");
-                                                }
-
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Data Successfully Written");
-                                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                                });
-
                                             }
-                                            dataOrgo.getSignedData();
-                                            //dataOrgo.createCSVP();
-                                            //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-                                            for(DataOrganizer dO: dataOrgoList) {
-                                                //dO.createCSVP();
-                                                //dO.createCSV(true, true);
-                                            }
+                                            //dataOrgo.getSignedData();
 
                                             Settings settings = new Settings();
                                             settings.loadConfigFile();
+
+                                            dataOrgo.createCSVP();
+                                            dataOrgo.createCSV(false, false);                         //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+
+
 
                                             CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (timedTestFlag==1), testParameters);
                                         };

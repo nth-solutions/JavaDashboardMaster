@@ -439,10 +439,6 @@ public class GraphController implements Initializable {
         }                                                                                                            //Catches the NullPointer exception
     }
 
-    /**
-     * RESUME COMMENTING HERE
-     **/
-
     @FXML
     public void magnitudeDatasetOneCheckBoxHandler(ActionEvent event) {
         if (dataCollector[0] != null) {
