@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.Vector;
 import javax.swing.filechooser.FileSystemView;
 
+/**
+ * This class is responsible for creating CSV files.
+ * As of 2019-06-27, This is not used; the CSV files used for graphing and motion visualization are created within the dataorganizer class.
+ */
 
-public class CSVBuilder {        																						//Class for Creating .CSV files
+public class CSVBuilder {
 	
 	private static int additionalLineNums;
 
@@ -21,21 +25,21 @@ public class CSVBuilder {        																						//Class for Creating .CSV
         
         //Finds the '-1' delimiter that specifies the end of the testing data
         int endPosition = -1;
-        for(int pos = 0; pos < data.length; pos++) {
-        	if(data[pos] == -1) {
-        		endPosition = pos - 1;
+        for(int pos = 0; pos < data.length; pos++) { //iterates through each element of array data
+        	if(data[pos] == -1) { //If the value at a particular position in that array
+        		endPosition = pos - 1; //set the end position to that value -1 because the fist value of the array starts at 0.
         		break;
         	}
         }
-        //System.out.println(endPosition);
+
         //Temporary array that holds the passed in data that has been converted from bytes to words
         double [] wordData = new double[endPosition + 1];
               
         //Convert passed in data from bytes to words
         int wordCounter = 0;
-        for (int pos = 0; pos < endPosition + 1; pos += 2) {                       
+        for (int pos = 0; pos < endPosition + 1; pos += 2) {   //increments by 2 because each element of the wordData array is based on two different elements of the data array.
             wordData[wordCounter] = (data[pos] * 256) + data[pos + 1];
-            wordCounter++;
+            wordCounter++;// increments the position in th wordDate array that the new values are being writen to.
         }
         
         
@@ -51,7 +55,7 @@ public class CSVBuilder {        																						//Class for Creating .CSV
         
         if(testParams.get(2) < 0) {
         	
-        	Vector<Double> vec9 = new Vector<Double>();
+        	Vector<Double> vec9 = new Vector<Double>(); // different vectors are needed for mag vs gyro and accel because mag is sampled differently.
         	Vector<Double> vec6 = new Vector<Double>();
 	        
         	for (int i = 0; i < 9; i++) {
@@ -123,7 +127,7 @@ public class CSVBuilder {        																						//Class for Creating .CSV
             	lineNum++;
             }
         	
-        	if (sampleCounter < 3 && signedData) {
+        	if (sampleCounter < 3 && signedData) {// Signs the data if needed; the variable signedData is passed into the overall sortData method.
         		if(wordData[wordNum] > 32768) {
         			wordData[wordNum] -= 65535;
         		}
@@ -239,7 +243,7 @@ public class CSVBuilder {        																						//Class for Creating .CSV
     
 
     
-    public static HashMap<Integer, Vector<Double>> insertFirstMagSample(HashMap<Integer, Vector<Double>> map){
+    public static HashMap<Integer, Vector<Double>> insertFirstMagSample(HashMap<Integer, Vector<Double>> map){// The first sample for mag is different, again the result of the different sample rate.
     	HashMap<Integer, Vector<Double>> newMap = new HashMap<Integer, Vector<Double>>();
     	
     	Vector<Double> line = map.get(additionalLineNums + 10);

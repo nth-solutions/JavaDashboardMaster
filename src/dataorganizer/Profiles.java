@@ -14,6 +14,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.awt.Dimension;
 
+/**
+ * This class handles the different modes of the dashboard: Advanced, Educator, and Adventurer. Users are brought to a screen where they are able to select between the 3.
+ * As of 2019-06-27, this class appears to be incomplete. However, it is not currently used, although it soon may be, in which case it should probably be redone using FX.
+ */
+
 public class Profiles extends JFrame {
 
 	private JPanel contentPane;
@@ -28,25 +33,25 @@ public class Profiles extends JFrame {
 					try {
 						Settings settings = new Settings();
 						settings.loadConfigFile();
-						if(settings.getKeyVal("DefaultProfile") != null) {
+						if(settings.getKeyVal("DefaultProfile") != null) {   // If there is a value for the default profile, ru
 							switch(settings.getKeyVal("DefaultProfile")) {
-								case "Professional":
+								case "Professional":						// if the profile selected is professional, create a new instance of the advanced mode dashboard.
 									frame = new AdvancedMode();
 							}
 						}
 					}
 					catch(Exception e){
-						frame = new Profiles();
+						frame = new Profiles();//If there is no default profile selected, create a new profile.
 					}
-					if(frame != null) {
+					if(frame != null) { // make the newly selected frame visible
 						frame.setVisible(true);
 					}
 			}
 		});
 		
-		while (true) {
-			
-		}
+//		while (true)
+//
+//		}
 	}
 
 	/**
@@ -99,14 +104,14 @@ public class Profiles extends JFrame {
 		
 		AdventureBtn.addActionListener(new java.awt.event.ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) { // the following code runs if the adventure mode button is selected.
 				AdventureBtnActionListener();
 			}
 			
 		});
 		ProffessionalBtn.addActionListener(new java.awt.event.ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) { // the following code runs if the professional mode button is selected.
 				try {
 					ProfessionalBtnActionListener();
 				} catch (FileNotFoundException e1) {

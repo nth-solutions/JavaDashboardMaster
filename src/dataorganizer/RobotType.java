@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This class is responsible for the emulation of keystrokes, ultimately to write data onto a spreadsheet.
+ * This class is responsible for the emulation of keystrokes, ultimately to manipulate various aspects of a spreadsheet.
  */
 
 public class RobotType {
@@ -27,7 +27,7 @@ public class RobotType {
 	public void openAndRefreshTemplate(String excelTemplateLocation, boolean hideWindow) {
 		openWorkbook(excelTemplateLocation);
 		robot.delay(20000);	//Delay for opening the excel workbook
-		goToFirstSheet();
+		goToFirstSheet(); //Segmented into the following methods for modularity and ease of understanding.
 		refreshSheet();		
 		nextDataSheet();
 		refreshSheet();
@@ -70,7 +70,10 @@ public class RobotType {
 			e1.printStackTrace();
 		}
 	}
-	
+	/**
+	 * Each of the following methods below emulate a certain set of keystrokes to perform what is described in the method name.
+	 */
+
 	public void goToFirstSheet() {
 		for(int i = 0; i < 14; i++) {
 			 robot.keyPress(KeyEvent.VK_CONTROL);
