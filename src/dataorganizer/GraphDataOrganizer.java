@@ -21,7 +21,7 @@ public class GraphDataOrganizer {
 	
 	public void setOrigin(String newOrigin) {
 		origin = newOrigin;
-	}
+}
 	
 	public void setSeriesName(String[] name) {
 		seriesName = name;
@@ -30,7 +30,12 @@ public class GraphDataOrganizer {
 	public String getSeriesName(int index) {
 		return origin+seriesName[index];
 	}
-	
+
+	/**
+	 * Creates an ArrayList of doubles and adds
+	 * @param startTime
+	 * @return
+	 */
 	public List<Double> createTimeAxis(double startTime){
 		timeAxis = new ArrayList<Double>();
 		timeAxis.add(0, 0.0);
@@ -73,7 +78,14 @@ public class GraphDataOrganizer {
 		}
 		return yMax;
 	}
-	
+
+	/**
+	 * Updates Zoom
+	 * @param start
+	 * @param end
+	 * @param dofNum
+	 * @return
+	 */
 	public List<List<Double>> updateZoom(double start, double end,  int dofNum){
 		int numSamples = (int) Math.round((end - start) * sampleRate);
 
@@ -127,7 +139,13 @@ public class GraphDataOrganizer {
 
 		return modifiedDataSmps;
 	}
-	
+
+	/**
+	 * After graph is zoomed this method retrieves the data that is still within the zoomed pane
+	 * @param start
+	 * @param dofNum
+	 * @return dofData
+	 */
 	public List<List<Double>> getZoomedSeries(double start, int dofNum){
 		int numSamples = (int) Math.round((lengthOfTest - start) * sampleRate);
 
@@ -165,7 +183,12 @@ public class GraphDataOrganizer {
 		lengthOfTest = (float)newSamples.get(0).size() / sampleRate;
 		samples = newSamples;
 	}
-	
+
+	/**
+	 * Takes a List of integers representing the parameters and sets sample rates and sensitivity equal to certain
+	 * elements of the testParameters List.
+	 * @param testParameters
+	 */
 	public void setTestParams(List<Integer> testParameters) {
 		sampleRate = testParameters.get(7);
 		magSampleRate = testParameters.get(8);
@@ -174,7 +197,12 @@ public class GraphDataOrganizer {
 		magSensitivity = 4800;
 		magInterval = sampleRate / magSampleRate;
 	}
-	
+
+	/**
+	 * Adds offsets based on the integer entered as the parameter and will remove values if the integer is negative and
+	 * will add null elements if the parameter is a positive integer
+	 * @param xOffsetCounter
+	 */
 	public void addNulls(int xOffsetCounter) {
 		if(xOffsetCounter > 0) {
 			for(int i = 0; i < xOffsetCounter; i++) {
