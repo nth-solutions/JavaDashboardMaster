@@ -10,7 +10,7 @@ public class FfmpegSystemWrapper {
 		OSName   = System.getProperty("os.name");
 	}
 	
-	/*
+	/**
 	 * Populates the OSName and Arch variables.
 	 */
 	public void setSystemInfo(){
@@ -18,7 +18,7 @@ public class FfmpegSystemWrapper {
 		OSName   = System.getProperty("os.name");
 	}
 	
-	/*
+	/**
 	 * Print class privates
 	 */
 	public void PrintAll() {
@@ -26,7 +26,7 @@ public class FfmpegSystemWrapper {
 		System.out.println(Arch);
 	}
 	
-	/*
+	/**
 	 * Return the directory of the FFMPEG binary for the detected system.
 	 * Returns null on no match
 	 */

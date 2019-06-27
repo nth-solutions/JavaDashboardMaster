@@ -1334,6 +1334,7 @@ public class GraphController implements Initializable {
 
     /**
      * For Pausing the video.
+     *
      * @param event
      */
 
@@ -1444,7 +1445,6 @@ public class GraphController implements Initializable {
 
     /**
      * ActionEvent that toggles the mediaPlayer Window as visible or non-visible for data interpretation by the user
-     *
      * @param event
      */
     @FXML
@@ -1481,7 +1481,10 @@ public class GraphController implements Initializable {
         }
     }
 
-    public void scaleVideoAtStart() {       // Scales the selected video so it's centered and scaled to fit within the bounds of the video player
+    /**
+     * Scales the selected video so it's centered and scaled to fit within the bounds of the video player.
+     */
+    public void scaleVideoAtStart() {
         mediaView.setFitWidth(mediaViewPane.getWidth());
         mediaView.setFitHeight(mediaViewPane.getHeight());
     }
@@ -1698,7 +1701,7 @@ public class GraphController implements Initializable {
             series = createSeries(name, dataOrgo.getZoomedSeries(start, end, this.dof, this.dataConversionType));
         }
 
-        /*
+        /**
          * offsets the data in one direction or another. Add nulls on the front to move right (positive), remove data points to move left.
          */
         public void addNulls(int offset) {
@@ -1733,17 +1736,19 @@ public class GraphController implements Initializable {
      * Responsible for opening a separate window to change the colors of each dof in the dataSeries.
      * @param event
      */
-
     @FXML
     public void openLineColorPalette(ActionEvent event) {
         colorPaletteController = startColorPalette();
-        //colorPaletteController.setGraphControllerObject(event.getSource());
     }
 
-    public void setLineColors(Color[] lineColors){
-        this.lineColors = lineColors;
-    }
+//    public void setLineColors(Color[] lineColors){
+//        this.lineColors = lineColors;
+//    }
 
+    /**
+     * Acts as a Main Class for the Color Palette FXML used to restyle the colors of the curves
+     * @return
+     */
     public ColorPaletteController startColorPalette() {
         Stage primaryStage = new Stage();
         Parent root = null;
@@ -1770,7 +1775,6 @@ public class GraphController implements Initializable {
      * FXML Color Picker is used. When a Color is selected, the trackerRectangle's color is set to the value of the ColorPicker, which is the color selected.
      * @param event
      */
-
     @FXML
     public void picker(ActionEvent event) {
         trackerRectangle.setFill(rectangleColorPicker.getValue());
@@ -1780,14 +1784,13 @@ public class GraphController implements Initializable {
      * Updates the colors when the update color button is pressed
      * @param event
      */
-
     @FXML
     public void updateColors(ActionEvent event){
 
         try{
-            restyleSeries(); // restyleseries also updates the colors.
+            restyleSeries();                                                                                            // restyleseries updates the colors.
         }catch(Exception e){
-            System.out.println("Please select colors to be updated.");
+            generalStatusLabel.setText("Please Select Colors to be Updated");
         }
     }
 

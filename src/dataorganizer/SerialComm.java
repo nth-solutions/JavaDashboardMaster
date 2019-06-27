@@ -196,7 +196,7 @@ public class SerialComm {
 		return true;
 	}
 
-	/*
+	/**
 	 * Set serial number of module
 	 * @return boolean that denotes success or failure
 	 * @param int Serial Number
@@ -226,7 +226,7 @@ public class SerialComm {
 		
 	}
 	
-	/*
+	/**
 	 * Set model number of module
 	 * @return boolean that denotes success or failure
 	 * @param int Serial Number
@@ -603,6 +603,14 @@ public class SerialComm {
 		return true;
 	}
 
+	/**
+	 *
+	 * @param offsets
+	 * @return
+	 * @throws IOException
+	 * @throws PortInUseException
+	 * @throws UnsupportedCommOperationException
+	 */
 	public boolean setMPUOffsets(int[] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		if(offsets == null) return false;
 		if(!selectMode('K')) {
@@ -637,7 +645,15 @@ public class SerialComm {
 		
 		return true;
 	}
-	
+
+	/**
+	 *
+	 * @param offsets
+	 * @return
+	 * @throws IOException
+	 * @throws PortInUseException
+	 * @throws UnsupportedCommOperationException
+	 */
 	public boolean setMPUMinMax(int[][] offsets) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		if(offsets == null) return false;
 		if(!selectMode('K')) {
@@ -882,7 +898,7 @@ public class SerialComm {
 		return true;
 	}
 
-	/*
+	/**
 	 * Puts the module in a test mode that allows the user to press remote buttons to verify if they are being received by the transmitter. This mode can only be 
 	 * exited by setting the remoteTestActive boolean to false which is what the exitRemoteTest() method does.
 	 * @return allows for easy exiting of the method
@@ -928,7 +944,7 @@ public class SerialComm {
 	}
 
 
-	/*
+	/**
 	 * Puts the module in a test mode that allows the user to press remote buttons to verify if they are being received by the transmitter. This mode can only be
 	 * exited by setting the remoteTestActive boolean to false which is what the exitRemoteTest() method does.
 	 * @return allows for easy exiting of the method

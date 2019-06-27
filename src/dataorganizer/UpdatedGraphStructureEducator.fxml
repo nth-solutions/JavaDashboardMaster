@@ -75,7 +75,7 @@
                                  <children>
                                     <HBox alignment="CENTER" spacing="5.0">
                                        <children>
-                                          <Button fx:id="resetButton" disable="true" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
+                                          <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
                                           <Button fx:id="zoomButton" disable="true" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
                                        </children>
                                     </HBox>
@@ -143,9 +143,9 @@
                <children>
                   <VBox alignment="CENTER" prefHeight="390.0" prefWidth="400.0">
                      <children>
-                        <Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="Signed or Raw Data" />
                         <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" spacing="5.0">
                            <children>
+                              <Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="Signed or Raw Data" />
                               <HBox alignment="CENTER" prefHeight="35.0" prefWidth="341.0" spacing="15.0">
                                  <children>
                                     <CheckBox fx:id="displaySignedDataCheckbox" layoutX="175.0" layoutY="27.0" mnemonicParsing="false" onAction="#handleDisplaySignedData" prefHeight="25.0" prefWidth="100.0" selected="true" text="Signed Data" textAlignment="CENTER" />

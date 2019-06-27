@@ -14,15 +14,30 @@ public class AsposeSpreadSheetController {
 
 	private Workbook workbook;
 	private int numSamples;
-	
+
+
+	/**
+	 * This method takes in a string and creates a new workbook with the file path being the parameter.
+	 * @param workbookPath
+	 * @throws Exception
+	 */
 	public AsposeSpreadSheetController(String workbookPath) throws Exception {
 		workbook = new Workbook(workbookPath);
 	}
-	
+
+	/**
+	 * Takes in a Cell value and outputs the integer at said Cell.
+	 * @param cell
+	 * @return
+	 */
 	public Integer castCellToInt(Cell cell) {
 		return new Integer((cell.getValue().toString()));
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public List<Integer> getTestParameters(){
 		List<Integer> parameters = new ArrayList<Integer>(13);
 		
