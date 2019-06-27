@@ -205,7 +205,7 @@ public class DataOrganizer {
 		return signedDataSamples;
 	}
 
-	/*
+	/**
 	 * Creates new .CSVP file for storing the test parameters of a given test, We need this alongside the CSV file for graphing purposes.
 	 */
 	public int createCSVP() {
@@ -222,13 +222,13 @@ public class DataOrganizer {
 		for(int i = 0; i < testParameters.size(); i++) { //Write all parameters to the file. We really only needed like 3 at the time of writing but this was easier and probably more effective in the future.
 			dataFile.println(testParameters.get(i).toString());
 		}
-		for(int i = testParameters.size(); i<32; i++){ // This makes literally no sense but for some reason the data can't be graphed unless the csvp has 32 values. After the actual test parameters it doesn't matter what there is but there has to be something. It is unclear when this can be removed.
-			dataFile.println(0);
-		}
-//		for(int i = 0; i < 9; i++) {
-//			dataFile.println(MPUMinMax[i][0]);
-//			dataFile.println(MPUMinMax[i][1]);
+//		for(int i = testParameters.size(); i<32; i++){ // This makes literally no sense but for some reason the data can't be graphed unless the csvp has 32 values. After the actual test parameters it doesn't matter what there is but there has to be something. It is unclear when this can be removed.
+// 			dataFile.println(0);
 //		}
+		for(int i = 0; i < 9; i++) {
+			dataFile.println(MPUMinMax[i][0]);
+			dataFile.println(MPUMinMax[i][1]);
+		}
 		dataFile.close();
 		return 0;
 	}
@@ -328,7 +328,7 @@ public class DataOrganizer {
 		
 		for(int j = 0; j < modifiedDataSmps.get(dof).size(); j++) { //iterate smps
 			double avg = 0.0;
-			for(int i = 0; i < rollRange && i+j < modifiedDataSmps.get(dof).size(); i++) { //Sum 10 smps, do not exceed size of dof data size
+			for(int i = 0; i < rollRange && i+j < modifiedDataSmps.get(dof).size(); i++) { 								//Sum 10 smps, do not exceed size of dof data size
 				if(dof > 6 && modifiedDataSmps.get(dof).get(i+j) == null) continue;
 				avg += modifiedDataSmps.get(dof).get(j+i);
 			}
@@ -339,8 +339,15 @@ public class DataOrganizer {
 		return modifiedDataSmps;
 	}
 
-	public int createCSV(boolean labelData, boolean signedData) { // The two passed booleans determine if the output data is signed and labeled.
-		List<List<Double>> modifiedDataSmps = new ArrayList<List<Double>>();
+	/**
+	 * Creates a CSV file by extracting the data from the module and running it through a 2D List that is extracted from
+	 * and loaded into a spreadsheet then from the Settings class they import the "CSVSaveLocation"
+	 * @param labelData
+	 * @param signedData
+	 * @return
+	 */
+	public int createCSV(boolean labelData, boolean signedData) { 														// The two passed booleans determine if the output data is signed and labeled.
+		List<List<Double>> modifiedDataSmps;
 
 		if(!signedData)
 			modifiedDataSmps = dataSamples;
@@ -349,7 +356,7 @@ public class DataOrganizer {
 
 
 		StringBuilder builder = new StringBuilder();
-		PrintWriter DataFile = null;
+		PrintWriter DataFile;
 		if (!labelData) {
 			for (int smp = 0; smp < lineNum - 1; smp++) {
 				for (int dof = 1; dof <= numDof; dof++) {

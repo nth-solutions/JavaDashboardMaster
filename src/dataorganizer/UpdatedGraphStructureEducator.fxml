@@ -26,7 +26,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="backgroundPane" prefHeight="810.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<AnchorPane fx:id="backgroundPane" prefHeight="810.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <children>
       <HBox fx:id="graphingHbox" alignment="CENTER" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1400.0">
          <children>
@@ -57,11 +57,11 @@
                            </children>
                         </Pane>
                         <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="65.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
-                        <HBox alignment="CENTER" layoutX="-8.0" layoutY="506.0" prefHeight="27.0" prefWidth="65.0">
+                        <HBox alignment="CENTER" layoutX="-25.0" layoutY="506.0" prefHeight="27.0" prefWidth="80.0">
                            <children>
-                              <Label fx:id="currentTimeStampLabel" text="00.00" />
+                              <Label fx:id="currentTimeStampLabel" alignment="CENTER_RIGHT" prefWidth="37.0" text="00.00" />
                               <Label fx:id="timeStampLabel1" layoutX="41.0" layoutY="27.0" text="/" />
-                              <Label fx:id="totalTimeStampLabel" layoutX="73.0" layoutY="27.0" text="00.00" />
+                              <Label fx:id="totalTimeStampLabel" layoutX="73.0" layoutY="27.0" prefWidth="37.0" text="00.00" />
                            </children>
                         </HBox>
                         <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" onMouseReleased="#unpauseVideo" prefHeight="14.0" prefWidth="850.0" />

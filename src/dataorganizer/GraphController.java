@@ -410,10 +410,10 @@ public class GraphController implements Initializable {
     }
 
     /**
-     * This method is responsible for
+     * This method is responsible for loading in the graph part of the SINC Technology
+     * Opens a file chooser in which the user selects the CSV file of the data the module collected
      * @param event
      */
-
     @FXML
     public void importCSV(ActionEvent event) {                                                                                                        //Event handler that imports an external CSV into the graphing interface
 
