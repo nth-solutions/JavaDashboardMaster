@@ -398,6 +398,10 @@ public class DataOrganizer {
 		return 0;
 
 	}
+//	public String pathToCSVFile(){
+//		Settings settings = new Settings();
+//		return settings.getKeyVal("CSVSaveLocation") + File.separator + nameOfTest;
+//	}
 
 
 	public int createDataSamplesFromCSV(String CSVFilePath) { 

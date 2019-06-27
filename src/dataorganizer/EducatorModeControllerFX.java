@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -1477,6 +1478,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void launchMotionVisualization(ActionEvent event) {
            lineGraph = startGraphing();
+           //lineGraph.importCSV(dataOrgo.pathToCSVFile());
 
     }
 
