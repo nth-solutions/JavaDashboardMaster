@@ -41,7 +41,8 @@ import javax.swing.JTextPane;
 import javax.swing.JTextField;
 
 /**
- *
+ * THIS CLASS IM ONLY AND MAINLY USED IN THE ADVANCED MODE AND HAS 0 LINK TO THE EDUCATOR MODE
+ * THIS CLASS MAINLY CONSISTS OF SWING CODE RELATING TO BUILDING THE UI
  */
 
 public class VLCJMediaPlayerController {
@@ -126,16 +127,13 @@ public class VLCJMediaPlayerController {
 		JButton fileImportBtn = new JButton("File");
 		fileImportBtn.setBounds(557, 5, 49, 23);
 		SouthPanel.add(fileImportBtn);
-		
-		
+
 		playBtn = new JButton("Play");
 		playBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				playBtnHandler();
 			}
 		});
-		
-		
 		
 		playBtn.setToolTipText("Open a browser window to select your video.");
 		playBtn.setBounds(136, 16, 106, 57);
@@ -170,9 +168,7 @@ public class VLCJMediaPlayerController {
 					statusLabel.setVisible(true);
 					statusLabel.setText("Invalid Frame");
 				}
-					
-				
-				
+
 			}
 		});
 		seekToFrameNumberBtn.setBounds(1035, 16, 90, 20);

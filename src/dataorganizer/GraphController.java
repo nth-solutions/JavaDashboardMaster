@@ -181,8 +181,11 @@ public class GraphController implements Initializable {
         }
         if (GDO != null) xAxis.setUpperBound(GDO.getLengthOfTest());
         xAxis.setLowerBound(0);                                                                                            //Sets the Graph's x-Axis minimum value to 0 - the location of the very first data sample
-        yAxis.setUpperBound(yMax);                                                                                        //Sets the Graph's y-Axis maximum value to the defined y-Axis maximum (5 by default - varies based on user entry)
-        yAxis.setLowerBound(yMin);                                                                                        //Sets the Graph's y-Axis minimum value to the defined y-Axis minimum (-5 by default - varies based on user entry)
+        //yAxis.setUpperBound(yMax);                                                                                        //Sets the Graph's y-Axis maximum value to the defined y-Axis maximum (5 by default - varies based on user entry)
+        //yAxis.setLowerBound(yMin);                                                                                       //Sets the Graph's y-Axis minimum value to the defined y-Axis minimum (-5 by default - varies based on user entry)
+
+        yAxis.setUpperBound(5);                                                                                        //Sets the Graph's y-Axis maximum value to the defined y-Axis maximum (5 by default - varies based on user entry)
+        yAxis.setLowerBound(-5);
 
         userCreatedZoomRectangleBox.setWidth(0);                                                                        //Sets the Width of user's drag and drop zoom rectangle back to its original width value (0)
         userCreatedZoomRectangleBox.setHeight(0);                                                                        //Sets the Height of the user's drag and drop zoom rectangle back to its original height value (0)
