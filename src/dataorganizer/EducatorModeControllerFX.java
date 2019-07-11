@@ -163,7 +163,7 @@ public class EducatorModeControllerFX implements Initializable {
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
         initializeToggleGroup();                                                                                        //See Method Comment
-        fillTestTypeHashMap();                                                                                          // See Method Comment
+        fillTestTypeHashMap();                                                                                          //See Method Comment
 
         moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
     }

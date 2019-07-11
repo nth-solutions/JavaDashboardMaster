@@ -155,6 +155,7 @@ public class GraphController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         dataAccordion.setExpandedPane(dataSourceTitledPane);
+        rectangleColorPicker.setValue(Color.DODGERBLUE);
     }
 
     public void setDataCollector(DataOrganizer dataCollector, int index) {
@@ -176,6 +177,15 @@ public class GraphController implements Initializable {
 
     @FXML
     public void handleReset(ActionEvent event) {                                                                        //Resets the Graph to its default parameters (y-Axis scale, x-Axis scale and userCreatedZoomRectangleBox is reset to (0,0))
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                maxYValueTextField.setText("5.0");
+                minYValueTextField.setText("-5.0");
+            }
+        });
+
         if (dataCollector[0] != null) {
             xAxis.setUpperBound(dataCollector[0].getLengthOfTest());                    //Sets the Graph's x-Axis maximum value to the total time of the test
         }
@@ -210,6 +220,7 @@ public class GraphController implements Initializable {
 
         repopulateData();                                                                                                    //TODO
         restyleSeries();
+
     }
 
     @FXML
@@ -784,13 +795,12 @@ public class GraphController implements Initializable {
 
     @FXML
     public void clearDataSetOne() {
+        lineChart.getData().clear();
         lineChart.getData().removeAll(dataSeries);  //Removes the First Data Series from the linechart object
         dataDisplayCheckboxesFlowPane.getChildren().removeAll();    //Removes all of the checkboxes generated when the First Data Series is imported to the Graphing Interface
         dataSourceTitledPane.setText("");   //Removes the name of the file being displayed on dataSourceTitledPane
-        dataSeries = dataSeriesTwo;
-        dataSeriesTwo = FXCollections.observableArrayList();
-        populateData(dataSeries, lineChart);
-        styleSeries(dataSeries, lineChart);
+        dataDisplayCheckboxesFlowPane.getChildren().clear();
+        dataSeries = FXCollections.observableArrayList();
         numDataSets--;
     }
 
@@ -1311,6 +1321,20 @@ public class GraphController implements Initializable {
         double lineChartWidth = lineChart.getWidth();
         double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
         double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
+//        for (double i = 0; i < totalDuration; i+=100/3) {
+//
+//            playbackSlider.setValue(mediaPlayer.getCurrentTime().toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
+//            trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
+//                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
+//            currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
+//
+//            try{
+//                Thread.sleep(33);
+//            }catch (Exception exceptionalexception) {
+//                    System.out.println("fail");
+//            }
+//
+//        }
         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println(newValue);
 
@@ -1397,8 +1421,10 @@ public class GraphController implements Initializable {
     @FXML
     public void moveTrackerRectanglePlusOne(ActionEvent event) {
         double currentXPosition = trackerRectangle.getX();
-        trackerRectangle.setX(currentXPosition + 1); // Moves the rectangle one pixel to the right
-        numberOfOffsetsApplied += 1; // Tracks how many offsets there have been, so when the the rectangle is moved by the progression of the video, the offset applied stays.
+        if(currentXPosition < 845) {
+            trackerRectangle.setX(currentXPosition + 1); // Moves the rectangle one pixel to the right
+            numberOfOffsetsApplied += 1; // Tracks how many offsets there have been, so when the the rectangle is moved by the progression of the video, the offset applied stays.
+        }
     }
 
     /**
@@ -1411,8 +1437,8 @@ public class GraphController implements Initializable {
         try {
             playbackRate = rateChangeSlider.getValue();
             mediaPlayer.setRate(playbackRate);
-
             rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
+            mediaPlayer.play();
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
@@ -1427,7 +1453,7 @@ public class GraphController implements Initializable {
         if (numberOfOffsetsApplied <= 0) { // prevents the rectangle from moving left of the y axis.
             numberOfOffsetsApplied = 0;
         } else {
-            double currentXPosition = trackerRectangle.getX(); // See moveTRackerRectanglePlusOne
+            double currentXPosition = trackerRectangle.getX(); // See moveTrackerRectanglePlusOne
             trackerRectangle.setX(currentXPosition - 1);
             numberOfOffsetsApplied -= 1;
         }
@@ -1502,7 +1528,6 @@ public class GraphController implements Initializable {
     @FXML
     public void handlePlayPauseVideo(ActionEvent event) {    // Event listener responsible for changing the text and functionality of the playPauseButton button
         try {
-
             System.out.println("This is a test" + mediaPlayer.getCurrentTime());
             if (playing) {      // When the button is pressed, if the Boolean Playing is true ->
                 mediaPlayer.play();     // The mediaPlayer resumes playback
