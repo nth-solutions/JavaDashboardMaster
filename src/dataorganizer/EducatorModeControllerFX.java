@@ -121,6 +121,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField radiusOfTorqueArmSpringTextField;
 
+    private ArrayList<Integer> testParameters = new ArrayList<Integer>();
+
 
     //Extra Module Parameters - CoM
     double massOfRightModule;
@@ -908,7 +910,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                 }
 
                                                 try {
-                                                    Thread.sleep(10000);                                          // Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
 
                                                 } catch (Exception exceptionalexception) {                              // This error should never happen
                                                     System.out.println("If you got this error, something went seriously wrong");
@@ -1300,6 +1302,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                 List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
                                             }
+
                                             dataOrgo.getSignedData();
 
                                             Settings settings = new Settings();

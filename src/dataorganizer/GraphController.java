@@ -209,7 +209,7 @@ public class GraphController implements Initializable {
         }
 
         repopulateData();                                                                                                    //TODO
-
+        restyleSeries();
     }
 
     @FXML
@@ -222,7 +222,8 @@ public class GraphController implements Initializable {
             axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());                                    //Updates the boundaries of the graph for each axis of the first data series
         }
         populateData(dataSeries, lineChart);                                                                            //Repopulates the lineChart with the updated data within the dataSeries object
-        styleSeries(dataSeries, lineChart);                                                                                //TODO
+        styleSeries(dataSeries, lineChart);
+        restyleSeries();//TODO
     }
 
     @FXML
@@ -235,7 +236,8 @@ public class GraphController implements Initializable {
             axisOfDataSeries.updateZoom(xAxis.getLowerBound(), xAxis.getUpperBound());                                    //Updates the boundaries of the graph for each axis of the first data series
         }
         populateData(dataSeries, lineChart);                                                                            //Repopulates the lineChart with the updated data within the dataSeries object
-        styleSeries(dataSeries, lineChart);                                                                                //TODO
+        styleSeries(dataSeries, lineChart);
+        restyleSeries();//TODO
 
     }
 
@@ -1188,7 +1190,7 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     //style.append("-fx-stroke: " + dof.getColor() + "; -fx-background-color: " + dof.getColor() + ", white; ");
 
-                    style.append("-fx-stroke: red " + "; -fx-background-color: red " + ", white; ");
+                    //style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
 
                     n.setStyle(style.toString());
                 }
