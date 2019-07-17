@@ -83,10 +83,10 @@ public class ParameterSpreadsheetController {
      */
 
     public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){
-        workbook.getWorksheets().get(4).getCells().get("C7").setValue(pendulumLength);
-        workbook.getWorksheets().get(4).getCells().get("C8").setValue(pendulumMass);
-        workbook.getWorksheets().get(4).getCells().get("C9").setValue(moduleMass);
-        workbook.getWorksheets().get(4).getCells().get("C10").setValue(moduleDistanceFromAOR);
+        workbook.getWorksheets().get(4).getCells().get("E3").setValue(pendulumLength);
+        workbook.getWorksheets().get(4).getCells().get("E4").setValue(pendulumMass);
+        workbook.getWorksheets().get(4).getCells().get("E5").setValue(moduleMass);
+        workbook.getWorksheets().get(4).getCells().get("E6").setValue(moduleDistanceFromAOR);
     }
 
     public void loadSpinnyStoolParameters(double massHandWeights, double wingspan, double massOfPerson, double shoulderWidth) {
@@ -96,22 +96,22 @@ public class ParameterSpreadsheetController {
         workbook.getWorksheets().get(4).getCells().get("C10").setValue(shoulderWidth);
     }
 
-    public void loadSpringTestParameters(double springConstant, double totalMass, double momentofInertia, double radiusoftorquearm) {
+    public void loadSpringTestParameters(double springConstant, double totalMass, double Amplitude, double massOfSpring) {
         workbook.getWorksheets().get(4).getCells().get("C8").setValue(springConstant);
         workbook.getWorksheets().get(4).getCells().get("C7").setValue(totalMass);
-        workbook.getWorksheets().get(4).getCells().get("C9").setValue(momentofInertia);
-        workbook.getWorksheets().get(4).getCells().get("C10").setValue(radiusoftorquearm);
+        workbook.getWorksheets().get(4).getCells().get("C9").setValue(Amplitude);
+        workbook.getWorksheets().get(4).getCells().get("C10").setValue(massOfSpring);
     }
     public void loadConservationofMomentumParameters (double gliderOneMass, double gliderTwoMass){
-        workbook.getWorksheets().get(4).getCells().get("C8").setValue(gliderOneMass);
-        workbook.getWorksheets().get(4).getCells().get("C9").setValue(gliderTwoMass);
+        workbook.getWorksheets().get(10).getCells().get("C8").setValue(gliderOneMass);
+        workbook.getWorksheets().get(10).getCells().get("C9").setValue(gliderTwoMass);
     }
 
     public void loadConservationofEnergyParameters(double totalDropDistance, double massOfModuleAndHolder, double momentOfIntertia, double radiusOfTorqueArm) {
-        workbook.getWorksheets().get(4).getCells().get("C8").setValue(totalDropDistance);
-        workbook.getWorksheets().get(4).getCells().get("C7").setValue(massOfModuleAndHolder);
-        workbook.getWorksheets().get(4).getCells().get("C9").setValue(momentOfIntertia);
-        workbook.getWorksheets().get(4).getCells().get("C10").setValue(radiusOfTorqueArm);
+        //workbook.getWorksheets().get(7).getCells().get("C8").setValue(totalDropDistance);
+        workbook.getWorksheets().get(7).getCells().get("C9").setValue(massOfModuleAndHolder);
+        workbook.getWorksheets().get(7).getCells().get("C8").setValue(momentOfIntertia);
+        //workbook.getWorksheets().get(7).getCells().get("C10").setValue(radiusOfTorqueArm);
     }
     /**
      * Fills the Pendulum Template with all of the data recorded during a module test

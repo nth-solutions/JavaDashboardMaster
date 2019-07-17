@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -198,8 +198,8 @@
                                                                                           </HBox>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
-                                                                                                <TextField fx:id="momentOfInertiaSpringTextField" prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
-                                                                                                <TextField fx:id="radiusOfTorqueArmSpringTextField" prefWidth="175.0" promptText="Radius of Torque Arm (m)">
+                                                                                                <TextField fx:id="amplitudeSpringTextField" prefWidth="175.0" promptText="Amplitude (m)" />
+                                                                                                <TextField fx:id="massOfSpringTextField" prefWidth="175.0" promptText="Mass of Spring (kg)">
                                                                                                    <tooltip>
                                                                                                       <Tooltip text="The torque arm is the radius of the disc around which the string is wrapped." />
                                                                                                    </tooltip>
@@ -407,7 +407,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 5B: Click Next to begin a new trial or clean up your workspace" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 5B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>

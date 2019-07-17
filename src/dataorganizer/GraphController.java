@@ -133,7 +133,7 @@ public class GraphController implements Initializable {
     private MediaPlayer mediaPlayer;
     private String filePath;
     private double playbackRate;
-    private Boolean playing = false;
+    public volatile Boolean playing = false;
     private File fileCopy;
     private Boolean videoLoaded = false;
     private double totalFrames;
@@ -688,6 +688,7 @@ public class GraphController implements Initializable {
             minYValueTextField.setText(Double.toString(yMin));
         }
         numDataSets++;
+        restyleSeries();
     }
 
     @FXML
@@ -715,6 +716,7 @@ public class GraphController implements Initializable {
         }
 
         repopulateData();
+        restyleSeries(); //restyle series so color can get kept
     }
 
     @FXML
@@ -1079,34 +1081,75 @@ public class GraphController implements Initializable {
 
     public String changeColorofSeries(String seriesType) {
         if (seriesType == "Accel X") { // There is a if statement for each possible dof, as the color of each individual dataSeries can be adjusted.
-            return "#" + ColorPaletteController.xAccelColor.substring(2,8); // If the "Accel X" is passed to the method, the color of Accel X line wants to be changed. Therefore, the value of the Color picker corresponding to the X Accel is returned.
+            try{
+                return "#" + ColorPaletteController.xAccelColor.substring(2,8); // If the "Accel X" is passed to the method, the color of Accel X line wants to be changed. Therefore, the value of the Color picker corresponding to the X Accel is returned.
+            }catch(Exception e){
+                return "#" + Color.RED.toString().substring(2,8);
+            }
         }
         if (seriesType == "Accel Y") {
-            return "#" + ColorPaletteController.yAccelColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.yAccelColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.DODGERBLUE.toString().substring(2,8);
+            }
         }
         if (seriesType == "Accel Z") {
-            return "#" + ColorPaletteController.zAccelColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.zAccelColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.FORESTGREEN.toString().substring(2,8);
+            }
         }
         if (seriesType == "Gyro X") {
-            return "#" + ColorPaletteController.xGyroColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.xGyroColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.GOLD.toString().substring(2,8);
+            }
         }
         if (seriesType == "Gyro Y") {
+            try{
             return "#" + ColorPaletteController.yGyroColor.substring(2,8);
+            }
+            catch(Exception e){
+                return "#" + Color.CORAL.toString().substring(2,8);
+            }
         }
         if (seriesType == "Gyro Z") {
-            return "#" + ColorPaletteController.zGyroColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.zGyroColor.substring(2, 8);
+            }catch(Exception e) {
+                return "#" + Color.MEDIUMBLUE.toString().substring(2,8);
+            }
         }
         if (seriesType == "Mag X") {
-            return "#" + ColorPaletteController.xMagColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.xMagColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.DARKVIOLET.toString().substring(2,8);
+            }
         }
         if (seriesType == "Mag Y") {
-            return "#" + ColorPaletteController.yMagColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.yMagColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.DARKSLATEGRAY.toString().substring(2,8);
+            }
         }
         if (seriesType == "Mag Z") {
-            return "#" + ColorPaletteController.zMagColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.zMagColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.SADDLEBROWN.toString().substring(2,8);
+            }
         }
         if (seriesType == "Accel Magnitude") {
-            return "#" + ColorPaletteController.accelMagColor.substring(2,8);
+            try {
+                return "#" + ColorPaletteController.accelMagColor.substring(2, 8);
+            }catch(Exception e){
+                return "#" + Color.BLACK.toString().substring(2,8);
+            }
         }
         //Note: Each Color Picker has a default value so a value will always be returned.
         return "#ffff00"; // This should never be returned, but is here to make sure the method always returns something.
@@ -1254,12 +1297,12 @@ public class GraphController implements Initializable {
         fileCopy = videoFile;   // File object necessary for use in the reset handler
 
         //TODO: Uncomment - Prevents bugs for machines without FFMPEG
-//		try {
-//			readFileFPSFromFFMpeg();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+//    try {
+//       readFileFPSFromFFMpeg();
+//    } catch (IOException e) {
+//       // TODO Auto-generated catch block
+//       e.printStackTrace();
+//    }
 
         if (videoFile != null) {    // If the filepath contains a valid file the following code is initiated ->
 
@@ -1284,11 +1327,10 @@ public class GraphController implements Initializable {
                     playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
                     totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
 
-                    initializeSINC();
+                    BeginSINC(); // Starts the core behind syncing the rectangle, playback, and slider.
 
                 }
             });
-
         }
     }
 
@@ -1312,39 +1354,45 @@ public class GraphController implements Initializable {
 
     int numberOfOffsetsApplied = 0; // Number of offsets helps determine the position of the trackerRectangle. Users can modify this variable from the UI to change the position of the rectangle.
 
+    private volatile boolean flag = true; //Boolean that is used to control whether or not the rectangle, slider, and label are updated. It must be accessible at all times, so it is declared with the volatile keyword so it is always stored in main memory.
     /**
      * Helper function used to initialize the SINC Technology playback. Helps to correlate playback amongst
      * the media player, the playback slider bar, and the tracker rectangle
      */
-    public void initializeSINC() {
+    public void BeginSINC() {
 
-        double lineChartWidth = lineChart.getWidth();
-        double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
-        double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
-//        for (double i = 0; i < totalDuration; i+=100/3) {
-//
-//            playbackSlider.setValue(mediaPlayer.getCurrentTime().toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
-//            trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
-//                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
-//            currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
-//
-//            try{
-//                Thread.sleep(33);
-//            }catch (Exception exceptionalexception) {
-//                    System.out.println("fail");
-//            }
-//
-//        }
-        mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue);
+        Runnable r = new Runnable() { //Create a new thread that is always running in the background to facilitate SINC.
 
-            playbackSlider.setValue(newValue.toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
-            trackerRectangle.setX(((newValue.toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
-                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
-            currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(newValue.toSeconds()))));
+            @Override
+            public void run() {
+                while (true) {
 
-        });
+                    double lineChartWidth = lineChart.getWidth();
+                    double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+                    double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
 
+                    while (flag) { // While the flag boolean is true (If the flag boolean is changed to false, this code stops running, but the thread is not exited.)
+
+                        //System.out.println(mediaPlayer.getCurrentTime().toMillis());
+                        playbackSlider.setValue(mediaPlayer.getCurrentTime().toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
+                        trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
+                                //                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
+                        Platform.runLater(() -> { // Platform.runLater is used to handle UI updating.
+                            currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
+                        });
+
+                        try {
+                            Thread.sleep(7); //Sleep for 7 milliseconds; Short enough so the everything can be redrawn per frame, but no too short as to save computing resources.
+                        } catch (Exception e) {
+                            System.out.println("Thread unable to sleep.");
+                        }
+
+                    }
+
+                }
+            }
+        };
+        new Thread(r).start();
     }
 
     /**
@@ -1355,6 +1403,15 @@ public class GraphController implements Initializable {
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
         try {
+            System.out.println(flag);
+            double lineChartWidth = lineChart.getWidth();
+            double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+            double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\
+
+            trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);
+
+            currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
+
             mediaPlayer.seek(Duration.millis(playbackSlider.getValue())); // seeks to the duration of the value of the playbackSlider, Because the max value of the playbackSlider is the totalDuration of the video, the value of the slider corresponds to a location in the video, allowing for granular adjustment.
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
@@ -1371,6 +1428,9 @@ public class GraphController implements Initializable {
     @FXML
     private void pauseVideo(MouseEvent event) {
         try {
+            if(flag){ // Stops SINC updating if the video is paused.
+                flag = false;
+            }
             playing = true;
             mediaPlayer.pause();
             playPauseButton.setText("Play");
@@ -1388,6 +1448,9 @@ public class GraphController implements Initializable {
     @FXML
     private void unpauseVideo(MouseEvent event) {
         try {
+            if(!flag){ // continues SINC updating when video is unpaused.
+                flag = true;
+            }
             playing = false;
             mediaPlayer.play();
             playPauseButton.setText("Pause");
@@ -1450,13 +1513,13 @@ public class GraphController implements Initializable {
      */
 
     public void moveTrackerRectangleMinusOne(ActionEvent event) {
-        if (numberOfOffsetsApplied <= 0) { // prevents the rectangle from moving left of the y axis.
-            numberOfOffsetsApplied = 0;
-        } else {
+        //if (numberOfOffsetsApplied <= 0) { // prevents the rectangle from moving left of the y axis.
+       //     numberOfOffsetsApplied = 0;
+        //} else {
             double currentXPosition = trackerRectangle.getX(); // See moveTrackerRectanglePlusOne
             trackerRectangle.setX(currentXPosition - 1);
             numberOfOffsetsApplied -= 1;
-        }
+       // }
     }
 
 
@@ -1468,7 +1531,21 @@ public class GraphController implements Initializable {
     @FXML
     private void resetMediaPlayer(ActionEvent event) {
         try {
-            mediaPlayer.seek(Duration.millis(0));
+            if(!flag) {
+                flag = true;
+            }
+            if(mediaPlayer.getRate() == 0.0){ // Glitches can occur if the video is reset when the playback rate is 0.0; therefore, the playback rate is first set back to the default.
+            mediaPlayer.setRate(1.0);
+            rateChangeSlider.setValue(1.0);
+            mediaPlayer.seek(Duration.millis(0)); // The mediaPlayer then seeks to the start
+
+            }else{  //If the playback rate is anything else, the mediaPlayer simply seeks back to the start
+                if(!flag) {
+                    flag = true;
+                }
+                mediaPlayer.seek(Duration.millis(0));
+            }
+
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
@@ -1527,20 +1604,89 @@ public class GraphController implements Initializable {
      */
     @FXML
     public void handlePlayPauseVideo(ActionEvent event) {    // Event listener responsible for changing the text and functionality of the playPauseButton button
+
         try {
-            System.out.println("This is a test" + mediaPlayer.getCurrentTime());
+            Duration timeAtPause;
+            timeAtPause = mediaPlayer.getCurrentTime();
+            //System.out.println("This is a test" + mediaPlayer.getCurrentTime());
             if (playing) {      // When the button is pressed, if the Boolean Playing is true ->
-                mediaPlayer.play();     // The mediaPlayer resumes playback
-                playPauseButton.setText("Pause");       // The playPauseButton is then set to display "Pause"
+                if(!flag){
+                flag = true;
+                }
+                //System.out.println("The Boolean Flag has been set to "+ flag);
+
                 playing = false;        // The Boolean Playing is switched to false so as to activate the 'else' conditional of the code following a secondary press
+                //.out.println("After Thread Start Before Play Current time is" + mediaPlayer.getCurrentTime().toMillis());
+
+                mediaPlayer.play();     // The mediaPlayer resumes playback
+                //System.out.println("After ResumePlay Current Time is " + mediaPlayer.getCurrentTime().toMillis());
+
+                //mediaPlayer.seek(timeAtPause);
+
+                playPauseButton.setText("Pause");       // The playPauseButton is then set to display "Pause"
+
             } else {        // When the button is pressed, if the Boolean Playing is false ->
-                mediaPlayer.pause();        // The mediaPlayer's playback is paused
-                playPauseButton.setText("Play");        // The playPause button is then set to display "Play"
+
+                mediaPlayer.seek(timeAtPause);
+                if(flag){
+                    flag = false;
+                }
+
+                //System.out.println("The Boolean flag has been set to " + flag);
+
                 playing = true;     // The Boolean Playing is set to true so as to activate the 'if' conditional of the code following another press
+                //System.out.println("After Thread Stop Before Pause Current time is" + mediaPlayer.getCurrentTime().toMillis());
+
+                mediaPlayer.pause();        // The mediaPlayer's playback is paused
+                //System.out.println("After Pause Current time is" + mediaPlayer.getCurrentTime().toMillis());
+
+                playPauseButton.setText("Play");        // The playPause button is then set to display "Play"
+
+
             }
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
+    }
+
+    @FXML
+    public void handleNextFrame(){
+        if(!playing){
+            try {
+                if(flag){
+                    flag = false;
+                }
+                playing = true;
+                mediaPlayer.pause();
+                playPauseButton.setText("Play");
+                mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+            }catch (NullPointerException e) {
+                generalStatusLabel.setText("No Video Loaded");
+            }
+        }
+
+
+
+
+    }
+    @FXML
+    public void handlePreviousFrame(){
+        if(!playing){
+            try {
+                if(flag){
+                    flag = false;
+                }
+                playing = true;
+                mediaPlayer.pause();
+                playPauseButton.setText("Play");
+                mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+            }catch (NullPointerException e) {
+                generalStatusLabel.setText("No Video Loaded");
+            }
+        }
+
+
+
     }
 
     public double getFPS() {

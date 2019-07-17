@@ -64,7 +64,7 @@
                               <Label fx:id="totalTimeStampLabel" layoutX="73.0" layoutY="27.0" prefWidth="37.0" text="00.00" />
                            </children>
                         </HBox>
-                        <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" onMouseReleased="#unpauseVideo" prefHeight="14.0" prefWidth="850.0" />
+                        <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" prefHeight="14.0" prefWidth="850.0" />
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="200.0">
@@ -100,6 +100,8 @@
                                        <children>
                                           <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" prefHeight="40.0" prefWidth="70.0" text="File" />
                                           <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#handlePlayPauseVideo" prefHeight="40.0" prefWidth="75.0" text="Play" />
+                                          <Button mnemonicParsing="false" onAction="#handlePreviousFrame" prefHeight="40.0" text="Previous Frame" />
+                                          <Button mnemonicParsing="false" onAction="#handleNextFrame" prefHeight="40.0" text="Next Frame" />
                                           <Button mnemonicParsing="false" onAction="#resetMediaPlayer" prefHeight="40.0" prefWidth="100.0" text="Reset Video" />
                                        </children>
                                     </HBox>

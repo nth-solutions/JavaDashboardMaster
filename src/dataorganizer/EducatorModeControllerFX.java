@@ -117,9 +117,14 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField totalHangingMassTextField;
     @FXML
-    TextField momentOfInertiaSpringTextField;
+    TextField amplitudeSpringTextField;
     @FXML
-    TextField radiusOfTorqueArmSpringTextField;
+    TextField massOfSpringTextField;
+
+//    @FXML
+//    TextField momentOfInertiaSpringTextField;
+//    @FXML
+//    TextField radiusOfTorqueArmSpringTextField;
 
     private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 
@@ -142,8 +147,11 @@ public class EducatorModeControllerFX implements Initializable {
     //Extra Module Parameters - Spring
     double springConstant;
     double totalHangingMass;
-    double momentOfIntertiaSpring;
-    double radiusOfTorqueArmSpring;
+
+    double amplitudeSpring;
+    double massOfSpring;
+    //double momentOfIntertiaSpring;
+    //double radiusOfTorqueArmSpring;
     private DataOrganizer dataOrgo;
 
     //Colors
@@ -424,8 +432,13 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     springConstant = Double.parseDouble(springConstantTextField.getText());
                     totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
-                    momentOfIntertiaSpring = Double.parseDouble(momentOfInertiaSpringTextField.getText());
-                    radiusOfTorqueArmSpring = Double.parseDouble(radiusOfTorqueArmSpringTextField.getText());
+                    amplitudeSpring = Double.parseDouble(amplitudeSpringTextField.getText());
+                    massOfSpring = Double.parseDouble(amplitudeSpringTextField.getText());
+
+
+                    //momentOfIntertiaSpring = Double.parseDouble(momentOfInertiaSpringTextField.getText());
+                    //radiusOfTorqueArmSpring = Double.parseDouble(radiusOfTorqueArmSpringTextField.getText());
+
                     testType = "Spring Test - Simple Harmonics";
 
                     generalStatusExperimentLabel.setTextFill(DarkGreen);
@@ -904,7 +917,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                     parameterSpreadsheetController.saveWorkbook(path);
 
                                                 } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
+                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                     parameterSpreadsheetController.saveWorkbook(path);
                                                 }
@@ -1115,7 +1128,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                         parameterSpreadsheetController.saveWorkbook(path);
 
                                                     } else if (testType == "Spring Test - Simple Harmonics") {
-                                                        parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, momentOfIntertiaSpring, radiusOfTorqueArmSpring);
+                                                        parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
                                                         parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                         parameterSpreadsheetController.saveWorkbook(path);
                                                     }
