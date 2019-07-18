@@ -64,7 +64,7 @@
                               <Label fx:id="totalTimeStampLabel" layoutX="73.0" layoutY="27.0" prefWidth="37.0" text="00.00" />
                            </children>
                         </HBox>
-                        <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#pauseVideo" prefHeight="14.0" prefWidth="850.0" />
+                        <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="512.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" prefHeight="14.0" prefWidth="850.0" />
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="200.0">
@@ -99,7 +99,7 @@
                                     <HBox alignment="CENTER" prefHeight="50.0" prefWidth="428.0" spacing="10.0">
                                        <children>
                                           <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" prefHeight="40.0" prefWidth="70.0" text="File" />
-                                          <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#handlePlayPauseVideo" prefHeight="40.0" prefWidth="75.0" text="Play" />
+                                          <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#playPauseVideoHandler" prefHeight="40.0" prefWidth="75.0" text="Play" />
                                           <Button mnemonicParsing="false" onAction="#handlePreviousFrame" prefHeight="40.0" text="Previous Frame" />
                                           <Button mnemonicParsing="false" onAction="#handleNextFrame" prefHeight="40.0" text="Next Frame" />
                                           <Button mnemonicParsing="false" onAction="#resetMediaPlayer" prefHeight="40.0" prefWidth="100.0" text="Reset Video" />
@@ -112,7 +112,7 @@
                                                 <Font name="System Bold" size="12.0" />
                                              </font>
                                           </Label>
-                                          <Slider fx:id="rateChangeSlider" blockIncrement="0.1" majorTickUnit="1.0" max="4.0" minorTickCount="9" onMouseClicked="#handleRateChange" onMouseDragged="#handleRateChange" prefHeight="38.0" prefWidth="650.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
+                                          <Slider fx:id="rateChangeSlider" blockIncrement="0.1" majorTickUnit="1.0" max="2.0" minorTickCount="9" onMouseClicked="#handleRateChange" onMouseDragged="#handleRateChange" prefHeight="38.0" prefWidth="650.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0">
                                              <tooltip>
                                                 <Tooltip text="Slide to select a video playback speed (Range is between 0x and 8x)." />
                                              </tooltip>

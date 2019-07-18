@@ -91,7 +91,8 @@
                                                                         <content>
                                                                           <AnchorPane prefHeight="200.0" prefWidth="400.0">
                                                                                  <children>
-                                                                                    <Button layoutX="116.0" layoutY="62.0" mnemonicParsing="false" onAction="#launchMotionVisualization" text="Testing Motion Visualization" />
+                                                                                    <Button layoutX="116.0" layoutY="62.0" mnemonicParsing="false" onAction="#launchMotionVisualization" text="Testing Motion Visualization" visible="false" />
+                                                                                    <Button layoutX="126.0" layoutY="72.0" mnemonicParsing="false" onAction="#launchMotionVisualization" text="Testing Motion Visualization" visible="false" />
                                                                                  </children></AnchorPane>
                                                                         </content>
                                                                       </Tab>

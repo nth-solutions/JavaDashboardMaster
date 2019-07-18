@@ -133,13 +133,16 @@ public class GraphController implements Initializable {
     private MediaPlayer mediaPlayer;
     private String filePath;
     private double playbackRate;
-    public volatile Boolean playing = false;
+    private volatile Boolean playing = false;
     private File fileCopy;
     private Boolean videoLoaded = false;
     private double totalFrames;
     private Media media;
     private int videoFrameRate;
     private double millisPerFrame;
+
+    private int currentFrameNumber;
+
     private String currentFrame;
 
     //Data Shift for the Second Data Set.
@@ -1223,7 +1226,7 @@ public class GraphController implements Initializable {
     }
 
     /**
-     * Responsible for the initially Styling of the the series.
+     * Responsible for the initial styling of the the series.
      *
      * @param dataSeries
      * @param lineChart
@@ -1320,13 +1323,15 @@ public class GraphController implements Initializable {
             mediaPlayer.setOnReady(new Runnable() {     // Sets the maximum value of the slider bar equal to the total duration of the file
                 @Override
                 public void run() {
+                    //flag = true;
+                    playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
 
                     mediaPlayer.play(); // Starts playing the video as soon as it is loaded
                     totalDuration = mediaPlayer.getTotalDuration().toMillis(); // total duration of the video. Used in creation of slider range.
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
                     totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
-
+                    generalStatusLabel.setText("");
                     BeginSINC(); // Starts the core behind syncing the rectangle, playback, and slider.
 
                 }
@@ -1403,7 +1408,10 @@ public class GraphController implements Initializable {
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
         try {
-            System.out.println(flag);
+            if(!playing){
+                handlePlayPauseVideo();
+            }
+
             double lineChartWidth = lineChart.getWidth();
             double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
             double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\
@@ -1426,6 +1434,19 @@ public class GraphController implements Initializable {
      */
 
     @FXML
+    private void updateSINCPosition(MouseEvent event){
+        double lineChartWidth = lineChart.getWidth();
+        double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+        double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\
+
+        trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);
+
+        currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
+
+        mediaPlayer.seek(Duration.millis(playbackSlider.getValue())); // seeks to the duration of the value of the playbackSlider, Because the max value of the playbackSlider is the totalDuration of the video, the value of the slider corresponds to a location in the video, allowing for granular adjustment.
+    }
+
+    @FXML
     private void pauseVideo(MouseEvent event) {
         try {
             if(flag){ // Stops SINC updating if the video is paused.
@@ -1434,7 +1455,9 @@ public class GraphController implements Initializable {
             playing = true;
             mediaPlayer.pause();
             playPauseButton.setText("Play");
-            mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+            //mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+
+
         }catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
@@ -1448,13 +1471,16 @@ public class GraphController implements Initializable {
     @FXML
     private void unpauseVideo(MouseEvent event) {
         try {
+            Duration timeAtPause;
+            timeAtPause = mediaPlayer.getCurrentTime();
             if(!flag){ // continues SINC updating when video is unpaused.
                 flag = true;
             }
             playing = false;
             mediaPlayer.play();
             playPauseButton.setText("Pause");
-            mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+            mediaPlayer.seek(timeAtPause);
+            //mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
 
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
@@ -1501,7 +1527,6 @@ public class GraphController implements Initializable {
             playbackRate = rateChangeSlider.getValue();
             mediaPlayer.setRate(playbackRate);
             rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
-            mediaPlayer.play();
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
@@ -1598,12 +1623,16 @@ public class GraphController implements Initializable {
         mediaView.setFitHeight(mediaViewPane.getHeight());
     }
 
+    @FXML
+    public void playPauseVideoHandler(ActionEvent event){
+        handlePlayPauseVideo();
+    }
+
     /**
-     * Manages the pressing of the play/pause button.
-     * @param event
+     * Manages the pressing of the play/pause button
      */
     @FXML
-    public void handlePlayPauseVideo(ActionEvent event) {    // Event listener responsible for changing the text and functionality of the playPauseButton button
+    public void handlePlayPauseVideo() {    // Event listener responsible for changing the text and functionality of the playPauseButton button
 
         try {
             Duration timeAtPause;
@@ -1649,43 +1678,86 @@ public class GraphController implements Initializable {
         }
     }
 
+
+    private double seekToFrameConvertedToMS;
+    private double frameConvertedToMS;
+
     @FXML
     public void handleNextFrame(){
+
         if(!playing){
-            try {
-                if(flag){
-                    flag = false;
-                }
-                playing = true;
-                mediaPlayer.pause();
-                playPauseButton.setText("Play");
-                mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
-            }catch (NullPointerException e) {
-                generalStatusLabel.setText("No Video Loaded");
-            }
+            handlePlayPauseVideo();
+        }
+
+        videoFrameRate = 30;
+
+        millisPerFrame = 1000 / videoFrameRate;
+
+
+
+        try{
+        frameConvertedToMS = mediaPlayer.getCurrentTime().toMillis();
+        }catch (NullPointerException e){
+            flag = true; // ensures flag stays at true when the button is pressed when there is no video loaded, so the SINC starts properly when a video is eventually loaded.
+        }
+
+        seekToFrameConvertedToMS = frameConvertedToMS + millisPerFrame;
+
+        try{
+            mediaPlayer.seek(Duration.millis(seekToFrameConvertedToMS));
+        }catch (Exception e){
+            flag = true;
         }
 
 
-
+        flag = true;
 
     }
     @FXML
     public void handlePreviousFrame(){
         if(!playing){
-            try {
-                if(flag){
-                    flag = false;
-                }
-                playing = true;
-                mediaPlayer.pause();
-                playPauseButton.setText("Play");
-                mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
-            }catch (NullPointerException e) {
-                generalStatusLabel.setText("No Video Loaded");
-            }
+            handlePlayPauseVideo();
+        }
+
+        videoFrameRate = 30;
+
+        millisPerFrame = 1000 / videoFrameRate;
+
+//        if(!playing){
+//            try {
+//                playing = true;
+//                mediaPlayer.pause();
+//                if(flag){
+//                    flag = false;
+//                }
+//
+//                playPauseButton.setText("Play");
+//                mediaPlayer.seek(Duration.millis(playbackSlider.getValue()));
+//            }catch (NullPointerException e) {
+//                generalStatusLabel.setText("No Video Loaded");
+//            }
+//        }
+
+
+
+
+        try{
+            frameConvertedToMS = mediaPlayer.getCurrentTime().toMillis();
+        }catch (NullPointerException e){
+            flag = true;
+        }
+
+        seekToFrameConvertedToMS = frameConvertedToMS - millisPerFrame;
+
+        try{
+            mediaPlayer.seek(Duration.millis(seekToFrameConvertedToMS));
+        }catch (Exception e){
+            flag = true;
         }
 
 
+
+        flag = true;
 
     }
 

@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
  * @author Mobile2
  */
 public class BlackFrameAnalysis {
-	private int videoFPS = 240;
+	private int videoFPS = 30;
 	private final int moduleSPS = 960;
 	private final int lengthOfTest = 120;
 	private final double T_INTERVAL = (1.0/(double)videoFPS);
