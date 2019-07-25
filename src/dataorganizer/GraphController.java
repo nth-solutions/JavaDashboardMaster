@@ -1373,14 +1373,14 @@ public class GraphController implements Initializable {
                 while (true) {
 
                     double lineChartWidth = lineChart.getWidth();
-                    double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+                    double lineChartOffset = 75;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
                     double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
 
                     while (flag) { // While the flag boolean is true (If the flag boolean is changed to false, this code stops running, but the thread is not exited.)
 
                         //System.out.println(mediaPlayer.getCurrentTime().toMillis());
                         playbackSlider.setValue(mediaPlayer.getCurrentTime().toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
-                        trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
+                        trackerRectangle.setX((((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied));   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
                                 //                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
                         Platform.runLater(() -> { // Platform.runLater is used to handle UI updating.
                             currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));

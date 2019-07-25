@@ -33,15 +33,15 @@ public class ParameterSpreadsheetController {
         }
         else if(testType == "Physical Pendulum"){
 
-            testTypeFileName = "Pendulum Template REV-Q3.xlsx";
+            testTypeFileName = "Pendulum Template.xlsx";
 
         }else if(testType == "Spinny Stool"){
 
             testTypeFileName = "Spinny Stool Template.xlsx";
 
-        }else if(testType == "Spring Test - Simple Haromincs"){
+        }else if(testType == "Spring Test - Simple Harmonics"){
 
-            testTypeFileName = "Spring Test - Simple Haromincs Template.xlsx";
+            testTypeFileName = "Spring Test - Simple Harmonics Template.xlsx";
         }
         //testTypeFileName = "Pendulum Template REV-Q3.xlsx";
         //System.out.println(System.getProperty("user.home"));
