@@ -1327,7 +1327,7 @@ public class GraphController implements Initializable {
                     playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
 
                     mediaPlayer.play(); // Starts playing the video as soon as it is loaded
-                    totalDuration = mediaPlayer.getTotalDuration().toMillis(); // total duration of the video. Used in creation of slider range.
+                    totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()); // total duration of the video. Used in creation of slider range.
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
                     totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.

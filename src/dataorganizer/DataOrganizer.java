@@ -22,6 +22,7 @@ public class DataOrganizer {
 	public int[][] MPUMinMax; //first dimension is for axis(1), second is for min(0)/max(1) 
 	private String nameOfTest;
 	private int sampleRate;
+	private int timer0;
 	private int magSampleRate;
 	private int magInterval;
 	public int accelSensitivity;
@@ -43,6 +44,7 @@ public class DataOrganizer {
 	public DataOrganizer(ArrayList<Integer> testParameters, String testName) {
 		this.nameOfTest = testName;
 		this.testParameters = testParameters;
+		timer0 = testParameters.get(1);
 		delayAfterStart = testParameters.get(2);
 		lengthOfTest = testParameters.get(6);
 		sampleRate = testParameters.get(7);
@@ -101,7 +103,7 @@ public class DataOrganizer {
 			int delayAdditionalLineNums = (int) Math.round(((double) delayAfterStart / -1000.0) * (double) sampleRate);
 
 			for (int i = 0; i < delayAdditionalLineNums; i++) {
-				dataSamples.get(0).add((double) i / (double) sampleRate);
+				dataSamples.get(0).add((double) i / ((double)timer0*250)/1000);
 				if (magInterval == 10 && i % 10 == 0) {
 					for (int dof9 = 1; dof9 < 10; dof9++) {
 						dataSamples.get(dof9).add(0.0);
@@ -123,7 +125,7 @@ public class DataOrganizer {
 
 		while (!endCondition) {
 			for (int i = 0; i < magInterval && !endCondition; i++) {
-				dataSamples.get(0).add(lineNum, (double) lineNum / (double) sampleRate); // adds the time to the first column;
+				dataSamples.get(0).add(lineNum, (double) lineNum / ((double)timer0*250)/1000); // adds the time to the first column;
 
 				if (i == 0) {
 					for (int dof9 = 1; dof9 < 10; dof9++) { // starts at 1 because 0 is time
@@ -282,6 +284,7 @@ public class DataOrganizer {
 		/*
 		 * Just set these variables because thats where we reference them from most of the time.
 		 */
+		timer0 = testParameters.get(1);
 		delayAfterStart = testParameters.get(2);
 		lengthOfTest = testParameters.get(6);
 		sampleRate = testParameters.get(7);
@@ -489,7 +492,7 @@ public class DataOrganizer {
 
 
 	public double getLengthOfTest() {
-		this.lengthOfTest = (double)dataSamples.get(0).size()/(double)sampleRate;
+		this.lengthOfTest = (double)dataSamples.get(0).get(dataSamples.get(0).size()-1);
 		return lengthOfTest;
 	}
 
