@@ -49,7 +49,7 @@ public class ParameterSpreadsheetController {
         documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
         //documentsPath = "C:\\Users\\Falcon\\Documents\\Github\\JavaDashBoardMaster\\Pendulum Template REV-Q3.xlsx";
         try {
-            this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
+        	this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
         }catch(Exception e){
             e.printStackTrace();
             System.out.println("Invalid Workbook Path");
@@ -63,9 +63,7 @@ public class ParameterSpreadsheetController {
 
     public void saveWorkbook(String outputPath){
         try {
-            System.out.println(outputPath);
             workbook.save(outputPath, FileFormatType.XLSX);
-
         }catch(Exception e){
             System.out.println(e.getMessage());
             System.out.println(e.getCause());
@@ -83,10 +81,10 @@ public class ParameterSpreadsheetController {
      */
 
     public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){
-        workbook.getWorksheets().get(4).getCells().get("E3").setValue(pendulumLength);
-        workbook.getWorksheets().get(4).getCells().get("E4").setValue(pendulumMass);
-        workbook.getWorksheets().get(4).getCells().get("E5").setValue(moduleMass);
-        workbook.getWorksheets().get(4).getCells().get("E6").setValue(moduleDistanceFromAOR);
+        workbook.getWorksheets().get(3).getCells().get("E3").setValue(pendulumLength);
+        workbook.getWorksheets().get(3).getCells().get("E4").setValue(pendulumMass);
+        workbook.getWorksheets().get(3).getCells().get("E5").setValue(moduleMass);
+        workbook.getWorksheets().get(3).getCells().get("E6").setValue(moduleDistanceFromAOR);
     }
 
     public void loadSpinnyStoolParameters(double massHandWeights, double wingspan, double massOfPerson, double shoulderWidth) {
@@ -120,11 +118,10 @@ public class ParameterSpreadsheetController {
      */
     public void fillTemplateWithData(int rowOffset, List<List<Double>> dataSamples) {
         for (int axis = 1; axis < 10; axis++) { // There are 9 different sets of data points. Accel x, y, and z; Gyro x, y, and z; and Mag x, y, and z
-            if (dataSamples != null) {
+        	if (dataSamples != null) {
                 List<Double> ColumnData = dataSamples.get(axis);    //Splits the 2-D List into Individual Lists based on axis
                 for (int columnIndex = 0; columnIndex < ColumnData.size(); columnIndex++) { //Loops through every data point in the List
                     if (ColumnData.get(columnIndex) == null) continue;  //If the index holds an invalid value, continue
-
                     workbook.getWorksheets().get(0).getCells().get(columnIndex + rowOffset, axis-1).setValue(ColumnData.get(columnIndex).intValue());  //Adds the data held at columnIndex to each row of the data
                 }
             }

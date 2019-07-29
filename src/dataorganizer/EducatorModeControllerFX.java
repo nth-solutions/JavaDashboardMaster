@@ -808,7 +808,6 @@ public class EducatorModeControllerFX implements Initializable {
                 @Override
                 public void run() {
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
-                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
 
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
@@ -856,12 +855,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                                 //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                                 testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("All Data Received from Module");
-                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                });
-
+                               
                                 //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
                                 if (testData != null) {
                                     for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
@@ -880,72 +874,55 @@ public class EducatorModeControllerFX implements Initializable {
                                         dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                         //Define operation that can be run in separate thread
                                         //TODO: This will probably throw an error
-                                        Runnable organizerOperation = () -> {
 
-                                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+                                        //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
 
-                                            dataOrgo.createDataSmpsRawData(finalData);
+                                        dataOrgo.createDataSmpsRawData(finalData);
 
-                                            if (spreadsheetRadioButton.isSelected()) {
+                                        if (spreadsheetRadioButton.isSelected()) {
+                                            List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
-                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
+                                            Platform.runLater(() -> {
+                                                generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+                                                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                                            });
 
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                                });
+                                            /*
+                                            Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
+                                            The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
+                                            */
 
-                                                /*
-                                                Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
-                                                The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
-                                                 */
-
-                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Conservation of Energy") {
-                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Inclined Plane") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                } else if (testType == "Physical Pendulum") {
-                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-
-                                                } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                }
-
-                                                try {
-                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-
-                                                } catch (Exception exceptionalexception) {                              // This error should never happen
-                                                    System.out.println("If you got this error, something went seriously wrong");
-                                                }
-
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Data Successfully Written");
-                                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                                });
-
+                                            ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                                            if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                                parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            } else if (testType == "Conservation of Energy") {
+                                                parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            } else if (testType == "Inclined Plane") {
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            } else if (testType.equals("Physical Pendulum")) {
+                                            	parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            } else if (testType == "Spring Test - Simple Harmonics") {
+                                                parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                             }
-                                            dataOrgo.getSignedData();
-                                            //dataOrgo.createCSVP();
-                                            //dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
+                                            parameterSpreadsheetController.saveWorkbook(path);
+                                            
+                                            try {
+                                                Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+                                            } catch (Exception exceptionalexception) {                              // This error should never happen
+                                                System.out.println("If you got this error, something went seriously wrong");
+                                            }
 
-                                            //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
-                                        };
+                                        }
+                                        dataOrgo.getSignedData();
+                                        //dataOrgo.createCSVP();
+                                        ///dataOrgo.createCSV(false, false); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
 
-                                        //Set thread to execute previously defined operation
-                                        Thread organizerThread = new Thread(organizerOperation);
-                                        //Start thread
-                                        organizerThread.start();
+                                        //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
+               
 
                                     }
                                 } else {

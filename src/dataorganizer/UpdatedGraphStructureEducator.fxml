@@ -90,7 +90,6 @@
                                  <children>
                                     <HBox alignment="CENTER" prefHeight="50.0" prefWidth="428.0" spacing="10.0">
                                        <children>
-                                          <Button fx:id="selectFileButton" mnemonicParsing="false" onAction="#handleFileOpener" prefHeight="40.0" prefWidth="70.0" text="File" />
                                           <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#playPauseVideoHandler" prefHeight="40.0" prefWidth="75.0" text="Play" />
                                           <Button mnemonicParsing="false" onAction="#handlePreviousFrame" prefHeight="40.0" text="Previous Frame" />
                                           <Button mnemonicParsing="false" onAction="#handleNextFrame" prefHeight="40.0" text="Next Frame" />
@@ -332,6 +331,7 @@
             <Menu mnemonicParsing="false" text="File">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleFileOpener" text="Import Video" />
                   <MenuItem mnemonicParsing="false" onAction="#graphMomentum" text="Import Conservation of Momentum Test" />
                </items>
             </Menu>

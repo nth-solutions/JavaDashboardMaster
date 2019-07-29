@@ -451,6 +451,7 @@ public class GraphController implements Initializable {
 
             if (csvFilePath != null) {                                                                                                                //Checks to make sure the given file path contains a valid value
                 loadCSVData();                                                                                                                        //Calls the loadCSV method
+                mediaPlayer.setOnPlaying(mediaPlayerOnReadyRunnable());
             }
 
         } catch (NullPointerException e) {
@@ -1177,6 +1178,7 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder(); // String builder object on which style changes are appended.
                     style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; "); //dof.getName returns the name of the current dof, This name is passed to the changeColorofSeries Method which returns the corresponding color string. These styles are appended to the style string.
                     n.setStyle(style.toString()); // Sets the style of the dof to the string, which includes all the appended style changes.
+                    n.toFront();
                 }
                 nSeries++; // moves to the next selected dof.
             }
@@ -1193,6 +1195,7 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
+                    n.toFront();
                 }
                 nSeries++;
             }
@@ -1206,6 +1209,7 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
+                    n.toFront();
                 }
                 nSeries++;
             }
@@ -1219,6 +1223,7 @@ public class GraphController implements Initializable {
                     StringBuilder style = new StringBuilder();
                     style.append("-fx-stroke: " + changeColorofSeries(dof.getName()) + "; -fx-background-color: " + changeColorofSeries(dof.getName()) + ", white; ");
                     n.setStyle(style.toString());
+                    n.toFront();
                 }
                 nSeries++;
             }
@@ -1320,27 +1325,30 @@ public class GraphController implements Initializable {
 
             videoHasBeenLoaded = true;  //After a video has been loaded for the first time, this boolean is set to true
 
-            mediaPlayer.setOnReady(new Runnable() {     // Sets the maximum value of the slider bar equal to the total duration of the file
-                @Override
-                public void run() {
-                    //flag = true;
-                    playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
-
-                    mediaPlayer.play(); // Starts playing the video as soon as it is loaded
-                    if(dataCollector[0] == null) return;
-                    totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the video. Used in creation of slider range.
-                    System.out.println(totalDuration);	
-                    playbackSlider.setMax(totalDuration);
-                    playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
-                    totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
-                    generalStatusLabel.setText("");
-                    BeginSINC(); // Starts the core behind syncing the rectangle, playback, and slider.
-
-                }
-            });
+            mediaPlayer.setOnPlaying(mediaPlayerOnReadyRunnable());
         }
     }
 
+    
+    Runnable mediaPlayerOnReadyRunnable(){
+    	return new Runnable() {     // Sets the maximum value of the slider bar equal to the total duration of the file
+            @Override
+            public void run() {
+                //flag = true;
+                playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
+
+                if(dataCollector[0] == null) return;
+                totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the video. Used in creation of slider range.
+                playbackSlider.setMax(totalDuration);
+                playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
+                totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
+                generalStatusLabel.setText("");
+                BeginSINC(); // Starts the core behind syncing the rectangle, playback, and slider.
+
+            }
+        };
+    }
+    
     /**
      * Helper function that creates a File Chooser and the returns the selected video file
      *
