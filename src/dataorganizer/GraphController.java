@@ -1327,7 +1327,9 @@ public class GraphController implements Initializable {
                     playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
 
                     mediaPlayer.play(); // Starts playing the video as soon as it is loaded
-                    totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()); // total duration of the video. Used in creation of slider range.
+                    if(dataCollector[0] == null) return;
+                    totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the video. Used in creation of slider range.
+                    System.out.println(totalDuration);	
                     playbackSlider.setMax(totalDuration);
                     playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
                     totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
@@ -1511,6 +1513,8 @@ public class GraphController implements Initializable {
     public void moveTrackerRectanglePlusOne(ActionEvent event) {
         double currentXPosition = trackerRectangle.getX();
         if(currentXPosition < 845) {
+            double currentXPositionSlider = playbackSlider.getLayoutX();
+            playbackSlider.setLayoutX(currentXPositionSlider + 1);
             trackerRectangle.setX(currentXPosition + 1); // Moves the rectangle one pixel to the right
             numberOfOffsetsApplied += 1; // Tracks how many offsets there have been, so when the the rectangle is moved by the progression of the video, the offset applied stays.
         }
@@ -1541,8 +1545,10 @@ public class GraphController implements Initializable {
         //if (numberOfOffsetsApplied <= 0) { // prevents the rectangle from moving left of the y axis.
        //     numberOfOffsetsApplied = 0;
         //} else {
-            double currentXPosition = trackerRectangle.getX(); // See moveTrackerRectanglePlusOne
-            trackerRectangle.setX(currentXPosition - 1);
+            double currentXPositionSweepingLine = trackerRectangle.getX(); // See moveTrackerRectanglePlusOne
+            trackerRectangle.setX(currentXPositionSweepingLine - 1);
+            double currentXPositionSlider = playbackSlider.getLayoutX();
+            playbackSlider.setLayoutX(currentXPositionSlider - 1);
             numberOfOffsetsApplied -= 1;
        // }
     }

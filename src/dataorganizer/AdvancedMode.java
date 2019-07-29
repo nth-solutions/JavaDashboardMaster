@@ -258,7 +258,7 @@ public class AdvancedMode extends JFrame {
 	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-		setTitle("JavaDashboard Rev-20");
+		setTitle("JavaDashboard Rev-23");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();

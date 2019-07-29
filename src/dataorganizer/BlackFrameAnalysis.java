@@ -52,10 +52,8 @@ public class BlackFrameAnalysis {
 		
 	}
 
-
-
 	public int getDelayAfterStart() {
-		return (int)(T_INTERVAL * (preLitBFNum) * 1000);	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
+		return (int)(2000-(T_INTERVAL * (preLitBFNum) * 1000));	//Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
 	}
 
 	public int getTMR0Offset() {
