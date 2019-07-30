@@ -47,7 +47,7 @@
                               <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                            </yAxis>
                         </LineChart>
-                        <Pane fx:id="mediaViewPane" layoutX="67.0" layoutY="14.0" opacity="0.3" prefHeight="434.0" prefWidth="842.0">
+                        <Pane fx:id="mediaViewPane" layoutX="65.0" layoutY="14.0" opacity="0.3" prefHeight="434.0" prefWidth="840.0">
                            <children>
                               <MediaView fx:id="mediaView" fitHeight="434.0" fitWidth="843.0" preserveRatio="false">
                                  <viewport>
@@ -57,7 +57,7 @@
                            </children>
                         </Pane>
                         <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="65.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
-                        <Slider fx:id="playbackSlider" layoutX="60.0" layoutY="-7.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" opacity="0.0" prefHeight="446.0" prefWidth="850.0" />
+                        <Slider fx:id="playbackSlider" layoutX="62.0" layoutY="-7.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" opacity="0.8" prefHeight="446.0" prefWidth="844.0" />
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="260.0" prefWidth="917.0">

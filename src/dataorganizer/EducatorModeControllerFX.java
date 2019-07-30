@@ -918,11 +918,6 @@ public class EducatorModeControllerFX implements Initializable {
 
                                         }
                                         dataOrgo.getSignedData();
-                                        //dataOrgo.createCSVP();
-                                        ///dataOrgo.createCSV(false, false); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
-
-                                        //CSVBuilder.sortData(finalData, tempName, (accelGyroSampleRate / magSampleRate), settings.getKeyVal("CSVSaveLocation"), (getSelectedButtonText(group) == "Data (Excel)"), (timedTestFlag==1), testParameters)
-               
 
                                     }
                                 } else {
@@ -1284,23 +1279,14 @@ public class EducatorModeControllerFX implements Initializable {
                                         Runnable organizerOperation = () -> {
 
                                             //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-
-                                            dataOrgo.createDataSmpsRawData(finalData);
-
-                                            if (sincTechnologyRadioButton.isSelected()) {
-
-                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
-
-                                            }
-
-                                            dataOrgo.getSignedData();
-
                                             Settings settings = new Settings();
                                             settings.loadConfigFile();
 
+                                            dataOrgo.createDataSmpsRawData(finalData);
+                                            dataOrgo.getSignedData();
+
                                             dataOrgo.createCSVP();
                                             dataOrgo.createCSV(false, false);
-
                                         };
 
                                         //Set thread to execute previously defined operation
@@ -1468,10 +1454,20 @@ public class EducatorModeControllerFX implements Initializable {
     private GraphController lineGraph;
     private MediaPlayerController mediaController;
 
+
     @FXML
-    private void launchMotionVisualization(ActionEvent event) {
+    private void launchMotionVisualizationMainMenu(ActionEvent event) {
+        lineGraph = startGraphing();
+    }
+
+    @FXML
+    private void launchMotionVisualizationExperimentTab(ActionEvent event) {
+           Settings settings = new Settings();
+           String CSVsaveLocation = settings.getKeyVal("CSVSaveLocation");
+           String pathTofile = CSVsaveLocation + File.separator + dataOrgo.getName() + "p";
+
            lineGraph = startGraphing();
-           //lineGraph.importCSV(dataOrgo.pathToCSVFile());
+           lineGraph.loadCSVData(pathTofile);
 
     }
 

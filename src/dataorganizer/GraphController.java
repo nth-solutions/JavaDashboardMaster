@@ -450,7 +450,7 @@ public class GraphController implements Initializable {
             csvFilePath = fileChosen.toString();                                                                                                    //Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
 
             if (csvFilePath != null) {                                                                                                                //Checks to make sure the given file path contains a valid value
-                loadCSVData();                                                                                                                        //Calls the loadCSV method
+                loadCSVData(csvFilePath);                                                                                                                        //Calls the loadCSV method
                 mediaPlayer.setOnPlaying(mediaPlayerOnReadyRunnable());
             }
 
@@ -601,7 +601,7 @@ public class GraphController implements Initializable {
         parent.dispose();
     }
 
-    public void loadCSVData() {
+    public void loadCSVData(String csvFilePath) {
         createListenersResize();
         DataOrganizer dataOrgoObject = new DataOrganizer();
         dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
@@ -1329,6 +1329,9 @@ public class GraphController implements Initializable {
         }
     }
 
+    private double videoDuration;
+    private double durationDifference;
+
     
     Runnable mediaPlayerOnReadyRunnable(){
     	return new Runnable() {     // Sets the maximum value of the slider bar equal to the total duration of the file
@@ -1338,12 +1341,21 @@ public class GraphController implements Initializable {
                 playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
 
                 if(dataCollector[0] == null) return;
+                videoDuration = mediaPlayer.getTotalDuration().toMillis();
+
                 totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the video. Used in creation of slider range.
+
+                durationDifference = videoDuration - totalDuration;
+
+                System.out.println("Test Duration:" + totalDuration);
+                System.out.println("Video Duration" + videoDuration);
+
                 playbackSlider.setMax(totalDuration);
                 playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
                 totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
                 generalStatusLabel.setText("");
                 BeginSINC(); // Starts the core behind syncing the rectangle, playback, and slider.
+                System.out.println(lineChart.getWidth());
 
             }
         };
@@ -1383,15 +1395,21 @@ public class GraphController implements Initializable {
                 while (true) {
 
                     double lineChartWidth = lineChart.getWidth();
-                    double lineChartOffset = 75;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+                    double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
                     double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
 
                     while (flag) { // While the flag boolean is true (If the flag boolean is changed to false, this code stops running, but the thread is not exited.)
 
                         //System.out.println(mediaPlayer.getCurrentTime().toMillis());
                         playbackSlider.setValue(mediaPlayer.getCurrentTime().toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
+                        //System.out.println("The playbackSlider has been set to to a value of " + mediaPlayer.getCurrentTime().toMillis() + "out of " + totalDuration);
+
+                        //System.out.println("The playbackSlider is currently "+ ((mediaPlayer.getCurrentTime().toMillis()/totalDuration)*100) +"percent through, while the tracker rectangle is currently "+((trackerRectangle.getX()/840)*100) + "percent through");
+                        //System.out.println("The difference between the percent progress of the playback slider and the percent progress of the tracker rectangle is "+ (((mediaPlayer.getCurrentTime().toMillis()/totalDuration)*100) - ((trackerRectangle.getX()/840)*100)) );
                         trackerRectangle.setX((((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied));   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
                                 //                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
+                        //System.out.println("The tracker rectange has been set to a position of " + trackerRectangle.getX() +" out of 840");
+
                         Platform.runLater(() -> { // Platform.runLater is used to handle UI updating.
                             currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
                         });
@@ -1423,14 +1441,14 @@ public class GraphController implements Initializable {
             }
 
             double lineChartWidth = lineChart.getWidth();
-            double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+            double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
             double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\
 
             trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);
 
             currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
 
-            mediaPlayer.seek(Duration.millis(playbackSlider.getValue())); // seeks to the duration of the value of the playbackSlider, Because the max value of the playbackSlider is the totalDuration of the video, the value of the slider corresponds to a location in the video, allowing for granular adjustment.
+            //mediaPlayer.seek(Duration.millis(playbackSlider.getValue())); // seeks to the duration of the value of the playbackSlider, Because the max value of the playbackSlider is the totalDuration of the video, the value of the slider corresponds to a location in the video, allowing for granular adjustment.
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
@@ -1446,7 +1464,7 @@ public class GraphController implements Initializable {
     @FXML
     private void updateSINCPosition(MouseEvent event){
         double lineChartWidth = lineChart.getWidth();
-        double lineChartOffset = 70;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+        double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
         double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\
 
         trackerRectangle.setX(((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied);
@@ -1725,6 +1743,7 @@ public class GraphController implements Initializable {
 
 
         flag = true;
+        System.out.println("The difference between the percent progress of the playback slider and the percent progress of the tracker rectangle is "+ (((mediaPlayer.getCurrentTime().toMillis()/totalDuration)*100) - ((trackerRectangle.getX()/840)*100)) );
 
     }
     @FXML

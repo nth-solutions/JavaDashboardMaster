@@ -91,8 +91,8 @@
                                                                         <content>
                                                                           <AnchorPane prefHeight="200.0" prefWidth="400.0">
                                                                                  <children>
-                                                                                    <Button layoutX="116.0" layoutY="62.0" mnemonicParsing="false" onAction="#launchMotionVisualization" text="Testing Motion Visualization" visible="false" />
-                                                                                    <Button layoutX="126.0" layoutY="72.0" mnemonicParsing="false" onAction="#launchMotionVisualization" text="Testing Motion Visualization" visible="false" />
+                                                                                    <Button layoutX="116.0" layoutY="62.0" mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" text="Testing Motion Visualization" visible="false" />
+                                                                                    <Button layoutX="126.0" layoutY="72.0" mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" text="Testing Motion Visualization" visible="false" />
                                                                                  </children></AnchorPane>
                                                                         </content>
                                                                       </Tab>
@@ -366,7 +366,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualization" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -440,7 +440,7 @@
                                  <children>
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
-                                          <Button mnemonicParsing="false" onAction="#launchMotionVisualization" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                          <Button mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
                                              <font>
                                                 <Font size="36.0" />
                                              </font>
