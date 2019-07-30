@@ -26,19 +26,24 @@
                <children>
                   <VBox alignment="TOP_CENTER" prefHeight="500.0" prefWidth="200.0">
                      <children>
-                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="158.33" prefWidth="200.0" text="Experiment" textFill="#1f78d1">
+                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#selectExperimentTab" prefHeight="117.5" prefWidth="200.0" text="Experiment" textFill="#1f78d1">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="158.33" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="117.5" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button fx:id="sincCalibrationButton" mnemonicParsing="false" onAction="#selectSINCCalibration" prefHeight="158.33" prefWidth="200.0" text="SINC Module Calibration" textFill="#4edd23">
+                        <Button fx:id="sincCalibrationButton" mnemonicParsing="false" onAction="#selectSINCCalibration" prefHeight="117.5" prefWidth="200.0" text="SINC Module Calibration" textFill="#4edd23">
                            <font>
                               <Font size="16.0" />
+                           </font>
+                        </Button>
+                        <Button fx:id="eraseModuleButtonMainMenu" alignment="CENTER" mnemonicParsing="false" onAction="#selectEraseConfirmationTab" prefHeight="117.0" prefWidth="200.0" text="Erase Module" textFill="#1f78d1">
+                           <font>
+                              <Font size="18.0" />
                            </font>
                         </Button>
                         <Button mnemonicParsing="false" onAction="#selectSettingsTab" prefHeight="30.0" prefWidth="200.0" text="Settings" />
@@ -322,12 +327,12 @@
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
+                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="SINC Technology">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="SINC Technology">
+                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -518,6 +523,29 @@
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <Label layoutX="171.0" layoutY="242.0" text="Future Home of Cool Settings" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </Tab>
+                        <Tab fx:id="eraseConfirmationTab" text="Erase Confirmation">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Button fx:id="eraseModuleButtonMainMenu" layoutX="118.0" layoutY="225.0" mnemonicParsing="false" onAction="#eraseTestsFromModuleMainMenu" text="Yes, Erase the Module">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Button>
+                                    <Label layoutX="19.0" layoutY="54.0" text="Are You Sure You Want to Erase?">
+                                       <font>
+                                          <Font name="System Bold" size="30.0" />
+                                       </font>
+                                    </Label>
+                                    <Label fx:id="eraseModuleTabLabel" layoutX="145.0" layoutY="151.0">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
                                  </children>
                               </AnchorPane>
                           </content>

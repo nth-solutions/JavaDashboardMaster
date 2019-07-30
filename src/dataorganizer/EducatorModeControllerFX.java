@@ -48,6 +48,9 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Tab sincCalibrationTab;
     @FXML
+    Tab eraseConfirmationTab;
+
+    @FXML
     Button nextButton;
     @FXML
     Button backButton;
@@ -82,14 +85,22 @@ public class EducatorModeControllerFX implements Initializable {
     ProgressBar progressBar;
     @FXML
     Button eraseButton;
+
+    @FXML
+    Button eraseModuleButtonMainMenu;
     //Extra Test Parameter TextFields
 
     @FXML
     Label sincCalibrationTabGeneralStatusLabel;
 
+    @FXML
+    Label eraseModuleTabLabel;
+
 
     @FXML
     TextField massOfLeftModuleTextField;
+
+
     @FXML
     TextField massOfLeftGliderTextField;
     @FXML
@@ -226,6 +237,11 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectSINCCalibration(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(sincCalibrationTab);
+    }
+
+    @FXML
+    private void selectEraseConfirmationTab(ActionEvent event){
+        primaryTabPane.getSelectionModel().select(eraseConfirmationTab);
     }
 
     /**
@@ -991,7 +1007,6 @@ public class EducatorModeControllerFX implements Initializable {
                     @Override
                     public void run() {
                         String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
-                        ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
 
                         try {
                             ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
@@ -1040,13 +1055,10 @@ public class EducatorModeControllerFX implements Initializable {
                                     //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                                     testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
-                                    Platform.runLater(() -> {
-                                        generalStatusExperimentLabel.setText("All Data Received from Module");
-                                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                    });
-
                                     //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
                                     if (testData != null) {
+                                        ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
+
                                         for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
                                             int[] finalData = new int[testData.get(testIndex).size()];
@@ -1063,65 +1075,63 @@ public class EducatorModeControllerFX implements Initializable {
                                             dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                             //Define operation that can be run in separate thread
                                             //TODO: This will probably throw an error
+
+                                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+
+                                            dataOrgo.createDataSmpsRawData(finalData);
+
+                                            if (spreadsheetRadioButton.isSelected()) {
+                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
+
+                                                Platform.runLater(() -> {
+                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                                                });
+
+                                            /*
+                                            Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
+                                            The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
+                                            */
+
+                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Conservation of Energy") {
+                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Inclined Plane") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType.equals("Physical Pendulum")) {
+                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Spring Test - Simple Harmonics") {
+                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                }
+                                                parameterSpreadsheetController.saveWorkbook(path);
+
+                                                try {
+                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+                                                } catch (Exception exceptionalexception) {                              // This error should never happen
+                                                    System.out.println("If you got this error, something went seriously wrong");
+                                                }
+
+                                            }
+                                            String tempName1 = "(#" + (testIndex + 1) + ") " + nameOfFile;
+                                            dataOrgo = new DataOrganizer(testParameters, tempName1);                         // object that stores test data.
+                                            dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
+                                            dataOrgoList.add(dataOrgo);
+                                            //Define operation that can be run in separate thread
+                                            //TODO: This will probably throw an error
                                             Runnable organizerOperation = () -> {
 
                                                 //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-
-                                                dataOrgo.createDataSmpsRawData(finalData);
-
-                                                if (graphAndSpreadsheetRadioButton.isSelected()) {
-
-                                                    List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
-
-                                                    Platform.runLater(() -> {
-                                                        generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-                                                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                                    });
-
-                                                /*
-                                                Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
-                                                The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
-                                                 */
-
-                                                    if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                        parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
-                                                        parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                        parameterSpreadsheetController.saveWorkbook(path);
-                                                    } else if (testType == "Conservation of Energy") {
-                                                        parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                        parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                        parameterSpreadsheetController.saveWorkbook(path);
-                                                    } else if (testType == "Inclined Plane") {
-                                                        parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                        parameterSpreadsheetController.saveWorkbook(path);
-                                                    } else if (testType == "Physical Pendulum") {
-                                                        parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                        parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                        parameterSpreadsheetController.saveWorkbook(path);
-
-                                                    } else if (testType == "Spring Test - Simple Harmonics") {
-                                                        parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                                        parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                        parameterSpreadsheetController.saveWorkbook(path);
-                                                    }
-
-                                                    try {
-                                                        Thread.sleep(10000);                                          // Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-
-                                                    } catch (Exception exceptionalexception) {                              // This error should never happen
-                                                        System.out.println("If you got this error, something went seriously wrong");
-                                                    }
-
-                                                    Platform.runLater(() -> {
-                                                        generalStatusExperimentLabel.setText("Data Successfully Written");
-                                                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                                    });
-
-                                                }
-                                                dataOrgo.getSignedData();
-
                                                 Settings settings = new Settings();
                                                 settings.loadConfigFile();
+
+                                                dataOrgo.createDataSmpsRawData(finalData);
+                                                dataOrgo.getSignedData();
 
                                                 dataOrgo.createCSVP();
                                                 dataOrgo.createCSV(false, false);
@@ -1131,7 +1141,6 @@ public class EducatorModeControllerFX implements Initializable {
                                             Thread organizerThread = new Thread(organizerOperation);
                                             //Start thread
                                             organizerThread.start();
-
                                         }
                                     } else {
 
@@ -1447,6 +1456,75 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
+
+    @FXML
+    private void eraseTestsFromModuleMainMenu(ActionEvent event) {
+
+        Task<Void> eraseTestsTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                int maxProgress = 100;  //Defines local variable for maximum Progress Bar progress
+                updateMessage("Bulk Erasing...");   //Updates the Task's readable message property in order to update generalStatusText
+                Platform.runLater(() -> {   // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                    eraseModuleTabLabel.setTextFill(Color.BLACK);  //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
+                });
+
+                try {
+
+                    if (serialHandler.bulkEraseModule()) {  // Checks if the module is curently being bulk erased
+                        //Notify the user that the sequence has completed
+                        updateMessage("Bulk Erase Complete");
+                        Platform.runLater(() -> {
+                            eraseModuleTabLabel.setTextFill(DarkGreen);
+                        });
+                        updateProgress(100, maxProgress);
+                    } else {
+                        updateMessage("Bulk Erase Failed");
+                        updateProgress(100, maxProgress);
+                        Platform.runLater(() -> {
+                            eraseModuleTabLabel.setTextFill(Color.RED);
+                        });
+                    }
+                } catch (IOException e) {
+                    updateMessage("Error Communicating With Serial Dongle");
+                    updateProgress(100, maxProgress);
+                    Platform.runLater(() -> {
+                        eraseModuleTabLabel.setTextFill(Color.RED);
+                    });
+                } catch (PortInUseException e) {
+                    updateMessage("Serial Port Already In Use");
+                    updateProgress(100, maxProgress);
+                    Platform.runLater(() -> {
+                        eraseModuleTabLabel.setTextFill(Color.RED);
+                    });
+                } catch (UnsupportedCommOperationException e) {
+                    updateMessage("Check Dongle Compatibility");
+                    updateProgress(100, maxProgress);
+                    Platform.runLater(() -> {
+                        eraseModuleTabLabel.setTextFill(Color.RED);
+                    });
+                }
+
+                return null;
+            }
+        };
+
+        // Binds UI properties on the pairing tab to read only properties of the Task so that the UI may be edited in a thread different from the main UI thread
+        eraseModuleTabLabel.textProperty().bind(eraseTestsTask.messageProperty());
+        eraseModuleButtonMainMenu.disableProperty().bind(eraseTestsTask.runningProperty());
+
+
+        eraseTestsTask.setOnSucceeded(e -> {    // If the task successfully completes its routine, the UI components are unbound, releasing their control back to the main UI thread
+            eraseModuleTabLabel.textProperty().unbind();
+            eraseModuleButtonMainMenu.disableProperty().unbind();
+
+
+        });
+
+        new Thread(eraseTestsTask).start(); //Starts an anonymous thread, passing it the Task defined above
+
+    }
+
     /*End Experiment Tab Methods*/
 
     /*Begin Motion Visualization Tab Methods*/
@@ -1462,10 +1540,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-           Settings settings = new Settings();
-           String CSVsaveLocation = settings.getKeyVal("CSVSaveLocation");
-           String pathTofile = CSVsaveLocation + File.separator + dataOrgo.getName() + "p";
-
+           String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
            lineGraph = startGraphing();
            lineGraph.loadCSVData(pathTofile);
 

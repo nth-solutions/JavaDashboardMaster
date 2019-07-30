@@ -1436,6 +1436,7 @@ public class GraphController implements Initializable {
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
         try {
+
             if(!playing){
                 handlePlayPauseVideo();
             }
@@ -2022,7 +2023,7 @@ public class GraphController implements Initializable {
     public void openLineColorPalette(ActionEvent event) {
         colorPaletteController = startColorPalette();
     }
-
+//
 //    public void setLineColors(Color[] lineColors){
 //        this.lineColors = lineColors;
 //    }

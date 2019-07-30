@@ -262,7 +262,7 @@ public class DataOrganizer {
 				MPUMinMax[i][0] = Integer.valueOf(CSVPFile.readLine());
 				MPUMinMax[i][1] = Integer.valueOf(CSVPFile.readLine());
 			}
-		} catch (NumberFormatException e) {
+		}catch (NumberFormatException e) {
 			e.printStackTrace();
 			//NFE really shouldn't happen but it would mean that the file is corrupt.
 			try {

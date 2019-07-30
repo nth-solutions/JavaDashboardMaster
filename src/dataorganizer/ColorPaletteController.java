@@ -142,12 +142,12 @@ public class ColorPaletteController implements Initializable {
 
         accelMagColor = accelMagColorPicker.getValue().toString();
 
+        //window.setLineColors(lineColors);
+
+        //window.restyleSeries();
 
 
-        //Window.restyleSeries();
         closeWindow();
-      //  Window.setLineColors(lineColors);
-
     }
 
     public void setGraphControllerObject(GraphController window){

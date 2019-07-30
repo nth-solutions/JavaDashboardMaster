@@ -5,3 +5,6 @@
     visibility: hidden ;
     -fx-padding: -20 0 0 0;
 }
+.text-field {
+    -fx-prompt-text-fill: black;
+}
