@@ -139,7 +139,6 @@ public class EducatorModeControllerFX implements Initializable {
 
     private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 
-
     //Extra Module Parameters - CoM
     double massOfRightModule;
     double massOfRightGlider;
@@ -807,6 +806,8 @@ public class EducatorModeControllerFX implements Initializable {
         return outputSelected;
     }
 
+
+
     /**
      * This method reads all of the data captured by the module during a testing period; then, depending on the output
      * type selected (from a defined ToggleGroup of output options), the data is then handled accordingly.
@@ -1287,6 +1288,7 @@ public class EducatorModeControllerFX implements Initializable {
                                         //TODO: This will probably throw an error
                                         Runnable organizerOperation = () -> {
 
+
                                             //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
                                             Settings settings = new Settings();
                                             settings.loadConfigFile();
@@ -1668,7 +1670,7 @@ public class EducatorModeControllerFX implements Initializable {
             Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                 videoFilePathTextField.setAlignment(Pos.CENTER_LEFT);
                 videoFilePathTextField.setText(fileout);
-                sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
+                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
                 sincCalibrationTabGeneralStatusLabel.setText("File Copy Finished!");
             });
 
@@ -1708,7 +1710,7 @@ public class EducatorModeControllerFX implements Initializable {
                         });
                     }else{
                         Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Timer Offset and Delay After Start Calculated, you may now apply them.");
+                            sincCalibrationTabGeneralStatusLabel.setText("TMR0 and Delay After Start Calculated, you may now apply them");
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
                         });
                     }
