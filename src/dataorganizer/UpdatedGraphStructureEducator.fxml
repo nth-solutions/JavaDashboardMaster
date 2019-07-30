@@ -57,7 +57,7 @@
                            </children>
                         </Pane>
                         <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="65.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
-                        <Slider fx:id="playbackSlider" layoutX="62.0" layoutY="-7.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" opacity="0.8" prefHeight="446.0" prefWidth="844.0" />
+                        <Slider fx:id="playbackSlider" layoutX="62.0" layoutY="-7.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" opacity="0.0" prefHeight="446.0" prefWidth="844.0" />
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="260.0" prefWidth="917.0">

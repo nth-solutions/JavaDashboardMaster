@@ -1557,7 +1557,7 @@ public class GraphController implements Initializable {
         try {
             playbackRate = rateChangeSlider.getValue();
             mediaPlayer.setRate(playbackRate);
-            rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
+            //rateLabel.setText((Double.toString(Math.floor(mediaPlayer.getRate() * 10) / 10)) + "x");
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
