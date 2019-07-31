@@ -450,7 +450,8 @@ public class GraphController implements Initializable {
             csvFilePath = fileChosen.toString();                                                                                                    //Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
 
             if (csvFilePath != null) {                                                                                                                //Checks to make sure the given file path contains a valid value
-                loadCSVData(csvFilePath);                                                                                                                        //Calls the loadCSV method
+                System.out.println(csvFilePath);
+                loadCSVData();                                                                                                                        //Calls the loadCSV method
                 mediaPlayer.setOnPlaying(mediaPlayerOnReadyRunnable());
             }
 
@@ -601,7 +602,12 @@ public class GraphController implements Initializable {
         parent.dispose();
     }
 
-    public void loadCSVData(String csvFilePath) {
+    public void setCsvFilePath(String filePath){
+        csvFilePath = filePath;
+    }
+
+
+    public void loadCSVData() {
         createListenersResize();
         DataOrganizer dataOrgoObject = new DataOrganizer();
         dataOrgoObject.createDataSamplesFromCSV(csvFilePath);
@@ -1547,6 +1553,17 @@ public class GraphController implements Initializable {
         }
     }
 
+    @FXML
+    public void moveTrackerRectanglePlusFive(ActionEvent event) {
+        double currentXPosition = trackerRectangle.getX();
+        if(currentXPosition < 845) {
+            double currentXPositionSlider = playbackSlider.getLayoutX();
+            playbackSlider.setLayoutX(currentXPositionSlider + 5);
+            trackerRectangle.setX(currentXPosition + 5); // Moves the rectangle one pixel to the right
+            numberOfOffsetsApplied += 5; // Tracks how many offsets there have been, so when the the rectangle is moved by the progression of the video, the offset applied stays.
+        }
+    }
+
     /**
      * Handles changing the rate of Playback when the rateChange slider is dragged.
      * @param event
@@ -1578,6 +1595,18 @@ public class GraphController implements Initializable {
             playbackSlider.setLayoutX(currentXPositionSlider - 1);
             numberOfOffsetsApplied -= 1;
        // }
+    }
+
+    public void moveTrackerRectangleMinusFive(ActionEvent event) {
+        //if (numberOfOffsetsApplied <= 0) { // prevents the rectangle from moving left of the y axis.
+        //     numberOfOffsetsApplied = 0;
+        //} else {
+        double currentXPositionSweepingLine = trackerRectangle.getX(); // See moveTrackerRectanglePlusOne
+        trackerRectangle.setX(currentXPositionSweepingLine - 5);
+        double currentXPositionSlider = playbackSlider.getLayoutX();
+        playbackSlider.setLayoutX(currentXPositionSlider - 5);
+        numberOfOffsetsApplied -= 5;
+        // }
     }
 
 

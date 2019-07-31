@@ -70,13 +70,16 @@
                                        <children>
                                           <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
                                           <Button fx:id="zoomButton" disable="true" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
+                                          <Button mnemonicParsing="false" onAction="#updateColors" prefHeight="40.0" prefWidth="109.0" text="Update Colors" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="CENTER" spacing="5.0">
                                        <children>
-                                          <Label prefHeight="17.0" prefWidth="120.0" text="Move sweeping line:" />
-                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusOne" text="-1" />
+                                          <Label prefHeight="17.0" text="Move Line" />
                                           <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusOne" text="+1" />
+                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusOne" text="-1" />
+                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusFive" text="+5" />
+                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusFive" text="-5" />
                                        </children>
                                     </HBox>
                                     <ColorPicker fx:id="rectangleColorPicker" onAction="#picker" />

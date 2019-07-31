@@ -933,6 +933,11 @@ public class EducatorModeControllerFX implements Initializable {
                                                 System.out.println("If you got this error, something went seriously wrong");
                                             }
 
+                                            Platform.runLater( () -> {
+                                                generalStatusExperimentLabel.setText("Data successfully written");
+                                                generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                            });
+
                                         }
                                         dataOrgo.getSignedData();
 
@@ -1544,7 +1549,8 @@ public class EducatorModeControllerFX implements Initializable {
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
            String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
            lineGraph = startGraphing();
-           lineGraph.loadCSVData(pathTofile);
+           lineGraph.setCsvFilePath(pathTofile);
+           lineGraph.loadCSVData();
 
     }
 
@@ -1611,12 +1617,19 @@ public class EducatorModeControllerFX implements Initializable {
             protected Void call(){
 
                 try{
+
+                    if(!serialHandler.applyCalibrationOffsets(0, 0)){                         //the TMR0 and delay after set must be reset to their defaults otherwise the ones from the last calibration will be used in this calibration.
+                       sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
+                       sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    }
+
                     if(!serialHandler.configForCalibration()){                                                          // Calibrates Module, returns a boolean indicating whether or not it was successful.
 
                         Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                         });
+
 
                     }else{
 
@@ -1759,8 +1772,8 @@ public class EducatorModeControllerFX implements Initializable {
                     });
 
                 }catch(UnsupportedCommOperationException e){
-                    Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatability");
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
                     });
 
                 }
