@@ -1398,11 +1398,11 @@ public class GraphController implements Initializable {
 
             @Override
             public void run() {
-                while (true) {
+                double lineChartWidth = lineChart.getWidth();
+                double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
+                double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
 
-                    double lineChartWidth = lineChart.getWidth();
-                    double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
-                    double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
+                while (true) {
 
                     while (flag) { // While the flag boolean is true (If the flag boolean is changed to false, this code stops running, but the thread is not exited.)
 
@@ -1427,7 +1427,6 @@ public class GraphController implements Initializable {
                         }
 
                     }
-
                 }
             }
         };

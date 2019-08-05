@@ -53,10 +53,12 @@ public class BlackFrameAnalysis {
 	}
 
 	public int getDelayAfterStart() {
+		System.out.println(preLitBFNum);
 		if((int)(2000-(T_INTERVAL * (preLitBFNum) * 1000)) >= 0){
 			return (int)(2000-(T_INTERVAL * (preLitBFNum) * 1000)); //Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
 		}
 		else{
+
 			return 0;
 		}
 	}
