@@ -1346,10 +1346,9 @@ public class GraphController implements Initializable {
             mediaPlayer = new MediaPlayer(media);   // Creates a mediaPlayer object, mediaPlayer is utilized for video playback controls
             mediaView.setMediaPlayer(mediaPlayer);   // Sets the mediaPlayer to be the controller for the mediaVew object
             videoLoaded = true;     // Boolean to check if a video has been loaded
-
             videoHasBeenLoaded = true;  //After a video has been loaded for the first time, this boolean is set to true
 
-            mediaPlayer.setOnPlaying(mediaPlayerOnReadyRunnable());
+            mediaPlayer.setOnReady(mediaPlayerOnReadyRunnable()); // When the mediaPlayer is ready, run mediaPlayerOnReadyRunnable to initial setup surrounding the video.
         }
     }
 
