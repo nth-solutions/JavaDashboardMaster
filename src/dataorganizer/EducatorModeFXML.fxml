@@ -280,21 +280,6 @@
                                                                         <Font size="14.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2C: • Disconnect Module" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="          • Run Experiment" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="               • Reconnect Module" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
                                                                </children>
                                                                <padding>
                                                                   <Insets left="25.0" right="25.0" />
@@ -303,6 +288,38 @@
                                                          </children>
                                                       </AnchorPane>
                                                    </content>
+                                                </Tab>
+                                                <Tab text="Run Experiment">
+                                                  <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                         <children>
+                                                            <VBox prefHeight="377.0" prefWidth="500.0" spacing="40.0">
+                                                               <children>
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 3: The Experiment" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="35.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Disconnect the Module" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="24.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Run Your Experiment" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="24.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Reconnect the Module" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="24.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                               </children>
+                                                            </VBox>
+                                                         </children>
+                                                      </AnchorPane>
+                                                  </content>
                                                 </Tab>
                                                 <Tab fx:id="outputSettingsTab" text="Output Settings">
                                                    <content>
@@ -317,7 +334,7 @@
                                                                      <children>
                                                                         <VBox alignment="CENTER" prefHeight="225.0" prefWidth="450.0" spacing="15.0">
                                                                            <children>
-                                                                              <Label alignment="CENTER" prefWidth="400.0" text="Step 3: Select your output type" textFill="#1f78d1">
+                                                                              <Label alignment="CENTER" prefWidth="400.0" text="Step 4: Select your output type" textFill="#1f78d1">
                                                                                  <font>
                                                                                     <Font name="System Bold" size="14.0" />
                                                                                  </font>
@@ -341,7 +358,7 @@
                                                                         </VBox>
                                                                      </children>
                                                                   </Pane>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 3A: Read all tests from your Adventure Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4A: Read all tests from your Adventure Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -366,7 +383,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4: If not using SINC Technology, Click Next" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 5: If not using SINC Technology, Click Next" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -398,7 +415,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5: Erase the data from the module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6: Erase the data from the module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -408,12 +425,12 @@
                                                                         <Font size="36.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5A: Disconnect the Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6A: Disconnect the Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 5B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 6B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -497,19 +514,19 @@
                                                 <Button mnemonicParsing="false" onAction="#videoFileHandler" prefHeight="25.0" prefWidth="65.0" text="Browse" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="50.0" text="Step 1C: Hit the Following Buttons in Order" textFill="#1f78d1">
+                                          <Label prefHeight="50.0" text="Step 1C: Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#importCalibrationDataHandler" prefHeight="30.0" prefWidth="260.0" text="Import Calibration Data and Calculate Offset" />
+                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="260.0" text="Apply SINC Configurations to Module" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" mnemonicParsing="false" onAction="#applyOffsetHandler" prefHeight="30.0" prefWidth="150.0" text="Apply Offset to Module" />
+                                                <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#applyOffsetHandler" opacity="0.0" prefHeight="30.0" prefWidth="150.0" text="Apply Offset to Module" />
                                              </children>
                                           </HBox>
                                        </children>

@@ -57,7 +57,7 @@
                            </children>
                         </Pane>
                         <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="65.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />
-                        <Slider fx:id="playbackSlider" layoutX="62.0" layoutY="-7.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" opacity="0.0" prefHeight="446.0" prefWidth="844.0" />
+                        <Slider fx:id="playbackSlider" layoutX="62.0" layoutY="189.0" onMouseDragged="#updatePlaybackTime" onMousePressed="#updateSINCPosition" onMouseReleased="#updateSINCPosition" opacity="0.0" prefHeight="96.0" prefWidth="844.0" />
                      </children>
                   </Pane>
                   <HBox alignment="CENTER" prefHeight="260.0" prefWidth="917.0">
@@ -76,13 +76,23 @@
                                     <HBox alignment="CENTER" spacing="5.0">
                                        <children>
                                           <Label prefHeight="17.0" text="Move Line" />
-                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusOne" text="+1" />
-                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusOne" text="-1" />
-                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusFive" text="+5" />
                                           <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusFive" text="-5" />
+                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectangleMinusOne" text="-1" />
+                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusOne" text="+1" />
+                                          <Button mnemonicParsing="false" onAction="#moveTrackerRectanglePlusFive" text="+5" />
                                        </children>
                                     </HBox>
-                                    <ColorPicker fx:id="rectangleColorPicker" onAction="#picker" />
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <ColorPicker fx:id="rectangleColorPicker" onAction="#picker" promptText="Change Sweeping Line Color" />
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Graph Opacity:" />
+                                          <Slider fx:id="lineChartOpacitySlider" max="1.0" onMouseDragged="#updateGraphOpacity" value="1.0" />
+                                       </children>
+                                    </HBox>
                                  </children>
                               </VBox>
                           </content>
@@ -97,6 +107,8 @@
                                           <Button mnemonicParsing="false" onAction="#handlePreviousFrame" prefHeight="40.0" text="Previous Frame" />
                                           <Button mnemonicParsing="false" onAction="#handleNextFrame" prefHeight="40.0" text="Next Frame" />
                                           <Button mnemonicParsing="false" onAction="#resetMediaPlayer" prefHeight="40.0" prefWidth="100.0" text="Reset Video" />
+                                          <Button fx:id="sendVideoToFrontButton" mnemonicParsing="false" onAction="#sendVideoToFront" text="Bring to Front" />
+                                          <Button fx:id="sendVideoToBackButton" mnemonicParsing="false" onAction="#sendVideoToBack" text="Send to Back" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="TOP_CENTER" prefHeight="50.0" prefWidth="698.0" spacing="25.0">
@@ -220,38 +232,6 @@
                                  <children>
                                     <HBox layoutX="46.0" layoutY="14.0" spacing="10.0">
                                        <children>
-                                          <TitledPane alignment="CENTER" animated="false" collapsible="false" layoutX="51.0" layoutY="14.0" prefHeight="150.0" text="Data Shift">
-                                             <content>
-                                                <VBox alignment="CENTER" prefWidth="120.0">
-                                                   <children>
-                                                      <HBox alignment="CENTER">
-                                                         <children>
-                                                            <Button mnemonicParsing="false" onAction="#subOneNullButtonHandler" prefWidth="50.0" text="-1">
-                                                               <HBox.margin>
-                                                                  <Insets right="5.0" />
-                                                               </HBox.margin>
-                                                            </Button>
-                                                            <Button mnemonicParsing="false" onAction="#addOneNullButtonHandler" prefWidth="50.0" text="+1" />
-                                                         </children>
-                                                      </HBox>
-                                                      <HBox alignment="CENTER">
-                                                         <children>
-                                                            <Button mnemonicParsing="false" onAction="#subTenNullButtonHandler" prefWidth="50.0" text="-10">
-                                                               <HBox.margin>
-                                                                  <Insets right="5.0" top="5.0" />
-                                                               </HBox.margin>
-                                                            </Button>
-                                                            <Button mnemonicParsing="false" onAction="#addTenNullButtonHandler" prefWidth="50.0" text="+10">
-                                                               <HBox.margin>
-                                                                  <Insets top="5.0" />
-                                                               </HBox.margin>
-                                                            </Button>
-                                                         </children>
-                                                      </HBox>
-                                                   </children>
-                                                </VBox>
-                                             </content>
-                                          </TitledPane>
                                           <TitledPane fx:id="dataDisplayTitledPane" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="136.0" prefWidth="202.0" text="Data Series">
                                              <content>
                                                 <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" prefHeight="93.0" prefWidth="200.0" />
@@ -276,38 +256,6 @@
                                  <children>
                                     <HBox layoutX="46.0" layoutY="14.0" spacing="10.0">
                                        <children>
-                                          <TitledPane alignment="CENTER" animated="false" collapsible="false" layoutX="51.0" layoutY="14.0" prefHeight="150.0" text="Data Shift">
-                                             <content>
-                                                <VBox alignment="CENTER" prefWidth="120.0" spacing="5.0">
-                                                   <children>
-                                                      <HBox alignment="CENTER">
-                                                         <children>
-                                                            <Button mnemonicParsing="false" onAction="#subTenNullButtonHandlerTwo" prefWidth="50.0" text="-10">
-                                                               <HBox.margin>
-                                                                  <Insets right="5.0" top="5.0" />
-                                                               </HBox.margin>
-                                                            </Button>
-                                                            <Button mnemonicParsing="false" onAction="#addTenNullButtonHandlerTwo" prefWidth="50.0" text="+10">
-                                                               <HBox.margin>
-                                                                  <Insets top="5.0" />
-                                                               </HBox.margin>
-                                                            </Button>
-                                                         </children>
-                                                      </HBox>
-                                                      <HBox alignment="CENTER">
-                                                         <children>
-                                                            <Button mnemonicParsing="false" onAction="#subOneNullButtonHandlerTwo" prefWidth="50.0" text="-1">
-                                                               <HBox.margin>
-                                                                  <Insets right="5.0" />
-                                                               </HBox.margin>
-                                                            </Button>
-                                                            <Button mnemonicParsing="false" onAction="#addOneNullButtonHandlerTwo" prefWidth="50.0" text="+1" />
-                                                         </children>
-                                                      </HBox>
-                                                   </children>
-                                                </VBox>
-                                             </content>
-                                          </TitledPane>
                                           <TitledPane fx:id="dataDisplayTitledPaneTwo" alignment="CENTER" collapsible="false" layoutX="187.0" layoutY="14.0" prefHeight="150.0" prefWidth="202.0" text="Data Series">
                                              <content>
                                                 <FlowPane fx:id="dataDisplayCheckboxesFlowPaneTwo" orientation="VERTICAL" prefHeight="129.0" prefWidth="200.0" />
@@ -349,6 +297,11 @@
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#openLineColorPalette" text="Change Line Colors" />
                </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Open Help Menu" />
+              </items>
             </Menu>
          </menus>
       </MenuBar>

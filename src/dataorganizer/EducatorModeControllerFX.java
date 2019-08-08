@@ -51,6 +51,9 @@ public class EducatorModeControllerFX implements Initializable {
     Tab eraseConfirmationTab;
 
     @FXML
+    Tab runExperimentTab;
+
+    @FXML
     Button nextButton;
     @FXML
     Button backButton;
@@ -250,7 +253,7 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void nextTab(ActionEvent event) {
-        int numberOfTabs = 4; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
+        int numberOfTabs = 5; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
         generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
         progressBar.setProgress(0);
@@ -1699,6 +1702,101 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private TextField videoFilePathTextField;
 
+    public static int trueDelayAfterStart;
+
+    @FXML
+    public void applySINCHandler(){
+
+        Task<Void> SINCTask = new Task<Void>() {
+            @Override
+            protected Void call(){
+
+                try{
+
+                    BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());                  // creates a new blackframe analysis object, video file path is passed and subsequently analysis to obtain offset and delay.
+                    timerCalibrationOffset = bfo.getTMR0Offset();                                                       // sets offset to local variable
+                    trueDelayAfterStart = bfo.getDelayAfterStart();                                                         // sets delay to local variable
+
+                    if (trueDelayAfterStart >= 0){
+                        delayAfterStart = trueDelayAfterStart;
+                    }else{
+                        delayAfterStart = 0;
+                    }
+
+                    System.out.println(timerCalibrationOffset);
+                    System.out.println(delayAfterStart);
+
+                    if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished!")
+                    {
+//                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//                            sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
+//                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+//                        });
+                    }else{
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("TMR0 and Delay After Start Calculated, you may now apply them");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
+                        });
+                    }
+
+                }catch(IOException e){
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
+                }
+
+                try {
+
+                    if (!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)) {                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
+                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                        });
+
+
+                    } else {
+                        Platform.runLater(() -> {
+                            sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
+                        });
+
+                    }
+                } catch (IOException e) {
+                    Platform.runLater(() -> {
+                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
+
+                } catch (PortInUseException e) {
+                    Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
+                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                    });
+
+                }
+
+
+
+
+                return null;
+            }
+        };
+        new Thread(SINCTask).start();
+
+
+
+//        importCalibrationDataHandler();
+//        applyOffsetHandler();
+    }
+
+
     @FXML
     public void importCalibrationDataHandler(){
 
@@ -1717,10 +1815,10 @@ public class EducatorModeControllerFX implements Initializable {
 
                     if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished!")
                     {
-                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                        });
+//                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//                            sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
+//                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+//                        });
                     }else{
                         Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
                             sincCalibrationTabGeneralStatusLabel.setText("TMR0 and Delay After Start Calculated, you may now apply them");
@@ -1745,43 +1843,81 @@ public class EducatorModeControllerFX implements Initializable {
     public void applyOffsetHandler(){
         Task<Void> applyOffsetTask = new Task<Void>() {
             @Override
-            protected Void call(){
+            protected Void call() {
+                //if (delayAfterStart >= 0) {
+                    try {
 
-                try{
-                    if(!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)){                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
-                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
+                        if (!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)) {                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
+                            Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                                sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
+                                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                            });
+
+
+                        } else {
+                            Platform.runLater(() -> {
+                                sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+                                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
+                            });
+
+                        }
+                    } catch (IOException e) {
+                        Platform.runLater(() -> {
+                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                         });
 
+                    } catch (PortInUseException e) {
+                        Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
+                        });
 
-
-                    }else{
-                        Platform.runLater(() -> {
-                            sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+                    } catch (UnsupportedCommOperationException e) {
+                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+                            sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
+                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                         });
 
                     }
-                }catch(IOException e){
-                    Platform.runLater(() -> {
-                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
-                    });
+               // }
 
-                }catch(PortInUseException e){
-                    Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
-                    });
-
-                }catch(UnsupportedCommOperationException e){
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
-                    });
-
-                }
-
-                Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                    progressBar.setStyle("-fx-accent: #1f78d1;");                                                       //Updates the progress bar's color style with a CSS call, setting its color back to its origin
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);                                              //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
-                });
+//                if (delayAfterStart < 0) {  // In Module Firmware 6, applying a negative delay after start will break the dashboard. Therefore, if a negative value is calculated, 0 will be applied. However, this prevents the storage of the true delay after start value in the csvp, preventing adjusting for the offset in the graph. In firmware 7, a negative delay after start will not break the module. It will still delay 0, but it will also write that negtaive value to the csvp. Allowing for correction in this graph. This section of code should be removed at that point.
+//                    try {
+//                        if (!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, 0)) {                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
+//                            Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//                                sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
+//                            });
+//
+//
+//                        } else {
+//                            Platform.runLater(() -> {
+//                                sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
+//                            });
+//
+//                        }
+//                    } catch (IOException e) {
+//                        Platform.runLater(() -> {
+//                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
+//                        });
+//
+//                    } catch (PortInUseException e) {
+//                        Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//                            sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
+//                        });
+//
+//                    } catch (UnsupportedCommOperationException e) {
+//                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//                            sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
+//                        });
+//
+//                    }
+//                }
+//
+//                Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//                    progressBar.setStyle("-fx-accent: #1f78d1;");                                                       //Updates the progress bar's color style with a CSS call, setting its color back to its origin
+//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);                                              //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
+//                });
 
                 return null;
             }

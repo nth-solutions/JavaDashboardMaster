@@ -518,9 +518,7 @@ public class SerialComm {
 			//Send Preamble
 			outputStream.write(new String("1234").getBytes());
 
-			
-				//Send parameter in binary (not ASCII) First byte will specify if it is positive (+ = 1) or negative (- = 0)
-				
+
 			if (dataIndex == 0) {
 				if (tmr0Offset < 0) { 
 					calData[0] *= -1;

@@ -147,6 +147,7 @@ public class ColorPaletteController implements Initializable {
         //window.restyleSeries();
 
 
+
         closeWindow();
     }
 

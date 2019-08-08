@@ -100,7 +100,7 @@ public class DataOrganizer {
 		 // Adds null Samples for when the delay is less than 0 (DelayAfterStart depends on Camera Delay)
 		 */
 		if (delayAfterStart < 0) {
-			int delayAdditionalLineNums = (int) Math.round(((double) delayAfterStart / -1000.0) * (double) sampleRate);
+			int delayAdditionalLineNums = (int) Math.round(((double) delayAfterStart / -1000.0) * (double) (timer0 / 4)); // sampleRate is equal to timer0 / 4. ((timer0 * 250)/4) is the unsimplified expression.
 
 			for (int i = 0; i < delayAdditionalLineNums; i++) {
 				dataSamples.get(0).add((double) i / ((double)timer0*250)/1000);

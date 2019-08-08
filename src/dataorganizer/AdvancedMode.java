@@ -1386,7 +1386,8 @@ public class AdvancedMode extends JFrame {
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);				
 
-						//System.out.println(delayAfterStart);
+						System.out.println(delayAfterStart);
+
 						if(delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
@@ -1935,7 +1936,7 @@ public class AdvancedMode extends JFrame {
 	public GraphController startGraphing() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructure.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("UpdatedGraphStructureEducator.fxml"));
 		try {
 			root = loader.load();
 		} catch (IOException e) {

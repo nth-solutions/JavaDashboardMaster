@@ -47,6 +47,19 @@ import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.*;
 
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
+
+
+import static java.lang.Thread.getAllStackTraces;
+
 public class GraphController implements Initializable {
 
     private final Rectangle userCreatedZoomRectangleBox = new Rectangle();
@@ -114,6 +127,11 @@ public class GraphController implements Initializable {
     @FXML
     private Pane backgroundPane;
 
+    @FXML
+    private Button sendVideoToBackButton;
+
+    @FXML
+    private Button sendVideoToFrontButton;
 
     private ObservableList<DataSeries> dataSeries = FXCollections.observableArrayList();
     private ObservableList<DataSeries> dataSeriesTwo = FXCollections.observableArrayList();
@@ -1338,20 +1356,27 @@ public class GraphController implements Initializable {
     private double videoDuration;
     private double durationDifference;
 
+    private int delayAfterStart;
+
     
     Runnable mediaPlayerOnReadyRunnable(){
     	return new Runnable() {     // Sets the maximum value of the slider bar equal to the total duration of the file
             @Override
             public void run() {
                 //flag = true;
-                playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
 
                 if(dataCollector[0] == null) return;
                 videoDuration = mediaPlayer.getTotalDuration().toMillis();
 
-                totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the video. Used in creation of slider range.
+                totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the test. Used in creation of slider range and movement rate of the sweeping line.
 
-                durationDifference = videoDuration - totalDuration;
+                System.out.println(dataCollector[0]);
+
+                playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.
+
+                //delayAfterStart =
+
+                durationDifference = videoDuration - totalDuration; // not used currently but may become relevant
 
                 System.out.println("Test Duration:" + totalDuration);
                 System.out.println("Video Duration" + videoDuration);
@@ -1360,8 +1385,11 @@ public class GraphController implements Initializable {
                 playPauseButton.setText("Pause");   // Since the video starts playing, the Play/Pause button must default to saying Pause.
                 totalTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(totalDuration / 1000)))); // Used for formatting the timestamp, which displays the time that the video has been playing.
                 generalStatusLabel.setText("");
+
+                scaleVideoAtStart();
                 BeginSINC(); // Starts the core behind syncing the rectangle, playback, and slider.
                 System.out.println(lineChart.getWidth());
+                mediaPlayer.play();
 
             }
         };
@@ -1384,8 +1412,7 @@ public class GraphController implements Initializable {
         return file;
     }
 
-
-    int numberOfOffsetsApplied = 0; // Number of offsets helps determine the position of the trackerRectangle. Users can modify this variable from the UI to change the position of the rectangle.
+    private int numberOfOffsetsApplied; // Number of offsets helps determine the position of the trackerRectangle. Users can modify this variable from the UI to change the position of the rectangle.
 
     private volatile boolean flag = true; //Boolean that is used to control whether or not the rectangle, slider, and label are updated. It must be accessible at all times, so it is declared with the volatile keyword so it is always stored in main memory.
     /**
@@ -1398,14 +1425,22 @@ public class GraphController implements Initializable {
 
             @Override
             public void run() {
+                //int i = 0;
                 double lineChartWidth = lineChart.getWidth();
                 double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
                 double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback
 
-                while (true) {
+//                if (delayAfterStart >=0){
+//                    numberOfOffsetsApplied = 0;
+//                }else if (delayAfterStart < 0){
+//                    numberOfOffsetsApplied = delayAfterStart * (int) Math.round(xDistancePerMillisecond); //in this case, delayAfterStart is negative, so a negative number of offsets is wanted. Therefore, the delayAfterStart is directly multiplied to the xDistancePerMillisecond so the sweeping line is offset the x distance needed.
+//                }
 
+                while (true) {
                     while (flag) { // While the flag boolean is true (If the flag boolean is changed to false, this code stops running, but the thread is not exited.)
 
+                        //System.out.println(i);
+                        //i++;
                         //System.out.println(mediaPlayer.getCurrentTime().toMillis());
                         playbackSlider.setValue(mediaPlayer.getCurrentTime().toMillis());  //Sets the current value of the playBackSlider to the newValue (in milliseconds) of the mediaPlayer each time its current time property changes (this is any time playback is occurring).
                         //System.out.println("The playbackSlider has been set to to a value of " + mediaPlayer.getCurrentTime().toMillis() + "out of " + totalDuration);
@@ -1415,11 +1450,9 @@ public class GraphController implements Initializable {
                         trackerRectangle.setX((((mediaPlayer.getCurrentTime().toMillis()) * xDistancePerMillisecond) + numberOfOffsetsApplied));   /*Sets the x value of the trackerRectangle to the newValue (in milliseconds) of the mediaPlayer multiplied by the xDistancePerSecond constant calculated above.
                                 //                                                                                   The mathematical reasoning why this works is explained by the dimensional analysis principal wherein milliseconds * (distance / milliseconds) = distance */
                         //System.out.println("The tracker rectange has been set to a position of " + trackerRectangle.getX() +" out of 840");
-
                         Platform.runLater(() -> { // Platform.runLater is used to handle UI updating.
                             currentTimeStampLabel.setText(String.valueOf((new DecimalFormat("00.00").format(mediaPlayer.getCurrentTime().toSeconds()))));
                         });
-
                         try {
                             Thread.sleep(7); //Sleep for 7 milliseconds; Short enough so the everything can be redrawn per frame, but no too short as to save computing resources.
                         } catch (Exception e) {
@@ -1437,6 +1470,7 @@ public class GraphController implements Initializable {
      * Method that updates where the video plays from when then the playback slider is moved.
      * @param event
      */
+
 
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
@@ -1534,6 +1568,37 @@ public class GraphController implements Initializable {
         } catch (NullPointerException e) {
             generalStatusLabel.setText("No Video Loaded");
         }
+    }
+
+    @FXML
+    Slider lineChartOpacitySlider;
+
+    /**
+     * A slider adjustst the opacity of the graph against the video. possible use depending on the layering of the objects.
+     * @param event
+     */
+    @FXML
+    public void updateGraphOpacity (MouseEvent event){
+        try{
+            lineChart.setOpacity(lineChartOpacitySlider.getValue());
+        } catch (Exception e){
+            System.out.println("Unable to update graph opacity");
+        }
+    }
+
+    /**
+     * Buttons that allow the video's relative location in the window to be changed in order to make it or the data easier to see.
+     * @param event
+     */
+
+    @FXML
+    public void sendVideoToBack(ActionEvent event){
+        mediaViewPane.toBack();
+    }
+
+    @FXML
+    public void sendVideoToFront(ActionEvent event){
+        mediaViewPane.toFront();
     }
 
     /**
@@ -1695,6 +1760,9 @@ public class GraphController implements Initializable {
     @FXML
     public void handlePlayPauseVideo() {    // Event listener responsible for changing the text and functionality of the playPauseButton button
 
+//        Set<Thread> threadSet = getAllStackTraces().keySet();
+//        System.out.println(threadSet);
+
         try {
             Duration timeAtPause;
             timeAtPause = mediaPlayer.getCurrentTime();
@@ -1753,8 +1821,6 @@ public class GraphController implements Initializable {
         videoFrameRate = 30;
 
         millisPerFrame = 1000 / videoFrameRate;
-
-
 
         try{
         frameConvertedToMS = mediaPlayer.getCurrentTime().toMillis();
@@ -1854,6 +1920,7 @@ public class GraphController implements Initializable {
             }
 
             series = createSeries(name, GDO.getZoomedSeries(0, index));
+
         }
 
         /*
@@ -2079,6 +2146,7 @@ public class GraphController implements Initializable {
         return loader.getController();
     }
 
+
     @FXML
     ColorPicker rectangleColorPicker;
 
@@ -2105,6 +2173,33 @@ public class GraphController implements Initializable {
         }
     }
 
+//    GraphHelpMenuController graphHelpMenuController;
+//
+//    @FXML
+//    public void openHelpMenu(ActionEvent event){
+//        graphHelpMenuController = startHelpMenu();
+//    }
+//
+//    @FXML
+//    public GraphHelpMenuController startHelpMenu(){
+//        Stage primaryStage = new Stage();
+//        Parent root = null;
+//        FXMLLoader loader = new FXMLLoader(getClass().getResource("ColorPalette.fxml"));
+//        try {
+//            root = loader.load();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (root != null) primaryStage.setScene(new Scene(root, 600, 550));
+//
+//        primaryStage.setTitle("Color Palette");
+//        primaryStage.show();
+//        primaryStage.setResizable(false);
+//
+//        return loader.getController();
+//
+//    }
 
 }
 
