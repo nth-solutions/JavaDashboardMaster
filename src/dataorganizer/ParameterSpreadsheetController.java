@@ -98,8 +98,8 @@ public class ParameterSpreadsheetController {
         //workbook.getWorksheets().get(3).getCells().get("C9").setValue(Amplitude);
     }
     public void loadConservationofMomentumParameters (double gliderOneMass, double gliderTwoMass){
-        workbook.getWorksheets().get(4).getCells().get("C8").setValue(gliderOneMass);
-        workbook.getWorksheets().get(4).getCells().get("C9").setValue(gliderTwoMass);
+        workbook.getWorksheets().get(9).getCells().get("C8").setValue(gliderOneMass);
+        workbook.getWorksheets().get(9).getCells().get("C9").setValue(gliderTwoMass);
     }
 
     public void loadConservationofEnergyParameters(double totalDropDistance, double massOfModuleAndHolder, double momentOfIntertia, double radiusOfTorqueArm) {
@@ -165,8 +165,8 @@ public class ParameterSpreadsheetController {
      * @param workbookSheet The sheet that it is being written to; for two module templates, multiple MPUMinMax may be written to the same workbook.
      */
     public void writeTestParamsToMomentumTemplate(int rowOffset, int columnOffset, List<Integer> params, int workbookSheet){
-        for (int i = 0; i < params.size(); i++){// this loop iterates through the list of values for the parameters, and writes parameters to their locations. when i = 0 , the first parameter will be accessed and written, i = 1 will result in the access and writing of the second parameter, and so on.
-            workbook.getWorksheets().get(workbookSheet).getCells().get(i+rowOffset,columnOffset).setValue(params.get(i));// Each parameter is written to the row equal to the parameters position in the list plus a certain offset. For example, parameter 1 may be wrirten to row 12, parameter 2 to row 13, and so on. The data is written to a single column, so the column that it is written to is equal to the column offset and does not change.
+        for (int i = 0; i < params.size()-10; i++){// this loop iterates through the list of values for the parameters, and writes parameters to their locations. when i = 0 , the first parameter will be accessed and written, i = 1 will result in the access and writing of the second parameter, and so on.
+            workbook.getWorksheets().get(workbookSheet).getCells().get(i+rowOffset,columnOffset).setValue(params.get(i+6));// Each parameter is written to the row equal to the parameters position in the list plus a certain offset. For example, parameter 1 may be wrirten to row 12, parameter 2 to row 13, and so on. The data is written to a single column, so the column that it is written to is equal to the column offset and does not change.
         }
     }
 

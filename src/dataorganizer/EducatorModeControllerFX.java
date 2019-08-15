@@ -293,7 +293,7 @@ public class EducatorModeControllerFX implements Initializable {
             experimentTabPane.getSelectionModel().select(experimentTabIndex); // Sets the tab to reflect the new index.
         }
         else{ // This is an incredibly jank way to handle the fact that different screens must be displayed depending on how many modules are involved in the test.
-            int numberOfTabs = 8;
+            int numberOfTabs = 9;
             boolean lastTab = false;
 
             generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
@@ -919,20 +919,20 @@ public class EducatorModeControllerFX implements Initializable {
         pairNewRemoteButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
         unpairAllRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
         testRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        nextButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        backButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        //.disableProperty().bind(testPairedRemoteTask.runningProperty());
+        //backButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
         generalStatusExperimentLabel.textProperty().bind(testPairedRemoteTask.messageProperty());
-        progressBar.progressProperty().bind(testPairedRemoteTask.progressProperty());
+        //progressBar.progressProperty().bind(testPairedRemoteTask.progressProperty());
 
 
         testPairedRemoteTask.setOnSucceeded(e -> {
             pairNewRemoteButton.disableProperty().unbind();
             unpairAllRemotesButton.disableProperty().unbind();
             testRemotesButton.disableProperty().unbind();
-            nextButton.disableProperty().unbind();
-            backButton.disableProperty().unbind();
+            //nextButton.disableProperty().unbind();
+            //backButton.disableProperty().unbind();
             generalStatusExperimentLabel.textProperty().unbind();
-            progressBar.progressProperty().unbind();
+            //progressBar.progressProperty().unbind();
 
             Platform.runLater(() -> {
                 exitTestModeButton.setDisable(true);    //Disables the exitTestModeButton after the user has completed the testPairedRemoteTask
@@ -1848,11 +1848,11 @@ public class EducatorModeControllerFX implements Initializable {
                         System.out.println(dataOrgoTwo.getRawDataSamples());
                         parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
                         //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgo.getMPUMinMax(),1);
-                        parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
+                        //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
                         //.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
-                        parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+                        //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
-                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
                         System.out.println("there");
                     } else if (testType == "Conservation of Energy") {
                         parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
@@ -1861,7 +1861,7 @@ public class EducatorModeControllerFX implements Initializable {
                        //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
                         parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
-                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),2);
                     }
                     parameterSpreadsheetController.saveWorkbook(path);
                     System.out.println("is");
