@@ -54,6 +54,7 @@ public class SerialComm {
 
 	/**
 	 * Builds a list the names of all the serial ports to place in the combo box
+	 * Builds a list the names of all the serial ports to place in the combo box
 	 */
 	public ArrayList<String> findPorts() {
 		//Fills the portEnum data structure (functions like arrayList) with ports (data type that encapsulates the name and hardware interface info)

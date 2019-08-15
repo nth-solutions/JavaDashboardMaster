@@ -1044,6 +1044,10 @@ public class GraphController implements Initializable {
         }
 
         xAxis.setTickUnit(1);
+
+        System.out.println(xAxis.getLowerBound());
+        System.out.println(xAxis.getUpperBound());
+
     }
 
     /*** Data Handling and Functionality Components***/

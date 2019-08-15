@@ -32,6 +32,7 @@ public class EducatorModeControllerFX implements Initializable {
     public static final int NUM_ID_INFO_PARAMETERS = 3;
     public static final int CURRENT_FIRMWARE_ID = 26;
     private static SerialComm serialHandler = new SerialComm();
+    private static SerialComm serialHandler2 = new SerialComm();
     //Primary UI Control FXML Components
     @FXML
     TabPane primaryTabPane;
@@ -49,6 +50,9 @@ public class EducatorModeControllerFX implements Initializable {
     Tab sincCalibrationTab;
     @FXML
     Tab eraseConfirmationTab;
+
+    @FXML
+    TabPane twoModuleExperimentTabPane;
 
     @FXML
     Tab runExperimentTab;
@@ -135,6 +139,10 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField massOfSpringTextField;
 
+
+    @FXML
+    Label applyConfigurationsToFirstModuleLabel;
+
 //    @FXML
 //    TextField momentOfInertiaSpringTextField;
 //    @FXML
@@ -166,6 +174,7 @@ public class EducatorModeControllerFX implements Initializable {
     //double momentOfIntertiaSpring;
     //double radiusOfTorqueArmSpring;
     private DataOrganizer dataOrgo;
+    private DataOrganizer dataOrgoTwo;
 
     //Colors
     private Color DarkGreen = Color.rgb(51, 204, 51);
@@ -178,13 +187,18 @@ public class EducatorModeControllerFX implements Initializable {
     public static String testType;
     private Boolean moduleConnected;
 
+    private Boolean oneModuleTest;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
         initializeToggleGroup();                                                                                        //See Method Comment
-        fillTestTypeHashMap();                                                                                          //See Method Comment
+        fillTestTypeHashMap();                                                                                         //See Method Comment
+
+        applyConfigurationsToFirstModuleLabel.setVisible(false);
+        applyConfigurationsButton.setVisible(false);
 
         moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
     }
@@ -253,27 +267,56 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void nextTab(ActionEvent event) {
-        int numberOfTabs = 5; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
-        generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        progressBar.setProgress(0);
-        progressBar.setStyle("-fx-accent: #1f78d1;");
+        if (oneModuleTest == true) {
+            int numberOfTabs = 5; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
+            generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            progressBar.setProgress(0);
+            progressBar.setStyle("-fx-accent: #1f78d1;");
 
-        if (experimentTabIndex == numberOfTabs) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
-            experimentTabIndex = -1;
-            nextButton.setDisable(true);    //Disables the nextButton until new parameters have been written
+            if (experimentTabIndex == numberOfTabs) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
+                experimentTabIndex = -1;
+                nextButton.setDisable(true);    //Disables the nextButton until new parameters have been written
+            }
+
+            experimentTabIndex += 1;    // Increments the tab index each time the ActionEvent is triggered
+
+            if (experimentTabIndex == 0) {   // If the tab index is 0, the back button is hidden because no previous pane exists, otherwise, the back button is shown
+                backButton.setVisible(false);
+            } else {
+                backButton.setVisible(true);
+            }
+
+            experimentTabPane.getSelectionModel().select(experimentTabIndex); // Sets the tab to reflect the new index.
         }
+        else{ // This is an incredibly jank way to handle the fact that different screens must be displayed depending on how many modules are involved in the test.
+            int numberOfTabs = 8;
+            boolean lastTab = false;
 
-        experimentTabIndex += 1;    // Increments the tab index each time the ActionEvent is triggered
+            generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            progressBar.setProgress(0);
+            progressBar.setStyle("-fx-accent: #1f78d1;");
 
-        if (experimentTabIndex == 0) {   // If the tab index is 0, the back button is hidden because no previous pane exists, otherwise, the back button is shown
-            backButton.setVisible(false);
-        } else {
-            backButton.setVisible(true);
+            if (experimentTabIndex == numberOfTabs) {  // If the Index is 4, the maximum tab index has been reached and the index is reset to origin
+                experimentTabIndex = -1;
+                nextButton.setDisable(true);    //Disables the nextButton until new parameters have been written
+                lastTab = true;
+            }
+
+            experimentTabIndex += 1;    // Increments the tab index each time the ActionEvent is triggered
+
+            if (experimentTabIndex == 0) {   // If the tab index is 0, the back button is hidden because no previous pane exists, otherwise, the back button is shown
+                backButton.setVisible(false);
+            } else {
+                backButton.setVisible(true);
+            }
+            if (lastTab == false){
+                experimentTabPane.getSelectionModel().select(experimentTabIndex + 5); // Sets the tab to reflect the new index.
+            }else{
+                experimentTabPane.getSelectionModel().select(experimentTabIndex);
+            }
         }
-
-        experimentTabPane.getSelectionModel().select(experimentTabIndex); // Sets the tab to reflect the new index.
-
     }
 
     /**
@@ -283,22 +326,49 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void backTab(ActionEvent event) {
-        generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        progressBar.setProgress(0);
-        progressBar.setStyle("-fx-accent: #1f78d1;");
+        if(oneModuleTest == true){
+            generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            progressBar.setProgress(0);
+            progressBar.setStyle("-fx-accent: #1f78d1;");
 
-        if (experimentTabIndex != 0) {  // If the index does not equal 0 (the first pane), the index will decrement
-            experimentTabIndex -= 1;
+            if (experimentTabIndex != 0) {  // If the index does not equal 0 (the first pane), the index will decrement
+                experimentTabIndex -= 1;
+            }
+
+            if (experimentTabIndex == 0) {
+                backButton.setVisible(false);
+            } else {
+                backButton.setVisible(true);
+            }
+
+            experimentTabPane.getSelectionModel().select(experimentTabIndex); //Sets the tab to reflect the new index.
+        }else {
+            //TODO change so that you can't go back to the oneModuleTestScreens.
+
+            boolean firstTab = false;
+
+            generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
+            generalStatusExperimentLabel.setTextFill(Color.BLACK);
+            progressBar.setProgress(0);
+            progressBar.setStyle("-fx-accent: #1f78d1;");
+
+            if (experimentTabIndex != 0) {  // If the index does not equal 0 (the first pane), the index will decrement
+                experimentTabIndex -= 1;
+            }
+
+            if (experimentTabIndex == 0) {
+                firstTab = true;
+                backButton.setVisible(false);
+            } else {
+                backButton.setVisible(true);
+            }
+            if (firstTab = false) {
+                experimentTabPane.getSelectionModel().select(experimentTabIndex + 5); //Sets the tab to reflect the new index.
+            }else{
+                experimentTabPane.getSelectionModel().select(experimentTabIndex);
+            }
         }
-
-        if (experimentTabIndex == 0) {
-            backButton.setVisible(false);
-        } else {
-            backButton.setVisible(true);
-        }
-
-        experimentTabPane.getSelectionModel().select(experimentTabIndex); //Sets the tab to reflect the new index.
     }
 
     /**
@@ -311,9 +381,45 @@ public class EducatorModeControllerFX implements Initializable {
         selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex() + 1; //Gets the index of the test type selected by user within the combobox
         testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
         //selected index is used to select the matching tab pane index to display
+
+        if(selectedIndex == 1 || selectedIndex == 2 ){ //this means a test involving two modules is selected.
+            applyConfigurationsToFirstModuleLabel.setText("Apply your configurations to Module 1");
+            oneModuleTest = false;
+        }else{
+            applyConfigurationsToFirstModuleLabel.setText("Apply your configurations");
+            oneModuleTest = true;
+        }
+
+        applyConfigurationsToFirstModuleLabel.setVisible(true);
+        applyConfigurationsButton.setVisible(true);
     }
 
     /* Begin Experiment Tab Methods */
+
+    @FXML
+    private void reconnectToModule1(){
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                serialHandler.closeSerialPort();
+                serialHandler2.closeSerialPort();
+                findModuleCommPort();
+            }
+        });
+
+    }
+
+    @FXML
+    private void reconnectToModule2(){
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                serialHandler.closeSerialPort();
+                //serialHandler2.closeSerialPort();
+                findModuleCommPort2();
+            }
+        });
+    }
 
     /**
      * ActionEvent that writes the selected parameters and module configurations to the module for testing
@@ -323,6 +429,11 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void applyConfigurations(ActionEvent event) {
         writeButtonHandler();
+    }
+
+    @FXML
+    private void applyConfigurations2(ActionEvent event){
+        writeButtonHandler2();
     }
 
     /**
@@ -343,6 +454,47 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     //findModuleCommPort();
                     if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+                    } else {
+                        getExtraParameters(selectedIndex);
+                    }
+                } catch (NumberFormatException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
+                } catch (IOException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                } catch (PortInUseException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                } catch (UnsupportedCommOperationException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                }
+
+                //Re-enable the write config button when the routine has completed
+                applyConfigurationsButton.setDisable(false);
+            }
+
+        });
+
+    }
+
+    private void writeButtonHandler2() {
+        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+
+            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){                                     // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("Select a Test Type");
+            } else {
+                //Disable write config button while the sendParameters() method is running
+                applyConfigurationsButton.setDisable(true);
+                nextButton.setDisable(true);
+
+                try {
+                    //findModuleCommPort();
+                    if (!serialHandler2.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
                     } else {
@@ -451,7 +603,7 @@ public class EducatorModeControllerFX implements Initializable {
                     springConstant = Double.parseDouble(springConstantTextField.getText());
                     totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
                     amplitudeSpring = Double.parseDouble(amplitudeSpringTextField.getText());
-                    massOfSpring = Double.parseDouble(amplitudeSpringTextField.getText());
+                    massOfSpring = Double.parseDouble(massOfSpringTextField.getText());
 
 
                     //momentOfIntertiaSpring = Double.parseDouble(momentOfInertiaSpringTextField.getText());
@@ -1378,6 +1530,319 @@ public class EducatorModeControllerFX implements Initializable {
         }
     }
 
+    @FXML
+    private void readTestsFromModuleOneOutOfTwo(ActionEvent event){
+        HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
+
+        FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
+            @Override
+            public void run() {
+                String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+
+                try {
+                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Reading Data from Module...");
+                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    });
+
+                    //Read test parameters from module and store it in testParameters
+
+                    //Executes if the reading of the test parameters was successful
+                    if (testParameters != null) {
+
+                        int expectedTestNum = testParameters.get(0);
+
+                        //Assign local variables to their newly received values from the module
+                        int timedTestFlag = testParameters.get(4);
+                        //Trigger on release is 8
+                        int testLength = testParameters.get(6);
+                        int accelGyroSampleRate = testParameters.get(7);
+                        int magSampleRate = testParameters.get(8);
+                        int accelSensitivity = testParameters.get(9);
+                        int gyroSensitivity = testParameters.get(10);
+                        int accelFilter = testParameters.get(11);
+                        int gyroFilter = testParameters.get(12);
+
+                        double bytesPerSample = 18;
+                        if (accelGyroSampleRate / magSampleRate == 10) {
+                            bytesPerSample = 12.6;
+                        }
+
+                        String nameOfFile = "";
+
+                        //Executes if there are tests on the module
+                        if (expectedTestNum > 0) {
+
+                            //Get date for file name
+                            Date date = new Date();
+
+                            //Assigns the name of file
+                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+
+                            HashMap<Integer, ArrayList<Integer>> testData;
+
+                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                            testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+
+                            //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
+                            if (testData != null) {
+                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+
+                                    int[] finalData = new int[testData.get(testIndex).size()];
+
+                                    for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+                                        if (testData.get(testIndex).get(byteIndex) != -1) {
+                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+                                        } else {
+                                            finalData[byteIndex] = -1;
+                                            break;
+                                        }
+                                    }
+                                    String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
+                                    dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
+                                    dataOrgo.createDataSmpsRawData(finalData);
+                                    dataOrgo.getSignedData();
+
+
+                                    Platform.runLater( () -> {
+                                        generalStatusExperimentLabel.setText("Data successfully Read From Module 1");
+                                        generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                    });
+
+                                }
+                            } else {
+
+                                Platform.runLater(() -> {
+                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                                    progressBar.setStyle("-fx-accent: red;");
+                                    progressBar.setProgress(100);
+                                });
+
+                            }
+                        } else {
+
+                            Platform.runLater(() -> {
+                                generalStatusExperimentLabel.setText("No Tests Found on Module");
+                                generalStatusExperimentLabel.setTextFill(Color.RED);
+                                progressBar.setStyle("-fx-accent: red;");
+                                progressBar.setProgress(100);
+                            });
+                        }
+                    } else {
+
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            progressBar.setStyle("-fx-accent: red;");
+                            progressBar.setProgress(100);
+                        });
+                    }
+                } catch (IOException e) {
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
+
+                } catch (PortInUseException e) {
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
+
+                }
+            }
+
+        }, testDataArray);
+
+        readTestsFromModuleTask.run(); // Runs the futureTask.
+    }
+
+    @FXML
+    private void readTestsFromModuleTwoOutOfTwo(ActionEvent event){
+        HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
+
+        FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
+            @Override
+            public void run() {
+                String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+
+                try {
+                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Reading Data from Module...");
+                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    });
+
+                    //Read test parameters from module and store it in testParameters
+
+                    //Executes if the reading of the test parameters was successful
+                    if (testParameters != null) {
+
+                        int expectedTestNum = testParameters.get(0);
+
+                        //Assign local variables to their newly received values from the module
+                        int timedTestFlag = testParameters.get(4);
+                        //Trigger on release is 8
+                        int testLength = testParameters.get(6);
+                        int accelGyroSampleRate = testParameters.get(7);
+                        int magSampleRate = testParameters.get(8);
+                        int accelSensitivity = testParameters.get(9);
+                        int gyroSensitivity = testParameters.get(10);
+                        int accelFilter = testParameters.get(11);
+                        int gyroFilter = testParameters.get(12);
+
+                        double bytesPerSample = 18;
+                        if (accelGyroSampleRate / magSampleRate == 10) {
+                            bytesPerSample = 12.6;
+                        }
+
+                        String nameOfFile = "";
+
+                        //Executes if there are tests on the module
+                        if (expectedTestNum > 0) {
+
+                            //Get date for file name
+                            Date date = new Date();
+
+                            //Assigns the name of file
+                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+
+                            HashMap<Integer, ArrayList<Integer>> testData;
+
+                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                            testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+
+                            //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
+                            if (testData != null) {
+                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+
+                                    int[] finalData = new int[testData.get(testIndex).size()];
+
+                                    for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+                                        if (testData.get(testIndex).get(byteIndex) != -1) {
+                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+                                        } else {
+                                            finalData[byteIndex] = -1;
+                                            break;
+                                        }
+                                    }
+                                    String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
+                                    dataOrgoTwo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
+                                    dataOrgoTwo.createDataSmpsRawData(finalData);
+                                    dataOrgoTwo.getSignedData();
+
+                                    Platform.runLater( () -> {
+                                        generalStatusExperimentLabel.setText("Data successfully Read From Module 2");
+                                        generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                    });
+
+                                }
+                            } else {
+
+                                Platform.runLater(() -> {
+                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                                    progressBar.setStyle("-fx-accent: red;");
+                                    progressBar.setProgress(100);
+                                });
+
+                            }
+                        } else {
+
+                            Platform.runLater(() -> {
+                                generalStatusExperimentLabel.setText("No Tests Found on Module");
+                                generalStatusExperimentLabel.setTextFill(Color.RED);
+                                progressBar.setStyle("-fx-accent: red;");
+                                progressBar.setProgress(100);
+                            });
+                        }
+                    } else {
+
+                        Platform.runLater(() -> {
+                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            progressBar.setStyle("-fx-accent: red;");
+                            progressBar.setProgress(100);
+                        });
+                    }
+                } catch (IOException e) {
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
+
+                } catch (PortInUseException e) {
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
+
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
+
+                } catch (UnsupportedCommOperationException e) {
+
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
+
+                }
+            }
+
+        }, testDataArray);
+
+        readTestsFromModuleTask.run(); // Runs the futureTask.
+
+    }
+
+    @FXML
+    private void writeTwoDataSetsToTemplate(ActionEvent event){
+        ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+        if (testType == "Conservation of Momentum (Elastic Collision)") {
+            parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgo.MPUMinMax,1);
+            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
+            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgoTwo.MPUMinMax,3);
+            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
+            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
+        } else if (testType == "Conservation of Energy") {
+            parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgo.MPUMinMax,1);
+            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
+            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgoTwo.MPUMinMax,3);
+            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
+            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
+        }
+    }
+
     /**
      * ActionEvent that handles bulk erasing the module's tests. Implements the Task Class, which essentially creates
      * an FX Safe Thread. All relavant UI parameters are bound to specific ReadOnly Properties defined in the Worker
@@ -2148,6 +2613,83 @@ public class EducatorModeControllerFX implements Initializable {
      * Method "conducts" search for if a CommPort has a module connected
      * @return th.getStatus(); (Boolean Value)
      */
+    public boolean findModuleCommPort2() {
+        class threadHack {
+            private boolean status = false;
+
+            public boolean getStatus() {
+                return status;
+            }
+
+            public void setStatus(boolean x) {
+                status = x;
+            }
+        }
+        final threadHack th = new threadHack();
+
+        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+            try {                                                                                                       //Attempts to find ports for the module
+                ArrayList<String> commPortIDList = serialHandler2.findPorts();
+                System.out.println(commPortIDList);
+                boolean moduleFound = false;
+                int commPortIndex = 0;
+                while (!moduleFound && commPortIndex < commPortIDList.size()) {
+
+                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
+                    System.out.println("test3");
+                    System.out.println(selectedCommID);
+                    if (serialHandler2.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+                        System.out.println("test4");
+                        int attemptCounter = 0;
+                        while (attemptCounter < 3 && !moduleFound) {
+                            try {
+                                ArrayList<Integer> moduleIDInfo = serialHandler2.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+                                if (moduleIDInfo != null) {
+                                    moduleFound = true;
+                                    System.out.println(moduleIDInfo.get(2));
+                                    if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+                                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                                        generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
+                                    } else {
+                                        generalStatusExperimentLabel.setTextFill(DarkGreen);
+                                        generalStatusExperimentLabel.setText("Successfully Connected to Module");
+                                    }
+                                } else {
+                                    attemptCounter++;
+                                }
+                            } catch (IOException e) {
+                                attemptCounter++;
+                            } catch (PortInUseException e) {
+                                attemptCounter++;
+                            } catch (UnsupportedCommOperationException e) {
+                                attemptCounter++;
+                            }
+                        }
+
+                    }else{
+                        System.out.println("Hello");
+                    }
+                    commPortIndex++;
+                }
+                if (!moduleFound) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("1Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                    th.setStatus(false);
+                }
+
+            } catch (IOException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("2Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                th.setStatus(false);
+            } catch (PortInUseException e) {
+                generalStatusExperimentLabel.setTextFill(Color.RED);
+                generalStatusExperimentLabel.setText("3Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                th.setStatus(false);
+            }
+        });
+        return th.getStatus();
+    }
+
     public boolean findModuleCommPort() {
         class threadHack {
             private boolean status = false;
@@ -2166,6 +2708,7 @@ public class EducatorModeControllerFX implements Initializable {
         Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
             try {                                                                                                       //Attempts to find ports for the module
                 ArrayList<String> commPortIDList = serialHandler.findPorts();
+                System.out.println(commPortIDList);
                 boolean moduleFound = false;
                 int commPortIndex = 0;
                 while (!moduleFound && commPortIndex < commPortIDList.size()) {
@@ -2173,15 +2716,13 @@ public class EducatorModeControllerFX implements Initializable {
                     String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
 
                     if (serialHandler.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-
                         int attemptCounter = 0;
                         while (attemptCounter < 3 && !moduleFound) {
                             try {
                                 ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-
                                 if (moduleIDInfo != null) {
                                     moduleFound = true;
-
+                                    System.out.println(moduleIDInfo.get(2));
                                     if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
                                         generalStatusExperimentLabel.setTextFill(Color.RED);
                                         generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
@@ -2220,7 +2761,6 @@ public class EducatorModeControllerFX implements Initializable {
                 th.setStatus(false);
             }
         });
-
         return th.getStatus();
     }
 
