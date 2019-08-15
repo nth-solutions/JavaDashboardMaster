@@ -44,11 +44,7 @@ public class ParameterSpreadsheetController {
 
             testTypeFileName = "Spring Test - Simple Harmonics Template.xlsx";
         }
-        //testTypeFileName = "Pendulum Template REV-Q3.xlsx";
-        //System.out.println(System.getProperty("user.home"));
-        //System.out.println(testTypeFileName);
         documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
-        //documentsPath = "C:\\Users\\Falcon\\Documents\\Github\\JavaDashBoardMaster\\Pendulum Template REV-Q3.xlsx";
         try {
         	this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
         }catch(Exception e){
@@ -102,8 +98,8 @@ public class ParameterSpreadsheetController {
         //workbook.getWorksheets().get(3).getCells().get("C9").setValue(Amplitude);
     }
     public void loadConservationofMomentumParameters (double gliderOneMass, double gliderTwoMass){
-        workbook.getWorksheets().get(9).getCells().get("C8").setValue(gliderOneMass);
-        workbook.getWorksheets().get(9).getCells().get("C9").setValue(gliderTwoMass);
+        workbook.getWorksheets().get(4).getCells().get("C8").setValue(gliderOneMass);
+        workbook.getWorksheets().get(4).getCells().get("C9").setValue(gliderTwoMass);
     }
 
     public void loadConservationofEnergyParameters(double totalDropDistance, double massOfModuleAndHolder, double momentOfIntertia, double radiusOfTorqueArm) {
@@ -154,7 +150,7 @@ public class ParameterSpreadsheetController {
      * @param workbookSheet The sheet that it is being written to; for two module templates, multiple MPUMinMax may be written to the same workbook.
      */
 
-    public void writeMPUOffsetsToMomentumTemplate(int rowOffset, int columnOffset, int MPUMinMax [][], int workbookSheet){
+    public void writeMPUMinMaxToMomentumTemplate(int rowOffset, int columnOffset, int MPUMinMax [][], int workbookSheet){
         for(int axis = 0; axis < MPUMinMax.length; axis++){  // for this particular case, the axis can be thought of as the rows of the grid of MPUOffsets. Therefore, the for loop iterates through each row of the grid. The grid has two columns.
             workbook.getWorksheets().get(workbookSheet).getCells().get(rowOffset+axis, columnOffset).setValue(MPUMinMax[axis][0]); // For the first column of the MPUOffsets, the value of the current row is written to its location in the workbook.
             workbook.getWorksheets().get(workbookSheet).getCells().get(rowOffset +axis, columnOffset+1).setValue(MPUMinMax[axis][1]); // For the second column of the MPUOffsets, the value of the current row is written to its location in the workbook.

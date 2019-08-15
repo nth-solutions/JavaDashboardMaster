@@ -85,6 +85,10 @@ public class DataOrganizer {
 		return testParameters;
 	}
 
+	public int[][] getMPUMinMax(){
+		return MPUMinMax;
+	}
+
 
 	public List<List<Double>> createDataSmpsRawData(int[] data) {
 
@@ -637,8 +641,8 @@ public class DataOrganizer {
 	public void setMPUMinMax(int[][] mpuMinMax) {
 		MPUMinMax = mpuMinMax;
 	}
-	
-	
+
+
 	public List<String> getMPUOffsetString(){
 		List<String> mpuOffsetString = new ArrayList<String>();
 		for(int axi = 0; axi < MPUMinMax.length; axi++) {

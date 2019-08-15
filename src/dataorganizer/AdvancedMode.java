@@ -433,6 +433,7 @@ public class AdvancedMode extends JFrame {
 
 				//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
 				if(serialHandler.openSerialPort(selectedCommID)){
+					System.out.println("Advanced Mode serialHandler able to open "+ selectedCommID + "when selection it");
 					enableTabChanges();
 					
 					//Notify the user that the port as opened successfully and is ready for a new command

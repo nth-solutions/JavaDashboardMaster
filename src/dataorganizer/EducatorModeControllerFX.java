@@ -31,8 +31,8 @@ public class EducatorModeControllerFX implements Initializable {
     public static final int NUM_TEST_PARAMETERS = 13;
     public static final int NUM_ID_INFO_PARAMETERS = 3;
     public static final int CURRENT_FIRMWARE_ID = 26;
-    private static SerialComm serialHandler = new SerialComm();
-    private static SerialComm serialHandler2 = new SerialComm();
+    private static SerialComm serialHandler;
+    //private static SerialComm serialHandler2;
     //Primary UI Control FXML Components
     @FXML
     TabPane primaryTabPane;
@@ -200,6 +200,9 @@ public class EducatorModeControllerFX implements Initializable {
         applyConfigurationsToFirstModuleLabel.setVisible(false);
         applyConfigurationsButton.setVisible(false);
 
+        serialHandler = new SerialComm();
+        //serialHandler2 = new SerialComm();
+
         moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
     }
 
@@ -363,7 +366,7 @@ public class EducatorModeControllerFX implements Initializable {
             } else {
                 backButton.setVisible(true);
             }
-            if (firstTab = false) {
+            if (firstTab == false) {
                 experimentTabPane.getSelectionModel().select(experimentTabIndex + 5); //Sets the tab to reflect the new index.
             }else{
                 experimentTabPane.getSelectionModel().select(experimentTabIndex);
@@ -402,7 +405,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             public void run() {
                 serialHandler.closeSerialPort();
-                serialHandler2.closeSerialPort();
+                //serialHandler2.closeSerialPort();
                 findModuleCommPort();
             }
         });
@@ -410,13 +413,18 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    private void reconnectToModule2(){
+    public void reconnectToModule2(){
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
                 serialHandler.closeSerialPort();
+                //ArrayList<String> commPortIDList = serialHandler.findPorts();
+
+//                serialHandler = null;
+//                System.gc();
+//                serialHandler = new SerialComm();
                 //serialHandler2.closeSerialPort();
-                findModuleCommPort2();
+                findModuleCommPort();
             }
         });
     }
@@ -433,7 +441,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void applyConfigurations2(ActionEvent event){
-        writeButtonHandler2();
+        writeButtonHandler();
     }
 
     /**
@@ -481,46 +489,46 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    private void writeButtonHandler2() {
-        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-
-            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){                                     // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Select a Test Type");
-            } else {
-                //Disable write config button while the sendParameters() method is running
-                applyConfigurationsButton.setDisable(true);
-                nextButton.setDisable(true);
-
-                try {
-                    //findModuleCommPort();
-                    if (!serialHandler2.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
-                    } else {
-                        getExtraParameters(selectedIndex);
-                    }
-                } catch (NumberFormatException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
-                } catch (IOException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                } catch (PortInUseException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                } catch (UnsupportedCommOperationException e) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                }
-
-                //Re-enable the write config button when the routine has completed
-                applyConfigurationsButton.setDisable(false);
-            }
-
-        });
-
-    }
+//    private void writeButtonHandler2() {
+//        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+//
+//            if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0){                                     // Checks to see if the user has selected a test; program flow is halted and error message is displayed if so.
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("Select a Test Type");
+//            } else {
+//                //Disable write config button while the sendParameters() method is running
+//                applyConfigurationsButton.setDisable(true);
+//                nextButton.setDisable(true);
+//
+//                try {
+//                    //findModuleCommPort();
+//                    if (!serialHandler2.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
+//                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                        generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
+//                    } else {
+//                        getExtraParameters(selectedIndex);
+//                    }
+//                } catch (NumberFormatException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Please Fill out Every Field");
+//                } catch (IOException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                } catch (PortInUseException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//                } catch (UnsupportedCommOperationException e) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                }
+//
+//                //Re-enable the write config button when the routine has completed
+//                applyConfigurationsButton.setDisable(false);
+//            }
+//
+//        });
+//
+//    }
 
 
     /**
@@ -1537,8 +1545,6 @@ public class EducatorModeControllerFX implements Initializable {
         FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
             @Override
             public void run() {
-                String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
-
                 try {
                     ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -1602,6 +1608,7 @@ public class EducatorModeControllerFX implements Initializable {
                                     }
                                     String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
+                                    dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
                                     dataOrgo.createDataSmpsRawData(finalData);
                                     dataOrgo.getSignedData();
 
@@ -1682,7 +1689,6 @@ public class EducatorModeControllerFX implements Initializable {
         FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
             @Override
             public void run() {
-                String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
 
                 try {
                     ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
@@ -1747,8 +1753,11 @@ public class EducatorModeControllerFX implements Initializable {
                                     }
                                     String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgoTwo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
+                                    dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
                                     dataOrgoTwo.createDataSmpsRawData(finalData);
                                     dataOrgoTwo.getSignedData();
+                                    dataOrgoTwo.getTestParameters();
+                                    dataOrgoTwo.getMPUMinMax();
 
                                     Platform.runLater( () -> {
                                         generalStatusExperimentLabel.setText("Data successfully Read From Module 2");
@@ -1823,24 +1832,50 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void writeTwoDataSetsToTemplate(ActionEvent event){
-        ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
-        if (testType == "Conservation of Momentum (Elastic Collision)") {
-            parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
-            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgo.MPUMinMax,1);
-            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
-            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgoTwo.MPUMinMax,3);
-            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
-            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
-            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
-        } else if (testType == "Conservation of Energy") {
-            parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgo.MPUMinMax,1);
-            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
-            parameterSpreadsheetController.writeMPUOffsetsToMomentumTemplate(2,1,dataOrgoTwo.MPUMinMax,3);
-            parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
-            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
-            parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
-        }
+
+        HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
+
+        FutureTask<HashMap<Integer, ArrayList<Integer>>[]> writeTwoDataSetsToTemplateTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
+            @Override
+            public void run() {
+                try {
+                    String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
+                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                    if (testType == "Conservation of Momentum (Elastic Collision)") {
+                        //System.out.println(dataOrgo.getMPUMinMax());
+                        //System.out.println(dataOrgoTwo.getMPUMinMax());
+                        System.out.println(dataOrgo.getRawDataSamples());
+                        System.out.println(dataOrgoTwo.getRawDataSamples());
+                        parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                        //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgo.getMPUMinMax(),1);
+                        parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
+                        //.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
+                        parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
+                        System.out.println("there");
+                    } else if (testType == "Conservation of Energy") {
+                        parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+                       // parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgo.getMPUMinMax(),1);
+                        parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
+                       //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
+                        parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),2);
+                    }
+                    parameterSpreadsheetController.saveWorkbook(path);
+                    System.out.println("is");
+                    generalStatusExperimentLabel.setText("Data Successfully Written");
+                }catch(Exception e) {
+                    generalStatusExperimentLabel.setText("Error Writing To File");
+                    e.printStackTrace();
+                }
+            }
+
+        }, testDataArray);
+
+        writeTwoDataSetsToTemplateTask.run(); // Runs the futureTask.
+
     }
 
     /**
@@ -2613,82 +2648,86 @@ public class EducatorModeControllerFX implements Initializable {
      * Method "conducts" search for if a CommPort has a module connected
      * @return th.getStatus(); (Boolean Value)
      */
-    public boolean findModuleCommPort2() {
-        class threadHack {
-            private boolean status = false;
-
-            public boolean getStatus() {
-                return status;
-            }
-
-            public void setStatus(boolean x) {
-                status = x;
-            }
-        }
-        final threadHack th = new threadHack();
-
-        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-            try {                                                                                                       //Attempts to find ports for the module
-                ArrayList<String> commPortIDList = serialHandler2.findPorts();
-                System.out.println(commPortIDList);
-                boolean moduleFound = false;
-                int commPortIndex = 0;
-                while (!moduleFound && commPortIndex < commPortIDList.size()) {
-
-                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
-                    System.out.println("test3");
-                    System.out.println(selectedCommID);
-                    if (serialHandler2.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-                        System.out.println("test4");
-                        int attemptCounter = 0;
-                        while (attemptCounter < 3 && !moduleFound) {
-                            try {
-                                ArrayList<Integer> moduleIDInfo = serialHandler2.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-                                if (moduleIDInfo != null) {
-                                    moduleFound = true;
-                                    System.out.println(moduleIDInfo.get(2));
-                                    if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-                                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                                        generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
-                                    } else {
-                                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                        generalStatusExperimentLabel.setText("Successfully Connected to Module");
-                                    }
-                                } else {
-                                    attemptCounter++;
-                                }
-                            } catch (IOException e) {
-                                attemptCounter++;
-                            } catch (PortInUseException e) {
-                                attemptCounter++;
-                            } catch (UnsupportedCommOperationException e) {
-                                attemptCounter++;
-                            }
-                        }
-
-                    }else{
-                        System.out.println("Hello");
-                    }
-                    commPortIndex++;
-                }
-                if (!moduleFound) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("1Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                    th.setStatus(false);
-                }
-
-            } catch (IOException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("2Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                th.setStatus(false);
-            } catch (PortInUseException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("3Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                th.setStatus(false);
-            }
-        });
-        return th.getStatus();
-    }
+//    public boolean findModuleCommPort2() {
+//        class threadHack {
+//            private boolean status = false;
+//
+//            public boolean getStatus() {
+//                return status;
+//            }
+//
+//            public void setStatus(boolean x) {
+//                status = x;
+//            }
+//        }
+//        final threadHack th = new threadHack();
+//
+//        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
+////            try {                                                                                                       //Attempts to find ports for the module
+//                ArrayList<String> commPortIDList = serialHandler2.findPorts();
+//                System.out.println(commPortIDList);
+//                boolean moduleFound = false;
+//                int commPortIndex = 0;
+//                while (!moduleFound && commPortIndex < commPortIDList.size()) {
+//
+//                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
+//                    System.out.println("test3");
+//                    System.out.println(selectedCommID);
+//                    try{
+//                    if (serialHandler2.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+//                            System.out.println("test4");
+//                            int attemptCounter = 0;
+//                            while (attemptCounter < 3 && !moduleFound) {
+//                                try {
+//                                    ArrayList<Integer> moduleIDInfo = serialHandler2.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+//                                    if (moduleIDInfo != null) {
+//                                        moduleFound = true;
+//                                        System.out.println(moduleIDInfo.get(2));
+//                                        if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+//                                            generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                            generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
+//                                        } else {
+//                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+//                                            generalStatusExperimentLabel.setText("Successfully Connected to Module");
+//                                        }
+//                                    } else {
+//                                        attemptCounter++;
+//                                    }
+//                                } catch (IOException e) {
+//                                    attemptCounter++;
+//                                } catch (PortInUseException e) {
+//                                    attemptCounter++;
+//                                } catch (UnsupportedCommOperationException e) {
+//                                    attemptCounter++;
+//                                }
+//                            }
+//
+//                        }else{
+//                            System.out.println("Hello");
+//                        }
+//                    }catch(Exception e){
+//                        System.out.println("Oh look, another caught exception");
+//                    }
+//                    commPortIndex++;
+//                }
+//                if (!moduleFound) {
+//                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                    generalStatusExperimentLabel.setText("1Could Not Locate a Module, Check Connections and Try Manually Connecting");
+//                    th.setStatus(false);
+//                }
+//
+////            } catch (IOException e) {
+////                generalStatusExperimentLabel.setTextFill(Color.RED);
+////                generalStatusExperimentLabel.setText("2Could Not Locate a Module, Check Connections and Try Manually Connecting");
+////                th.setStatus(false);
+////            } catch (PortInUseException e) {
+////                generalStatusExperimentLabel.setTextFill(Color.RED);
+////                generalStatusExperimentLabel.setText("3Could Not Locate a Module, Check Connections and Try Manually Connecting");
+////                th.setStatus(false);
+////            }
+//        });
+//        return th.getStatus();
+//    }
 
     public boolean findModuleCommPort() {
         class threadHack {
@@ -2704,18 +2743,20 @@ public class EducatorModeControllerFX implements Initializable {
         }
         final threadHack th = new threadHack();
 
-
         Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-            try {                                                                                                       //Attempts to find ports for the module
-                ArrayList<String> commPortIDList = serialHandler.findPorts();
-                System.out.println(commPortIDList);
-                boolean moduleFound = false;
-                int commPortIndex = 0;
-                while (!moduleFound && commPortIndex < commPortIDList.size()) {
+//            try {                                                                                                       //Attempts to find ports for the module
+            ArrayList<String> commPortIDList = serialHandler.findPorts();
+            System.out.println(commPortIDList);
+            boolean moduleFound = false;
+            int commPortIndex = 0;
+            while (!moduleFound && commPortIndex < commPortIDList.size()) {
 
-                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
-
+                String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
+                System.out.println("test3");
+                System.out.println(selectedCommID);
+                try{
                     if (serialHandler.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
+                        System.out.println("test4");
                         int attemptCounter = 0;
                         while (attemptCounter < 3 && !moduleFound) {
                             try {
@@ -2742,24 +2783,29 @@ public class EducatorModeControllerFX implements Initializable {
                             }
                         }
 
+                    }else{
+                        System.out.println("Hello");
                     }
-                    commPortIndex++;
+                }catch(Exception e){
+                    System.out.println("Oh look, another caught exception");
                 }
-                if (!moduleFound) {
-                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                    generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                    th.setStatus(false);
-                }
-
-            } catch (IOException e) {
+                commPortIndex++;
+            }
+            if (!moduleFound) {
                 generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                th.setStatus(false);
-            } catch (PortInUseException e) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                generalStatusExperimentLabel.setText("1Could Not Locate a Module, Check Connections and Try Manually Connecting");
                 th.setStatus(false);
             }
+
+//            } catch (IOException e) {
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("2Could Not Locate a Module, Check Connections and Try Manually Connecting");
+//                th.setStatus(false);
+//            } catch (PortInUseException e) {
+//                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                generalStatusExperimentLabel.setText("3Could Not Locate a Module, Check Connections and Try Manually Connecting");
+//                th.setStatus(false);
+//            }
         });
         return th.getStatus();
     }

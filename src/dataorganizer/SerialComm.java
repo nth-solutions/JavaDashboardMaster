@@ -84,40 +84,54 @@ public class SerialComm {
 	 * Opens serial port with the name passed in as a parameter in addition to initializing input and output streams.
 	 * @param commPortID Name of comm port that will be opened
 	 */
-	public boolean openSerialPort(String commPortID) throws IOException, PortInUseException {     
+	public boolean openSerialPort(String commPortID) throws IOException, PortInUseException {
+		System.out.println("Attempting to connect to " + commPortID);
 		//Creates a list of all the ports that are available of type Enumeration (data structure that can hold several info fields such as ID, hardware interface info, and other info used by the PC 
-		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();                     
+		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
 
+		System.out.println("getPortIdentifiers() successful");
 		//Iterates through all ports on the ports on the port list
-		while (portList.hasMoreElements()) { 
+		while (portList.hasMoreElements()) {
+			System.out.println("2");
 
 			//Set the temporary port to the current port that is being iterated through
 			CommPortIdentifier tempPortId = (CommPortIdentifier) portList.nextElement();
-
+			System.out.println("3");
 			//Executes if the temporary port has the same name as the one selected by the user
-			if (tempPortId.getName().equals(commPortID)) {                            
-
+			if (tempPortId.getName().equals(commPortID)) {
+				System.out.println("4");
 				//If it does match, then assign the portID variable so the desired port will be opened later
 				portId = tempPortId;
-
+				System.out.println("5");
 				//break the while loop
 				break;
 			}
 		}
-
+		System.out.println("6");
+		System.out.println(portId);
 		//Open the serial port with a 2 second timeout
-		serialPort = (SerialPort) portId.open("portHandler", 2000);
+
+		try{
+			serialPort = (SerialPort) portId.open("portHandler", 2000);
+
+		}catch(Exception e){
+			e.printStackTrace();
+			System.out.println("Error");
+		}
+
+		//serialPort = (SerialPort) portId.open("portHandler", 2000);
+		System.out.println("7");
 
 
 		//Create a new buffered reader so we can define the buffer size to prevent a buffer overflow (explicitly defined in the configureForImport() method)
 		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
-
+		System.out.println("8");
 		//Assign the output stream to the output stream of the serial port (no need for a buffer as far as we know)
-		outputStream = serialPort.getOutputStream();  
-
+		outputStream = serialPort.getOutputStream();
+		System.out.println("9");
 		//Set flag so program knows that the data streams were initialized
 		dataStreamsInitialized = true;
-
+		System.out.println("10");
 		return true;
 
 	}
@@ -200,7 +214,7 @@ public class SerialComm {
 	/**
 	 * Set serial number of module
 	 * @return boolean that denotes success or failure
-	 * @param int Serial Number
+	 * @param serialNumber
 	 */
 	public boolean setSerialNumber(int serialNumber) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		if(!selectMode('N')) {
@@ -230,7 +244,7 @@ public class SerialComm {
 	/**
 	 * Set model number of module
 	 * @return boolean that denotes success or failure
-	 * @param int Serial Number
+	 * @param modelNumber
 	 */
 	public boolean setModelNumber(String modelNumber) throws IOException, PortInUseException, UnsupportedCommOperationException, URICommunicationsExceptions {
 		if(!selectMode('M')) {
