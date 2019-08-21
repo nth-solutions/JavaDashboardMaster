@@ -11,8 +11,16 @@
    <children>
       <HBox layoutY="62.0" prefHeight="339.0" prefWidth="602.0">
          <children>
-            <Button fx:id="EducatorButton" mnemonicParsing="false" onAction="#launchEducator" prefHeight="339.0" prefWidth="320.0" text="Educator" />
-            <Button mnemonicParsing="false" onAction="#launchAdvanced" prefHeight="405.0" prefWidth="321.0" text="Advanced" />
+            <Button fx:id="EducatorButton" mnemonicParsing="false" onAction="#launchEducator" prefHeight="339.0" prefWidth="320.0" text="Educator" textFill="#ff951b">
+               <font>
+                  <Font size="44.0" />
+               </font>
+            </Button>
+            <Button mnemonicParsing="false" onAction="#launchAdvanced" prefHeight="405.0" prefWidth="321.0" text="Advanced" textFill="#ff941b">
+               <font>
+                  <Font size="44.0" />
+               </font>
+            </Button>
          </children>
       </HBox>
       <Label layoutX="19.0" layoutY="14.0" text="Select the Dashboard that You Wish to Use" textFill="#22c3c6">

@@ -39,8 +39,6 @@ public class DashboardSelectorController implements Initializable {
         catch(Exception e) {
             System.out.println("Error Setting Look and Feel: " + e);
         }
-
-        //Default the gui that will be opened to null (gui selected in following try/catch block
         Runnable frameRunner = new Runnable() {
             public void run() {
                 try {
@@ -59,10 +57,11 @@ public class DashboardSelectorController implements Initializable {
     @FXML
     public void launchEducator(){
         educator = startEducator();
+
     }
 
-    public EducatorModeControllerFX startEducator(){
 
+    public EducatorModeControllerFX startEducator(){
         closeWindow();
 
         Stage primaryStage = new Stage();
@@ -70,17 +69,21 @@ public class DashboardSelectorController implements Initializable {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EducatorModeFXML.fxml"));
         try {
             root = loader.load();
+            //root.getStylesheets().add(getClass().getResource("EducatorModeCSS.css").toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(root!=null) primaryStage.setScene(new Scene(root, 690, 500));
+        Scene scene = new Scene(root, 690,500);
 
         primaryStage.setTitle("Educator Mode");
+        primaryStage.setScene(scene);
+        scene.getStylesheets().clear();
+        System.out.println(this.getClass().getResource("EducatorModeCSS.css").toExternalForm());
+        System.out.println(this.getClass().getResource("EducatorModeCSS.css").toExternalForm());
+        scene.getStylesheets().add(this.getClass().getResource("EducatorModeCSS.css").toString());
+
         primaryStage.show();
         primaryStage.setResizable(false);
-
         return loader.getController();
-
-
     }
 }
