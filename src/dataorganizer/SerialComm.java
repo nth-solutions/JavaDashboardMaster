@@ -92,23 +92,23 @@ public class SerialComm {
 		System.out.println("getPortIdentifiers() successful");
 		//Iterates through all ports on the ports on the port list
 		while (portList.hasMoreElements()) {
-			System.out.println("2");
+			//System.out.println("2");
 
 			//Set the temporary port to the current port that is being iterated through
 			CommPortIdentifier tempPortId = (CommPortIdentifier) portList.nextElement();
-			System.out.println("3");
+			//System.out.println("3");
 			//Executes if the temporary port has the same name as the one selected by the user
 			if (tempPortId.getName().equals(commPortID)) {
-				System.out.println("4");
+				//System.out.println("4");
 				//If it does match, then assign the portID variable so the desired port will be opened later
 				portId = tempPortId;
-				System.out.println("5");
+				//System.out.println("5");
 				//break the while loop
 				break;
 			}
 		}
-		System.out.println("6");
-		System.out.println(portId);
+		//System.out.println("6");
+		//System.out.println(portId);
 		//Open the serial port with a 2 second timeout
 
 		try{
@@ -120,18 +120,18 @@ public class SerialComm {
 		}
 
 		//serialPort = (SerialPort) portId.open("portHandler", 2000);
-		System.out.println("7");
+		//System.out.println("7");
 
 
 		//Create a new buffered reader so we can define the buffer size to prevent a buffer overflow (explicitly defined in the configureForImport() method)
 		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
-		System.out.println("8");
+		//System.out.println("8");
 		//Assign the output stream to the output stream of the serial port (no need for a buffer as far as we know)
 		outputStream = serialPort.getOutputStream();
-		System.out.println("9");
+		//System.out.println("9");
 		//Set flag so program knows that the data streams were initialized
 		dataStreamsInitialized = true;
-		System.out.println("10");
+		//System.out.println("10");
 		return true;
 
 	}

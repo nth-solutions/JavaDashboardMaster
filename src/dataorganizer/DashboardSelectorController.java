@@ -77,11 +77,11 @@ public class DashboardSelectorController implements Initializable {
 
         primaryStage.setTitle("Educator Mode");
         primaryStage.setScene(scene);
-        scene.getStylesheets().clear();
+        //scene.getStylesheets().clear();
         System.out.println(this.getClass().getResource("EducatorModeCSS.css").toExternalForm());
-        System.out.println(this.getClass().getResource("EducatorModeCSS.css").toExternalForm());
-        scene.getStylesheets().add(this.getClass().getResource("EducatorModeCSS.css").toString());
-
+        System.out.println(this.getClass().getResource("EducatorModeCSS.css").toString());
+        //scene.getStylesheets().add(this.getClass().getResource("EducatorModeCSS.css").toString());
+        //scene.getStylesheets();
         primaryStage.show();
         primaryStage.setResizable(false);
         return loader.getController();
