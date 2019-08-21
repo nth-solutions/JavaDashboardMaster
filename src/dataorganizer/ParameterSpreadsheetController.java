@@ -97,9 +97,9 @@ public class ParameterSpreadsheetController {
         workbook.getWorksheets().get(3).getCells().get("C9").setValue(massOfSpring);
         //workbook.getWorksheets().get(3).getCells().get("C9").setValue(Amplitude);
     }
-    public void loadConservationofMomentumParameters (double gliderOneMass, double gliderTwoMass){
-        workbook.getWorksheets().get(9).getCells().get("C8").setValue(gliderOneMass);
-        workbook.getWorksheets().get(9).getCells().get("C9").setValue(gliderTwoMass);
+    public void loadConservationofMomentumParameters (double gliderOneAndModuleOneMass, double gliderTwoAndModuleTwoMass){
+        workbook.getWorksheets().get(9).getCells().get("C8").setValue(gliderOneAndModuleOneMass);
+        workbook.getWorksheets().get(9).getCells().get("C9").setValue(gliderTwoAndModuleTwoMass);
     }
 
     public void loadConservationofEnergyParameters(double totalDropDistance, double massOfModuleAndHolder, double momentOfIntertia, double radiusOfTorqueArm) {

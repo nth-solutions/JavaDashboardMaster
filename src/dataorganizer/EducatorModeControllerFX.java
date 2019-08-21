@@ -155,6 +155,10 @@ public class EducatorModeControllerFX implements Initializable {
     double massOfRightGlider;
     double massOfLeftModule;
     double massOfLeftGlider;
+
+    double massOfRightModuleAndRightGlider;
+    double massOfLeftModuleAndLeftGlider;
+
     //Extra Module Parameters - CoE
     double totalDropDistance;
     double massOfModuleAndHolder;
@@ -429,6 +433,22 @@ public class EducatorModeControllerFX implements Initializable {
         });
     }
 
+    @FXML
+    public void reconnectToModuleEraseConfirmationScreen(){
+        Platform.runLater(new Runnable(){
+           @Override
+           public void run(){
+               if(findModuleCommPort()){
+                   eraseModuleTabLabel.setText("Successfully Connected To Module");
+                   eraseModuleTabLabel.setTextFill(Color.GREEN);
+               }else{
+                   eraseModuleTabLabel.setText("Failed To Connect To Module");
+                   eraseModuleTabLabel.setTextFill(Color.RED);
+               }
+           }
+        });
+    }
+
     /**
      * ActionEvent that writes the selected parameters and module configurations to the module for testing
      *
@@ -551,6 +571,9 @@ public class EducatorModeControllerFX implements Initializable {
                     massOfLeftModule = Double.parseDouble(massOfLeftModuleTextField.getText());
                     massOfLeftGlider = Double.parseDouble(massOfLeftGliderTextField.getText());
                     testType = "Conservation of Momentum (Elastic Collision)";
+
+                    massOfLeftModuleAndLeftGlider = massOfLeftGlider + massOfLeftModule;
+                    massOfRightModuleAndRightGlider = massOfRightGlider + massOfRightModule;
 
                     generalStatusExperimentLabel.setTextFill(DarkGreen);
                     generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
@@ -1074,7 +1097,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                                             ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                                             if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                                                parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
                                                 parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                             } else if (testType == "Conservation of Energy") {
                                                 parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
