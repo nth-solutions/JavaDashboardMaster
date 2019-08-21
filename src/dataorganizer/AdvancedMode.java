@@ -294,7 +294,7 @@ public class AdvancedMode extends JFrame {
 		}
 
 		//Default the gui that will be opened to null (gui selected in following try/catch block
-		serialHandler = new SerialComm();
+		//serialHandler = new SerialComm();
 		Runnable frameRunner = new Runnable() {
 			public void run() {
 				try {
