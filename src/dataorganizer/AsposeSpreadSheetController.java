@@ -78,7 +78,7 @@ public class AsposeSpreadSheetController {
 		Worksheet sheet = workbook.getWorksheets().get(5);
 		Cells cells = sheet.getCells();
 		getNumberOfSamplesModuleOne();
-		Object[][] cellArray =  cells.exportArray(5, 41, numSamples, 3);
+		Object[][] cellArray =  cells.exportArray(5, 20, numSamples, 3);
 		List<List<Double>> momentumSamples = new ArrayList<List<Double>>();
 		momentumSamples.add(new ArrayList<Double>());
 		momentumSamples.add(new ArrayList<Double>());
@@ -97,7 +97,7 @@ public class AsposeSpreadSheetController {
 		Cells cells = sheet.getCells();
 		getNumberOfSamplesModuleTwo();
 		numSamples-=7; //TODO: Remove. For temporary COE template fail
-		Object[][] cellArray =  cells.exportArray(5, 41, numSamples, 3);
+		Object[][] cellArray =  cells.exportArray(5, 20, numSamples, 3);
 		List<List<Double>> momentumSamples = new ArrayList<List<Double>>();
 		momentumSamples.add(new ArrayList<Double>());
 		momentumSamples.add(new ArrayList<Double>());

@@ -1854,6 +1854,8 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
+    private String momentumTemplatePath;
+
     @FXML
     private void writeTwoDataSetsToTemplate(ActionEvent event){
 
@@ -1864,6 +1866,7 @@ public class EducatorModeControllerFX implements Initializable {
             public void run() {
                 try {
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
+                    momentumTemplatePath = path;
                     ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                     if (testType == "Conservation of Momentum (Elastic Collision)") {
                         //System.out.println(dataOrgo.getMPUMinMax());
@@ -2074,10 +2077,17 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-           String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
-           lineGraph = startGraphing();
-           lineGraph.setCsvFilePath(pathTofile);
-           lineGraph.loadCSVData();
+//        if (testType == "Conservation of Momentum (Elastic Collision)"){
+//            lineGraph = startGraphing();
+//            lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
+//            lineGraph.loadConservationOfMomentumTemplate();
+//
+//        }else {
+            String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+            lineGraph = startGraphing();
+            lineGraph.setCsvFilePath(pathTofile);
+            lineGraph.loadCSVData();
+        //}
 
     }
 
@@ -2817,7 +2827,7 @@ public class EducatorModeControllerFX implements Initializable {
             }
             if (!moduleFound) {
                 generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("1Could Not Locate a Module, Check Connections and Try Manually Connecting");
+                generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
                 th.setStatus(false);
             }
 

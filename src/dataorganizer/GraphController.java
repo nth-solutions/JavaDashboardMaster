@@ -513,6 +513,11 @@ public class GraphController implements Initializable {
     }
 
     @FXML
+    public void setConservationOfMomentumFilePath(String filePath){
+        conservationOfMomentumFilePath = filePath;
+    }
+
+    @FXML
     public void graphMomentum() {
         try {                                                                                                                                        //Try/Catch that catches Null Pointer Exception when no file is selected
             FileChooser fileChooser = new FileChooser();                                                                                            //Creates a FileChooser Object
@@ -526,7 +531,10 @@ public class GraphController implements Initializable {
 
             conservationOfMomentumFilePath = fileChosen.toString();                                                                                                    //Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
 
+            System.out.println(conservationOfMomentumFilePath);
+
             if (conservationOfMomentumFilePath != null) {                                                                                                                //Checks to make sure the given file path contains a valid value
+                System.out.println("conservation of momentum file path is not null");
                 loadConservationOfMomentumTemplate();                                                                                                                        //Calls the loadCSV method
             }
 
@@ -548,12 +556,14 @@ public class GraphController implements Initializable {
         try {
             assc = new AsposeSpreadSheetController(conservationOfMomentumFilePath);
         } catch (Exception e) {
+            System.out.println("Failed to read template");
             generalStatusLabel.setText("Failed to read your template.");
             e.printStackTrace();
         }
         if (assc == null) return;
 
         GDO = new GraphDataOrganizer();
+        System.out.println("GDO Created");
         GDO.setTestParams(assc.getTestParameters());
         GDO.setSamples(assc.getMomentumSamplesModuleOne());
         for (int numDof = 0; numDof < 3; numDof++) {
