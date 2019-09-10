@@ -170,4 +170,9 @@ public class ParameterSpreadsheetController {
         }
     }
 
+    public void writeTMR0AndDelayAfterStartToMomentumTemplate(int tmr0, int delayAfterStart){
+        workbook.getWorksheets().get(1).getCells().get(16,1).setValue(tmr0);
+        workbook.getWorksheets().get(1).getCells().get(17,1).setValue(delayAfterStart);
+    }
+
 }

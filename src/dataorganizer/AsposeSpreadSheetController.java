@@ -117,5 +117,24 @@ public class AsposeSpreadSheetController {
 			System.out.println(momentumSamples.get(2).get(i));
 		}
 	}
+
+	public int getTMR0MomentumTemplate(){
+		int TMR0;
+		Worksheet sheet = workbook.getWorksheets().get(1);
+		Cells cells = sheet.getCells();
+		TMR0 = cells.get(16,1).getIntValue();
+		System.out.println(TMR0);
+		return TMR0;
+	}
+
+	public int getDelayAfterStartMomentumTemplate(){
+		int delayAfterStart;
+		Worksheet sheet = workbook.getWorksheets().get(1);
+		Cells cells = sheet.getCells();
+		delayAfterStart = cells.get(17,1).getIntValue();
+		System.out.println(delayAfterStart);
+
+		return delayAfterStart;
+	}
 	
 }

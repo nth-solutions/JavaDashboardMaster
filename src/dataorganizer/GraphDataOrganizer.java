@@ -184,6 +184,10 @@ public class GraphDataOrganizer {
 		samples = newSamples;
 	}
 
+	public float getLengthOfTestInSamplesFloat(){
+		return (float)samples.get(0).size();
+	}
+
 	/**
 	 * Takes a List of integers representing the parameters and sets sample rates and sensitivity equal to certain
 	 * elements of the testParameters List.

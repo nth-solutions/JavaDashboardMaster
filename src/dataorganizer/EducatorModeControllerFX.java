@@ -1016,6 +1016,8 @@ public class EducatorModeControllerFX implements Initializable {
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
+
+
                         Platform.runLater(() -> {
                             generalStatusExperimentLabel.setText("Reading Data from Module...");
                             generalStatusExperimentLabel.setTextFill(Color.BLACK);
@@ -1874,6 +1876,7 @@ public class EducatorModeControllerFX implements Initializable {
                         System.out.println(dataOrgo.getRawDataSamples());
                         System.out.println(dataOrgoTwo.getRawDataSamples());
                         parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                        parameterSpreadsheetController.writeTMR0AndDelayAfterStartToMomentumTemplate(testParameters.get(1), testParameters.get(2));
                         //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgo.getMPUMinMax(),1);
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
                         //.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
@@ -2077,18 +2080,17 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-//        if (testType == "Conservation of Momentum (Elastic Collision)"){
-//            lineGraph = startGraphing();
-//            lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
-//            lineGraph.loadConservationOfMomentumTemplate();
-//
-//        }else {
+        if (testType == "Conservation of Momentum (Elastic Collision)"){
+            lineGraph = startGraphing();
+            lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
+            lineGraph.loadConservationOfMomentumTemplate();
+
+        }else {
             String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
-        //}
-
+        }
     }
 
     public MediaPlayerController startMediaPlayer() {
@@ -2204,6 +2206,8 @@ public class EducatorModeControllerFX implements Initializable {
         };
         new Thread(configureModuleForCalibrationTask).start();
     }
+
+
 
 
     @FXML
@@ -2804,6 +2808,9 @@ public class EducatorModeControllerFX implements Initializable {
                                     } else {
                                         generalStatusExperimentLabel.setTextFill(DarkGreen);
                                         generalStatusExperimentLabel.setText("Successfully Connected to Module");
+                                        sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
+                                        sincCalibrationTabGeneralStatusLabel.setText("Successfully Connected to Module");
+
                                     }
                                 } else {
                                     attemptCounter++;

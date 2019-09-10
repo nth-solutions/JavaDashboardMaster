@@ -158,6 +158,10 @@ public class GraphController implements Initializable {
     private Media media;
     private int videoFrameRate;
     private double millisPerFrame;
+    private int delayAfterStartFromMomentumTemplate;
+    private int tmr0FromMomentumTemplate;
+
+    private String testTypeLoadedGraph;
 
     private int currentFrameNumber;
 
@@ -470,6 +474,7 @@ public class GraphController implements Initializable {
             if (csvFilePath != null) {                                                                                                                //Checks to make sure the given file path contains a valid value
                 System.out.println(csvFilePath);
                 loadCSVData();                                                                                                                        //Calls the loadCSV method
+                testTypeLoadedGraph = "Not Conservation of Momentum";
                 mediaPlayer.setOnPlaying(mediaPlayerOnReadyRunnable());
             }
 
@@ -536,6 +541,7 @@ public class GraphController implements Initializable {
             if (conservationOfMomentumFilePath != null) {                                                                                                                //Checks to make sure the given file path contains a valid value
                 System.out.println("conservation of momentum file path is not null");
                 loadConservationOfMomentumTemplate();                                                                                                                        //Calls the loadCSV method
+                testTypeLoadedGraph = "Conservation of Momentum (Elastic Collision)";
             }
 
         } catch (NullPointerException e) {
@@ -607,12 +613,16 @@ public class GraphController implements Initializable {
             });
         }
 
+        delayAfterStartFromMomentumTemplate = assc.getDelayAfterStartMomentumTemplate();
+        tmr0FromMomentumTemplate = assc.getTMR0MomentumTemplate();
+
         GDO.setMinMaxYAxis();
         yMin = GDO.yMin;
         yMax = GDO.yMax;
         yAxis.setUpperBound(yMax);
         yAxis.setLowerBound(yMin);
-        xAxis.setUpperBound(GDO.getLengthOfTest());
+        //xAxis.setUpperBound(GDO.getLengthOfTest());
+        xAxis.setUpperBound(GDO.getLengthOfTestInSamplesFloat()/(tmr0FromMomentumTemplate*(250/1000)));
         xAxis.setLowerBound(0);
 
         userCreatedZoomRectangleBox.setManaged(true);
@@ -628,6 +638,7 @@ public class GraphController implements Initializable {
         populateTemplateData(dataTemplateSeries, lineChart);
         populateTemplateData(dataTemplateSeriesTwo, lineChart);
         parent.dispose();
+
     }
 
     public void setCsvFilePath(String filePath){
@@ -1377,12 +1388,22 @@ public class GraphController implements Initializable {
             @Override
             public void run() {
                 //flag = true;
+                boolean momentumLoaded = true;
 
-                if(dataCollector[0] == null) return;
+                try{// Do not copy this. This is terrible coding practice
+                   int throwaway = GDO.getMax();
+                }catch(Exception e){
+                    momentumLoaded = false;
+                }
+
+                if(dataCollector[0] == null && momentumLoaded == false) return;
                 videoDuration = mediaPlayer.getTotalDuration().toMillis();
 
-                totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size()-1)*1000; // total duration of the test. Used in creation of slider range and movement rate of the sweeping line.
-
+                if(testTypeLoadedGraph == "Conservation of Momentum (Elastic Collision)"){
+                    totalDuration = (GDO.getLengthOfTestInSamplesFloat()/(tmr0FromMomentumTemplate*(250/1000)))*1000;
+                }else{
+                    totalDuration = dataCollector[0].getRawDataSamples().get(0).get(dataCollector[0].getRawDataSamples().get(0).size() - 1) * 1000; // total duration of the test. Used in creation of slider range and movement rate of the sweeping line.
+                }
                 System.out.println(dataCollector[0]);
 
                 playing = false; //Yes this is incredibly stupid; when the boolean playing is false, the video is playing.

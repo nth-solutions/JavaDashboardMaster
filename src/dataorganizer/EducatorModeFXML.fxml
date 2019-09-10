@@ -840,7 +840,7 @@
                                                 </Label>
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="50.0" text="Step 1: Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
+                                          <Label prefHeight="28.0" prefWidth="418.0" text="Step 1: Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -850,12 +850,12 @@
                                                 <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="230.0" text="Configure Module for SINC Calibration" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="50.0" text="Step 1A: Follow Instructions for Calibrating the Module" textFill="#1f78d1">
+                                          <Label prefHeight="27.0" prefWidth="364.0" text="Step 1A: Follow Instructions for Calibrating the Module" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Label prefHeight="50.0" text="Step 1B: Select the Video File of the Calibration" textFill="#1f78d1">
+                                          <Label prefHeight="25.0" prefWidth="311.0" text="Step 1B: Select the Video File of the Calibration" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -866,16 +866,27 @@
                                                 <Button mnemonicParsing="false" onAction="#videoFileHandler" prefHeight="25.0" prefWidth="65.0" text="Browse" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="50.0" text="Step 1C: Hit the Following Button" textFill="#1f78d1">
+                                          <Label prefHeight="26.0" prefWidth="222.0" text="Step 1C: Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="260.0" text="Apply SINC Configurations to Module" />
+                                                <Button fx:id="importCalibrationDataButton1" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="260.0" text="Apply SINC Configurations to Module" />
                                              </children>
                                           </HBox>
+                                          <Label prefHeight="26.0" prefWidth="486.0" text="If using 2 modules, disconnect first module and connect second module" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="260.0" text="Establish Connection to Second Module" />
+                                          <Label prefHeight="26.0" prefWidth="122.0" text="Do Step 1C Again" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
                                                 <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#applyOffsetHandler" opacity="0.0" prefHeight="30.0" prefWidth="150.0" text="Apply Offset to Module" />
