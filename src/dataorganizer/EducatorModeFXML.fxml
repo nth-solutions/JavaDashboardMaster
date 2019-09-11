@@ -70,9 +70,37 @@
                            <content>
                               <AnchorPane prefHeight="200.0" prefWidth="200.0">
                                  <children>
-                                    <Button layoutX="188.0" layoutY="208.0" mnemonicParsing="false" onAction="#unpairRemotes" text="Unpair Remotes" />
-                                    <Button layoutX="208.0" layoutY="155.0" mnemonicParsing="false" onAction="#reconnectToModule2" text="Connect" />
-                                    <Label fx:id="unpairRemotesTabLabel" layoutX="210.0" layoutY="14.0" text="Label" />
+                                    <Button layoutX="45.0" layoutY="106.0" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="57.0" prefWidth="416.0" text="Unpair Remotes From Module">
+                                       <font>
+                                          <Font size="27.0" />
+                                       </font>
+                                    </Button>
+                                    <Button layoutX="186.0" layoutY="356.0" mnemonicParsing="false" onAction="#reconnectToModuleUnpairRemotesScreen" text="Connect">
+                                       <font>
+                                          <Font size="27.0" />
+                                       </font>
+                                    </Button>
+                                    <Label fx:id="unpairRemotesTabLabel" layoutX="33.0" layoutY="27.0" prefHeight="35.0" prefWidth="439.0" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Label>
+                                    <Label layoutX="45.0" layoutY="211.0" prefHeight="39.0" prefWidth="448.0" text="If Unpairing Remotes From Multiple">
+                                       <font>
+                                          <Font size="27.0" />
+                                       </font>
+                                    </Label>
+                                    <Label layoutX="45.0" layoutY="434.0" />
+                                    <Label layoutX="45.0" layoutY="250.0" prefHeight="39.0" prefWidth="448.0" text=" Modules, Click Here to Connect to" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="27.0" />
+                                       </font>
+                                    </Label>
+                                    <Label layoutX="132.0" layoutY="289.0" prefHeight="39.0" prefWidth="241.0" text="the Second module" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="27.0" />
+                                       </font>
+                                    </Label>
                                  </children>
                               </AnchorPane>
                            </content>
@@ -527,13 +555,13 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3D: Establish Connection" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3C: Establish Connection" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
                                                                   <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="50.0" prefWidth="535.0" text="Connect" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3C: Apply your Configurations to Module 2" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3D: Apply your Configurations to Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
