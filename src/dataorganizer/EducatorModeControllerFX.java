@@ -52,6 +52,9 @@ public class EducatorModeControllerFX implements Initializable {
     Tab eraseConfirmationTab;
 
     @FXML
+    Tab unpairRemotesTab;
+
+    @FXML
     TabPane twoModuleExperimentTabPane;
 
     @FXML
@@ -95,6 +98,9 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     Button eraseModuleButtonMainMenu;
+
+    @FXML
+    Button unpairRemotesButtonMainMenu;
     //Extra Test Parameter TextFields
 
     @FXML
@@ -102,6 +108,9 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     Label eraseModuleTabLabel;
+
+    @FXML
+    Label unpairRemotesTabLabel;
 
 
     @FXML
@@ -267,6 +276,12 @@ public class EducatorModeControllerFX implements Initializable {
     private void selectEraseConfirmationTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(eraseConfirmationTab);
     }
+
+    @FXML
+    private void selectUnpairRemotesTab(ActionEvent event){
+        primaryTabPane.getSelectionModel().select(unpairRemotesTab);
+    }
+
 
     /**
      * ActionEvent that increments the tab index by one to move to the next tab in the experimental tab pane
@@ -1876,7 +1891,7 @@ public class EducatorModeControllerFX implements Initializable {
                         //System.out.println(dataOrgoTwo.getMPUMinMax());
                         System.out.println(dataOrgo.getRawDataSamples());
                         System.out.println(dataOrgoTwo.getRawDataSamples());
-                        parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                        parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
                         //parameterSpreadsheetController.writeTMR0AndDelayAfterStartToMomentumTemplate(testParameters.get(1), testParameters.get(2));
                         //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgo.getMPUMinMax(),1);
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
@@ -2812,6 +2827,9 @@ public class EducatorModeControllerFX implements Initializable {
 
                                         sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
                                         sincCalibrationTabGeneralStatusLabel.setText("Successfully Connected to Module");
+
+                                        unpairRemotesTabLabel.setText("Sucessfully Connected to Module");
+                                        unpairRemotesTabLabel.setTextFill(DarkGreen);
 
                                     }
                                 } else {
