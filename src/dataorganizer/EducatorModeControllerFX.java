@@ -825,9 +825,9 @@ public class EducatorModeControllerFX implements Initializable {
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
-                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-                progressBar.setProgress(0);
+//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
+//                progressBar.setProgress(0);
 
                 return null;
             }
@@ -848,6 +848,7 @@ public class EducatorModeControllerFX implements Initializable {
             nextButton.disableProperty().unbind();
             backButton.disableProperty().unbind();
             generalStatusExperimentLabel.textProperty().unbind();
+            generalStatusExperimentLabel.textFillProperty().unbind();
             progressBar.progressProperty().unbind();
         });
 
@@ -1876,7 +1877,7 @@ public class EducatorModeControllerFX implements Initializable {
                         System.out.println(dataOrgo.getRawDataSamples());
                         System.out.println(dataOrgoTwo.getRawDataSamples());
                         parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
-                        parameterSpreadsheetController.writeTMR0AndDelayAfterStartToMomentumTemplate(testParameters.get(1), testParameters.get(2));
+                        //parameterSpreadsheetController.writeTMR0AndDelayAfterStartToMomentumTemplate(testParameters.get(1), testParameters.get(2));
                         //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgo.getMPUMinMax(),1);
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
                         //.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
@@ -2808,6 +2809,7 @@ public class EducatorModeControllerFX implements Initializable {
                                     } else {
                                         generalStatusExperimentLabel.setTextFill(DarkGreen);
                                         generalStatusExperimentLabel.setText("Successfully Connected to Module");
+
                                         sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
                                         sincCalibrationTabGeneralStatusLabel.setText("Successfully Connected to Module");
 
