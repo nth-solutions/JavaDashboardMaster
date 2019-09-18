@@ -41,6 +41,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TabPane testParametersTabPane;
     @FXML
+    TabPane remotePairingTabPane;
+    @FXML
     Tab experimentTab;
     @FXML
     Tab motionVisualizationTab;
@@ -205,6 +207,7 @@ public class EducatorModeControllerFX implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        //primaryTabPane.getSelectionModel().select(experimentTab);
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
@@ -282,6 +285,21 @@ public class EducatorModeControllerFX implements Initializable {
         primaryTabPane.getSelectionModel().select(unpairRemotesTab);
     }
 
+    @FXML
+    private void selectPairSingleModuleTab(ActionEvent event){
+        remotePairingTabPane.getSelectionModel().select(1);
+    }
+
+    @FXML
+    private void selectPairTwoModulesTab(ActionEvent event){
+        remotePairingTabPane.getSelectionModel().select(2);
+    }
+
+    @FXML
+    private void goBackToIntialTabPairingRemotes(ActionEvent event){
+        remotePairingTabPane.getSelectionModel().select(0);
+    }
+
 
     /**
      * ActionEvent that increments the tab index by one to move to the next tab in the experimental tab pane
@@ -291,7 +309,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void nextTab(ActionEvent event) {
         if (oneModuleTest == true) {
-            int numberOfTabs = 5; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
+            int numberOfTabs = 4; //Begins at 0. Notates the total number of tabs within the experiment procedure tab pane
             generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
             generalStatusExperimentLabel.setTextFill(Color.BLACK);
             progressBar.setProgress(0);
@@ -313,7 +331,7 @@ public class EducatorModeControllerFX implements Initializable {
             experimentTabPane.getSelectionModel().select(experimentTabIndex); // Sets the tab to reflect the new index.
         }
         else{ // This is an incredibly jank way to handle the fact that different screens must be displayed depending on how many modules are involved in the test.
-            int numberOfTabs = 9;
+            int numberOfTabs = 6;
             boolean lastTab = false;
 
             generalStatusExperimentLabel.setText("");   // Resets the status text to blank for each new page
@@ -335,7 +353,7 @@ public class EducatorModeControllerFX implements Initializable {
                 backButton.setVisible(true);
             }
             if (lastTab == false){
-                experimentTabPane.getSelectionModel().select(experimentTabIndex + 5); // Sets the tab to reflect the new index.
+                experimentTabPane.getSelectionModel().select(experimentTabIndex + 4); // Sets the tab to reflect the new index.
             }else{
                 experimentTabPane.getSelectionModel().select(experimentTabIndex);
             }
@@ -387,7 +405,7 @@ public class EducatorModeControllerFX implements Initializable {
                 backButton.setVisible(true);
             }
             if (firstTab == false) {
-                experimentTabPane.getSelectionModel().select(experimentTabIndex + 5); //Sets the tab to reflect the new index.
+                experimentTabPane.getSelectionModel().select(experimentTabIndex + 4); //Sets the tab to reflect the new index.
             }else{
                 experimentTabPane.getSelectionModel().select(experimentTabIndex);
             }
@@ -706,7 +724,7 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(0, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
@@ -716,7 +734,7 @@ public class EducatorModeControllerFX implements Initializable {
                         updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {                                                                       //Without the binding of elements to properties. Platform.runLater() allows UI elements to be modified in the task.
-                            generalStatusExperimentLabel.setTextFill(DarkGreen);
+                            unpairRemotesTabLabel.setTextFill(DarkGreen);
                             progressBar.setStyle("-fx-accent: #1f78d1;");
                         });
 
@@ -725,7 +743,7 @@ public class EducatorModeControllerFX implements Initializable {
                         updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            unpairRemotesTabLabel.setTextFill(Color.RED);
                             progressBar.setStyle("-fx-accent: red;");
                         });
                     }
@@ -735,7 +753,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -744,7 +762,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -753,7 +771,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -773,7 +791,7 @@ public class EducatorModeControllerFX implements Initializable {
         testRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         nextButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
         backButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
-        generalStatusExperimentLabel.textProperty().bind(pairNewRemoteTask.messageProperty());
+        unpairRemotesTabLabel.textProperty().bind(pairNewRemoteTask.messageProperty());
         progressBar.progressProperty().bind(pairNewRemoteTask.progressProperty());
 
         pairNewRemoteTask.setOnSucceeded(e -> {
@@ -782,7 +800,7 @@ public class EducatorModeControllerFX implements Initializable {
             testRemotesButton.disableProperty().unbind();
             nextButton.disableProperty().unbind();
             backButton.disableProperty().unbind();
-            generalStatusExperimentLabel.textProperty().unbind();
+            unpairRemotesTabLabel.textProperty().unbind();
             progressBar.progressProperty().unbind();
         });
 
@@ -808,7 +826,7 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(0, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
@@ -820,7 +838,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -830,7 +848,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -840,7 +858,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -850,7 +868,7 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(0, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
@@ -867,7 +885,7 @@ public class EducatorModeControllerFX implements Initializable {
         testRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         nextButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         backButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        generalStatusExperimentLabel.textProperty().bind(unpairRemotesTask.messageProperty());
+        unpairRemotesTabLabel.textProperty().bind(unpairRemotesTask.messageProperty());
         progressBar.progressProperty().bind(unpairRemotesTask.progressProperty());
 
         unpairRemotesTask.setOnSucceeded(e -> {
@@ -876,8 +894,8 @@ public class EducatorModeControllerFX implements Initializable {
             testRemotesButton.disableProperty().unbind();
             nextButton.disableProperty().unbind();
             backButton.disableProperty().unbind();
-            generalStatusExperimentLabel.textProperty().unbind();
-            generalStatusExperimentLabel.textFillProperty().unbind();
+            unpairRemotesTabLabel.textProperty().unbind();
+            unpairRemotesTabLabel.textFillProperty().unbind();
             progressBar.progressProperty().unbind();
         });
 
@@ -898,7 +916,7 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(0, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
@@ -910,7 +928,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -920,7 +938,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -930,7 +948,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -940,7 +958,7 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(0, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
@@ -957,7 +975,7 @@ public class EducatorModeControllerFX implements Initializable {
         testRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         nextButton.disableProperty().bind(unpairRemotesTask.runningProperty());
         backButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        generalStatusExperimentLabel.textProperty().bind(unpairRemotesTask.messageProperty());
+        unpairRemotesTabLabel.textProperty().bind(unpairRemotesTask.messageProperty());
         progressBar.progressProperty().bind(unpairRemotesTask.progressProperty());
 
         unpairRemotesTask.setOnSucceeded(e -> {
@@ -966,8 +984,8 @@ public class EducatorModeControllerFX implements Initializable {
             testRemotesButton.disableProperty().unbind();
             nextButton.disableProperty().unbind();
             backButton.disableProperty().unbind();
-            generalStatusExperimentLabel.textProperty().unbind();
-            generalStatusExperimentLabel.textFillProperty().unbind();
+            unpairRemotesTabLabel.textProperty().unbind();
+            unpairRemotesTabLabel.textFillProperty().unbind();
             progressBar.progressProperty().unbind();
         });
 
@@ -998,22 +1016,22 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(0, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
                 try {
-                    generalStatusExperimentLabel.textProperty().unbind(); //Unbinds the Label from the testPairedRemoteTask so that the new task created in testRemotesFX can take control over it
+                    unpairRemotesTabLabel.textProperty().unbind(); //Unbinds the Label from the testPairedRemoteTask so that the new task created in testRemotesFX can take control over it
 
-                    if (!serialHandler.testRemotesFX(generalStatusExperimentLabel)) {
+                    if (!serialHandler.testRemotesFX(unpairRemotesTabLabel)) {
 
-                        generalStatusExperimentLabel.textProperty().bind(messageProperty()); //Rebinds the Label to the testPairedRemotesTask
+                        unpairRemotesTabLabel.textProperty().bind(messageProperty()); //Rebinds the Label to the testPairedRemotesTask
 
                         updateMessage("Error Communicating with Module");
                         updateProgress(100, maxProgress);
 
                         Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
+                            unpairRemotesTabLabel.setTextFill(Color.RED);
                             progressBar.setStyle("-fx-accent: red;");
                         });
 
@@ -1024,7 +1042,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -1034,7 +1052,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
 
@@ -1044,7 +1062,7 @@ public class EducatorModeControllerFX implements Initializable {
                     updateProgress(100, maxProgress);
 
                     Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        unpairRemotesTabLabel.setTextFill(Color.RED);
                         progressBar.setStyle("-fx-accent: red;");
                     });
                 }
@@ -1053,7 +1071,7 @@ public class EducatorModeControllerFX implements Initializable {
                 updateProgress(100, maxProgress);
 
                 Platform.runLater(() -> {
-                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    unpairRemotesTabLabel.setTextFill(DarkGreen);
                     progressBar.setStyle("-fx-accent: #1f78d1;");
                 });
 
@@ -1066,7 +1084,7 @@ public class EducatorModeControllerFX implements Initializable {
         testRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
         //.disableProperty().bind(testPairedRemoteTask.runningProperty());
         //backButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        generalStatusExperimentLabel.textProperty().bind(testPairedRemoteTask.messageProperty());
+        unpairRemotesTabLabel.textProperty().bind(testPairedRemoteTask.messageProperty());
         //progressBar.progressProperty().bind(testPairedRemoteTask.progressProperty());
 
 
@@ -1076,7 +1094,7 @@ public class EducatorModeControllerFX implements Initializable {
             testRemotesButton.disableProperty().unbind();
             //nextButton.disableProperty().unbind();
             //backButton.disableProperty().unbind();
-            generalStatusExperimentLabel.textProperty().unbind();
+            unpairRemotesTabLabel.textProperty().unbind();
             //progressBar.progressProperty().unbind();
 
             Platform.runLater(() -> {
@@ -1098,9 +1116,15 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void exitRemoteTestingMode(ActionEvent event) {
+        try{
         serialHandler.exitRemoteTest();
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        generalStatusExperimentLabel.setText("");
+        unpairRemotesTabLabel.setTextFill(Color.BLACK);
+        unpairRemotesTabLabel.setText("Remote Testing Successfully Exited");
+        }catch(Exception e){
+            unpairRemotesTabLabel.setTextFill(Color.RED);
+            unpairRemotesTabLabel.setText("Unable to Exit Remote Testing");
+        }
+
 
     }
 
@@ -1113,8 +1137,6 @@ public class EducatorModeControllerFX implements Initializable {
         String outputSelected = outputTypeToggleGroup.getSelectedToggle().getUserData().toString();
         return outputSelected;
     }
-
-
 
     /**
      * This method reads all of the data captured by the module during a testing period; then, depending on the output
@@ -1182,7 +1204,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                                 //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                                 testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-                               
+
                                 //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
                                 if (testData != null) {
                                     for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
@@ -1236,7 +1258,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                 parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                             }
                                             parameterSpreadsheetController.saveWorkbook(path);
-                                            
+
                                             try {
                                                 Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
                                             } catch (Exception exceptionalexception) {                              // This error should never happen

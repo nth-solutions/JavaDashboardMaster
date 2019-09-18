@@ -982,42 +982,39 @@ public class SerialComm {
 
 				int temp = inputStream.read();
 
-					Task<Void> updateStatusTask = new Task<Void>() {
-						@Override
-						protected Void call() throws Exception {
+				Task<Void> updateStatusTask = new Task<Void>() {
+					@Override
+					protected Void call() throws Exception {
 
-							if (temp == (int)'@') {
-								updateMessage("'A' Button is being Pressed");
+						if (temp == (int) '@') {
+							updateMessage("'A' Button is being Pressed");
 
-							}
-							else if (temp == (int)'!') {
-								updateMessage("'B' Button is being Pressed");
+						} else if (temp == (int) '!') {
+							updateMessage("'B' Button is being Pressed");
 
-							}
-							else {
-								updateMessage("No Button is being Pressed");
-							}
-
-							return null;
+						} else {
+							updateMessage("No Button is being Pressed");
 						}
-					};
 
-					Platform.runLater(() -> {
-						statusLabel.textProperty().bind(updateStatusTask.messageProperty());
-					});
+						return null;
+					}
+				};
+
+				Platform.runLater(() -> {
+					statusLabel.textProperty().bind(updateStatusTask.messageProperty());
+				});
 
 
-					updateStatusTask.setOnSucceeded(e -> {
-						statusLabel.textProperty().unbind();
-					});
+				updateStatusTask.setOnSucceeded(e -> {
+					statusLabel.textProperty().unbind();
+				});
 
-					updateStatusTask.setOnCancelled(e -> {
-						statusLabel.textProperty().unbind();
-					});
+				updateStatusTask.setOnCancelled(e -> {
+					statusLabel.textProperty().unbind();
+				});
 
-					updateStatusTask.run();
+				updateStatusTask.run();
 			}
-
 		}
 
 		//If the test mode was exited externally by setting the remoteTestActive boolean to false, send the exit command to the module and listen for an echo

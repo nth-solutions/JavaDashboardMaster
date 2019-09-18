@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -31,7 +31,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button fx:id="unpairRemotesButtonMainMenu" alignment="CENTER" layoutX="10.0" layoutY="431.0" mnemonicParsing="false" onAction="#selectUnpairRemotesTab" prefHeight="117.0" prefWidth="200.0" text="Unpair Remotes" textFill="#1f78d1">
+                        <Button fx:id="unpairRemotesButtonMainMenu" alignment="CENTER" layoutX="10.0" layoutY="431.0" mnemonicParsing="false" onAction="#selectUnpairRemotesTab" prefHeight="117.0" prefWidth="200.0" text="Pair/Unpair Remotes" textFill="#1f78d1">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -66,45 +66,6 @@
                <children>
                   <TabPane fx:id="primaryTabPane" layoutX="-2.0" layoutY="-1.0" prefHeight="500.0" prefWidth="500.0" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
                     <tabs>
-                        <Tab text="Unpair Remotes">
-                           <content>
-                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                                 <children>
-                                    <Button layoutX="45.0" layoutY="106.0" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="57.0" prefWidth="416.0" text="Unpair Remotes From Module">
-                                       <font>
-                                          <Font size="27.0" />
-                                       </font>
-                                    </Button>
-                                    <Button layoutX="186.0" layoutY="356.0" mnemonicParsing="false" onAction="#reconnectToModuleUnpairRemotesScreen" text="Connect">
-                                       <font>
-                                          <Font size="27.0" />
-                                       </font>
-                                    </Button>
-                                    <Label fx:id="unpairRemotesTabLabel" layoutX="33.0" layoutY="27.0" prefHeight="35.0" prefWidth="439.0" textAlignment="CENTER">
-                                       <font>
-                                          <Font size="24.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="45.0" layoutY="211.0" prefHeight="39.0" prefWidth="448.0" text="If Unpairing Remotes From Multiple">
-                                       <font>
-                                          <Font size="27.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="45.0" layoutY="434.0" />
-                                    <Label layoutX="45.0" layoutY="250.0" prefHeight="39.0" prefWidth="448.0" text=" Modules, Click Here to Connect to" textAlignment="CENTER">
-                                       <font>
-                                          <Font size="27.0" />
-                                       </font>
-                                    </Label>
-                                    <Label layoutX="132.0" layoutY="289.0" prefHeight="39.0" prefWidth="241.0" text="the Second module" textAlignment="CENTER">
-                                       <font>
-                                          <Font size="27.0" />
-                                       </font>
-                                    </Label>
-                                 </children>
-                              </AnchorPane>
-                           </content>
-                        </Tab>
                         <Tab fx:id="experimentTab" text="Experiment">
                           <content>
                             <AnchorPane>
@@ -126,14 +87,30 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="15.0">
+                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="7.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Step 1: Select the test you would like to perform" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Step 1" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="50.0" prefWidth="400.0" promptText="Select a Test" />
+                                                                  <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="36.0" prefWidth="400.0" text="Connect to Module" />
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Ensure module(s) are erased" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Ensure remote(s) are paired to module(s)" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Select the test you would like to perform" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="39.0" prefWidth="400.0" promptText="Select a Test" />
                                                                   <TabPane fx:id="testParametersTabPane" prefHeight="150.0" prefWidth="200.0" style="-fx-border-color: DarkGray;" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
                                                                     <tabs>
                                                                       <Tab text="Initial Tab">
@@ -264,69 +241,15 @@
                                                                         </Tab>
                                                                     </tabs>
                                                                   </TabPane>
-                                                                  <Label fx:id="applyConfigurationsToFirstModuleLabel" alignment="CENTER" prefWidth="500.0" text="Step 1B: Apply your configurations" textFill="#1f78d1">
+                                                                  <Label fx:id="applyConfigurationsToFirstModuleLabel" alignment="CENTER" prefWidth="500.0" text="Apply your configurations to Module 1" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="applyConfigurationsButton" mnemonicParsing="false" onAction="#applyConfigurations" prefHeight="50.0" prefWidth="400.0" text="Apply Configurations" />
+                                                                  <Button fx:id="applyConfigurationsButton" mnemonicParsing="false" onAction="#applyConfigurations" prefHeight="38.0" prefWidth="400.0" text="Apply Configurations" />
                                                                </children>
                                                                <padding>
                                                                   <Insets left="50.0" right="50.0" />
-                                                               </padding>
-                                                            </VBox>
-                                                         </children>
-                                                      </AnchorPane>
-                                                   </content>
-                                                </Tab>
-                                                <Tab fx:id="remotePairingTab" text="Remote Pairing">
-                                                   <content>
-                                                      <AnchorPane>
-                                                         <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="5.0">
-                                                               <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2: Pair a remote" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <VBox alignment="CENTER" prefWidth="400.0">
-                                                                     <children>
-                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
-                                                                           <font>
-                                                                              <Font size="14.0" />
-                                                                           </font>
-                                                                        </Button>
-                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="50.0" prefWidth="400.0" text="Unpair All Remotes">
-                                                                           <font>
-                                                                              <Font size="14.0" />
-                                                                           </font>
-                                                                        </Button>
-                                                                     </children>
-                                                                  </VBox>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2A: Test the paired remote" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button fx:id="testRemotesButton" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" onAction="#testPairedRemote" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
-                                                                     <font>
-                                                                        <Font size="14.0" />
-                                                                     </font>
-                                                                  </Button>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2B: Exit remote testing" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button fx:id="exitTestModeButton" disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" onAction="#exitRemoteTestingMode" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
-                                                                     <font>
-                                                                        <Font size="14.0" />
-                                                                     </font>
-                                                                  </Button>
-                                                               </children>
-                                                               <padding>
-                                                                  <Insets left="25.0" right="25.0" />
                                                                </padding>
                                                             </VBox>
                                                          </children>
@@ -339,7 +262,7 @@
                                                          <children>
                                                             <VBox prefHeight="377.0" prefWidth="500.0" spacing="40.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 3: The Experiment" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 2: The Experiment" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="35.0" />
                                                                      </font>
@@ -378,7 +301,7 @@
                                                                      <children>
                                                                         <VBox alignment="CENTER" prefHeight="225.0" prefWidth="450.0" spacing="15.0">
                                                                            <children>
-                                                                              <Label alignment="CENTER" prefWidth="400.0" text="Step 4: Select your output type" textFill="#1f78d1">
+                                                                              <Label alignment="CENTER" prefWidth="400.0" text="Step 3: Select your output type" textFill="#1f78d1">
                                                                                  <font>
                                                                                     <Font name="System Bold" size="14.0" />
                                                                                  </font>
@@ -402,7 +325,7 @@
                                                                         </VBox>
                                                                      </children>
                                                                   </Pane>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4A: Read all tests from your Adventure Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 3A: Read all tests from your Adventure Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -427,7 +350,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 5: If not using SINC Technology, Click Next" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4: If not using SINC Technology, Click Next" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="16.0" />
                                                                      </font>
@@ -459,7 +382,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6: Erase the data from the module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5: Erase the data from the module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -469,66 +392,17 @@
                                                                         <Font size="36.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6A: Disconnect the Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5A: Disconnect the Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 6B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 5B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
                                                                </children>
-                                                            </VBox>
-                                                         </children>
-                                                      </AnchorPane>
-                                                   </content>
-                                                </Tab>
-                                                <Tab fx:id="remotePairingTab1" text="Two Module Test Module 1 Remote Pairing">
-                                                   <content>
-                                                      <AnchorPane>
-                                                         <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="5.0">
-                                                               <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2: Pair Remote to Module 1" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <VBox alignment="CENTER" prefWidth="400.0">
-                                                                     <children>
-                                                                        <Button fx:id="pairNewRemoteButton1" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
-                                                                           <font>
-                                                                              <Font size="14.0" />
-                                                                           </font>
-                                                                        </Button>
-                                                                        <Button fx:id="unpairAllRemotesButton1" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="50.0" prefWidth="400.0" text="Unpair All Remotes">
-                                                                           <font>
-                                                                              <Font size="14.0" />
-                                                                           </font>
-                                                                        </Button>
-                                                                     </children>
-                                                                  </VBox>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2A: Test the paired remote" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button fx:id="testRemotesButton1" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" onAction="#testPairedRemote" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
-                                                                     <font>
-                                                                        <Font size="14.0" />
-                                                                     </font>
-                                                                  </Button>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 2B: Leave Remote in Testing and Click Next" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                               </children>
-                                                               <padding>
-                                                                  <Insets left="25.0" right="25.0" />
-                                                               </padding>
                                                             </VBox>
                                                          </children>
                                                       </AnchorPane>
@@ -540,125 +414,33 @@
                                                          <children>
                                                             <VBox layoutX="1.0" layoutY="-1.0" prefHeight="377.0" prefWidth="500.0" spacing="20.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Step 3: Set Up Second Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Step 2: Set Up Second Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="24.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Step 3A: Disconnect the First Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Step 2A: Disconnect the First Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3B: Connect the Second Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 2B: Connect the Second Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3C: Establish Connection" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 2C: Establish Connection" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
                                                                   <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="50.0" prefWidth="535.0" text="Connect" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 3D: Apply your Configurations to Module 2" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 2D: Apply your Configurations to Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
                                                                   <Button fx:id="applyConfigurationsButton1" mnemonicParsing="false" onAction="#applyConfigurations2" prefHeight="50.0" prefWidth="535.0" text="Apply Configurations" />
-                                                               </children>
-                                                            </VBox>
-                                                         </children>
-                                                      </AnchorPane>
-                                                   </content>
-                                                </Tab>
-                                                <Tab fx:id="remotePairingTab2" text="Two Module Test Module 2 Remote Pairing ">
-                                                   <content>
-                                                      <AnchorPane>
-                                                         <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="5.0">
-                                                               <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4: Pair Remote to Module 2" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <VBox alignment="CENTER" prefWidth="400.0">
-                                                                     <children>
-                                                                        <Button fx:id="pairNewRemoteButton2" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
-                                                                           <font>
-                                                                              <Font size="14.0" />
-                                                                           </font>
-                                                                        </Button>
-                                                                        <Button fx:id="unpairAllRemotesButton2" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="50.0" prefWidth="400.0" text="Unpair All Remotes">
-                                                                           <font>
-                                                                              <Font size="14.0" />
-                                                                           </font>
-                                                                        </Button>
-                                                                     </children>
-                                                                  </VBox>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4A: Test the paired remote" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button fx:id="testRemotesButton2" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" onAction="#testPairedRemote" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
-                                                                     <font>
-                                                                        <Font size="14.0" />
-                                                                     </font>
-                                                                  </Button>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4B: Exit remote testing" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button fx:id="exitTestModeButton2" disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" onAction="#exitRemoteTestingMode" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
-                                                                     <font>
-                                                                        <Font size="14.0" />
-                                                                     </font>
-                                                                  </Button>
-                                                               </children>
-                                                               <padding>
-                                                                  <Insets left="25.0" right="25.0" />
-                                                               </padding>
-                                                            </VBox>
-                                                         </children>
-                                                      </AnchorPane>
-                                                   </content>
-                                                </Tab>
-                                                <Tab text="Two Module Test Module 1 Final Setup">
-                                                   <content>
-                                                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                                         <children>
-                                                            <VBox prefHeight="377.0" prefWidth="500.0" spacing="30.0">
-                                                               <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Disconnect the Second module" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="18.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Reconnect the First Module" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="18.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Establish Connection" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="18.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#reconnectToModule1" prefHeight="53.0" prefWidth="500.0" text="Connect to Module 1" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Remove the First Module From Testing Mode" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="18.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button fx:id="exitTestModeButton1" mnemonicParsing="false" onAction="#exitRemoteTestingMode" prefHeight="50.0" prefWidth="520.0" text="Exit Test Mode">
-                                                                     <font>
-                                                                        <Font size="14.0" />
-                                                                     </font>
-                                                                  </Button>
                                                                </children>
                                                             </VBox>
                                                          </children>
@@ -671,12 +453,12 @@
                                                          <children>
                                                             <VBox prefHeight="377.0" prefWidth="500.0" spacing="40.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 5: The Experiment" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 3: The Experiment" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="35.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Disconnect the First Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Disconnect the Second Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="24.0" />
                                                                      </font>
@@ -701,37 +483,31 @@
                                                    <content>
                                                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                          <children>
-                                                            <VBox prefHeight="374.0" prefWidth="500.0">
+                                                            <VBox prefHeight="374.0" prefWidth="500.0" spacing="10.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 6: Restablish Connection" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4: Restablish Connection" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
                                                                   <Button mnemonicParsing="false" onAction="#reconnectToModule1" prefHeight="53.0" prefWidth="500.0" text="Connect to Module 1" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 6A: Read data from Module 1" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4A: Read data from Module 1" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
                                                                   <Button mnemonicParsing="false" onAction="#readTestsFromModuleOneOutOfTwo" prefHeight="53.0" prefWidth="500.0" text="Read Data" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 6B: Unpair Remotes From Module 1" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4B: Disconnect Module 1" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="53.0" prefWidth="500.0" text="Unpair" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 6C: Disconnect Module 1" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4C: Reconnect Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 6D: Reconnect Module 2" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="18.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 6E: Restablish Connection" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4D: Restablish Connection" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -747,21 +523,15 @@
                                                    <content>
                                                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                          <children>
-                                                            <VBox prefHeight="375.0" prefWidth="500.0">
+                                                            <VBox prefHeight="375.0" prefWidth="500.0" spacing="25.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 7A: Unpair Remotes From Module 2" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="25.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="56.0" prefWidth="500.0" text="Unpair" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 7B: Read Data from Module 2" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 5A: Read Data from Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="25.0" />
                                                                      </font>
                                                                   </Label>
                                                                   <Button mnemonicParsing="false" onAction="#readTestsFromModuleTwoOutOfTwo" prefHeight="56.0" prefWidth="500.0" text="Read Data" />
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 7C: Fill Template with Data" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 5B: Fill Template with Data" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="25.0" />
                                                                      </font>
@@ -779,7 +549,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 8: If not using SINC Technology, Click Next" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 6: If not using SINC Technology, Click Next" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="17.0" />
                                                                      </font>
@@ -811,7 +581,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 9: Erase the data from Module 2" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7: Erase the data from Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -821,17 +591,17 @@
                                                                         <Font size="21.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 9A: Disconnect the Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7A: Disconnect the Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 9B: Reconnect the First Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7B: Reconnect the First Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 9C: Establish Connection to the First Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7C: Establish Connection to the First Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -841,7 +611,7 @@
                                                                         <Font size="21.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 9D: Erase the Second Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7D: Erase the Second Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -851,7 +621,7 @@
                                                                         <Font size="21.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 9E: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 7E: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -876,6 +646,182 @@
                                  </children>
                               </AnchorPane>
                           </content>
+                        </Tab>
+                        <Tab fx:id="unpairRemotesTab" text="Unpair Remotes">
+                           <content>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox prefHeight="500.0" prefWidth="500.0">
+                                       <children>
+                                          <HBox alignment="CENTER" prefHeight="46.0" prefWidth="500.0">
+                                             <children>
+                                                <Label fx:id="unpairRemotesTabLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="480.0" prefHeight="50.0" prefWidth="490.0" textAlignment="CENTER" wrapText="true">
+                                                   <font>
+                                                      <Font name="System Bold" size="15.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </HBox>
+                                          <TabPane fx:id="remotePairingTabPane" prefHeight="457.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE">
+                                            <tabs>
+                                              <Tab text="Selection Screen">
+                                                   <content>
+                                                      <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                         <children>
+                                                            <Label layoutX="21.0" layoutY="14.0" prefHeight="35.0" prefWidth="418.0" text="Are you Pairing One Module or Two?">
+                                                               <font>
+                                                                  <Font name="System Bold" size="24.0" />
+                                                               </font>
+                                                            </Label>
+                                                            <Button layoutX="21.0" layoutY="57.0" mnemonicParsing="false" onAction="#selectPairSingleModuleTab" prefHeight="100.0" prefWidth="450.0" text="One Module">
+                                                               <font>
+                                                                  <Font size="36.0" />
+                                                               </font>
+                                                            </Button>
+                                                            <Button fx:id="eraseButton21" layoutX="21.0" layoutY="157.0" mnemonicParsing="false" onAction="#selectPairTwoModulesTab" prefHeight="100.0" prefWidth="450.0" text="Two Modules">
+                                                               <font>
+                                                                  <Font size="36.0" />
+                                                               </font>
+                                                            </Button>
+                                                         </children>
+                                                      </AnchorPane>
+                                                   </content>
+                                                </Tab>
+                                              <Tab text="Single Remote Pairing ">
+                                                   <content>
+                                                      <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                                         <children>
+                                                            <VBox alignment="CENTER" prefHeight="452.0" prefWidth="500.0" spacing="5.0">
+                                                               <children>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Single Module Remote Configurator" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <VBox alignment="CENTER" prefWidth="400.0">
+                                                                     <children>
+                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
+                                                                           <font>
+                                                                              <Font size="14.0" />
+                                                                           </font>
+                                                                        </Button>
+                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="54.0" prefWidth="400.0" text="Unpair All Remotes from Module">
+                                                                           <font>
+                                                                              <Font size="14.0" />
+                                                                           </font>
+                                                                        </Button>
+                                                                     </children>
+                                                                  </VBox>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Test a Paired Remote" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button fx:id="testRemotesButton" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" onAction="#testPairedRemote" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
+                                                                     <font>
+                                                                        <Font size="14.0" />
+                                                                     </font>
+                                                                  </Button>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Exit Remote Testing" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button fx:id="exitTestModeButton" disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" onAction="#exitRemoteTestingMode" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
+                                                                     <font>
+                                                                        <Font size="14.0" />
+                                                                     </font>
+                                                                  </Button>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Return to # of Modules Selector" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button mnemonicParsing="false" onAction="#goBackToIntialTabPairingRemotes" prefHeight="48.0" prefWidth="400.0" text="Return">
+                                                                     <font>
+                                                                        <Font size="14.0" />
+                                                                     </font>
+                                                                  </Button>
+                                                               </children>
+                                                               <padding>
+                                                                  <Insets left="25.0" right="25.0" />
+                                                               </padding>
+                                                            </VBox>
+                                                         </children>
+                                                      </AnchorPane>
+                                                   </content>
+                                                </Tab>
+                                                <Tab text="Two Remote Pairing Screen 1">
+                                                  <content>
+                                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                         <children>
+                                                            <VBox alignment="CENTER" prefHeight="452.0" prefWidth="500.0" spacing="5.0">
+                                                               <children>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Two Module Pairing (IN PROGRESS)" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <VBox alignment="CENTER" prefWidth="400.0">
+                                                                     <children>
+                                                                        <Button fx:id="pairNewRemoteButton1" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
+                                                                           <font>
+                                                                              <Font size="14.0" />
+                                                                           </font>
+                                                                        </Button>
+                                                                        <Button fx:id="unpairAllRemotesButton1" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="54.0" prefWidth="400.0" text="Unpair All Remotes from Module">
+                                                                           <font>
+                                                                              <Font size="14.0" />
+                                                                           </font>
+                                                                        </Button>
+                                                                     </children>
+                                                                  </VBox>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Test a Paired Remote" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button fx:id="testRemotesButton1" layoutX="20.0" layoutY="194.0" mnemonicParsing="false" onAction="#testPairedRemote" prefHeight="50.0" prefWidth="400.0" text="Test Paired Remotes">
+                                                                     <font>
+                                                                        <Font size="14.0" />
+                                                                     </font>
+                                                                  </Button>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Exit Remote Testing" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button fx:id="exitTestModeButton1" disable="true" layoutX="20.0" layoutY="219.0" mnemonicParsing="false" onAction="#exitRemoteTestingMode" prefHeight="50.0" prefWidth="400.0" text="Exit Test Mode">
+                                                                     <font>
+                                                                        <Font size="14.0" />
+                                                                     </font>
+                                                                  </Button>
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Return to # of Modules Selector" textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
+                                                                  <Button mnemonicParsing="false" onAction="#goBackToIntialTabPairingRemotes" prefHeight="48.0" prefWidth="400.0" text="Return">
+                                                                     <font>
+                                                                        <Font size="14.0" />
+                                                                     </font>
+                                                                  </Button>
+                                                               </children>
+                                                               <padding>
+                                                                  <Insets left="25.0" right="25.0" />
+                                                               </padding>
+                                                            </VBox>
+                                                         </children>
+                                                      </AnchorPane>
+                                                  </content>
+                                                </Tab>
+                                            </tabs>
+                                          </TabPane>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </AnchorPane>
+                           </content>
                         </Tab>
                       <Tab fx:id="motionVisualizationTab" text="Motion Visualization">
                         <content>
@@ -909,53 +855,58 @@
                                                 </Label>
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="28.0" prefWidth="418.0" text="Step 1: Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
+                                          <Label prefHeight="28.0" prefWidth="418.0" text="Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="230.0" text="Configure Module for SINC Calibration" />
+                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="339.0" text="Configure Module for SINC Calibration" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="27.0" prefWidth="364.0" text="Step 1A: Follow Instructions for Calibrating the Module" textFill="#1f78d1">
+                                          <Label prefHeight="27.0" prefWidth="423.0" text="Follow Instructions for Calibrating the Module" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Label prefHeight="25.0" prefWidth="311.0" text="Step 1B: Select the Video File of the Calibration" textFill="#1f78d1">
+                                          <Label prefHeight="25.0" prefWidth="420.0" text="Select the Video File of the Calibration" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="275.0" promptText="Video File " />
                                                 <Button mnemonicParsing="false" onAction="#videoFileHandler" prefHeight="25.0" prefWidth="65.0" text="Browse" />
+                                                <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="275.0" promptText="Video File " />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="26.0" prefWidth="222.0" text="Step 1C: Hit the Following Button" textFill="#1f78d1">
+                                          <Label prefHeight="26.0" prefWidth="421.0" text="Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton1" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="260.0" text="Apply SINC Configurations to Module" />
+                                                <Button fx:id="importCalibrationDataButton11" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Module" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="26.0" prefWidth="486.0" text="If using 2 modules, disconnect first module and connect second module" textFill="#1f78d1">
+                                          <Label prefHeight="26.0" prefWidth="418.0" text="For 2 modules, disconnect first module; connect second module" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="260.0" text="Establish Connection to Second Module" />
-                                          <Label prefHeight="26.0" prefWidth="122.0" text="Do Step 1C Again" textFill="#1f78d1">
+                                          <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" />
+                                          <Label prefHeight="26.0" prefWidth="418.0" text="Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
+                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                             <children>
+                                                <Button fx:id="importCalibrationDataButton111" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Second Module" />
+                                             </children>
+                                          </HBox>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
                                                 <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#applyOffsetHandler" opacity="0.0" prefHeight="30.0" prefWidth="150.0" text="Apply Offset to Module" />
@@ -985,7 +936,7 @@
                                           <Font size="24.0" />
                                        </font>
                                     </Button>
-                                    <Label layoutX="19.0" layoutY="54.0" text="Are You Sure You Want to Erase?">
+                                    <Label layoutX="20.0" layoutY="14.0" text="Are You Sure You Want to Erase?">
                                        <font>
                                           <Font name="System Bold" size="30.0" />
                                        </font>
@@ -995,21 +946,41 @@
                                           <Font size="24.0" />
                                        </font>
                                     </Label>
-                                    <Label layoutX="68.0" layoutY="289.0" text="If Erasing Multiple Modules, Click Below to ">
+                                    <Label layoutX="13.0" layoutY="289.0" prefHeight="27.0" prefWidth="539.0" text="If Erasing Multiple Modules, Discconect the First Module ">
                                        <font>
                                           <Font name="System Bold" size="18.0" />
                                        </font>
                                     </Label>
-                                    <Label layoutX="121.0" layoutY="316.0" text="Connect to the Second Module">
+                                    <Label layoutX="13.0" layoutY="316.0" prefHeight="27.0" prefWidth="370.0" text="Connect to the Second Module">
                                        <font>
                                           <Font name="System Bold" size="18.0" />
                                        </font>
                                     </Label>
-                                    <Button alignment="CENTER" layoutX="118.0" layoutY="357.0" mnemonicParsing="false" onAction="#reconnectToModuleEraseConfirmationScreen" prefHeight="50.0" prefWidth="265.0" text="Connect">
+                                    <Button alignment="CENTER" layoutX="118.0" layoutY="343.0" mnemonicParsing="false" onAction="#reconnectToModuleEraseConfirmationScreen" prefHeight="50.0" prefWidth="265.0" text="Connect">
                                        <font>
                                           <Font size="25.0" />
                                        </font>
                                     </Button>
+                                    <Label layoutX="14.0" layoutY="397.0" prefHeight="27.0" prefWidth="315.0" text="Erase the Second Module">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Button alignment="CENTER" layoutX="118.0" layoutY="424.0" mnemonicParsing="false" onAction="#eraseTestsFromModuleMainMenu" prefHeight="50.0" prefWidth="265.0" text="Erase Module">
+                                       <font>
+                                          <Font size="25.0" />
+                                       </font>
+                                    </Button>
+                                    <Label layoutX="20.0" layoutY="59.0" prefHeight="27.0" prefWidth="539.0" text="(Erasing may take up to one minute)">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
+                                    <Label layoutX="20.0" layoutY="86.0" prefHeight="27.0" prefWidth="539.0" text="(If you do not wish to erase, click on different tab)">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                    </Label>
                                  </children>
                               </AnchorPane>
                           </content>
