@@ -296,6 +296,17 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
+    private void selectPairTwoModulesTabPageTwo(ActionEvent event){
+        remotePairingTabPane.getSelectionModel().select(3);
+    }
+
+    @FXML
+    private void selectPairTwoModulesTabPageThree(ActionEvent event){
+        remotePairingTabPane.getSelectionModel().select(4);
+    }
+
+
+    @FXML
     private void goBackToIntialTabPairingRemotes(ActionEvent event){
         remotePairingTabPane.getSelectionModel().select(0);
     }

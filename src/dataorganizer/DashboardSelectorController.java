@@ -67,6 +67,7 @@ public class DashboardSelectorController implements Initializable {
         Stage primaryStage = new Stage();
         Parent root = null;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("EducatorModeFXML.fxml"));
+        System.out.println(getClass().getResource("EducatorModeFXML.fxml"));
         try {
             root = loader.load();
             //root.getStylesheets().add(getClass().getResource("EducatorModeCSS.css").toString());
