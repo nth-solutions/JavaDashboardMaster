@@ -283,6 +283,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectUnpairRemotesTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(unpairRemotesTab);
+        remotePairingTabPane.getSelectionModel().select(0);
     }
 
     @FXML
@@ -497,13 +498,14 @@ public class EducatorModeControllerFX implements Initializable {
         Platform.runLater(new Runnable(){
            @Override
            public void run(){
-               if(findModuleCommPort()){
-                   eraseModuleTabLabel.setText("Successfully Connected To Module");
-                   eraseModuleTabLabel.setTextFill(Color.GREEN);
-               }else{
-                   eraseModuleTabLabel.setText("Failed To Connect To Module");
-                   eraseModuleTabLabel.setTextFill(Color.RED);
-               }
+               findModuleCommPort();
+//               if(findModuleCommPort()){
+//                   eraseModuleTabLabel.setText("Successfully Connected To Module");
+//                   eraseModuleTabLabel.setTextFill(Color.GREEN);
+//               }else{
+//                   eraseModuleTabLabel.setText("Failed To Connect To Module");
+//                   eraseModuleTabLabel.setTextFill(Color.RED);
+//               }
            }
         });
     }
@@ -1129,7 +1131,7 @@ public class EducatorModeControllerFX implements Initializable {
     private void exitRemoteTestingMode(ActionEvent event) {
         try{
         serialHandler.exitRemoteTest();
-        unpairRemotesTabLabel.setTextFill(Color.BLACK);
+        unpairRemotesTabLabel.setTextFill(Color.GREEN);
         unpairRemotesTabLabel.setText("Remote Testing Successfully Exited");
         }catch(Exception e){
             unpairRemotesTabLabel.setTextFill(Color.RED);
@@ -2966,8 +2968,11 @@ public class EducatorModeControllerFX implements Initializable {
                                         sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
                                         sincCalibrationTabGeneralStatusLabel.setText("Successfully Connected to Module");
 
-                                        unpairRemotesTabLabel.setText("Sucessfully Connected to Module");
+                                        unpairRemotesTabLabel.setText("Successfully Connected to Module");
                                         unpairRemotesTabLabel.setTextFill(DarkGreen);
+
+                                        eraseModuleTabLabel.setText("Successfully Connected to Module");
+                                        eraseModuleTabLabel.setTextFill(DarkGreen);
 
                                     }
                                 } else {

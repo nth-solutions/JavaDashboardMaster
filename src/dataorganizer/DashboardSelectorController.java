@@ -76,7 +76,7 @@ public class DashboardSelectorController implements Initializable {
         }
         Scene scene = new Scene(root, 690,500);
 
-        primaryStage.setTitle("Educator Mode");
+        primaryStage.setTitle("Education Mode");
         primaryStage.setScene(scene);
         //scene.getStylesheets().clear();
         System.out.println(this.getClass().getResource("EducatorModeCSS.css").toExternalForm());

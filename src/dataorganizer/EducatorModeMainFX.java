@@ -12,7 +12,7 @@ public class EducatorModeMainFX extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("EducatorModeFXML.fxml"));
-        primaryStage.setTitle("Educator Mode");
+        primaryStage.setTitle("Education Mode");
         Scene scene = new Scene(root, 690, 500);
         primaryStage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("EducatorModeCSS.css").toExternalForm());
