@@ -1137,8 +1137,6 @@ public class EducatorModeControllerFX implements Initializable {
             unpairRemotesTabLabel.setTextFill(Color.RED);
             unpairRemotesTabLabel.setText("Unable to Exit Remote Testing");
         }
-
-
     }
 
     /**
@@ -2325,7 +2323,7 @@ public class EducatorModeControllerFX implements Initializable {
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                         });
 
-
+                    //test
                     }else{
 
                         Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
