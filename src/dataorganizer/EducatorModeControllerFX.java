@@ -2323,7 +2323,7 @@ public class EducatorModeControllerFX implements Initializable {
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                         });
 
-                    //test
+                    //test2
                     }else{
 
                         Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
