@@ -209,7 +209,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         //primaryTabPane.getSelectionModel().select(experimentTab);
 
-        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test - Simple Harmonics"); //Create combobox of test names so users can select Test type that he / she wants to perform.
+        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
         initializeToggleGroup();                                                                                        //See Method Comment
         fillTestTypeHashMap();                                                                                         //See Method Comment
@@ -665,12 +665,19 @@ public class EducatorModeControllerFX implements Initializable {
                 break;
             case 3:
                 //IP
-                testType = "Inclined Plane";
+                testType = "Inclined Plane - Released From Top";
                 generalStatusExperimentLabel.setTextFill(DarkGreen);
                 generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
                 nextButton.setDisable(false);
                 break;
             case 4:
+                //IP
+                testType = "Inclined Plane - Projected From Bottom";
+                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                nextButton.setDisable(false);
+                break;
+            case 5:
                 //Pendulum
                 try {
                     lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
@@ -689,7 +696,7 @@ public class EducatorModeControllerFX implements Initializable {
                 }
 
                 break;
-            case 5:
+            case 6:
                 //Spring
                 try {
                     springConstant = Double.parseDouble(springConstantTextField.getText());
@@ -711,7 +718,19 @@ public class EducatorModeControllerFX implements Initializable {
                     generalStatusExperimentLabel.setTextFill(Color.RED);
                     generalStatusExperimentLabel.setText("Invalid or Missing Data");
                 }
-
+                break;
+            case 7:
+                //Generic One Module
+                testType = "Generic Template - One Module";
+                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                nextButton.setDisable(false);
+                break;
+            case 8:
+                testType = "Generic Template - Two Modules";
+                generalStatusExperimentLabel.setTextFill(DarkGreen);
+                generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                nextButton.setDisable(false);
                 break;
             default:
                 break;
@@ -1259,7 +1278,9 @@ public class EducatorModeControllerFX implements Initializable {
                                             } else if (testType == "Conservation of Energy") {
                                                 parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
                                                 parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Inclined Plane") {
+                                            } else if (testType == "Inclined Plane - Released From Top") {
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            } else if (testType == "Inclined Plane - Projected From Bottom") {
                                                 parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                             } else if (testType.equals("Physical Pendulum")) {
                                             	parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
@@ -1267,7 +1288,12 @@ public class EducatorModeControllerFX implements Initializable {
                                             } else if (testType == "Spring Test - Simple Harmonics") {
                                                 parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
                                                 parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            }else if (testType == "Generic Template - One Module") {
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            } else if (testType == "Generic Template - Two Modules") {
+                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                             }
+
                                             parameterSpreadsheetController.saveWorkbook(path);
 
                                             try {
@@ -2417,20 +2443,6 @@ public class EducatorModeControllerFX implements Initializable {
 
                     System.out.println(timerCalibrationOffset);
                     System.out.println(delayAfterStart);
-
-
-                    if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished!")
-                    {
-//                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//                            sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
-//                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-//                        });
-                    }else{
-                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("TMR0 and Delay After Start Calculated, you may now apply them");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                        });
-                    }
 
                 }catch(IOException e){
                     Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring

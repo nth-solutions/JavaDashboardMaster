@@ -170,7 +170,20 @@
                                                                               </AnchorPane>
                                                                            </content>
                                                                         </Tab>
-                                                                        <Tab text="Inclined Plane">
+                                                                        <Tab text="Inclined Plane - Released From Top">
+                                                                           <content>
+                                                                              <AnchorPane>
+                                                                                 <children>
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                       <font>
+                                                                                          <Font size="14.0" />
+                                                                                       </font>
+                                                                                    </Text>
+                                                                                 </children>
+                                                                              </AnchorPane>
+                                                                           </content>
+                                                                        </Tab>
+                                                                        <Tab text="Inclined Plane - Projected From Bottom ">
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
@@ -235,6 +248,32 @@
                                                                                           </HBox>
                                                                                        </children>
                                                                                     </VBox>
+                                                                                 </children>
+                                                                              </AnchorPane>
+                                                                           </content>
+                                                                        </Tab>
+                                                                        <Tab text="Generic Template - One Module">
+                                                                           <content>
+                                                                              <AnchorPane>
+                                                                                 <children>
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                       <font>
+                                                                                          <Font size="14.0" />
+                                                                                       </font>
+                                                                                    </Text>
+                                                                                 </children>
+                                                                              </AnchorPane>
+                                                                           </content>
+                                                                        </Tab>
+                                                                        <Tab text="Generic Template - Two Modules">
+                                                                           <content>
+                                                                              <AnchorPane>
+                                                                                 <children>
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                       <font>
+                                                                                          <Font size="14.0" />
+                                                                                       </font>
+                                                                                    </Text>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>

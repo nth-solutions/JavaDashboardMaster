@@ -28,9 +28,11 @@ public class ParameterSpreadsheetController {
 
             testTypeFileName = "Conservation of Energy Template.xlsx";
         }
-        else if(testType == "Inclined Plane") {
-
-            testTypeFileName = "Inclined Plane Template.xlsx";
+        else if(testType == "Inclined Plane - Released From Top") {
+            testTypeFileName = "Inclined Plane (Released From Top) Template.xlsx";
+        }
+        else if(testType == "Inclined Plane - Projected From Bottom"){
+            testTypeFileName = "Inclined Plane (Projected From Bottom) Template.xlsx";
         }
         else if(testType == "Physical Pendulum"){
 
@@ -43,6 +45,12 @@ public class ParameterSpreadsheetController {
         }else if(testType == "Spring Test - Simple Harmonics"){
 
             testTypeFileName = "Spring Test - Simple Harmonics Template.xlsx";
+        }
+        else if(testType == "Generic Template - One Module") {
+            testTypeFileName = "Generic (One Module) Template.xlsx";
+        }
+        else if(testType == "Generic Template - Two Modules"){
+            testTypeFileName = "Generic (Two Modules) Template.xlsx";
         }
         documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
         try {
