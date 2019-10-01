@@ -2418,6 +2418,7 @@ public class EducatorModeControllerFX implements Initializable {
                     System.out.println(timerCalibrationOffset);
                     System.out.println(delayAfterStart);
 
+
                     if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished!")
                     {
 //                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
