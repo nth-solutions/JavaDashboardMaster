@@ -1470,18 +1470,24 @@ public class EducatorModeControllerFX implements Initializable {
 
                                                 ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                                                 if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftGlider, massOfRightGlider);
+                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                 } else if (testType == "Conservation of Energy") {
                                                     parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Inclined Plane") {
+                                                } else if (testType == "Inclined Plane - Released From Top") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Inclined Plane - Projected From Bottom") {
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                 } else if (testType.equals("Physical Pendulum")) {
                                                     parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                 } else if (testType == "Spring Test - Simple Harmonics") {
                                                     parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                }else if (testType == "Generic Template - One Module") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Generic Template - Two Modules") {
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
                                                 }
                                                 parameterSpreadsheetController.saveWorkbook(path);
