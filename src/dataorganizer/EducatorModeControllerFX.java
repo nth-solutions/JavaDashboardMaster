@@ -2362,7 +2362,6 @@ public class EducatorModeControllerFX implements Initializable {
                             sincCalibrationTabGeneralStatusLabel.setText("Module Successfully Configured for Calibration");
                             sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
                         });
-
                     }
                 }catch(IOException e){
 
@@ -2370,7 +2369,6 @@ public class EducatorModeControllerFX implements Initializable {
                         sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
                         sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
                     });
-
                 }catch(PortInUseException e){
 
                     Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring

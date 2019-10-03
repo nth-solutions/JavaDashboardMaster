@@ -1751,7 +1751,6 @@ public class AdvancedMode extends JFrame {
 
 	/**
 	 * Looks up the selection index for the gyro sensitivity combobox
-	 * @param accelSensitivity
 	 * @return
 	 */
 	public int lookupGyroSensitivityIndex(int gyroSensitivity){
@@ -1772,7 +1771,6 @@ public class AdvancedMode extends JFrame {
 
 	/**
 	 * Looks up the selection index for the accel filter combobox
-	 * @param accelSensitivity
 	 * @return
 	 */
 	public int lookupAccelFilterIndex(int accelFilter){
@@ -1801,7 +1799,6 @@ public class AdvancedMode extends JFrame {
 
 	/**
 	 * Looks up the selection index for the gyro sensitivity combobox
-	 * @param accelSensitivity
 	 * @return
 	 */
 	public int lookupGyroFilterIndex(int gyroFilter){
@@ -3005,7 +3002,7 @@ public class AdvancedMode extends JFrame {
 					@Override
 					public void run() {
 						lineGraph = startGraphing();
-						shareFrameGraphAndMedia(lineGraph, mediaController);
+						//shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
 			}
@@ -3014,23 +3011,23 @@ public class AdvancedMode extends JFrame {
 		graphLauncherBtn.setBounds(0, 0, 625, 182);
 		launcherPane.add(graphLauncherBtn);
 		
-		JButton mediaPlayerLauncherBtn = new JButton("Media Player");
-		mediaPlayerLauncherBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				Platform.setImplicitExit(false);
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						mediaController = startVLCJMediaPlayer();
-						//mediaController.scaleVideoAtStart();
-						shareFrameGraphAndMedia(lineGraph, mediaController);
-					}
-				});
-			}
-		});
-		mediaPlayerLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		mediaPlayerLauncherBtn.setBounds(0, 182, 625, 190);
-		launcherPane.add(mediaPlayerLauncherBtn);
+//		JButton mediaPlayerLauncherBtn = new JButton("Media Player");
+//		mediaPlayerLauncherBtn.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent arg0) {
+//				Platform.setImplicitExit(false);
+//				Platform.runLater(new Runnable() {
+//					@Override
+//					public void run() {
+//						mediaController = startVLCJMediaPlayer();
+//						//mediaController.scaleVideoAtStart();
+//						shareFrameGraphAndMedia(lineGraph, mediaController);
+//					}
+//				});
+//			}
+//		});
+//		mediaPlayerLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+//		mediaPlayerLauncherBtn.setBounds(0, 182, 625, 190);
+//		launcherPane.add(mediaPlayerLauncherBtn);
 		
 		panel9 = new JPanel();
 		panel9.setToolTipText("");
@@ -3233,6 +3230,7 @@ public class AdvancedMode extends JFrame {
 					@Override
 					public void run() {
 						int tabIndex = getAdvancedModeCurrentTab();
+						System.out.println(tabIndex);
 						HelpMenuController HMC  = startHelpMenu();
 						HMC.setTabIndex(tabIndex);
 						HMC.populateLabels();
