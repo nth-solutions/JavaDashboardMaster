@@ -2791,6 +2791,8 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(92);
 
         testTypeHashMap.put("Inclined Plane", testParams);
+        testTypeHashMap.put("Inclined Plane - Released From Top", testParams);
+        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParams);
 
         testParams.clear();
 
@@ -2849,6 +2851,64 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(92);
 
         testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
+
+        testParams.clear();
+
+        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+        testParams.add(0);
+        //1 Timer0 Tick Threshold
+        testParams.add(getTickThreshold(960));
+        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+        testParams.add(0);
+        //3 Battery timeout flag
+        testParams.add(300);
+        //5 Trigger on release flag
+        testParams.add(1);
+        //6 Test Length
+        testParams.add(30);
+        //7 Accel Gyro Sample Rate
+        testParams.add(960);
+        //8 Mag Sample Rate
+        testParams.add(96);
+        //9 Accel Sensitivity
+        testParams.add(4);
+        //10 Gyro Sensitivity
+        testParams.add(1000);
+        //11 Accel Filter
+        testParams.add(92);
+        //12 Gyro Filter
+        testParams.add(92);
+
+        testTypeHashMap.put("Generic Template - One Module", testParams);
+
+        testParams.clear();
+
+        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+        testParams.add(0);
+        //1 Timer0 Tick Threshold
+        testParams.add(getTickThreshold(960));
+        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+        testParams.add(0);
+        //3 Battery timeout flag
+        testParams.add(300);
+        //5 Trigger on release flag
+        testParams.add(1);
+        //6 Test Length
+        testParams.add(30);
+        //7 Accel Gyro Sample Rate
+        testParams.add(960);
+        //8 Mag Sample Rate
+        testParams.add(96);
+        //9 Accel Sensitivity
+        testParams.add(4);
+        //10 Gyro Sensitivity
+        testParams.add(1000);
+        //11 Accel Filter
+        testParams.add(92);
+        //12 Gyro Filter
+        testParams.add(92);
+
+        testTypeHashMap.put("Generic Template - Two Modules", testParams);
 
         testParams.clear();
     }
