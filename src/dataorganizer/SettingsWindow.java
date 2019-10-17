@@ -117,7 +117,7 @@ public class SettingsWindow extends JFrame {
 		ArrayList<String> profileList = new ArrayList<String>();
 		profileList.add("Adventurer");
 		profileList.add("Educator");
-		profileList.add("Professional");
+		profileList.add("Advanced");
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentPane.add(tabbedPane, "name_759004656281180");

@@ -1426,10 +1426,10 @@ public class EducatorModeControllerFX implements Initializable {
                                     nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
                                     HashMap<Integer, ArrayList<Integer>> testData;
-
+                                    System.out.println("test91");
                                     //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                                     testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
+                                    System.out.println("test92");
                                     //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
                                     if (testData != null) {
                                         ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
@@ -1455,7 +1455,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                                             dataOrgo.createDataSmpsRawData(finalData);
 
-                                            if (spreadsheetRadioButton.isSelected()) {
+                                            if (graphAndSpreadsheetRadioButton.isSelected()) {
                                                 List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
                                                 Platform.runLater(() -> {
@@ -1463,6 +1463,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                     generalStatusExperimentLabel.setTextFill(Color.BLACK);
                                                 });
 
+                                                System.out.println("testtest");
                                             /*
                                             Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
                                             The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
@@ -1497,12 +1498,13 @@ public class EducatorModeControllerFX implements Initializable {
                                                 } catch (Exception exceptionalexception) {                              // This error should never happen
                                                     System.out.println("If you got this error, something went seriously wrong");
                                                 }
-
+                                                System.out.println("test93");
                                             }
                                             String tempName1 = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                             dataOrgo = new DataOrganizer(testParameters, tempName1);                         // object that stores test data.
                                             dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
                                             dataOrgoList.add(dataOrgo);
+                                            System.out.println("test94");
                                             //Define operation that can be run in separate thread
                                             //TODO: This will probably throw an error
                                             Runnable organizerOperation = () -> {
@@ -1523,6 +1525,11 @@ public class EducatorModeControllerFX implements Initializable {
                                             //Start thread
                                             organizerThread.start();
                                         }
+
+                                        Platform.runLater( () -> {
+                                            generalStatusExperimentLabel.setText("Data successfully written");
+                                            generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                        });
                                     } else {
 
                                         Platform.runLater(() -> {
@@ -2197,7 +2204,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                 try {
 
-                    if (serialHandler.bulkEraseModule()) {  // Checks if the module is curently being bulk erased
+                    if (serialHandler.bulkEraseModule()) {  // Checks if the module is currently being bulk erased
                         //Notify the user that the sequence has completed
                         updateMessage("Bulk Erase Complete");
                         Platform.runLater(() -> {
@@ -3256,5 +3263,6 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
 }
+
 
 

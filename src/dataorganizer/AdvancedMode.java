@@ -2373,6 +2373,7 @@ public class AdvancedMode extends JFrame {
 										});
 										
 												startTestBtn = new JButton("Start Test");
+												startTestBtn.setVisible(false);
 												startTestBtn.setEnabled(false);
 												startTestBtn.addActionListener(new ActionListener() {
 													public void actionPerformed(ActionEvent arg0) {
@@ -2399,6 +2400,15 @@ public class AdvancedMode extends JFrame {
 						RemoteButtonPanel = new JPanel();
 						remoteTab.add(RemoteButtonPanel);
 						RemoteButtonPanel.setLayout(new GridLayout(0, 1, 0, 0));
+								
+										unpairAllRemotesButton = new JButton("Unpair All Remotes");
+										unpairAllRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+										RemoteButtonPanel.add(unpairAllRemotesButton);
+										unpairAllRemotesButton.addActionListener(new ActionListener() {
+											public void actionPerformed(ActionEvent arg0) {
+												unpairAllRemotesHandler();
+											}
+										});
 						
 								pairNewRemoteButton = new JButton("Pair New Remote");
 								pairNewRemoteButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -2408,10 +2418,6 @@ public class AdvancedMode extends JFrame {
 										pairNewRemoteHandler();
 									}
 								});
-								
-										unpairAllRemotesButton = new JButton("Unpair All Remotes");
-										unpairAllRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-										RemoteButtonPanel.add(unpairAllRemotesButton);
 										
 												testRemotesButton = new JButton("Test Paired Remotes");
 												testRemotesButton.setToolTipText("Enter test mode and press buttons to test your pairing. You can see this on the module and in the status label.");
@@ -2434,11 +2440,6 @@ public class AdvancedMode extends JFrame {
 																});
 																
 																		RemoteButtonPanel.add(exitTestModeButton);
-																		unpairAllRemotesButton.addActionListener(new ActionListener() {
-																			public void actionPerformed(ActionEvent arg0) {
-																				unpairAllRemotesHandler();
-																			}
-																		});
 		
 				JPanel configurationPanel = new JPanel();
 				configurationPanel.setToolTipText("");
@@ -2542,16 +2543,6 @@ public class AdvancedMode extends JFrame {
 																														delayAfterStartTextField.setColumns(10);
 																														delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Milliseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 																														configurationPanel.add(delayAfterStartTextField);
-																														
-																																writeConfigsButton = new JButton("Write Configurations");
-																																writeConfigsButton.setToolTipText("Sends new test configurations to the module");
-																																writeConfigsButton.setEnabled(false);
-																																writeConfigsButton.setBorder(null);
-																																writeConfigsButton.addActionListener(new ActionListener() {
-																																	public void actionPerformed(ActionEvent arg0) {
-																																		writeButtonHandler();
-																																	}
-																																});
 																																
 																																		getCurrentConfigurationsButton = new JButton("Get Current Configurations");
 																																		getCurrentConfigurationsButton.setToolTipText("Reads and displays current module configurations on this tab");
@@ -2561,11 +2552,21 @@ public class AdvancedMode extends JFrame {
 																																				getConfigsHandler();
 																																			}
 																																		});
+																																				
+																																						writeConfigsButton = new JButton("Write Configurations");
+																																						writeConfigsButton.setToolTipText("Sends new test configurations to the module");
+																																						writeConfigsButton.setEnabled(false);
+																																						writeConfigsButton.setBorder(null);
+																																						writeConfigsButton.addActionListener(new ActionListener() {
+																																							public void actionPerformed(ActionEvent arg0) {
+																																								writeButtonHandler();
+																																							}
+																																						});
+																																						writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																																						configurationPanel.add(writeConfigsButton);
 																																		
 																																		
 																																				configurationPanel.add(getCurrentConfigurationsButton);
-																																				writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
-																																				configurationPanel.add(writeConfigsButton);
 				
 						JPanel readPanel = new JPanel();
 						readPanel.setToolTipText("");
