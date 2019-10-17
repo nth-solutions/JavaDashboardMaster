@@ -646,6 +646,7 @@ public class GraphController implements Initializable {
     }
 
 
+
     public void loadCSVData() {
         createListenersResize();
         DataOrganizer dataOrgoObject = new DataOrganizer();

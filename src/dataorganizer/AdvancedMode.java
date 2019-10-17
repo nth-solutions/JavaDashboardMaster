@@ -1894,8 +1894,8 @@ public class AdvancedMode extends JFrame {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						lineGraph = startGraphing();
-						lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
-						lineGraph.graphSettingsOnStart(moduleSerialID);
+						//lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
+						//lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
 					if(mediaPlayerBtn.get(i) == e.getSource()) {
 						mediaController = startVLCJMediaPlayer();
@@ -2158,16 +2158,16 @@ public class AdvancedMode extends JFrame {
 				});
 
 				testNumPaneArray.get(i).add(graphTestBtn.get(i));
+//				
+//				mediaPlayerBtn.add(new JButton("Media Player"));
+//				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
+//				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
+//					public void actionPerformed(ActionEvent e) {
+//						initFX(dataOrgo, e);
+//					}
+//				});
 				
-				mediaPlayerBtn.add(new JButton("Media Player"));
-				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
-				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						initFX(dataOrgo, e);
-					}
-				});
-				
-				testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
+				//testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
 			}
 
 			for(int i = 0; i < testNumPaneArray.size();i++) {
@@ -2705,86 +2705,86 @@ public class AdvancedMode extends JFrame {
 				
 				JLabel label = new JLabel("Accel");
 				label.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label.setBounds(152, 13, 39, 14);
+				label.setBounds(133, 197, 39, 14);
 				mpuCalibrationPanel.add(label);
 				
 				JLabel label_1 = new JLabel("X Axis");
 				label_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_1.setBounds(30, 36, 46, 14);
+				label_1.setBounds(30, 223, 46, 14);
 				mpuCalibrationPanel.add(label_1);
 				
 				JLabel label_2 = new JLabel("Y Axis");
 				label_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_2.setBounds(30, 72, 46, 14);
+				label_2.setBounds(30, 259, 46, 14);
 				mpuCalibrationPanel.add(label_2);
 				
 				JLabel label_3 = new JLabel("Z Axis");
 				label_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_3.setBounds(30, 103, 46, 14);
+				label_3.setBounds(30, 297, 46, 14);
 				mpuCalibrationPanel.add(label_3);
 				
 				JLabel label_4 = new JLabel("Gyro");
 				label_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_4.setBounds(293, 11, 39, 18);
+				label_4.setBounds(293, 195, 39, 18);
 				mpuCalibrationPanel.add(label_4);
 				
 				JLabel label_5 = new JLabel("Mag");
 				label_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_5.setBounds(441, 13, 31, 18);
+				label_5.setBounds(443, 195, 31, 18);
 				mpuCalibrationPanel.add(label_5);
 				
 				xAxisAccelTextField = new JTextField();
 				xAxisAccelTextField.setEditable(false);
 				xAxisAccelTextField.setColumns(10);
-				xAxisAccelTextField.setBounds(124, 35, 86, 20);
+				xAxisAccelTextField.setBounds(105, 222, 86, 20);
 				mpuCalibrationPanel.add(xAxisAccelTextField);
 				
 				xAxisGyroTextField = new JTextField();
 				xAxisGyroTextField.setEditable(false);
 				xAxisGyroTextField.setColumns(10);
-				xAxisGyroTextField.setBounds(267, 36, 86, 20);
+				xAxisGyroTextField.setBounds(267, 222, 86, 20);
 				mpuCalibrationPanel.add(xAxisGyroTextField);
 				
 				xAxisMagTextField = new JTextField();
 				xAxisMagTextField.setEditable(false);
 				xAxisMagTextField.setColumns(10);
-				xAxisMagTextField.setBounds(414, 37, 86, 20);
+				xAxisMagTextField.setBounds(414, 258, 86, 20);
 				mpuCalibrationPanel.add(xAxisMagTextField);
 				
 				yAxisAccelTextField = new JTextField();
 				yAxisAccelTextField.setEditable(false);
 				yAxisAccelTextField.setColumns(10);
-				yAxisAccelTextField.setBounds(124, 71, 86, 20);
+				yAxisAccelTextField.setBounds(105, 258, 86, 20);
 				mpuCalibrationPanel.add(yAxisAccelTextField);
 				
 				yAxisGyroTextField = new JTextField();
 				yAxisGyroTextField.setEditable(false);
 				yAxisGyroTextField.setColumns(10);
-				yAxisGyroTextField.setBounds(267, 72, 86, 20);
+				yAxisGyroTextField.setBounds(267, 258, 86, 20);
 				mpuCalibrationPanel.add(yAxisGyroTextField);
 				
 				yAxisMagTextField = new JTextField();
 				yAxisMagTextField.setEditable(false);
 				yAxisMagTextField.setColumns(10);
-				yAxisMagTextField.setBounds(414, 73, 86, 20);
+				yAxisMagTextField.setBounds(414, 296, 86, 20);
 				mpuCalibrationPanel.add(yAxisMagTextField);
 				
 				zAxisAccelTextField = new JTextField();
 				zAxisAccelTextField.setEditable(false);
 				zAxisAccelTextField.setColumns(10);
-				zAxisAccelTextField.setBounds(124, 102, 86, 20);
+				zAxisAccelTextField.setBounds(105, 296, 86, 20);
 				mpuCalibrationPanel.add(zAxisAccelTextField);
 				
 				zAxisGyroTextField = new JTextField();
 				zAxisGyroTextField.setEditable(false);
 				zAxisGyroTextField.setColumns(10);
-				zAxisGyroTextField.setBounds(267, 102, 86, 20);
+				zAxisGyroTextField.setBounds(267, 296, 86, 20);
 				mpuCalibrationPanel.add(zAxisGyroTextField);
 				
 				zAxisMagTextField = new JTextField();
 				zAxisMagTextField.setEditable(false);
 				zAxisMagTextField.setColumns(10);
-				zAxisMagTextField.setBounds(414, 104, 86, 20);
+				zAxisMagTextField.setBounds(414, 222, 86, 20);
 				mpuCalibrationPanel.add(zAxisMagTextField);
 				
 				JButton readOffsetsBtn = new JButton("Read Offsets");
@@ -2824,18 +2824,18 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				readOffsetsBtn.setBounds(10, 133, 605, 23);
+				readOffsetsBtn.setBounds(10, 322, 605, 23);
 				mpuCalibrationPanel.add(readOffsetsBtn);
 				
 				JLabel label_6 = new JLabel("CSV Location: ");
 				label_6.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				label_6.setBounds(10, 180, 89, 14);
+				label_6.setBounds(10, 49, 89, 14);
 				mpuCalibrationPanel.add(label_6);
 				
 				calibrationCSVTextField = new JTextField();
 				calibrationCSVTextField.setToolTipText("Use the browse button to select the  calibration test you have run. This will calculate the IMU offsets for your module.");
 				calibrationCSVTextField.setColumns(10);
-				calibrationCSVTextField.setBounds(109, 178, 407, 20);
+				calibrationCSVTextField.setBounds(93, 47, 407, 20);
 				mpuCalibrationPanel.add(calibrationCSVTextField);
 				
 				JButton calibrationBtn = new JButton("Calibrate");
@@ -2858,31 +2858,31 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				calibrationBtn.setBounds(10, 250, 605, 95);
+				calibrationBtn.setBounds(10, 86, 605, 95);
 				mpuCalibrationPanel.add(calibrationBtn);
 				
 				readBlockLengthTextField = new JTextField();
 				readBlockLengthTextField.setToolTipText("Length of samples to average.");
 				readBlockLengthTextField.setText("500");
 				readBlockLengthTextField.setColumns(10);
-				readBlockLengthTextField.setBounds(134, 219, 39, 20);
+				readBlockLengthTextField.setBounds(133, 12, 39, 20);
 				mpuCalibrationPanel.add(readBlockLengthTextField);
 				
-				JLabel lblRollingBlockLength = new JLabel("Rolling block length:");
+				JLabel lblRollingBlockLength = new JLabel("Rolling Block Length:");
 				lblRollingBlockLength.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				lblRollingBlockLength.setBounds(10, 221, 114, 14);
+				lblRollingBlockLength.setBounds(10, 14, 114, 14);
 				mpuCalibrationPanel.add(lblRollingBlockLength);
 				
-				JLabel lblStandardDeviationMax = new JLabel("Standard deviation max: ");
+				JLabel lblStandardDeviationMax = new JLabel("Standard Deviation Max: ");
 				lblStandardDeviationMax.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				lblStandardDeviationMax.setBounds(315, 221, 136, 14);
+				lblStandardDeviationMax.setBounds(364, 14, 136, 14);
 				mpuCalibrationPanel.add(lblStandardDeviationMax);
 				
 				stdDevMaxTextField = new JTextField();
 				stdDevMaxTextField.setToolTipText("Highest standard deviation to consider a rolling block average  for offset calculation.");
 				stdDevMaxTextField.setText("15");
 				stdDevMaxTextField.setColumns(10);
-				stdDevMaxTextField.setBounds(461, 219, 39, 20);
+				stdDevMaxTextField.setBounds(510, 12, 39, 20);
 				mpuCalibrationPanel.add(stdDevMaxTextField);
 				
 				JSeparator separator_3 = new JSeparator();
@@ -2909,7 +2909,7 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				btnNewButton.setBounds(526, 177, 89, 20);
+				btnNewButton.setBounds(510, 47, 89, 20);
 				mpuCalibrationPanel.add(btnNewButton);
 		
 				JPanel calibrationPanel = new JPanel();
