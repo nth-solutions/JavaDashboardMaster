@@ -266,6 +266,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectHelpTab(ActionEvent event){
         helpmenu = startHelpMenu();
+        //helpmenu
 
     }
 
@@ -279,7 +280,7 @@ public class EducatorModeControllerFX implements Initializable {
             e.printStackTrace();
         }
 
-        if(root!=null) primaryStage.setScene(new Scene(root, 1400, 800));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
 
         primaryStage.setTitle("Education Mode Help Menu");
         primaryStage.show();
