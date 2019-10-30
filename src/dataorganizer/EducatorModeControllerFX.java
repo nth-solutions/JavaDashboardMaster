@@ -260,6 +260,34 @@ public class EducatorModeControllerFX implements Initializable {
         primaryTabPane.getSelectionModel().select(settingsTab);
     }
 
+    @FXML
+    EducationModeHelpMenuController helpmenu;
+
+    @FXML
+    private void selectHelpTab(ActionEvent event){
+        helpmenu = startHelpMenu();
+
+    }
+
+    public EducationModeHelpMenuController startHelpMenu() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EducationModeHelpMenu.fxml"));
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(root!=null) primaryStage.setScene(new Scene(root, 1400, 800));
+
+        primaryStage.setTitle("Education Mode Help Menu");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+
+        return loader.getController();
+    }
+
     /**
      * ActionEvent that shows the motionVisualizationTab, the tab responsible for the graph-video player interaction
      *
