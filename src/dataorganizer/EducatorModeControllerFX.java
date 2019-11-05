@@ -298,7 +298,9 @@ public class EducatorModeControllerFX implements Initializable {
                     helpmenu.selectExperimentHelpTabFive();
                 }
             }else if(!oneModuleTest){
-                if(experimentTabIndex == 1){
+                if(experimentTabIndex == 0){
+                    helpmenu.selectExperimentHelpTabOne();
+                }else{
                     helpmenu.selectBlankTab();
                 }
             }
