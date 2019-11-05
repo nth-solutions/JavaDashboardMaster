@@ -204,6 +204,8 @@ public class EducatorModeControllerFX implements Initializable {
 
     private Boolean oneModuleTest;
 
+    private String selectedTab;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -248,6 +250,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectExperimentTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(experimentTab);
+        selectedTab = "experimentTab";
     }
 
     /**
@@ -258,6 +261,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectSettingsTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(settingsTab);
+        selectedTab = "settingsTab";
     }
 
     @FXML
@@ -266,8 +270,30 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectHelpTab(ActionEvent event){
         helpmenu = startHelpMenu();
-        //helpmenu
 
+        if(selectedTab == "eraseConfirmationTab"){
+            helpmenu.selectEraseModuelHelpTabOne();
+
+        }else if (selectedTab == "motionVisualizationTab"){
+            helpmenu.selectSINCTechnologyHelpTab();
+
+        }else if (selectedTab == "sincCalibrationTab"){
+            helpmenu.selectSINCModuleCalibrationTab();
+
+        }else if (selectedTab == "experimentTab"){
+            if(oneModuleTest){
+                if(experimentTabIndex == ){
+                    helpmenu.selectExperimentHelpTab();
+                }
+            }else if(!oneModuleTest){
+                if (){
+
+                }
+            }
+        }else if (selectedTab == "unpairRemotesTab"){
+            helpmenu.selectUnpairRemotesHelpTab();
+
+        }
     }
 
     public EducationModeHelpMenuController startHelpMenu() {
@@ -297,22 +323,26 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectMotionVisualizationTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(motionVisualizationTab);
+        selectedTab = "motionVisualizationTab";
     }
 
     @FXML
     private void selectSINCCalibration(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(sincCalibrationTab);
+        selectedTab = "sincCalibrationTab";
     }
 
     @FXML
     private void selectEraseConfirmationTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(eraseConfirmationTab);
+        selectedTab = "eraseConfirmationTab";
     }
 
     @FXML
     private void selectUnpairRemotesTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(unpairRemotesTab);
         remotePairingTabPane.getSelectionModel().select(0);
+        selectedTab = "unpairRemotesTab";
     }
 
     @FXML
