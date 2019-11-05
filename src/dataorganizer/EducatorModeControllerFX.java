@@ -282,17 +282,28 @@ public class EducatorModeControllerFX implements Initializable {
 
         }else if (selectedTab == "experimentTab"){
             if(oneModuleTest){
-                if(experimentTabIndex == ){
-                    helpmenu.selectExperimentHelpTab();
+                if(experimentTabIndex == 0){
+                    helpmenu.selectExperimentHelpTabOne();
+                }
+                if(experimentTabIndex == 1){
+                    helpmenu.selectExperimentHelpTabTwo();
+                }
+                if(experimentTabIndex == 2){
+                    helpmenu.selectExperimentHelpTabThree();
+                }
+                if(experimentTabIndex == 3){
+                    helpmenu.selectExperimentHelpTabFour();
+                }
+                if(experimentTabIndex == 4){
+                    helpmenu.selectExperimentHelpTabFive();
                 }
             }else if(!oneModuleTest){
-                if (){
-
+                if(experimentTabIndex == 1){
+                    helpmenu.selectBlankTab();
                 }
             }
         }else if (selectedTab == "unpairRemotesTab"){
             helpmenu.selectUnpairRemotesHelpTab();
-
         }
     }
 

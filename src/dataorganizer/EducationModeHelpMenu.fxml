@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.image.Image?>
@@ -18,10 +17,9 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../res/eraseModuleHelpTab.PNG" />
+                              <Image url="@eraseModuleHelpTab.PNG" />
                            </image>
                         </ImageView>
-                        <Label layoutX="360.0" layoutY="468.0" text="1" />
                      </children>
                   </AnchorPane>
                </content>
@@ -30,24 +28,110 @@
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <Label layoutX="319.0" layoutY="276.0" text="2" />
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@unpairRemotesHelpTab.PNG" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="222.0" fitWidth="982.0" layoutX="9.0" layoutY="450.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@UnpairRemotesHelpTabTwo.PNG" />
+                           </image>
+                        </ImageView>
                      </children>
                   </AnchorPane>
                </content>
             </Tab>
             <Tab fx:id="experimentHelpTab" text="experimentHelpTab">
                <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@experimentHelpTabOne.PNG" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabTwo" text="experimentHelpTabTwo">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@experimentHelpTabTwo.PNG" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabThree" text="experimentHelpTabThree">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@experimentHelpTabThree.PNG" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabFour" text="experimentHelpTabFour">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@experimentHelpTabFour.PNG" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabFive" text="experimentHelpTabFive">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@experimentHelpTabFive.PNG" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
                </content>
             </Tab>
             <Tab fx:id="SINCTechnologyHelpTab" text="SINCTechnologyHelpTab">
                <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="800.0" fitWidth="1000.0" layoutX="4.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@SINCTechnologyHelpTab.PNG" />
+                           </image>
+                        </ImageView>
+                        <ImageView fitHeight="216.0" fitWidth="970.0" layoutX="14.0" layoutY="310.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@SINCTechnologyHelpTabTwo.PNG" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
                </content>
             </Tab>
             <Tab fx:id="SINCCalirbationHelpTab" text="SINCCalibrationHelpTab">
                <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                     </children>
+                  </AnchorPane>
                </content>
             </Tab>
         </tabs>
