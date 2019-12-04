@@ -265,6 +265,8 @@ public class AdvancedMode extends JFrame {
 		updateCommPortComboBox();
 		setVisible(true);
 		findModuleCommPort();
+
+		System.out.println("advanced mode initialized");
 	}
 
 	/**
@@ -329,6 +331,7 @@ public class AdvancedMode extends JFrame {
 	public void findModuleCommPort() {
 		Runnable findModuleOperation = new Runnable() {
 			public void run() {
+				Platform.setImplicitExit(false);
 				try {
 					ArrayList<String> commPortIDList = serialHandler.findPorts();
 					updateCommPortComboBox();
@@ -1894,6 +1897,7 @@ public class AdvancedMode extends JFrame {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						lineGraph = startGraphing();
+						System.out.println("test");
 						//lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
 						//lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
@@ -2152,7 +2156,9 @@ public class AdvancedMode extends JFrame {
 				graphTestBtn.add(new JButton("Graph"));
 				graphTestBtn.get(i).setBounds(430, 11, 70, 23);
 				graphTestBtn.get(i).addActionListener(new ActionListener() {
+
 					public void actionPerformed(ActionEvent e) {
+						System.out.println("Separate graph button");
 						initFX(dataOrgo, e);
 					}
 				});
@@ -2994,18 +3000,24 @@ public class AdvancedMode extends JFrame {
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Graph", null, launcherPane, "Graph and media-player launchers");
 		launcherPane.setLayout(null);
-		
+
 		graphLauncherBtn = new JButton("Graph");
 		graphLauncherBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("test");
+
 				Platform.setImplicitExit(false);
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
+						System.out.println("graphlauncherbutton");
 						lineGraph = startGraphing();
+
+
 						//shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
+
 			}
 		});
 		graphLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));

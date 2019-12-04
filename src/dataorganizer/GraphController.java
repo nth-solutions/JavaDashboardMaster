@@ -196,6 +196,10 @@ public class GraphController implements Initializable {
     }
 
     @FXML
+    public void hideWindow(){
+    }
+
+    @FXML
     public void handleBaselineRange(ActionEvent event) {                                                                //TODO
         setUpBaselineRangeSelection(baselineRect, lineChart);
     }

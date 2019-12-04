@@ -223,6 +223,7 @@ public class EducatorModeControllerFX implements Initializable {
         //serialHandler2 = new SerialComm();
 
         moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
+        oneModuleTest = true;
     }
 
     /**
@@ -281,6 +282,7 @@ public class EducatorModeControllerFX implements Initializable {
             helpmenu.selectSINCModuleCalibrationTab();
 
         }else if (selectedTab == "experimentTab"){
+
             if(oneModuleTest){
                 if(experimentTabIndex == 0){
                     helpmenu.selectExperimentHelpTabOne();
