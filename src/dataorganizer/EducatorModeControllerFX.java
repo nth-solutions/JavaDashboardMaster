@@ -1345,7 +1345,7 @@ public class EducatorModeControllerFX implements Initializable {
                                             The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
                                             */
 
-                                            ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                                            ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                                             if (testType == "Conservation of Momentum (Elastic Collision)") {
                                                 parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
                                                 parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
@@ -1543,7 +1543,7 @@ public class EducatorModeControllerFX implements Initializable {
                                             The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
                                             */
 
-                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("IgnoreThisPleaseAdvancedModeOnly");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                                                 if (testType == "Conservation of Momentum (Elastic Collision)") {
                                                     parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
@@ -2136,7 +2136,7 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
                     momentumTemplatePath = path;
-                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                     if (testType == "Conservation of Momentum (Elastic Collision)") {
                         //System.out.println(dataOrgo.getMPUMinMax());
                         //System.out.println(dataOrgoTwo.getMPUMinMax());

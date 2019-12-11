@@ -331,7 +331,7 @@ public class AdvancedMode extends JFrame {
 	public void findModuleCommPort() {
 		Runnable findModuleOperation = new Runnable() {
 			public void run() {
-				Platform.setImplicitExit(false);
+				Platform.setImplicitExit(false); // Given that this runs when the dashboard opens, this prevents the initial thread from petering out and breaking future threads.
 				try {
 					ArrayList<String> commPortIDList = serialHandler.findPorts();
 					updateCommPortComboBox();
@@ -1240,6 +1240,7 @@ public class AdvancedMode extends JFrame {
 	 * on what this handler actually does.
 	 */
 	private void writeButtonHandler() {
+
 		updateTickThresh();
 		if (updateMagSampleRate()) {
 			//Define no operation that can be run in a thread
@@ -1283,6 +1284,9 @@ public class AdvancedMode extends JFrame {
 						testParams.add(triggerOnReleaseFlag);
 						//6 Test Length
 						if(timedTestFlag == 1) {
+							if(Integer.parseInt(testLengthTextField.getText()) <= 0 || Integer.parseInt(testLengthTextField.getText()) >= 65536){
+								testLengthTextField.setText("30");
+							}
 							testParams.add(Integer.parseInt(testLengthTextField.getText()));
 						}
 						else {
@@ -1544,7 +1548,7 @@ public class AdvancedMode extends JFrame {
 	 */
 	public void initDataFields() {
 		//Checkboxes
-		timedTestCheckbox.setSelected(true);
+		timedTestCheckbox.setSelected(false);
 
 		//Comboboxes
 		accelGyroSampleRateCombobox.setModel(new DefaultComboBoxModel(new String [] {"60", "120", "240", "480", "500", "960"}));
@@ -1562,7 +1566,7 @@ public class AdvancedMode extends JFrame {
 
 		//Text Fields
 		updateMagSampleRate();
-		testLengthTextField.setText("25");
+		testLengthTextField.setText("30");
 		batteryTimeoutTextField.setText("300");
 		timer0TickThreshTextField.setText("");
 		delayAfterStartTextField.setText("");
@@ -2012,9 +2016,18 @@ public class AdvancedMode extends JFrame {
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
+
+//		try {
+//			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\EducatorTemplates\\" + templateComboBox.getSelectedItem().toString()));
+//			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
+//			parameterSpreadsheetController.saveWorkbook(CSVLocation);
+//		} catch(Exception e){
+//			e.printStackTrace();
+//			return false;
+//		}
+//		return true;
 		
 		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
-		
 		try {
 			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
 		} catch (Exception e1) {
@@ -2023,6 +2036,7 @@ public class AdvancedMode extends JFrame {
 			return false;
 		}
 		return true;
+
 	}
 	
 	
