@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -31,7 +31,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button fx:id="unpairRemotesButtonMainMenu" alignment="CENTER" layoutX="10.0" layoutY="431.0" mnemonicParsing="false" onAction="#selectUnpairRemotesTab" prefHeight="117.0" prefWidth="200.0" text="Pair/Unpair Remotes" textFill="#1f78d1">
+                        <Button fx:id="unpairRemotesButtonMainMenu" alignment="CENTER" layoutX="10.0" layoutY="431.0" mnemonicParsing="false" onAction="#selectUnpairRemotesTab" prefHeight="117.0" prefWidth="200.0" text="Unpair/Pair Remotes" textFill="#1f78d1">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -739,12 +739,12 @@
                                                                   </Label>
                                                                   <VBox alignment="CENTER" prefWidth="400.0">
                                                                      <children>
-                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
+                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="54.0" prefWidth="400.0" text="Unpair All Remotes from Module">
                                                                            <font>
                                                                               <Font size="14.0" />
                                                                            </font>
                                                                         </Button>
-                                                                        <Button fx:id="unpairAllRemotesButton" mnemonicParsing="false" onAction="#unpairRemotes" prefHeight="54.0" prefWidth="400.0" text="Unpair All Remotes from Module">
+                                                                        <Button fx:id="pairNewRemoteButton" mnemonicParsing="false" onAction="#pairNewRemote" prefHeight="50.0" prefWidth="400.0" text="Pair New Remote">
                                                                            <font>
                                                                               <Font size="14.0" />
                                                                            </font>

@@ -311,6 +311,7 @@ public class EducatorModeControllerFX implements Initializable {
         }
     }
 
+    @FXML
     public EducationModeHelpMenuController startHelpMenu() {
         Stage primaryStage = new Stage();
         Parent root = null;
@@ -616,6 +617,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                 try {
                     //findModuleCommPort();
+                    System.out.println(testTypeComboBox.getSelectionModel().getSelectedItem());
                     if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");

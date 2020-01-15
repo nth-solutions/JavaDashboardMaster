@@ -259,7 +259,7 @@ public class AdvancedMode extends JFrame {
 	 */
 	AdvancedMode() {
         serialHandler = new SerialComm();
-		setTitle("JavaDashboard Rev-23");
+		setTitle("JavaDashboard Rev-35");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
