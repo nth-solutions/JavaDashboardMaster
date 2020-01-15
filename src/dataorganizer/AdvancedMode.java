@@ -1982,7 +1982,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public boolean writeTemplateWithOneDataSetHandler() {
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		Settings settings = new Settings();
 		settings.loadConfigFile();
 		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
@@ -1997,6 +1997,8 @@ public class AdvancedMode extends JFrame {
 			generalStatusLabel.setText("Could not find your test file.");
 			return false;
 		}
+		System.out.println(ModuleOneFileName);
+		System.out.println("test");
 
 		DataOrganizer dataOrgo = new DataOrganizer();
 		int errNum;
@@ -2013,29 +2015,32 @@ public class AdvancedMode extends JFrame {
 					break;
 			}
 		}
+
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
 
+		try {
+			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\EducatorTemplates\\" + templateComboBox.getSelectedItem().toString()));
+			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
+			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
+			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+		} catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+		System.out.println("test");
+		return true;
+		
+//		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
 //		try {
-//			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\EducatorTemplates\\" + templateComboBox.getSelectedItem().toString()));
-//			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
-//			parameterSpreadsheetController.saveWorkbook(CSVLocation);
-//		} catch(Exception e){
-//			e.printStackTrace();
+//			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
 //			return false;
 //		}
 //		return true;
-		
-		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
-		try {
-			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			return false;
-		}
-		return true;
 
 	}
 	
@@ -3096,7 +3101,7 @@ public class AdvancedMode extends JFrame {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
 
-					new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
+					//new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {
@@ -3107,6 +3112,7 @@ public class AdvancedMode extends JFrame {
 				}
 			}
 		});
+
 		createTemplateBtn.setBounds(10, 65, 302, 269);
 		panel9.add(createTemplateBtn);
 		

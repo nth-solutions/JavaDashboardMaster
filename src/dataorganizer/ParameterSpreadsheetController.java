@@ -14,7 +14,7 @@ public class ParameterSpreadsheetController {
 
     public ParameterSpreadsheetController(String FilePath) {
 
-        if (FilePath == "EducationMode"){
+        if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template
 
             testType = EducatorModeControllerFX.testType; // gets the selected test from Educator mode
 
@@ -83,6 +83,7 @@ public class ParameterSpreadsheetController {
             workbook.save(outputPath, FileFormatType.XLSX);
         }catch(Exception e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
             System.out.println(e.getCause());
             System.out.println("Invalid output path");
         }
