@@ -14,7 +14,7 @@ public class ParameterSpreadsheetController {
 
     public ParameterSpreadsheetController(String FilePath) {
 
-        if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template
+        if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template to use and where to get it from
 
             testType = EducatorModeControllerFX.testType; // gets the selected test from Educator mode
 
@@ -75,7 +75,7 @@ public class ParameterSpreadsheetController {
 
     /**
      * This method is used to save a modified template as a new spreadsheet at the desired output path.
-     * @param outputPath the file save location
+     * @param outputPath the file save location (must include the name of the actual file itself)
      */
 
     public void saveWorkbook(String outputPath){

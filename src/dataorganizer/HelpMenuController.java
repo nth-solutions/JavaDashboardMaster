@@ -146,8 +146,8 @@ public class HelpMenuController implements Initializable{
 						"\t•\tVideo Opacity – Change the opacity of the video\n");
 				break;
 			case 8:
-				BullitizedStepsLabel.setText("1)\tSelect template from dropdown menu\n" +
-						"2)\tSelect either the “Create One Module Template” or the “Create Two Module Template” button\n");
+				BullitizedStepsLabel.setText("1)\tSelect template use wish to populate with data from the dropdown menu\n" +
+						"2)\tSelect either the “Create One Module Template” or the “Create Two Module Template” button\n"+"\t\uF0A7 If you are using one module, the CSV you wish to extract data from should \n\t be named 'Module 1' (no quotes)\n"+"\t\uF0A7 If you are using two modules, one CSV should be named Module 1 and the \n\t other should be named Module 2\n");
 				DSPageTab.setDisable(true);
 				break;
 			case 9:

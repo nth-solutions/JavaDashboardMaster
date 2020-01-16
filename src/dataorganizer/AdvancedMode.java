@@ -2048,9 +2048,13 @@ public class AdvancedMode extends JFrame {
 	public boolean writeTemplateWithTwoDataSetsHandler() {
 		Settings settings = new Settings();
 		settings.loadConfigFile();
-		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
+		String CSVLocation = settings.getKeyVal("CSVSaveLocation"); //gets the location where CSVs of raw data are saved
 		File[] ListOfFiles = new File(CSVLocation).listFiles();
 		String ModuleOneFileName = null, ModuleTwoFileName = null;
+
+		/**
+		 * Searches through the files in the location for two CSV files named "Module 1' and 'Module 2'. There are the two csv files whose data will be used to populate the template
+		 */
 		for(int i = 0; i < ListOfFiles.length; i++) {
 			if(ListOfFiles[i].toString().contains("Module 1") && ListOfFiles[i].toString().substring(ListOfFiles[i].toString().length()-4, ListOfFiles[i].toString().length()).equals(".csv")) {
 				ModuleOneFileName = ListOfFiles[i].toString();
@@ -2066,29 +2070,40 @@ public class AdvancedMode extends JFrame {
 		
 		DataOrganizer dataOrgo = new DataOrganizer();
 		DataOrganizer dataOrgoTwo = new DataOrganizer();
-		
+
+		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\EducatorTemplates\\" + templateComboBox.getSelectedItem().toString()));
+
 		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
-		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+//		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 0); //fills the data from the first module into the the first sheet of the workbook
 
 		dataOrgoTwo.createDataSamplesFromCSV(ModuleTwoFileName);
 		params = dataOrgoTwo.getTestParameters();
 		CSVData = dataOrgoTwo.getRawDataSamples();
 		MpuMinMax = dataOrgoTwo.MPUMinMax;
-		
-		SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
-		
+		//SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
+		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 2); // fills the data from the second module into the third sheet of the workbook
+
 		try {
-			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
+			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+		} catch(Exception e){
+			e.printStackTrace();
 			return false;
 		}
 		return true;
+//		try {
+//			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			return false;
+//		}
+//		return true;
 	}
 	
 	
@@ -2254,7 +2269,7 @@ public class AdvancedMode extends JFrame {
 		xAxisMagTextField.setText(Integer.toString(offsets[6]));
 		yAxisMagTextField.setText(Integer.toString(offsets[7]));
 		zAxisMagTextField.setText(Integer.toString(offsets[8]));
-		
+
 		serialHandler.setMPUMinMax(dataOrgo.MPUMinMax);
 	}
 	
@@ -3088,7 +3103,8 @@ public class AdvancedMode extends JFrame {
 		panel9.add(templateComboBox);
 		
 		JButton createTemplateBtn = new JButton("Create One Module Template");
-		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		createTemplateBtn.setToolTipText("Generate the template with data.");
 		createTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JDialog dialog = new JDialog();
@@ -3109,6 +3125,10 @@ public class AdvancedMode extends JFrame {
 						e.printStackTrace();
 					}
 					dialog.dispose();
+
+					generalStatusLabel.setText("Data successfully written to template");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(51, 204, 51));
 				}
 			}
 		});
@@ -3117,7 +3137,8 @@ public class AdvancedMode extends JFrame {
 		panel9.add(createTemplateBtn);
 		
 		JButton btnCreateTwoModule = new JButton("Create Two Module Template");
-		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		createTemplateBtn.setToolTipText("Generate the template with data.");
 		btnCreateTwoModule.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
@@ -3131,7 +3152,7 @@ public class AdvancedMode extends JFrame {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
 
-					new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
+					//new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
 
 					try {
 						Thread.sleep(3000);
@@ -3140,6 +3161,10 @@ public class AdvancedMode extends JFrame {
 						e.printStackTrace();
 					}
 					dialog.dispose();
+
+					generalStatusLabel.setText("Data successfully written to template");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(51, 204, 51));
 				}
 			}
 		});

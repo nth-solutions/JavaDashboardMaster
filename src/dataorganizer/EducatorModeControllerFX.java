@@ -266,7 +266,7 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    EducationModeHelpMenuController helpmenu;
+    private EducationModeHelpMenuController helpmenu;
 
     @FXML
     private void selectHelpTab(ActionEvent event){
@@ -1545,7 +1545,8 @@ public class EducatorModeControllerFX implements Initializable {
                                             The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
                                             */
 
-                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("IgnoreThisPleaseAdvancedModeOnly");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output. //For the advanced mode, a file path is passed so that the dashboard knows which template to use. However for the educator mode, "EducationMode" is passed in to let the program know to use the selected test type to pull the designated predefined template.
+
                                                 if (testType == "Conservation of Momentum (Elastic Collision)") {
                                                     parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
                                                     parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
