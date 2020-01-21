@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 public class EducatorModeMainFX extends Application {
 
+    //REV 36
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("EducatorModeFXML.fxml"));
