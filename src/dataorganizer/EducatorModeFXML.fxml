@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -345,17 +345,17 @@
                                                                                     <Font name="System Bold" size="14.0" />
                                                                                  </font>
                                                                               </Label>
-                                                                              <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" selected="true" text="Data (Spreadsheet)">
+                                                                              <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" selected="true" text="Excel-Based Graphing Application">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="SINC Technology">
+                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)" visible="false">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)">
+                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Java-Based Graphing Application">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -371,7 +371,7 @@
                                                                   </Label>
                                                                   <VBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="450.0" spacing="20.0">
                                                                      <children>
-                                                                        <Button fx:id="readTestButton" mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="50.0" prefWidth="450.0" text="Read Test" />
+                                                                        <Button fx:id="readTestButton" mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="52.0" prefWidth="450.0" text="Read Test" />
                                                                      </children>
                                                                   </VBox>
                                                                </children>
@@ -977,11 +977,6 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="426.0" text="What is currently Module 2 may now be thought of as Module 1" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
                                                                </children>
                                                                <padding>
                                                                   <Insets left="25.0" right="25.0" />
@@ -1031,7 +1026,7 @@
                                                 </Label>
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="28.0" prefWidth="418.0" text="Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
+                                          <Label prefHeight="28.0" prefWidth="418.0" text="1. Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -1041,12 +1036,13 @@
                                                 <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="339.0" text="Configure Module for SINC Calibration" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="27.0" prefWidth="423.0" text="Follow Instructions for Calibrating the Module" textFill="#1f78d1">
+                                          <Label prefHeight="27.0" prefWidth="423.0" text="2. Open and Follow SINC Calibration Instructions" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Label prefHeight="25.0" prefWidth="420.0" text="Select the Video File of the Calibration" textFill="#1f78d1">
+                                          <Button fx:id="configureModuleForCalibrationButton1" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="339.0" text="Open SINC Calibration Instructions" />
+                                          <Label prefHeight="25.0" prefWidth="420.0" text="3. Select the Video File of the Calibration" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -1057,7 +1053,7 @@
                                                 <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="275.0" promptText="Video File " />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="26.0" prefWidth="421.0" text="Hit the Following Button" textFill="#1f78d1">
+                                          <Label prefHeight="26.0" prefWidth="421.0" text="4. Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -1067,13 +1063,13 @@
                                                 <Button fx:id="importCalibrationDataButton11" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Module" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="26.0" prefWidth="418.0" text="For 2 modules, unplug first module; connect second module" textFill="#1f78d1">
+                                          <Label prefHeight="26.0" prefWidth="418.0" text="5a. For 2 modules, unplug first module; connect second module" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
                                           <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" />
-                                          <Label prefHeight="26.0" prefWidth="418.0" text="Hit the Following Button" textFill="#1f78d1">
+                                          <Label prefHeight="26.0" prefWidth="418.0" text="5b. Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>

@@ -618,6 +618,7 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     //findModuleCommPort();
                     System.out.println(testTypeComboBox.getSelectionModel().getSelectedItem());
+
                     if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
@@ -1260,12 +1261,11 @@ public class EducatorModeControllerFX implements Initializable {
             FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
                 @Override
                 public void run() {
+
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
 
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
-
 
                         Platform.runLater(() -> {
                             generalStatusExperimentLabel.setText("Reading Data from Module...");
@@ -1348,41 +1348,49 @@ public class EducatorModeControllerFX implements Initializable {
                                             */
 
                                             ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
-                                            if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Conservation of Energy") {
-                                                parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Inclined Plane - Released From Top") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Inclined Plane - Projected From Bottom") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType.equals("Physical Pendulum")) {
-                                            	parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Spring Test - Simple Harmonics") {
-                                                parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            }else if (testType == "Generic Template - One Module") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Generic Template - Two Modules") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+
+                                            if(parameterSpreadsheetController.getEducationTemplateFound() == true){
+
+                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Conservation of Energy") {
+                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Inclined Plane - Released From Top") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Inclined Plane - Projected From Bottom") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType.equals("Physical Pendulum")) {
+                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Spring Test - Simple Harmonics") {
+                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                }else if (testType == "Generic Template - One Module") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Generic Template - Two Modules") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                }
+
+                                                try {
+                                                    parameterSpreadsheetController.saveWorkbook(path);
+                                                }catch(Exception e){
+                                                    generalStatusExperimentLabel.setText("Error writing to spreadsheet, check file path");
+                                                }
+
+                                                try {
+                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+                                                } catch (Exception exceptionalexception) {                              // This error should never happen
+                                                    System.out.println("If you got this error, something went seriously wrong");
+                                                }
+
+                                                Platform.runLater( () -> {
+                                                    generalStatusExperimentLabel.setText("Data successfully written");
+                                                    generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                                });
+
                                             }
-
-                                            parameterSpreadsheetController.saveWorkbook(path);
-
-                                            try {
-                                                Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-                                            } catch (Exception exceptionalexception) {                              // This error should never happen
-                                                System.out.println("If you got this error, something went seriously wrong");
-                                            }
-
-                                            Platform.runLater( () -> {
-                                                generalStatusExperimentLabel.setText("Data successfully written");
-                                                generalStatusExperimentLabel.setTextFill(Color.GREEN);
-                                            });
-
                                         }
                                         dataOrgo.getSignedData();
 
@@ -1390,7 +1398,7 @@ public class EducatorModeControllerFX implements Initializable {
                                 } else {
 
                                     Platform.runLater(() -> {
-                                        generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                        generalStatusExperimentLabel.setText("Error Reading From Module or Template Missing");
                                         generalStatusExperimentLabel.setTextFill(Color.RED);
                                         progressBar.setStyle("-fx-accent: red;");
                                         progressBar.setProgress(100);
@@ -2766,14 +2774,16 @@ public class EducatorModeControllerFX implements Initializable {
         testParams.add(0);
         //3 Battery timeout flag
         testParams.add(300);
+        //4 Time Test Falg
+        testParams.add(0);
         //5 Trigger on release flag
         testParams.add(1);
         //6 Test Length
         testParams.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParams.add(120);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParams.add(120);
         //9 Accel Sensitivity
         testParams.add(4);
         //10 Gyro Sensitivity

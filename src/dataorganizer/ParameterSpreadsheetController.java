@@ -11,6 +11,7 @@ public class ParameterSpreadsheetController {
     private String testTypeFileName;
     private String testType;
     private int workbookSheet;
+    private Boolean educationTemplateFound;
 
     public ParameterSpreadsheetController(String FilePath) {
 
@@ -57,20 +58,28 @@ public class ParameterSpreadsheetController {
             documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
             try {
                 this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
+                educationTemplateFound = true;
             }catch(Exception e){
                 e.printStackTrace();
                 System.out.println("Invalid Workbook Path");
+                educationTemplateFound = false;
             }
         }else {
             documentsPath =  FilePath;
             try {
                 this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
+                educationTemplateFound = true;
             }catch(Exception e){
                 e.printStackTrace();
                 System.out.println("Invalid Workbook Path");
+                educationTemplateFound = false;
             }
         }
 
+    }
+
+    public Boolean getEducationTemplateFound(){
+        return educationTemplateFound;
     }
 
     /**
