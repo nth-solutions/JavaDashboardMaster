@@ -618,7 +618,7 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     //findModuleCommPort();
                     System.out.println(testTypeComboBox.getSelectionModel().getSelectedItem());
-
+                    System.out.println(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()));
                     if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
@@ -2764,38 +2764,42 @@ public class EducatorModeControllerFX implements Initializable {
      *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
      */
     public void fillTestTypeHashMap() {
-        ArrayList<Integer> testParams = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsA = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsB = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsC = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsD = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsE = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsF = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsG = new ArrayList<Integer>();
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsA.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsA.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsA.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
-        //4 Time Test Falg
-        testParams.add(0);
+        testParamsA.add(300);
+        //4 Time Test Flag
+        testParamsA.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsA.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsA.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(120);
+        testParamsA.add(960);
         //8 Mag Sample Rate
-        testParams.add(120);
+        testParamsA.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsA.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsA.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsA.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsA.add(92);
 
-        testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
 
         /*
          * ***IMPORTANT*** The following commented out code is no longer in use but is being kept in case that we do decide to bring this lab back ***IMPORTANT***
@@ -2828,183 +2832,184 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //        testTypeHashMap.put("Conservation of Angular Momentum", testParams);
 
-        testParams.clear();
+//        testParams.clear();
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsB.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsB.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsB.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsB.add(300);
+        //4 Time Test Flag
+        testParamsB.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsB.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsB.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsB.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsB.add(96);
         //9 Accel Sensitivity
-        testParams.add(16);
+        testParamsB.add(16);
         //10 Gyro Sensitivity
-        testParams.add(2000);
+        testParamsB.add(2000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsB.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsB.add(92);
 
-        testTypeHashMap.put("Conservation of Energy", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Conservation of Energy", testParamsB);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsC.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsC.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsC.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsC.add(300);
+        //4 Time Test Flag
+        testParamsC.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsC.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsC.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsC.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsC.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsC.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsC.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsC.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsC.add(92);
 
-        testTypeHashMap.put("Inclined Plane", testParams);
-        testTypeHashMap.put("Inclined Plane - Released From Top", testParams);
-        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Inclined Plane", testParamsC);
+        testTypeHashMap.put("Inclined Plane - Released From Top", testParamsC);
+        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParamsC);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsD.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsD.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsD.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsD.add(300);
+        //4 Time Test Flag
+        testParamsD.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsD.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsD.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsD.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsD.add(96);
         //9 Accel Sensitivity
-        testParams.add(8);
+        testParamsD.add(8);
         //10 Gyro Sensitivity
-        testParams.add(2000);
+        testParamsD.add(2000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsD.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsD.add(92);
 
-        testTypeHashMap.put("Physical Pendulum", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Physical Pendulum", testParamsD);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsE.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsE.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsE.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsE.add(300);
+        //4 Time Test Flag
+        testParamsE.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsE.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsE.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsE.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsE.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsE.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsE.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsE.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsE.add(92);
 
-        testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Spring Test - Simple Harmonics", testParamsE);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsF.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsF.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsF.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsF.add(300);
+        //4 Time Test Flag
+        testParamsF.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsF.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsF.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsF.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsF.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsF.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsF.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsF.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsF.add(92);
 
-        testTypeHashMap.put("Generic Template - One Module", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Generic Template - One Module", testParamsF);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsG.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsG.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsG.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsG.add(300);
+        //4 Time Test Flag
+        testParamsG.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsG.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsG.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsG.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsG.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsG.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsG.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsG.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsG.add(92);
 
-        testTypeHashMap.put("Generic Template - Two Modules", testParams);
+        testTypeHashMap.put("Generic Template - Two Modules", testParamsG);
 
-        testParams.clear();
     }
 
     /**
