@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.chart.LineChart?>
@@ -28,7 +36,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
+<Pane fx:id="backgroundPane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphController">
    <children>
       <SplitPane fx:id="graphingPane" dividerPositions="0.7" layoutY="25.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="785.0" prefWidth="1440.0">
          <items>
@@ -52,7 +60,7 @@
                                   <NumberAxis autoRanging="false" label="Time (s)" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
                                 </xAxis>
                                 <yAxis>
-                                  <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel/Gyro" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
+                                  <NumberAxis fx:id="yAxis" autoRanging="false" label="Accel (m/s*s) / Gyro(°/s)" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
                                 </yAxis>
                               </LineChart>
                               <Rectangle fx:id="trackerRectangle" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="434.0" layoutX="65.0" layoutY="14.0" stroke="BLACK" strokeType="INSIDE" width="5.0" />

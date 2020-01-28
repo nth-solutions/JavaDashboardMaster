@@ -259,7 +259,7 @@ public class AdvancedMode extends JFrame {
 	 */
 	AdvancedMode() {
         serialHandler = new SerialComm();
-		setTitle("JavaDashboard Rev-36");
+		setTitle("BioForce Java Dashboard Advanced Mode Rev-38");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -1902,16 +1902,19 @@ public class AdvancedMode extends JFrame {
 					if(graphTestBtn.get(i) == e.getSource()) {
 						lineGraph = startGraphing();
 						System.out.println("test");
+						lineGraph.graphDataOrgoObject(dataOrgo.get(i));
+
 						//lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
 						//lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
-					if(mediaPlayerBtn.get(i) == e.getSource()) {
-						mediaController = startVLCJMediaPlayer();
-						//mediaController.scaleVideoAtStart();
-						shareFrameGraphAndMedia(lineGraph, mediaController);
-					}
+//					if(mediaPlayerBtn.get(i) == e.getSource()) {
+//
+//						//mediaController = startVLCJMediaPlayer();
+//						////mediaController.scaleVideoAtStart(); // This line was commented out prior to the above line being commented out
+//						////shareFrameGraphAndMedia(lineGraph, mediaController); This line was commented out prior to the line two lines above being commented out.
+//					}
 				}
-			}
+			}	
 		});
 	}
 	
@@ -2740,7 +2743,7 @@ public class AdvancedMode extends JFrame {
 						testRecordationPanel.setLayout(null);
 				
 				mpuCalibrationPanel = new JPanel();
-				mainTabbedPanel.addTab("MPU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
+				mainTabbedPanel.addTab("IMU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
 				mpuCalibrationPanel.setLayout(null);
 				
 				JLabel label = new JLabel("Accel");
@@ -2766,11 +2769,13 @@ public class AdvancedMode extends JFrame {
 				JLabel label_4 = new JLabel("Gyro");
 				label_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				label_4.setBounds(293, 195, 39, 18);
+				label_4.setVisible(false);
 				mpuCalibrationPanel.add(label_4);
 				
 				JLabel label_5 = new JLabel("Mag");
 				label_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				label_5.setBounds(443, 195, 31, 18);
+				label_5.setVisible(false);
 				mpuCalibrationPanel.add(label_5);
 				
 				xAxisAccelTextField = new JTextField();
@@ -2783,12 +2788,14 @@ public class AdvancedMode extends JFrame {
 				xAxisGyroTextField.setEditable(false);
 				xAxisGyroTextField.setColumns(10);
 				xAxisGyroTextField.setBounds(267, 222, 86, 20);
+				xAxisGyroTextField.setVisible(false);
 				mpuCalibrationPanel.add(xAxisGyroTextField);
 				
 				xAxisMagTextField = new JTextField();
 				xAxisMagTextField.setEditable(false);
 				xAxisMagTextField.setColumns(10);
 				xAxisMagTextField.setBounds(414, 258, 86, 20);
+				xAxisMagTextField.setVisible(false);
 				mpuCalibrationPanel.add(xAxisMagTextField);
 				
 				yAxisAccelTextField = new JTextField();
@@ -2801,12 +2808,14 @@ public class AdvancedMode extends JFrame {
 				yAxisGyroTextField.setEditable(false);
 				yAxisGyroTextField.setColumns(10);
 				yAxisGyroTextField.setBounds(267, 258, 86, 20);
+				yAxisGyroTextField.setVisible(false);
 				mpuCalibrationPanel.add(yAxisGyroTextField);
 				
 				yAxisMagTextField = new JTextField();
 				yAxisMagTextField.setEditable(false);
 				yAxisMagTextField.setColumns(10);
 				yAxisMagTextField.setBounds(414, 296, 86, 20);
+				yAxisMagTextField.setVisible(false);
 				mpuCalibrationPanel.add(yAxisMagTextField);
 				
 				zAxisAccelTextField = new JTextField();
@@ -2819,12 +2828,14 @@ public class AdvancedMode extends JFrame {
 				zAxisGyroTextField.setEditable(false);
 				zAxisGyroTextField.setColumns(10);
 				zAxisGyroTextField.setBounds(267, 296, 86, 20);
+				zAxisGyroTextField.setVisible(false);
 				mpuCalibrationPanel.add(zAxisGyroTextField);
 				
 				zAxisMagTextField = new JTextField();
 				zAxisMagTextField.setEditable(false);
 				zAxisMagTextField.setColumns(10);
 				zAxisMagTextField.setBounds(414, 222, 86, 20);
+				zAxisMagTextField.setVisible(false);
 				mpuCalibrationPanel.add(zAxisMagTextField);
 				
 				JButton readOffsetsBtn = new JButton("Read Offsets");

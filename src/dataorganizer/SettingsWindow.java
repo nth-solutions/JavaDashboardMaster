@@ -180,7 +180,7 @@ public class SettingsWindow extends JFrame {
 		directorySaveLocations.add(lblNewLabel);
 		
 		profileComboBox = new JComboBox();
-		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Professional", "Educator"}));
+		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Advanced", "Educator"}));
 		profileComboBox.setBounds(97, 99, 106, 20);
 		directorySaveLocations.add(profileComboBox);
 		

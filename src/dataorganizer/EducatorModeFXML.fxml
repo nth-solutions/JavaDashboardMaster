@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -18,7 +24,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.EducatorModeControllerFX">
    <children>
       <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -87,7 +93,7 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="375.0" prefWidth="500.0" spacing="7.0">
+                                                            <VBox alignment="CENTER" layoutX="3.0" prefHeight="372.0" prefWidth="491.0" spacing="7.0">
                                                                <children>
                                                                   <Label alignment="CENTER" prefWidth="500.0" text="Step 1" textFill="#1f78d1">
                                                                      <font>
@@ -333,12 +339,12 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="15.0">
                                                                <children>
-                                                                  <Pane prefHeight="225.0" prefWidth="200.0" style="-fx-background-color: #DCDCDC;">
+                                                                  <Pane prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #DCDCDC;">
                                                                      <effect>
                                                                         <InnerShadow height="5.0" radius="2.0" width="5.0" />
                                                                      </effect>
                                                                      <children>
-                                                                        <VBox alignment="CENTER" prefHeight="225.0" prefWidth="450.0" spacing="15.0">
+                                                                        <VBox alignment="CENTER" prefHeight="145.0" prefWidth="450.0" spacing="15.0">
                                                                            <children>
                                                                               <Label alignment="CENTER" prefWidth="400.0" text="Step 3: Select your output type" textFill="#1f78d1">
                                                                                  <font>
@@ -346,11 +352,6 @@
                                                                                  </font>
                                                                               </Label>
                                                                               <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" selected="true" text="Excel-Based Graphing Application">
-                                                                                 <font>
-                                                                                    <Font size="18.0" />
-                                                                                 </font>
-                                                                              </RadioButton>
-                                                                              <RadioButton fx:id="graphAndSpreadsheetRadioButton" layoutX="192.0" layoutY="131.0" mnemonicParsing="false" prefWidth="365.0" text="Both (Graphing and Spreadsheet Output)" visible="false">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -369,11 +370,30 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <VBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="450.0" spacing="20.0">
+                                                                  <VBox alignment="TOP_CENTER" prefHeight="53.0" prefWidth="450.0" spacing="20.0">
                                                                      <children>
                                                                         <Button fx:id="readTestButton" mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="52.0" prefWidth="450.0" text="Read Test" />
                                                                      </children>
                                                                   </VBox>
+                                                                  <VBox alignment="TOP_CENTER" prefHeight="53.0" prefWidth="450.0" spacing="4.0">
+                                                                     <children>
+                                                                        <Label prefHeight="20.0" prefWidth="437.0" text="If using Excel, once file is sucessfully saved, double click the file at" textFill="#1f78d1">
+                                                                           <font>
+                                                                              <Font name="System Bold" size="14.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <Label prefHeight="20.0" prefWidth="434.0" text="the save location to open graph." textFill="#1f78d1">
+                                                                           <font>
+                                                                              <Font name="System Bold" size="14.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                     </children>
+                                                                  </VBox>
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="437.0" text="If using Java, when &quot;Data Sucessfully Written&quot; appears, click next." textFill="#1f78d1">
+                                                                     <font>
+                                                                        <Font name="System Bold" size="14.0" />
+                                                                     </font>
+                                                                  </Label>
                                                                </children>
                                                                <padding>
                                                                   <Insets left="25.0" right="25.0" />
@@ -389,12 +409,12 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 4: If not using SINC Technology, Click Next" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="25.0" prefWidth="447.0" text="Step 4: If using Java-Based Graphing Based Application..." textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="16.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -588,12 +608,12 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 6: If not using SINC Technology, Click Next" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 6: If you wish to use the Java-Based Graph..." textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="17.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -1063,7 +1083,7 @@
                                                 <Button fx:id="importCalibrationDataButton11" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Module" />
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="26.0" prefWidth="418.0" text="5a. For 2 modules, unplug first module; connect second module" textFill="#1f78d1">
+                                          <Label alignment="CENTER" prefHeight="24.0" prefWidth="455.0" text="5a. For 2 modules, unplug first module; connect second module" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>

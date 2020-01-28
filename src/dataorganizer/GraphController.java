@@ -467,6 +467,7 @@ public class GraphController implements Initializable {
             fileChooser.setTitle("Select a CSV");                                                                                                    //Sets the title of the FileChooser object
             Settings settings = new Settings();
             settings.loadConfigFile();
+            System.out.println(settings.getKeyVal("CSVSaveLocation"));
             fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
             FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");        //Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
             fileChooser.getExtensionFilters().add(filterCSVs);                                                                                        //Adds the filter to the FileChooser
@@ -649,7 +650,95 @@ public class GraphController implements Initializable {
         csvFilePath = filePath;
     }
 
+    public void graphDataOrgoObject(DataOrganizer dataOrgoObject){
+        dataOrgoObject.getSignedData();
 
+        this.dataCollector[numDataSets] = dataOrgoObject;
+
+        if (numDataSets == 0)
+            dataSourceTitledPane.setText("CSV File: " + dataOrgoObject.getSourceId());
+        else
+            dataSourceTitledPaneTwo.setText("CSV File: " + dataOrgoObject.getSourceId());
+
+        if (numDataSets == 0)
+            for (int numDof = 1; numDof < 10; numDof++) {
+                dataSeries.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
+            }
+        else
+            for (int numDof = 1; numDof < 10; numDof++) {
+                dataSeriesTwo.add(numDof - 1, new DataSeries(dataOrgoObject, numDof));
+            }
+
+        dataSeries.get(0).setActive(true);
+
+        if (numDataSets == 0) {
+            populateData(dataSeries, lineChart);
+            styleSeries(dataSeries, lineChart);
+        } else {
+            populateData(dataSeriesTwo, lineChart);
+            styleSeries(dataSeriesTwo, lineChart);
+        }
+
+        xAxis.setUpperBound(dataCollector[numDataSets].getLengthOfTest());
+        xAxis.setLowerBound(0);
+
+        userCreatedZoomRectangleBox.setManaged(true);
+        userCreatedZoomRectangleBox.setFill(Color.LIGHTBLUE.deriveColor(0, 1, 1, 0.5));
+        baselineRect.setManaged(true);
+        baselineRect.setFill(Color.LIGHTGOLDENRODYELLOW.deriveColor(0, 1, 1, 0.5));
+        chartContainer.getChildren().remove(userCreatedZoomRectangleBox);
+        chartContainer.getChildren().add(userCreatedZoomRectangleBox);
+        chartContainer.getChildren().remove(baselineRect);
+        chartContainer.getChildren().add(baselineRect);
+
+        setUpZooming(userCreatedZoomRectangleBox, lineChart);
+
+        if (numDataSets == 0) {
+            for (final DataSeries axisOfDataSeries : dataSeries) {
+                final CheckBox dataToDisplayCheckBox = new CheckBox(axisOfDataSeries.getName());
+                dataToDisplayCheckBox.setSelected(false);
+                if (axisOfDataSeries.dof == 1) dataToDisplayCheckBox.setSelected(true);
+                dataToDisplayCheckBox.setPadding(new Insets(5));
+                // Line line = new Line(0, 10, 50, 10);
+
+                // box.setGraphic(line);
+                dataDisplayCheckboxesFlowPane.getChildren().add(dataToDisplayCheckBox);
+                dataToDisplayCheckBox.setOnAction(action -> {
+                    axisOfDataSeries.setActive(dataToDisplayCheckBox.isSelected());
+                    repopulateData();
+                    restyleSeries();
+                });
+            }
+        } else {
+            for (final DataSeries axisOfDataSeries : dataSeriesTwo) {
+                dataSourceTitledPaneTwo.setDisable(false);
+                dataSourceTitledPaneTwo.setExpanded(true);
+                final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(axisOfDataSeries.getName());
+                dataToDisplayCheckBoxTwo.setSelected(false);
+                if (axisOfDataSeries.dof == 1) dataToDisplayCheckBoxTwo.setSelected(true);
+                dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
+                // Line line = new Line(0, 10, 50, 10);
+
+                // box.setGraphic(line);
+                dataDisplayCheckboxesFlowPaneTwo.getChildren().add(dataToDisplayCheckBoxTwo);
+                dataToDisplayCheckBoxTwo.setOnAction(action -> {
+                    axisOfDataSeries.setActive(dataToDisplayCheckBoxTwo.isSelected());
+                    repopulateData();
+                    restyleSeries();
+                });
+            }
+        }
+
+        final BooleanBinding disableControls = userCreatedZoomRectangleBox.widthProperty().lessThan(5).or(userCreatedZoomRectangleBox.heightProperty().lessThan(0));
+        zoomButton.disableProperty().bind(disableControls);
+
+        if (maxYValueTextField.getText().equals("") && minYValueTextField.getText().equals("")) {
+            maxYValueTextField.setText(Double.toString(yMax));
+            minYValueTextField.setText(Double.toString(yMin));
+        }
+        numDataSets++;
+        restyleSeries();
+    }
 
     public void loadCSVData() {
         createListenersResize();

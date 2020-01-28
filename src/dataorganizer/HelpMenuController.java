@@ -48,7 +48,7 @@ public class HelpMenuController implements Initializable{
 		tabIndexList.put(2, "Configure Test Parameters");
 		tabIndexList.put(3, "Read Tests");
 		tabIndexList.put(4, "Stored Tests");
-		tabIndexList.put(5, "MPU Calibration");
+		tabIndexList.put(5, "IMU Calibration");
 		tabIndexList.put(6, "SINC Calibration ");
 		tabIndexList.put(7, "Graph");
 		tabIndexList.put(8, "Spreadsheet Output");

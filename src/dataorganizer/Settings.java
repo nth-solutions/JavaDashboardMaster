@@ -24,6 +24,7 @@ public class Settings {
 		this.prop.setProperty("OpenOnRead", "False");
 		this.prop.setProperty("AutoSave", "True");
 		this.saveConfig();
+
 	}
 	
 	//Loads saved configurations from DataOrganizer.prop
