@@ -1914,9 +1914,10 @@ public class AdvancedMode extends JFrame {
 //						////shareFrameGraphAndMedia(lineGraph, mediaController); This line was commented out prior to the line two lines above being commented out.
 //					}
 				}
-			}	
+			}
 		});
 	}
+	//see previous commit; the commit message for this commit actually refers to the previous one
 	
 	public VLCJMediaPlayerController startVLCJMediaPlayer() {
 		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
