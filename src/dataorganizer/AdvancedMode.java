@@ -1900,8 +1900,10 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						lineGraph = startGraphing();
 						System.out.println("test");
+						lineGraph = startGraphing();
+						//lineGraph.setCsvFilePath(testNameTextField.get(i).getText());
+						//lineGraph.loadCSVData();
 						lineGraph.graphDataOrgoObject(dataOrgo.get(i));
 
 						//lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
@@ -2177,6 +2179,7 @@ public class AdvancedMode extends JFrame {
 						System.out.println("test");
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
+								dataOrgo.get(i).setName(testNameTextField.get(i).getText()); // This changes the name of the test (within the dataOrgoObject) to match the test name text field. Therefore, the save button will save a csv of the test data with the new name to the designated save location.
 								if(dataOrgo.get(i).createCSVP() != 0) {
 									generalStatusLabel.setText("Could not save file parameters. You will not be able to regraph this test in our application.");
 								}
@@ -2202,16 +2205,17 @@ public class AdvancedMode extends JFrame {
 				});
 
 				testNumPaneArray.get(i).add(graphTestBtn.get(i));
-//				
-//				mediaPlayerBtn.add(new JButton("Media Player"));
-//				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
-//				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
-//					public void actionPerformed(ActionEvent e) {
-//						initFX(dataOrgo, e);
-//					}
-//				});
+
+				mediaPlayerBtn.add(new JButton("Media Player"));
+				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
+				mediaPlayerBtn.get(i).setVisible(false);
+				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						initFX(dataOrgo, e);
+					}
+				});
 				
-				//testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
+				testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
 			}
 
 			for(int i = 0; i < testNumPaneArray.size();i++) {
@@ -2273,6 +2277,18 @@ public class AdvancedMode extends JFrame {
 		xAxisMagTextField.setText(Integer.toString(offsets[6]));
 		yAxisMagTextField.setText(Integer.toString(offsets[7]));
 		zAxisMagTextField.setText(Integer.toString(offsets[8]));
+
+		System.out.println(offsets[0]);
+		System.out.println(offsets[1]);
+		System.out.println(offsets[2]);
+		System.out.println(offsets[3]);
+		System.out.println(offsets[4]);
+		System.out.println(offsets[5]);
+		System.out.println(offsets[6]);
+		System.out.println(offsets[7]);
+		System.out.println(offsets[8]);
+
+		System.out.println("Reached the end of writing calibration offsets to text fields.");
 
 		serialHandler.setMPUMinMax(dataOrgo.MPUMinMax);
 	}
@@ -3044,10 +3060,10 @@ public class AdvancedMode extends JFrame {
 																						calibrationPanel.add(applyOffsetButton);
 		
 		launcherPane = new JPanel();
-		mainTabbedPanel.addTab("Graph", null, launcherPane, "Graph and media-player launchers");
+		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
 		launcherPane.setLayout(null);
 
-		graphLauncherBtn = new JButton("Graph");
+		graphLauncherBtn = new JButton("Launch Application");
 		graphLauncherBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("test");
@@ -3058,8 +3074,7 @@ public class AdvancedMode extends JFrame {
 					public void run() {
 						System.out.println("graphlauncherbutton");
 						lineGraph = startGraphing();
-
-
+						
 						//shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
@@ -3090,7 +3105,7 @@ public class AdvancedMode extends JFrame {
 		
 		panel9 = new JPanel();
 		panel9.setToolTipText("");
-		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
+		mainTabbedPanel.addTab("Excel Graph", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
 		
 		templateComboBox = new JComboBox();
 		templateComboBox.setToolTipText("Select the template. To put data in.");
@@ -3114,7 +3129,7 @@ public class AdvancedMode extends JFrame {
 		panel9.add(lblSelectTheTemplate);
 		panel9.add(templateComboBox);
 		
-		JButton createTemplateBtn = new JButton("Create One Module Template");
+		JButton createTemplateBtn = new JButton("Create 'Single-Module' Graph");
 		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		createTemplateBtn.setToolTipText("Generate the template with data.");
 		createTemplateBtn.addActionListener(new ActionListener() {
@@ -3148,7 +3163,7 @@ public class AdvancedMode extends JFrame {
 		createTemplateBtn.setBounds(10, 65, 302, 269);
 		panel9.add(createTemplateBtn);
 		
-		JButton btnCreateTwoModule = new JButton("Create Two Module Template");
+		JButton btnCreateTwoModule = new JButton("Create 'Two-Module' Graph");
 		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
 		createTemplateBtn.setToolTipText("Generate the template with data.");
 		btnCreateTwoModule.addActionListener(new ActionListener() {
@@ -3187,6 +3202,7 @@ public class AdvancedMode extends JFrame {
 		
 		JCheckBox hideWindowChckbx = new JCheckBox("Hide Excel Window");
 		hideWindowChckbx.setBounds(500, 23, 115, 23);
+		hideWindowChckbx.setVisible(false); //Hide Excel Window checkbox is currently not used for anything
 		panel9.add(hideWindowChckbx);
 		
 		hideWindowChckbx.addActionListener(new ActionListener() {

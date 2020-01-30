@@ -181,6 +181,7 @@ public class GraphController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         dataAccordion.setExpandedPane(dataSourceTitledPane);
         rectangleColorPicker.setValue(Color.DODGERBLUE);
+        yAxis.setLabel("Accel (g) / Gyro(\u00b0/s)"); //sets the y axis label because scene builders label setting doesn't want to work for some reason.
     }
 
     public void setDataCollector(DataOrganizer dataCollector, int index) {

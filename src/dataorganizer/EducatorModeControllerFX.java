@@ -312,6 +312,14 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
+    SINCCalibrationHelpMenuController SINCCalibrationHelpMenu;
+
+    @FXML
+    public void launchSINCCalibrationHelpMenu(){
+        SINCCalibrationHelpMenu = startSINCHelpMenu();
+    }
+
+    @FXML
     public EducationModeHelpMenuController startHelpMenu() {
         Stage primaryStage = new Stage();
         Parent root = null;
@@ -325,6 +333,25 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
 
         primaryStage.setTitle("Education Mode Help Menu");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+
+        return loader.getController();
+    }
+
+    @FXML
+    public SINCCalibrationHelpMenuController startSINCHelpMenu() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("SINCCalibrationHelpMenu.fxml"));
+        try{
+            root = loader.load();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
+
+        primaryStage.setTitle("SINC Calibration Help Menu");
         primaryStage.show();
         primaryStage.setResizable(false);
 

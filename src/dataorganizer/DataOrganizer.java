@@ -670,7 +670,6 @@ public class DataOrganizer {
 		ArrayList<ArrayList<Integer>> means = new ArrayList<ArrayList<Integer>>(); //axis.index*readBlockLength
 		ArrayList<ArrayList<Integer>> stdDevBlock = new ArrayList<ArrayList<Integer>>();
 
-
 		for(int i = 0; i < dataSamples.get(0).size()%readBlockLength; i++) {
 			means.add(new ArrayList<Integer>());
 			stdDevBlock.add(new ArrayList<Integer>());
@@ -724,6 +723,7 @@ public class DataOrganizer {
 						}
 						avg = avg/readBlockLength;
 						offsetIndexes.get(axi).add(i);
+						System.out.println(avg);
 						inRangeMeans.get(axi).add(avg);
 					}
 				}
@@ -738,6 +738,7 @@ public class DataOrganizer {
 						}
 						avg = avg/readBlockLength;
 						offsetIndexes.get(axi).add(i);
+						System.out.println(avg);
 						inRangeMeans.get(axi).add(avg);
 					}
 				}
@@ -795,7 +796,11 @@ public class DataOrganizer {
 
 			}
 		}*/
-
+		System.out.println("testtest1");
+		System.out.println(inRangeMeans);
+		System.out.println("testtest2");
+		System.out.println(Collections.min(inRangeMeans.get(0)));
+		System.out.println("testtest3");
 
 		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 
 			MpuMinMax[axi][0] = Collections.min(inRangeMeans.get(axi));

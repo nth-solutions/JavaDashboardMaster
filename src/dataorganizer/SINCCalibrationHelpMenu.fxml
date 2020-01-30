@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+
+<AnchorPane prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.SINCCalibrationHelpMenuController">
+   <children>
+      <VBox prefHeight="800.0" prefWidth="1000.0" AnchorPane.topAnchor="25.0">
+         <children>
+            <Label prefHeight="45.0" prefWidth="1023.0" text="Place the Module inside the SINC Calibration box where indicated, close the box" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1000.0" text="- Module Board LED's Will be flashing" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <padding>
+                  <Insets left="75.0" />
+               </padding>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Set your Device to record video" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Center the Device's camera over the hole in the box" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="- You should see flashing red lights in the camera's viewfinder." textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="75.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Press Remote button which corresponds to your device (iOS/Android)" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="- Your Device's camera will start will start recoreding, and the lights of the module will turn a solid red" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="75.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Wait approximately 2 (two) minutes until the Module's lights start flashing again (no longer solid red)" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Manually stop the Device's video (do NOT use the remote)" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Connect your Device to the computer" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="- Transfer the video to your computer, noting the location of the file" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="75.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="- Disconnect your phone from the computer" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="75.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="28.0" prefWidth="1021.0" text="Reconnect the Module to the Dashboard" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Close this window and continue with Step 3" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+               <VBox.margin>
+                  <Insets left="50.0" />
+               </VBox.margin>
+            </Label>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
