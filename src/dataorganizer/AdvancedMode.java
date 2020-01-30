@@ -311,6 +311,8 @@ public class AdvancedMode extends JFrame {
 		frameThread.run();
 	}
 
+	//see previous commit for associated changes with the commit message for this commit.
+
 	/**
 	 * Updates the ports combobox with the string ID's of the available serial ports
 	 */

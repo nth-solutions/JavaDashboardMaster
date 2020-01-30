@@ -659,7 +659,6 @@ public class DataOrganizer {
 		return mpuOffsets;
 	}
 
-
 	/*
 	 *  Sets internal private variable MpuMinMax. First array is axis, and second is min[0]/max[1]
 	 *  @return the offsets for accel, gyro, and mag. (The offsets follow the same ordering convention we use with dataSamples, without the time axis (accel,gyro,mag)(x,y,z))
