@@ -55,7 +55,7 @@ public class ParameterSpreadsheetController {
             else if(testType == "Generic Template - Two Modules"){
                 testTypeFileName = "Generic (Two Modules) Template.xlsx";
             }
-            documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
+            documentsPath = System.getProperty("user.home") + "\\.BioForce Dashboard\\Educator Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
             try {
                 this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
                 educationTemplateFound = true;

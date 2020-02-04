@@ -266,7 +266,7 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    private EducationModeHelpMenuController helpmenu;
+    public EducationModeHelpMenuController helpmenu;
 
     @FXML
     private void selectHelpTab(ActionEvent event){
@@ -537,7 +537,7 @@ public class EducatorModeControllerFX implements Initializable {
         testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
         //selected index is used to select the matching tab pane index to display
 
-        if(selectedIndex == 1 || selectedIndex == 2 ){ //this means a test involving two modules is selected.
+        if(selectedIndex == 1 || selectedIndex == 2 || selectedIndex == 8 ){ //this means a test involving two modules is selected.
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations to Module 1");
             oneModuleTest = false;
         }else{
@@ -2196,6 +2196,9 @@ public class EducatorModeControllerFX implements Initializable {
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
                        //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
+                    } else if (testType == "Generic (Two Modules) Template"){
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
                     }

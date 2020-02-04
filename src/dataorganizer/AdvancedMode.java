@@ -2029,7 +2029,7 @@ public class AdvancedMode extends JFrame {
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
 
 		try {
-			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\EducatorTemplates\\" + templateComboBox.getSelectedItem().toString()));
+			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
 			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
 			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
 			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
@@ -2079,7 +2079,7 @@ public class AdvancedMode extends JFrame {
 		DataOrganizer dataOrgo = new DataOrganizer();
 		DataOrganizer dataOrgoTwo = new DataOrganizer();
 
-		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\EducatorTemplates\\" + templateComboBox.getSelectedItem().toString()));
+		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
 
 		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
 		List<Integer> params = dataOrgo.getTestParameters();
@@ -3115,7 +3115,7 @@ public class AdvancedMode extends JFrame {
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\").listFiles();
+				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\Advanced Templates\\").listFiles();
 				for(File file : listOfFiles) {
 					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
 						templateComboBox.addItem(file.getName());	
