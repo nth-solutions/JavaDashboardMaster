@@ -204,6 +204,8 @@ public class EducatorModeControllerFX implements Initializable {
 
     private Boolean oneModuleTest;
 
+    private String selectedTab;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -221,6 +223,7 @@ public class EducatorModeControllerFX implements Initializable {
         //serialHandler2 = new SerialComm();
 
         moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
+        oneModuleTest = true;
     }
 
     /**
@@ -234,8 +237,8 @@ public class EducatorModeControllerFX implements Initializable {
         spreadsheetRadioButton.setUserData("spreadSheetRadioButton");   //Assigns the RadioButton a userData object
 //        graphRadioButton.setToggleGroup(outputTypeToggleGroup);
 //        graphRadioButton.setUserData("graphRadioButton");
-        graphAndSpreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);
-        graphAndSpreadsheetRadioButton.setUserData("graphAndSpreadsheetRadioButton");
+    //    graphAndSpreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);
+     //   graphAndSpreadsheetRadioButton.setUserData("graphAndSpreadsheetRadioButton");
         sincTechnologyRadioButton.setToggleGroup(outputTypeToggleGroup);
         sincTechnologyRadioButton.setUserData("sincTechnologyRadioButton");
     }
@@ -248,6 +251,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectExperimentTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(experimentTab);
+        selectedTab = "experimentTab";
     }
 
     /**
@@ -258,6 +262,100 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectSettingsTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(settingsTab);
+        selectedTab = "settingsTab";
+    }
+
+    @FXML
+    public EducationModeHelpMenuController helpmenu;
+
+    @FXML
+    private void selectHelpTab(ActionEvent event){
+        helpmenu = startHelpMenu();
+
+        if(selectedTab == "eraseConfirmationTab"){
+            helpmenu.selectEraseModuelHelpTabOne();
+
+        }else if (selectedTab == "motionVisualizationTab"){
+            helpmenu.selectSINCTechnologyHelpTab();
+
+        }else if (selectedTab == "sincCalibrationTab"){
+            helpmenu.selectSINCModuleCalibrationTab();
+
+        }else if (selectedTab == "experimentTab"){
+
+            if(oneModuleTest){
+                if(experimentTabIndex == 0){
+                    helpmenu.selectExperimentHelpTabOne();
+                }
+                if(experimentTabIndex == 1){
+                    helpmenu.selectExperimentHelpTabTwo();
+                }
+                if(experimentTabIndex == 2){
+                    helpmenu.selectExperimentHelpTabThree();
+                }
+                if(experimentTabIndex == 3){
+                    helpmenu.selectExperimentHelpTabFour();
+                }
+                if(experimentTabIndex == 4){
+                    helpmenu.selectExperimentHelpTabFive();
+                }
+            }else if(!oneModuleTest){
+                if(experimentTabIndex == 0){
+                    helpmenu.selectExperimentHelpTabOne();
+                }else{
+                    helpmenu.selectBlankTab();
+                }
+            }
+        }else if (selectedTab == "unpairRemotesTab"){
+            helpmenu.selectUnpairRemotesHelpTab();
+        }
+    }
+
+    @FXML
+    SINCCalibrationHelpMenuController SINCCalibrationHelpMenu;
+
+    @FXML
+    public void launchSINCCalibrationHelpMenu(){
+        SINCCalibrationHelpMenu = startSINCHelpMenu();
+    }
+
+    @FXML
+    public EducationModeHelpMenuController startHelpMenu() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("EducationModeHelpMenu.fxml"));
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
+
+        primaryStage.setTitle("Education Mode Help Menu");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+
+        return loader.getController();
+    }
+
+    @FXML
+    public SINCCalibrationHelpMenuController startSINCHelpMenu() {
+        Stage primaryStage = new Stage();
+        Parent root = null;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("SINCCalibrationHelpMenu.fxml"));
+        try{
+            root = loader.load();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
+
+        primaryStage.setTitle("SINC Calibration Help Menu");
+        primaryStage.show();
+        primaryStage.setResizable(false);
+
+        return loader.getController();
     }
 
     /**
@@ -268,22 +366,26 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectMotionVisualizationTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(motionVisualizationTab);
+        selectedTab = "motionVisualizationTab";
     }
 
     @FXML
     private void selectSINCCalibration(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(sincCalibrationTab);
+        selectedTab = "sincCalibrationTab";
     }
 
     @FXML
     private void selectEraseConfirmationTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(eraseConfirmationTab);
+        selectedTab = "eraseConfirmationTab";
     }
 
     @FXML
     private void selectUnpairRemotesTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(unpairRemotesTab);
         remotePairingTabPane.getSelectionModel().select(0);
+        selectedTab = "unpairRemotesTab";
     }
 
     @FXML
@@ -435,7 +537,7 @@ public class EducatorModeControllerFX implements Initializable {
         testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
         //selected index is used to select the matching tab pane index to display
 
-        if(selectedIndex == 1 || selectedIndex == 2 ){ //this means a test involving two modules is selected.
+        if(selectedIndex == 1 || selectedIndex == 2 || selectedIndex == 8 ){ //this means a test involving two modules is selected.
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations to Module 1");
             oneModuleTest = false;
         }else{
@@ -542,6 +644,8 @@ public class EducatorModeControllerFX implements Initializable {
 
                 try {
                     //findModuleCommPort();
+                    System.out.println(testTypeComboBox.getSelectionModel().getSelectedItem());
+                    System.out.println(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()));
                     if (!serialHandler.sendTestParams(testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem()))) {
                         generalStatusExperimentLabel.setTextFill(Color.RED);
                         generalStatusExperimentLabel.setText("Module Not Responding, parameter write failed.");
@@ -1184,12 +1288,11 @@ public class EducatorModeControllerFX implements Initializable {
             FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
                 @Override
                 public void run() {
+
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
 
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
-
 
                         Platform.runLater(() -> {
                             generalStatusExperimentLabel.setText("Reading Data from Module...");
@@ -1271,42 +1374,50 @@ public class EducatorModeControllerFX implements Initializable {
                                             The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
                                             */
 
-                                            ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
-                                            if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Conservation of Energy") {
-                                                parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Inclined Plane - Released From Top") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Inclined Plane - Projected From Bottom") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType.equals("Physical Pendulum")) {
-                                            	parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Spring Test - Simple Harmonics") {
-                                                parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            }else if (testType == "Generic Template - One Module") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                            } else if (testType == "Generic Template - Two Modules") {
-                                                parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                            ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+
+                                            if(parameterSpreadsheetController.getEducationTemplateFound() == true){
+
+                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Conservation of Energy") {
+                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Inclined Plane - Released From Top") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Inclined Plane - Projected From Bottom") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType.equals("Physical Pendulum")) {
+                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Spring Test - Simple Harmonics") {
+                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                }else if (testType == "Generic Template - One Module") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                } else if (testType == "Generic Template - Two Modules") {
+                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                                }
+
+                                                try {
+                                                    parameterSpreadsheetController.saveWorkbook(path);
+                                                }catch(Exception e){
+                                                    generalStatusExperimentLabel.setText("Error writing to spreadsheet, check file path");
+                                                }
+
+                                                try {
+                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+                                                } catch (Exception exceptionalexception) {                              // This error should never happen
+                                                    System.out.println("If you got this error, something went seriously wrong");
+                                                }
+
+                                                Platform.runLater( () -> {
+                                                    generalStatusExperimentLabel.setText("Data successfully written");
+                                                    generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                                });
+
                                             }
-
-                                            parameterSpreadsheetController.saveWorkbook(path);
-
-                                            try {
-                                                Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-                                            } catch (Exception exceptionalexception) {                              // This error should never happen
-                                                System.out.println("If you got this error, something went seriously wrong");
-                                            }
-
-                                            Platform.runLater( () -> {
-                                                generalStatusExperimentLabel.setText("Data successfully written");
-                                                generalStatusExperimentLabel.setTextFill(Color.GREEN);
-                                            });
-
                                         }
                                         dataOrgo.getSignedData();
 
@@ -1314,7 +1425,7 @@ public class EducatorModeControllerFX implements Initializable {
                                 } else {
 
                                     Platform.runLater(() -> {
-                                        generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                        generalStatusExperimentLabel.setText("Error Reading From Module or Template Missing");
                                         generalStatusExperimentLabel.setTextFill(Color.RED);
                                         progressBar.setStyle("-fx-accent: red;");
                                         progressBar.setProgress(100);
@@ -1373,220 +1484,229 @@ public class EducatorModeControllerFX implements Initializable {
             }, testDataArray);
 
             readTestsFromModuleTask.run(); // Runs the futureTask.
-
-        }else if (outputSelected == "graphAndSpreadsheetRadioButton") {
-
-                HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
-
-                FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
-                    @Override
-                    public void run() {
-                        String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
-
-                        try {
-                            ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("Reading Data from Module...");
-                                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                            });
-
-                            //Read test parameters from module and store it in testParameters
-
-                            //Executes if the reading of the test parameters was successful
-                            if (testParameters != null) {
-
-                                int expectedTestNum = testParameters.get(0);
-
-                                //Assign local variables to their newly received values from the module
-                                int timedTestFlag = testParameters.get(4);
-                                //Trigger on release is 8
-                                int testLength = testParameters.get(6);
-                                int accelGyroSampleRate = testParameters.get(7);
-                                int magSampleRate = testParameters.get(8);
-                                int accelSensitivity = testParameters.get(9);
-                                int gyroSensitivity = testParameters.get(10);
-                                int accelFilter = testParameters.get(11);
-                                int gyroFilter = testParameters.get(12);
-
-                                double bytesPerSample = 18;
-                                if (accelGyroSampleRate / magSampleRate == 10) {
-                                    bytesPerSample = 12.6;
-                                }
-
-                                String nameOfFile = "";
-
-                                //Executes if there are tests on the module
-                                if (expectedTestNum > 0) {
-
-                                    //Get date for file name
-                                    Date date = new Date();
-
-                                    //Assigns the name of file
-                                    nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-
-                                    HashMap<Integer, ArrayList<Integer>> testData;
-
-                                    //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                                    testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
-                                    //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
-                                    if (testData != null) {
-                                        ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
-
-                                        for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-
-                                            int[] finalData = new int[testData.get(testIndex).size()];
-
-                                            for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                                if (testData.get(testIndex).get(byteIndex) != -1) {
-                                                    finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                                } else {
-                                                    finalData[byteIndex] = -1;
-                                                    break;
-                                                }
-                                            }
-                                            String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                            dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
-                                            //Define operation that can be run in separate thread
-                                            //TODO: This will probably throw an error
-
-                                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-
-                                            dataOrgo.createDataSmpsRawData(finalData);
-
-                                            if (spreadsheetRadioButton.isSelected()) {
-                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
-
-                                                Platform.runLater(() -> {
-                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                                });
-
-                                            /*
-                                            Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
-                                            The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
-                                            */
-
-                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
-                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Conservation of Energy") {
-                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Inclined Plane - Released From Top") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Inclined Plane - Projected From Bottom") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType.equals("Physical Pendulum")) {
-                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                }else if (testType == "Generic Template - One Module") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Generic Template - Two Modules") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                }
-                                                parameterSpreadsheetController.saveWorkbook(path);
-
-                                                try {
-                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-                                                } catch (Exception exceptionalexception) {                              // This error should never happen
-                                                    System.out.println("If you got this error, something went seriously wrong");
-                                                }
-
-                                            }
-                                            String tempName1 = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                            dataOrgo = new DataOrganizer(testParameters, tempName1);                         // object that stores test data.
-                                            dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
-                                            dataOrgoList.add(dataOrgo);
-                                            //Define operation that can be run in separate thread
-                                            //TODO: This will probably throw an error
-                                            Runnable organizerOperation = () -> {
-
-                                                //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-                                                Settings settings = new Settings();
-                                                settings.loadConfigFile();
-
-                                                dataOrgo.createDataSmpsRawData(finalData);
-                                                dataOrgo.getSignedData();
-
-                                                dataOrgo.createCSVP();
-                                                dataOrgo.createCSV(false, false);
-                                            };
-
-                                            //Set thread to execute previously defined operation
-                                            Thread organizerThread = new Thread(organizerOperation);
-                                            //Start thread
-                                            organizerThread.start();
-                                        }
-                                    } else {
-
-                                        Platform.runLater(() -> {
-                                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                                            progressBar.setStyle("-fx-accent: red;");
-                                            progressBar.setProgress(100);
-                                        });
-
-                                    }
-                                } else {
-
-                                    Platform.runLater(() -> {
-                                        generalStatusExperimentLabel.setText("No Tests Found on Module");
-                                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                                        progressBar.setStyle("-fx-accent: red;");
-                                        progressBar.setProgress(100);
-                                    });
-                                }
-                            } else {
-
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                                    progressBar.setStyle("-fx-accent: red;");
-                                    progressBar.setProgress(100);
-                                });
-                            }
-                        } catch (IOException e) {
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                                generalStatusExperimentLabel.setTextFill(Color.RED);
-                                progressBar.setStyle("-fx-accent: red;");
-                                progressBar.setProgress(100);
-                            });
-
-                        } catch (PortInUseException e) {
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("Serial Port Already In Use");
-
-                                generalStatusExperimentLabel.setTextFill(Color.RED);
-                                progressBar.setStyle("-fx-accent: red;");
-                                progressBar.setProgress(100);
-                            });
-
-                        } catch (UnsupportedCommOperationException e) {
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                                generalStatusExperimentLabel.setTextFill(Color.RED);
-                                progressBar.setStyle("-fx-accent: red;");
-                                progressBar.setProgress(100);
-                            });
-
-                        }
-                    }
-
-                }, testDataArray);
-
-                readTestsFromModuleTask.run(); // Runs the futureTask.
-
-
+            /**
+             * Currently, the option for filling both the excel spreadsheet with data and creating a csv of the data to be used with syn technology has been disabled.
+             **/
+//        }else if (outputSelected == "graphAndSpreadsheetRadioButton") {
+//
+//                HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
+//
+//                FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
+//                    @Override
+//                    public void run() {
+//                        String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+//
+//                        try {
+//                            ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+//
+//                            Platform.runLater(() -> {
+//                                generalStatusExperimentLabel.setText("Reading Data from Module...");
+//                                generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                            });
+//
+//                            //Read test parameters from module and store it in testParameters
+//
+//                            //Executes if the reading of the test parameters was successful
+//                            if (testParameters != null) {
+//
+//                                int expectedTestNum = testParameters.get(0);
+//
+//                                //Assign local variables to their newly received values from the module
+//                                int timedTestFlag = testParameters.get(4);
+//                                //Trigger on release is 8
+//                                int testLength = testParameters.get(6);
+//                                int accelGyroSampleRate = testParameters.get(7);
+//                                int magSampleRate = testParameters.get(8);
+//                                int accelSensitivity = testParameters.get(9);
+//                                int gyroSensitivity = testParameters.get(10);
+//                                int accelFilter = testParameters.get(11);
+//                                int gyroFilter = testParameters.get(12);
+//
+//                                double bytesPerSample = 18;
+//                                if (accelGyroSampleRate / magSampleRate == 10) {
+//                                    bytesPerSample = 12.6;
+//                                }
+//
+//                                String nameOfFile = "";
+//
+//                                //Executes if there are tests on the module
+//                                if (expectedTestNum > 0) {
+//
+//                                    //Get date for file name
+//                                    Date date = new Date();
+//
+//                                    //Assigns the name of file
+//                                    nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+//
+//                                    HashMap<Integer, ArrayList<Integer>> testData;
+//                                    System.out.println("test91");
+//                                    //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+//                                    testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+//                                    System.out.println("test92");
+//                                    //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
+//                                    if (testData != null) {
+//                                        ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
+//
+//                                        for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+//
+//                                            int[] finalData = new int[testData.get(testIndex).size()];
+//
+//                                            for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+//                                                if (testData.get(testIndex).get(byteIndex) != -1) {
+//                                                    finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+//                                                } else {
+//                                                    finalData[byteIndex] = -1;
+//                                                    break;
+//                                                }
+//                                            }
+//                                            String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
+//                                            dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
+//                                            //Define operation that can be run in separate thread
+//                                            //TODO: This will probably throw an error
+//
+//                                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+//
+//                                            dataOrgo.createDataSmpsRawData(finalData);
+//
+//                                            if (graphAndSpreadsheetRadioButton.isSelected()) {
+//                                                List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
+//
+//                                                Platform.runLater(() -> {
+//                                                    generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+//                                                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+//                                                });
+//
+//                                                System.out.println("testtest");
+//                                            /*
+//                                            Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
+//                                            The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
+//                                            */
+//
+//                                                ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output. //For the advanced mode, a file path is passed so that the dashboard knows which template to use. However for the educator mode, "EducationMode" is passed in to let the program know to use the selected test type to pull the designated predefined template.
+//
+//                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
+//                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                } else if (testType == "Conservation of Energy") {
+//                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                } else if (testType == "Inclined Plane - Released From Top") {
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                } else if (testType == "Inclined Plane - Projected From Bottom") {
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                } else if (testType.equals("Physical Pendulum")) {
+//                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                } else if (testType == "Spring Test - Simple Harmonics") {
+//                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                }else if (testType == "Generic Template - One Module") {
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                } else if (testType == "Generic Template - Two Modules") {
+//                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+//                                                }
+//                                                parameterSpreadsheetController.saveWorkbook(path);
+//
+//                                                try {
+//                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+//                                                } catch (Exception exceptionalexception) {                              // This error should never happen
+//                                                    System.out.println("If you got this error, something went seriously wrong");
+//                                                }
+//                                                System.out.println("test93");
+//                                            }
+//                                            String tempName1 = "(#" + (testIndex + 1) + ") " + nameOfFile;
+//                                            dataOrgo = new DataOrganizer(testParameters, tempName1);                         // object that stores test data.
+//                                            dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
+//                                            dataOrgoList.add(dataOrgo);
+//                                            System.out.println("test94");
+//                                            //Define operation that can be run in separate thread
+//                                            //TODO: This will probably throw an error
+//                                            Runnable organizerOperation = () -> {
+//
+//                                                //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+//                                                Settings settings = new Settings();
+//                                                settings.loadConfigFile();
+//
+//                                                dataOrgo.createDataSmpsRawData(finalData);
+//                                                dataOrgo.getSignedData();
+//
+//                                                dataOrgo.createCSVP();
+//                                                dataOrgo.createCSV(false, false);
+//                                            };
+//
+//                                            //Set thread to execute previously defined operation
+//                                            Thread organizerThread = new Thread(organizerOperation);
+//                                            //Start thread
+//                                            organizerThread.start();
+//                                        }
+//
+//                                        Platform.runLater( () -> {
+//                                            generalStatusExperimentLabel.setText("Data successfully written");
+//                                            generalStatusExperimentLabel.setTextFill(Color.GREEN);
+//                                        });
+//                                    } else {
+//
+//                                        Platform.runLater(() -> {
+//                                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+//                                            generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                            progressBar.setStyle("-fx-accent: red;");
+//                                            progressBar.setProgress(100);
+//                                        });
+//
+//                                    }
+//                                } else {
+//
+//                                    Platform.runLater(() -> {
+//                                        generalStatusExperimentLabel.setText("No Tests Found on Module");
+//                                        generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                        progressBar.setStyle("-fx-accent: red;");
+//                                        progressBar.setProgress(100);
+//                                    });
+//                                }
+//                            } else {
+//
+//                                Platform.runLater(() -> {
+//                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+//                                    generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                    progressBar.setStyle("-fx-accent: red;");
+//                                    progressBar.setProgress(100);
+//                                });
+//                            }
+//                        } catch (IOException e) {
+//
+//                            Platform.runLater(() -> {
+//                                generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+//                                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                progressBar.setStyle("-fx-accent: red;");
+//                                progressBar.setProgress(100);
+//                            });
+//
+//                        } catch (PortInUseException e) {
+//
+//                            Platform.runLater(() -> {
+//                                generalStatusExperimentLabel.setText("Serial Port Already In Use");
+//
+//                                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                progressBar.setStyle("-fx-accent: red;");
+//                                progressBar.setProgress(100);
+//                            });
+//
+//                        } catch (UnsupportedCommOperationException e) {
+//
+//                            Platform.runLater(() -> {
+//                                generalStatusExperimentLabel.setText("Check Dongle Compatability");
+//                                generalStatusExperimentLabel.setTextFill(Color.RED);
+//                                progressBar.setStyle("-fx-accent: red;");
+//                                progressBar.setProgress(100);
+//                            });
+//
+//                        }
+//                    }
+//
+//                }, testDataArray);
+//
+//                readTestsFromModuleTask.run(); // Runs the futureTask.
+//
         }else if (outputSelected == "sincTechnologyRadioButton"){
             HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
@@ -2055,7 +2175,7 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
                     momentumTemplatePath = path;
-                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController();// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
                     if (testType == "Conservation of Momentum (Elastic Collision)") {
                         //System.out.println(dataOrgo.getMPUMinMax());
                         //System.out.println(dataOrgoTwo.getMPUMinMax());
@@ -2076,6 +2196,9 @@ public class EducatorModeControllerFX implements Initializable {
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgo.getTestParameters(),1);
                        //parameterSpreadsheetController.writeMPUMinMaxToMomentumTemplate(2,1,dataOrgoTwo.getMPUMinMax(),3);
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
+                        parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
+                    } else if (testType == "Generic (Two Modules) Template"){
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
                     }
@@ -2197,7 +2320,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                 try {
 
-                    if (serialHandler.bulkEraseModule()) {  // Checks if the module is curently being bulk erased
+                    if (serialHandler.bulkEraseModule()) {  // Checks if the module is currently being bulk erased
                         //Notify the user that the sequence has completed
                         updateMessage("Bulk Erase Complete");
                         Platform.runLater(() -> {
@@ -2266,6 +2389,9 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
+        /**
+         * The
+         */
         if (testType == "Conservation of Momentum (Elastic Collision)"){
             lineGraph = startGraphing();
             lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
@@ -2672,36 +2798,42 @@ public class EducatorModeControllerFX implements Initializable {
      *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
      */
     public void fillTestTypeHashMap() {
-        ArrayList<Integer> testParams = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsA = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsB = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsC = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsD = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsE = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsF = new ArrayList<Integer>();
+        ArrayList<Integer> testParamsG = new ArrayList<Integer>();
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsA.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsA.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsA.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsA.add(300);
+        //4 Time Test Flag
+        testParamsA.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsA.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsA.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsA.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsA.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsA.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsA.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsA.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsA.add(92);
 
-        testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
 
         /*
          * ***IMPORTANT*** The following commented out code is no longer in use but is being kept in case that we do decide to bring this lab back ***IMPORTANT***
@@ -2734,183 +2866,184 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //        testTypeHashMap.put("Conservation of Angular Momentum", testParams);
 
-        testParams.clear();
+//        testParams.clear();
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsB.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsB.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsB.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsB.add(300);
+        //4 Time Test Flag
+        testParamsB.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsB.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsB.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsB.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsB.add(96);
         //9 Accel Sensitivity
-        testParams.add(16);
+        testParamsB.add(16);
         //10 Gyro Sensitivity
-        testParams.add(2000);
+        testParamsB.add(2000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsB.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsB.add(92);
 
-        testTypeHashMap.put("Conservation of Energy", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Conservation of Energy", testParamsB);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsC.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsC.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsC.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsC.add(300);
+        //4 Time Test Flag
+        testParamsC.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsC.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsC.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsC.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsC.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsC.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsC.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsC.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsC.add(92);
 
-        testTypeHashMap.put("Inclined Plane", testParams);
-        testTypeHashMap.put("Inclined Plane - Released From Top", testParams);
-        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Inclined Plane", testParamsC);
+        testTypeHashMap.put("Inclined Plane - Released From Top", testParamsC);
+        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParamsC);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsD.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsD.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsD.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsD.add(300);
+        //4 Time Test Flag
+        testParamsD.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsD.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsD.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsD.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsD.add(96);
         //9 Accel Sensitivity
-        testParams.add(8);
+        testParamsD.add(8);
         //10 Gyro Sensitivity
-        testParams.add(2000);
+        testParamsD.add(2000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsD.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsD.add(92);
 
-        testTypeHashMap.put("Physical Pendulum", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Physical Pendulum", testParamsD);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsE.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsE.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsE.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsE.add(300);
+        //4 Time Test Flag
+        testParamsE.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsE.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsE.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsE.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsE.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsE.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsE.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsE.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsE.add(92);
 
-        testTypeHashMap.put("Spring Test - Simple Harmonics", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Spring Test - Simple Harmonics", testParamsE);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsF.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsF.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsF.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsF.add(300);
+        //4 Time Test Flag
+        testParamsF.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsF.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsF.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsF.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsF.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsF.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsF.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsF.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsF.add(92);
 
-        testTypeHashMap.put("Generic Template - One Module", testParams);
-
-        testParams.clear();
+        testTypeHashMap.put("Generic Template - One Module", testParamsF);
 
         //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParams.add(0);
+        testParamsG.add(0);
         //1 Timer0 Tick Threshold
-        testParams.add(getTickThreshold(960));
+        testParamsG.add(getTickThreshold(960));
         //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParams.add(0);
+        testParamsG.add(0);
         //3 Battery timeout flag
-        testParams.add(300);
+        testParamsG.add(300);
+        //4 Time Test Flag
+        testParamsG.add(0);
         //5 Trigger on release flag
-        testParams.add(1);
+        testParamsG.add(1);
         //6 Test Length
-        testParams.add(30);
+        testParamsG.add(30);
         //7 Accel Gyro Sample Rate
-        testParams.add(960);
+        testParamsG.add(960);
         //8 Mag Sample Rate
-        testParams.add(96);
+        testParamsG.add(96);
         //9 Accel Sensitivity
-        testParams.add(4);
+        testParamsG.add(4);
         //10 Gyro Sensitivity
-        testParams.add(1000);
+        testParamsG.add(1000);
         //11 Accel Filter
-        testParams.add(92);
+        testParamsG.add(92);
         //12 Gyro Filter
-        testParams.add(92);
+        testParamsG.add(92);
 
-        testTypeHashMap.put("Generic Template - Two Modules", testParams);
+        testTypeHashMap.put("Generic Template - Two Modules", testParamsG);
 
-        testParams.clear();
     }
 
     /**
@@ -3256,5 +3389,6 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
 }
+
 
 

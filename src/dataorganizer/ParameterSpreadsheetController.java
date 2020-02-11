@@ -11,59 +11,80 @@ public class ParameterSpreadsheetController {
     private String testTypeFileName;
     private String testType;
     private int workbookSheet;
+    private Boolean educationTemplateFound;
 
-    public ParameterSpreadsheetController() {
+    public ParameterSpreadsheetController(String FilePath) {
 
-        testType = EducatorModeControllerFX.testType; // gets the selected test from Educator mode
+        if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template to use and where to get it from
 
-        if (testType == "Conservation of Momentum (Elastic Collision)"){ // changes the end of the file path to match the test. This file path is the location of the unaltered template
+            testType = EducatorModeControllerFX.testType; // gets the selected test from Educator mode
 
-            testTypeFileName = "Conservation of Momentum Template.xlsx";
+            if (testType == "Conservation of Momentum (Elastic Collision)"){ // changes the end of the file path to match the test. This file path is the location of the unaltered template
+
+                testTypeFileName = "Conservation of Momentum Template.xlsx";
+            }
+            else if(testType == "Conservation of Angular Momentum"){
+
+                testTypeFileName = "Conservation of Angular Momentum Template.xlsx";
+            }
+            else if(testType == "Conservation of Energy"){
+
+                testTypeFileName = "Conservation of Energy Template.xlsx";
+            }
+            else if(testType == "Inclined Plane - Released From Top") {
+                testTypeFileName = "Inclined Plane (Released From Top) Template.xlsx";
+            }
+            else if(testType == "Inclined Plane - Projected From Bottom"){
+                testTypeFileName = "Inclined Plane (Projected From Bottom) Template.xlsx";
+            }
+            else if(testType == "Physical Pendulum"){
+
+                testTypeFileName = "Pendulum Template.xlsx";
+
+            }else if(testType == "Spinny Stool"){
+
+                testTypeFileName = "Spinny Stool Template.xlsx";
+
+            }else if(testType == "Spring Test - Simple Harmonics"){
+
+                testTypeFileName = "Spring Test - Simple Harmonics Template.xlsx";
+            }
+            else if(testType == "Generic Template - One Module") {
+                testTypeFileName = "Generic (One Module) Template.xlsx";
+            }
+            else if(testType == "Generic Template - Two Modules"){
+                testTypeFileName = "Generic (Two Modules) Template.xlsx";
+            }
+            documentsPath = System.getProperty("user.home") + "\\.BioForce Dashboard\\Educator Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
+            try {
+                this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
+                educationTemplateFound = true;
+            }catch(Exception e){
+                e.printStackTrace();
+                System.out.println("Invalid Workbook Path");
+                educationTemplateFound = false;
+            }
+        }else {
+            documentsPath =  FilePath;
+            try {
+                this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
+                educationTemplateFound = true;
+            }catch(Exception e){
+                e.printStackTrace();
+                System.out.println("Invalid Workbook Path");
+                educationTemplateFound = false;
+            }
         }
-        else if(testType == "Conservation of Angular Momentum"){
 
-            testTypeFileName = "Conservation of Angular Momentum Template.xlsx";
-        }
-        else if(testType == "Conservation of Energy"){
+    }
 
-            testTypeFileName = "Conservation of Energy Template.xlsx";
-        }
-        else if(testType == "Inclined Plane - Released From Top") {
-            testTypeFileName = "Inclined Plane (Released From Top) Template.xlsx";
-        }
-        else if(testType == "Inclined Plane - Projected From Bottom"){
-            testTypeFileName = "Inclined Plane (Projected From Bottom) Template.xlsx";
-        }
-        else if(testType == "Physical Pendulum"){
-
-            testTypeFileName = "Pendulum Template.xlsx";
-
-        }else if(testType == "Spinny Stool"){
-
-            testTypeFileName = "Spinny Stool Template.xlsx";
-
-        }else if(testType == "Spring Test - Simple Harmonics"){
-
-            testTypeFileName = "Spring Test - Simple Harmonics Template.xlsx";
-        }
-        else if(testType == "Generic Template - One Module") {
-            testTypeFileName = "Generic (One Module) Template.xlsx";
-        }
-        else if(testType == "Generic Template - Two Modules"){
-            testTypeFileName = "Generic (Two Modules) Template.xlsx";
-        }
-        documentsPath = System.getProperty("user.home") + "\\Documents\\Lab Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
-        try {
-        	this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Invalid Workbook Path");
-        }
+    public Boolean getEducationTemplateFound(){
+        return educationTemplateFound;
     }
 
     /**
      * This method is used to save a modified template as a new spreadsheet at the desired output path.
-     * @param outputPath the file save location
+     * @param outputPath the file save location (must include the name of the actual file itself)
      */
 
     public void saveWorkbook(String outputPath){
@@ -71,6 +92,7 @@ public class ParameterSpreadsheetController {
             workbook.save(outputPath, FileFormatType.XLSX);
         }catch(Exception e){
             System.out.println(e.getMessage());
+            e.printStackTrace();
             System.out.println(e.getCause());
             System.out.println("Invalid output path");
         }

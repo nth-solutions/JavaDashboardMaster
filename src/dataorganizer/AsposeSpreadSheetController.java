@@ -40,7 +40,6 @@ public class AsposeSpreadSheetController {
 	 */
 	public List<Integer> getTestParameters(){
 		List<Integer> parameters = new ArrayList<Integer>(13);
-		
 		for (int i = 0; i < 13; i++) {
 			parameters.add(null);
 		}

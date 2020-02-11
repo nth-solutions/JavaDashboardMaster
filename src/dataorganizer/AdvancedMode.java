@@ -259,12 +259,14 @@ public class AdvancedMode extends JFrame {
 	 */
 	AdvancedMode() {
         serialHandler = new SerialComm();
-		setTitle("JavaDashboard Rev-23");
+		setTitle("BioForce Java Dashboard Advanced Mode Rev-39");
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
 		setVisible(true);
 		findModuleCommPort();
+
+		System.out.println("advanced mode initialized");
 	}
 
 	/**
@@ -309,6 +311,8 @@ public class AdvancedMode extends JFrame {
 		frameThread.run();
 	}
 
+	//see previous commit for associated changes with the commit message for this commit.
+
 	/**
 	 * Updates the ports combobox with the string ID's of the available serial ports
 	 */
@@ -329,6 +333,7 @@ public class AdvancedMode extends JFrame {
 	public void findModuleCommPort() {
 		Runnable findModuleOperation = new Runnable() {
 			public void run() {
+				Platform.setImplicitExit(false); // Given that this runs when the dashboard opens, this prevents the initial thread from petering out and breaking future threads.
 				try {
 					ArrayList<String> commPortIDList = serialHandler.findPorts();
 					updateCommPortComboBox();
@@ -1237,6 +1242,7 @@ public class AdvancedMode extends JFrame {
 	 * on what this handler actually does.
 	 */
 	private void writeButtonHandler() {
+
 		updateTickThresh();
 		if (updateMagSampleRate()) {
 			//Define no operation that can be run in a thread
@@ -1280,6 +1286,9 @@ public class AdvancedMode extends JFrame {
 						testParams.add(triggerOnReleaseFlag);
 						//6 Test Length
 						if(timedTestFlag == 1) {
+							if(Integer.parseInt(testLengthTextField.getText()) <= 0 || Integer.parseInt(testLengthTextField.getText()) >= 65536){
+								testLengthTextField.setText("30");
+							}
 							testParams.add(Integer.parseInt(testLengthTextField.getText()));
 						}
 						else {
@@ -1541,7 +1550,7 @@ public class AdvancedMode extends JFrame {
 	 */
 	public void initDataFields() {
 		//Checkboxes
-		timedTestCheckbox.setSelected(true);
+		timedTestCheckbox.setSelected(false);
 
 		//Comboboxes
 		accelGyroSampleRateCombobox.setModel(new DefaultComboBoxModel(new String [] {"60", "120", "240", "480", "500", "960"}));
@@ -1559,7 +1568,7 @@ public class AdvancedMode extends JFrame {
 
 		//Text Fields
 		updateMagSampleRate();
-		testLengthTextField.setText("25");
+		testLengthTextField.setText("30");
 		batteryTimeoutTextField.setText("300");
 		timer0TickThreshTextField.setText("");
 		delayAfterStartTextField.setText("");
@@ -1893,19 +1902,26 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
+						System.out.println("test");
 						lineGraph = startGraphing();
-						lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
-						lineGraph.graphSettingsOnStart(moduleSerialID);
+						//lineGraph.setCsvFilePath(testNameTextField.get(i).getText());
+						//lineGraph.loadCSVData();
+						lineGraph.graphDataOrgoObject(dataOrgo.get(i));
+
+						//lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
+						//lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
-					if(mediaPlayerBtn.get(i) == e.getSource()) {
-						mediaController = startVLCJMediaPlayer();
-						//mediaController.scaleVideoAtStart();
-						shareFrameGraphAndMedia(lineGraph, mediaController);
-					}
+//					if(mediaPlayerBtn.get(i) == e.getSource()) {
+//
+//						//mediaController = startVLCJMediaPlayer();
+//						////mediaController.scaleVideoAtStart(); // This line was commented out prior to the above line being commented out
+//						////shareFrameGraphAndMedia(lineGraph, mediaController); This line was commented out prior to the line two lines above being commented out.
+//					}
 				}
 			}
 		});
 	}
+	//see previous commit; the commit message for this commit actually refers to the previous one
 	
 	public VLCJMediaPlayerController startVLCJMediaPlayer() {
 		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
@@ -1974,7 +1990,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public boolean writeTemplateWithOneDataSetHandler() {
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		Settings settings = new Settings();
 		settings.loadConfigFile();
 		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
@@ -1989,6 +2005,8 @@ public class AdvancedMode extends JFrame {
 			generalStatusLabel.setText("Could not find your test file.");
 			return false;
 		}
+		System.out.println(ModuleOneFileName);
+		System.out.println("test");
 
 		DataOrganizer dataOrgo = new DataOrganizer();
 		int errNum;
@@ -2005,29 +2023,46 @@ public class AdvancedMode extends JFrame {
 					break;
 			}
 		}
+
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-		
-		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
-		
+
 		try {
-			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
+			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
+			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+		} catch(Exception e){
+			e.printStackTrace();
 			return false;
 		}
+		System.out.println("test");
 		return true;
+		
+//		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+//		try {
+//			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			return false;
+//		}
+//		return true;
+
 	}
 	
 	
 	public boolean writeTemplateWithTwoDataSetsHandler() {
 		Settings settings = new Settings();
 		settings.loadConfigFile();
-		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
+		String CSVLocation = settings.getKeyVal("CSVSaveLocation"); //gets the location where CSVs of raw data are saved
 		File[] ListOfFiles = new File(CSVLocation).listFiles();
 		String ModuleOneFileName = null, ModuleTwoFileName = null;
+
+		/**
+		 * Searches through the files in the location for two CSV files named "Module 1' and 'Module 2'. There are the two csv files whose data will be used to populate the template
+		 */
 		for(int i = 0; i < ListOfFiles.length; i++) {
 			if(ListOfFiles[i].toString().contains("Module 1") && ListOfFiles[i].toString().substring(ListOfFiles[i].toString().length()-4, ListOfFiles[i].toString().length()).equals(".csv")) {
 				ModuleOneFileName = ListOfFiles[i].toString();
@@ -2043,29 +2078,40 @@ public class AdvancedMode extends JFrame {
 		
 		DataOrganizer dataOrgo = new DataOrganizer();
 		DataOrganizer dataOrgoTwo = new DataOrganizer();
-		
+
+		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+
 		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
-		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+//		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
+		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 0); //fills the data from the first module into the the first sheet of the workbook
 
 		dataOrgoTwo.createDataSamplesFromCSV(ModuleTwoFileName);
 		params = dataOrgoTwo.getTestParameters();
 		CSVData = dataOrgoTwo.getRawDataSamples();
 		MpuMinMax = dataOrgoTwo.MPUMinMax;
-		
-		SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
-		
+		//SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
+		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 2); // fills the data from the second module into the third sheet of the workbook
+
 		try {
-			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
+			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+		} catch(Exception e){
+			e.printStackTrace();
 			return false;
 		}
 		return true;
+//		try {
+//			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//			return false;
+//		}
+//		return true;
 	}
 	
 	
@@ -2135,6 +2181,7 @@ public class AdvancedMode extends JFrame {
 						System.out.println("test");
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
+								dataOrgo.get(i).setName(testNameTextField.get(i).getText()); // This changes the name of the test (within the dataOrgoObject) to match the test name text field. Therefore, the save button will save a csv of the test data with the new name to the designated save location.
 								if(dataOrgo.get(i).createCSVP() != 0) {
 									generalStatusLabel.setText("Could not save file parameters. You will not be able to regraph this test in our application.");
 								}
@@ -2152,15 +2199,18 @@ public class AdvancedMode extends JFrame {
 				graphTestBtn.add(new JButton("Graph"));
 				graphTestBtn.get(i).setBounds(430, 11, 70, 23);
 				graphTestBtn.get(i).addActionListener(new ActionListener() {
+
 					public void actionPerformed(ActionEvent e) {
+						System.out.println("Separate graph button");
 						initFX(dataOrgo, e);
 					}
 				});
 
 				testNumPaneArray.get(i).add(graphTestBtn.get(i));
-				
+
 				mediaPlayerBtn.add(new JButton("Media Player"));
 				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
+				mediaPlayerBtn.get(i).setVisible(false);
 				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						initFX(dataOrgo, e);
@@ -2229,7 +2279,19 @@ public class AdvancedMode extends JFrame {
 		xAxisMagTextField.setText(Integer.toString(offsets[6]));
 		yAxisMagTextField.setText(Integer.toString(offsets[7]));
 		zAxisMagTextField.setText(Integer.toString(offsets[8]));
-		
+
+		System.out.println(offsets[0]);
+		System.out.println(offsets[1]);
+		System.out.println(offsets[2]);
+		System.out.println(offsets[3]);
+		System.out.println(offsets[4]);
+		System.out.println(offsets[5]);
+		System.out.println(offsets[6]);
+		System.out.println(offsets[7]);
+		System.out.println(offsets[8]);
+
+		System.out.println("Reached the end of writing calibration offsets to text fields.");
+
 		serialHandler.setMPUMinMax(dataOrgo.MPUMinMax);
 	}
 	
@@ -2373,6 +2435,7 @@ public class AdvancedMode extends JFrame {
 										});
 										
 												startTestBtn = new JButton("Start Test");
+												startTestBtn.setVisible(false);
 												startTestBtn.setEnabled(false);
 												startTestBtn.addActionListener(new ActionListener() {
 													public void actionPerformed(ActionEvent arg0) {
@@ -2399,6 +2462,15 @@ public class AdvancedMode extends JFrame {
 						RemoteButtonPanel = new JPanel();
 						remoteTab.add(RemoteButtonPanel);
 						RemoteButtonPanel.setLayout(new GridLayout(0, 1, 0, 0));
+								
+										unpairAllRemotesButton = new JButton("Unpair All Remotes");
+										unpairAllRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
+										RemoteButtonPanel.add(unpairAllRemotesButton);
+										unpairAllRemotesButton.addActionListener(new ActionListener() {
+											public void actionPerformed(ActionEvent arg0) {
+												unpairAllRemotesHandler();
+											}
+										});
 						
 								pairNewRemoteButton = new JButton("Pair New Remote");
 								pairNewRemoteButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -2408,10 +2480,6 @@ public class AdvancedMode extends JFrame {
 										pairNewRemoteHandler();
 									}
 								});
-								
-										unpairAllRemotesButton = new JButton("Unpair All Remotes");
-										unpairAllRemotesButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
-										RemoteButtonPanel.add(unpairAllRemotesButton);
 										
 												testRemotesButton = new JButton("Test Paired Remotes");
 												testRemotesButton.setToolTipText("Enter test mode and press buttons to test your pairing. You can see this on the module and in the status label.");
@@ -2434,11 +2502,6 @@ public class AdvancedMode extends JFrame {
 																});
 																
 																		RemoteButtonPanel.add(exitTestModeButton);
-																		unpairAllRemotesButton.addActionListener(new ActionListener() {
-																			public void actionPerformed(ActionEvent arg0) {
-																				unpairAllRemotesHandler();
-																			}
-																		});
 		
 				JPanel configurationPanel = new JPanel();
 				configurationPanel.setToolTipText("");
@@ -2542,16 +2605,6 @@ public class AdvancedMode extends JFrame {
 																														delayAfterStartTextField.setColumns(10);
 																														delayAfterStartTextField.setBorder(new CompoundBorder(new EtchedBorder(EtchedBorder.RAISED, null, null), new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Delay After Start (Milliseconds) (Read Only)", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0))));
 																														configurationPanel.add(delayAfterStartTextField);
-																														
-																																writeConfigsButton = new JButton("Write Configurations");
-																																writeConfigsButton.setToolTipText("Sends new test configurations to the module");
-																																writeConfigsButton.setEnabled(false);
-																																writeConfigsButton.setBorder(null);
-																																writeConfigsButton.addActionListener(new ActionListener() {
-																																	public void actionPerformed(ActionEvent arg0) {
-																																		writeButtonHandler();
-																																	}
-																																});
 																																
 																																		getCurrentConfigurationsButton = new JButton("Get Current Configurations");
 																																		getCurrentConfigurationsButton.setToolTipText("Reads and displays current module configurations on this tab");
@@ -2561,11 +2614,21 @@ public class AdvancedMode extends JFrame {
 																																				getConfigsHandler();
 																																			}
 																																		});
+																																				
+																																						writeConfigsButton = new JButton("Write Configurations");
+																																						writeConfigsButton.setToolTipText("Sends new test configurations to the module");
+																																						writeConfigsButton.setEnabled(false);
+																																						writeConfigsButton.setBorder(null);
+																																						writeConfigsButton.addActionListener(new ActionListener() {
+																																							public void actionPerformed(ActionEvent arg0) {
+																																								writeButtonHandler();
+																																							}
+																																						});
+																																						writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
+																																						configurationPanel.add(writeConfigsButton);
 																																		
 																																		
 																																				configurationPanel.add(getCurrentConfigurationsButton);
-																																				writeConfigsButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
-																																				configurationPanel.add(writeConfigsButton);
 				
 						JPanel readPanel = new JPanel();
 						readPanel.setToolTipText("");
@@ -2699,91 +2762,99 @@ public class AdvancedMode extends JFrame {
 						testRecordationPanel.setLayout(null);
 				
 				mpuCalibrationPanel = new JPanel();
-				mainTabbedPanel.addTab("MPU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
+				mainTabbedPanel.addTab("IMU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
 				mpuCalibrationPanel.setLayout(null);
 				
 				JLabel label = new JLabel("Accel");
 				label.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label.setBounds(152, 13, 39, 14);
+				label.setBounds(133, 197, 39, 14);
 				mpuCalibrationPanel.add(label);
 				
 				JLabel label_1 = new JLabel("X Axis");
 				label_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_1.setBounds(30, 36, 46, 14);
+				label_1.setBounds(30, 223, 46, 14);
 				mpuCalibrationPanel.add(label_1);
 				
 				JLabel label_2 = new JLabel("Y Axis");
 				label_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_2.setBounds(30, 72, 46, 14);
+				label_2.setBounds(30, 259, 46, 14);
 				mpuCalibrationPanel.add(label_2);
 				
 				JLabel label_3 = new JLabel("Z Axis");
 				label_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_3.setBounds(30, 103, 46, 14);
+				label_3.setBounds(30, 297, 46, 14);
 				mpuCalibrationPanel.add(label_3);
 				
 				JLabel label_4 = new JLabel("Gyro");
 				label_4.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_4.setBounds(293, 11, 39, 18);
+				label_4.setBounds(293, 195, 39, 18);
+				label_4.setVisible(false);
 				mpuCalibrationPanel.add(label_4);
 				
 				JLabel label_5 = new JLabel("Mag");
 				label_5.setFont(new Font("Tahoma", Font.PLAIN, 14));
-				label_5.setBounds(441, 13, 31, 18);
+				label_5.setBounds(443, 195, 31, 18);
+				label_5.setVisible(false);
 				mpuCalibrationPanel.add(label_5);
 				
 				xAxisAccelTextField = new JTextField();
 				xAxisAccelTextField.setEditable(false);
 				xAxisAccelTextField.setColumns(10);
-				xAxisAccelTextField.setBounds(124, 35, 86, 20);
+				xAxisAccelTextField.setBounds(105, 222, 86, 20);
 				mpuCalibrationPanel.add(xAxisAccelTextField);
 				
 				xAxisGyroTextField = new JTextField();
 				xAxisGyroTextField.setEditable(false);
 				xAxisGyroTextField.setColumns(10);
-				xAxisGyroTextField.setBounds(267, 36, 86, 20);
+				xAxisGyroTextField.setBounds(267, 222, 86, 20);
+				xAxisGyroTextField.setVisible(false);
 				mpuCalibrationPanel.add(xAxisGyroTextField);
 				
 				xAxisMagTextField = new JTextField();
 				xAxisMagTextField.setEditable(false);
 				xAxisMagTextField.setColumns(10);
-				xAxisMagTextField.setBounds(414, 37, 86, 20);
+				xAxisMagTextField.setBounds(414, 258, 86, 20);
+				xAxisMagTextField.setVisible(false);
 				mpuCalibrationPanel.add(xAxisMagTextField);
 				
 				yAxisAccelTextField = new JTextField();
 				yAxisAccelTextField.setEditable(false);
 				yAxisAccelTextField.setColumns(10);
-				yAxisAccelTextField.setBounds(124, 71, 86, 20);
+				yAxisAccelTextField.setBounds(105, 258, 86, 20);
 				mpuCalibrationPanel.add(yAxisAccelTextField);
 				
 				yAxisGyroTextField = new JTextField();
 				yAxisGyroTextField.setEditable(false);
 				yAxisGyroTextField.setColumns(10);
-				yAxisGyroTextField.setBounds(267, 72, 86, 20);
+				yAxisGyroTextField.setBounds(267, 258, 86, 20);
+				yAxisGyroTextField.setVisible(false);
 				mpuCalibrationPanel.add(yAxisGyroTextField);
 				
 				yAxisMagTextField = new JTextField();
 				yAxisMagTextField.setEditable(false);
 				yAxisMagTextField.setColumns(10);
-				yAxisMagTextField.setBounds(414, 73, 86, 20);
+				yAxisMagTextField.setBounds(414, 296, 86, 20);
+				yAxisMagTextField.setVisible(false);
 				mpuCalibrationPanel.add(yAxisMagTextField);
 				
 				zAxisAccelTextField = new JTextField();
 				zAxisAccelTextField.setEditable(false);
 				zAxisAccelTextField.setColumns(10);
-				zAxisAccelTextField.setBounds(124, 102, 86, 20);
+				zAxisAccelTextField.setBounds(105, 296, 86, 20);
 				mpuCalibrationPanel.add(zAxisAccelTextField);
 				
 				zAxisGyroTextField = new JTextField();
 				zAxisGyroTextField.setEditable(false);
 				zAxisGyroTextField.setColumns(10);
-				zAxisGyroTextField.setBounds(267, 102, 86, 20);
+				zAxisGyroTextField.setBounds(267, 296, 86, 20);
+				zAxisGyroTextField.setVisible(false);
 				mpuCalibrationPanel.add(zAxisGyroTextField);
 				
 				zAxisMagTextField = new JTextField();
 				zAxisMagTextField.setEditable(false);
 				zAxisMagTextField.setColumns(10);
-				zAxisMagTextField.setBounds(414, 104, 86, 20);
+				zAxisMagTextField.setBounds(414, 222, 86, 20);
+				zAxisMagTextField.setVisible(false);
 				mpuCalibrationPanel.add(zAxisMagTextField);
 				
 				JButton readOffsetsBtn = new JButton("Read Offsets");
@@ -2823,18 +2894,18 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				readOffsetsBtn.setBounds(10, 133, 605, 23);
+				readOffsetsBtn.setBounds(10, 322, 605, 23);
 				mpuCalibrationPanel.add(readOffsetsBtn);
 				
 				JLabel label_6 = new JLabel("CSV Location: ");
 				label_6.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				label_6.setBounds(10, 180, 89, 14);
+				label_6.setBounds(10, 49, 89, 14);
 				mpuCalibrationPanel.add(label_6);
 				
 				calibrationCSVTextField = new JTextField();
 				calibrationCSVTextField.setToolTipText("Use the browse button to select the  calibration test you have run. This will calculate the IMU offsets for your module.");
 				calibrationCSVTextField.setColumns(10);
-				calibrationCSVTextField.setBounds(109, 178, 407, 20);
+				calibrationCSVTextField.setBounds(93, 47, 407, 20);
 				mpuCalibrationPanel.add(calibrationCSVTextField);
 				
 				JButton calibrationBtn = new JButton("Calibrate");
@@ -2857,31 +2928,31 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				calibrationBtn.setBounds(10, 250, 605, 95);
+				calibrationBtn.setBounds(10, 86, 605, 95);
 				mpuCalibrationPanel.add(calibrationBtn);
 				
 				readBlockLengthTextField = new JTextField();
 				readBlockLengthTextField.setToolTipText("Length of samples to average.");
 				readBlockLengthTextField.setText("500");
 				readBlockLengthTextField.setColumns(10);
-				readBlockLengthTextField.setBounds(134, 219, 39, 20);
+				readBlockLengthTextField.setBounds(133, 12, 39, 20);
 				mpuCalibrationPanel.add(readBlockLengthTextField);
 				
-				JLabel lblRollingBlockLength = new JLabel("Rolling block length:");
+				JLabel lblRollingBlockLength = new JLabel("Rolling Block Length:");
 				lblRollingBlockLength.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				lblRollingBlockLength.setBounds(10, 221, 114, 14);
+				lblRollingBlockLength.setBounds(10, 14, 114, 14);
 				mpuCalibrationPanel.add(lblRollingBlockLength);
 				
-				JLabel lblStandardDeviationMax = new JLabel("Standard deviation max: ");
+				JLabel lblStandardDeviationMax = new JLabel("Standard Deviation Max: ");
 				lblStandardDeviationMax.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				lblStandardDeviationMax.setBounds(315, 221, 136, 14);
+				lblStandardDeviationMax.setBounds(364, 14, 136, 14);
 				mpuCalibrationPanel.add(lblStandardDeviationMax);
 				
 				stdDevMaxTextField = new JTextField();
 				stdDevMaxTextField.setToolTipText("Highest standard deviation to consider a rolling block average  for offset calculation.");
 				stdDevMaxTextField.setText("15");
 				stdDevMaxTextField.setColumns(10);
-				stdDevMaxTextField.setBounds(461, 219, 39, 20);
+				stdDevMaxTextField.setBounds(510, 12, 39, 20);
 				mpuCalibrationPanel.add(stdDevMaxTextField);
 				
 				JSeparator separator_3 = new JSeparator();
@@ -2908,7 +2979,7 @@ public class AdvancedMode extends JFrame {
 						}
 					}
 				});
-				btnNewButton.setBounds(526, 177, 89, 20);
+				btnNewButton.setBounds(510, 47, 89, 20);
 				mpuCalibrationPanel.add(btnNewButton);
 		
 				JPanel calibrationPanel = new JPanel();
@@ -2991,20 +3062,25 @@ public class AdvancedMode extends JFrame {
 																						calibrationPanel.add(applyOffsetButton);
 		
 		launcherPane = new JPanel();
-		mainTabbedPanel.addTab("Graph", null, launcherPane, "Graph and media-player launchers");
+		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
 		launcherPane.setLayout(null);
-		
-		graphLauncherBtn = new JButton("Graph");
+
+		graphLauncherBtn = new JButton("Launch Application");
 		graphLauncherBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("test");
+
 				Platform.setImplicitExit(false);
 				Platform.runLater(new Runnable() {
 					@Override
 					public void run() {
+						System.out.println("graphlauncherbutton");
 						lineGraph = startGraphing();
+						
 						//shareFrameGraphAndMedia(lineGraph, mediaController);
 					}
 				});
+
 			}
 		});
 		graphLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
@@ -3031,7 +3107,7 @@ public class AdvancedMode extends JFrame {
 		
 		panel9 = new JPanel();
 		panel9.setToolTipText("");
-		mainTabbedPanel.addTab("Spreadsheet Output", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
+		mainTabbedPanel.addTab("Excel Graph", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
 		
 		templateComboBox = new JComboBox();
 		templateComboBox.setToolTipText("Select the template. To put data in.");
@@ -3039,7 +3115,7 @@ public class AdvancedMode extends JFrame {
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\").listFiles();
+				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\Advanced Templates\\").listFiles();
 				for(File file : listOfFiles) {
 					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
 						templateComboBox.addItem(file.getName());	
@@ -3055,8 +3131,9 @@ public class AdvancedMode extends JFrame {
 		panel9.add(lblSelectTheTemplate);
 		panel9.add(templateComboBox);
 		
-		JButton createTemplateBtn = new JButton("Create One Module Template");
-		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		JButton createTemplateBtn = new JButton("Create 'Single-Module' Graph");
+		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		createTemplateBtn.setToolTipText("Generate the template with data.");
 		createTemplateBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JDialog dialog = new JDialog();
@@ -3069,7 +3146,7 @@ public class AdvancedMode extends JFrame {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
 
-					new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
+					//new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
 					try {
 						Thread.sleep(3000);
 					} catch (InterruptedException e) {
@@ -3077,14 +3154,20 @@ public class AdvancedMode extends JFrame {
 						e.printStackTrace();
 					}
 					dialog.dispose();
+
+					generalStatusLabel.setText("Data successfully written to template");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(51, 204, 51));
 				}
 			}
 		});
+
 		createTemplateBtn.setBounds(10, 65, 302, 269);
 		panel9.add(createTemplateBtn);
 		
-		JButton btnCreateTwoModule = new JButton("Create Two Module Template");
-		createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		JButton btnCreateTwoModule = new JButton("Create 'Two-Module' Graph");
+		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
+		createTemplateBtn.setToolTipText("Generate the template with data.");
 		btnCreateTwoModule.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			
@@ -3098,7 +3181,7 @@ public class AdvancedMode extends JFrame {
 					Settings settings = new Settings();
 					settings.loadConfigFile();
 
-					new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
+					//new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
 
 					try {
 						Thread.sleep(3000);
@@ -3107,6 +3190,10 @@ public class AdvancedMode extends JFrame {
 						e.printStackTrace();
 					}
 					dialog.dispose();
+
+					generalStatusLabel.setText("Data successfully written to template");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(51, 204, 51));
 				}
 			}
 		});
@@ -3117,6 +3204,7 @@ public class AdvancedMode extends JFrame {
 		
 		JCheckBox hideWindowChckbx = new JCheckBox("Hide Excel Window");
 		hideWindowChckbx.setBounds(500, 23, 115, 23);
+		hideWindowChckbx.setVisible(false); //Hide Excel Window checkbox is currently not used for anything
 		panel9.add(hideWindowChckbx);
 		
 		hideWindowChckbx.addActionListener(new ActionListener() {

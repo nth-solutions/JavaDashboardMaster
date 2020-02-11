@@ -1,5 +1,6 @@
 package dataorganizer;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -31,7 +32,6 @@ public class DashboardSelectorController implements Initializable {
 
     @FXML
     private void launchAdvanced(){
-
         closeWindow();
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -39,6 +39,12 @@ public class DashboardSelectorController implements Initializable {
         catch(Exception e) {
             System.out.println("Error Setting Look and Feel: " + e);
         }
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//            }
+//        });
         Runnable frameRunner = new Runnable() {
             public void run() {
                 try {
@@ -51,13 +57,11 @@ public class DashboardSelectorController implements Initializable {
         };
         Thread frameThread = new Thread(frameRunner);
         frameThread.run();
-
     }
 
     @FXML
     public void launchEducator(){
         educator = startEducator();
-
     }
 
 

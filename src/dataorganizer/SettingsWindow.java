@@ -117,7 +117,7 @@ public class SettingsWindow extends JFrame {
 		ArrayList<String> profileList = new ArrayList<String>();
 		profileList.add("Adventurer");
 		profileList.add("Educator");
-		profileList.add("Professional");
+		profileList.add("Advanced");
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		contentPane.add(tabbedPane, "name_759004656281180");
@@ -177,12 +177,14 @@ public class SettingsWindow extends JFrame {
 		
 		JLabel lblNewLabel = new JLabel("Profile:");
 		lblNewLabel.setBounds(12, 102, 75, 14);
+		lblNewLabel.setVisible(false); //This label is for the combo box below that is currently not being used.
 		directorySaveLocations.add(lblNewLabel);
 		
 		profileComboBox = new JComboBox();
-		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Professional", "Educator"}));
+		profileComboBox.setModel(new DefaultComboBoxModel(new String[] {"Advanced", "Educator"}));
 		profileComboBox.setBounds(97, 99, 106, 20);
 		directorySaveLocations.add(profileComboBox);
+		profileComboBox.setVisible(false); //This combo box is currently not used for anything.
 		
 		updateUI();
 	}

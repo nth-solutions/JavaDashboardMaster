@@ -48,10 +48,10 @@ public class HelpMenuController implements Initializable{
 		tabIndexList.put(2, "Configure Test Parameters");
 		tabIndexList.put(3, "Read Tests");
 		tabIndexList.put(4, "Stored Tests");
-		tabIndexList.put(5, "MPU Calibration");
+		tabIndexList.put(5, "IMU Calibration");
 		tabIndexList.put(6, "SINC Calibration ");
-		tabIndexList.put(7, "Graph");
-		tabIndexList.put(8, "Spreadsheet Output");
+		tabIndexList.put(7, "Java Graph");
+		tabIndexList.put(8, "Excel Graph");
 		tabIndexList.put(9, "Admin");
 
 	}
@@ -146,8 +146,8 @@ public class HelpMenuController implements Initializable{
 						"\t•\tVideo Opacity – Change the opacity of the video\n");
 				break;
 			case 8:
-				BullitizedStepsLabel.setText("1)\tSelect template from dropdown menu\n" +
-						"2)\tSelect either the “Create One Module Template” or the “Create Two Module Template” button\n");
+				BullitizedStepsLabel.setText("1)\tSelect template use wish to populate with data from the dropdown menu\n" +
+						"2)\tSelect either the “Create One Module Template” or the “Create Two Module Template” button\n"+"\t\uF0A7 If you are using one module, the CSV you wish to extract data from should \n\t be named 'Module 1' (no quotes)\n"+"\t\uF0A7 If you are using two modules, one CSV should be named Module 1 and the \n\t other should be named Module 2\n");
 				DSPageTab.setDisable(true);
 				break;
 			case 9:
