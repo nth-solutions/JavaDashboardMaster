@@ -1416,8 +1416,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                     generalStatusExperimentLabel.setText("Data successfully written");
                                                     generalStatusExperimentLabel.setTextFill(Color.GREEN);
                                                 });
-
-                                            }
+                                            }//end if
                                         }
                                         dataOrgo.getSignedData();
 
@@ -2198,11 +2197,17 @@ public class EducatorModeControllerFX implements Initializable {
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
-                    } else if (testType == "Generic (Two Modules) Template"){
+                    } else if (testType == "Generic Template - Two Modules"){
+
+                        System.out.println("Generic (Two Modules) Template prior to writing");
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
+
                     }
                     parameterSpreadsheetController.saveWorkbook(path);
+                    System.out.println("Prior to Printing RawDataSamples");
+                    System.out.println(dataOrgo.getRawDataSamples());
+                    System.out.println(dataOrgo.getRawDataSamples());
                     System.out.println("is");
                     generalStatusExperimentLabel.setText("Data Successfully Written");
                 }catch(Exception e) {
