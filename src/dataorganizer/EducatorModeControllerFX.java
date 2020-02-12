@@ -1943,7 +1943,9 @@ public class EducatorModeControllerFX implements Initializable {
                                     dataOrgo.createDataSmpsRawData(finalData);
                                     dataOrgo.getSignedData();
 
-
+                                    dataOrgo.setName("Module 1 " + dataOrgo.getName());
+                                    dataOrgo.createCSV(false, false);
+                                    dataOrgo.createCSVP();
                                     Platform.runLater( () -> {
                                         generalStatusExperimentLabel.setText("Data successfully Read From Module 1");
                                         generalStatusExperimentLabel.setTextFill(Color.GREEN);
@@ -2089,6 +2091,10 @@ public class EducatorModeControllerFX implements Initializable {
                                     dataOrgoTwo.getSignedData();
                                     dataOrgoTwo.getTestParameters();
                                     dataOrgoTwo.getMPUMinMax();
+
+                                    dataOrgoTwo.setName("Module 2 "+ dataOrgoTwo.getName());
+                                    dataOrgoTwo.createCSV(false, false);
+                                    dataOrgoTwo.createCSVP();
 
                                     Platform.runLater( () -> {
                                         generalStatusExperimentLabel.setText("Data successfully Read From Module 2");
@@ -2402,7 +2408,17 @@ public class EducatorModeControllerFX implements Initializable {
             lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
             lineGraph.loadConservationOfMomentumTemplate();
 
-        }else {
+        }else if (testType == "Generic Template - Two Modules") {
+            System.out.println("launchMotionVisualizationExperimentTab Generic Template - Two Modules reached");
+            String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+            lineGraph = startGraphing();
+            lineGraph.setCsvFilePath(pathTofile);
+            lineGraph.loadCSVData();
+            pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgoTwo.getName();
+            lineGraph.setCsvFilePath(pathTofile);
+            lineGraph.loadCSVData();
+
+        }else{
             String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);

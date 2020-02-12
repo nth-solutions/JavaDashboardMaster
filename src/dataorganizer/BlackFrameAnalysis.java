@@ -33,8 +33,7 @@ public class BlackFrameAnalysis {
 		for(int i = 1; i < 3; i++) {			//Loop sets i == 1; then 1 == 2, while i == 1 FFMPEG checks for the last black frame before light turns on; while 1 == 2 ffMPEG checks for first black frame after light turns off
 			Process ffmpeg = Runtime.getRuntime().exec(cmdWrapper(videoFilePath, i));                                                               //get runtime variable to execute command line
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(ffmpeg.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
-			String lineText;                                                                                                       //will store the command line outputs   
-
+			String lineText;                                                                                                       //will store the command line outputs
 			while ((lineText = stdError.readLine()) != null) { 		//Read until end of time length
 				//If line contains the string "[P"
 				if(lineText.substring(0,2).equals("[P")){
