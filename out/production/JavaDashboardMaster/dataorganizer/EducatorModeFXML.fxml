@@ -1093,6 +1093,21 @@
                                                 </Label>
                                              </children>
                                           </HBox>
+                                          <Label prefHeight="26.0" prefWidth="470.0" text="Prior to Starting: 1) Establish and Test Bluetooth connection between" textFill="#43cc4c">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="26.0" prefWidth="470.0" text="Device and Remote; 2) Erase Module, then 3) Pair Remote and Module" textFill="#43cc4c">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
+                                          <Label prefHeight="26.0" prefWidth="470.0" textFill="#1f78d1">
+                                             <font>
+                                                <Font name="System Bold" size="14.0" />
+                                             </font>
+                                          </Label>
                                           <Label prefHeight="26.0" prefWidth="470.0" text="1. Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
@@ -1100,7 +1115,7 @@
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="339.0" text="Configure Module for SINC Calibration" />
+                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="25.0" prefWidth="339.0" text="Configure Module for SINC Calibration" />
                                              </children>
                                           </HBox>
                                           <Label prefHeight="21.0" prefWidth="469.0" text="2. Disconnect the Module, then follow SINC Calibration Instructions." textFill="#1f78d1">
@@ -1108,7 +1123,7 @@
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#launchSINCCalibrationHelpMenu" prefHeight="30.0" prefWidth="339.0" text="Open SINC Calibration Instructions" />
+                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#launchSINCCalibrationHelpMenu" prefHeight="25.0" prefWidth="339.0" text="Open SINC Calibration Instructions" />
                                           <Label prefHeight="23.0" prefWidth="468.0" text="3. Select the Video File of the Calibration" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
@@ -1127,7 +1142,7 @@
                                           </Label>
                                           <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton11" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Module" />
+                                                <Button fx:id="importCalibrationDataButton11" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="25.0" prefWidth="337.0" text="Apply SINC Configurations to Module" />
                                              </children>
                                           </HBox>
                                           <Label prefHeight="20.0" prefWidth="472.0" text="5a. For 2 modules, unplug first module; connect second module" textFill="#1f78d1">
@@ -1135,15 +1150,15 @@
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" />
+                                          <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="25.0" prefWidth="336.0" text="Establish Connection to Second Module" />
                                           <Label prefHeight="24.0" prefWidth="471.0" text="5b. Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                          <HBox alignment="CENTER" prefHeight="40.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton111" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Second Module" />
+                                                <Button fx:id="importCalibrationDataButton111" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="25.0" prefWidth="337.0" text="Apply SINC Configurations to Second Module" />
                                              </children>
                                           </HBox>
                                           <Label prefHeight="22.0" prefWidth="469.0" text="6. Erase the Module(s). You are then ready to proceed to experiment." textFill="#1f78d1">

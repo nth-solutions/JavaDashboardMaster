@@ -805,12 +805,13 @@ public class GraphController implements Initializable {
                 });
             }
         } else {
+            System.out.println("NumDataSets =/= 0");
             for (final DataSeries axisOfDataSeries : dataSeriesTwo) {
                 dataSourceTitledPaneTwo.setDisable(false);
                 dataSourceTitledPaneTwo.setExpanded(true);
                 final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(axisOfDataSeries.getName());
                 dataToDisplayCheckBoxTwo.setSelected(false);
-                if (axisOfDataSeries.dof == 1) dataToDisplayCheckBoxTwo.setSelected(true);
+                if (axisOfDataSeries.dof == 1) dataToDisplayCheckBoxTwo.setSelected(false);
                 dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
                 // Line line = new Line(0, 10, 50, 10);
 

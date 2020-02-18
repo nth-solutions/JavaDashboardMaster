@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.SINCCalibrationHelpMenuController">
+<AnchorPane prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.SINCCalibrationHelpMenuController">
    <children>
       <VBox prefHeight="800.0" prefWidth="1000.0" AnchorPane.topAnchor="25.0">
          <children>
-            <Label prefHeight="45.0" prefWidth="1023.0" text="Place the Module inside the SINC Calibration box where indicated, close the box" textFill="#1f78d1">
+            <Label alignment="CENTER" prefHeight="45.0" prefWidth="1000.0" text="Calibration Steps" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1023.0" text="Place the Module inside the SINC Calibration Box where indicated, close the Box" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -18,7 +28,7 @@
                   <Insets left="50.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1000.0" text="- Module Board LED's Will be flashing" textFill="#1f78d1">
+            <Label prefHeight="45.0" prefWidth="1000.0" text="- Module Board LED's will be flashing" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -34,7 +44,7 @@
                   <Insets left="50.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1021.0" text="Center the Device's camera over the hole in the box" textFill="#1f78d1">
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Center the Device's camera over the hole in the Box" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -50,7 +60,7 @@
                   <Insets left="75.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1021.0" text="Press Remote button which corresponds to your device (iOS/Android)" textFill="#1f78d1">
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Press the Remote button which corresponds to your device (iOS/Android)" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -58,7 +68,7 @@
                   <Insets left="50.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1021.0" text="- Your Device's camera will start will start recoreding, and the lights of the module will turn a solid red" textFill="#1f78d1">
+            <Label prefHeight="45.0" prefWidth="1021.0" text="- Your Device's camera will start recording, and the lights of the module will turn solid red" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -66,7 +76,7 @@
                   <Insets left="75.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1021.0" text="Wait approximately 2 (two) minutes until the Module's lights start flashing again (no longer solid red)" textFill="#1f78d1">
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Wait approximately two (2) minutes until the Module's lights start flashing again (no longer solid red)" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -74,15 +84,25 @@
                   <Insets left="50.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1021.0" text="Manually stop the Device's video (do NOT use the remote)" textFill="RED">
+            <Label alignment="CENTER" prefHeight="45.0" prefWidth="1035.0" text="Manually stop the Device's video (DO NOT use the Remote)" textFill="RED">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
                <VBox.margin>
-                  <Insets left="50.0" />
+                  <Insets />
                </VBox.margin>
             </Label>
-            <Label prefHeight="45.0" prefWidth="1021.0" text="Connect your Device to the computer" textFill="#1f78d1">
+            <Label prefHeight="12.0" prefWidth="1000.0" textFill="RED">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label alignment="CENTER" prefHeight="45.0" prefWidth="1021.0" text="File Transfers" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label prefHeight="45.0" prefWidth="1021.0" text="Connect your Device to the computer with a USB Cable*" textFill="#1f78d1">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -106,7 +126,7 @@
                   <Insets left="75.0" />
                </VBox.margin>
             </Label>
-            <Label prefHeight="28.0" prefWidth="1021.0" text="Reconnect the Module to the Computer" textFill="RED">
+            <Label prefHeight="28.0" prefWidth="1021.0" text="Reconnect the Module to the Computer" textFill="#02ff00">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
@@ -121,6 +141,11 @@
                <VBox.margin>
                   <Insets left="50.0" />
                </VBox.margin>
+            </Label>
+            <Label alignment="CENTER" prefHeight="45.0" prefWidth="1021.0" text="*Do not use wireless transfer methods as the file size may cause excessive delays" textFill="#1f78d1">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
             </Label>
          </children>
       </VBox>

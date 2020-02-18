@@ -70,7 +70,6 @@ public class BlackFrameAnalysis {
 		return (int) Math.round(tmr0Adj);		//Rounds fraction to an integer
 	}
 
-	
 	public int getTMR0Offset(int a, int b) {
 		double timeError =  (double)((a - b) - (lengthOfTest * videoFPS)) *  T_INTERVAL;  //Error in seconds; formula = (Actual - Expected) * (period); Amount of frames off times period equals error in seconds
 		//System.out.println(timeError);
