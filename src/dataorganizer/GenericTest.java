@@ -3,16 +3,20 @@ package dataorganizer;
 import java.util.Dictionary;
 import java.util.List;
 
+import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
+
 public class GenericTest {
 	
 	private DataOrganizer dataOrg;
-	private Dictionary<Integer, String> axesDict;
+	//private Dictionary<Integer, String> axesDict;
 	private List<AxisDataSeries> axes;
 	
 	public GenericTest(DataOrganizer d) {
 		
 		this.dataOrg = d;
 		
+		/*
 		axesDict.put(0, "Time");
 		axesDict.put(1, "Accel X");
 		axesDict.put(2, "Accel Y");
@@ -23,16 +27,19 @@ public class GenericTest {
 		axesDict.put(7, "Mag X");
 		axesDict.put(8, "Mag Y");
 		axesDict.put(9, "Mag Z");
+		*/
 
 		for (int i = 1; i < 10; i++) {
-			axes.add(new AxisDataSeries(d.getTimeAxis(), d.getDataSamples().get(i), axesDict.get(i)));
+			axes.add(new AxisDataSeries(d.getTimeAxis(), d.getDataSamples().get(i), Axis.valueOf(i)));
 		}
 		
 	}
 	
 	// TODO replace void with return type of vector data
 	
-	public void getAccel(String axis) {}
+	public ObservableList<XYChart.Series<Number,Number>> getAccel(Axis axis) {
+		return axes.get(axis.getValue()).createSeries();
+	}
 	public void getVel(String axis) {}
 	public void getPos(String axis) {}
 	public void getMagnitudeAccel() {}

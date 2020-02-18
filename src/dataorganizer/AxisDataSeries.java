@@ -15,13 +15,13 @@ public class AxisDataSeries {
 	private List<Double> data;
 	private Dictionary<String, Integer> axes;
 	
-	private String axis;
+	private Axis axis;
 	
 	// TODO rename for clarity
 	// flags whether graph should be drawn
 	private boolean isActive;
 	
-	public AxisDataSeries(List<Double> time, List<Double> data, String axis) {
+	public AxisDataSeries(List<Double> time, List<Double> data, Axis axis) {
 		
 		this.time = time;
 		this.data = data;
@@ -38,9 +38,9 @@ public class AxisDataSeries {
             seriesData.add(new XYChart.Data<>(time.get(i), data.get(i)));
         }
 
-        series.setName(axis);
+        series.setName(axis.toString());
         series.setData(seriesData);
-
+ 
         return FXCollections.observableArrayList(Collections.singleton(series));
     }
 	
@@ -61,7 +61,6 @@ public class AxisDataSeries {
 	}
 	
 	public Double getSlope(Double time) {
-		
 		Double slope = 0d;
 		return slope;
 	}
