@@ -9,3 +9,4 @@ bin/jre1.8.0_161
 .idea/workspace.xml
 DataOrganizer.prop
 JavaDashboardMaster.iml
+out/*

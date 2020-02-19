@@ -330,7 +330,7 @@ public class EducatorModeControllerFX implements Initializable {
             e.printStackTrace();
         }
 
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("Education Mode Help Menu");
         primaryStage.show();
