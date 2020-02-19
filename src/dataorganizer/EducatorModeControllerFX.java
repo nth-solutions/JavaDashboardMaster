@@ -27,6 +27,7 @@ import java.util.concurrent.FutureTask;
 
 public class EducatorModeControllerFX implements Initializable {
 
+    //Out Files Deleted before push
     //Test Parameter Variables and Constants
     public static final int NUM_TEST_PARAMETERS = 13;
     public static final int NUM_ID_INFO_PARAMETERS = 3;
