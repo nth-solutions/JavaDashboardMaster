@@ -3,7 +3,7 @@ package dataorganizer;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Axis {
+public enum AxisType {
 	
 	Time(0),
 	AccelX(1),
@@ -17,20 +17,20 @@ public enum Axis {
 	MagZ(9);
 	
 	private int value;
-	private static Map map = new HashMap();
+	private static Map<Integer, AxisType> map = new HashMap<Integer, AxisType>();
 	
-	private Axis(int value) {
+	private AxisType(int value) {
 		this.value = value;
 	}
 	
 	static {
-		for (Axis a : Axis.values()) {
+		for (AxisType a : AxisType.values()) {
 			map.put(a.value, a);
 		}
 	}
 	
-	public static Axis valueOf(int i) {
-		return (Axis) map.get(i);
+	public static AxisType valueOf(int i) {
+		return (AxisType) map.get(i);
 	}
 	
 	public int getValue() {

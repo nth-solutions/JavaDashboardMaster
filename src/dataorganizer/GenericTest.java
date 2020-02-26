@@ -15,40 +15,27 @@ public class GenericTest {
 	public GenericTest(DataOrganizer d) {
 		
 		this.dataOrg = d;
-		
-		/*
-		axesDict.put(0, "Time");
-		axesDict.put(1, "Accel X");
-		axesDict.put(2, "Accel Y");
-		axesDict.put(3, "Accel Z");
-		axesDict.put(4, "Gyro X");
-		axesDict.put(5, "Gyro Y");
-		axesDict.put(6, "Gyro Z");
-		axesDict.put(7, "Mag X");
-		axesDict.put(8, "Mag Y");
-		axesDict.put(9, "Mag Z");
-		*/
 
 		for (int i = 1; i < 10; i++) {
-			axes.add(new AxisDataSeries(d.getTimeAxis(), d.getDataSamples().get(i), Axis.valueOf(i)));
+			axes.add(new AxisDataSeries(d.getTimeAxis(), d.getDataSamples().get(i), AxisType.valueOf(i), d.getMPUOffsets(), d.accelSensitivity, d.gyroSensitivity));
 		}
 		
 	}
 	
-	// TODO replace void with return type of vector data
-	
-	public ObservableList<XYChart.Series<Number,Number>> getAccel(Axis axis) {
+	public ObservableList<XYChart.Series<Number,Number>> getAcc(AxisType axis) {
 		return axes.get(axis.getValue()).createSeries();
 	}
-	public void getVel(String axis) {}
-	public void getPos(String axis) {}
+	
+	public void getVel(AxisType axis) {}
+	public void getPos(AxisType axis) {}
 	public void getMagnitudeAccel() {}
 	public void getMagnitudeGyro() {}
 	
-	public void getAngularAccel(String axis) {}
-	public void getAngularVel(String axis) {}
-	public void getAngularPos(String axis) {}
+	public void getAngularAccel(AxisType axis) {}
+	public void getAngularVel(AxisType axis) {}
+	public void getAngularPos(AxisType axis) {}
 	
-	public void getMag(String axis) {}
+	public void getMag(AxisType axis) {}
 	
+
 }
