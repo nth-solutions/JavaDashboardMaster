@@ -1,6 +1,5 @@
 package dataorganizer;
 
-import java.util.Dictionary;
 import java.util.List;
 
 import javafx.collections.ObservableList;
@@ -9,7 +8,6 @@ import javafx.scene.chart.XYChart;
 public class GenericTest {
 	
 	private DataOrganizer dataOrg;
-	//private Dictionary<Integer, String> axesDict;
 	private List<AxisDataSeries> axes;
 	
 	public GenericTest(DataOrganizer d) {
