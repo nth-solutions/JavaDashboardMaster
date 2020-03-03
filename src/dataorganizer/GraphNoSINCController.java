@@ -41,7 +41,7 @@ public class GraphNoSINCController implements Initializable {
 		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
 		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();									// setup new array list for samples data
 		
-		int resolution = 1920;																			//the interval between data points to take for graph  -- GREATLY SPEEDS UP DISPLAY TIME, NO DATA IS LOST
+		int resolution = 160;																			//the interval between data points to take for graph  -- GREATLY SPEEDS UP DISPLAY TIME, NO DATA IS LOST
 		
 		for(int i = 0; i < timeData.size(); i+= resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
 			cleanTimeData.add(timeData.get(i));

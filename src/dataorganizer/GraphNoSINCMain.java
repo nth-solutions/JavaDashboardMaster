@@ -24,12 +24,15 @@ public class GraphNoSINCMain extends Application {
         controller = loader.getController();
         
         primaryStage.setTitle("BioForce Experiment Graph");
-        Scene scene = new Scene(root, 690, 500);
+        Scene scene = new Scene(root);
+       
+        primaryStage.setMinWidth(400);
+        primaryStage.setMinHeight(400);
         primaryStage.setScene(scene);
         //scene.getStylesheets().add(getClass().getResource("EducatorModeCSS.css").toExternalForm());
         primaryStage.show();
         
-        primaryStage.setResizable(false);
+        primaryStage.setResizable(true);
 
         
         controller.createSeries(testDataTime, testDataSamples);
