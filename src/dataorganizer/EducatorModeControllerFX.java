@@ -2459,9 +2459,9 @@ public class EducatorModeControllerFX implements Initializable {
             e.printStackTrace();
         }
 
-        if(root!=null) primaryStage.setScene(new Scene(root, 1400, 800));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1320, 730));
 
-        primaryStage.setTitle("Graph");
+        primaryStage.setTitle("Java Graph");
         primaryStage.show();
         primaryStage.setResizable(false);
 
