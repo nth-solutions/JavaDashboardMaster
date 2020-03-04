@@ -652,6 +652,11 @@ public class DataOrganizer {
 	}
 	
 	public int[] getMPUOffsets() {
+		
+		// this length of 9 is unnecessary
+		// only 3 entries are being used, 0-2
+		// 0: Accel X offet, 1: Accel Y offset, 2: Accel Z offset
+		
 		int[] mpuOffsets = new int[9];
 		for(int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
