@@ -26,7 +26,7 @@ public class GraphNoSINCMain extends Application {
         primaryStage.setTitle("BioForce Experiment Graph");
         Scene scene = new Scene(root);
        
-        primaryStage.setMinWidth(400);
+        primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(400);
         primaryStage.setScene(scene);
         //scene.getStylesheets().add(getClass().getResource("EducatorModeCSS.css").toExternalForm());
