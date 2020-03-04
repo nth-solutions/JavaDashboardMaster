@@ -1,6 +1,7 @@
 package dataorganizer;
 
 import com.aspose.cells.*;
+import sun.awt.OSInfo;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class ParameterSpreadsheetController {
     private Boolean educationTemplateFound;
 
     public ParameterSpreadsheetController(String FilePath) {
+        OSManager osManager = new OSManager();
 
         if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template to use and where to get it from
 
@@ -55,7 +57,7 @@ public class ParameterSpreadsheetController {
             else if(testType == "Generic Template - Two Modules"){
                 testTypeFileName = "Generic (Two Modules) Template.xlsx";
             }
-            documentsPath = System.getProperty("user.home") + "\\.BioForce Dashboard\\Educator Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
+                documentsPath = System.getProperty("user.home") + "\\_BioForce Dashboard\\Educator Templates\\" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
             try {
                 this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
                 educationTemplateFound = true;

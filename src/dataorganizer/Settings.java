@@ -30,11 +30,11 @@ public class Settings {
 	//Loads saved configurations from DataOrganizer.prop
 	public void loadConfigFile(){				
 		try{
-			File SettingsDirectory = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\");
+			File SettingsDirectory = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\");
 			if(!SettingsDirectory.exists()) {
 				SettingsDirectory.mkdirs();
 			}
-			this.prop.load(new FileInputStream(System.getProperty("user.home")+"\\.BioForce Dashboard\\"+"DataOrganizer.prop"));
+			this.prop.load(new FileInputStream(System.getProperty("user.home")+"\\_BioForce Dashboard\\"+"DataOrganizer.prop"));
 		}catch(FileNotFoundException e) {
 			this.restoreDefaultConfig();
 		}catch(IOException e) {
@@ -50,11 +50,11 @@ public class Settings {
 	//saves configuration to DataOrganizer.prop file
 	public void saveConfig() {
 		try {
-			File SettingsDirectory = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\");
+			File SettingsDirectory = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\");
 			if(!SettingsDirectory.exists()) {
 				SettingsDirectory.mkdirs();
 			}
-			this.prop.store(new FileOutputStream(System.getProperty("user.home")+"\\.BioForce Dashboard\\"+"DataOrganizer.prop"), null);
+			this.prop.store(new FileOutputStream(System.getProperty("user.home")+"\\_BioForce Dashboard\\"+"DataOrganizer.prop"), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

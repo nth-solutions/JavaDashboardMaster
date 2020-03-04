@@ -253,6 +253,7 @@ public class AdvancedMode extends JFrame {
 	private JTextField readBlockLengthTextField;
 	private JTextField stdDevMaxTextField;
 	private JButton btnNewButton;
+
 	
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
@@ -1990,7 +1991,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public boolean writeTemplateWithOneDataSetHandler() {
-		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\_BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		Settings settings = new Settings();
 		settings.loadConfigFile();
 		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
@@ -2029,7 +2030,7 @@ public class AdvancedMode extends JFrame {
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
 
 		try {
-			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\_BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
 			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
 			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
 			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
@@ -2079,13 +2080,13 @@ public class AdvancedMode extends JFrame {
 		DataOrganizer dataOrgo = new DataOrganizer();
 		DataOrganizer dataOrgoTwo = new DataOrganizer();
 
-		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\_BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
 
 		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\_BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 //		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
 		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 0); //fills the data from the first module into the the first sheet of the workbook
 
@@ -3115,7 +3116,7 @@ public class AdvancedMode extends JFrame {
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\Advanced Templates\\").listFiles();
+				File[] listOfFiles = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\Advanced Templates\\").listFiles();
 				for(File file : listOfFiles) {
 					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
 						templateComboBox.addItem(file.getName());	
