@@ -5,16 +5,40 @@ import java.util.Map;
 
 public enum AxisType {
 	
-	Time(0),
-	AccelX(1),
-	AccelY(2),
-	AccelZ(3),
-	GyroX(4),
-	GyroY(5),
-	GyroZ(6),
-	MagX(7),
-	MagY(8),
-	MagZ(9);
+	AccelX(0),
+	AccelY(1),
+	AccelZ(2),
+	AccelMag(3),
+	
+	VelX(4),
+	VelY(5),
+	VelZ(6),
+	VelMag(7),
+	
+	DispX(8),
+	DispY(9),
+	DispZ(10),
+	DispMag(11),
+	
+	AngAccX(12),
+	AngAccY(13),
+	AngAccZ(14),
+	AngAccMag(15),
+	
+	AngVelX(16),
+	AngVelY(17),
+	AngVelZ(18),
+	AngVelMag(19),
+	
+	AngDispX(20),
+	AngDispY(21),
+	AngDispZ(22),
+	AngDispMag(23),
+	
+	MagnetX(24),
+	MagnetY(25),
+	MagnetZ(26),
+	MagnetMag(27);
 	
 	private int value;
 	private static Map<Integer, AxisType> map = new HashMap<Integer, AxisType>();

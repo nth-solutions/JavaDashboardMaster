@@ -29,7 +29,45 @@ public class AxisDataSeries {
 	// flags whether graph should be drawn
 	private boolean isActive;
 	
-	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int gyroSensitivity) {
+	/**
+	 * AxisDataSeries constructor for data NOT natively recorded by the module OR if it is from the magnetometer.
+	 * @param time
+	 * @param data
+	 * @param axis
+	 * @param signData
+	 */
+	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, boolean signData) {
+		
+		this.time = (Double[]) time.toArray();
+		this.originalData = (Double[]) data.toArray();
+		this.axis = axis;
+		
+		if (signData) {
+			
+			for (int i = 0; i < this.originalData.length; i++) {
+				
+				// convert raw data to signed data
+				if (this.originalData[i] > 32768) {
+					this.originalData[i] -= 65535;
+				}
+				
+			}
+			
+		}
+		
+		this.smoothedData = this.originalData;
+		
+	}
+	
+	/**
+	 * AxisDataSeries constructor for acceleration data.
+	 * @param time
+	 * @param data
+	 * @param axis
+	 * @param accelOffsets
+	 * @param accelSensitivity
+	 */
+	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity) {
 		
 		this.time = (Double[]) time.toArray();
 		this.originalData = (Double[]) data.toArray();
@@ -43,28 +81,49 @@ public class AxisDataSeries {
 			}
 			
 			// apply sensitivity for accel
-			if (axis.getValue() >= 1 && axis.getValue() <= 3) {
+			if (axis.getValue() >= 1 ) {
 				this.originalData[i] *= (double) accelSensitivity / 32768;
 			}
 			
-			// apply sensitivity for gyro
-			if (axis.getValue() >= 4 && axis.getValue() <= 6) {
-				this.originalData[i] *= (double) gyroSensitivity / 32768;
-			}
-			
-			// only apply offsets if AxisType is acceleration
-			if(axis.getValue() >= 1 && axis.getValue() <= 3) {		
-				
-				// subtract offsets (which are signed)
-				this.originalData[i] -= accelOffsets[i];
-				
-			}
+			// subtract offsets (which are signed)
+			// accel enum is 0-2 and offsets are 0-2 (X,Y,Z)
+			this.originalData[i] -= accelOffsets[axis.getValue()];
 			
 		}
 		
 		this.smoothedData = this.originalData;
 		
 	}
+
+	/**
+	 * AxisDataSeries constructor for gyroscope data.
+	 * @param time
+	 * @param data
+	 * @param axis
+	 * @param gyroSensitivity
+	 */
+	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int gyroSensitivity) {
+		
+		this.time = (Double[]) time.toArray();
+		this.originalData = (Double[]) data.toArray();
+		this.axis = axis;
+		
+		for (int i = 0; i < this.originalData.length; i++) {
+			
+			// convert raw data to signed data
+			if (this.originalData[i] > 32768) {
+				this.originalData[i] -= 65535;
+			}
+			
+			// apply sensitivity for gyro
+			this.originalData[i] *= (double) gyroSensitivity / 32768;		
+			
+		}
+		
+		this.smoothedData = this.originalData;
+		
+	}
+
 	
 	// returns smoothed data using a middle-based rolling average
 	public ObservableList<XYChart.Series<Number, Number>> getMovingAvg(int sampleBlockSize) {
@@ -100,12 +159,13 @@ public class AxisDataSeries {
 		
 		Double[] result = new Double[smoothedData.length];
 		
-		for(int i = 0; i < smoothedData.length - 1; i++) {
-			// TODO we should use a rolling average for this, come back to it
+		for(int i = 1; i < smoothedData.length - 1; i++) {
+			result[i] = (smoothedData[i+1]-smoothedData[i-1])/2;
 		}
 		
-		// fill in data for last entry, doesn't really matter
-		result[result.length - 1] = result[result.length - 2]; 
+		//fill in first and last data point
+		result[0] = result[1];
+		result[smoothedData.length-1] = result[smoothedData.length-2];
 
 		return Arrays.asList(result);
 	}
@@ -129,7 +189,7 @@ public class AxisDataSeries {
 		return this.originalData;
 	}
 	
-	public void setData(Double[] data) {
+	public void setOriginalData(Double[] data) {
 		this.originalData = data;
 	}
 	
@@ -142,18 +202,29 @@ public class AxisDataSeries {
 	}
 	
 	public Double getSlope(Double time) {
+		//TODO
 		Double slope = 0d;
 		return slope;
 	}
 	
 	public Double getSlope(Double startTime, Double endTime) {
+		//TODO
 		Double slope = 0d;
 		return slope;
 	}
 	
 	public Double getAreaUnder(Double startTime, Double endTime) {
+		//TODO
 		Double area = 0d;
 		return area;
 	}
 
+	public Double [] getSmoothedData() {
+		return this.smoothedData;
+	}
+	
+	public void setSmoothedData(int index, double value ) {
+		this.smoothedData[index] = value;
+		
+	}
 }
