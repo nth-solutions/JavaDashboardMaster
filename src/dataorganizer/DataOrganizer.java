@@ -507,6 +507,10 @@ public class DataOrganizer {
 	public int getSampleRate() {
 		return sampleRate;
 	}
+	
+	public int getMagSampleRate() {
+		return magSampleRate;
+	}
 
 	public String getName() {
 		return nameOfTest;
