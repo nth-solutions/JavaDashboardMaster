@@ -27,37 +27,52 @@ import javafx.scene.input.ScrollEvent;
 public class GraphNoSINCController implements Initializable {
 
 	
-	private static GenericTest genericTestOne; //object for holding the generic test for module 1
-	private static GenericTest genericTestTwo; //object for holding the generic test for module 2
+	private GenericTest genericTestOne; //object for holding the generic test for module 1
+	private GenericTest genericTestTwo; //object for holding the generic test for module 2
 	
-	private static double zoomLevel;
+	private double zoomLevel;
 	
-	private static double graphWidth;
-	private static double graphHeight;
+	private double graphWidth;
+	private double graphHeight;
 	
-	private static ArrayList<Double> originalSamples;
-	private static ArrayList<Double> originalTime;
+	private ArrayList<Double> originalSamples;
+	private ArrayList<Double> originalTime;
 	
-	private static int resolution;
+	private int resolution;
 	
-	private static double zoomviewX;
-	private static double zoomviewY;
-	private static double zoomviewW;
-	private static double zoomviewH;
+	private double zoomviewX;
+	private double zoomviewY;
+	private double zoomviewW;
+	private double zoomviewH;
+	private double initialZoomviewX;
+	private double initialZoomviewY;
 	
-	private static double lastMouseX;
-	private static double lastMouseY;
+	
+	private double initialMouseX;
+	private double initialMouseY;
+	private double lastMouseX;
+	private double lastMouseY;
+	private double mouseDeltaX;
+	private double mouseDeltaY;
+	
+	
+	private boolean mouseIsHeld;
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
 		zoomLevel = 1.0;
-		resolution = 160;
+		resolution = 20;
 		
-		zoomviewX = 0;
+		zoomviewX = 50;
 		zoomviewY = 0;
 		
 				
+		yAxis.setTickLabelFormatter(new NumberAxis.DefaultFormatter(yAxis){ 
+			@Override public String toString(Number object){
+				return String.format("%2.2f", object); 
+				} 
+			});
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
 			@Override
@@ -65,22 +80,82 @@ public class GraphNoSINCController implements Initializable {
 				// TODO Auto-generated method stub
 				zoomLevel += event.getDeltaY() / 250;
 				zoomLevel = Double.min(Double.max(zoomLevel, 1),10);
-				System.out.println(zoomLevel);
 				redrawGraph();
 			}
 			
 		});
 		
 		
-		lineChart.setOnDragDetected(new EventHandler<MouseEvent>() {
+		
+		lineChart.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
-				System.out.println("Clicked on graph");
+				mouseIsHeld = true;
+				initialMouseX = event.getX();
+				lastMouseX = event.getX();
+				initialMouseY = event.getY();
+				lastMouseY = event.getY();
+				
+				initialZoomviewX = zoomviewX;
+				initialZoomviewY = zoomviewY;
+				
+				//xAxis.setTickLabelsVisible(false);
+				//yAxis.setTickLabelsVisible(false);
 			}
 			
 		});
+		
+		lineChart.setOnMouseReleased(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				mouseIsHeld = false;
+				//xAxis.setTickLabelsVisible(true);
+				//yAxis.setTickLabelsVisible(true);
+			}
+			
+			
+		});
+		lineChart.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent arg0) {
+				mouseIsHeld = false;
+				mouseDeltaX = 0;
+				mouseDeltaY = 0;
+			}
+			
+		});
+		
+		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>() {
+			
+			public void handle(MouseEvent event) {
+					lastMouseX = event.getX();
+					lastMouseY = event.getY();
+					redrawGraph();
+					//System.out.println(lastMouseX +" , " + lastMouseY);
+				//}
+			}
+		});
+		
+		
+		Timer dragTimer = new Timer();
+		TimerTask dragTask = new TimerTask() {
+
+			@Override
+			public void run() {
+				if(mouseIsHeld) {
+					mouseDeltaX = initialMouseX - lastMouseX;
+					mouseDeltaY = initialMouseY - lastMouseY;
+					zoomviewX = initialZoomviewX + mouseDeltaX/(10.0 * zoomLevel);
+					zoomviewY = initialZoomviewY - mouseDeltaY/(15.0 * zoomLevel);
+				}
+			}
+			
+		};
+		dragTimer.schedule(dragTask, 0,16);
+		 
 		
 		
 		lineChart.widthProperty().addListener((obs) -> {
@@ -103,14 +178,17 @@ public class GraphNoSINCController implements Initializable {
 	
 
 	public void redrawGraph() {
-		
+		resolution = 160 / (int)zoomLevel;
 		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
 		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
-		System.out.println("redrawing Graph");
+		
 		if(!originalSamples.isEmpty() && !originalTime.isEmpty()) {
 			zoomviewW = originalSamples.size() / zoomLevel;
 			zoomviewH = originalTime.size() / zoomLevel;
 		}
+		
+		
+		
 		
 		
 		for(int i = 0; i < originalTime.size(); i+= resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
@@ -118,9 +196,8 @@ public class GraphNoSINCController implements Initializable {
 			cleanSamplesData.add(originalSamples.get(i));
 		}
 		
-		zoomviewY = 5;
-		xAxis.setLowerBound(zoomviewX);
-		xAxis.setUpperBound(zoomviewX + zoomviewW/960);
+		xAxis.setLowerBound(zoomviewX - zoomviewW/1920);
+		xAxis.setUpperBound(zoomviewX + zoomviewW/1920);
 		yAxis.setLowerBound((-zoomviewH/9600) + zoomviewY);
 		yAxis.setUpperBound((zoomviewH/9600) + zoomviewY);
 		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//setups a new series
@@ -133,7 +210,6 @@ public class GraphNoSINCController implements Initializable {
         }
 		lineChart.getData().clear();
 		lineChart.getData().add(series);
-		System.out.println("changing data");
 		series.setData(seriesData);
 		
 	}
@@ -148,6 +224,7 @@ public class GraphNoSINCController implements Initializable {
 			originalTime.add(timeData.get(i));
 		}
 	
+		/*
 		zoomviewW = originalSamples.size();
 		zoomviewH = originalTime.size();
 		
@@ -178,7 +255,8 @@ public class GraphNoSINCController implements Initializable {
 		
 		lineChart.getData().add(series);
 		series.setData(seriesData);
-		
+		*/
+		redrawGraph();
 	}
 	@FXML
 	private LineChart<Number,Number> lineChart;
