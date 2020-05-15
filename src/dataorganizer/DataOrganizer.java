@@ -533,6 +533,9 @@ public class DataOrganizer {
 		return null;
 	}
 
+	// "dofTime" is NOT populated by "createDataSamplesFromCSV()"
+	// calculate this manually using "getSampleRate()" and "getLengthOfTest()"
+	//
 	public List<Double> getTimeAxis(){
 		return dofTime;
 	}

@@ -16,9 +16,10 @@ public class GraphNoSINCMain extends Application {
 	private static GraphNoSINCController controller;
 	private static ArrayList<Double> testDataSamples;
 	private static ArrayList<Double> testDataTime;
+	
     @Override
-    public void start(Stage primaryStage) throws Exception{
-    	System.out.println("test");
+    public void start(Stage primaryStage) throws Exception {
+
     	FXMLLoader loader = new FXMLLoader((getClass().getResource("GraphNoSINC.fxml")));
         Parent root = loader.load();
         controller = loader.getController();
@@ -39,20 +40,21 @@ public class GraphNoSINCMain extends Application {
     }
 
     public static void main(String[] args) {
-    	//ArrayList<Double> testDataSamples = new ArrayList<Double>();
-    	//ArrayList<Double>[] testDataTime = new double[9600];
+
+    	/*
     	int size = 96000;
     	testDataSamples = new ArrayList<Double>();
     	testDataTime = new ArrayList<Double>();
     	System.out.println(testDataSamples.size());
+    	
+    	
     	for(int i = 0; i < size; i++) {
     		testDataSamples.add( 5 * Math.sin(i / 1000.0) * (((i-10000)/1000.0) / (1 + (((i-10000)/1000.0)*((i-10000)/1000.0)))));
     		testDataTime.add(i / 960.0);
     	}
+    	*/
+    	
     	launch(args);
     	
-    	
-    	
-       
     }
 }

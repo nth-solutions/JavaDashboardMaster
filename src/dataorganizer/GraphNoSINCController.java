@@ -2,6 +2,7 @@ package dataorganizer;
 
 import static java.lang.Thread.getAllStackTraces;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +167,19 @@ public class GraphNoSINCController implements Initializable {
 		});
 		
 	}
+	
+	public void createTest(String CSVFilePath) {
 		
+		DataOrganizer d = new DataOrganizer();
+		
+        d.createDataSamplesFromCSV(CSVFilePath);
+        d.setSourceID(new File(CSVFilePath).getName(), 1);
+        
+        genericTestOne = new GenericTest(d);
+        
+        createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
+		
+	}
 	
 	public void assignGenericTestOne(GenericTest genericTestOne) { //assigns generic test object to module 1
 		this.genericTestOne = genericTestOne;
@@ -178,7 +191,9 @@ public class GraphNoSINCController implements Initializable {
 	
 
 	public void redrawGraph() {
-		resolution = 160 / (int)zoomLevel;
+		
+		resolution = 160 / (int) zoomLevel;
+		
 		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
 		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
 		
@@ -186,10 +201,6 @@ public class GraphNoSINCController implements Initializable {
 			zoomviewW = originalSamples.size() / zoomLevel;
 			zoomviewH = originalTime.size() / zoomLevel;
 		}
-		
-		
-		
-		
 		
 		for(int i = 0; i < originalTime.size(); i+= resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
 			cleanTimeData.add(originalTime.get(i));
@@ -200,14 +211,14 @@ public class GraphNoSINCController implements Initializable {
 		xAxis.setUpperBound(zoomviewX + zoomviewW/1920);
 		yAxis.setLowerBound((-zoomviewH/9600) + zoomviewY);
 		yAxis.setUpperBound((zoomviewH/9600) + zoomviewY);
+		
 		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//setups a new series
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 		
-		for (int i = 0; i < cleanTimeData.size(); i++) {
-			
+		for (int i = 0; i < cleanTimeData.size(); i++) {		
             seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i)));
-            
         }
+		
 		lineChart.getData().clear();
 		lineChart.getData().add(series);
 		series.setData(seriesData);
@@ -224,40 +235,10 @@ public class GraphNoSINCController implements Initializable {
 			originalTime.add(timeData.get(i));
 		}
 	
-		/*
-		zoomviewW = originalSamples.size();
-		zoomviewH = originalTime.size();
-		
-		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
-		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();									// setup new array list for samples data
-		
-		graphHeight = lineChart.getHeight();
-		graphWidth = lineChart.getWidth();
-		
-		System.out.println(graphHeight + " x " + graphWidth);
-		
-																					//the interval between data points to take for graph  -- GREATLY SPEEDS UP DISPLAY TIME, NO DATA IS LOST
-		
-		for(int i = 0; i < timeData.size(); i+= resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
-			cleanTimeData.add(timeData.get(i));
-			cleanSamplesData.add(samplesData.get(i));
-		}
-		
-		
-		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//setups a new series
-		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-		
-		for (int i = 0; i < cleanTimeData.size(); i++) {
-			
-            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i)));
-            
-        }
-		
-		lineChart.getData().add(series);
-		series.setData(seriesData);
-		*/
 		redrawGraph();
+		
 	}
+	
 	@FXML
 	private LineChart<Number,Number> lineChart;
 	
