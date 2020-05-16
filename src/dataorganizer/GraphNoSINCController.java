@@ -2,6 +2,7 @@ package dataorganizer;
 
 import static java.lang.Thread.getAllStackTraces;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -173,7 +174,19 @@ public class GraphNoSINCController implements Initializable {
 		});
 		*/
 	}
+	
+	public void createTest(String CSVFilePath) {
 		
+		DataOrganizer d = new DataOrganizer();
+		
+        d.createDataSamplesFromCSV(CSVFilePath);
+        d.setSourceID(new File(CSVFilePath).getName(), 1);
+        
+        genericTestOne = new GenericTest(d);
+        
+        createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
+		
+	}
 	
 	public void assignGenericTestOne(GenericTest genericTestOne) { //assigns generic test object to module 1
 		this.genericTestOne = genericTestOne;
@@ -214,12 +227,10 @@ public class GraphNoSINCController implements Initializable {
 		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//setups a new series
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 		
-		for (int i = 0; i < cleanTimeData.size(); i++) {
-			
-            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i)));
-            
+		for (int i = 0; i < cleanTimeData.size(); i++) {		
+            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i))); 
 		}
-		
+
 		lineChart.getData().clear();
 		lineChart.getData().add(series);
 		
@@ -269,6 +280,7 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.getData().add(series);
 		series.setData(seriesData);
 		*/
+
 		redrawGraph();
 		
 	}

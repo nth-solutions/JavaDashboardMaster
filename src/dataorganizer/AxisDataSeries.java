@@ -16,6 +16,7 @@ public class AxisDataSeries {
 	private Double[] time;
 	
 	// data samples BEFORE any rolling average is applied
+	// this is the base data used to calculate all rolling averages
 	// this data will still be calibrated and normalized, NOT raw
 	private Double[] originalData;
 	
@@ -42,8 +43,16 @@ public class AxisDataSeries {
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, boolean signData, int sampleRate) {
 		
-		this.time = (Double[]) time.toArray();
-		this.originalData = (Double[]) data.toArray();
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+		// TODO change "time" and "data" to Double[] when GenericTest is updated to use SerialComm
+		//
+		this.time = new Double[time.size()];
+		this.time = time.toArray(this.time);
+		
+		this.originalData = new Double[data.size()];
+		this.originalData = data.toArray(this.originalData);
+
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 		
@@ -74,8 +83,16 @@ public class AxisDataSeries {
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int sampleRate) {
 		
-		this.time = (Double[]) time.toArray();
-		this.originalData = (Double[]) data.toArray();
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+		// TODO change "time" and "data" to Double[] when GenericTest is updated to use SerialComm
+		//
+		this.time = new Double[time.size()];
+		this.time = time.toArray(this.time);
+		
+		this.originalData = new Double[data.size()];
+		this.originalData = data.toArray(this.originalData);
+		
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 		
@@ -110,8 +127,16 @@ public class AxisDataSeries {
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int gyroSensitivity, int sampleRate) {
 		
-		this.time = (Double[]) time.toArray();
-		this.originalData = (Double[]) data.toArray();
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+		// TODO change "time" and "data" to Double[] when GenericTest is updated to use SerialComm
+		//
+		this.time = new Double[time.size()];
+		this.time = time.toArray(this.time);
+		
+		this.originalData = new Double[data.size()];
+		this.originalData = data.toArray(this.originalData);
+		
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 		
@@ -156,7 +181,13 @@ public class AxisDataSeries {
 		
 		Double[] result = new Double[originalData.length];
 		
-		for(int i = 1; i < originalData.length; i++) {
+		result[0] = 0.0;
+		
+		System.out.println("r:" + result.length);
+		System.out.println("o:" + originalData.length);
+		System.out.println("t:" + time.length);
+		
+		for(int i = 1; i < originalData.length; i++) {	
 			result[i] = result[i-1] + (originalData[i] + originalData[i-1])/2 * (time[i] - time[i-1]);
 		}
 		

@@ -12,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -1707,12 +1708,14 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //                readTestsFromModuleTask.run(); // Runs the futureTask.
 //
-        }else if (outputSelected == "sincTechnologyRadioButton"){
+        } else if (outputSelected == "sincTechnologyRadioButton"){
+        	
             HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
             FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
                 @Override
                 public void run() {
+                	
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -2389,19 +2392,32 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-        /**
-         * The
-         */
+    	
         if (testType == "Conservation of Momentum (Elastic Collision)"){
             lineGraph = startGraphing();
             lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
             lineGraph.loadConservationOfMomentumTemplate();
 
-        }else {
-            String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
-            lineGraph = startGraphing();
-            lineGraph.setCsvFilePath(pathTofile);
-            lineGraph.loadCSVData();
+        } else {
+        	
+        	Alert a = new Alert(AlertType.CONFIRMATION, "Open the No SINC Graph application?");
+        	Optional<ButtonType> result = a.showAndWait();
+        	
+        	if (result.get() == ButtonType.OK) {
+        		
+        		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+                GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
+                g.createTest(pathTofile);
+        		
+        	} else {
+        	
+        		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+                lineGraph = startGraphing();
+                lineGraph.setCsvFilePath(pathTofile);
+                lineGraph.loadCSVData();
+        		
+        	}
+        	
         }
     }
 
@@ -2426,6 +2442,33 @@ public class EducatorModeControllerFX implements Initializable {
      * Method creates a new window with a media player and a line graph with one overlapping the other for SINC Technology
      */
 
+    public GraphNoSINCController startGraphingNoSINC() {
+    	
+    	Stage primaryStage = new Stage();
+    	FXMLLoader loader = new FXMLLoader((getClass().getResource("GraphNoSINC.fxml")));
+        Parent root;
+        
+		try {
+			
+			root = loader.load();
+			primaryStage.setTitle("BioForce Experiment Graph");
+	        Scene scene = new Scene(root);
+	       
+	        primaryStage.setMinWidth(600);
+	        primaryStage.setMinHeight(400);
+	        primaryStage.setScene(scene);
+
+	        primaryStage.show();
+	        primaryStage.setResizable(true);
+	        
+		} catch (IOException e) {
+			System.out.println("Error loading FXML.");
+			e.printStackTrace();
+		}
+        
+        return loader.getController();
+    }
+    
     public GraphController startGraphing() {
         Stage primaryStage = new Stage();
         Parent root = null;
