@@ -49,7 +49,7 @@ public class GraphNoSINCMain extends Application {
     	
     	
     	for(int i = 0; i < size; i++) {
-    		testDataSamples.add( 5 * Math.sin(i / 1000.0) * (((i-10000)/1000.0) / (1 + (((i-10000)/1000.0)*((i-10000)/1000.0)))));
+    		testDataSamples.add(Math.log(i/3000.0 + 1.0) + 5 * Math.sin(i / 1000.0) * (((i-10000)/1000.0) / (1 + (((i-10000)/1000.0)*((i-10000)/1000.0)))));
     		testDataTime.add(i / 960.0);
     	}
     	*/

@@ -21,45 +21,38 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane minWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphNoSINCController">
+<AnchorPane minWidth="500.0" prefHeight="799.0" prefWidth="1440.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphNoSINCController">
    <children>
       <SplitPane dividerPositions="0.5" layoutY="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
          <items>
-            <AnchorPane>
+            <AnchorPane maxHeight="1080.0">
                <children>
-                  <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <HBox alignment="CENTER" layoutX="50.0" layoutY="25.0" prefHeight="20.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="25.0">
                      <children>
-                        <HBox alignment="CENTER" prefHeight="20.0" prefWidth="904.0">
-                           <children>
-                              <Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Test Graph">
-                                 <font>
-                                    <Font name="Open Sans" size="24.0" />
-                                 </font>
-                              </Text>
-                           </children>
-                        </HBox>
-                        <LineChart fx:id="lineChart" animated="false" createSymbols="false">
-                          <xAxis>
-                            <NumberAxis autoRanging="false" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
-                          </xAxis>
-                          <yAxis>
-                            <NumberAxis fx:id="yAxis" autoRanging="false" lowerBound="-5.0" side="LEFT" tickUnit="0.5" upperBound="5.0" />
-                          </yAxis>
-                        </LineChart>
-                        <HBox alignment="CENTER" prefHeight="70.0" prefWidth="170.0" spacing="10.0">
-                           <children>
-                              <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
-                              <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
-                           </children>
-                           <padding>
-                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                           </padding>
-                        </HBox>
+                        <Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Test Graph">
+                           <font>
+                              <Font name="Open Sans" size="24.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </HBox>
+                  <LineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="50.0" layoutY="67.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0">
+                    <xAxis>
+                      <NumberAxis autoRanging="false" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
+                    </xAxis>
+                    <yAxis>
+                      <NumberAxis fx:id="yAxis" autoRanging="false" lowerBound="-10.0" side="LEFT" tickLabelGap="10.0" tickLabelRotation="-90.0" tickLength="10.0" tickUnit="1.0" upperBound="10.0" />
+                    </yAxis>
+                  </LineChart>
+                  <HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                     <children>
+                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
+                        <Button fx:id="zoomButton" mnemonicParsing="false" onAction="#handleZoom" prefHeight="40.0" prefWidth="70.0" text="Zoom" />
                      </children>
                      <padding>
-                        <Insets left="50.0" right="50.0" top="25.0" />
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </padding>
-                  </VBox>
+                  </HBox>
                </children>
             </AnchorPane>
             <AnchorPane maxWidth="400.0" minWidth="200.0" prefWidth="200.0">
