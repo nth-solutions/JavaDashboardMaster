@@ -3,7 +3,6 @@ package dataorganizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.List;
 
 import javafx.collections.FXCollections;
@@ -24,7 +23,6 @@ public class AxisDataSeries {
 	// this is the data other classes will use
 	private Double[] smoothedData;
 	
-	private Dictionary<String, Integer> axes;
 	private AxisType axis;
 	
 	// TODO rename for clarity
@@ -49,7 +47,22 @@ public class AxisDataSeries {
 		//
 		this.time = new Double[time.size()];
 		this.time = time.toArray(this.time);
-		
+
+		// If dealing w/ magnetometer, only save every 10th data sample removing nulls
+		// This is because mag data is sampled at 1/10 the rate of accel/gyro,
+		// but the List "data" is filled w/ null samples assuming 960 samples/sec
+		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
+
+			for (int i = data.size() - 1; i >= 0; i--) {
+
+				if (data.get(i) == null) {
+					data.remove(i);
+				}
+
+			}
+
+		}
+
 		this.originalData = new Double[data.size()];
 		this.originalData = data.toArray(this.originalData);
 
@@ -59,7 +72,7 @@ public class AxisDataSeries {
 		if (signData) {
 			
 			for (int i = 0; i < this.originalData.length; i++) {
-				
+
 				// convert raw data to signed data
 				if (this.originalData[i] > 32768) {
 					this.originalData[i] -= 65535;
@@ -71,6 +84,8 @@ public class AxisDataSeries {
 		
 		this.smoothedData = this.originalData;
 		
+		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
+
 	}
 	
 	/**
@@ -95,7 +110,7 @@ public class AxisDataSeries {
 		
 		this.axis = axis;
 		this.sampleRate = sampleRate;
-		
+
 		for (int i = 0; i < this.originalData.length; i++) {
 			
 			// convert raw data to signed data
@@ -103,18 +118,18 @@ public class AxisDataSeries {
 				this.originalData[i] -= 65535;
 			}
 			
-			// apply sensitivity for accel
-			if (axis.getValue() >= 1 ) {
-				this.originalData[i] *= (double) accelSensitivity / 32768;
-			}
-			
 			// subtract offsets (which are signed)
 			// accel enum is 0-2 and offsets are 0-2 (X,Y,Z)
 			this.originalData[i] -= accelOffsets[axis.getValue()];
+
+			// apply sensitivity for accel
+			this.originalData[i] *= ((double) accelSensitivity) / 32768;
 			
 		}
 		
 		this.smoothedData = this.originalData;
+
+		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
 		
 	}
 
@@ -139,7 +154,7 @@ public class AxisDataSeries {
 		
 		this.axis = axis;
 		this.sampleRate = sampleRate;
-		
+
 		for (int i = 0; i < this.originalData.length; i++) {
 			
 			// convert raw data to signed data
@@ -153,6 +168,8 @@ public class AxisDataSeries {
 		}
 		
 		this.smoothedData = this.originalData;
+
+		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
 		
 	}
 
@@ -182,10 +199,6 @@ public class AxisDataSeries {
 		Double[] result = new Double[originalData.length];
 		
 		result[0] = 0.0;
-		
-		System.out.println("r:" + result.length);
-		System.out.println("o:" + originalData.length);
-		System.out.println("t:" + time.length);
 		
 		for(int i = 1; i < originalData.length; i++) {	
 			result[i] = result[i-1] + (originalData[i] + originalData[i-1])/2 * (time[i] - time[i-1]);
@@ -288,14 +301,14 @@ public class AxisDataSeries {
 	 * Used by Graph GUI to get time data from AxisDataSeries instances.
 	 */
 	public ArrayList<Double> getTime() {
-		return (ArrayList<Double>) Arrays.asList(time);
+		return new ArrayList<Double>(Arrays.asList(time));
 	}
 	
 	/**
 	 * Used by Graph GUI to get samples from AxisDataSeries instances.
 	 */
 	public ArrayList<Double> getSamples() {
-		return (ArrayList<Double>) Arrays.asList(smoothedData);
+		return new ArrayList<Double>(Arrays.asList(smoothedData));
 	}
 	
 	public boolean getActive() {

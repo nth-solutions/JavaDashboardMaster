@@ -2407,7 +2407,7 @@ public class EducatorModeControllerFX implements Initializable {
         		
         		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
                 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
-                g.createTest(pathTofile);
+                g.createTest(dataOrgo, dataOrgoTwo);
         		
         	} else {
         	

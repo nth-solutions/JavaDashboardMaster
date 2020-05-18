@@ -175,27 +175,17 @@ public class GraphNoSINCController implements Initializable {
 		*/
 	}
 	
-	public void createTest(String CSVFilePath) {
+	public void createTest(DataOrganizer d1, DataOrganizer d2) {
 		
-		DataOrganizer d = new DataOrganizer();
+		// Create GenericTest object if module exists -- otherwise, "null"
+		// "null" on one of these differentiates b/t One/Two Module setup
+		if (d1 != null) genericTestOne = new GenericTest(d1);
+        if (d2 != null) genericTestTwo = new GenericTest(d2);
 		
-        d.createDataSamplesFromCSV(CSVFilePath);
-        d.setSourceID(new File(CSVFilePath).getName(), 1);
-        
-        genericTestOne = new GenericTest(d);
-        
+		// TEST CODE - TO BE REPLACED LATER
         createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
 		
 	}
-	
-	public void assignGenericTestOne(GenericTest genericTestOne) { //assigns generic test object to module 1
-		this.genericTestOne = genericTestOne;
-	}
-	
-	public void assignGenericTestTwo(GenericTest genericTestTwo) { //assigns generic test object to module 2
-		this.genericTestTwo = genericTestTwo;
-	}
-	
 
 	public void redrawGraph() {
 		
@@ -224,10 +214,10 @@ public class GraphNoSINCController implements Initializable {
 		yAxis.setLowerBound((-zoomviewH/9600) + zoomviewY);
 		yAxis.setUpperBound((zoomviewH/9600) + zoomviewY);
 		
-		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//setups a new series
+		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//sets up a new series
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 		
-		for (int i = 0; i < cleanTimeData.size(); i++) {		
+		for (int i = 0; i < cleanSamplesData.size(); i++) {		
             seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i))); 
 		}
 
@@ -240,6 +230,10 @@ public class GraphNoSINCController implements Initializable {
 	
 	public void createSeries(ArrayList<Double> timeData, ArrayList<Double> samplesData) {
 		
+		originalSamples = samplesData;
+		originalTime = timeData;
+
+		/*
 		originalSamples = new ArrayList<Double>();
 		originalTime = new ArrayList<Double>();
 		
@@ -247,7 +241,8 @@ public class GraphNoSINCController implements Initializable {
 			originalSamples.add(samplesData.get(i));
 			originalTime.add(timeData.get(i));
 		}
-	
+		*/
+		
 		/*
 		zoomviewW = originalSamples.size();
 		zoomviewH = originalTime.size();
