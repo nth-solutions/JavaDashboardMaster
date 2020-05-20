@@ -6,6 +6,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,6 +22,9 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
@@ -62,10 +66,10 @@ public class GraphNoSINCController implements Initializable {
 	private double scrollCenterY;
 	
 	private boolean mouseIsHeld;
-	
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
+		
 		zoomLevel = 1.0;
 		resolution = 20;
 		
@@ -77,8 +81,7 @@ public class GraphNoSINCController implements Initializable {
 		
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
-			public void handle(ScrollEvent event) {
-				
+			public void handle(ScrollEvent event) {	
 				
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
@@ -189,8 +192,13 @@ public class GraphNoSINCController implements Initializable {
 
 	public void redrawGraph() {
 		
-		resolution = (int)(160 / zoomLevel);
-		
+		// DEBUG CODE FOR TESTING -- NOT FOR PRODUCTION
+		if (debugIgnoreResCheckbox.isSelected()) {
+			resolution = 1;
+		} else { 
+			resolution = (int)(160 / zoomLevel);
+		}
+
 		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
 		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
 		
@@ -201,7 +209,7 @@ public class GraphNoSINCController implements Initializable {
 			
 		}
 		
-		for(int i = 0; i < originalTime.size(); i+= resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
+		for(int i = 0; i < originalSamples.size(); i+=resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
 			
 			cleanTimeData.add(originalTime.get(i));
 			cleanSamplesData.add(originalSamples.get(i));
@@ -230,18 +238,13 @@ public class GraphNoSINCController implements Initializable {
 	
 	public void createSeries(ArrayList<Double> timeData, ArrayList<Double> samplesData) {
 		
-		originalSamples = samplesData;
-		originalTime = timeData;
-
-		/*
 		originalSamples = new ArrayList<Double>();
 		originalTime = new ArrayList<Double>();
 		
-		for(int i = 0; i < timeData.size(); i++) {
+		for(int i = 0; i < samplesData.size(); i++) {
 			originalSamples.add(samplesData.get(i));
 			originalTime.add(timeData.get(i));
 		}
-		*/
 		
 		/*
 		zoomviewW = originalSamples.size();
@@ -288,6 +291,9 @@ public class GraphNoSINCController implements Initializable {
 	
 	@FXML
 	private NumberAxis yAxis;
+
+	@FXML
+	private TextField rollingBlockTextField;
 	
 	@FXML
 	public void handleReset(ActionEvent event) {
@@ -303,10 +309,37 @@ public class GraphNoSINCController implements Initializable {
 	public void handleZoom(ActionEvent event) {
 		
 	}
+
+	//====================================================
+	// DEBUG CODE USED FOR TESTING -- NOT FOR PRODUCTION
 	@FXML
-	public void handleSetYRange(ActionEvent event) {
+	private CheckBox debugIgnoreResCheckbox;
+
+	@FXML
+	public void debugGraphAxis(ActionEvent event) {
 		
+		List<String> choices = new ArrayList<>();
+		
+		for (int i = 0; i < 28; i++) {
+
+			choices.add(AxisType.valueOf(i).toString());
+
+		}
+
+		ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+		dialog.setTitle("[DEBUG] Graph Axis");
+		dialog.setHeaderText("This is a testing feature to graph an AxisDataSeries.");
+		dialog.setContentText("Choose axis:");
+
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()){
+			createSeries(genericTestOne.getAxis(AxisType.valueOf(result.get())).getTime(), genericTestOne.getAxis(AxisType.valueOf(result.get())).getSamples());
+		}
+
 	}
+
+	//====================================================
+
 	@FXML
 	public void rollingBlockHandler(ActionEvent event) {
 		

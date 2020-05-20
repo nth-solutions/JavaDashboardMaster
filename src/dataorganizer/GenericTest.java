@@ -99,7 +99,7 @@ public class GenericTest {
 		// Angular displacement magnitude
 		axes[23] = new AxisDataSeries(timeAxis, d.getDataSamples().get(3), AxisType.valueOf(23), false, d.getSampleRate());
 		// magnetic field magnitude
-		axes[27] = new AxisDataSeries(magTimeAxis, d.getDataSamples().get(6), AxisType.valueOf(27), false, d.getMagSampleRate());
+		axes[27] = new AxisDataSeries(magTimeAxis, d.getDataSamples().get(7), AxisType.valueOf(27), false, d.getMagSampleRate());
 		
 		for (int i = 0; i < d.getDataSamples().size(); i++) {
 			

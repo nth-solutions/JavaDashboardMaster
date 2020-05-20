@@ -5,6 +5,7 @@
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -63,32 +64,10 @@
                            <children>
                               <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" spacing="5.0">
                                  <children>
-                                    <Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="Y-Axis Scaling" textAlignment="CENTER">
-                                       <padding>
-                                          <Insets bottom="5.0" top="5.0" />
-                                       </padding>
-                                    </Label>
-                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="66.0">
-                                       <children>
-                                          <Label prefHeight="17.0" prefWidth="100.0" text="Y-Axis Maximum:" textAlignment="CENTER">
-                                             <HBox.margin>
-                                                <Insets />
-                                             </HBox.margin>
-                                          </Label>
-                                          <TextField fx:id="maxYValueTextField" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="75.0" />
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="91.0">
-                                       <children>
-                                          <Label prefHeight="17.0" prefWidth="100.0" text="Y-Axis Minimum:" textAlignment="CENTER">
-                                             <HBox.margin>
-                                                <Insets />
-                                             </HBox.margin>
-                                          </Label>
-                                          <TextField fx:id="minYValueTextField" alignment="CENTER_RIGHT" prefHeight="25.0" prefWidth="75.0" />
-                                       </children>
-                                    </HBox>
-                                    <Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#handleSetYRange" prefHeight="25.0" prefWidth="150.0" text="Set Y-Axis Range" />
+                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="66.0" />
+                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="91.0" />
+                                    <Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#debugGraphAxis" prefHeight="25.0" prefWidth="150.0" text="[DEBUG] Graph Axis" />
+                                    <CheckBox fx:id="debugIgnoreResCheckbox" mnemonicParsing="false" text="[DEBUG] Show all data samples" />
                                     <Separator prefWidth="200.0">
                                        <VBox.margin>
                                           <Insets bottom="10.0" top="10.0" />

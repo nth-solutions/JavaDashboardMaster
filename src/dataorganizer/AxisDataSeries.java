@@ -124,7 +124,7 @@ public class AxisDataSeries {
 
 			// apply sensitivity for accel
 			this.originalData[i] *= ((double) accelSensitivity) / 32768;
-			
+
 		}
 		
 		this.smoothedData = this.originalData;
