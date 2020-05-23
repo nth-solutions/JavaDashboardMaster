@@ -49,6 +49,15 @@ public class GenericTest {
 		List<Double> timeAxis = new ArrayList<Double>();
 		List<Double> magTimeAxis = new ArrayList<Double>();
 
+		// populate time and magnetometer time axes
+
+		/*
+		TODO - for some reason, the number of time samples
+		is one greater than the number of data samples;
+		not knowing whether this is intentional or not,
+		I have left the extra sample in and changed all
+		appropriate loops to use the data array as the bounds
+		*/
 		for (int i = 0; i < d.getDataSamples().get(0).size(); i++) {
 			
 			timeAxis.add(new Double(i) / d.getSampleRate());
@@ -86,6 +95,9 @@ public class GenericTest {
 	
 		}
 				
+		// TODO potentially rework the magnitude calculations section --
+		// seems like an imperfect solution and somewhat verbose
+
 		//accel magnitude
 		axes[3] = new AxisDataSeries(timeAxis, d.getDataSamples().get(0), AxisType.valueOf(3), false, d.getSampleRate()); 
 		// velocity magnitude
@@ -101,9 +113,13 @@ public class GenericTest {
 		// magnetic field magnitude
 		axes[27] = new AxisDataSeries(magTimeAxis, d.getDataSamples().get(7), AxisType.valueOf(27), false, d.getMagSampleRate());
 		
-		for (int i = 0; i < d.getDataSamples().size(); i++) {
+		// loop through all data samples
+		for (int i = 0; i < d.getDataSamples().get(1).size(); i++) {
 			
-			// accel magnitude
+			double test = axes[0].getSmoothedData()[i];
+			double test1 = axes[1].getSmoothedData()[i];
+			double test2 = axes[2].getSmoothedData()[i];
+
 			axes[3].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[0].getSmoothedData()[i], 2)+Math.pow(axes[1].getSmoothedData()[i], 2)+Math.pow(axes[2].getSmoothedData()[i], 2)));
 			axes[7].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[4].getSmoothedData()[i], 2)+Math.pow(axes[5].getSmoothedData()[i], 2)+Math.pow(axes[6].getSmoothedData()[i], 2)));
 			axes[11].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[8].getSmoothedData()[i], 2)+Math.pow(axes[9].getSmoothedData()[i], 2)+Math.pow(axes[10].getSmoothedData()[i], 2)));
@@ -111,8 +127,8 @@ public class GenericTest {
 			axes[19].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[16].getSmoothedData()[i], 2)+Math.pow(axes[17].getSmoothedData()[i], 2)+Math.pow(axes[18].getSmoothedData()[i], 2)));
 			axes[23].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[20].getSmoothedData()[i], 2)+Math.pow(axes[21].getSmoothedData()[i], 2)+Math.pow(axes[22].getSmoothedData()[i], 2)));
 			
-			//for adjusted magnetometer time scale // TODO NEEDS FIXED
-			if (i % 10 == 0) {
+			// if "i" fits # of magnetometer data samples
+			if (i < d.getDataSamples().get(7).size()) {
 				axes[27].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[24].getSmoothedData()[i], 2)+Math.pow(axes[25].getSmoothedData()[i], 2)+Math.pow(axes[26].getSmoothedData()[i], 2)));
 			} 
 		}

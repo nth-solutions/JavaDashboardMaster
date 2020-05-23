@@ -33,11 +33,11 @@ public class AxisDataSeries {
 	private int sampleRate;
 	
 	/**
-	 * AxisDataSeries constructor for data NOT natively recorded by the module OR if it is from the magnetometer.
-	 * @param time
-	 * @param data
-	 * @param axis
-	 * @param signData
+	 * AxisDataSeries constructor for data NOT natively recorded by the module OR from the magnetometer.
+	 * @param time - the time axis for the data set
+	 * @param data - the samples for the data set
+	 * @param axis - an AxisType identifying the type of data
+	 * @param signData - indicates whether the data should be converted from unsigned to signed
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, boolean signData, int sampleRate) {
 		
@@ -90,11 +90,15 @@ public class AxisDataSeries {
 	
 	/**
 	 * AxisDataSeries constructor for acceleration data.
-	 * @param time
-	 * @param data
-	 * @param axis
-	 * @param accelOffsets
-	 * @param accelSensitivity
+	 * @param time - the time axis for the data set
+	 * @param data - the samples for the data set
+	 * @param axis - an AxisType identifying the type of data
+	 * @param accelOffsets - the array of offsets to be applied to the acceleration data;
+	 * the first dimension indicates the axis type (X=0,Y=1,Z=2) and the second dimension
+	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
+	 * @param accelSensitivity - the maximum value or "resolution" of the raw data, being 1, 2, 4, or 8 Gs;
+	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
+	 * In equation format: acceleration = sensitivity * (raw data / max value for data [32768])
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int sampleRate) {
 		
@@ -135,10 +139,15 @@ public class AxisDataSeries {
 
 	/**
 	 * AxisDataSeries constructor for gyroscope data.
-	 * @param time
-	 * @param data
-	 * @param axis
-	 * @param gyroSensitivity
+	 * @param time - the time axis for the data set
+	 * @param data - the samples for the data set
+	 * @param axis - an AxisType identifying the type of data
+	 * @param accelOffsets - the array of offsets to be applied to the acceleration data;
+	 * the first dimension indicates the axis type (X=0,Y=1,Z=2) and the second dimension
+	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
+	 * @param gyroSensitivity - the maximum value or "resolution" of the raw data;
+	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
+	 * In equation format: gyro = sensitivity * (raw data / max value for data [32768])
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int gyroSensitivity, int sampleRate) {
 		
@@ -163,7 +172,7 @@ public class AxisDataSeries {
 			}
 			
 			// apply sensitivity for gyro
-			this.originalData[i] *= (double) gyroSensitivity / 32768;		
+			this.originalData[i] *= ((double) gyroSensitivity) / 32768;		
 			
 		}
 		
@@ -226,6 +235,7 @@ public class AxisDataSeries {
 		return Arrays.asList(result);
 	}
 	
+	// TODO remove method -- this is done internally in GraphNoSINCController
 	public ObservableList<XYChart.Series<Number, Number>> createSeries() {
 		
         XYChart.Series<Number, Number> series = new XYChart.Series<>();
@@ -241,6 +251,7 @@ public class AxisDataSeries {
         return FXCollections.observableArrayList(Collections.singleton(series));
     }
 	
+	// returns slope at a specific data point (tangent line)
 	public Double getSlope(Double time) {
 		//uses secant line method b/w sample directly before and after
 		int i = (int) Math.round(time*this.sampleRate);
@@ -248,7 +259,7 @@ public class AxisDataSeries {
 		return slope;
 	}
 	
-	
+	// returns slope between two points (secant line)
 	public Double getSlope(Double startTime, Double endTime) {
 		Double slope = 0.0;
 		
@@ -264,8 +275,8 @@ public class AxisDataSeries {
 		return slope;
 	}
 	
+	// returns area under a section of a data curve utilizing the trapezoid method
 	public Double getAreaUnder(Double startTime, Double endTime) {
-		//trapezoid method
 		Double area = 0.0;
 		int i = (int) Math.round(startTime*this.sampleRate);
 		int j = (int) Math.round(endTime*this.sampleRate);
