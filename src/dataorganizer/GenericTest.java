@@ -98,27 +98,29 @@ public class GenericTest {
 		// TODO potentially rework the magnitude calculations section --
 		// seems like an imperfect solution and somewhat verbose
 
-		//accel magnitude
-		axes[3] = new AxisDataSeries(timeAxis, d.getDataSamples().get(0), AxisType.valueOf(3), false, d.getSampleRate()); 
+		// acceleration magnitude
+		axes[3] = new AxisDataSeries(timeAxis, d.getDataSamples().get(0), AxisType.valueOf(3), false, d.getSampleRate());
+
 		// velocity magnitude
 		axes[7] = new AxisDataSeries(timeAxis, d.getDataSamples().get(0), AxisType.valueOf(7), false, d.getSampleRate());
-		//displacement magnitude
+
+		// displacement magnitude
 		axes[11] = new AxisDataSeries(timeAxis, d.getDataSamples().get(0), AxisType.valueOf(11), false, d.getSampleRate());
-		// Angular accel magnitude
+
+		// angular acceleration magnitude
 		axes[15] = new AxisDataSeries(timeAxis, d.getDataSamples().get(3), AxisType.valueOf(15), false, d.getSampleRate());
-		//(GYRO) Angular velocity magnitude
+
+		// (GYRO) angular velocity magnitude
 		axes[19] = new AxisDataSeries(timeAxis, d.getDataSamples().get(3), AxisType.valueOf(19), false, d.getSampleRate());
-		// Angular displacement magnitude
+
+		// angular displacement magnitude
 		axes[23] = new AxisDataSeries(timeAxis, d.getDataSamples().get(3), AxisType.valueOf(23), false, d.getSampleRate());
+		
 		// magnetic field magnitude
 		axes[27] = new AxisDataSeries(magTimeAxis, d.getDataSamples().get(7), AxisType.valueOf(27), false, d.getMagSampleRate());
 		
 		// loop through all data samples
 		for (int i = 0; i < d.getDataSamples().get(1).size(); i++) {
-			
-			double test = axes[0].getSmoothedData()[i];
-			double test1 = axes[1].getSmoothedData()[i];
-			double test2 = axes[2].getSmoothedData()[i];
 
 			axes[3].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[0].getSmoothedData()[i], 2)+Math.pow(axes[1].getSmoothedData()[i], 2)+Math.pow(axes[2].getSmoothedData()[i], 2)));
 			axes[7].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[4].getSmoothedData()[i], 2)+Math.pow(axes[5].getSmoothedData()[i], 2)+Math.pow(axes[6].getSmoothedData()[i], 2)));
