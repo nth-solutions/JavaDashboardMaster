@@ -44,7 +44,7 @@ public class GenericTest {
 		27		Magnetometer Magnitude
 		*/
 
-		axes = new AxisDataSeries[28];
+		axes = new AxisDataSeries[32];
 		
 		List<Double> timeAxis = new ArrayList<Double>();
 		List<Double> magTimeAxis = new ArrayList<Double>();
@@ -92,6 +92,9 @@ public class GenericTest {
 			
 			// magnetometer
 			axes[i+24] = new AxisDataSeries(magTimeAxis, d.getDataSamples().get(i+7), AxisType.valueOf(i+24), true, d.getMagSampleRate());
+
+			// TESTING -- linear acceleration
+			axes[i+28] = new AxisDataSeries(axes[i]);
 	
 		}
 				
@@ -115,7 +118,7 @@ public class GenericTest {
 
 		// angular displacement magnitude
 		axes[23] = new AxisDataSeries(timeAxis, d.getDataSamples().get(3), AxisType.valueOf(23), false, d.getSampleRate());
-		
+
 		// magnetic field magnitude
 		axes[27] = new AxisDataSeries(magTimeAxis, d.getDataSamples().get(7), AxisType.valueOf(27), false, d.getMagSampleRate());
 		

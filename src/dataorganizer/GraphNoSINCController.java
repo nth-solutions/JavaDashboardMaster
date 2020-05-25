@@ -14,19 +14,17 @@ import java.util.TimerTask;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.chart.XYChart.Series;
+import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseDragEvent;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
@@ -73,10 +71,10 @@ public class GraphNoSINCController implements Initializable {
 		zoomLevel = 1.0;
 		resolution = 20;
 		
-		resetZoomviewX = 50;
+		resetZoomviewX = 0;
 		resetZoomviewY = 0;
 		
-		zoomviewX = 50;
+		zoomviewX = 0;
 		zoomviewY = 0;
 		
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
@@ -86,7 +84,7 @@ public class GraphNoSINCController implements Initializable {
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
 				zoomLevel += event.getDeltaY() / 250;
-				zoomLevel = Double.min(Double.max(zoomLevel, 1),10);
+				zoomLevel = zoomLevel < 0 ? 0.01 : zoomLevel;
 				redrawGraph();
 				
 			}
@@ -196,7 +194,7 @@ public class GraphNoSINCController implements Initializable {
 		if (debugIgnoreResCheckbox.isSelected()) {
 			resolution = 1;
 		} else { 
-			resolution = (int)(160 / zoomLevel);
+			resolution = (int)(96 / zoomLevel);
 		}
 
 		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
@@ -238,13 +236,8 @@ public class GraphNoSINCController implements Initializable {
 	
 	public void createSeries(ArrayList<Double> timeData, ArrayList<Double> samplesData) {
 		
-		originalSamples = new ArrayList<Double>();
-		originalTime = new ArrayList<Double>();
-		
-		for(int i = 0; i < samplesData.size(); i++) {
-			originalSamples.add(samplesData.get(i));
-			originalTime.add(timeData.get(i));
-		}
+		originalTime = (ArrayList<Double>) timeData.clone();
+		originalSamples = (ArrayList<Double>) samplesData.clone();
 		
 		/*
 		zoomviewW = originalSamples.size();
@@ -320,7 +313,7 @@ public class GraphNoSINCController implements Initializable {
 		
 		List<String> choices = new ArrayList<>();
 		
-		for (int i = 0; i < 28; i++) {
+		for (int i = 0; i < AxisType.values().length; i++) {
 
 			choices.add(AxisType.valueOf(i).toString());
 
@@ -343,6 +336,30 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	public void rollingBlockHandler(ActionEvent event) {
 		
+		int sampleBlockSize = 0;
+
+		try {
+			sampleBlockSize = Integer.parseInt(rollingBlockTextField.getText());
+		}
+		catch (NumberFormatException e) {
+			Alert alert = new Alert(AlertType.ERROR);
+			//alert.setTitle("Information Dialog");
+			alert.setHeaderText("Invalid input");
+			alert.setContentText("Please change your rolling average block size to a numerical value.");
+
+			alert.showAndWait();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// TODO change "29" to AxisType.values().length later;
+		// not all axes are being utilized currently
+		for (int i = 0; i < 29; i++)
+		{
+			genericTestOne.getAxis(AxisType.valueOf(i)).applyMovingAvg(sampleBlockSize);
+		}
+
 	}
 	public void importCSV(ActionEvent event) {
 		

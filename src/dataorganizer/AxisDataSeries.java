@@ -25,10 +25,6 @@ public class AxisDataSeries {
 	
 	private AxisType axis;
 	
-	// TODO rename for clarity
-	// flags whether graph should be drawn
-	private boolean isActive;
-	
 	//samples per second in passed in data series
 	private int sampleRate;
 	
@@ -38,6 +34,7 @@ public class AxisDataSeries {
 	 * @param data - the samples for the data set
 	 * @param axis - an AxisType identifying the type of data
 	 * @param signData - indicates whether the data should be converted from unsigned to signed
+	 * @param sampleRate - the number of data samples recorded in one second
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, boolean signData, int sampleRate) {
 		
@@ -82,7 +79,7 @@ public class AxisDataSeries {
 			
 		}
 		
-		this.smoothedData = this.originalData;
+		this.smoothedData = this.originalData.clone();
 		
 		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
 
@@ -98,7 +95,8 @@ public class AxisDataSeries {
 	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
 	 * @param accelSensitivity - the maximum value or "resolution" of the raw data, being 1, 2, 4, or 8 Gs;
 	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
-	 * In equation format: acceleration = sensitivity * (raw data / max value for data [32768])
+	 * <p>In equation format: acceleration = sensitivity * (raw data / max value for data [32768])
+	 * @param sampleRate - the number of data samples recorded in one second
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int sampleRate) {
 		
@@ -131,7 +129,7 @@ public class AxisDataSeries {
 
 		}
 		
-		this.smoothedData = this.originalData;
+		this.smoothedData = this.originalData.clone();
 
 		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
 		
@@ -142,12 +140,10 @@ public class AxisDataSeries {
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
 	 * @param axis - an AxisType identifying the type of data
-	 * @param accelOffsets - the array of offsets to be applied to the acceleration data;
-	 * the first dimension indicates the axis type (X=0,Y=1,Z=2) and the second dimension
-	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
 	 * @param gyroSensitivity - the maximum value or "resolution" of the raw data;
 	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
 	 * In equation format: gyro = sensitivity * (raw data / max value for data [32768])
+	 * @param sampleRate - the number of data samples recorded in one second
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int gyroSensitivity, int sampleRate) {
 		
@@ -176,30 +172,67 @@ public class AxisDataSeries {
 			
 		}
 		
-		this.smoothedData = this.originalData;
+		this.smoothedData = this.originalData.clone();
 
 		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
 		
 	}
 
-	
-	// returns smoothed data using a middle-based rolling average
-	public ObservableList<XYChart.Series<Number, Number>> getMovingAvg(int sampleBlockSize) {
+	/**
+	 * <b>USED FOR TESTING CALCULATIONS, NOT FOR PRODUCTION</b><p>
+	 * Constructor for producing linear acceleration axis.
+	 * Utilizes a low-pass filter to isolate the gravity vector,
+	 * then subtracts this from raw acceleration to yield linear acceleration.
+	 * @param accel - the AxisDataSeries for the raw acceleration data set
+	 */
+	public AxisDataSeries(AxisDataSeries accel) {
+
+		this.time = new Double[accel.getTime().size()];
+		this.time = accel.getTime().toArray(this.time);
 		
-		if(sampleBlockSize == 0) {
-			smoothedData = originalData;
-			return createSeries();
+		this.originalData = accel.getOriginalData().clone();
+
+		Double[] gravity = new Double[this.originalData.length];
+		Arrays.fill(gravity, 0d);
+
+		// TODO unsure about the nature of ALPHA:
+		// found it is calculated α = t / (t + dT),
+		// but not sure what "t" (time constant) would be;
+		// using a value that I have seen online.
+		final float ALPHA = 0.9f;
+
+		gravity[0] = originalData[0];
+
+		for (int i = 1; i < gravity.length; i++) {
+
+			gravity[i] = ALPHA * gravity[i-1] + (1 - ALPHA) * originalData[i];
+			originalData[i] -= gravity[i];
+
 		}
+
+		this.smoothedData = this.originalData.clone();
+
+	}
+	
+	/**
+	 * Applies a middle-based simple moving average to the original data set.
+	 * This data set can be accessed by calling {@link #getSmoothedData()}.
+	 * @param sampleBlockSize - the number of samples used to calculate the moving average.
+	 */
+	public void applyMovingAvg(int sampleBlockSize) {
+		
+		this.smoothedData = this.originalData.clone();
+
+		if (sampleBlockSize == 0) return;
 		
 		for (int i = sampleBlockSize/2; i < smoothedData.length - sampleBlockSize/2; i++) {
 			double localTotal = 0;
 			for (int j = (i - sampleBlockSize/2); j<(i+sampleBlockSize/2); j++) {
-				localTotal+=originalData[i];
+				localTotal+=originalData[j];
 			}
 			smoothedData[i]=(localTotal/sampleBlockSize);
 		}
-		
-		return createSeries();
+
 	}
 		
 	// doing trapezoidal rule for integration
@@ -321,13 +354,5 @@ public class AxisDataSeries {
 	public ArrayList<Double> getSamples() {
 		return new ArrayList<Double>(Arrays.asList(smoothedData));
 	}
-	
-	public boolean getActive() {
-		return isActive;
-	}
-	
-	public void setActive(boolean b) {
-		this.isActive = b;
-	}
+
 }
-	
