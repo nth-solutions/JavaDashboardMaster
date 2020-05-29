@@ -83,8 +83,9 @@ public class GraphNoSINCController implements Initializable {
 				
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
-				zoomLevel += event.getDeltaY() / 250;
-				zoomLevel = zoomLevel < 0 ? 0.01 : zoomLevel;
+				zoomLevel +=  zoomLevel * event.getDeltaY() / 250; //scaling the increase in zoom level by itself so zooming is more fluid feeling.
+				zoomLevel = zoomLevel < 0 ? 0.01 : zoomLevel; //this allows for unlimited outward zoom, we should restore this to a calculated value at some point
+
 				redrawGraph();
 				
 			}
@@ -200,6 +201,9 @@ public class GraphNoSINCController implements Initializable {
 		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
 		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
 		
+		ArrayList<Double> viewTimeData = new ArrayList<Double>();
+		ArrayList<Double> viewSamplesData = new ArrayList<Double>();
+		
 		if(!originalSamples.isEmpty() && !originalTime.isEmpty()) {
 			
 			zoomviewW = originalSamples.size() / zoomLevel;
@@ -213,7 +217,10 @@ public class GraphNoSINCController implements Initializable {
 			cleanSamplesData.add(originalSamples.get(i));
 			
 		}
-		
+		for(int x = (int)(zoomviewX - zoomviewW/1920); x < zoomviewX + zoomviewW/1920; x++) {
+			for(int y = (int)((-zoomviewH/9600) + zoomviewY); y < (zoomviewH/9600) + zoomviewY; y++) {
+			}
+		}
 		xAxis.setLowerBound(zoomviewX - zoomviewW/1920);
 		xAxis.setUpperBound(zoomviewX + zoomviewW/1920);
 		
