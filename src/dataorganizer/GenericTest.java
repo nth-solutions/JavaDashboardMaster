@@ -257,9 +257,8 @@ public class GenericTest {
 				List<Double> temp = new ArrayList<Double>();
 				dataSamples.add(dof, temp);
 			} System.out.println("third");
-			/*
+			
 			 // Adds null Samples for when the delay is less than 0 (DelayAfterStart depends on Camera Delay)
-			 */
 			if (delayAfterStart < 0) {
 				int delayAdditionalLineNums = (int) Math.round(((double) delayAfterStart / -1000.0) * (double) (timer0 / 4)); // sampleRate is equal to timer0 / 4. ((timer0 * 250)/4) is the unsimplified expression.
 
@@ -321,11 +320,12 @@ public class GenericTest {
 			lengthOfTest = (double) lineNum / (double) sampleRate; // Dimension analysis principle; Samples / (Samples / Unit Time) = Time
 			System.out.println("sixth");
 			
+			
 			/****************************New organization algorithm*********************************************/
 			
-			/*
+			
 			//Initializes list of lists -see description of dataSamples at top of class
-			dataSamples = new ArrayList<List<Double>>();
+			/*dataSamples = new ArrayList<List<Double>>();
 			for (int dof = 0 ; dof<10; dof++ ) {
 				List<Double> temp = new ArrayList<Double>();
 				try {
@@ -337,9 +337,9 @@ public class GenericTest {
 			System.out.println("third");
 			//Populate acceleration x, y, and z
 			for(int i = 0; i < finalData.length -7; i+=7) {
-			dataSamples.get(1).add((double)finalData[i]+(double)finalData[i+1]*256); i+=2; 
-			dataSamples.get(2).add((double)finalData[i]+(double)finalData[i+1]*256); i+=2; 
-			dataSamples.get(3).add((double)finalData[i]+(double)finalData[i+1]*256); i+=1;	
+			dataSamples.get(1).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
+			dataSamples.get(2).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
+			dataSamples.get(3).add((double)(finalData[i]*256)+finalData[i+1]); i+=1;	
 			//Starting at index 5, the counter must be incremented by an extra 6 every 126 bytes to account for the magnetometer data every 10th time index 
 			if((i-5)%126==0) i+=6;		
 			}
@@ -347,9 +347,9 @@ public class GenericTest {
 			System.out.println("fourth");
 			//Populate gyroscope x, y, and z
 			for(int i = 6; i < finalData.length -7; i+=7) {
-			dataSamples.get(4).add((double)finalData[i]+(double)finalData[i+1]*256); i+=2; 
-			dataSamples.get(5).add((double)finalData[i]+(double)finalData[i+1]*256); i+=2; 
-			dataSamples.get(6).add((double)finalData[i]+(double)finalData[i+1]*256); i+=1;
+			dataSamples.get(4).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
+			dataSamples.get(5).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
+			dataSamples.get(6).add((double)(finalData[i]*256)+finalData[i+1]); i+=1;
 			//Starting at index 11, the counter must be incremented by an extra 6 every 126 bytes to account for the magnetometer data every 10th time index
 			if((i-11)%126==0) i+=6;	
 			}
@@ -357,11 +357,11 @@ public class GenericTest {
 			
 			//populate magnetometer x, y, and z
 			for(int i = 12; i<finalData.length-121; i+=121) {
-			dataSamples.get(7).add((double)finalData[i]+(double)finalData[i+1]*256); i+=2; 
-			dataSamples.get(8).add((double)finalData[i]+(double)finalData[i+1]*256); i+=2; 
-			dataSamples.get(9).add((double)finalData[i]+(double)finalData[i+1]*256); i+=1;		
+			dataSamples.get(7).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
+			dataSamples.get(8).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
+			dataSamples.get(9).add((double)(finalData[i]*256)+finalData[i+1]); i+=1;		
 			}
-			System.out.println("6"); */
+			System.out.println("6");*/
 			
 			//create time axis by mapping each sample to its ordinal position in the sample array divided by the sample rate
 			//may try to implement use of timer0 in future
@@ -417,13 +417,13 @@ public class GenericTest {
 			}
 			/************************************************magnitude series********************************************************************************************/		
 			//accel magnitude
-			axes[3] = new AxisDataSeries(timeAxis, dataSamples.get(0), AxisType.valueOf(3), false, sampleRate); 
+			axes[3] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(3), false, sampleRate); 
 			 System.out.println("16");
 			// velocity magnitude
-			axes[7] = new AxisDataSeries(timeAxis, dataSamples.get(0), AxisType.valueOf(7), false, sampleRate);
+			axes[7] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(7), false, sampleRate);
 			 System.out.println("17");
 			//displacement magnitude
-			axes[11] = new AxisDataSeries(timeAxis, dataSamples.get(0), AxisType.valueOf(11), false, sampleRate);
+			axes[11] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(11), false, sampleRate);
 			 System.out.println("18");
 			// Angular accel magnitude
 			axes[15] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(15), false, sampleRate);
@@ -440,13 +440,17 @@ public class GenericTest {
 			
 			 //goes until length-1 to account for potential difference in length of 1 b/w accel and gyro series
 			for (int i = 0; i < dataSamples.get(1).size()-1; i++) {
+				try {
 				axes[3].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[0].getSmoothedData()[i], 2)+Math.pow(axes[1].getSmoothedData()[i], 2)+Math.pow(axes[2].getSmoothedData()[i], 2)));
 				axes[7].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[4].getSmoothedData()[i], 2)+Math.pow(axes[5].getSmoothedData()[i], 2)+Math.pow(axes[6].getSmoothedData()[i], 2)));
 				axes[11].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[8].getSmoothedData()[i], 2)+Math.pow(axes[9].getSmoothedData()[i], 2)+Math.pow(axes[10].getSmoothedData()[i], 2)));
 				axes[15].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[12].getSmoothedData()[i], 2)+Math.pow(axes[13].getSmoothedData()[i], 2)+Math.pow(axes[14].getSmoothedData()[i], 2)));
 				axes[19].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[16].getSmoothedData()[i], 2)+Math.pow(axes[17].getSmoothedData()[i], 2)+Math.pow(axes[18].getSmoothedData()[i], 2)));
 				axes[23].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[20].getSmoothedData()[i], 2)+Math.pow(axes[21].getSmoothedData()[i], 2)+Math.pow(axes[22].getSmoothedData()[i], 2)));
-				
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+				}
 				if(i == dataSamples.get(1).size()-1) {
 					System.out.println("23");
 				}
