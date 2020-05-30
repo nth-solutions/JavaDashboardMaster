@@ -191,6 +191,8 @@ public class EducatorModeControllerFX implements Initializable {
     //double radiusOfTorqueArmSpring;
     private DataOrganizer dataOrgo;
     private DataOrganizer dataOrgoTwo;
+    private GenericTest g1;
+    private GenericTest g2;
 
     //Colors
     private Color DarkGreen = Color.rgb(51, 204, 51);
@@ -1783,6 +1785,11 @@ public class EducatorModeControllerFX implements Initializable {
                                                 break;
                                             }
                                         }
+                                        //test for null MPUMinMax
+                                        System.out.println(serialHandler.getMPUMinMax()+"EMFX ln 1789");
+                                        //Initialize GenericTest object to store and organize data to be graphed
+                                        g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());      
+                                        
                                         String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                         dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                         dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
@@ -1941,6 +1948,9 @@ public class EducatorModeControllerFX implements Initializable {
                                             break;
                                         }
                                     }
+                                    //Initialize GenericTest object to store and organize data to be graphed
+                                    g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());   
+                                   
                                     String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                     dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
@@ -2086,6 +2096,10 @@ public class EducatorModeControllerFX implements Initializable {
                                             break;
                                         }
                                     }
+                                    
+                                    //Initialize GenericTest object to store and organize data to be graphed
+                                    g2 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());   
+                                    
                                     String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgoTwo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                     dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
@@ -2405,10 +2419,17 @@ public class EducatorModeControllerFX implements Initializable {
         	
         	if (result.get() == ButtonType.OK) {
         		
+        		Alert b = new Alert(AlertType.CONFIRMATION, "Show data organized with GenericTest?");
+            	Optional<ButtonType> result1 = b.showAndWait();
+            	if (result1.get() == ButtonType.OK) {
+            		 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
+                     g.setGenericTests(g1, g2);
+            	}
+            	else {
         		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
                 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
                 g.createTest(dataOrgo, dataOrgoTwo);
-        		
+            	}
         	} else {
         	
         		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();

@@ -808,9 +808,8 @@ public class DataOrganizer {
 			}
 		}*/
 		System.out.println("testtest1");
-		System.out.println(inRangeMeans);
 		System.out.println("testtest2");
-		System.out.println(Collections.min(inRangeMeans.get(0)));
+		//System.out.println(Collections.min(inRangeMeans.get(0)));
 		System.out.println("testtest3");
 
 		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 
