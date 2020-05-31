@@ -2424,16 +2424,17 @@ public class EducatorModeControllerFX implements Initializable {
                 // temporary selection between data pipelines
                 // TODO eventually phase out DataOrganizer pipeline
         		Alert b = new Alert(AlertType.CONFIRMATION, "Read data directly from module via SerialComm?");
-            	Optional<ButtonType> result1 = b.showAndWait();
+                Optional<ButtonType> result1 = b.showAndWait();
+                
             	if (result1.get() == ButtonType.OK) {
             		 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
                      g.setGenericTests(g1, g2);
             	}
             	else {
-        		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
-                GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
-                g.createTest(dataOrgo, dataOrgoTwo);
-            	}
+                    GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
+                    g.createTest(dataOrgo, dataOrgoTwo);
+                }
+                
         	} else {
         	
         		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();

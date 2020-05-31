@@ -1,8 +1,6 @@
 package dataorganizer;
 
-import static java.lang.Thread.getAllStackTraces;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,8 +90,6 @@ public class GraphNoSINCController implements Initializable {
 			
 		});
 		
-		
-		
 		lineChart.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			public void handle(MouseEvent event) {
@@ -177,6 +173,11 @@ public class GraphNoSINCController implements Initializable {
 		*/
 	}
 	
+	/**
+	 * Old method of passing data to NewGraph reading from DataOrganizer(s).
+	 * @deprecated use {@link #setGenericTests(GenericTest, GenericTest)} instead.
+	 */
+	@Deprecated
 	public void createTest(DataOrganizer d1, DataOrganizer d2) {
 		
 		// Create GenericTest object if module exists -- otherwise, "null"
@@ -375,9 +376,10 @@ public class GraphNoSINCController implements Initializable {
 			e.printStackTrace();
 		}
 
-		// TODO change "29" to AxisType.values().length later;
-		// not all axes are being utilized currently
-		for (int i = 0; i < 29; i++)
+		// apply moving avgs to all axes
+		// TODO potentially only apply to current axis?
+		// this could speed up calculations/program
+		for (int i = 0; i < AxisType.values().length; i++)
 		{
 			genericTestOne.getAxis(AxisType.valueOf(i)).applyMovingAvg(sampleBlockSize);
 		}
