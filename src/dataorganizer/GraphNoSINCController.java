@@ -185,21 +185,28 @@ public class GraphNoSINCController implements Initializable {
         if (d2 != null) genericTestTwo = new GenericTest(d2);
 		
 		// TEST CODE - TO BE REPLACED LATER
+		// TODO select data set to graph based on type of GenericTest
+		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
         createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
 		
 	}
 
-	public void setGenericTests(GenericTest g1, GenericTest g2) {	
+	public void setGenericTests(GenericTest g1, GenericTest g2) {
+
 		genericTestOne = g1;
 		genericTestTwo = g2;
 	
-	 createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
+		// TEST CODE - TO BE REPLACED LATER
+		// TODO select data set to graph based on type of GenericTest
+		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
+	 	createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
 		
 	}
 	
 	public void redrawGraph() {
 		
 		// DEBUG CODE FOR TESTING -- NOT FOR PRODUCTION
+		// TODO rework resolution/partial rendering of samples
 		if (debugIgnoreResCheckbox.isSelected()) {
 			resolution = 1;
 		} else { 

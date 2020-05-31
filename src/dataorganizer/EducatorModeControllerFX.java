@@ -2413,13 +2413,17 @@ public class EducatorModeControllerFX implements Initializable {
             lineGraph.loadConservationOfMomentumTemplate();
 
         } else {
-        	
+            
+            // temporary selection between graph types
+            // TODO create final UI for selecting graph applications
         	Alert a = new Alert(AlertType.CONFIRMATION, "Open the No SINC Graph application?");
         	Optional<ButtonType> result = a.showAndWait();
         	
         	if (result.get() == ButtonType.OK) {
-        		
-        		Alert b = new Alert(AlertType.CONFIRMATION, "Show data organized with GenericTest?");
+                
+                // temporary selection between data pipelines
+                // TODO eventually phase out DataOrganizer pipeline
+        		Alert b = new Alert(AlertType.CONFIRMATION, "Read data directly from module via SerialComm?");
             	Optional<ButtonType> result1 = b.showAndWait();
             	if (result1.get() == ButtonType.OK) {
             		 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
