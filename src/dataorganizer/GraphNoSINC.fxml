@@ -7,17 +7,18 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
@@ -62,7 +63,7 @@
                      <content>
                         <VBox minWidth="200.0" prefWidth="200.0">
                            <children>
-                              <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" spacing="5.0">
+                              <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" prefWidth="398.0" spacing="5.0">
                                  <children>
                                     <HBox alignment="CENTER" layoutX="102.0" layoutY="66.0" />
                                     <HBox alignment="CENTER" layoutX="102.0" layoutY="91.0" />
@@ -78,7 +79,7 @@
                                     <Insets />
                                  </VBox.margin>
                               </VBox>
-                              <VBox alignment="CENTER" spacing="5.0">
+                              <VBox alignment="CENTER" prefHeight="124.0" prefWidth="398.0" spacing="5.0">
                                  <children>
                                     <Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
                                        <padding>
@@ -105,20 +106,86 @@
                                     <Insets left="5.0" right="5.0" />
                                  </padding>
                               </VBox>
-                              <Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="252.0" prefWidth="361.0">
+                              <Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="398.0">
                                 <panes>
-                                  <TitledPane fx:id="dataSourceTitledPane" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="229.0" prefWidth="200.0" text="Data Set 1">
-                                    <content>
-                                          <FlowPane fx:id="dataDisplayCheckboxesFlowPane" orientation="VERTICAL" />
-                                    </content>
+                                  <TitledPane fx:id="dataSourceTitledPane" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="334.0" prefWidth="398.0" text="Module 1">
                                        <font>
                                           <Font size="10.0" />
                                        </font>
-                                  </TitledPane>
-                                    <TitledPane fx:id="dataSourceTitledPane1" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="229.0" prefWidth="200.0" text="Data Set 2">
                                        <content>
-                                          <FlowPane fx:id="dataDisplayCheckboxesFlowPane1" orientation="VERTICAL" />
+                                          <Pane prefHeight="200.0" prefWidth="200.0">
+                                             <children>
+                                                <GridPane alignment="CENTER" layoutX="43.0" layoutY="14.0" prefHeight="240.0" prefWidth="311.0">
+                                                  <columnConstraints>
+                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="173.0" minWidth="10.0" prefWidth="173.0" />
+                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
+                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="60.0" prefWidth="40.0" />
+                                                  </columnConstraints>
+                                                  <rowConstraints>
+                                                    <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                    <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                  </rowConstraints>
+                                                   <children>
+                                                      <Label text="X" GridPane.columnIndex="1" />
+                                                      <Label text="Y" GridPane.columnIndex="2" />
+                                                      <Label text="Z" GridPane.columnIndex="3" />
+                                                      <Label text="Magnitude" GridPane.columnIndex="4" />
+                                                      <Label text="Acceleration" GridPane.rowIndex="1" />
+                                                      <Label prefHeight="17.0" prefWidth="170.0" text="Linear Acceleration" GridPane.rowIndex="8" />
+                                                      <Label text="Velocity" GridPane.rowIndex="2" />
+                                                      <Label text="Displacement" GridPane.rowIndex="3" />
+                                                      <Label prefHeight="17.0" prefWidth="165.0" text="Angular Acceleration" GridPane.rowIndex="4" />
+                                                      <Label text="Angular Velocity" GridPane.rowIndex="5" />
+                                                      <Label text="Angular Displacement" GridPane.rowIndex="6" />
+                                                      <Label text="Magnetometer" GridPane.rowIndex="7" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AccelX" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AccelY" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AccelZ" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AccelMag" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="VelX" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="VelY" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="VelZ" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="VelMag" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="DispX" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="DispY" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="DispZ" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="DispMag" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngAccX" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngAccY" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngAccZ" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngAccMag" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngVelX" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngVelY" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngVelZ" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngVelMag" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngDispX" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngDispY" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngDispZ" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="AngDispMag" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="MagnetX" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="MagnetY" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="MagnetZ" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="MagnetMag" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="LinAccelX" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="LinAccelY" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="LinAccelZ" GridPane.columnIndex="3" GridPane.rowIndex="8" />
+                                                      <CheckBox mnemonicParsing="false" onAction="#graphAxis" userData="LinAccelMag" GridPane.columnIndex="4" GridPane.rowIndex="8" />
+                                                   </children>
+                                                </GridPane>
+                                             </children>
+                                          </Pane>
                                        </content>
+                                  </TitledPane>
+                                    <TitledPane fx:id="dataSourceTitledPane1" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="229.0" prefWidth="200.0" text="Module 2">
                                        <font>
                                           <Font size="10.0" />
                                        </font>
@@ -135,19 +202,6 @@
       </SplitPane>
       <MenuBar prefWidth="1440.0">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
-                  <MenuItem mnemonicParsing="false" onAction="#graphMomentum" text="Import Conservation of Momentum Test" />
-            </items>
-          </Menu>
-          <Menu mnemonicParsing="false" text="Data ">
-            <items>
-              <MenuItem mnemonicParsing="false" onAction="#clearDataAll" text="Clear Data: All" />
-                  <MenuItem mnemonicParsing="false" onAction="#clearDataSetOne" text="Clear Data: Set 1" />
-                  <MenuItem mnemonicParsing="false" onAction="#clearDataSetTwo" text="Clear Data: Set 2" />
-            </items>
-          </Menu>
         </menus>
       </MenuBar>
    </children>

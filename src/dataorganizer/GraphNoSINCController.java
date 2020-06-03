@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -385,24 +386,15 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 	}
-	public void importCSV(ActionEvent event) {
-		
-	}
+
 	@FXML
-	public void graphMomentum(ActionEvent event) {
-		
-	}
-	@FXML
-	public void clearDataAll(ActionEvent event) {
-		
-	}
-	@FXML
-	public void clearDataSetOne(ActionEvent event) {
-		
-	}
-	@FXML
-	public void clearDataSetTwo(ActionEvent event) {
-		
+	public void graphAxis(ActionEvent event) {
+
+		Node node = (Node) event.getSource();
+		String data = (String) node.getUserData();
+
+		createSeries(genericTestOne.getAxis(AxisType.valueOf(data)).getTime(), genericTestOne.getAxis(AxisType.valueOf(data)).getSamples());
+
 	}
 
 }
