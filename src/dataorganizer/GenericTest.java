@@ -130,11 +130,14 @@ public class GenericTest {
 				magTimeAxis.add((double)i/((double)magSampleRate)); 
 			}
 
+			/*
+			// TODO didn't seem to be working (consistently made time 1-2 entries longer than data)
 			// Pad time axis with two entries at the end to prevent misalignments in length with gyro samples (off by 1 or 2) 
 			if (i == dataSamples.get(1).size()-1) {
 				//dataSamples.get(0).add((double)i+1/((double)sampleRate));
 				timeAxis.add((double)i+2/((double)sampleRate));
 			}
+			*/
 		}
 		
 		// initialize axis data series
@@ -255,7 +258,7 @@ public class GenericTest {
 			axes[31].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[28].getSmoothedData()[i], 2)+Math.pow(axes[29].getSmoothedData()[i], 2)+Math.pow(axes[30].getSmoothedData()[i], 2)));
 		
 		}
-				
+		
 	}
 
 	/**

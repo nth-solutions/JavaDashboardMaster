@@ -1,9 +1,10 @@
 package dataorganizer;
 
-
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
@@ -15,29 +16,36 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 
 public class GraphNoSINCController implements Initializable {
 
+	// TODO implement 2nd module functionality ("genericTestTwo" not used currently)
+
+	// GenericTest represents a single module and associated test data
+	private GenericTest genericTestOne;
+
+	// "genericTestTwo" will NOT be assigned if running a single module test
+	private GenericTest genericTestTwo;
 	
-	private GenericTest genericTestOne; //object for holding the generic test for module 1
-	private GenericTest genericTestTwo; //object for holding the generic test for module 2
-	
+	private int testLength;
 	private double zoomLevel;
 	
 	private double graphWidth;
 	private double graphHeight;
 	
+	
+	private Map<AxisType, XYChart.Series<Number, Number>> dataSets;
+
 	private ArrayList<Double> originalSamples;
 	private ArrayList<Double> originalTime;
 	
@@ -64,9 +72,24 @@ public class GraphNoSINCController implements Initializable {
 	
 	private boolean mouseIsHeld;
 
+	@FXML
+	private LineChart<Number,Number> lineChart;
+	
+	@FXML
+	private NumberAxis xAxis;
+	
+	@FXML
+	private NumberAxis yAxis;
+
+	@FXML
+	private TextField rollingBlockTextField;
+
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
+		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
+
 		zoomLevel = 1.0;
 		resolution = 20;
 		
@@ -82,8 +105,12 @@ public class GraphNoSINCController implements Initializable {
 				
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
-				zoomLevel +=  zoomLevel * event.getDeltaY() / 250; //scaling the increase in zoom level by itself so zooming is more fluid feeling.
-				zoomLevel = zoomLevel < 0 ? 0.01 : zoomLevel; //this allows for unlimited outward zoom, we should restore this to a calculated value at some point
+
+				// Scaling the increase in zoom level by itself so zooming is more fluid feeling
+				zoomLevel +=  zoomLevel * event.getDeltaY() / 250;
+
+				// TODO restore "0.01" to a calculated value at some point; warnings for too many tickmarks are still printed
+				zoomLevel = zoomLevel < 0 ? 0.01 : zoomLevel;
 
 				redrawGraph();
 				
@@ -173,6 +200,237 @@ public class GraphNoSINCController implements Initializable {
 		});
 		*/
 	}
+
+	/**
+	 * <p>Populates the data analysis graph with GenericTests.</p>
+	 * <p>g2 will be null for a One Module setup.</p>
+	 * @param g1 GenericTest associated with module 1
+	 * @param g2 GenericTest associated with module 2 (if applicable)
+	 */
+	public void setGenericTests(GenericTest g1, GenericTest g2) {
+
+		// g1/g2 are allowed to be null here (differentiating One/Two Module setup)
+		genericTestOne = g1;
+		genericTestTwo = g2;
+
+		// the AxisType is arbitrary (all non-magnetometer axes are same length)
+		testLength = g1.getAxis(AxisType.AccelX).getOriginalData().length;
+	
+		// TEST CODE - TO BE REPLACED LATER
+		// TODO select data set to graph based on type of GenericTest
+		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
+	 	graphAxis(AxisType.AccelX);
+		
+	}
+	
+	/**
+	 * Handles zooming/panning of the graph.
+	 * Called every time the event loop (Timer) ticks.
+	 */
+	public void redrawGraph() {
+
+		zoomviewW = testLength / zoomLevel;
+		zoomviewH = testLength / zoomLevel;
+
+		xAxis.setLowerBound(zoomviewX - zoomviewW/1920);
+		xAxis.setUpperBound(zoomviewX + zoomviewW/1920);
+		
+		yAxis.setLowerBound((-zoomviewH/9600) + zoomviewY);
+		yAxis.setUpperBound((zoomviewH/9600) + zoomviewY);
+		
+		// DEBUG CODE FOR TESTING -- NOT FOR PRODUCTION
+		/* TODO rework resolution/partial rendering of samples
+		if (debugIgnoreResCheckbox.isSelected()) {
+			resolution = 1;
+		} else { 
+			resolution = (int)(96 / zoomLevel);
+		}
+		*/
+
+		/*
+		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
+		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
+		*/
+
+		/*
+		for(int i = 0; i < originalSamples.size(); i+=resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
+			
+			cleanTimeData.add(originalTime.get(i));
+			cleanSamplesData.add(originalSamples.get(i));
+			
+		}
+		*/
+		
+		/*
+		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//sets up a new series
+		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+		
+		for (int i = 0; i < cleanSamplesData.size(); i++) {		
+            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i))); 
+		}
+
+		lineChart.getData().clear();
+		lineChart.getData().add(series);
+		
+		series.setData(seriesData);
+		*/
+		
+	}
+
+	/**
+	 * Draws/removes an axis from the graph.
+	 * @param axis the AxisType to be drawn/removed
+	 */
+	public void graphAxis(AxisType axis) {
+
+		// get index of data set in line chart (if -1, does not exist)
+		int dataIndex = lineChart.getData().indexOf(dataSets.get(axis));
+
+		// get checkbox by looking up FXID (the name of the AxisType)
+		CheckBox c = (CheckBox) lineChart.getScene().lookup("#" + axis);
+
+		// if axis is not already graphed:
+		if (dataIndex == -1) {
+
+			System.out.println("Graphing " + axis);
+
+			/*
+			Hierarchy of graph in application:
+
+			1) LineChart - contains all data sets and graphs, does not change
+			2) XYChart.Series - child of LineChart; there can be multiple of these under one LineChart
+			3) XYChart.Data - numerical data set component, only one per XYChart.Series
+			*/
+			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+
+			// get time/samples data sets
+			List<Double> time = genericTestOne.getAxis(axis).getTime();
+			List<Double> data = genericTestOne.getAxis(axis).getSamples();
+
+			// create (Time, Data) -> (X,Y) pairs
+			for (int i = 0; i < data.size(); i+=resolution) {
+				seriesData.add(new XYChart.Data<>(time.get(i), data.get(i)));
+			}
+	
+			// TODO switch this to a pretty-printed version of AxisType?
+			series.setName(axis.toString());
+
+			// add XYChart.Data to XYChart.Series
+			series.setData(seriesData);
+
+			// add to HashMap of currently drawn axes
+			dataSets.put(axis, series);
+			
+			// add XYChart.Series to LineChart
+			lineChart.getData().add(series);
+
+			// tick the checkbox
+			c.setSelected(true);
+
+		// if axis is already graphed:
+		} else {
+
+			System.out.println("Removing " + axis);
+
+			// remove XYChart.Series from LineChart
+			lineChart.getData().remove(dataSets.get(axis));
+
+			// remove axis & XYChart.Series key-value pair from HashMap
+			dataSets.remove(axis);
+
+			// untick the checkbox
+			c.setSelected(false);
+
+		}
+
+	}
+
+	/**
+	 * Redraws an axis already on the graph.
+	 * @param axis the AxisType to be drawn/removed
+	 */
+	public void updateAxis(AxisType axis) {
+
+		System.out.println("Updating " + axis);
+
+		// retrieve XYChart.Series and ObservableList from HashMap
+		XYChart.Series<Number, Number> series = dataSets.get(axis);
+		ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
+
+		// clear samples in ObservableList
+		seriesData.clear();
+
+		// get time/samples data sets
+		List<Double> time = genericTestOne.getAxis(axis).getTime();
+		List<Double> data = genericTestOne.getAxis(axis).getSamples();
+
+		// create (Time, Data) -> (X,Y) pairs
+		for (int i = 0; i < data.size(); i+=resolution) {
+			seriesData.add(new XYChart.Data<>(time.get(i), data.get(i)));
+		}
+		
+		// add XYChart.Data to XYChart.Series
+		series.setData(seriesData);
+
+	}
+
+	@FXML
+	public void handleReset(ActionEvent event) {
+		
+		zoomviewX = resetZoomviewX;
+		zoomviewY = resetZoomviewY;
+		zoomLevel = 1.0;
+		
+		redrawGraph();
+		
+	}
+
+	@FXML
+	public void rollingBlockHandler(ActionEvent event) {
+		
+		int sampleBlockSize = 0;
+
+		try {
+			sampleBlockSize = Integer.parseInt(rollingBlockTextField.getText());
+		}
+		catch (NumberFormatException e) {
+			Alert alert = new Alert(AlertType.ERROR);
+			//alert.setTitle("Information Dialog");
+			alert.setHeaderText("Invalid input");
+			alert.setContentText("Please change your rolling average block size to a numerical value.");
+
+			alert.showAndWait();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// workaround to "local variable defined in enclosing scope must be final or effectively final"
+		final int blockSize = sampleBlockSize;
+
+		// apply moving avgs to all currently drawn axes
+		dataSets.forEach((axis, series) -> {
+			genericTestOne.getAxis(axis).applyMovingAvg(blockSize);
+			updateAxis(axis);
+		});
+
+	}
+	
+	/**
+	 * Called by JavaFX when a data set's checkbox is ticked.
+	 */
+	@FXML
+	public void chooseGraphAxis(ActionEvent event) {
+
+		// get AxisType from checkbox
+		CheckBox c = (CheckBox) event.getSource();
+		String axis = (String) c.getId();
+		AxisType a = AxisType.valueOf(axis);
+
+		graphAxis(a);
+
+	}
 	
 	/**
 	 * Old method of passing data to NewGraph reading from DataOrganizer(s).
@@ -189,75 +447,17 @@ public class GraphNoSINCController implements Initializable {
 		// TEST CODE - TO BE REPLACED LATER
 		// TODO select data set to graph based on type of GenericTest
 		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-        createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
+        graphAxis(AxisType.AccelX);
 		
 	}
 
-	public void setGenericTests(GenericTest g1, GenericTest g2) {
-
-		genericTestOne = g1;
-		genericTestTwo = g2;
-	
-		// TEST CODE - TO BE REPLACED LATER
-		// TODO select data set to graph based on type of GenericTest
-		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-	 	createSeries(genericTestOne.getAxis(AxisType.AccelX).getTime(), genericTestOne.getAxis(AxisType.AccelX).getSamples());
-		
-	}
-	
-	public void redrawGraph() {
-		
-		// DEBUG CODE FOR TESTING -- NOT FOR PRODUCTION
-		// TODO rework resolution/partial rendering of samples
-		if (debugIgnoreResCheckbox.isSelected()) {
-			resolution = 1;
-		} else { 
-			resolution = (int)(96 / zoomLevel);
-		}
-
-		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
-		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
-		
-		ArrayList<Double> viewTimeData = new ArrayList<Double>();
-		ArrayList<Double> viewSamplesData = new ArrayList<Double>();
-		
-		if(!originalSamples.isEmpty() && !originalTime.isEmpty()) {
-			
-			zoomviewW = originalSamples.size() / zoomLevel;
-			zoomviewH = originalTime.size() / zoomLevel;
-			
-		}
-		
-		for(int i = 0; i < originalSamples.size(); i+=resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
-			
-			cleanTimeData.add(originalTime.get(i));
-			cleanSamplesData.add(originalSamples.get(i));
-			
-		}
-		for(int x = (int)(zoomviewX - zoomviewW/1920); x < zoomviewX + zoomviewW/1920; x++) {
-			for(int y = (int)((-zoomviewH/9600) + zoomviewY); y < (zoomviewH/9600) + zoomviewY; y++) {
-			}
-		}
-		xAxis.setLowerBound(zoomviewX - zoomviewW/1920);
-		xAxis.setUpperBound(zoomviewX + zoomviewW/1920);
-		
-		yAxis.setLowerBound((-zoomviewH/9600) + zoomviewY);
-		yAxis.setUpperBound((zoomviewH/9600) + zoomviewY);
-		
-		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//sets up a new series
-		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-		
-		for (int i = 0; i < cleanSamplesData.size(); i++) {		
-            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i))); 
-		}
-
-		lineChart.getData().clear();
-		lineChart.getData().add(series);
-		
-		series.setData(seriesData);
-		
-	}
-	
+	/**
+	 * Old method for graphing data sets.
+	 * @deprecated use {@link #graphAxis(AxisType)} instead.
+	 * @param timeData
+	 * @param samplesData
+	 */
+	@Deprecated
 	public void createSeries(ArrayList<Double> timeData, ArrayList<Double> samplesData) {
 		
 		originalTime = (ArrayList<Double>) timeData.clone();
@@ -299,38 +499,21 @@ public class GraphNoSINCController implements Initializable {
 		redrawGraph();
 		
 	}
-	
-	@FXML
-	private LineChart<Number,Number> lineChart;
-	
-	@FXML
-	private NumberAxis xAxis;
-	
-	@FXML
-	private NumberAxis yAxis;
 
-	@FXML
-	private TextField rollingBlockTextField;
-	
-	@FXML
-	public void handleReset(ActionEvent event) {
-		
-		zoomviewX = resetZoomviewX;
-		zoomviewY = resetZoomviewY;
-		zoomLevel = 1.0;
-		
-		redrawGraph();
-		
-	}
-	@FXML
-	public void handleZoom(ActionEvent event) {
-		
-	}
-
-	//====================================================
-	// DEBUG CODE USED FOR TESTING -- NOT FOR PRODUCTION
+	//=========================================================
+	// DEBUG CODE BELOW USED FOR TESTING -- NOT FOR PRODUCTION
+	//=========================================================
 	@FXML
 	private CheckBox debugIgnoreResCheckbox;
+
+	
+	@FXML
+	public void debugShowAllSamples(ActionEvent event) {
+
+		CheckBox c = (CheckBox) event.getSource();
+		resolution = c.isSelected() ? 1 : 20;
+		
+	}
 
 	@FXML
 	public void debugGraphAxis(ActionEvent event) {
@@ -350,50 +533,8 @@ public class GraphNoSINCController implements Initializable {
 
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()){
-			createSeries(genericTestOne.getAxis(AxisType.valueOf(result.get())).getTime(), genericTestOne.getAxis(AxisType.valueOf(result.get())).getSamples());
+			graphAxis(AxisType.valueOf(result.get()));
 		}
-
-	}
-
-	//====================================================
-
-	@FXML
-	public void rollingBlockHandler(ActionEvent event) {
-		
-		int sampleBlockSize = 0;
-
-		try {
-			sampleBlockSize = Integer.parseInt(rollingBlockTextField.getText());
-		}
-		catch (NumberFormatException e) {
-			Alert alert = new Alert(AlertType.ERROR);
-			//alert.setTitle("Information Dialog");
-			alert.setHeaderText("Invalid input");
-			alert.setContentText("Please change your rolling average block size to a numerical value.");
-
-			alert.showAndWait();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// apply moving avgs to all axes
-		// TODO potentially only apply to current axis?
-		// this could speed up calculations/program
-		for (int i = 0; i < AxisType.values().length; i++)
-		{
-			genericTestOne.getAxis(AxisType.valueOf(i)).applyMovingAvg(sampleBlockSize);
-		}
-
-	}
-
-	@FXML
-	public void graphAxis(ActionEvent event) {
-
-		Node node = (Node) event.getSource();
-		String data = (String) node.getUserData();
-
-		createSeries(genericTestOne.getAxis(AxisType.valueOf(data)).getTime(), genericTestOne.getAxis(AxisType.valueOf(data)).getSamples());
 
 	}
 

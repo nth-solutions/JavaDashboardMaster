@@ -1411,7 +1411,8 @@ public class EducatorModeControllerFX implements Initializable {
 
                                                 try {
                                                     Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-                                                } catch (Exception exceptionalexception) {                              // This error should never happen
+                                                } catch (Exception e) {                              // This error should never happen
+                                                    e.printStackTrace();
                                                     System.out.println("If you got this error, something went seriously wrong");
                                                 }
 
@@ -1480,6 +1481,13 @@ public class EducatorModeControllerFX implements Initializable {
                             progressBar.setStyle("-fx-accent: red;");
                             progressBar.setProgress(100);
                         });
+
+                    }
+
+                    catch (Exception e) {
+
+                        e.printStackTrace();
+                        System.err.println("An error occured in readTestsFromModule()");
 
                     }
                 }
@@ -1788,8 +1796,14 @@ public class EducatorModeControllerFX implements Initializable {
                                         //test for null MPUMinMax
                                         System.out.println(serialHandler.getMPUMinMax()+"EMFX ln 1789");
                                         //Initialize GenericTest object to store and organize data to be graphed
-                                        g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());      
-                                        
+
+                                        try {
+                                            g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());      
+                                        }
+                                        catch (Exception e) {
+                                            e.printStackTrace();
+                                            System.err.println("Error creating GenericTest");
+                                        }
                                         String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                         dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                         dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
