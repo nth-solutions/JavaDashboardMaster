@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,39 +39,38 @@ public class GraphNoSINCController implements Initializable {
 	private GenericTest genericTestTwo;
 	
 	private int testLength;
-	private double zoomLevel;
 	
 	private double graphWidth;
 	private double graphHeight;
 	
-	
 	private Map<AxisType, XYChart.Series<Number, Number>> dataSets;
-
-	private ArrayList<Double> originalSamples;
-	private ArrayList<Double> originalTime;
 	
 	private int resolution;
 	
-	private double zoomviewX;
+	
+	//zooming + scrolling fields
+	private double mouseX;
+	private double mouseY;
+	private double zoomviewScalarX;
+	private double zoomviewScalarY;
+	private double leftScrollPercentage;
+	private double topScrollPercentage;
+	private double zoomviewX; 
 	private double zoomviewY;
 	private double zoomviewW;
 	private double zoomviewH;
-	private double initialZoomviewX;
-	private double initialZoomviewY;
 	private double resetZoomviewX;
 	private double resetZoomviewY;
+	private double resetZoomviewH;
+	private double resetZoomviewW;
 	
-	private double initialMouseX;
-	private double initialMouseY;
 	private double lastMouseX;
 	private double lastMouseY;
-	private double mouseDeltaX;
-	private double mouseDeltaY;
+
 	
 	private double scrollCenterX;
 	private double scrollCenterY;
 	
-	private boolean mouseIsHeld;
 
 	@FXML
 	private LineChart<Number,Number> lineChart;
@@ -90,27 +90,45 @@ public class GraphNoSINCController implements Initializable {
 		
 		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
 
-		zoomLevel = 1.0;
 		resolution = 20;
-		
+		zoomviewScalarX = 1;
+		zoomviewScalarY = 1;
 		resetZoomviewX = 0;
 		resetZoomviewY = 0;
-		
+		resetZoomviewW = 10;
+		resetZoomviewH = 5;
 		zoomviewX = 0;
 		zoomviewY = 0;
+		zoomviewW = 10;
+		zoomviewH = 5;
 		
+		//listener that runs every tick the mouse scrolls, calculates zooming
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
 			public void handle(ScrollEvent event) {	
 				
+				//saves the mouse location of the scroll event to x and y variables
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
-
-				// Scaling the increase in zoom level by itself so zooming is more fluid feeling
-				zoomLevel +=  zoomLevel * event.getDeltaY() / 250;
-
-				// TODO restore "0.01" to a calculated value at some point; warnings for too many tickmarks are still printed
-				zoomLevel = zoomLevel < 0 ? 0.01 : zoomLevel;
+				
+				/**
+				 * calculates the percentage of scroll either on the left or top of the screen
+				 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is 0.5, if it is three quarters to the right, it is 0.75
+				 */
+				leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
+				topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
+				
+				//decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
+				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
+				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+				
+				//enforces a minimum zoom by limiting the size of the viewport to at least 0.05 in graph space. Can be adjusted
+				if(zoomviewW < .05) zoomviewW = .05;
+				if(zoomviewH < .05) zoomviewH = .05;
+				
+				//moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
+				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
+				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
 				redrawGraph();
 				
@@ -118,88 +136,47 @@ public class GraphNoSINCController implements Initializable {
 			
 		});
 		
+		//listener that runs every tick the mouse is dragged, calculates scrolling
+		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>(){
+
+			@Override
+			public void handle(MouseEvent event) {
+				//get the mouse x and y position relative to the line chart
+				mouseX = event.getX();
+				mouseY = event.getY();
+				
+				//calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
+				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
+				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
+
+				//adds the change in mouse position this tick to the zoom view, converted into graph space
+				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
+				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
+				
+				redrawGraph();
+				
+				//sets last tick's mouse data as this tick's
+				lastMouseX = mouseX;
+				lastMouseY = mouseY;
+			}
+			
+		});
+		
+		//listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
 		lineChart.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			public void handle(MouseEvent event) {
 				
-				mouseIsHeld = true;
-				
-				initialMouseX = event.getX();
-				lastMouseX = event.getX();
-				initialMouseY = event.getY();
-				lastMouseY = event.getY();
-				
-				initialZoomviewX = zoomviewX;
-				initialZoomviewY = zoomviewY;
-			}
-			
-		});
-		
-		lineChart.setOnMouseReleased(new EventHandler<MouseEvent>() {
-
-			public void handle(MouseEvent arg0) {
-				
-				mouseIsHeld = false;
-
-			}
-			
-		});
-		
-		lineChart.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-			public void handle(MouseEvent arg0) {
-				
-				mouseIsHeld = false;
-				mouseDeltaX = 0;
-				mouseDeltaY = 0;
-			}
-			
-		});
-		
-		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>() {
-			
-			public void handle(MouseEvent event) {
-				
 				lastMouseX = event.getX();
 				lastMouseY = event.getY();
-				
-				redrawGraph();
 
 			}
 			
 		});
-		
-		
-		Timer dragTimer = new Timer();
-		TimerTask dragTask = new TimerTask() {
-
-			public void run() {
-				
-				if(mouseIsHeld) {
-					
-					mouseDeltaX = initialMouseX - lastMouseX;
-					mouseDeltaY = initialMouseY - lastMouseY;
-					
-					zoomviewX = initialZoomviewX + mouseDeltaX/(10.0 * zoomLevel);
-					zoomviewY = initialZoomviewY - mouseDeltaY/(15.0 * zoomLevel);
-					
-				}
-				
-			}
-			
-		};
-		
-		dragTimer.schedule(dragTask, 0,16);
-		 
-		/* This code is for checking if the size of the graph window has changed, could be useful later
-		lineChart.widthProperty().addListener((obs) -> {
-		    //redrawGraph();
-		});
-		lineChart.heightProperty().addListener((obs) -> {
-		    //redrawGraph();
-		});
-		*/
 	}
+		
+
+		
 
 	/**
 	 * <p>Populates the data analysis graph with GenericTests.</p>
@@ -225,56 +202,15 @@ public class GraphNoSINCController implements Initializable {
 	
 	/**
 	 * Handles zooming/panning of the graph.
-	 * Called every time the event loop (Timer) ticks.
 	 */
 	public void redrawGraph() {
 
-		zoomviewW = testLength / zoomLevel;
-		zoomviewH = testLength / zoomLevel;
+		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
+		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
+		
+		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
+		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
 
-		xAxis.setLowerBound(zoomviewX - zoomviewW/1920);
-		xAxis.setUpperBound(zoomviewX + zoomviewW/1920);
-		
-		yAxis.setLowerBound((-zoomviewH/9600) + zoomviewY);
-		yAxis.setUpperBound((zoomviewH/9600) + zoomviewY);
-		
-		// DEBUG CODE FOR TESTING -- NOT FOR PRODUCTION
-		/* TODO rework resolution/partial rendering of samples
-		if (debugIgnoreResCheckbox.isSelected()) {
-			resolution = 1;
-		} else { 
-			resolution = (int)(96 / zoomLevel);
-		}
-		*/
-
-		/*
-		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
-		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();	
-		*/
-
-		/*
-		for(int i = 0; i < originalSamples.size(); i+=resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
-			
-			cleanTimeData.add(originalTime.get(i));
-			cleanSamplesData.add(originalSamples.get(i));
-			
-		}
-		*/
-		
-		/*
-		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//sets up a new series
-		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-		
-		for (int i = 0; i < cleanSamplesData.size(); i++) {		
-            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i))); 
-		}
-
-		lineChart.getData().clear();
-		lineChart.getData().add(series);
-		
-		series.setData(seriesData);
-		*/
-		
 	}
 
 	/**
@@ -288,7 +224,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// get checkbox by looking up FXID (the name of the AxisType)
 		CheckBox c = (CheckBox) lineChart.getScene().lookup("#" + axis);
-
+		
 		// if axis is not already graphed:
 		if (dataIndex == -1) {
 
@@ -304,10 +240,27 @@ public class GraphNoSINCController implements Initializable {
 			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 
-			// get time/samples data sets
-			List<Double> time = genericTestOne.getAxis(axis).getTime();
-			List<Double> data = genericTestOne.getAxis(axis).getSamples();
-
+			List<Double> time;
+			List<Double> data;
+			
+			//check if axis type is "simulated", otherwise use genericTest data
+			if(axis.getValue() == 32) {
+				int size = 9600;
+				time = new ArrayList<Double>();
+				data = new ArrayList<Double>();
+				testLength = size;
+				Random rand = new Random();
+				for(int i = 0; i < size; i+= resolution) {
+		    		data.add(Math.log(i/3000.0 + 1.0) + 5 * Math.sin(i / 1000.0) * (((i-10000)/1000.0) / (1 + (((i-10000)/1000.0)*((i-10000)/1000.0)))) + (rand.nextDouble() - 0.5));
+		    		time.add(i / 960.0);
+		    	}
+			}
+			else {
+				
+				// get time/samples data sets
+				time = genericTestOne.getAxis(axis).getTime();
+				data = genericTestOne.getAxis(axis).getSamples();
+			}
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
 				seriesData.add(new XYChart.Data<>(time.get(i), data.get(i)));
@@ -380,8 +333,8 @@ public class GraphNoSINCController implements Initializable {
 		
 		zoomviewX = resetZoomviewX;
 		zoomviewY = resetZoomviewY;
-		zoomLevel = 1.0;
-		
+		zoomviewW = resetZoomviewW;
+		zoomviewH = resetZoomviewH;
 		redrawGraph();
 		
 	}

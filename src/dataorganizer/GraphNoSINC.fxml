@@ -132,6 +132,7 @@
                                                       <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                       <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                     <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                   </rowConstraints>
                                                    <children>
                                                       <Label text="X" GridPane.columnIndex="1" />
@@ -146,38 +147,40 @@
                                                       <Label text="Angular Velocity" GridPane.rowIndex="5" />
                                                       <Label text="Angular Displacement" GridPane.rowIndex="6" />
                                                       <Label text="Magnetometer" GridPane.rowIndex="7" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AccelX" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AccelY" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AccelZ" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AccelMag" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="VelX" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="VelY" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="VelZ" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="VelMag" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="DispX" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="DispY" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="DispZ" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="DispMag" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngAccX" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngAccY" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngAccZ" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngAccMag" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngVelX" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngVelY" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngVelZ" GridPane.columnIndex="3" GridPane.rowIndex="5" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngVelMag" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngDispX" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngDispY" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngDispZ" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="AngDispMag" GridPane.columnIndex="4" GridPane.rowIndex="6" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="MagnetX" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="MagnetY" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="MagnetZ" GridPane.columnIndex="3" GridPane.rowIndex="7" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="MagnetMag" GridPane.columnIndex="4" GridPane.rowIndex="7" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="LinAccelX" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="LinAccelY" GridPane.columnIndex="2" GridPane.rowIndex="8" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="LinAccelZ" GridPane.columnIndex="3" GridPane.rowIndex="8" />
-                                                      <CheckBox mnemonicParsing="false" onAction="#chooseGraphAxis" fx:id="LinAccelMag" GridPane.columnIndex="4" GridPane.rowIndex="8" />
+                                                      <CheckBox fx:id="AccelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                      <CheckBox fx:id="AccelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                                                      <CheckBox fx:id="AccelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                                      <CheckBox fx:id="AccelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                                      <CheckBox fx:id="VelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                      <CheckBox fx:id="VelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                                                      <CheckBox fx:id="VelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                                                      <CheckBox fx:id="VelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                                                      <CheckBox fx:id="DispX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                      <CheckBox fx:id="DispY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                                                      <CheckBox fx:id="DispZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                                      <CheckBox fx:id="DispMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                                                      <CheckBox fx:id="AngAccX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                                      <CheckBox fx:id="AngAccY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                                                      <CheckBox fx:id="AngAccZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                                                      <CheckBox fx:id="AngAccMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                                                      <CheckBox fx:id="AngVelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                                      <CheckBox fx:id="AngVelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="5" />
+                                                      <CheckBox fx:id="AngVelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+                                                      <CheckBox fx:id="AngVelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+                                                      <CheckBox fx:id="AngDispX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                                                      <CheckBox fx:id="AngDispY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+                                                      <CheckBox fx:id="AngDispZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+                                                      <CheckBox fx:id="AngDispMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+                                                      <CheckBox fx:id="MagnetX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                                                      <CheckBox fx:id="MagnetY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                                                      <CheckBox fx:id="MagnetZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                                                      <CheckBox fx:id="MagnetMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                                                      <CheckBox fx:id="LinAccelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                                                      <CheckBox fx:id="LinAccelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                                                      <CheckBox fx:id="LinAccelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="8" />
+                                                      <CheckBox fx:id="LinAccelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="8" />
+                                                      <Label prefHeight="17.0" prefWidth="170.0" text="Simulation" GridPane.rowIndex="9" />
+                                                      <CheckBox fx:id="Simulation" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                                                    </children>
                                                 </GridPane>
                                              </children>

@@ -37,7 +37,7 @@ public class GraphNoSINCMain extends Application {
         primaryStage.setResizable(true);
 
         
-        controller.createSeries(testDataTime, testDataSamples);
+        controller.graphAxis(AxisType.Simulation);
     }
 
     public static void main(String[] args) {
