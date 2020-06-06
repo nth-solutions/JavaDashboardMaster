@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,9 +22,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.StackPane;
 
 public class GraphNoSINCController implements Initializable {
 
@@ -101,6 +101,10 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
+
+		// hides symbols indicating data points on graph
+		lineChart.setCreateSymbols(false);
+		lineChart.setStyle("-fx");
 		
 		//listener that runs every tick the mouse scrolls, calculates zooming
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
@@ -141,6 +145,7 @@ public class GraphNoSINCController implements Initializable {
 
 			@Override
 			public void handle(MouseEvent event) {
+
 				//get the mouse x and y position relative to the line chart
 				mouseX = event.getX();
 				mouseY = event.getY();
@@ -174,9 +179,6 @@ public class GraphNoSINCController implements Initializable {
 			
 		});
 	}
-		
-
-		
 
 	/**
 	 * <p>Populates the data analysis graph with GenericTests.</p>
@@ -235,7 +237,7 @@ public class GraphNoSINCController implements Initializable {
 
 			1) LineChart - contains all data sets and graphs, does not change
 			2) XYChart.Series - child of LineChart; there can be multiple of these under one LineChart
-			3) XYChart.Data - numerical data set component, only one per XYChart.Series
+			3) ObservableList - numerical data set component, only one per XYChart.Series
 			*/
 			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -243,6 +245,7 @@ public class GraphNoSINCController implements Initializable {
 			List<Double> time;
 			List<Double> data;
 			
+			// TODO CODE FOR TESTING -- NOT FOR PRODUCTION
 			//check if axis type is "simulated", otherwise use genericTest data
 			if(axis.getValue() == 32) {
 				int size = 9600;
@@ -255,21 +258,28 @@ public class GraphNoSINCController implements Initializable {
 		    		time.add(i / 960.0);
 		    	}
 			}
-			else {
-				
+			else {	
 				// get time/samples data sets
 				time = genericTestOne.getAxis(axis).getTime();
 				data = genericTestOne.getAxis(axis).getSamples();
 			}
+
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
-				seriesData.add(new XYChart.Data<>(time.get(i), data.get(i)));
+
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
+			
+				// add tooltip with (x,y) when hovering over data point
+				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i)));
+
+				seriesData.add(dataEl);
+
 			}
 	
 			// TODO switch this to a pretty-printed version of AxisType?
 			series.setName(axis.toString());
 
-			// add XYChart.Data to XYChart.Series
+			// add ObservableList to XYChart.Series
 			series.setData(seriesData);
 
 			// add to HashMap of currently drawn axes
@@ -320,10 +330,17 @@ public class GraphNoSINCController implements Initializable {
 
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i+=resolution) {
-			seriesData.add(new XYChart.Data<>(time.get(i), data.get(i)));
+
+			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
+			
+			// add tooltip with (x,y) when hovering over data point
+			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i)));
+
+			seriesData.add(dataEl);
+
 		}
 		
-		// add XYChart.Data to XYChart.Series
+		// add ObservableList to XYChart.Series
 		series.setData(seriesData);
 
 	}
@@ -348,12 +365,13 @@ public class GraphNoSINCController implements Initializable {
 			sampleBlockSize = Integer.parseInt(rollingBlockTextField.getText());
 		}
 		catch (NumberFormatException e) {
+
 			Alert alert = new Alert(AlertType.ERROR);
-			//alert.setTitle("Information Dialog");
 			alert.setHeaderText("Invalid input");
 			alert.setContentText("Please change your rolling average block size to a numerical value.");
 
 			alert.showAndWait();
+
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -384,6 +402,75 @@ public class GraphNoSINCController implements Initializable {
 		graphAxis(a);
 
 	}
+
+	// element added to data points on graph
+	class DataPointLabel extends StackPane {
+		
+		DataPointLabel(double x, double y) {
+
+			// round to two decimal places
+			final double roundedX = Math.round(x * 100.0) / 100.0;
+			final double roundedY = Math.round(y * 100.0) / 100.0;
+
+			setPrefSize(15, 15);
+
+			// allows mouse events to pass through label
+			// makes selecting nearby data points easier
+			setPickOnBounds(false);
+
+			// when mouse hovers over data point, display label
+			setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {
+
+					// add the hover (x,y) label
+					getChildren().setAll(createLabel(roundedX, roundedY));
+
+					// temporarily draw the data point symbol
+					setId("current-hover-symbol");
+
+					// ensure the label is on top of the graph
+					toFront();
+				}
+				
+			});
+
+			// when mouse stops hovering over data point, remove label
+			setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {
+
+					// hide the data point symbol
+					setId("");
+
+					// hide the label from the graph
+					getChildren().clear();
+				}
+				
+			});
+
+		}
+
+		// helper method to generate data point (x,y) label
+		private Label createLabel(double x, double y) {
+
+			Label label = new Label(x + ", " + y);
+
+			// add styling to label
+			label.getStyleClass().addAll("hover-label");
+
+			// place the label above the data point
+			label.translateYProperty().bind(label.heightProperty().divide(-1));
+
+			label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+
+      		return label;
+
+		}
+
+	}
 	
 	/**
 	 * Old method of passing data to NewGraph reading from DataOrganizer(s).
@@ -404,67 +491,25 @@ public class GraphNoSINCController implements Initializable {
 		
 	}
 
-	/**
-	 * Old method for graphing data sets.
-	 * @deprecated use {@link #graphAxis(AxisType)} instead.
-	 * @param timeData
-	 * @param samplesData
-	 */
-	@Deprecated
-	public void createSeries(ArrayList<Double> timeData, ArrayList<Double> samplesData) {
-		
-		originalTime = (ArrayList<Double>) timeData.clone();
-		originalSamples = (ArrayList<Double>) samplesData.clone();
-		
-		/*
-		zoomviewW = originalSamples.size();
-		zoomviewH = originalTime.size();
-		
-		ArrayList<Double> cleanTimeData = new ArrayList<Double>();										// setup new array list for time data
-		ArrayList<Double> cleanSamplesData = new ArrayList<Double>();									// setup new array list for samples data
-		
-		graphHeight = lineChart.getHeight();
-		graphWidth = lineChart.getWidth();
-		
-		System.out.println(graphHeight + " x " + graphWidth);
-		
-																					 					//the interval between data points to take for graph  -- GREATLY SPEEDS UP DISPLAY TIME, NO DATA IS LOST
-		
-		for(int i = 0; i < timeData.size(); i+= resolution) {											//takes every "resolution" sample from the input data and adds it to the clean array lists for displaying
-			cleanTimeData.add(timeData.get(i));
-			cleanSamplesData.add(samplesData.get(i));
-		}
-		
-		
-		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();					//setups a new series
-		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-		
-		for (int i = 0; i < cleanTimeData.size(); i++) {
-			
-            seriesData.add(new XYChart.Data<>(cleanTimeData.get(i), cleanSamplesData.get(i)));
-            
-        }
-		
-		lineChart.getData().add(series);
-		series.setData(seriesData);
-		*/
-
-		redrawGraph();
-		
-	}
-
 	//=========================================================
 	// DEBUG CODE BELOW USED FOR TESTING -- NOT FOR PRODUCTION
 	//=========================================================
 	@FXML
 	private CheckBox debugIgnoreResCheckbox;
-
 	
 	@FXML
 	public void debugShowAllSamples(ActionEvent event) {
 
 		CheckBox c = (CheckBox) event.getSource();
+
+		// if checked, set resolution to 1 (no skipping over data samples);
+		// otherwise, default to graphing every 20th sample
 		resolution = c.isSelected() ? 1 : 20;
+
+		// update all currently displayed graphs
+		dataSets.forEach((axis,series) -> {
+			updateAxis(axis);
+		});
 		
 	}
 
