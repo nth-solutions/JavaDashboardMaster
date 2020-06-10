@@ -3,6 +3,9 @@ package dataorganizer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Enum used to identify an AxisDataSeries.
+ */
 public enum AxisType {
 	
 	AccelX(0),

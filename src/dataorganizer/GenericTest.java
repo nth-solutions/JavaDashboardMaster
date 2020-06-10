@@ -122,22 +122,13 @@ public class GenericTest {
 
 		// using number of accelx samples as proxy for total number of samples
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
-			//populating dataSamples.get(0) and timeAxis for now, only one is necessary
-			//dataSamples.get(0).add((double)i/((double)sampleRate));
-			timeAxis.add((double)i/((double)sampleRate));
 
-			if (i%10==0) {
-				magTimeAxis.add((double)i/((double)magSampleRate)); 
-			}
+			timeAxis.add(new Double(i) / sampleRate);
 
-			/*
-			// TODO didn't seem to be working (consistently made time 1-2 entries longer than data)
-			// Pad time axis with two entries at the end to prevent misalignments in length with gyro samples (off by 1 or 2) 
-			if (i == dataSamples.get(1).size()-1) {
-				//dataSamples.get(0).add((double)i+1/((double)sampleRate));
-				timeAxis.add((double)i+2/((double)sampleRate));
-			}
-			*/
+			// since the magnetometer runs at 96 sps compared to 960,
+			// it must have a separate time axis for its data set(s)
+			magTimeAxis.add(new Double(i) / magSampleRate); 
+
 		}
 		
 		// initialize axis data series
@@ -367,8 +358,7 @@ public class GenericTest {
 	
 		}
 				
-		// TODO potentially rework the magnitude calculations section --
-		// seems like an imperfect solution and somewhat verbose
+		// TODO potentially rework the magnitude calculations section -- seems like an imperfect solution and somewhat verbose
 
 		// acceleration magnitude
 		axes[3] = new AxisDataSeries(timeAxis, d.getDataSamples().get(0), AxisType.valueOf(3), false, d.getSampleRate());

@@ -40,15 +40,13 @@ public class GraphNoSINCController implements Initializable {
 	
 	private int testLength;
 	
-	private double graphWidth;
-	private double graphHeight;
-	
 	private Map<AxisType, XYChart.Series<Number, Number>> dataSets;
 	
+	// the interval at which samples are drawn to the screen
+	// if value is 20 (default), every 20th sample will be rendered
 	private int resolution;
 	
-	
-	//zooming + scrolling fields
+	// zooming + scrolling fields
 	private double mouseX;
 	private double mouseY;
 	private double zoomviewScalarX;
@@ -106,12 +104,12 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.setCreateSymbols(false);
 		lineChart.setStyle("-fx");
 		
-		//listener that runs every tick the mouse scrolls, calculates zooming
+		// listener that runs every tick the mouse scrolls, calculates zooming
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
 			public void handle(ScrollEvent event) {	
 				
-				//saves the mouse location of the scroll event to x and y variables
+				// saves the mouse location of the scroll event to x and y variables
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
 				
@@ -122,15 +120,15 @@ public class GraphNoSINCController implements Initializable {
 				leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
 				topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
 				
-				//decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
+				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
 				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 				
-				//enforces a minimum zoom by limiting the size of the viewport to at least 0.05 in graph space. Can be adjusted
+				// enforces a minimum zoom by limiting the size of the viewport to at least 0.05 in graph space. Can be adjusted
 				if(zoomviewW < .05) zoomviewW = .05;
 				if(zoomviewH < .05) zoomviewH = .05;
 				
-				//moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
+				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
@@ -140,34 +138,34 @@ public class GraphNoSINCController implements Initializable {
 			
 		});
 		
-		//listener that runs every tick the mouse is dragged, calculates scrolling
-		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>(){
+		// listener that runs every tick the mouse is dragged, calculates scrolling
+		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent event) {
 
-				//get the mouse x and y position relative to the line chart
+				// get the mouse x and y position relative to the line chart
 				mouseX = event.getX();
 				mouseY = event.getY();
 				
-				//calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
+				// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
 				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
 				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
 
-				//adds the change in mouse position this tick to the zoom view, converted into graph space
+				// adds the change in mouse position this tick to the zoom view, converted into graph space
 				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
 				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
 				
 				redrawGraph();
 				
-				//sets last tick's mouse data as this tick's
+				// sets last tick's mouse data as this tick's
 				lastMouseX = mouseX;
 				lastMouseY = mouseY;
 			}
 			
 		});
 		
-		//listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
+		// listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
 		lineChart.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			public void handle(MouseEvent event) {
@@ -246,8 +244,8 @@ public class GraphNoSINCController implements Initializable {
 			List<Double> data;
 			
 			// TODO CODE FOR TESTING -- NOT FOR PRODUCTION
-			//check if axis type is "simulated", otherwise use genericTest data
-			if(axis.getValue() == 32) {
+			// check if axis type is "simulated", otherwise use genericTest data
+			if(axis == AxisType.Simulation) {
 				int size = 9600;
 				time = new ArrayList<Double>();
 				data = new ArrayList<Double>();
@@ -403,7 +401,9 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
-	// element added to data points on graph
+	/**
+	 * JavaFX component added to data points on graph.
+	 */
 	class DataPointLabel extends StackPane {
 		
 		DataPointLabel(double x, double y) {
@@ -423,6 +423,8 @@ public class GraphNoSINCController implements Initializable {
 
 				@Override
 				public void handle(MouseEvent event) {
+
+					System.out.println(getParent());
 
 					// add the hover (x,y) label
 					getChildren().setAll(createLabel(roundedX, roundedY));
@@ -456,7 +458,7 @@ public class GraphNoSINCController implements Initializable {
 		// helper method to generate data point (x,y) label
 		private Label createLabel(double x, double y) {
 
-			Label label = new Label(x + ", " + y);
+			Label label = new Label("(" + x + ", " + y + ")");
 
 			// add styling to label
 			label.getStyleClass().addAll("hover-label");
