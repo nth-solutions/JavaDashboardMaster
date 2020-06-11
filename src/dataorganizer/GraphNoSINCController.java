@@ -349,6 +349,13 @@ public class GraphNoSINCController implements Initializable {
 		// add ObservableList to XYChart.Series
 		series.setData(seriesData);
 
+		// hide all data point symbols UNLESS they are for the legend
+		for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+			if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
+				n.setStyle("-fx-background-color: transparent;");
+			}
+		}
+
 	}
 
 	@FXML
