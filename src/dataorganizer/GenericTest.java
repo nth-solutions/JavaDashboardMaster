@@ -12,8 +12,8 @@ public class GenericTest {
 	 * This is the preferred method of passing data to NewGraph and features up-to-date calculations.
 	 * @param testParameters - array of test parameters
 	 * @param finalData - Array of raw data from module
-	* @param MPUMinMax - Array of constant MPU offsets specific to the module
-	*/
+	 * @param MPUMinMax - Array of constant MPU offsets specific to the module
+	 */
 	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
 
 		int timer0 = testParameters.get(1);
@@ -247,8 +247,19 @@ public class GenericTest {
 			}
 
 			axes[31].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[28].getSmoothedData()[i], 2)+Math.pow(axes[29].getSmoothedData()[i], 2)+Math.pow(axes[30].getSmoothedData()[i], 2)));
-		
+
 		}
+
+		// TODO temporary solution to copy original data to smoothed data so it is displayed correctly on GraphNoSINCController;
+		// this is all the more reason that the creation of magnitude AxisDataSeries's should be refactored
+		axes[3].applyMovingAvg(0);
+		axes[7].applyMovingAvg(0);
+		axes[11].applyMovingAvg(0);
+		axes[15].applyMovingAvg(0);
+		axes[19].applyMovingAvg(0);
+		axes[23].applyMovingAvg(0);
+		axes[27].applyMovingAvg(0);
+		axes[31].applyMovingAvg(0);
 		
 	}
 
@@ -390,11 +401,21 @@ public class GenericTest {
 			axes[15].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[12].getSmoothedData()[i], 2)+Math.pow(axes[13].getSmoothedData()[i], 2)+Math.pow(axes[14].getSmoothedData()[i], 2)));
 			axes[19].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[16].getSmoothedData()[i], 2)+Math.pow(axes[17].getSmoothedData()[i], 2)+Math.pow(axes[18].getSmoothedData()[i], 2)));
 			axes[23].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[20].getSmoothedData()[i], 2)+Math.pow(axes[21].getSmoothedData()[i], 2)+Math.pow(axes[22].getSmoothedData()[i], 2)));
-			
+
 			// if "i" fits # of magnetometer data samples
 			if (i < d.getDataSamples().get(7).size()) {
 				axes[27].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[24].getSmoothedData()[i], 2)+Math.pow(axes[25].getSmoothedData()[i], 2)+Math.pow(axes[26].getSmoothedData()[i], 2)));
 			} 
+
+			// temporary solution to copy original data to smoothed data so it is displayed correctly on GraphNoSINCController;
+			// this is all the more reason that the creation of magnitude AxisDataSeries's should be refactored
+			axes[3].applyMovingAvg(0);
+			axes[7].applyMovingAvg(0);
+			axes[11].applyMovingAvg(0);
+			axes[15].applyMovingAvg(0);
+			axes[19].applyMovingAvg(0);
+			axes[23].applyMovingAvg(0);
+			axes[27].applyMovingAvg(0);
 		}
 	}
 			

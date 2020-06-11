@@ -1,26 +1,10 @@
 
-/* Hides all data point symbols but allows them to interact with mouse events */
-.chart-line-symbol {
-    -fx-background-color: transparent;
-}
-
 /* Style data for the data point label with (x,y) */
 .hover-label {
-    -fx-background-color: #ff8c00, white;
+    -fx-background-color: black, white;
     -fx-background-insets: 0, 2;
     -fx-background-radius: 5px;
     -fx-padding: 5px;
     -fx-font-size: 20;
     -fx-font-weight: bold;
-}
-
-/* Allows legend symbols to be visible */
-.chart-legend-item-symbol {
-    -fx-background-color: #ff8c00, white;
-}
-
-/* Applied to the data point that the answer is currently hovering over */
-/* Temporarily draws data point symbol to indicate which is selected by user */
-#current-hover-symbol {
-    -fx-background-color: #ff8c00, white;
 }

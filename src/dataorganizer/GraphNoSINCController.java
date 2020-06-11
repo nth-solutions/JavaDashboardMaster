@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -223,7 +224,7 @@ public class GraphNoSINCController implements Initializable {
 		int dataIndex = lineChart.getData().indexOf(dataSets.get(axis));
 
 		// get checkbox by looking up FXID (the name of the AxisType)
-		CheckBox c = (CheckBox) lineChart.getScene().lookup("#" + axis);
+		CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
 		
 		// if axis is not already graphed:
 		if (dataIndex == -1) {
@@ -285,6 +286,13 @@ public class GraphNoSINCController implements Initializable {
 			
 			// add XYChart.Series to LineChart
 			lineChart.getData().add(series);
+
+			// hide all data point symbols UNLESS they are for the legend
+			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+				if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
+					n.setStyle("-fx-background-color: transparent;");
+				}
+			}
 
 			// tick the checkbox
 			c.setSelected(true);
@@ -394,7 +402,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// get AxisType from checkbox
 		CheckBox c = (CheckBox) event.getSource();
-		String axis = (String) c.getId();
+		String axis = (String) c.getId().replace("Toggle", "");
 		AxisType a = AxisType.valueOf(axis);
 
 		graphAxis(a);
@@ -424,13 +432,12 @@ public class GraphNoSINCController implements Initializable {
 				@Override
 				public void handle(MouseEvent event) {
 
-					System.out.println(getParent());
-
 					// add the hover (x,y) label
 					getChildren().setAll(createLabel(roundedX, roundedY));
 
 					// temporarily draw the data point symbol
-					setId("current-hover-symbol");
+					// this is done by removing the "transparent" style
+					setStyle("");
 
 					// ensure the label is on top of the graph
 					toFront();
@@ -445,7 +452,7 @@ public class GraphNoSINCController implements Initializable {
 				public void handle(MouseEvent event) {
 
 					// hide the data point symbol
-					setId("");
+					setStyle("-fx-background-color: transparent");
 
 					// hide the label from the graph
 					getChildren().clear();

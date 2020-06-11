@@ -2,12 +2,7 @@ package dataorganizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.scene.chart.XYChart;
 
 
 public class AxisDataSeries {
@@ -32,7 +27,7 @@ public class AxisDataSeries {
 	 * AxisDataSeries constructor for data NOT natively recorded by the module OR from the magnetometer.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an AxisType identifying the type of data
+	 * @param axis - an {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param signData - indicates whether the data should be converted from unsigned to signed
 	 * @param sampleRate - the number of data samples recorded in one second
 	 */
@@ -183,8 +178,10 @@ public class AxisDataSeries {
 	 * Constructor for producing linear acceleration axis.
 	 * Utilizes a low-pass filter to isolate the gravity vector,
 	 * then subtracts this from raw acceleration to yield linear acceleration.
+	 * @deprecated filter does not work as intended, will be removed in the future
 	 * @param accel - the AxisDataSeries for the raw acceleration data set
 	 */
+	@Deprecated
 	public AxisDataSeries(AxisDataSeries accel) {
 
 		this.time = new Double[accel.getTime().size()];
@@ -267,22 +264,6 @@ public class AxisDataSeries {
 
 		return Arrays.asList(result);
 	}
-	
-	// TODO remove method -- this is done internally in GraphNoSINCController
-	public ObservableList<XYChart.Series<Number, Number>> createSeries() {
-		
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-        
-        for (int i = 0; i < time.length && i < smoothedData.length; i++) {
-            seriesData.add(new XYChart.Data<>(time[i], smoothedData[i]));
-        }
-
-        series.setName(axis.toString());
-        series.setData(seriesData);
- 
-        return FXCollections.observableArrayList(Collections.singleton(series));
-    }
 	
 	// returns slope at a specific data point (tangent line)
 	public Double getSlope(Double time) {
