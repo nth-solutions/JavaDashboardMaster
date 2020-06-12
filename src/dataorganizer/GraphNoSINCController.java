@@ -192,7 +192,7 @@ public class GraphNoSINCController implements Initializable {
 		genericTestTwo = g2;
 
 		// the AxisType is arbitrary (all non-magnetometer axes are same length)
-		testLength = g1.getAxis(AxisType.AccelX).getOriginalData().length;
+		testLength = g1.getAxis(AxisType.AccelX).getTime().size();
 	
 		// TEST CODE - TO BE REPLACED LATER
 		// TODO select data set to graph based on type of GenericTest
