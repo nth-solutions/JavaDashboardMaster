@@ -208,12 +208,11 @@ public class GenericTest {
 
 		}
 
-		/*
-		Creates magnitude data sets in the format "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
-		where magnitude, X, Y, and Z are AxisDataSeries indices. Check AXIS DATA SERIES INDICES/DOCUMENTATION for more information.
-		*/
-		for (int i = 0; i < AxisType.values().length-4; i+=4) {
+		// Creates magnitude data sets. Check AXIS DATA SERIES INDICES/DOCUMENTATION for more information.
+		// TODO remove "-1" when Simulation data set is removed from AxisType
+		for (int i = 0; i < AxisType.values().length-1; i+=4) {
 
+			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 
 		}
@@ -236,11 +235,9 @@ public class GenericTest {
 		// populate time and magnetometer time axes
 
 		/*
-		For some reason, the number of time samples
-		is one greater than the number of data samples;
-		not knowing whether this is intentional or not,
-		I have left the extra sample in and changed all
-		appropriate loops to use the data array as the bounds
+		For some reason, the number of time samples is one greater than the number of data samples;
+		not knowing whether this is intentional or not, I have left the extra sample in and
+		changed all appropriate loops to use the data array as the bounds
 		*/
 		for (int i = 0; i < d.getDataSamples().get(0).size(); i++) {
 			

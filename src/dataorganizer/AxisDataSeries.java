@@ -30,7 +30,7 @@ public class AxisDataSeries {
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an {@link dataorganizer.AxisType AxisType} identifying the data set
+	 * @param axis - the {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param signData - indicates whether the data should be converted from unsigned to signed
 	 * @param sampleRate - the number of data samples recorded in one second
 	 */
@@ -87,7 +87,7 @@ public class AxisDataSeries {
 	 * Constructor for acceleration data.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an AxisType identifying the type of data
+	 * @param axis - the {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param accelOffsets - the array of offsets to be applied to the acceleration data;
 	 * the first dimension indicates the axis type (X=0,Y=1,Z=2) and the second dimension
 	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
@@ -129,6 +129,7 @@ public class AxisDataSeries {
 		
 		this.smoothedData = this.originalData.clone();
 
+		// print debug info about AxisDataSeries
 		System.out.println(toString());
 		
 	}
@@ -137,7 +138,7 @@ public class AxisDataSeries {
 	 * Constructor for gyroscope data.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an AxisType identifying the type of data
+	 * @param axis - the {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param gyroSensitivity - the maximum value or "resolution" of the raw data;
 	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
 	 * In equation format: gyro = sensitivity * (raw data / max value for data [32768])
@@ -170,6 +171,7 @@ public class AxisDataSeries {
 		
 		this.smoothedData = this.originalData.clone();
 
+		// print debug info about AxisDataSeries
 		System.out.println(toString());
 		
 	}
@@ -184,20 +186,30 @@ public class AxisDataSeries {
 		
 		// casts Lists to Double[]'s
 		// (this is done b/c DataOrganizer uses ArrayLists)
+
 		this.time = new Double[a1.getTime().size()];
 		this.time = a1.getTime().toArray(this.time);
 
 		this.axis = axis;
 
-		Double[] d1 = (Double[]) a1.getSamples().toArray();
-		Double[] d2 = (Double[]) a1.getSamples().toArray();
-		Double[] d3 = (Double[]) a1.getSamples().toArray();
+		int length = a1.getSamples().size();
+
+		// convert data ArrayLists to arrays
+		Double[] d1 = new Double[length];
+		d1 = a1.getSamples().toArray(d1);
+
+		Double[] d2 = new Double[length];
+		d2 = a2.getSamples().toArray(d2);
+
+		Double[] d3 = new Double[length];
+		d3 = a3.getSamples().toArray(d3);
 
 		Double[] result = new Double[d1.length];
 
-		// calculate magnitude r = sqrt(d1^2 + d2^2 + d3^2)
+		// calculate magnitude data set
 		for (int i = 0; i < d1.length; i++) {
 
+			// r = sqrt(d1^2 + d2^2 + d3^2)
 			result[i] = Math.sqrt(Math.pow(d1[i], 2) + Math.pow(d2[i], 2) + Math.pow(d3[i], 2));
 		
 		}
