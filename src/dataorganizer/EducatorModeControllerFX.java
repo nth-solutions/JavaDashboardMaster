@@ -1796,18 +1796,26 @@ public class EducatorModeControllerFX implements Initializable {
                                         //test for null MPUMinMax
                                         System.out.println(serialHandler.getMPUMinMax()+"EMFX ln 1789");
                                         //Initialize GenericTest object to store and organize data to be graphed
-
-                                        try {
-                                            g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());      
-                                        }
-                                        catch (Exception e) {
-                                            e.printStackTrace();
-                                            System.err.println("Error creating GenericTest");
-                                        }
+                                                                        
+                                        	//for use with CSVwriter
+                                        	String newName = "new (#" + (testIndex + 1) + ") " + nameOfFile;
+                                        	try {
+                                            g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());   
+                                        	}
+                                        	catch(Exception e) {
+                                        		e.printStackTrace();
+                                        	}
+                                          
+                                            int [][] MPUMinMax = serialHandler.getMPUMinMax();
+                                            CSVWriter writer = new CSVWriter();
+                                        
+                                       
                                         String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                         dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                         dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
                                         dataOrgoList.add(dataOrgo);
+                                        
+                                       
                                         //Define operation that can be run in separate thread
                                         //TODO: This will probably throw an error
                                         Runnable organizerOperation = () -> {
@@ -1822,6 +1830,10 @@ public class EducatorModeControllerFX implements Initializable {
 
                                             dataOrgo.createCSVP();
                                             dataOrgo.createCSV(false, false);
+                                            System.out.println("EMFX 1832");
+                                            //write GenericTest data to CSV
+                                            writer.writeCSV(g1, settings, newName); 
+                                            writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
                                         };
 
                                         //Set thread to execute previously defined operation
@@ -1890,6 +1902,7 @@ public class EducatorModeControllerFX implements Initializable {
             }, testDataArray);
 
             readTestsFromModuleTask.run(); // Runs the futureTask.
+
 
         }
     }
@@ -2443,6 +2456,7 @@ public class EducatorModeControllerFX implements Initializable {
             	if (result1.get() == ButtonType.OK) {
             		 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
                      g.setGenericTests(g1, g2);
+                     System.out.println("EMFX 2459");
             	}
             	else {
                     GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
@@ -2455,6 +2469,7 @@ public class EducatorModeControllerFX implements Initializable {
                 lineGraph = startGraphing();
                 lineGraph.setCsvFilePath(pathTofile);
                 lineGraph.loadCSVData();
+                System.out.println("EMFX 2472");
         		
         	}
         	
