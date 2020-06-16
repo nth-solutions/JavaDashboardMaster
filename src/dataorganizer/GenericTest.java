@@ -12,6 +12,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+/**
+ * Used by the Data Analysis Graph to store the data associated with a single module.
+ * This is also the parent class of all educator mode "lab templates".
+ */
 public class GenericTest {
 	
 	private AxisDataSeries[] axes;
@@ -142,7 +146,7 @@ public class GenericTest {
 			magTimeAxis.add(new Double(i) / magSampleRate); 			
 		}
 		
-		// initialize axis data series
+		// initialize axis data series array
 		axes = new AxisDataSeries[AxisType.values().length];
 		
 		/*
@@ -152,9 +156,6 @@ public class GenericTest {
 		1		Acceleration Y
 		2		Acceleration Z
 		3		Acceleration Magnitude
-
-		Axes 4 - 11 are now based off Linear Acceleration (axes 28-31)
-
 		4		Velocity X
 		5		Velocity Y
 		6		Velocity Z
@@ -163,7 +164,6 @@ public class GenericTest {
 		9		Displacement Y
 		10		Displacement Z
 		11		Displacement Magnitude
-
 		12		Angular Acceleration X
 		13		Angular Acceleration Y
 		14		Angular Acceleration Z
@@ -182,20 +182,31 @@ public class GenericTest {
 		27		Magnetometer Magnitude
 
 		The following axes are experimental and subject to change:
+		TODO (LIKELY TO BE REMOVED IN A LATER VERSION)
 
 		28		Linear Acceleration X
 		29		Linear Acceleration Y
 		30		Linear Acceleration Z
 		31 		Linear Acceleration Magnitude
 		*/
+
 		
 		// loops X Y Z
+
+
+		// loops so that X=0, Y=1, Z=2
 		for (int i = 0; i < 3; i++) {
 
-			// acceleration
+			// acceleration (NATIVE ACCELEROMETER MEASUREMENT)
 			axes[i] = new AxisDataSeries(timeAxis, dataSamples.get(i+1), AxisType.valueOf(i), mpuOffsets, accelSensitivity, sampleRate);
 
-			// (GYRO) angular velocity
+			// velocity
+			axes[i+4] = new AxisDataSeries(timeAxis, axes[i].integrate(), AxisType.valueOf(i+4), false, sampleRate);
+
+			// displacement
+			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
+
+			// angular velocity (NATIVE GYROSCOPE MEASUREMENT)
 			axes[i+16] = new AxisDataSeries(timeAxis, dataSamples.get(i+4), AxisType.valueOf(i+16), gyroSensitivity, sampleRate);
 
 			// angular acceleration
@@ -204,60 +215,20 @@ public class GenericTest {
 			// angular displacement
 			axes[i+20] = new AxisDataSeries(timeAxis, axes[i+16].integrate(), AxisType.valueOf(i+20), false, sampleRate);
 
-			// magnetometer
+			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
-			// linear acceleration
+			// linear acceleration -- TODO remove this axis
 			axes[i+28] = new AxisDataSeries(axes[i]);
 
-			// velocity
-			axes[i+4] = new AxisDataSeries(timeAxis, axes[i+28].integrate(), AxisType.valueOf(i+4), false, sampleRate);
-
-			// displacement
-			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
-
 		}
-	
-		// Accel magnitude
-		axes[3] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(3), false, sampleRate); 
 
-		// Velocity magnitude
-		axes[7] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(7), false, sampleRate);
+		// Creates magnitude data sets. Check AXIS DATA SERIES INDICES/DOCUMENTATION for more information.
+		// TODO remove "-1" when Simulation data set is removed from AxisType
+		for (int i = 0; i < AxisType.values().length-1; i+=4) {
 
-		// Displacement magnitude
-		axes[11] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(11), false, sampleRate);
-
-		// Angular accel magnitude
-		axes[15] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(15), false, sampleRate);
-
-		// (GYRO) Angular velocity magnitude
-		axes[19] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(19), false, sampleRate);
-
-		// Angular displacement magnitude
-		axes[23] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(23), false, sampleRate);
-
-		// magnetic field magnitude
-		axes[27] = new AxisDataSeries(magTimeAxis, dataSamples.get(7), AxisType.valueOf(27), true, magSampleRate);
-		
-		// linear acceleration magnitude
-		axes[31] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(31), false, sampleRate);
-
-		// Goes until length-1 to account for potential difference in length of 1 b/w accel and gyro series
-		for (int i = 0; i < dataSamples.get(1).size()-1; i++) {
-
-			axes[3].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[0].getSmoothedData()[i], 2)+Math.pow(axes[1].getSmoothedData()[i], 2)+Math.pow(axes[2].getSmoothedData()[i], 2)));
-			axes[7].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[4].getSmoothedData()[i], 2)+Math.pow(axes[5].getSmoothedData()[i], 2)+Math.pow(axes[6].getSmoothedData()[i], 2)));
-			axes[11].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[8].getSmoothedData()[i], 2)+Math.pow(axes[9].getSmoothedData()[i], 2)+Math.pow(axes[10].getSmoothedData()[i], 2)));
-			axes[15].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[12].getSmoothedData()[i], 2)+Math.pow(axes[13].getSmoothedData()[i], 2)+Math.pow(axes[14].getSmoothedData()[i], 2)));
-			axes[19].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[16].getSmoothedData()[i], 2)+Math.pow(axes[17].getSmoothedData()[i], 2)+Math.pow(axes[18].getSmoothedData()[i], 2)));
-			axes[23].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[20].getSmoothedData()[i], 2)+Math.pow(axes[21].getSmoothedData()[i], 2)+Math.pow(axes[22].getSmoothedData()[i], 2)));
-
-			//for adjusted magnetometer time scale
-			if (i < dataSamples.get(7).size()) {
-				axes[27].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[24].getSmoothedData()[i], 2)+Math.pow(axes[25].getSmoothedData()[i], 2)+Math.pow(axes[26].getSmoothedData()[i], 2)));
-			}
-
-			axes[31].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[28].getSmoothedData()[i], 2)+Math.pow(axes[29].getSmoothedData()[i], 2)+Math.pow(axes[30].getSmoothedData()[i], 2)));
+			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
+			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 
 		}
 	
@@ -534,9 +505,6 @@ public class GenericTest {
 
  		}
  	
-         
-         
-		
 	}
 
 	
@@ -548,50 +516,6 @@ public class GenericTest {
 	@Deprecated
 	public GenericTest(DataOrganizer d) {
 		
-		/*
-		AXIS DATA SERIES INDICES/DOCUMENTATION
-
-		0		Acceleration X
-		1		Acceleration Y
-		2		Acceleration Z
-		3		Acceleration Magnitude
-
-		Axes 4 - 11 are now based off Linear Acceleration (axes 28-31)
-
-		4		Velocity X
-		5		Velocity Y
-		6		Velocity Z
-		7		Velocity Magnitude
-		8		Displacement X
-		9		Displacement Y
-		10		Displacement Z
-		11		Displacement Magnitude
-
-		12		Angular Acceleration X
-		13		Angular Acceleration Y
-		14		Angular Acceleration Z
-		15		Angular Acceleration Magnitude
-		16		Angular Velocity X
-		17		Angular Velocity Y
-		18		Angular Velocity Z
-		19		Angular Velocity Magnitude
-		20		Angular Displacement X
-		21		Angular Displacement Y
-		22		Angular Displacement Z
-		23		Angular Displacement Magnitude
-		24		Magnetometer X
-		25		Magnetometer Y
-		26		Magnetometer Z
-		27		Magnetometer Magnitude
-
-		The following axes are experimental and subject to change:
-
-		28		Linear Acceleration X
-		29		Linear Acceleration Y
-		30		Linear Acceleration Z
-		31 		Linear Acceleration Magnitude
-		*/
-
 		axes = new AxisDataSeries[AxisType.values().length];
 		
 		List<Double> timeAxis = new ArrayList<Double>();
@@ -600,11 +524,9 @@ public class GenericTest {
 		// populate time and magnetometer time axes
 
 		/*
-		TODO - for some reason, the number of time samples
-		is one greater than the number of data samples;
-		not knowing whether this is intentional or not,
-		I have left the extra sample in and changed all
-		appropriate loops to use the data array as the bounds
+		For some reason, the number of time samples is one greater than the number of data samples;
+		not knowing whether this is intentional or not, I have left the extra sample in and
+		changed all appropriate loops to use the data array as the bounds
 		*/
 		for (int i = 0; i < d.getDataSamples().get(0).size(); i++) {
 			
@@ -686,7 +608,12 @@ public class GenericTest {
 
 		}
 	}
-			
+	
+	/**
+	 * Retrieves an AxisDataSeries for graphing.
+	 * @param axis the {@link dataorganizer.AxisType AxisType} to retrieve
+	 * @return the AxisDataSeries selected
+	 */
 	public AxisDataSeries getAxis(AxisType axis) {
 		return axes[axis.getValue()];
 	}

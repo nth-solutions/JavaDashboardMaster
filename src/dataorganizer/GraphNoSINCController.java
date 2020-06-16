@@ -17,6 +17,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -26,6 +27,8 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
@@ -67,7 +70,7 @@ public class GraphNoSINCController implements Initializable {
 	private double resetZoomviewY;
 	private double resetZoomviewH;
 	private double resetZoomviewW;
-	
+	private boolean vertScroll;
 	private double lastMouseX;
 	private double lastMouseY;
 
@@ -76,6 +79,7 @@ public class GraphNoSINCController implements Initializable {
 	private double scrollCenterY;
 	
 
+	private Scene scene;
 	@FXML
 	private LineChart<Number,Number> lineChart;
 	
@@ -114,7 +118,7 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
 			public void handle(ScrollEvent event) {	
-				
+				System.out.println(vertScroll);
 				// saves the mouse location of the scroll event to x and y variables
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
@@ -126,16 +130,19 @@ public class GraphNoSINCController implements Initializable {
 				leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
 				topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
 				
+				if(!event.isAltDown()) {
+					zoomviewW -= zoomviewW * event.getDeltaY() / 300;
+					if(zoomviewW < .05) zoomviewW = .05;
+					zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
+				}
+				
 				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
-				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 				
 				// enforces a minimum zoom by limiting the size of the viewport to at least 0.05 in graph space. Can be adjusted
-				if(zoomviewW < .05) zoomviewW = .05;
 				if(zoomviewH < .05) zoomviewH = .05;
 				
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
-				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
 				redrawGraph();
@@ -197,7 +204,7 @@ public class GraphNoSINCController implements Initializable {
 		genericTestTwo = g2;
 
 		// the AxisType is arbitrary (all non-magnetometer axes are same length)
-		testLength = g1.getAxis(AxisType.AccelX).getOriginalData().length;
+		testLength = g1.getAxis(AxisType.AccelX).getTime().size();
 	
 		// TEST CODE - TO BE REPLACED LATER
 		// TODO select data set to graph based on type of GenericTest
@@ -216,13 +223,21 @@ public class GraphNoSINCController implements Initializable {
 	 * Handles zooming/panning of the graph.
 	 */
 	public void redrawGraph() {
-
+		
 		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
 		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
-		
+		if(zoomviewW > 50) {
+			lineChart.setVerticalGridLinesVisible(false);
+		}else {
+			lineChart.setVerticalGridLinesVisible(true);
+		}
 		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
-
+		if(zoomviewH > 50) {
+			lineChart.setHorizontalGridLinesVisible(false);
+		}else {
+			lineChart.setHorizontalGridLinesVisible(true);
+		}
 	}
 
 	/**
@@ -233,7 +248,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// get index of data set in line chart (if -1, does not exist)
 		int dataIndex = lineChart.getData().indexOf(dataSets.get(axis));
-
+		
 		// get checkbox by looking up FXID (the name of the AxisType)
 		CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
 		
@@ -365,6 +380,13 @@ public class GraphNoSINCController implements Initializable {
 		
 		// add ObservableList to XYChart.Series
 		series.setData(seriesData);
+
+		// hide all data point symbols UNLESS they are for the legend
+		for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+			if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
+				n.setStyle("-fx-background-color: transparent;");
+			}
+		}
 
 	}
 

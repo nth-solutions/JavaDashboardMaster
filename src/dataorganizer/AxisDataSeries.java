@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
+/**
+ * Used by the Data Analysis Graph to store the data associated with a single axis (eg. Acceleration X).
+ * Also handles converting bitcount data into physical quantities, applying moving averages, and filtering (in the future).
+ */
 public class AxisDataSeries {
 	
 	private Double[] time;
@@ -39,10 +42,10 @@ public class AxisDataSeries {
 	private int sampleRate;
 	
 	/**
-	 * AxisDataSeries constructor for data NOT natively recorded by the module OR from the magnetometer.
+	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an {@link dataorganizer.AxisType AxisType} identifying the data set
+	 * @param axis - the {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param signData - indicates whether the data should be converted from unsigned to signed
 	 * @param sampleRate - the number of data samples recorded in one second
 	 */
@@ -100,10 +103,10 @@ public class AxisDataSeries {
 	}
 	
 	/**
-	 * AxisDataSeries constructor for acceleration data.
+	 * Constructor for acceleration data.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an AxisType identifying the type of data
+	 * @param axis - the {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param accelOffsets - the array of offsets to be applied to the acceleration data;
 	 * the first dimension indicates the axis type (X=0,Y=1,Z=2) and the second dimension
 	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
@@ -150,15 +153,16 @@ public class AxisDataSeries {
 		//clones smoothedData for display on graph
 		userSmoothedData= smoothedData.clone();
 
-		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
+		// print debug info about AxisDataSeries
+		System.out.println(toString());
 		
 	}
 
 	/**
-	 * AxisDataSeries constructor for gyroscope data.
+	 * Constructor for gyroscope data.
 	 * @param time - the time axis for the data set
 	 * @param data - the samples for the data set
-	 * @param axis - an AxisType identifying the type of data
+	 * @param axis - the {@link dataorganizer.AxisType AxisType} identifying the data set
 	 * @param gyroSensitivity - the maximum value or "resolution" of the raw data;
 	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
 	 * In equation format: gyro = sensitivity * (raw data / max value for data [32768])
@@ -168,8 +172,6 @@ public class AxisDataSeries {
 		
 		// casts Lists to Double[]'s
 		// (this is done b/c DataOrganizer uses ArrayLists)
-		// TODO change "time" and "data" to Double[] when GenericTest is updated to use SerialComm
-		//
 		this.time = new Double[time.size()];
 		this.time = time.toArray(this.time);
 		
@@ -211,8 +213,55 @@ public class AxisDataSeries {
 		//clones smoothedData for display on graph
 		userSmoothedData= smoothedData.clone();
 
-		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
+		// print debug info about AxisDataSeries
+		System.out.println(toString());
 		
+	}
+
+	/**
+	 * Constructor for creating a magnitude data set.
+	 * @param a1 the X component of the data
+	 * @param a2 the Y component of the data
+	 * @param a3 the Z component of the data
+	 */
+	public AxisDataSeries(AxisDataSeries a1, AxisDataSeries a2, AxisDataSeries a3, AxisType axis) {
+		
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+
+		this.time = new Double[a1.getTime().size()];
+		this.time = a1.getTime().toArray(this.time);
+
+		this.axis = axis;
+
+		int length = a1.getSamples().size();
+
+		// convert data ArrayLists to arrays
+		Double[] d1 = new Double[length];
+		d1 = a1.getSamples().toArray(d1);
+
+		Double[] d2 = new Double[length];
+		d2 = a2.getSamples().toArray(d2);
+
+		Double[] d3 = new Double[length];
+		d3 = a3.getSamples().toArray(d3);
+
+		Double[] result = new Double[d1.length];
+
+		// calculate magnitude data set
+		for (int i = 0; i < d1.length; i++) {
+
+			// r = sqrt(d1^2 + d2^2 + d3^2)
+			result[i] = Math.sqrt(Math.pow(d1[i], 2) + Math.pow(d2[i], 2) + Math.pow(d3[i], 2));
+		
+		}
+
+		this.originalData = result;
+		this.smoothedData = this.originalData.clone();
+
+		// print debug info about AxisDataSeries
+		System.out.println(toString());
+
 	}
 
 	/**
@@ -226,6 +275,9 @@ public class AxisDataSeries {
 	@Deprecated
 	public AxisDataSeries(AxisDataSeries accel) {
 
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+		//
 		this.time = new Double[accel.getTime().size()];
 		this.time = accel.getTime().toArray(this.time);
 		
@@ -257,6 +309,7 @@ public class AxisDataSeries {
 	
 	
 	/**
+<<<<<<< HEAD
 	 * 
 	 * @param startTime - Time that indicates lower bound (inclusive) of normalization period
 	 * @param endTime - Time that indicates lower bound (inclusive) of normalization period
@@ -285,6 +338,10 @@ public class AxisDataSeries {
 	/**
 	 * Modular method to apply a middle-based simple moving average to a data series
 	 * @param array - the data series for the moving average to be applied to
+=======
+	 * Applies a middle-based simple moving average to the original data set.
+	 * This data set can be accessed by calling {@link #getSamples()}.
+>>>>>>> fdaffd6f42ea704b2ca59af7603226f29741a4e8
 	 * @param sampleBlockSize - the number of samples used to calculate the moving average.
 	 */
 	public Double [] applyMovingAvg(Double [] array, int sampleBlockSize) {
@@ -383,12 +440,6 @@ public class AxisDataSeries {
 		return area;
 	}
 	
-
-	public Double[] getSmoothedData() {
-		return this.smoothedData;
-	}
-	
-	
 	public void setSmoothedData(Double[] data) {
 		this.smoothedData = data;
 	}
@@ -399,21 +450,29 @@ public class AxisDataSeries {
 	}
 	
 	
+
+	@Override
+	public String toString() {
+		return this.axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length;
+	}
+
+	@Deprecated
+	public Double[] getSmoothedData() {
+		return this.smoothedData;
+	}
+
+	@Deprecated
 	public Double[] getOriginalData() { 
 		return this.originalData;
 	}
 	
-	
+
+	@Deprecated
 	public void setOriginalData(Double[] data) {
 		this.originalData = data;
 	}
-	
-	
-	public void setOriginalDataPoint(int index, Double value ) {
-		this.originalData[index] = value;	
-	}
-	
-	
+
+		
 	/**
 	 * Used by Graph GUI to get time data from AxisDataSeries instances.
 	 */
@@ -428,5 +487,10 @@ public class AxisDataSeries {
 	public ArrayList<Double> getSamples() {
 		return new ArrayList<Double>(Arrays.asList(userSmoothedData));
 	}
+
 	
+	@Deprecated
+	public void setOriginalDataPoint(int index, Double value ) {
+		this.originalData[index] = value;	
+	}
 }
