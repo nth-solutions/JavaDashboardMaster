@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -15,8 +14,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -26,15 +25,13 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 
 public class GraphNoSINCController implements Initializable {
 
-	// TODO implement 2nd module functionality ("genericTestTwo" not used currently)
+	// TODO implement n module functionality with ArrayList<GenericTest> ("genericTestTwo" not used currently)
 
 	// GenericTest represents a single module and associated test data
 	private GenericTest genericTestOne;
@@ -42,14 +39,13 @@ public class GraphNoSINCController implements Initializable {
 	// "genericTestTwo" will NOT be assigned if running a single module test
 	private GenericTest genericTestTwo;
 	
-	private int testLength;
-	
+	// tracks the axes currently graphed on the line chart
 	private Map<AxisType, XYChart.Series<Number, Number>> dataSets;
 	
 	// the interval at which samples are drawn to the screen
 	// if value is 20 (default), every 20th sample will be rendered
 	private int resolution;
-	
+
 	// zooming + scrolling fields
 	private double mouseX;
 	private double mouseY;
@@ -69,12 +65,17 @@ public class GraphNoSINCController implements Initializable {
 	private double lastMouseX;
 	private double lastMouseY;
 
-	
 	private double scrollCenterX;
 	private double scrollCenterY;
-	
 
-	private Scene scene;
+	// internal enum identifying the state of data analysis
+	private GraphMode mode = GraphMode.NONE;
+
+	private XYChart.Series<Number,Number> slope;
+
+	// keeps track of first point in secant line calculation
+	private Double[] slopePoint;
+
 	@FXML
 	private LineChart<Number,Number> lineChart;
 	
@@ -90,8 +91,9 @@ public class GraphNoSINCController implements Initializable {
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		
+
 		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
+		slopePoint = new Double[2];
 
 		resolution = 20;
 		zoomviewScalarX = 1;
@@ -107,13 +109,14 @@ public class GraphNoSINCController implements Initializable {
 
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
-		lineChart.setStyle("-fx");
+
+		redrawGraph();
 		
 		// listener that runs every tick the mouse scrolls, calculates zooming
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
 			public void handle(ScrollEvent event) {	
-				System.out.println(vertScroll);
+
 				// saves the mouse location of the scroll event to x and y variables
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
@@ -152,23 +155,28 @@ public class GraphNoSINCController implements Initializable {
 			@Override
 			public void handle(MouseEvent event) {
 
-				// get the mouse x and y position relative to the line chart
-				mouseX = event.getX();
-				mouseY = event.getY();
-				
-				// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
-				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
-				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
+				if (mode == GraphMode.NONE) {
 
-				// adds the change in mouse position this tick to the zoom view, converted into graph space
-				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
-				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
-				
-				redrawGraph();
-				
-				// sets last tick's mouse data as this tick's
-				lastMouseX = mouseX;
-				lastMouseY = mouseY;
+					// get the mouse x and y position relative to the line chart
+					mouseX = event.getX();
+					mouseY = event.getY();
+					
+					// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
+					zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
+					zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
+
+					// adds the change in mouse position this tick to the zoom view, converted into graph space
+					zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
+					zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
+					
+					redrawGraph();
+					
+					// sets last tick's mouse data as this tick's
+					lastMouseX = mouseX;
+					lastMouseY = mouseY;
+
+				}
+
 			}
 			
 		});
@@ -197,9 +205,6 @@ public class GraphNoSINCController implements Initializable {
 		// g1/g2 are allowed to be null here (differentiating One/Two Module setup)
 		genericTestOne = g1;
 		genericTestTwo = g2;
-
-		// the AxisType is arbitrary (all non-magnetometer axes are same length)
-		testLength = g1.getAxis(AxisType.AccelX).getTime().size();
 	
 		// TEST CODE - TO BE REPLACED LATER
 		// TODO select data set to graph based on type of GenericTest
@@ -259,24 +264,9 @@ public class GraphNoSINCController implements Initializable {
 			List<Double> time;
 			List<Double> data;
 			
-			// TODO CODE FOR TESTING -- NOT FOR PRODUCTION
-			// check if axis type is "simulated", otherwise use genericTest data
-			if(axis == AxisType.Simulation) {
-				int size = 9600;
-				time = new ArrayList<Double>();
-				data = new ArrayList<Double>();
-				testLength = size;
-				Random rand = new Random();
-				for(int i = 0; i < size; i+= resolution) {
-		    		data.add(Math.log(i/3000.0 + 1.0) + 5 * Math.sin(i / 1000.0) * (((i-10000)/1000.0) / (1 + (((i-10000)/1000.0)*((i-10000)/1000.0)))) + (rand.nextDouble() - 0.5));
-		    		time.add(i / 960.0);
-		    	}
-			}
-			else {	
-				// get time/samples data sets
-				time = genericTestOne.getAxis(axis).getTime();
-				data = genericTestOne.getAxis(axis).getSamples();
-			}
+			// get time/samples data sets
+			time = genericTestOne.getAxis(axis).getTime();
+			data = genericTestOne.getAxis(axis).getSamples();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
@@ -284,7 +274,7 @@ public class GraphNoSINCController implements Initializable {
 				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
 			
 				// add tooltip with (x,y) when hovering over data point
-				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i)));
+				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis));
 
 				seriesData.add(dataEl);
 
@@ -355,7 +345,7 @@ public class GraphNoSINCController implements Initializable {
 			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
 			
 			// add tooltip with (x,y) when hovering over data point
-			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i)));
+			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis));
 
 			seriesData.add(dataEl);
 
@@ -431,12 +421,146 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	@FXML
+	public void toggleSlopeMode(ActionEvent event) {
+
+		System.out.println("Toggling slope mode...");
+
+		if (mode == GraphMode.NONE) {
+			System.out.println("GraphMode.SLOPE");
+			setGraphMode(GraphMode.SLOPE);
+		}
+		else if (mode == GraphMode.SLOPE) {
+			setGraphMode(GraphMode.NONE);
+		}
+
+	}
+
+	@FXML
+	public void toggleAreaMode(ActionEvent event) {
+
+		if (mode == GraphMode.NONE) {
+			setGraphMode(GraphMode.AREA);
+		} 
+		else if (mode == GraphMode.AREA) {
+			setGraphMode(GraphMode.NONE);
+		}
+
+	}
+
+	public void setGraphMode(GraphMode g) {
+
+		mode = g;
+		slopePoint = new Double[2];
+
+		switch (g) {
+
+			case NONE:
+				lineChart.getScene().setCursor(Cursor.DEFAULT);
+				break;
+
+			case SLOPE:
+				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
+				break;
+
+			case AREA:
+				lineChart.getScene().setCursor(Cursor.H_RESIZE);
+				break;
+
+			default:
+				System.err.println("Error setting graph mode");
+				break;
+			
+		}
+
+	}
+
+	/**
+	 * Graphs a line tangent to the given point.
+	 */
+	public void graphSlope(double x, double y, AxisType axis) {
+		
+		double m = genericTestOne.getAxis(axis).getSlope(x, resolution);
+
+		if (slope != null) lineChart.getData().remove(slope);
+
+		slope = new XYChart.Series<Number, Number>();
+		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+
+		// y - y0 = m(x - x0) | y = m(x - x0) + y0 
+		seriesData.add(new XYChart.Data<Number,Number>(x-1, m * ((x-1)-x) + y));
+		seriesData.add(new XYChart.Data<Number,Number>(x, y));
+		seriesData.add(new XYChart.Data<Number,Number>(x+1, m * ((x+1)-x) + y));
+		
+		seriesData.get(1).setNode(createSlopeLabel(m));
+
+		slope.setName("Slope (" + axis + ")");
+		slope.setData(seriesData);
+
+		// TODO clean up, don't need to recreate XYChart.Series
+		lineChart.getData().add(slope);
+		slope.getNode().getStyleClass().add("slope-line");
+
+		setGraphMode(GraphMode.NONE);
+
+	}
+
+	/**
+	 * Graphs a secant line between the given points.
+	 */
+	public void graphSlope(double x1, double y1, double x2, double y2, AxisType axis) {
+
+		double m = genericTestOne.getAxis(axis).getSlope(x1, x2);
+
+		if (slope != null) lineChart.getData().remove(slope);
+
+		slope = new XYChart.Series<Number, Number>();
+		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+
+		// y - y0 = m(x - x0) | y = m(x - x0) + y0 
+		seriesData.add(new XYChart.Data<Number,Number>(x1, y1));
+		seriesData.add(new XYChart.Data<Number, Number>((x1+x2)/2, (y1+y2)/2));
+		seriesData.add(new XYChart.Data<Number,Number>(x2, y2));
+
+		seriesData.get(1).setNode(createSlopeLabel(m));
+		
+		slope.setName("Slope (" + axis + ")");
+		slope.setData(seriesData);
+
+		// TODO clean up, don't need to recreate XYChart.Series
+		lineChart.getData().add(slope);
+		slope.getNode().getStyleClass().add("slope-line");
+
+		setGraphMode(GraphMode.NONE);
+
+	}
+
+	/**
+	 * Creates the label for the slope of a tangent/secant line.
+	 * @param m the value for the slope
+	 */
+	public Label createSlopeLabel(double m) {
+
+		Label label = new Label("Slope: " + (Math.round(m * 100.0) / 100.0));
+
+		// add styling to label
+		label.getStyleClass().addAll("hover-label");
+
+		// place the label above the data point
+		label.translateYProperty().bind(label.heightProperty().divide(-1));
+
+		label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+
+		return label;
+
+	}
+
 	/**
 	 * JavaFX component added to data points on graph.
 	 */
 	class DataPointLabel extends StackPane {
 		
-		DataPointLabel(double x, double y) {
+		DataPointLabel(double x, double y, AxisType axis) {
 
 			// round to two decimal places
 			final double roundedX = Math.round(x * 100.0) / 100.0;
@@ -480,6 +604,36 @@ public class GraphNoSINCController implements Initializable {
 					getChildren().clear();
 				}
 				
+			});
+
+			setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {
+
+					if (mode == GraphMode.SLOPE) {
+
+						// secant line graphing mode
+						if (event.isShiftDown()) {
+							slopePoint = new Double[] {x,y};
+						}
+						else {
+							// graph tangent line
+							if (slopePoint[0] == null && slopePoint[1] == null) {
+								System.out.println("Graphing tangent line...");
+								graphSlope(x, y, axis);
+							}
+							// graph secant line
+							else {
+								System.out.println("Graphing secant line...");
+								graphSlope(slopePoint[0], slopePoint[1], x, y, axis);
+							}
+						}
+
+					}
+
+				}
+
 			});
 
 		}
@@ -565,6 +719,19 @@ public class GraphNoSINCController implements Initializable {
 			graphAxis(AxisType.valueOf(result.get()));
 		}
 
+	}
+
+	/**
+	 * Internal enum used to designate the state of data analysis;
+	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
+	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
+	 * <p><code>GraphMode.MultiSlope</code> is when the user is selecting a second point for a slope calculation,</p>
+	 * <p>and <code>GraphMode.Area</code> is when the user is selecting the section for an area calculation.</p>
+	 */
+	private enum GraphMode {
+		NONE,
+		SLOPE,
+		AREA
 	}
 
 }

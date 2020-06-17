@@ -317,27 +317,44 @@ public class AxisDataSeries {
 		return Arrays.asList(result);
 	}
 	
-	// returns slope at a specific data point (tangent line)
-	public Double getSlope(Double time) {
-		//uses secant line method b/w sample directly before and after
-		int i = (int) Math.round(time*this.sampleRate);
-		Double slope = (originalData[i+1]-originalData[i-1])/(this.time[i+1]-this.time[i-1]);
+	/**
+	 * Finds slope of the line tangent to a data point.
+	 * <p>Calculated by finding the slope of the secant line <code>n</code> indices to the left and right of the point.
+	 * <code>n</code> is passed in as the <code>resolution</code> parameter, and is necessary to make tangent lines
+	 * look accurate to the resolution of samples graphed.</p>
+	 * @param x the x-value of the data point
+	 * @param res the resolution of the graph, and the value <code>n</code> used to calculate the secant line.
+	 * @return the slope of the line tangent to the point
+	 */
+	public Double getSlope(Double x, int res) {
+
+		// reverse search for index of x-value in time array
+		int i = Arrays.binarySearch(this.time, x);
+
+		// slope (m) = ∆y/∆x, where the interval is the resolution of the graphed data set
+		Double slope = (smoothedData[i+res]-smoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
+		
 		return slope;
+
 	}
 	
-	// returns slope between two points (secant line)
+	/**
+	 * Finds slope of the line tangent to a data point.
+	 * @param time the x-value of the data point
+	 * @return the slope of the secant line
+	 */
 	public Double getSlope(Double startTime, Double endTime) {
 		Double slope = 0.0;
 		
 		if (startTime == endTime) {
 			int i = (int) Math.round(startTime*this.sampleRate);
-			slope = (originalData[i+1]-originalData[i-1])/(this.time[i+1]-this.time[i-1]);
+			slope = (smoothedData[i+1]-smoothedData[i-1])/(this.time[i+1]-this.time[i-1]);
 			return slope;
 		}
 		else {
 		int i = (int) Math.round(startTime*this.sampleRate);
 		int j = (int) Math.round(endTime*this.sampleRate);
-		slope = (originalData[j]-originalData[i])/(this.time[j]-this.time[i]);}
+		slope = (smoothedData[j]-smoothedData[i])/(this.time[j]-this.time[i]);}
 		return slope;
 	}
 	
@@ -346,7 +363,7 @@ public class AxisDataSeries {
 		Double area = 0.0;
 		int i = (int) Math.round(startTime*this.sampleRate);
 		int j = (int) Math.round(endTime*this.sampleRate);
-		area = ((originalData[i]+originalData[j])/2)*(this.time[j]-this.time[i]);
+		area = ((smoothedData[i]+smoothedData[j])/2)*(this.time[j]-this.time[i]);
 		return area;
 	}
 	

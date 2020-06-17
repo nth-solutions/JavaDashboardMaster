@@ -7,7 +7,9 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
@@ -31,7 +33,7 @@
                <children>
                   <HBox alignment="CENTER" layoutX="50.0" layoutY="25.0" prefHeight="20.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="25.0">
                      <children>
-                        <Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Test Graph">
+                        <Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Generic Test">
                            <font>
                               <Font name="Open Sans" size="24.0" />
                            </font>
@@ -62,23 +64,23 @@
                      <content>
                         <VBox minWidth="200.0" prefWidth="200.0">
                            <children>
-                              <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" prefWidth="398.0" spacing="5.0">
+                              <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" prefHeight="79.0" prefWidth="398.0" spacing="5.0">
                                  <children>
                                     <HBox alignment="CENTER" layoutX="102.0" layoutY="66.0" />
                                     <HBox alignment="CENTER" layoutX="102.0" layoutY="91.0" />
                                     <Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#debugGraphAxis" prefHeight="25.0" prefWidth="150.0" text="[DEBUG] Graph Axis" />
                                     <CheckBox fx:id="debugIgnoreResCheckbox" mnemonicParsing="false" onAction="#debugShowAllSamples" text="[DEBUG] Show all data samples" />
-                                    <Separator prefWidth="200.0">
-                                       <VBox.margin>
-                                          <Insets bottom="10.0" top="10.0" />
-                                       </VBox.margin>
-                                    </Separator>
                                  </children>
                                  <VBox.margin>
                                     <Insets />
                                  </VBox.margin>
                               </VBox>
-                              <VBox alignment="CENTER" prefHeight="124.0" prefWidth="398.0" spacing="5.0">
+                              <Separator prefHeight="26.0" prefWidth="398.0">
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </VBox.margin>
+                              </Separator>
+                              <VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
                                  <children>
                                     <Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
                                        <padding>
@@ -104,6 +106,26 @@
                                  <padding>
                                     <Insets left="5.0" right="5.0" />
                                  </padding>
+                              </VBox>
+                              <Separator prefHeight="50.0" prefWidth="398.0">
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </VBox.margin>
+                              </Separator>
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                 <children>
+                                    <Label prefWidth="71.0" text="Data Analysis" textAlignment="CENTER" />
+                                    <Button mnemonicParsing="false" onAction="#toggleSlopeMode" text="Find slope at/between point(s)">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" top="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                    <Button layoutX="167.0" layoutY="27.0" mnemonicParsing="false" onAction="#toggleAreaMode" text="Find area under a curve">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin>
+                                    </Button>
+                                 </children>
                               </VBox>
                               <Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="398.0">
                                 <panes>
@@ -203,8 +225,13 @@
          </items>
       </SplitPane>
       <MenuBar prefWidth="1440.0">
-        <menus>
-        </menus>
+         <menus>
+            <Menu mnemonicParsing="false" text="File">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Import CSV" />
+              </items>
+            </Menu>
+         </menus>
       </MenuBar>
    </children>
 </AnchorPane>
