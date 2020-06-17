@@ -1,5 +1,6 @@
 package dataorganizer;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 
 public class GraphNoSINCController implements Initializable {
 
@@ -213,6 +215,11 @@ public class GraphNoSINCController implements Initializable {
 		
 	}
 	
+	public void setGenericTestFromCSV(String CSVPath, String CSVPPath) {
+		genericTestOne = new GenericTest(CSVPath, CSVPPath);
+		graphAxis(AxisType.AccelX);
+	}
+	
 	/**
 	 * Handles zooming/panning of the graph.
 	 */
@@ -338,6 +345,9 @@ public class GraphNoSINCController implements Initializable {
 		// get time/samples data sets
 		List<Double> time = genericTestOne.getAxis(axis).getTime();
 		List<Double> data = genericTestOne.getAxis(axis).getSamples();
+		
+		//List<Double> time = genericTestThree.getAxis(axis).getTime();
+		//List<Double> data = genericTestThree.getAxis(axis).getSamples();
 
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i+=resolution) {
@@ -400,7 +410,8 @@ public class GraphNoSINCController implements Initializable {
 
 		// apply moving avgs to all currently drawn axes
 		dataSets.forEach((axis, series) -> {
-			genericTestOne.getAxis(axis).applyMovingAvg(blockSize);
+			genericTestOne.getAxis(axis).applyCustomMovingAvg(blockSize);
+			//genericTestThree.getAxis(axis).applyCustomMovingAvg(blockSize);
 			updateAxis(axis);
 		});
 
@@ -656,6 +667,7 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 	}
+	
 	
 	/**
 	 * Old method of passing data to NewGraph reading from DataOrganizer(s).
