@@ -1,6 +1,5 @@
 package dataorganizer;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
-import javafx.stage.FileChooser;
 
 public class GraphNoSINCController implements Initializable {
 
@@ -459,6 +457,11 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	/**
+	 * Sets the graphing mode of the application.
+	 * Use this to change between viewing the graph and finding slope/area modes.
+	 * @param g the {@link GraphMode} to change to.
+	 */
 	public void setGraphMode(GraphMode g) {
 
 		mode = g;

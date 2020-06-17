@@ -224,15 +224,13 @@ public class GenericTest {
 		}
 
 		// Creates magnitude data sets. Check AXIS DATA SERIES INDICES/DOCUMENTATION for more information.
-		// TODO remove "-1" when Simulation data set is removed from AxisType
-		for (int i = 0; i < AxisType.values().length-1; i+=4) {
+		for (int i = 0; i < AxisType.values().length; i+=4) {
 
 			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 
 		}
-	
-		System.out.println("Gt263Done");
+
 	}
 	
 	/**
@@ -296,7 +294,7 @@ public class GenericTest {
 			// I guess we can't close the file either.
 		}	
          
-         int expectedTestNum = testParameters.get(0);
+        int expectedTestNum = testParameters.get(0);
 		int timer0 = testParameters.get(1);
 		int delayAfterStart = testParameters.get(2);
 		int timedTestFlag = testParameters.get(4);
@@ -365,12 +363,15 @@ public class GenericTest {
 		}
 		
 		
-         int[] mpuOffsets = new int[9];
+		 int[] mpuOffsets = new int[9];
+		 
  		// populate MPU offsets by taking the avg of min and max
  		// Currently used for acceleration calculations only
- 		for(int axi = 0; axi < MPUMinMax.length; axi++) {
- 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;}
-      // Create time axis by mapping each sample to its ordinal position in the sample array divided by the sample rate
+ 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
+			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
+		}
+
+      	// Create time axis by mapping each sample to its ordinal position in the sample array divided by the sample rate
  		// TODO may try to implement use of timer0 in future
  		List<Double> timeAxis = new ArrayList<Double>();
  		List<Double> magTimeAxis = new ArrayList<Double>();
@@ -388,50 +389,6 @@ public class GenericTest {
  		
  		// initialize axis data series
  		axes = new AxisDataSeries[AxisType.values().length];
- 		
- 		/*
- 		AXIS DATA SERIES INDICES/DOCUMENTATION
-
- 		0		Acceleration X
- 		1		Acceleration Y
- 		2		Acceleration Z
- 		3		Acceleration Magnitude
-
- 		Axes 4 - 11 are now based off Linear Acceleration (axes 28-31)
-
- 		4		Velocity X
- 		5		Velocity Y
- 		6		Velocity Z
- 		7		Velocity Magnitude
- 		8		Displacement X
- 		9		Displacement Y
- 		10		Displacement Z
- 		11		Displacement Magnitude
-
- 		12		Angular Acceleration X
- 		13		Angular Acceleration Y
- 		14		Angular Acceleration Z
- 		15		Angular Acceleration Magnitude
- 		16		Angular Velocity X
- 		17		Angular Velocity Y
- 		18		Angular Velocity Z
- 		19		Angular Velocity Magnitude
- 		20		Angular Displacement X
- 		21		Angular Displacement Y
- 		22		Angular Displacement Z
- 		23		Angular Displacement Magnitude
- 		24		Magnetometer X
- 		25		Magnetometer Y
- 		26		Magnetometer Z
- 		27		Magnetometer Magnitude
-
- 		The following axes are experimental and subject to change:
-
- 		28		Linear Acceleration X
- 		29		Linear Acceleration Y
- 		30		Linear Acceleration Z
- 		31 		Linear Acceleration Magnitude
- 		*/
 
  		// loops X Y Z
  		for (int i = 0; i < 3; i++) {
@@ -461,49 +418,15 @@ public class GenericTest {
  			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
 
  		}
- 	
- 		// Accel magnitude
- 		axes[3] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(3), false, sampleRate); 
 
- 		// Velocity magnitude
- 		axes[7] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(7), false, sampleRate);
+ 		// Creates magnitude data sets. Check AXIS DATA SERIES INDICES/DOCUMENTATION for more information.
+		// TODO remove "-1" when Simulation data set is removed from AxisType
+		for (int i = 0; i < AxisType.values().length; i+=4) {
 
- 		// Displacement magnitude
- 		axes[11] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(11), false, sampleRate);
+			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
+			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 
- 		// Angular accel magnitude
- 		axes[15] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(15), false, sampleRate);
-
- 		// (GYRO) Angular velocity magnitude
- 		axes[19] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(19), false, sampleRate);
-
- 		// Angular displacement magnitude
- 		axes[23] = new AxisDataSeries(timeAxis, dataSamples.get(3), AxisType.valueOf(23), false, sampleRate);
-
- 		// magnetic field magnitude
- 		axes[27] = new AxisDataSeries(magTimeAxis, dataSamples.get(7), AxisType.valueOf(27), true, magSampleRate);
- 		
- 		// linear acceleration magnitude
- 		axes[31] = new AxisDataSeries(timeAxis, dataSamples.get(1), AxisType.valueOf(31), false, sampleRate);
-
- 		// Goes until length-1 to account for potential difference in length of 1 b/w accel and gyro series
- 		for (int i = 0; i < dataSamples.get(1).size()-1; i++) {
-
- 			axes[3].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[0].getSmoothedData()[i], 2)+Math.pow(axes[1].getSmoothedData()[i], 2)+Math.pow(axes[2].getSmoothedData()[i], 2)));
- 			axes[7].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[4].getSmoothedData()[i], 2)+Math.pow(axes[5].getSmoothedData()[i], 2)+Math.pow(axes[6].getSmoothedData()[i], 2)));
- 			axes[11].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[8].getSmoothedData()[i], 2)+Math.pow(axes[9].getSmoothedData()[i], 2)+Math.pow(axes[10].getSmoothedData()[i], 2)));
- 			axes[15].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[12].getSmoothedData()[i], 2)+Math.pow(axes[13].getSmoothedData()[i], 2)+Math.pow(axes[14].getSmoothedData()[i], 2)));
- 			axes[19].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[16].getSmoothedData()[i], 2)+Math.pow(axes[17].getSmoothedData()[i], 2)+Math.pow(axes[18].getSmoothedData()[i], 2)));
- 			axes[23].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[20].getSmoothedData()[i], 2)+Math.pow(axes[21].getSmoothedData()[i], 2)+Math.pow(axes[22].getSmoothedData()[i], 2)));
-
- 			//for adjusted magnetometer time scale
- 			if (i < dataSamples.get(7).size()) {
- 				axes[27].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[24].getSmoothedData()[i], 2)+Math.pow(axes[25].getSmoothedData()[i], 2)+Math.pow(axes[26].getSmoothedData()[i], 2)));
- 			}
-
- 			axes[31].setOriginalDataPoint(i, Math.sqrt(Math.pow(axes[28].getSmoothedData()[i], 2)+Math.pow(axes[29].getSmoothedData()[i], 2)+Math.pow(axes[30].getSmoothedData()[i], 2)));
-
- 		}
+		}
  	
 	}
 
@@ -619,8 +542,8 @@ public class GenericTest {
 	}
 	
 	/**
-	 * returns raw data samples organized from SerialComm in the appropriate format for CSV
-	 * @return
+	 * Returns raw data samples organized from SerialComm in the appropriate format for CSV.
+	 * @return a 2D ArrayList of raw bitcount data for each sensor
 	 */
 	public List<List<Double>> getDataSamples(){
 		return dataSamples;

@@ -46,8 +46,7 @@ public enum AxisType {
 	LinAccelX(28),
 	LinAccelY(29),
 	LinAccelZ(30),
-	LinAccelMag(31),
-	Simulation(32);
+	LinAccelMag(31);
 	
 	private int value;
 	private static Map<Integer, AxisType> map = new HashMap<Integer, AxisType>();

@@ -91,14 +91,18 @@ public class AxisDataSeries {
 			}
 			
 		}
-				//create normalized data series using first second of module data
-				createNormalizedData(0.0, 1.0, sampleRate);
-				//creates smoothedData by applying rolling average to normalized data		
-				smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
-				//clones smoothedData for display on graph
-				userSmoothedData= smoothedData.clone();
 
-		System.out.println(axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length);
+		// create normalized data series using first second of module data
+		createNormalizedData(0.0, 1.0, sampleRate);
+
+		// Creates smoothedData by applying rolling average to normalized data		
+		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+
+		//Clones smoothedData for display on graph
+		userSmoothedData = smoothedData.clone();
+
+		// print debug info about AxisDataSeries
+		System.out.println(toString());
 
 	}
 	
@@ -148,8 +152,10 @@ public class AxisDataSeries {
 		
 		//create normalized data series using first second of module data
 		createNormalizedData(0.0, 1.0, sampleRate);
+
 		//creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+
 		//clones smoothedData for display on graph
 		userSmoothedData= smoothedData.clone();
 
@@ -192,24 +198,13 @@ public class AxisDataSeries {
 			this.originalData[i] *= ((double) gyroSensitivity) / 32768;		
 			
 		}
-		//average data from the first second to get normalization offset
-				double sum = 0;
-				for(int i = 0; i <sampleRate; i++) {
-					sum+=originalData[i];
-				}
-				sum/=sampleRate;
-				normOffset = sum;
-
-				//subtract normOffset from each originalData value to create array of normalized data
-				this.normalizedData = this.originalData.clone();
-				for(int i =0 ; i <originalData.length; i++) {
-					normalizedData[i] = originalData[i] - normOffset;
-				}
 		
 		//create normalized data series using first second of module data
 		createNormalizedData(0.0, 1.0, sampleRate);
+
 		//creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+		
 		//clones smoothedData for display on graph
 		userSmoothedData= smoothedData.clone();
 
@@ -258,6 +253,7 @@ public class AxisDataSeries {
 
 		this.originalData = result;
 		this.smoothedData = this.originalData.clone();
+		this.userSmoothedData = this.smoothedData.clone();
 
 		// print debug info about AxisDataSeries
 		System.out.println(toString());
@@ -302,11 +298,9 @@ public class AxisDataSeries {
 		}
 
 		this.smoothedData = this.originalData.clone();
-		//clones smoothedData for display on graph
-		userSmoothedData= smoothedData.clone();
+		userSmoothedData = smoothedData.clone();
 
 	}
-	
 	
 	/**
 	 * Creates normalized data set with a "baseline" interval set to 0.
@@ -315,22 +309,25 @@ public class AxisDataSeries {
 	 * @param sampleRate - sampleRate for series being normalized
 	 */
 	public void createNormalizedData(Double startTime, Double endTime, int sampleRate) {
-		//Convert times to sample #s 
-		int startIndex = (int)Math.round( startTime*sampleRate);
-		int endIndex = (int)Math.round( endTime*sampleRate); 
-		//average data from the first second to get normalization offset
-				double sum = 0;
-				for(int i = startIndex; i <endIndex; i++) {
-					sum+=originalData[i];
-				}
-				sum/=sampleRate;
-				normOffset = sum;
 
-				//subtract normOffset from each originalData value to create array of normalized data
-				this.normalizedData = this.originalData.clone();
-				for(int i =0 ; i <originalData.length; i++) {
-					normalizedData[i] = originalData[i] - normOffset;
-				}	
+		// Convert times to sample #s 
+		int startIndex = (int) Math.round(startTime*sampleRate);
+		int endIndex = (int) Math.round(endTime*sampleRate);
+
+		// average data from the first second to get normalization offset
+		double sum = 0;
+		for (int i = startIndex; i < endIndex; i++) {
+			sum += originalData[i];
+		}
+		sum /= sampleRate;
+		normOffset = sum;
+
+		//subtract normOffset from each originalData value to create array of normalized data
+		this.normalizedData = this.originalData.clone();
+		
+		for (int i =0 ; i < originalData.length; i++) {
+			normalizedData[i] = originalData[i] - normOffset;
+		}	
 	}
 	
 	
@@ -346,15 +343,14 @@ public class AxisDataSeries {
 		
 		for (int i = sampleBlockSize/2; i < newArray.length - sampleBlockSize/2; i++) {
 			double localTotal = 0;
-			for (int j = (i - sampleBlockSize/2); j<(i+sampleBlockSize/2); j++) {
-				localTotal+=array[j];
+			for (int j = (i - sampleBlockSize/2); j< (i+sampleBlockSize/2); j++) {
+				localTotal += array[j];
 			}
-			newArray[i]=(localTotal/sampleBlockSize);
+			newArray[i]= localTotal / sampleBlockSize;
 		}
 		
 		return newArray;
 	}
-	
 	
 	/**
 	 * Applies middle-based moving average with block size of user's choice 
@@ -364,7 +360,6 @@ public class AxisDataSeries {
 	public void applyCustomMovingAvg(int sampleBlockSize) {
 		userSmoothedData = applyMovingAvg(smoothedData, sampleBlockSize);
 	}
-	
 		
 	// doing trapezoidal rule for integration
 	public List<Double> integrate() {
@@ -384,8 +379,7 @@ public class AxisDataSeries {
 		return Arrays.asList(result);
 	}
 	
-	
-	//get slope of secant line between point directly before and after
+	// Get slope of secant line between point directly before and after
 	public List<Double> differentiate() {
 		
 		Double[] result = new Double[smoothedData.length]; 
@@ -427,6 +421,7 @@ public class AxisDataSeries {
 	 * @return the slope of the secant line
 	 */
 	public Double getSlope(Double startTime, Double endTime) {
+
 		Double slope = 0.0;
 		
 		if (startTime == endTime) {
@@ -435,35 +430,47 @@ public class AxisDataSeries {
 			return slope;
 		}
 		else {
-		int i = (int) Math.round(startTime*this.sampleRate);
-		int j = (int) Math.round(endTime*this.sampleRate);
-		slope = (smoothedData[j]-smoothedData[i])/(this.time[j]-this.time[i]);}
+			int i = (int) Math.round(startTime*this.sampleRate);
+			int j = (int) Math.round(endTime*this.sampleRate);
+			slope = (smoothedData[j]-smoothedData[i])/(this.time[j]-this.time[i]);
+		}
+
 		return slope;
 	}
 	
 	// returns area under a section of a data curve utilizing the trapezoid method
 	public Double getAreaUnder(Double startTime, Double endTime) {
+
 		Double area = 0.0;
 		int i = (int) Math.round(startTime*this.sampleRate);
 		int j = (int) Math.round(endTime*this.sampleRate);
 		area = ((smoothedData[i]+smoothedData[j])/2)*(this.time[j]-this.time[i]);
 		return area;
-	}
-	
-	public void setSmoothedData(Double[] data) {
-		this.smoothedData = data;
-	}
-	
-	
-	public void setSmoothedDataPoint(int index, Double value) {
-		this.smoothedData[index] = value;	
-	}
-	
-	
 
+	}
+	
 	@Override
 	public String toString() {
 		return this.axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length;
+	}
+		
+	/**
+	 * Used by Graph GUI to get time data from AxisDataSeries instances.
+	 */
+	public ArrayList<Double> getTime() {
+		return new ArrayList<Double>(Arrays.asList(time));
+	}
+	
+	/**
+	 * Used by Graph GUI to get samples from AxisDataSeries instances.
+	 */
+	public ArrayList<Double> getSamples() {
+		return new ArrayList<Double>(Arrays.asList(userSmoothedData));
+	}
+
+	@Deprecated
+	public void setOriginalDataPoint(int index, Double value ) {
+		this.originalData[index] = value;	
 	}
 
 	@Deprecated
@@ -475,32 +482,9 @@ public class AxisDataSeries {
 	public Double[] getOriginalData() { 
 		return this.originalData;
 	}
-	
 
 	@Deprecated
 	public void setOriginalData(Double[] data) {
 		this.originalData = data;
-	}
-
-		
-	/**
-	 * Used by Graph GUI to get time data from AxisDataSeries instances.
-	 */
-	public ArrayList<Double> getTime() {
-		return new ArrayList<Double>(Arrays.asList(time));
-	}
-	
-	
-	/**
-	 * Used by Graph GUI to get samples from AxisDataSeries instances.
-	 */
-	public ArrayList<Double> getSamples() {
-		return new ArrayList<Double>(Arrays.asList(userSmoothedData));
-	}
-
-	
-	@Deprecated
-	public void setOriginalDataPoint(int index, Double value ) {
-		this.originalData[index] = value;	
 	}
 }
