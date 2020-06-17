@@ -36,13 +36,9 @@ public class GraphNoSINCMain extends Application {
         
         primaryStage.setResizable(true);
 
-        
-        controller.graphAxis(AxisType.Simulation);
     }
 
-    public static void main(String[] args) {
-
-    	
+    public static void main(String[] args) {    	
     	
     	// CODE FOR SAMPLE DATA -- NOT NECCESARY, BUT testDataSamples AND testDataTime MUST BE FILLED WITH SOMETHING TO USE THIS MAIN METHOD
     	int size = 96000;
