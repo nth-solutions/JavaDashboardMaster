@@ -2549,8 +2549,8 @@ public class EducatorModeControllerFX implements Initializable {
 		try {
 			
 			root = loader.load();
-			primaryStage.setTitle("BioForce Experiment Graph");
-	        Scene scene = new Scene(root);
+			primaryStage.setTitle("BioForce Data Analysis Graph");
+            Scene scene = new Scene(root);
 	       
 	        primaryStage.setMinWidth(600);
 	        primaryStage.setMinHeight(400);

@@ -3,6 +3,7 @@ package dataorganizer;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
@@ -78,8 +78,11 @@ public class GraphNoSINCController implements Initializable {
 	// keeps track of first point in secant line calculation
 	private Double[] slopePoint;
 
+	// keeps track of first point in area calculation
+	private Double[] areaPoint;
+
 	@FXML
-	private LineChart<Number,Number> lineChart;
+	private BFALineChart<Number,Number> lineChart;
 	
 	@FXML
 	private NumberAxis xAxis;
@@ -96,6 +99,7 @@ public class GraphNoSINCController implements Initializable {
 
 		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
 		slopePoint = new Double[2];
+		areaPoint = new Double[2];
 
 		resolution = 20;
 		zoomviewScalarX = 1;
@@ -108,6 +112,9 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
+
+		xAxis = (NumberAxis) lineChart.getXAxis();
+		yAxis = (NumberAxis) lineChart.getYAxis();
 
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
@@ -146,12 +153,12 @@ public class GraphNoSINCController implements Initializable {
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
 				redrawGraph();
-				
+
 			}
 			
 		});
 		
-		// listener that runs every tick the mouse is dragged, calculates scrolling
+		// listener that runs every tick the mouse is dragged, calculates panning
 		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -214,6 +221,7 @@ public class GraphNoSINCController implements Initializable {
 	 	graphAxis(AxisType.AccelX);
 		
 	}
+	
 	/**
 	 *Populates the data analysis graph with a GenericTest constructed from a CSV and a CSVP
 	 * @param CSVPath
@@ -233,26 +241,31 @@ public class GraphNoSINCController implements Initializable {
 	 * Handles zooming/panning of the graph.
 	 */
 	public void redrawGraph() {
-		
+
 		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
 		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
 		
 		
 		if(zoomviewW > 50) {
 			lineChart.setVerticalGridLinesVisible(false);
-		}else {
+		} else {
 			lineChart.setVerticalGridLinesVisible(true);
 		}
+
 		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
-		if(zoomviewH > 50) {
+
+		if (zoomviewH > 50) {
 			lineChart.setHorizontalGridLinesVisible(false);
-		}else {
+		} else {
 			lineChart.setHorizontalGridLinesVisible(true);
 		}
 		
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
+
+		lineChart.redrawArea();
+		
 	}
 
 	/**
@@ -448,7 +461,6 @@ public class GraphNoSINCController implements Initializable {
 		System.out.println("Toggling slope mode...");
 
 		if (mode == GraphMode.NONE) {
-			System.out.println("GraphMode.SLOPE");
 			setGraphMode(GraphMode.SLOPE);
 		}
 		else if (mode == GraphMode.SLOPE) {
@@ -459,6 +471,8 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	public void toggleAreaMode(ActionEvent event) {
+
+		System.out.println("Toggling area mode...");
 
 		if (mode == GraphMode.NONE) {
 			setGraphMode(GraphMode.AREA);
@@ -515,6 +529,7 @@ public class GraphNoSINCController implements Initializable {
 
 		mode = g;
 		slopePoint = new Double[2];
+		areaPoint = new Double[2];
 
 		switch (g) {
 
@@ -523,11 +538,8 @@ public class GraphNoSINCController implements Initializable {
 				break;
 
 			case SLOPE:
-				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
-				break;
-
 			case AREA:
-				lineChart.getScene().setCursor(Cursor.H_RESIZE);
+				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
 				break;
 
 			default:
@@ -678,6 +690,7 @@ public class GraphNoSINCController implements Initializable {
 
 						// secant line graphing mode
 						if (event.isShiftDown()) {
+							System.out.println("Selected first slope point");
 							slopePoint = new Double[] {x,y};
 						}
 						else {
@@ -691,6 +704,29 @@ public class GraphNoSINCController implements Initializable {
 								System.out.println("Graphing secant line...");
 								graphSlope(slopePoint[0], slopePoint[1], x, y, axis);
 							}
+						}
+
+					}
+					else if (mode == GraphMode.AREA) {
+
+						// select first point of area calculation
+						if (areaPoint[0] == null && areaPoint[1] == null) {
+							System.out.println("Selected first area point");
+							areaPoint = new Double[] {x,y};
+						}
+						// calculate and shade area
+						else {
+							System.out.println("Graphing area...");
+							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
+							XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
+
+							double[] areaBounds = new double[] {areaPoint[0], x};
+							Arrays.sort(areaBounds);
+
+							double area = genericTestOne.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+
+							lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area);
+							setGraphMode(GraphMode.NONE);
 						}
 
 					}

@@ -185,10 +185,6 @@ public class GenericTest {
 		31 		Linear Acceleration Magnitude
 		*/
 
-		
-		// loops X Y Z
-
-
 		// loops so that X=0, Y=1, Z=2
 		for (int i = 0; i < 3; i++) {
 
