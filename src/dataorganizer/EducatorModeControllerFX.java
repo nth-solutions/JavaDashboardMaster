@@ -1697,7 +1697,7 @@ public class EducatorModeControllerFX implements Initializable {
 //                            Platform.runLater(() -> {
 //                                generalStatusExperimentLabel.setText("Serial Port Already In Use");
 //
-//                                generalStatusExperimentLabel.setTextFill(Color.RED);
+            //                                generalStatusExperimentLabel.setTextFill(Color.RED);
 //                                progressBar.setStyle("-fx-accent: red;");
 //                                progressBar.setProgress(100);
 //                            });
@@ -1796,7 +1796,7 @@ public class EducatorModeControllerFX implements Initializable {
                                         //test for null MPUMinMax
                                         System.out.println(serialHandler.getMPUMinMax()+"EMFX ln 1789");
                                         //Initialize GenericTest object to store and organize data to be graphed
-                                                                        
+
                                         	//for use with CSVwriter
                                         	String newName = "new (#" + (testIndex + 1) + ") " + nameOfFile;
                                         	try {
@@ -1807,7 +1807,7 @@ public class EducatorModeControllerFX implements Initializable {
                                         	}
                                           
                                             int [][] MPUMinMax = serialHandler.getMPUMinMax();
-                                            CSVWriter writer = new CSVWriter();
+                                            CSVHandler writer = new CSVHandler();
                                         
                                        
                                         String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
@@ -1830,7 +1830,8 @@ public class EducatorModeControllerFX implements Initializable {
 
                                             dataOrgo.createCSVP();
                                             dataOrgo.createCSV(false, false);
-                                            System.out.println("EMFX 1832");
+                                            //This is done to populate the testParameters array with MPU Offsets so that it's compatible with a GenericTest constructor
+                                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "\\Documents" + File.separator+tempName+"p");
                                             //write GenericTest data to CSV
                                             writer.writeCSV(g1, settings, newName); 
                                             writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
@@ -2428,7 +2429,50 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationMainMenu(ActionEvent event) {
-        lineGraph = startGraphing();
+    	
+    	
+        Alert a = new Alert(AlertType.CONFIRMATION, "Open the Data Analysis Graph?");
+    	Optional<ButtonType> result = a.showAndWait();
+    	
+    	if (result.get() == ButtonType.OK) {
+    		
+    		Settings settings = new Settings();
+    		settings.loadConfigFile();
+    		//Create GraphNoSINCController object
+    		GraphNoSINCController g = startGraphingNoSINC(); 
+    		
+    		System.out.println(settings.getKeyVal("CSVSaveLocation"));
+    		
+    		File directory = new File(settings.getKeyVal("CSVSaveLocation"));
+    		//creates an array of files in the directory
+    	    File[] files = directory.listFiles(File::isFile);
+    	    //lastModifiedTime is set to lowest possible value
+    	    long lastModifiedTime = Long.MIN_VALUE;
+    	    //initializes file to be selected
+    	    File chosenFile = null;
+
+    	    if (files != null) {
+    	        for (int i = 0; i<files.length; i++) {
+    	        	//finds the most recently modified csv with the correct prefix 
+    	        	//TODO Note: this method loads your most recent CSV with the assumption that all contain the substring "MAG-N".  Currently this is the case,
+    	        	//but if that changes, this will need to be adjusted
+    	        if (files[i]!=null && files[i].lastModified() > lastModifiedTime
+    	        	&& files[i].getName().substring(files[i].getName().length()-3, files[i].getName().length()).equals("csv")&&files[i].getName().contains("MAG-N")) {
+    	        	
+    	                chosenFile = files[i];
+    	                lastModifiedTime = files[i].lastModified();
+    	            }
+    	        }
+    	        System.out.println(chosenFile);
+    	    }
+    	    String pathToFile = chosenFile.toString();
+    		g.setGenericTestFromCSV(pathToFile, pathToFile+"p");
+    	}
+    	
+    	else {
+    
+    lineGraph = startGraphing();
+    	}
     }
 
     @FXML
@@ -2456,7 +2500,6 @@ public class EducatorModeControllerFX implements Initializable {
             	if (result1.get() == ButtonType.OK) {
             		 GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
                      g.setGenericTests(g1, g2);
-                     System.out.println("EMFX 2459");
             	}
             	else {
                     GraphNoSINCController g = startGraphingNoSINC(); //Create GraphNoSINCController object
@@ -2464,12 +2507,12 @@ public class EducatorModeControllerFX implements Initializable {
                 }
                 
         	} else {
-        	
+        		Settings settings = new Settings();
+        		settings.loadConfigFile();
         		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
                 lineGraph = startGraphing();
                 lineGraph.setCsvFilePath(pathTofile);
                 lineGraph.loadCSVData();
-                System.out.println("EMFX 2472");
         		
         	}
         	

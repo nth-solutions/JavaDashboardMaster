@@ -1,5 +1,6 @@
 package dataorganizer;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
+import javafx.stage.FileChooser;
 
 public class GraphNoSINCController implements Initializable {
 
@@ -212,10 +214,19 @@ public class GraphNoSINCController implements Initializable {
 	 	graphAxis(AxisType.AccelX);
 		
 	}
-	
+	/**
+	 *Populates the data analysis graph with a GenericTest constructed from a CSV and a CSVP
+	 * @param CSVPath
+	 * @param CSVPPath
+	 */
 	public void setGenericTestFromCSV(String CSVPath, String CSVPPath) {
-		genericTestOne = new GenericTest(CSVPath, CSVPPath);
-		graphAxis(AxisType.AccelX);
+		
+		//create CSVHandler Object to read CSV, CSVP
+		CSVHandler reader = new CSVHandler();
+		genericTestOne = new GenericTest(reader.readCSV(CSVPath), reader.readCSVP(CSVPPath));
+		
+		//call this twice rather than using updateAxis() for now to accommodate auto-loading method in EMFX 
+		graphAxis(AxisType.AccelX);	
 	}
 	
 	/**
@@ -344,9 +355,6 @@ public class GraphNoSINCController implements Initializable {
 		List<Double> time = genericTestOne.getAxis(axis).getTime();
 		List<Double> data = genericTestOne.getAxis(axis).getSamples();
 		
-		//List<Double> time = genericTestThree.getAxis(axis).getTime();
-		//List<Double> data = genericTestThree.getAxis(axis).getSamples();
-
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i+=resolution) {
 
@@ -409,7 +417,6 @@ public class GraphNoSINCController implements Initializable {
 		// apply moving avgs to all currently drawn axes
 		dataSets.forEach((axis, series) -> {
 			genericTestOne.getAxis(axis).applyCustomMovingAvg(blockSize);
-			//genericTestThree.getAxis(axis).applyCustomMovingAvg(blockSize);
 			updateAxis(axis);
 		});
 
@@ -455,6 +462,43 @@ public class GraphNoSINCController implements Initializable {
 			setGraphMode(GraphMode.NONE);
 		}
 
+	}
+	
+	@FXML
+	public void importCSV(ActionEvent event) {
+		//Try/Catch that catches Null Pointer Exception when no file is selected
+		try {    
+			//Creates a FileChooser Object
+            FileChooser fileChooser = new FileChooser();      
+            //Sets the title of the FileChooser object
+            fileChooser.setTitle("Select a CSV");   
+          
+            Settings settings = new Settings();
+            settings.loadConfigFile();
+            
+            fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+            //Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
+            FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");   
+            //Adds the filter to the FileChooser
+            fileChooser.getExtensionFilters().add(filterCSVs);   
+            //Assigns the user's selected file to the fileChosen variable
+            File fileChosen = fileChooser.showOpenDialog(null); 
+            if (fileChosen == null) return;
+            //Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
+            String CSVFilePath = fileChosen.toString();  
+          //Checks to make sure the given file path contains a valid value
+            if (CSVFilePath != null) {    
+            	
+                System.out.println(CSVFilePath);
+                //creates GenericTest object from CSV and corresponding CSVP and uses it to populate data analysis graph
+               setGenericTestFromCSV(CSVFilePath, CSVFilePath+"p");
+               
+            }
+
+        } 
+		catch (NullPointerException e) {
+            e.printStackTrace();
+        }                                                                           	
 	}
 
 	/**

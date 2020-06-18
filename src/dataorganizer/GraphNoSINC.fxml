@@ -228,7 +228,7 @@
          <menus>
             <Menu mnemonicParsing="false" text="File">
               <items>
-                <MenuItem mnemonicParsing="false" text="Import CSV" />
+                <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
               </items>
             </Menu>
          </menus>
