@@ -236,6 +236,8 @@ public class GraphNoSINCController implements Initializable {
 		
 		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
 		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
+		
+		
 		if(zoomviewW > 50) {
 			lineChart.setVerticalGridLinesVisible(false);
 		}else {
@@ -248,6 +250,9 @@ public class GraphNoSINCController implements Initializable {
 		}else {
 			lineChart.setHorizontalGridLinesVisible(true);
 		}
+		
+		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
+		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 	}
 
 	/**
