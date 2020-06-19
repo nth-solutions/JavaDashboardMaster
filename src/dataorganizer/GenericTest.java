@@ -1,16 +1,7 @@
 package dataorganizer;
 
-import java.util.List;
-
-import javax.swing.filechooser.FileSystemView;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Used by the Data Analysis Graph to store the data associated with a single module.
@@ -283,51 +274,6 @@ public class GenericTest {
 		
 		// initialize axis data series array
 		axes = new AxisDataSeries[AxisType.values().length];
-		
-		/*
-		AXIS DATA SERIES INDICES/DOCUMENTATION
-
-		0		Acceleration X
-		1		Acceleration Y
-		2		Acceleration Z
-		3		Acceleration Magnitude
-		4		Velocity X
-		5		Velocity Y
-		6		Velocity Z
-		7		Velocity Magnitude
-		8		Displacement X
-		9		Displacement Y
-		10		Displacement Z
-		11		Displacement Magnitude
-		12		Angular Acceleration X
-		13		Angular Acceleration Y
-		14		Angular Acceleration Z
-		15		Angular Acceleration Magnitude
-		16		Angular Velocity X
-		17		Angular Velocity Y
-		18		Angular Velocity Z
-		19		Angular Velocity Magnitude
-		20		Angular Displacement X
-		21		Angular Displacement Y
-		22		Angular Displacement Z
-		23		Angular Displacement Magnitude
-		24		Magnetometer X
-		25		Magnetometer Y
-		26		Magnetometer Z
-		27		Magnetometer Magnitude
-
-		The following axes are experimental and subject to change:
-		TODO (LIKELY TO BE REMOVED IN A LATER VERSION)
-
-		28		Linear Acceleration X
-		29		Linear Acceleration Y
-		30		Linear Acceleration Z
-		31 		Linear Acceleration Magnitude
-		*/
-
-		
-		// loops X Y Z
-
 
 		// loops so that X=0, Y=1, Z=2
 		for (int i = 0; i < 3; i++) {
