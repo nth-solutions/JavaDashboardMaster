@@ -8,14 +8,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.ResourceBundle;
 
+
+import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
@@ -28,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 
@@ -93,10 +98,24 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private TextField rollingBlockTextField;
 
+	@FXML
+	private StackPane stackPane;
+	
+	@FXML
+	private BFALineChart<Number,Number> lineChartDegrees;
+	
+	@FXML
+	private NumberAxis xAxisDegrees;
+	
+	@FXML
+	private NumberAxis yAxisDegrees;
 
+	@FXML
+	private AnchorPane anchorPane;
+	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		System.out.println("initialize");
 		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
 		slopePoint = new Double[2];
 		areaPoint = new Double[2];
@@ -112,13 +131,48 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
-
+		//xAxis = new NumberAxis();
+		//yAxis = new NumberAxis();
+		//lineChart = new BFALineChart<Number,Number>(xAxis, yAxis);
+		//System.out.println(anchorPane);
 		xAxis = (NumberAxis) lineChart.getXAxis();
 		yAxis = (NumberAxis) lineChart.getYAxis();
+		
+		//MultipleAxesLineChart chart = new MultipleAxesLineChart(lineChart, Color.RED);
+		//anchorPane.getChildren().add(chart);
+		//anchorPane.
+		
+		lineChart.lookup(".chart-content").lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
+		
+		yAxisDegrees.setSide(Side.RIGHT);
+		yAxisDegrees.setLayoutX(50);
+		
+		ArrayList<Double> testDataSamples = new ArrayList<Double>();
+    	ArrayList<Double> testDataTime = new ArrayList<Double>();
+    	Random rand = new Random();
+    	
+    	XYChart.Series<Number,Number> series = new XYChart.Series<Number, Number>();
+    	ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+    	
+    	for(int i = 0; i < 9600; i++) {
+    		testDataSamples.add(Math.log(i/300.0 + 1.0) + 5 * Math.sin(i / 100.0) * (((i-1000)/100.0) / (1 + (((i-1000)/100.0)*((i-1000)/100.0)))));
+    		testDataTime.add(i / 96.0);
+    	}
+		
+    	for (int i = 0; i < 9600; i+= resolution) {
 
+			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(testDataTime.get(i), testDataSamples.get(i));
+
+			seriesData.add(dataEl);
+
+		}
+		series.setData(seriesData);
+		// add ObservableList to XYChart.Series
+		lineChartDegrees.getData().add(series);
+		
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
-
+		
 		redrawGraph();
 		
 		// listener that runs every tick the mouse scrolls, calculates zooming
@@ -244,7 +298,8 @@ public class GraphNoSINCController implements Initializable {
 
 		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
 		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
-		
+		xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
+		xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
 		
 		if(zoomviewW > 50) {
 			lineChart.setVerticalGridLinesVisible(false);
@@ -254,6 +309,8 @@ public class GraphNoSINCController implements Initializable {
 
 		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
+		yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
+		yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
 
 		if (zoomviewH > 50) {
 			lineChart.setHorizontalGridLinesVisible(false);
