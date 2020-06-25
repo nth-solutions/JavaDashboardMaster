@@ -62,7 +62,10 @@ public class AxisDataSeries {
 		// This is because mag data is sampled at 1/10 the rate of accel/gyro,
 		// but the List "data" is filled w/ null samples assuming 960 samples/sec
 		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
-
+			//magnetometer uses rolling block size of 10
+			rollBlkSize = 10;
+			
+			//This is to remove nulls from dataOrganizer series
 			for (int i = data.size() - 1; i >= 0; i--) {
 
 				if (data.get(i) == null) {
