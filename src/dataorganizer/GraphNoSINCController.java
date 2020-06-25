@@ -30,6 +30,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import sun.net.www.content.audio.x_aiff;
 
 public class GraphNoSINCController implements Initializable {
 
@@ -267,7 +268,8 @@ public class GraphNoSINCController implements Initializable {
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 
-		lineChart.redrawArea();
+		//lineChart.redrawArea();
+		lineChart.clearArea();
 		
 	}
 
@@ -719,16 +721,28 @@ public class GraphNoSINCController implements Initializable {
 						}
 						// calculate and shade area
 						else {
-							System.out.println("Graphing area...");
-							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
-							XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
 
+							System.out.println("Graphing area...");
+
+							// ensures that x1 is always less than x2
 							double[] areaBounds = new double[] {areaPoint[0], x};
 							Arrays.sort(areaBounds);
 
+							// calculate the definite integral with the given limits
 							double area = genericTestOne.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
 
-							lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area);
+							// p1 = (x1, y1), p2 = (x2, y2)
+							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
+							XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
+
+							// ensure the lower bound is less than the upper bound
+							if (areaPoint[0] == areaBounds[0]) {
+								lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area);
+							}
+							else {
+								lineChart.graphArea(p2, p1, dataSets.get(axis).getData(), area);
+							}
+
 							setGraphMode(GraphMode.NONE);
 						}
 
@@ -736,6 +750,15 @@ public class GraphNoSINCController implements Initializable {
 
 				}
 
+			});
+
+			lineChart.setOnMouseDragReleased(new EventHandler<MouseEvent>() {
+
+				@Override
+				public void handle(MouseEvent event) {
+					System.out.println("drag done");
+				}
+				
 			});
 
 		}
@@ -828,7 +851,6 @@ public class GraphNoSINCController implements Initializable {
 	 * Internal enum used to designate the state of data analysis;
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
-	 * <p><code>GraphMode.MultiSlope</code> is when the user is selecting a second point for a slope calculation,</p>
 	 * <p>and <code>GraphMode.Area</code> is when the user is selecting the section for an area calculation.</p>
 	 */
 	private enum GraphMode {

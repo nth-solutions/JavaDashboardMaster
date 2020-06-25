@@ -335,7 +335,7 @@ public class AxisDataSeries {
 		//subtract normOffset from each originalData value to create array of normalized data
 		this.normalizedData = this.originalData.clone();
 		
-		for (int i =0 ; i < originalData.length; i++) {
+		for (int i = 0; i < originalData.length; i++) {
 			normalizedData[i] = originalData[i] - normOffset;
 		}	
 	}
@@ -346,17 +346,17 @@ public class AxisDataSeries {
 	 * @param array - the data series for the moving average to be applied to
 	 * @param sampleBlockSize - the number of samples used to calculate the moving average.
 	 */
-	public Double [] applyMovingAvg(Double [] array, int sampleBlockSize) {
+	public Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
-		Double [] newArray = array.clone();
+		Double[] newArray = array.clone();
 		//if (sampleBlockSize == 0) return;
 		
 		for (int i = sampleBlockSize/2; i < newArray.length - sampleBlockSize/2; i++) {
 			double localTotal = 0;
-			for (int j = (i - sampleBlockSize/2); j< (i+sampleBlockSize/2); j++) {
+			for (int j = (i - sampleBlockSize/2); j < (i+sampleBlockSize/2); j++) {
 				localTotal += array[j];
 			}
-			newArray[i]= localTotal / sampleBlockSize;
+			newArray[i] = localTotal / sampleBlockSize;
 		}
 		//0 out first half of rolling block worth of samples because they can't have the full rolling average applied to them
 		for(int i = 0; i<sampleBlockSize/2; i++) {
@@ -456,9 +456,14 @@ public class AxisDataSeries {
 	public Double getAreaUnder(Double startTime, Double endTime) {
 
 		Double area = 0.0;
-		int i = (int) Math.round(startTime*this.sampleRate);
-		int j = (int) Math.round(endTime*this.sampleRate);
-		area = ((smoothedData[i]+smoothedData[j])/2)*(this.time[j]-this.time[i]);
+
+		int a = (int) Math.round(startTime*this.sampleRate);
+		int b = (int) Math.round(endTime*this.sampleRate);
+
+		for (int i = a + 1; i < b + 1; i++) {
+			area += (smoothedData[i] + smoothedData[i-1])/2 * (time[i] - time[i-1]);
+		}
+
 		return area;
 
 	}
