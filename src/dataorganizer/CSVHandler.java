@@ -15,7 +15,6 @@ import javax.swing.filechooser.FileSystemView;
  * This class houses methods handle reading and writing data from/to CSV files
  * Constructors can be added as needed
  */
-
 public class CSVHandler {
 	
 	/**
@@ -24,13 +23,13 @@ public class CSVHandler {
 	 * @param settings
 	 * @param nameOfTest
 	 * @param MPUMinMax
-	 * @return
 	 */
-	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][]MPUMinMax) {
+	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][] MPUMinMax) {
+
 		/***********************************How CSVPs are organized******************************************
 		 * 
 		 * The parameters are listed in the file in the following order.  Here they are aligned with their indices in the testParameters list.
-		 * MPU min and max values are added via int[][]MPUMinMax and are not intended to be stored in the testParameters list passed into this constructor.
+		 * MPU min and max values are added via int[][] MPUMinMax and are not intended to be stored in the testParameters list passed into this constructor.
 		 * 
 		 * 0. Number of Tests
 		 * 1. timer0 
@@ -134,22 +133,25 @@ public class CSVHandler {
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile;
 			
-			//This currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
+			// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
 			for (int i = 0; i<g.getDataSamples().get(1).size()-1; i++) {
-				//populate accel and gyro data points 
-				for(int j = 1; j<7; j++) {
+
+				// populate accel and gyro data points 
+				for (int j = 1; j<7; j++) {
 					builder.append(g.getDataSamples().get(j).get(i));
 					builder.append(",");
-					}
-				//populate mag data points
-				if ((i%10==0)&&((i/10)<g.getDataSamples().get(7).size())) {
-					for( int k = 7; k <10; k ++) {
-					builder.append(g.getDataSamples().get(k).get(i/10));
-					builder.append(",");
+				}
+
+				// populate mag data points
+				if ((i%10==0) && ((i/10) < g.getDataSamples().get(7).size())) {
+					for(int j = 7; j < 10; j ++) {
+						builder.append(g.getDataSamples().get(j).get(i/10));
+						builder.append(",");
 					}
 				}
+
 				builder.append("\n");
-				}
+			}
 			
 
 		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
@@ -174,33 +176,35 @@ public class CSVHandler {
 	}
 	
 	/**
-	 * Reads CSVP containing Test Parameters
-	 * @param CSVPFilePath
-	 * @return ArrayList of Test Parameters read from CSVP
+	 * Reads test parameters from a given CSVP file.
+	 * @param CSVPFilePath the location of the CSVP file
+	 * @return ArrayList of test parameters read from CSVP
 	 */
 	public ArrayList<Integer> readCSVP(String CSVPFilePath) {
 		
-		//Create a .CSVP file
+		// Create a .CSVP file
 		File f = new File(CSVPFilePath); 
-		//Sets the name of the test
+
+		// Sets the name of the test
 		String nameOfTest = f.getName(); 
-		
+
+		// Need to load keys from settings file. This tells us where CSVs are stored
 		Settings settings = new Settings();
-		//need to load keys from settings file. This tells us where CSV's are stored
-		settings.loadConfigFile(); 
-		//Reader for reading from the file
+		settings.loadConfigFile();
+
+		// Reader for reading from the file
 		BufferedReader CSVPFile = null; 
+
 		String lineText = "";
-		//Instantiate the testParameters object. 
-		ArrayList<Integer>testParameters = new ArrayList<Integer>(); 
+
+		// Instantiate the testParameters object. 
+		ArrayList<Integer> testParameters = new ArrayList<Integer>(); 
 		
 		try {
-			//open the file for reading
+			// Open the file for reading
 			CSVPFile = new BufferedReader(new FileReader(CSVPFilePath)); 
 		} 
-		
 		catch (FileNotFoundException e) {
-			
 			e.printStackTrace();
 		}
 		
@@ -208,63 +212,45 @@ public class CSVHandler {
 			//There are 19 test parameters counting MPU Min/Max values
 			for (int i = 0; i < 19; i++) { 
 				lineText = CSVPFile.readLine();
-				//Parse as an int and add to test params
+				// Parse as an int and add to test params
 				testParameters.add(testParameters.size(), Integer.parseInt(lineText)); 
 			}
-		}
-		
+		}	
 		catch (NumberFormatException e) {
-			//NFE really shouldn't happen but it would mean that the file is corrupt.
 			e.printStackTrace();
-			
-			try {
-				//Try to close the file
-				CSVPFile.close(); 
-			} 
-			catch (IOException e1) {
-				//Would occur if file can't be closed
-				e1.printStackTrace();	
-			}	
-		} 
-		
-		catch(IOException e) {
+			System.out.println("Error reading CSVP file -- file corrupt");
+		}
+		catch (IOException e) {
 			e.printStackTrace();
-			
-			try {
-				//try to close if there is an IO Exception
-				CSVPFile.close();
-			} 
-			
-			catch (IOException e1) {
-				//if file can't be closed
-				e1.printStackTrace();
-			}
+			System.out.println("Error reading CSVP file");
 		}
 
 		try {
-			//Try to close the file
+			// Try to close the file
 			CSVPFile.close();
 		} 
-		
-		catch (IOException e1) {
-			//if file can't be closed
-			e1.printStackTrace();
+		catch (IOException e) {
+			// If file can't be closed
+			System.out.println("Error closing CSVP file");
+			e.printStackTrace();
 		}	
 		
-	return testParameters;
+		return testParameters;
+
 	}
 
 	
 	/**
-	 * Reads CSV containing raw test data
-	 * @param CSVFilePath
-	 * @param testParameters
-	 * @return 2D list of 9 axes of raw data (already converted from bytes) and one axis of time - NOTE: dataSamples.get(0) (time axis) is left unpopulated
-	 * to avoid having to pass in an additional parameter (sampleRate via testParameters)
+	 * Reads data samples from a given CSV file.
+	 * @param CSVFilePath the location of the CSV file
+	 * @param testParameters the test parameters from the associated CSVP file (see {@link #readCSVP})
+	 * @return 2D list of 9 axes of raw data (already converted from bytes) and one axis of time.
+	 * <p><b>NOTE: The time axis (index 0) is left unpopulated to avoid having to pass in an additional parameter (sampleRate via testParameters).</b></p>
 	 */
 	public List<List<Double>> readCSV(String CSVFilePath) {
 		
 		List<List<Double>>dataSamples = new ArrayList<List<Double>>();
+
 		// populate "dataSamples"'s inner lists
 		for (int i = 0; i < 10; i++) {
 			List<Double> axis = new ArrayList<Double>();
@@ -274,50 +260,55 @@ public class CSVHandler {
 		BufferedReader br = null;
 
 		try {
+
 			String line = "";
 			br = new BufferedReader(new FileReader(CSVFilePath));
 
 			while ((line = br.readLine()) != null) {
 				
-				//splits each line into an array of samples for each axis
+				// splits each line into an array of samples for each axis
 				String[] lineArr = line.split(",");
-					for (int i = 0; i < lineArr.length; i++) {
-					
-						try {
+
+				for (int i = 0; i < lineArr.length; i++) {
+				
+					try {
+						// parse characters from CSV to doubles
 						dataSamples.get(i+1).add(Double.parseDouble(lineArr[i]));
-						} 
-						catch (NumberFormatException nfe) {
-						nfe.printStackTrace();
+					} 
+					catch (NumberFormatException e) {
+						e.printStackTrace();
+						System.out.println("Error reading CSV file -- could not parse sample data");
 						break;
-						}	
 					}
+
+				}
 			}
+
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("Error reading CSV file -- file not found");
 		} 
-		catch (FileNotFoundException ex) {
-			
-			System.out.println("NO FILE FOUND");
-		} 
-		
-		catch (IOException e) {
-			
-			e.printStackTrace();	
-		} 
-		
+		catch (IOException e) {	
+			e.printStackTrace();
+			System.out.println("Error reading CSV file");
+		}
 		finally {
+
 			if (br != null) {
 				try {
 					br.close();
 				}
 				catch (IOException e) {
 					e.printStackTrace();
+					System.out.println("Error closing CSV file");
 				}
 			}
+
 		}
 		
 		return dataSamples;
+		
 	}
 	
-	
 }
-
-

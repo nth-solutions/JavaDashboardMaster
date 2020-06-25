@@ -848,7 +848,6 @@ public class GraphNoSINCController implements Initializable {
 	 * Internal enum used to designate the state of data analysis;
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
-	 * <p><code>GraphMode.MultiSlope</code> is when the user is selecting a second point for a slope calculation,</p>
 	 * <p>and <code>GraphMode.Area</code> is when the user is selecting the section for an area calculation.</p>
 	 */
 	private enum GraphMode {
