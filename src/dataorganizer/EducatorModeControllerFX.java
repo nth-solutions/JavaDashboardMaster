@@ -1793,13 +1793,11 @@ public class EducatorModeControllerFX implements Initializable {
                                                 break;
                                             }
                                         }
-                                        //test for null MPUMinMax
-                                        System.out.println(serialHandler.getMPUMinMax()+"EMFX ln 1789");
-                                        //Initialize GenericTest object to store and organize data to be graphed
-
+                                        
                                         	//for use with CSVwriter
                                         	String newName = "new (#" + (testIndex + 1) + ") " + nameOfFile;
                                         	try {
+                                        		//Initialize GenericTest object to store and organize data to be graphed
                                             g1 = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());   
                                         	}
                                         	catch(Exception e) {
@@ -2466,7 +2464,11 @@ public class EducatorModeControllerFX implements Initializable {
     	        System.out.println(chosenFile);
     	    }
     	    String pathToFile = chosenFile.toString();
+    	    //Seeing how long this takes
+    	    long start = System.nanoTime(); 
     		g.setGenericTestFromCSV(pathToFile, pathToFile+"p");
+    		long elapsedTime = System.nanoTime() - start;
+    		System.out.println(elapsedTime);
     	}
     	
     	else {

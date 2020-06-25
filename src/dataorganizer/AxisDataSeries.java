@@ -87,17 +87,27 @@ public class AxisDataSeries {
 				if (this.originalData[i] > 32768) {
 					this.originalData[i] -= 65535;
 				}
-				
-			}
-			
+				if (axis.getValue() >= 24 && axis.getValue() <= 26) {
+				//Apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
+				this.originalData[i] *= (double)4800 /(double) 8192;
+				}
+			}	
 		}
-
+		
+	
+		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
 		// create normalized data series using first second of module data
 		createNormalizedData(0.0, 1.0, sampleRate);
 
 		// Creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
-
+		}
+		//don't normalize if not a raw magnetometer series
+		else {
+			
+			smoothedData = applyMovingAvg(originalData.clone(), rollBlkSize);
+		}
+		
 		//Clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
@@ -347,6 +357,10 @@ public class AxisDataSeries {
 				localTotal += array[j];
 			}
 			newArray[i]= localTotal / sampleBlockSize;
+		}
+		//0 out first half of rolling block worth of samples because they can't have the full rolling average applied to them
+		for(int i = 0; i<sampleBlockSize/2; i++) {
+			newArray[i] = 0.0;
 		}
 		
 		return newArray;

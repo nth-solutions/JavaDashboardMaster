@@ -200,7 +200,7 @@ public class CSVHandler {
 		} 
 		
 		catch (FileNotFoundException e) {
-			
+			System.out.println("No file found");
 			e.printStackTrace();
 		}
 		
@@ -317,6 +317,54 @@ public class CSVHandler {
 		return dataSamples;
 	}
 	
+	
+	/**
+	 * FOR TESTING PURPOSES ONLY - NOT FOR USE WITH GRAPHING APPLICATION
+	 * This method writes all 28 axes of a GenericTest to a CSV - this is not the CSV format that the graph accepts
+	 * This method was only written to evaluate the manipulated data in Excel
+	 * @param g
+	 */
+	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) {
+		Settings settings = new Settings();
+		StringBuilder builder = new StringBuilder();
+		PrintWriter DataFile;
+			
+			//iterates through data points in the series (i is the line index)
+			for (int i = 0; i<g.getAxis(AxisType.valueOf(0)).getSamples().size(); i++) {
+				//iterates through axes (j is the column index)
+				for(int j = 0; j<28; j++) {
+					//controls for shorter mag series
+					if (!(j > 23 && i > g.getAxis(AxisType.valueOf(j)).getSamples().size()-1)) {
+					builder.append(g.getAxis(AxisType.valueOf(j)).getSamples().get(i));
+					builder.append(",");
+					}
+					}
+				builder.append("\n");
+				}
+			
+		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
+
+		try {
+			if (fileOutputDirectory != null) {
+				DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
+			} 
+			else {
+				
+				DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
+			}
+			// writes the string buffer to the .CSV creating the file
+			DataFile.write(builder.toString());
+			// close the .CSV
+			DataFile.close(); 
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+	}
 	
 }
 

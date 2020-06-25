@@ -233,7 +233,10 @@ public class GraphNoSINCController implements Initializable {
 		CSVHandler reader = new CSVHandler();
 		genericTestOne = new GenericTest(reader.readCSV(CSVPath), reader.readCSVP(CSVPPath));
 		
-		//call this twice rather than using updateAxis() for now to accommodate auto-loading method in EMFX 
+		//Creates CSV of all 28 GT axes
+		//String nameOfTest = "(allAxisDataSeries)"+CSVPath.substring(CSVPath.indexOf("(#")); 
+		//reader.writeGenericTestAxestoCSV(genericTestOne, nameOfTest);
+		
 		graphAxis(AxisType.AccelX);	
 	}
 	
