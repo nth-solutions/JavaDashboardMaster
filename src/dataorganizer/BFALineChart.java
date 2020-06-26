@@ -1,13 +1,18 @@
 package dataorganizer;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
 import javafx.beans.NamedArg;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
@@ -34,7 +39,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         super(xAxis, yAxis);
     }
 
-    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area) {
+    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
 
         int start = -1;
         int end = -1;
@@ -54,9 +59,10 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
         // remove area shading and label
         clearArea();
-        
+
         // create area label
-        areaPane.getChildren().addAll(createAreaLabel(area));
+        double roundedArea = new BigDecimal(area).round(new MathContext(SIG_FIGS)).doubleValue();
+        areaPane.getChildren().addAll(createAreaLabel(roundedArea));
 
         // allows mouse events to pass through polygon
         // makes selecting data points easier
@@ -109,6 +115,16 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
         // ensure that the area label is on top of the shaded area
         areaPane.toFront();
+
+        // display full floating-point number on click
+        areaPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            
+            @Override
+            public void handle(MouseEvent event) {
+                areaPane.getChildren().addAll(createAreaLabel(area));
+            }
+
+        });
     
     }
 
@@ -138,7 +154,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     private Label createAreaLabel(double a) {
 
-		Label label = new Label("Area: " + (Math.round(a * 100.0) / 100.0));
+		Label label = new Label("Area: " + a);
 
 		// add styling to label
 		label.getStyleClass().addAll("hover-label");

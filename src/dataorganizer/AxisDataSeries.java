@@ -20,12 +20,12 @@ public class AxisDataSeries {
 	// data samples after rolling average is applied to original data
 	private Double[] smoothedData;
 	
-	//data for display on the graph that the user can access and modify (via applying a custom rolling average) without modifying smoothedData
-	//same as smoothedData by default
+	// data for display on the graph that the user can access and modify (via applying a custom rolling average) without modifying smoothedData
+	// same as smoothedData by default
 	private Double[] userSmoothedData;
 	
-	//Array of data samples with normalization offset applied
-	private Double [] normalizedData;
+	// array of data samples with normalization offset applied
+	private Double[] normalizedData;
 	
 	/*normalization offset:
 	 * Takes average of first second of samples and sets that as offset (e.g. gravity, initial angular velocity)
@@ -33,12 +33,12 @@ public class AxisDataSeries {
 	 */
 	private double normOffset;
 	
-	//default rolling block size to smooth data for integration
+	// default rolling block size to smooth data for integration
 	private int rollBlkSize = 100;
 	
 	private AxisType axis;
 	
-	//samples per second in passed in data series
+	// samples per second in passed in data series
 	private int sampleRate;
 	
 	/**
@@ -91,7 +91,8 @@ public class AxisDataSeries {
 					this.originalData[i] -= 65535;
 				}
 				if (axis.getValue() >= 24 && axis.getValue() <= 26) {
-				//Apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
+
+				// apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
 				this.originalData[i] *= (double)4800 /(double) 8192;
 				}
 			}	
@@ -99,19 +100,20 @@ public class AxisDataSeries {
 		
 	
 		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
-		// create normalized data series using first second of module data
-		createNormalizedData(0.0, 1.0, sampleRate);
 
-		// Creates smoothedData by applying rolling average to normalized data		
-		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+			// create normalized data series using first second of module data
+			createNormalizedData(0.0, 1.0, sampleRate);
+
+			// creates smoothedData by applying rolling average to normalized data		
+			smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+
 		}
-		//don't normalize if not a raw magnetometer series
 		else {
-			
+			// don't normalize if not a raw magnetometer series
 			smoothedData = applyMovingAvg(originalData.clone(), rollBlkSize);
 		}
 		
-		//Clones smoothedData for display on graph
+		// clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
 		// print debug info about AxisDataSeries
@@ -371,7 +373,7 @@ public class AxisDataSeries {
 	
 	/**
 	 * Applies middle-based moving average with block size of user's choice 
-	 * Intended as wrapper method for applyMovingAvg so other classes can easily modify intended data series (userSmoothedData)
+	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can easily modify intended data series (userSmoothedData)
 	 * @param sampleBlockSize
 	 */
 	public void applyCustomMovingAvg(int sampleBlockSize) {
@@ -491,7 +493,7 @@ public class AxisDataSeries {
 	}
 
 	@Deprecated
-	public void setOriginalDataPoint(int index, Double value ) {
+	public void setOriginalDataPoint(int index, Double value) {
 		this.originalData[index] = value;	
 	}
 

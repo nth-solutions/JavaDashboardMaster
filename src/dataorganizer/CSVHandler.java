@@ -53,32 +53,33 @@ public class CSVHandler {
 		 */
 		
 		settings.loadConfigFile();
-		//Pull up the Directory to write CSV/CSVP files to
+
+		// pull up the Directory to write CSV/CSVP files to
 		String CSVPath = settings.getKeyVal("CSVSaveLocation"); 
 		PrintWriter dataFile = null;
+
 		try {
-			//Create new file in CSV Directory, file extension is .CSVP
+			// create new file in CSV Directory, file extension is .CSVP
 			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); 
 		} 
 		catch (FileNotFoundException e) {
-		
 			e.printStackTrace();
 		}
+
 		for(int i = 0; i < testParameters.size(); i++) { 
-			//Write all parameters to the file
+			// write all parameters to the file
 			dataFile.println(testParameters.get(i).toString());
 		}
 		
-		for(int i = 0; i < 9; i++) {
-			//Write MPUMinMax values to file
+		for (int i = 0; i < 9; i++) {
+			// write MPUMinMax values to file
 			dataFile.println(MPUMinMax[i][0]);
 			dataFile.println(MPUMinMax[i][1]);
-	}
+		}
 		
 		dataFile.close();
 		
 	}
-	
 	
 	/**
 	 * CSV Writing method modified from dataOrganizer.  Not sure about int return type, might change?
@@ -134,7 +135,7 @@ public class CSVHandler {
 		PrintWriter DataFile;
 			
 			// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
-			for (int i = 0; i<g.getDataSamples().get(1).size()-1; i++) {
+			for (int i = 0; i< g.getDataSamples().get(1).size()-1; i++) {
 
 				// populate accel and gyro data points 
 				for (int j = 1; j<7; j++) {
@@ -164,6 +165,7 @@ public class CSVHandler {
 				
 				DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
 			}
+
 			// writes the string buffer to the .CSV creating the file
 			DataFile.write(builder.toString());
 			// close the .CSV
@@ -209,6 +211,7 @@ public class CSVHandler {
 			System.out.println("No file found");
 			
 			e.printStackTrace();
+			System.out.println("Error reading CSVP file");
 		}
 		
 		try {
@@ -221,7 +224,7 @@ public class CSVHandler {
 		}	
 		catch (NumberFormatException e) {
 			e.printStackTrace();
-			System.out.println("Error reading CSVP file -- file corrupt");
+			System.out.println("Error reading CSVP file -- could not parse test parameters");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -241,7 +244,6 @@ public class CSVHandler {
 		return testParameters;
 
 	}
-
 	
 	/**
 	 * Reads data samples from a given CSV file.
@@ -252,7 +254,7 @@ public class CSVHandler {
 	 */
 	public List<List<Double>> readCSV(String CSVFilePath) {
 		
-		List<List<Double>>dataSamples = new ArrayList<List<Double>>();
+		List<List<Double>> dataSamples = new ArrayList<List<Double>>();
 
 		// populate "dataSamples"'s inner lists
 		for (int i = 0; i < 10; i++) {
@@ -311,7 +313,7 @@ public class CSVHandler {
 		}
 		
 		return dataSamples;
-		
+
 	}
 	
 	

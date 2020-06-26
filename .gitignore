@@ -2,7 +2,7 @@ build/*
 !build/build.xml
 bin/jre1.8.0_161
 .gitignore
-
+.vscode/
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
