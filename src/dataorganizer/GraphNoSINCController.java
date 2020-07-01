@@ -1,6 +1,8 @@
 package dataorganizer;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +87,10 @@ public class GraphNoSINCController implements Initializable {
 
 	// keeps track of first point in area calculation
 	private Double[] areaPoint;
+
+	// number of sig figs that labels are rounded to
+	// TODO make this an advanced user setting
+	private final int SIG_FIGS = 3;
 
 	@FXML
 	private BFALineChart<Number,Number> lineChart;
@@ -246,7 +252,10 @@ public class GraphNoSINCController implements Initializable {
 		CSVHandler reader = new CSVHandler();
 		genericTestOne = new GenericTest(reader.readCSV(CSVPath), reader.readCSVP(CSVPPath));
 		
-		//call this twice rather than using updateAxis() for now to accommodate auto-loading method in EMFX 
+		//Creates CSV of all 28 GT axes
+		//String nameOfTest = "(allAxisDataSeries)"+CSVPath.substring(CSVPath.indexOf("(#")); 
+		//reader.writeGenericTestAxestoCSV(genericTestOne, nameOfTest);
+		
 		graphAxis(AxisType.AccelX);	
 	}
 	
@@ -280,7 +289,9 @@ public class GraphNoSINCController implements Initializable {
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 
-		lineChart.redrawArea();
+		// remove data analysis tools (if drawn)
+		lineChart.clearArea();
+		clearSlope();
 		
 	}
 
@@ -605,7 +616,7 @@ public class GraphNoSINCController implements Initializable {
 
 		double m = genericTestOne.getAxis(axis).getSlope(x1, x2);
 
-		if (slope != null) lineChart.getData().remove(slope);
+		clearSlope();
 
 		slope = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -629,12 +640,20 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
+	 * Clears the slope line at/between points (if currently drawn).
+	 */
+	public void clearSlope() {
+		if (slope != null) lineChart.getData().remove(slope);
+	}
+
+	/**
 	 * Creates the label for the slope of a tangent/secant line.
 	 * @param m the value for the slope
 	 */
-	public Label createSlopeLabel(double m) {
+	public StackPane createSlopeLabel(double m) {
 
-		Label label = new Label("Slope: " + (Math.round(m * 100.0) / 100.0));
+		double roundedM = new BigDecimal(m).round(new MathContext(SIG_FIGS)).doubleValue();
+		Label label = new Label("Slope: " + roundedM);
 
 		// add styling to label
 		label.getStyleClass().addAll("hover-label");
@@ -644,7 +663,24 @@ public class GraphNoSINCController implements Initializable {
 
 		label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
 
-		return label;
+		// make label display full floating-point number when clicked
+		label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				label.setText("Slope: " + m);
+			}
+			
+		});
+
+		// place label in StackPane and return
+		StackPane pane = new StackPane();
+		
+		pane.setPrefSize(15, 15);
+		pane.setStyle("-fx-background-color: transparent");
+		pane.getChildren().add(label);
+
+		return pane;
 
 	}
 
@@ -656,8 +692,8 @@ public class GraphNoSINCController implements Initializable {
 		DataPointLabel(double x, double y, AxisType axis) {
 
 			// round to two decimal places
-			final double roundedX = Math.round(x * 100.0) / 100.0;
-			final double roundedY = Math.round(y * 100.0) / 100.0;
+			final double roundedX = new BigDecimal(x).round(new MathContext(SIG_FIGS)).doubleValue();
+			final double roundedY = new BigDecimal(y).round(new MathContext(SIG_FIGS)).doubleValue();
 
 			setPrefSize(15, 15);
 
@@ -734,19 +770,35 @@ public class GraphNoSINCController implements Initializable {
 						}
 						// calculate and shade area
 						else {
-							System.out.println("Graphing area...");
-							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
-							XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
 
+							System.out.println("Graphing area...");
+
+							// ensures that x1 is always less than x2
 							double[] areaBounds = new double[] {areaPoint[0], x};
 							Arrays.sort(areaBounds);
 
+							// calculate the definite integral with the given limits
 							double area = genericTestOne.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
 
-							lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area);
+							// p1 = (x1, y1), p2 = (x2, y2)
+							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
+							XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
+
+							// ensure the lower bound is less than the upper bound
+							if (areaPoint[0] == areaBounds[0]) {
+								lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area, SIG_FIGS);
+							}
+							else {
+								lineChart.graphArea(p2, p1, dataSets.get(axis).getData(), area, SIG_FIGS);
+							}
+
 							setGraphMode(GraphMode.NONE);
 						}
 
+					}
+					else if (mode == GraphMode.NONE) {
+						// display full floating-point number on click
+						getChildren().setAll(createLabel(x, y));
 					}
 
 				}
@@ -843,7 +895,6 @@ public class GraphNoSINCController implements Initializable {
 	 * Internal enum used to designate the state of data analysis;
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
-	 * <p><code>GraphMode.MultiSlope</code> is when the user is selecting a second point for a slope calculation,</p>
 	 * <p>and <code>GraphMode.Area</code> is when the user is selecting the section for an area calculation.</p>
 	 */
 	private enum GraphMode {

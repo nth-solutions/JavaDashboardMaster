@@ -20,12 +20,12 @@ public class AxisDataSeries {
 	// data samples after rolling average is applied to original data
 	private Double[] smoothedData;
 	
-	//data for display on the graph that the user can access and modify (via applying a custom rolling average) without modifying smoothedData
-	//same as smoothedData by default
+	// data for display on the graph that the user can access and modify (via applying a custom rolling average) without modifying smoothedData
+	// same as smoothedData by default
 	private Double[] userSmoothedData;
 	
-	//Array of data samples with normalization offset applied
-	private Double [] normalizedData;
+	// array of data samples with normalization offset applied
+	private Double[] normalizedData;
 	
 	/*normalization offset:
 	 * Takes average of first second of samples and sets that as offset (e.g. gravity, initial angular velocity)
@@ -33,12 +33,12 @@ public class AxisDataSeries {
 	 */
 	private double normOffset;
 	
-	//default rolling block size to smooth data for integration
+	// default rolling block size to smooth data for integration
 	private int rollBlkSize = 100;
 	
 	private AxisType axis;
 	
-	//samples per second in passed in data series
+	// samples per second in passed in data series
 	private int sampleRate;
 	
 	/**
@@ -62,7 +62,10 @@ public class AxisDataSeries {
 		// This is because mag data is sampled at 1/10 the rate of accel/gyro,
 		// but the List "data" is filled w/ null samples assuming 960 samples/sec
 		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
-
+			//magnetometer uses rolling block size of 10
+			rollBlkSize = 10;
+			
+			//This is to remove nulls from dataOrganizer series
 			for (int i = data.size() - 1; i >= 0; i--) {
 
 				if (data.get(i) == null) {
@@ -87,18 +90,30 @@ public class AxisDataSeries {
 				if (this.originalData[i] > 32768) {
 					this.originalData[i] -= 65535;
 				}
-				
-			}
-			
+				if (axis.getValue() >= 24 && axis.getValue() <= 26) {
+
+				// apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
+				this.originalData[i] *= (double)4800 /(double) 8192;
+				}
+			}	
 		}
+		
+	
+		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
 
-		// create normalized data series using first second of module data
-		createNormalizedData(0.0, 1.0, sampleRate);
+			// create normalized data series using first second of module data
+			createNormalizedData(0.0, 1.0, sampleRate);
 
-		// Creates smoothedData by applying rolling average to normalized data		
-		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+			// creates smoothedData by applying rolling average to normalized data		
+			smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
 
-		//Clones smoothedData for display on graph
+		}
+		else {
+			// don't normalize if not a raw magnetometer series
+			smoothedData = applyMovingAvg(originalData.clone(), rollBlkSize);
+		}
+		
+		// clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
 		// print debug info about AxisDataSeries
@@ -325,7 +340,7 @@ public class AxisDataSeries {
 		//subtract normOffset from each originalData value to create array of normalized data
 		this.normalizedData = this.originalData.clone();
 		
-		for (int i =0 ; i < originalData.length; i++) {
+		for (int i = 0; i < originalData.length; i++) {
 			normalizedData[i] = originalData[i] - normOffset;
 		}	
 	}
@@ -336,17 +351,21 @@ public class AxisDataSeries {
 	 * @param array - the data series for the moving average to be applied to
 	 * @param sampleBlockSize - the number of samples used to calculate the moving average.
 	 */
-	public Double [] applyMovingAvg(Double [] array, int sampleBlockSize) {
+	public Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
-		Double [] newArray = array.clone();
+		Double[] newArray = array.clone();
 		//if (sampleBlockSize == 0) return;
 		
 		for (int i = sampleBlockSize/2; i < newArray.length - sampleBlockSize/2; i++) {
 			double localTotal = 0;
-			for (int j = (i - sampleBlockSize/2); j< (i+sampleBlockSize/2); j++) {
+			for (int j = (i - sampleBlockSize/2); j < (i+sampleBlockSize/2); j++) {
 				localTotal += array[j];
 			}
-			newArray[i]= localTotal / sampleBlockSize;
+			newArray[i] = localTotal / sampleBlockSize;
+		}
+		//0 out first half of rolling block worth of samples because they can't have the full rolling average applied to them
+		for(int i = 0; i<sampleBlockSize/2; i++) {
+			newArray[i] = 0.0;
 		}
 		
 		return newArray;
@@ -354,7 +373,7 @@ public class AxisDataSeries {
 	
 	/**
 	 * Applies middle-based moving average with block size of user's choice 
-	 * Intended as wrapper method for applyMovingAvg so other classes can easily modify intended data series (userSmoothedData)
+	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can easily modify intended data series (userSmoothedData)
 	 * @param sampleBlockSize
 	 */
 	public void applyCustomMovingAvg(int sampleBlockSize) {
@@ -442,9 +461,14 @@ public class AxisDataSeries {
 	public Double getAreaUnder(Double startTime, Double endTime) {
 
 		Double area = 0.0;
-		int i = (int) Math.round(startTime*this.sampleRate);
-		int j = (int) Math.round(endTime*this.sampleRate);
-		area = ((smoothedData[i]+smoothedData[j])/2)*(this.time[j]-this.time[i]);
+
+		int a = (int) Math.round(startTime*this.sampleRate);
+		int b = (int) Math.round(endTime*this.sampleRate);
+
+		for (int i = a + 1; i < b + 1; i++) {
+			area += (smoothedData[i] + smoothedData[i-1])/2 * (time[i] - time[i-1]);
+		}
+
 		return area;
 
 	}
@@ -469,7 +493,7 @@ public class AxisDataSeries {
 	}
 
 	@Deprecated
-	public void setOriginalDataPoint(int index, Double value ) {
+	public void setOriginalDataPoint(int index, Double value) {
 		this.originalData[index] = value;	
 	}
 
