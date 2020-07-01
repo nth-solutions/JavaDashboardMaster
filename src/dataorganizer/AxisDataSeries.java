@@ -100,7 +100,7 @@ public class AxisDataSeries {
 	
 		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
 		// create normalized data series using first second of module data
-		createNormalizedData(0.0, 1.0, sampleRate);
+		createNormalizedData(0.0, 2.0, sampleRate);
 
 		// Creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
@@ -164,7 +164,7 @@ public class AxisDataSeries {
 		}
 		
 		//create normalized data series using first second of module data
-		createNormalizedData(0.0, 1.0, sampleRate);
+		createNormalizedData(0.0, 2.0, sampleRate);
 
 		//creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
@@ -213,7 +213,7 @@ public class AxisDataSeries {
 		}
 		
 		//create normalized data series using first second of module data
-		createNormalizedData(0.0, 1.0, sampleRate);
+		createNormalizedData(0.0, 2.0, sampleRate);
 
 		//creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
@@ -332,7 +332,7 @@ public class AxisDataSeries {
 		for (int i = startIndex; i < endIndex; i++) {
 			sum += originalData[i];
 		}
-		sum /= sampleRate;
+		sum /= (double) sampleRate *(startTime - endTime);
 		normOffset = sum;
 
 		//subtract normOffset from each originalData value to create array of normalized data
