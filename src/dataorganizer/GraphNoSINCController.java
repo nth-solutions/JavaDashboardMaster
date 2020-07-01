@@ -99,19 +99,12 @@ public class GraphNoSINCController implements Initializable {
 	private TextField rollingBlockTextField;
 
 	@FXML
-	private StackPane stackPane;
-	
-	@FXML
-	private BFALineChart<Number,Number> lineChartDegrees;
-	
-	@FXML
-	private NumberAxis xAxisDegrees;
-	
-	@FXML
-	private NumberAxis yAxisDegrees;
+	private MultipleAxesLineChart multiAxis;
 
 	@FXML
 	private AnchorPane anchorPane;
+
+	
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -131,45 +124,11 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
-		//xAxis = new NumberAxis();
-		//yAxis = new NumberAxis();
-		//lineChart = new BFALineChart<Number,Number>(xAxis, yAxis);
-		//System.out.println(anchorPane);
+		lineChart = multiAxis.getBaseChart();
+		lineChart.setAnimated(false);
 		xAxis = (NumberAxis) lineChart.getXAxis();
 		yAxis = (NumberAxis) lineChart.getYAxis();
-		
-		//MultipleAxesLineChart chart = new MultipleAxesLineChart(lineChart, Color.RED);
-		//anchorPane.getChildren().add(chart);
-		//anchorPane.
-		
-		lineChart.lookup(".chart-content").lookup(".chart-plot-background").setStyle("-fx-background-color: transparent;");
-		
-		yAxisDegrees.setSide(Side.RIGHT);
-		yAxisDegrees.setLayoutX(50);
-		
-		ArrayList<Double> testDataSamples = new ArrayList<Double>();
-    	ArrayList<Double> testDataTime = new ArrayList<Double>();
-    	Random rand = new Random();
-    	
-    	XYChart.Series<Number,Number> series = new XYChart.Series<Number, Number>();
-    	ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
-    	
-    	for(int i = 0; i < 9600; i++) {
-    		testDataSamples.add(Math.log(i/300.0 + 1.0) + 5 * Math.sin(i / 100.0) * (((i-1000)/100.0) / (1 + (((i-1000)/100.0)*((i-1000)/100.0)))));
-    		testDataTime.add(i / 96.0);
-    	}
-		
-    	for (int i = 0; i < 9600; i+= resolution) {
-
-			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(testDataTime.get(i), testDataSamples.get(i));
-
-			seriesData.add(dataEl);
-
-		}
-		series.setData(seriesData);
-		// add ObservableList to XYChart.Series
-		lineChartDegrees.getData().add(series);
-		
+	
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
 		
@@ -295,12 +254,12 @@ public class GraphNoSINCController implements Initializable {
 	 * Handles zooming/panning of the graph.
 	 */
 	public void redrawGraph() {
-
-		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
-		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
-		xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
-		xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
 		
+		multiAxis.setXBounds(zoomviewX - zoomviewW/2,zoomviewX + zoomviewW/2);
+		//xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
+		//xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
+		multiAxis.setYBounds(zoomviewY - zoomviewH/2,zoomviewY + zoomviewH/2);
+
 		if(zoomviewW > 50) {
 			lineChart.setVerticalGridLinesVisible(false);
 		} else {
@@ -309,8 +268,8 @@ public class GraphNoSINCController implements Initializable {
 
 		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
-		yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
-		yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
+		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
+		//yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
 
 		if (zoomviewH > 50) {
 			lineChart.setHorizontalGridLinesVisible(false);
@@ -330,15 +289,12 @@ public class GraphNoSINCController implements Initializable {
 	 * @param axis the AxisType to be drawn/removed
 	 */
 	public void graphAxis(AxisType axis) {
-
-		// get index of data set in line chart (if -1, does not exist)
-		int dataIndex = lineChart.getData().indexOf(dataSets.get(axis));
 		
 		// get checkbox by looking up FXID (the name of the AxisType)
 		CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
 		
 		// if axis is not already graphed:
-		if (dataIndex == -1) {
+		if (!multiAxis.isAxisGraphed(axis)) {
 
 			System.out.println("Graphing " + axis);
 
@@ -380,8 +336,11 @@ public class GraphNoSINCController implements Initializable {
 			// add to HashMap of currently drawn axes
 			dataSets.put(axis, series);
 			
+			//add graph with new axis
+			multiAxis.addSeries(series, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8), axis);
+			
 			// add XYChart.Series to LineChart
-			lineChart.getData().add(series);
+			//lineChart.getData().add(series);
 
 			// hide all data point symbols UNLESS they are for the legend
 			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
@@ -400,6 +359,8 @@ public class GraphNoSINCController implements Initializable {
 
 			// remove XYChart.Series from LineChart
 			lineChart.getData().remove(dataSets.get(axis));
+
+			multiAxis.removeAxis(axis);
 
 			// remove axis & XYChart.Series key-value pair from HashMap
 			dataSets.remove(axis);

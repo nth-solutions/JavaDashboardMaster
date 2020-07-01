@@ -50,7 +50,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     public void redrawArea() {
 
-        System.out.println("Redrawing area...");
+        //System.out.println("Redrawing area...");
 
         if (p1 == null && p2 == null && data == null) return;
 

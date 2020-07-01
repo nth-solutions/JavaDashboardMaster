@@ -27,23 +27,61 @@ import java.util.Map;
 
 public class MultipleAxesLineChart extends StackPane {
 
-    private final BFALineChart baseChart;
-    private final ObservableList<BFALineChart> backgroundCharts = FXCollections.observableArrayList();
-    private final Map<BFALineChart, Color> chartColorMap = new HashMap<>();
+    private final BFALineChart<Number, Number> baseChart;
+    private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
+    private final Map<BFALineChart<Number, Number>, Color> chartColorMap = new HashMap<>();
+    private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
+    private final Map<AxisType, XYChart.Series<Number, Number>> axisSeriesMap = new HashMap<>();
+
+    private NumberAxis xAxis;
+    private NumberAxis yAxis;
+    private AxisType baseAxis;
+
+    private boolean[] axisTypeGraphed;
 
     private final double yAxisWidth = 60;
-    private final AnchorPane detailsWindow;
-
     private final double yAxisSeparation = 20;
     private double strokeWidth = 0.3;
 
-    public MultipleAxesLineChart(BFALineChart baseChart, Color lineColor) {
+    public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor) {
         this(baseChart, lineColor, null);
     }
 
-    public MultipleAxesLineChart(BFALineChart baseChart, Color lineColor, Double strokeWidth) {
+    public MultipleAxesLineChart() {
+        this(null, Color.RED, null);
+
+    }
+
+    private double getAxisScalar(AxisType axis) {
+        int axisValue = axis.getValue();
+        if (axisValue < 4) {
+            return 1;
+        } // accel
+        else if (axisValue >= 4 && axisValue < 8) {
+            return 1;
+        } else if (axisValue >= 8) {
+            return 90;
+        } // velocity
+        return 0;
+    }
+
+    public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor, Double strokeWidth) {
+        super();
+        axisTypeGraphed = new boolean[7];
+        if (baseChart == null) {
+            xAxis = new NumberAxis();
+            yAxis = new NumberAxis();
+            xAxis.setTickUnit(1);
+            yAxis.setTickUnit(1);
+            baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
+            baseChart.getXAxis().setLabel("X Axis");
+            baseChart.getYAxis().setLabel("Y Axis");
+
+        }
         if (strokeWidth != null) {
             this.strokeWidth = strokeWidth;
+        } else {
+            this.strokeWidth = 2;
         }
         this.baseChart = baseChart;
 
@@ -57,131 +95,80 @@ public class MultipleAxesLineChart extends StackPane {
 
         backgroundCharts.addListener((Observable observable) -> rebuildChart());
 
-        detailsWindow = new AnchorPane();
-        bindMouseEvents(baseChart, this.strokeWidth);
-
         rebuildChart();
     }
 
-    private void bindMouseEvents(BFALineChart baseChart, Double strokeWidth) {
-        final DetailsPopup detailsPopup = new DetailsPopup();
-        getChildren().add(detailsWindow);
-        detailsWindow.getChildren().add(detailsPopup);
-        detailsWindow.prefHeightProperty().bind(heightProperty());
-        detailsWindow.prefWidthProperty().bind(widthProperty());
-        detailsWindow.setMouseTransparent(true);
-
-        setOnMouseMoved(null);
-        setMouseTransparent(false);
-
-        final Axis xAxis = baseChart.getXAxis();
-        final Axis yAxis = baseChart.getYAxis();
-
-        final Line xLine = new Line();
-        final Line yLine = new Line();
-        yLine.setFill(Color.GRAY);
-        xLine.setFill(Color.GRAY);
-        yLine.setStrokeWidth(strokeWidth/2);
-        xLine.setStrokeWidth(strokeWidth/2);
-        xLine.setVisible(false);
-        yLine.setVisible(false);
-
-        final Node chartBackground = baseChart.lookup(".chart-plot-background");
-        for (Node n: chartBackground.getParent().getChildrenUnmodifiable()) {
-            if (n != chartBackground && n != xAxis && n != yAxis) {
-                n.setMouseTransparent(true);
-            }
-        }
-        chartBackground.setCursor(Cursor.CROSSHAIR);
-        chartBackground.setOnMouseEntered((event) -> {
-            chartBackground.getOnMouseMoved().handle(event);
-            detailsPopup.setVisible(true);
-            xLine.setVisible(true);
-            yLine.setVisible(true);
-            detailsWindow.getChildren().addAll(xLine, yLine);
-        });
-        chartBackground.setOnMouseExited((event) -> {
-            detailsPopup.setVisible(false);
-            xLine.setVisible(false);
-            yLine.setVisible(false);
-            detailsWindow.getChildren().removeAll(xLine, yLine);
-        });
-        chartBackground.setOnMouseMoved(event -> {
-            double x = event.getX() + chartBackground.getLayoutX();
-            double y = event.getY() + chartBackground.getLayoutY();
-
-            xLine.setStartX(10);
-            xLine.setEndX(detailsWindow.getWidth()-10);
-            xLine.setStartY(y+5);
-            xLine.setEndY(y+5);
-
-            yLine.setStartX(x+5);
-            yLine.setEndX(x+5);
-            yLine.setStartY(10);
-            yLine.setEndY(detailsWindow.getHeight()-10);
-
-            detailsPopup.showChartDescrpition(event);
-
-            if (y + detailsPopup.getHeight() + 10 < getHeight()) {
-                AnchorPane.setTopAnchor(detailsPopup, y+10);
-            } else {
-                AnchorPane.setTopAnchor(detailsPopup, y-10-detailsPopup.getHeight());
-            }
-
-            if (x + detailsPopup.getWidth() + 10 < getWidth()) {
-                AnchorPane.setLeftAnchor(detailsPopup, x+10);
-            } else {
-                AnchorPane.setLeftAnchor(detailsPopup, x-10-detailsPopup.getWidth());
-            }
-        });
+    public BFALineChart<Number, Number> getBaseChart() {
+        return baseChart;
     }
 
-    private void styleBaseChart(BFALineChart baseChart) {
+    public boolean isBaseEmpty() {
+        return (baseChart.getData().size() == 0);
+    }
+
+    private void styleBaseChart(BFALineChart<Number, Number> baseChart) {
         baseChart.setCreateSymbols(false);
         baseChart.setLegendVisible(false);
         baseChart.getXAxis().setAutoRanging(false);
+        baseChart.getYAxis().setAutoRanging(false);
         baseChart.getXAxis().setAnimated(false);
         baseChart.getYAxis().setAnimated(false);
+
     }
 
-    private void setFixedAxisWidth(BFALineChart chart) {
+    private void setFixedAxisWidth(BFALineChart<Number, Number> chart) {
         chart.getYAxis().setPrefWidth(yAxisWidth);
         chart.getYAxis().setMaxWidth(yAxisWidth);
+    }
+
+    public void setXBounds(double lowerBound, double upperBound) {
+        xAxis.setLowerBound(lowerBound);
+        xAxis.setUpperBound(upperBound);
+    }
+
+    public void setYBounds(double lowerBound, double upperBound) {
+        yAxis.setLowerBound(lowerBound);
+        yAxis.setUpperBound(upperBound);
     }
 
     private void rebuildChart() {
         getChildren().clear();
 
         getChildren().add(resizeBaseChart(baseChart));
-        for (BFALineChart lineChart : backgroundCharts) {
+        for (BFALineChart<Number, Number> lineChart : backgroundCharts) {
             getChildren().add(resizeBackgroundChart(lineChart));
         }
-        getChildren().add(detailsWindow);
     }
 
-    private Node resizeBaseChart(BFALineChart lineChart) {
+    private Node resizeBaseChart(BFALineChart<Number, Number> lineChart) {
         HBox hBox = new HBox(lineChart);
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.prefHeightProperty().bind(heightProperty());
         hBox.prefWidthProperty().bind(widthProperty());
 
-        lineChart.minWidthProperty().bind(widthProperty().subtract((yAxisWidth+yAxisSeparation)*backgroundCharts.size()));
-        lineChart.prefWidthProperty().bind(widthProperty().subtract((yAxisWidth+yAxisSeparation)*backgroundCharts.size()));
-        lineChart.maxWidthProperty().bind(widthProperty().subtract((yAxisWidth+yAxisSeparation)*backgroundCharts.size()));
+        lineChart.minWidthProperty()
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+        lineChart.prefWidthProperty()
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+        lineChart.maxWidthProperty()
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
 
         return lineChart;
     }
 
-    private Node resizeBackgroundChart(BFALineChart lineChart) {
+    private Node resizeBackgroundChart(BFALineChart<Number, Number> lineChart) {
         HBox hBox = new HBox(lineChart);
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.prefHeightProperty().bind(heightProperty());
         hBox.prefWidthProperty().bind(widthProperty());
         hBox.setMouseTransparent(true);
 
-        lineChart.minWidthProperty().bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
-        lineChart.prefWidthProperty().bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
-        lineChart.maxWidthProperty().bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+        lineChart.minWidthProperty()
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+        lineChart.prefWidthProperty()
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+        lineChart.maxWidthProperty()
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
 
         lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
         lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * backgroundCharts.indexOf(lineChart));
@@ -189,37 +176,109 @@ public class MultipleAxesLineChart extends StackPane {
         return hBox;
     }
 
-    public void addSeries(XYChart.Series series, Color lineColor) {
-        NumberAxis yAxis = new NumberAxis();
-        NumberAxis xAxis = new NumberAxis();
+    public void addSeries(XYChart.Series series, Color lineColor, AxisType axis) {
 
-        // style x-axis
-        xAxis.setAutoRanging(false);
-        xAxis.setVisible(false);
-        xAxis.setOpacity(0.0); // somehow the upper setVisible does not work
-        xAxis.lowerBoundProperty().bind(((NumberAxis) baseChart.getXAxis()).lowerBoundProperty());
-        xAxis.upperBoundProperty().bind(((NumberAxis) baseChart.getXAxis()).upperBoundProperty());
-        xAxis.tickUnitProperty().bind(((NumberAxis) baseChart.getXAxis()).tickUnitProperty());
+        NumberAxis yAxisAdd = new NumberAxis();
+        NumberAxis xAxisAdd = new NumberAxis();
+        BFALineChart<Number, Number> lineChart;
 
-        // style y-axis
-        yAxis.setSide(Side.RIGHT);
-        yAxis.setLabel(series.getName());
+        int axisTypeInt = axis.getValue() / 4;
+        System.out.println(axisTypeInt);
+        if (!axisTypeGraphed[axisTypeInt]) {
+            switch (axisTypeInt) {
+            case 0: // accel
+                yAxisAdd.setLabel("m/s²");
+                break;
+            case 1: // vel
+                yAxisAdd.setLabel("m/s");
+                break;
+            case 2: // disp
+                yAxisAdd.setLabel("m");
+                break;
+            case 3: // angAcc
+                yAxisAdd.setLabel("°/s²");
+                break;
+            case 4: // angVel
+                yAxisAdd.setLabel("°/s");
+                break;
+            case 5: // angDisp
+                yAxisAdd.setLabel("° (Degrees)");
+                break;
+            case 6: // mag
+                yAxisAdd.setLabel("µT");
+                break;
+            default:
+                yAxisAdd.setLabel("Y-Axis");
+                break;
+            }
+            double axisScale = getAxisScalar(axis);
+            // style x-axis
+            xAxisAdd.setTickUnit(axisScale);
+            xAxisAdd.setAutoRanging(false);
 
-        // create chart
-        BFALineChart lineChart = new BFALineChart(xAxis, yAxis);
-        lineChart.setAnimated(false);
-        lineChart.setLegendVisible(false);
+            xAxisAdd.setOpacity(0.0); // somehow the upper setVisible does not work
+            xAxisAdd.lowerBoundProperty().bind(((NumberAxis) baseChart.getXAxis()).lowerBoundProperty());
+            xAxisAdd.upperBoundProperty().bind(((NumberAxis) baseChart.getXAxis()).upperBoundProperty());
+            // xAxis.tickUnitProperty().bind(((NumberAxis)
+            // baseChart.getXAxis()).tickUnitProperty());
+
+            // style y-axis
+            yAxisAdd.setTickUnit(axisScale);
+            yAxisAdd.setAutoRanging(false);
+            yAxisAdd.setSide(Side.RIGHT);
+            yAxisAdd.lowerBoundProperty()
+                    .bind(((NumberAxis) baseChart.getYAxis()).lowerBoundProperty().multiply(axisScale));
+            yAxisAdd.upperBoundProperty()
+                    .bind(((NumberAxis) baseChart.getYAxis()).upperBoundProperty().multiply(axisScale));
+
+            // create chart
+            lineChart = new BFALineChart<Number, Number>(xAxisAdd, yAxisAdd);
+            axisTypeMap.put(axisTypeInt, lineChart);
+            lineChart.setAnimated(false);
+            lineChart.setLegendVisible(false);
+            lineChart.setCreateSymbols(false);
+            backgroundCharts.add(lineChart);
+            chartColorMap.put(lineChart, lineColor);
+            styleBackgroundChart(lineChart, lineColor);
+            setFixedAxisWidth(lineChart);
+            
+            lineChart.getXAxis().setLabel("#" + axis.getValue());
+            
+        } else {
+            lineChart = axisTypeMap.get(axisTypeInt);
+        }
+
+        axisTypeGraphed[axisTypeInt] = true;
+        
         lineChart.getData().add(series);
+        axisSeriesMap.put(axis, series);
+        
+        for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+            if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
+                n.setStyle("-fx-background-color: transparent;");
+            }
+        }
 
-        styleBackgroundChart(lineChart, lineColor);
-        setFixedAxisWidth(lineChart);
-
-        chartColorMap.put(lineChart, lineColor);
-        backgroundCharts.add(lineChart);
     }
 
-    private void styleBackgroundChart(BFALineChart lineChart, Color lineColor) {
-        styleChartLine(lineChart, lineColor);
+    public void removeAxis(AxisType axis) {
+        axisSeriesMap.get(axis).getData().clear();
+        axisSeriesMap.remove(axis);
+        boolean isEmpty = true;
+        for(XYChart.Series<Number,Number> series : axisTypeMap.get(axis.getValue()/4).getData()){
+            if(!series.getData().isEmpty()) isEmpty = false;
+        }
+        if(isEmpty){
+            backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
+            axisTypeMap.remove(axis.getValue()/4);
+            axisTypeGraphed[axis.getValue()/4] = false;
+        }
+       
+        rebuildChart();
+    }
+
+    private void styleBackgroundChart(BFALineChart<Number, Number> lineChart, Color lineColor) {
+        // styleChartLine(lineChart, lineColor);
 
         Node contentBackground = lineChart.lookup(".chart-content").lookup(".chart-plot-background");
         contentBackground.setStyle("-fx-background-color: transparent;");
@@ -232,117 +291,20 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     private String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X",
-                (int) (color.getRed() * 255),
-                (int) (color.getGreen() * 255),
+        return String.format("#%02X%02X%02X", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
                 (int) (color.getBlue() * 255));
     }
 
-    private void styleChartLine(BFALineChart chart, Color lineColor) {
-        chart.getYAxis().lookup(".axis-label").setStyle("-fx-text-fill: " + toRGBCode(lineColor) + "; -fx-font-weight: bold;");
+    private void styleChartLine(BFALineChart<Number, Number> chart, Color lineColor) {
+        chart.getYAxis().lookup(".axis-label")
+                .setStyle("-fx-text-fill: " + toRGBCode(lineColor) + "; -fx-font-weight: bold;");
         Node seriesLine = chart.lookup(".chart-series-line");
-        seriesLine.setStyle("-fx-stroke: " + toRGBCode(lineColor) + "; -fx-stroke-width: " + strokeWidth + ";");
+        if (seriesLine != null)
+            seriesLine.setStyle("-fx-stroke: " + toRGBCode(lineColor) + "; -fx-stroke-width: " + strokeWidth + ";");
+
     }
 
-    public Node getLegend() {
-        HBox hBox = new HBox();
-
-        final CheckBox baseChartCheckBox = new CheckBox(baseChart.getYAxis().getLabel());
-        baseChartCheckBox.setSelected(true);
-        baseChartCheckBox.setStyle("-fx-text-fill: " + toRGBCode(chartColorMap.get(baseChart)) + "; -fx-font-weight: bold;");
-        baseChartCheckBox.setDisable(true);
-        baseChartCheckBox.getStyleClass().add("readonly-checkbox");
-        baseChartCheckBox.setOnAction(event -> baseChartCheckBox.setSelected(true));
-        hBox.getChildren().add(baseChartCheckBox);
-
-        for (final BFALineChart lineChart : backgroundCharts) {
-            CheckBox checkBox = new CheckBox(lineChart.getYAxis().getLabel());
-            checkBox.setStyle("-fx-text-fill: " + toRGBCode(chartColorMap.get(lineChart)) + "; -fx-font-weight: bold");
-            checkBox.setSelected(true);
-            checkBox.setOnAction(event -> {
-                if (backgroundCharts.contains(lineChart)) {
-                    backgroundCharts.remove(lineChart);
-                } else {
-                    backgroundCharts.add(lineChart);
-                }
-            });
-            hBox.getChildren().add(checkBox);
-        }
-
-        hBox.setAlignment(Pos.CENTER);
-        hBox.setSpacing(20);
-        hBox.setStyle("-fx-padding: 0 10 20 10");
-
-        return hBox;
-    }
-
-    private class DetailsPopup extends VBox {
-
-        private DetailsPopup() {
-            setStyle("-fx-border-width: 1px; -fx-padding: 5 5 5 5px; -fx-border-color: gray; -fx-background-color: whitesmoke;");
-            setVisible(false);
-        }
-
-        public void showChartDescrpition(MouseEvent event) {
-            getChildren().clear();
-
-            Long xValueLong = Math.round((double)baseChart.getXAxis().getValueForDisplay(event.getX()));
-
-            HBox baseChartPopupRow = buildPopupRow(event, xValueLong, baseChart);
-            if (baseChartPopupRow != null) {
-                getChildren().add(baseChartPopupRow);
-            }
-
-            for (BFALineChart lineChart : backgroundCharts) {
-                HBox popupRow = buildPopupRow(event, xValueLong, lineChart);
-                if (popupRow == null) continue;
-
-                getChildren().add(popupRow);
-            }
-        }
-
-        private HBox buildPopupRow(MouseEvent event, Long xValueLong, BFALineChart lineChart) {
-            Label seriesName = new Label(lineChart.getYAxis().getLabel());
-            seriesName.setTextFill(chartColorMap.get(lineChart));
-
-            Number yValueForChart = getYValueForX(lineChart, xValueLong.intValue());
-            if (yValueForChart == null) {
-                return null;
-            }
-            Number yValueLower = Math.round(normalizeYValue(lineChart, event.getY() - 10));
-            Number yValueUpper = Math.round(normalizeYValue(lineChart, event.getY() + 10));
-            Number yValueUnderMouse = Math.round((double) lineChart.getYAxis().getValueForDisplay(event.getY()));
-
-            // make series name bold when mouse is near given chart's line
-            if (isMouseNearLine(yValueForChart, yValueUnderMouse, Math.abs(yValueLower.doubleValue()-yValueUpper.doubleValue()))) {
-                seriesName.setStyle("-fx-font-weight: bold");
-            }
-
-            HBox popupRow = new HBox(10, seriesName, new Label("["+yValueForChart+"]"));
-            return popupRow;
-        }
-
-        private double normalizeYValue(BFALineChart lineChart, double value) {
-            Double val = (Double) lineChart.getYAxis().getValueForDisplay(value);
-            if (val == null) {
-                return 0;
-            } else {
-                return val;
-            }
-        }
-
-        private boolean isMouseNearLine(Number realYValue, Number yValueUnderMouse, Double tolerance) {
-            return (Math.abs(yValueUnderMouse.doubleValue() - realYValue.doubleValue()) < tolerance);
-        }
-
-        public Number getYValueForX(BFALineChart chart, Number xValue) {
-            List<XYChart.Data> dataList = ((List<XYChart.Data>)((XYChart.Series)chart.getData().get(0)).getData());
-            for (XYChart.Data data : dataList) {
-                if (data.getXValue().equals(xValue)) {
-                    return (Number)data.getYValue();
-                }
-            }
-            return null;
-        }
+    public boolean isAxisGraphed(AxisType axis) {
+        return axisSeriesMap.containsKey(axis);
     }
 }
