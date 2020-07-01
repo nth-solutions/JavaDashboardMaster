@@ -1,6 +1,8 @@
 package dataorganizer;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,14 +10,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.ResourceBundle;
 
+
+import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
@@ -28,9 +34,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import sun.net.www.content.audio.x_aiff;
 
 public class GraphNoSINCController implements Initializable {
 
@@ -82,6 +88,10 @@ public class GraphNoSINCController implements Initializable {
 	// keeps track of first point in area calculation
 	private Double[] areaPoint;
 
+	// number of sig figs that labels are rounded to
+	// TODO make this an advanced user setting
+	private final int SIG_FIGS = 3;
+
 	@FXML
 	private BFALineChart<Number,Number> lineChart;
 	
@@ -94,10 +104,17 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private TextField rollingBlockTextField;
 
+	@FXML
+	private MultipleAxesLineChart multiAxis;
 
+	@FXML
+	private AnchorPane anchorPane;
+
+	
+	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		System.out.println("initialize");
 		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
 		slopePoint = new Double[2];
 		areaPoint = new Double[2];
@@ -113,13 +130,14 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
-
+		lineChart = multiAxis.getBaseChart();
+		lineChart.setAnimated(false);
 		xAxis = (NumberAxis) lineChart.getXAxis();
 		yAxis = (NumberAxis) lineChart.getYAxis();
-
+	
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
-
+		
 		redrawGraph();
 		
 		// listener that runs every tick the mouse scrolls, calculates zooming
@@ -245,11 +263,12 @@ public class GraphNoSINCController implements Initializable {
 	 * Handles zooming/panning of the graph.
 	 */
 	public void redrawGraph() {
+		
+		multiAxis.setXBounds(zoomviewX - zoomviewW/2,zoomviewX + zoomviewW/2);
+		//xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
+		//xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
+		multiAxis.setYBounds(zoomviewY - zoomviewH/2,zoomviewY + zoomviewH/2);
 
-		xAxis.setLowerBound(zoomviewX - zoomviewW/2);
-		xAxis.setUpperBound(zoomviewX + zoomviewW/2);
-		
-		
 		if(zoomviewW > 50) {
 			lineChart.setVerticalGridLinesVisible(false);
 		} else {
@@ -258,6 +277,8 @@ public class GraphNoSINCController implements Initializable {
 
 		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
+		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
+		//yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
 
 		if (zoomviewH > 50) {
 			lineChart.setHorizontalGridLinesVisible(false);
@@ -268,8 +289,9 @@ public class GraphNoSINCController implements Initializable {
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 
-		//lineChart.redrawArea();
+		// remove data analysis tools (if drawn)
 		lineChart.clearArea();
+		clearSlope();
 		
 	}
 
@@ -278,15 +300,12 @@ public class GraphNoSINCController implements Initializable {
 	 * @param axis the AxisType to be drawn/removed
 	 */
 	public void graphAxis(AxisType axis) {
-
-		// get index of data set in line chart (if -1, does not exist)
-		int dataIndex = lineChart.getData().indexOf(dataSets.get(axis));
 		
 		// get checkbox by looking up FXID (the name of the AxisType)
 		CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
 		
 		// if axis is not already graphed:
-		if (dataIndex == -1) {
+		if (!multiAxis.isAxisGraphed(axis)) {
 
 			System.out.println("Graphing " + axis);
 
@@ -328,8 +347,11 @@ public class GraphNoSINCController implements Initializable {
 			// add to HashMap of currently drawn axes
 			dataSets.put(axis, series);
 			
+			//add graph with new axis
+			multiAxis.addSeries(series, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8), axis);
+			
 			// add XYChart.Series to LineChart
-			lineChart.getData().add(series);
+			//lineChart.getData().add(series);
 
 			// hide all data point symbols UNLESS they are for the legend
 			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
@@ -348,6 +370,8 @@ public class GraphNoSINCController implements Initializable {
 
 			// remove XYChart.Series from LineChart
 			lineChart.getData().remove(dataSets.get(axis));
+
+			multiAxis.removeAxis(axis);
 
 			// remove axis & XYChart.Series key-value pair from HashMap
 			dataSets.remove(axis);
@@ -592,7 +616,7 @@ public class GraphNoSINCController implements Initializable {
 
 		double m = genericTestOne.getAxis(axis).getSlope(x1, x2);
 
-		if (slope != null) lineChart.getData().remove(slope);
+		clearSlope();
 
 		slope = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -616,12 +640,20 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
+	 * Clears the slope line at/between points (if currently drawn).
+	 */
+	public void clearSlope() {
+		if (slope != null) lineChart.getData().remove(slope);
+	}
+
+	/**
 	 * Creates the label for the slope of a tangent/secant line.
 	 * @param m the value for the slope
 	 */
-	public Label createSlopeLabel(double m) {
+	public StackPane createSlopeLabel(double m) {
 
-		Label label = new Label("Slope: " + (Math.round(m * 100.0) / 100.0));
+		double roundedM = new BigDecimal(m).round(new MathContext(SIG_FIGS)).doubleValue();
+		Label label = new Label("Slope: " + roundedM);
 
 		// add styling to label
 		label.getStyleClass().addAll("hover-label");
@@ -631,7 +663,24 @@ public class GraphNoSINCController implements Initializable {
 
 		label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
 
-		return label;
+		// make label display full floating-point number when clicked
+		label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+				label.setText("Slope: " + m);
+			}
+			
+		});
+
+		// place label in StackPane and return
+		StackPane pane = new StackPane();
+		
+		pane.setPrefSize(15, 15);
+		pane.setStyle("-fx-background-color: transparent");
+		pane.getChildren().add(label);
+
+		return pane;
 
 	}
 
@@ -643,8 +692,8 @@ public class GraphNoSINCController implements Initializable {
 		DataPointLabel(double x, double y, AxisType axis) {
 
 			// round to two decimal places
-			final double roundedX = Math.round(x * 100.0) / 100.0;
-			final double roundedY = Math.round(y * 100.0) / 100.0;
+			final double roundedX = new BigDecimal(x).round(new MathContext(SIG_FIGS)).doubleValue();
+			final double roundedY = new BigDecimal(y).round(new MathContext(SIG_FIGS)).doubleValue();
 
 			setPrefSize(15, 15);
 
@@ -737,28 +786,23 @@ public class GraphNoSINCController implements Initializable {
 
 							// ensure the lower bound is less than the upper bound
 							if (areaPoint[0] == areaBounds[0]) {
-								lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area);
+								lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area, SIG_FIGS);
 							}
 							else {
-								lineChart.graphArea(p2, p1, dataSets.get(axis).getData(), area);
+								lineChart.graphArea(p2, p1, dataSets.get(axis).getData(), area, SIG_FIGS);
 							}
 
 							setGraphMode(GraphMode.NONE);
 						}
 
 					}
+					else if (mode == GraphMode.NONE) {
+						// display full floating-point number on click
+						getChildren().setAll(createLabel(x, y));
+					}
 
 				}
 
-			});
-
-			lineChart.setOnMouseDragReleased(new EventHandler<MouseEvent>() {
-
-				@Override
-				public void handle(MouseEvent event) {
-					System.out.println("drag done");
-				}
-				
 			});
 
 		}

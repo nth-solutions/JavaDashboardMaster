@@ -15,6 +15,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -25,6 +26,7 @@
 <?import javafx.scene.text.Text?>
 
 <?import dataorganizer.BFALineChart?>
+<?import dataorganizer.MultipleAxesLineChart?>
 
 <AnchorPane minWidth="500.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@GraphNoSINC.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphNoSINCController">
    <children>
@@ -41,14 +43,12 @@
                         </Text>
                      </children>
                   </HBox>
-                  <BFALineChart fx:id="lineChart" animated="false" createSymbols="false" layoutX="50.0" layoutY="67.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0">
-                    <xAxis>
-                      <NumberAxis autoRanging="false" side="BOTTOM" tickLength="10.0" tickUnit="1.0" fx:id="xAxis" />
-                    </xAxis>
-                    <yAxis>
-                      <NumberAxis fx:id="yAxis" autoRanging="false" lowerBound="-10.0" side="LEFT" tickLabelGap="10.0" tickLabelRotation="-90.0" tickLength="10.0" tickUnit="1.0" upperBound="10.0" />
-                    </yAxis>
-                  </BFALineChart>
+                  
+                  <MultipleAxesLineChart fx:id = "multiAxis" layoutX="50.0" layoutY="67.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0">
+                  <children>
+
+	               </children>
+	               </MultipleAxesLineChart>
                   <HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <children>
                         <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />

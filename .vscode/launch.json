@@ -1,0 +1,840 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Test<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "Test",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ExcelUtils<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "bin.src.main.java.com.incesoft.tools.excel.xlsx.ExcelUtils",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestSJXLSX<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "bin.src.main.java.com.incesoft.tools.excel.xlsx.TestSJXLSX",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Test<JavaDashboardMaster>(1)",
+            "request": "launch",
+            "mainClass": "bin.src.test.java.Test",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ExcelUtils<JavaDashboardMaster>(1)",
+            "request": "launch",
+            "mainClass": "com.incesoft.tools.excel.xlsx.ExcelUtils",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestSJXLSX<JavaDashboardMaster>(1)",
+            "request": "launch",
+            "mainClass": "com.incesoft.tools.excel.xlsx.TestSJXLSX",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Native<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "com.sun.jna.Native",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AdvancedMode<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.AdvancedMode",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DashboardSelector<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.DashboardSelector",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-EducatorMode<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.EducatorMode",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-EducatorModeMainFX<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.EducatorModeMainFX",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-GraphNoSINCMain<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.GraphNoSINCMain",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Profiles<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.Profiles",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RootLauncher<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.RootLauncher",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SettingsWindow<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.SettingsWindow",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VLCJMediaPlayerController<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "dataorganizer.VLCJMediaPlayerController",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestSuite<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "jtermios.testsuite.TestSuite",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TwoPortSerialTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "jtermios.testsuite.TwoPortSerialTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestSuite<JavaDashboardMaster>(1)",
+            "request": "launch",
+            "mainClass": "jtermios.windows.testsuite.TestSuite",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Example1<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.example.Example1",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Benchmark<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.Benchmark",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ExperimentWithJNAEndianness<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.ExperimentWithJNAEndianness",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Experiment_VMIN_VTIME<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.Experiment_VMIN_VTIME",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MicroBenchmark<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.MicroBenchmark",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-PureJavaCommDemo<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.PureJavaCommDemo",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestFTDI<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.TestFTDI",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestSuite<JavaDashboardMaster>(2)",
+            "request": "launch",
+            "mainClass": "purejavacomm.testsuite.TestSuite",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AspectTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.aspect.AspectTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BareBonesEmbeddedTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.bare.BareBonesEmbeddedTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BareBonesParseTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.bare.BareBonesParseTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BareBonesTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.bare.BareBonesTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.basic.TestPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LuaUbuntuJava7Test<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.bug.lua.LuaUbuntuJava7Test",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CaptureTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.capture.CaptureTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ChatTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.chat.ChatTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AdvancedEmbeddedMediaPlayerComponentTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.component.AdvancedEmbeddedMediaPlayerComponentTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AudioMediaPlayerComponentTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.component.AudioMediaPlayerComponentTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BasicEmbeddedMediaListPlayerComponentTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.component.BasicEmbeddedMediaListPlayerComponentTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BasicEmbeddedMediaPlayerComponentTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.component.BasicEmbeddedMediaPlayerComponentTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DirectMediaPlayerComponentTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.component.DirectMediaPlayerComponentTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConditionMetaTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.condition.ConditionMetaTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConditionTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.condition.ConditionTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CropTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.crop.CropTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CueTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.cue.CueTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DirectTestPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.direct.DirectTestPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DirectAudioPlayerTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.directaudio.DirectAudioPlayerTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-EmbeddedJavaSoundTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.directaudio.EmbeddedJavaSoundTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-JavaSoundTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.directaudio.JavaSoundTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CaptureDevicesTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.discoverer.CaptureDevicesTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MediaDirsTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.discoverer.MediaDirsTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MediaDiscovererTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.discoverer.MediaDiscovererTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-NativeDiscoveryTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.discovery.NativeDiscoveryTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SetDrawableTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.drawable.SetDrawableTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DropPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.drop.DropPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DropVideoPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.drop.DropVideoPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DvbSubItemTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.dvb.DvbSubItemTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DwmTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.dwm.DwmTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Troubleshooter<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.environment.Troubleshooter",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ApplicationIdTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.ApplicationIdTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AudioOutputsTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.AudioOutputsTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ClockTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.ClockTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-EqualizerCapabilityTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.EqualizerCapabilityTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-EventNameTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.EventNameTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-FilterTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.FilterTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SetAudioOutputTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.factory.SetAudioOutputTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ExclusiveFullScreenTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.fullscreen.ExclusiveFullScreenTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-FullScreenMultiMediaTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.fullscreen.FullScreenMultiMediaTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-FullScreenTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.fullscreen.FullScreenTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Win32FullScreenPlayerTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.fullscreen.Win32FullScreenPlayerTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-XFullScreenPlayerTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.fullscreen.XFullScreenPlayerTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MediaInfoTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.info.MediaInfoTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-InputListenerTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.inputlistener.InputListenerTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AdaptiveLayoutTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.layout.AdaptiveLayoutTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StaticImageTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.list.StaticImageTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestMediaListEmbeddedPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.list.TestMediaListEmbeddedPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestMediaListPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.list.TestMediaListPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-NativeLogTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.log.NativeLogTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LogoTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.logo.LogoTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BroadcastTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.manager.BroadcastTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VodTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.manager.VodTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MarqueeTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.marquee.MarqueeTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MinimalMediaCallbackTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.mediacallback.MinimalMediaCallbackTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MetaTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.meta.MetaTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SearchMetaTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.meta.SearchMetaTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-UpdateMetaTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.meta.UpdateMetaTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MinimalTestPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.minimal.MinimalTestPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Mp3Test<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.minimalmp3.Mp3Test",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestMultiPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.multi.TestMultiPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-NonTransparentOverlayTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.overlay.NonTransparentOverlayTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-OverlayTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.overlay.OverlayTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Example1<JavaDashboardMaster>(1)",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.quickstart.Example1",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Example2<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.quickstart.Example2",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RipAudioTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.rip.RipAudioTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RipDvdTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.rip.RipDvdTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ScreenRecorder<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.screen.ScreenRecorder",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ScreenTestPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.screen.ScreenTestPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ScriptTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.script.ScriptTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SnapshotTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.snapshot.SnapshotTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StatsTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.stats.StatsTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StreamHttp<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.streaming.StreamHttp",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StreamRtp<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.streaming.StreamRtp",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StreamRtpDuplicate<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.streaming.StreamRtpDuplicate",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StreamRtsp<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.streaming.StreamRtsp",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-StreamingAudioPlayListTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.streaming.StreamingAudioPlayListTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SwapTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.swap.SwapTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ThumbsTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.thumbs.ThumbsTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TimecodeTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.timecode.TimecodeTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LibVlcFactoryVersionTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.version.LibVlcFactoryVersionTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LibVlcVersionTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.version.LibVlcVersionTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MediaPlayerFactoryVersionTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.version.MediaPlayerFactoryVersionTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VersionFormatTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.version.VersionFormatTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VersionTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.version.VersionTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VisualisationPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.visualisation.VisualisationPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VolumeTestPlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.volume.VolumeTestPlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LibX11Test<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.xlib.LibX11Test",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-XFullScreenTest<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.xlib.XFullScreenTest",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-FallbackYouTubePlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.youtube.FallbackYouTubePlayer",
+            "projectName": "JavaDashboardMaster"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-YouTubePlayer<JavaDashboardMaster>",
+            "request": "launch",
+            "mainClass": "uk.co.caprica.vlcj.test.youtube.YouTubePlayer",
+            "projectName": "JavaDashboardMaster"
+        }
+    ]
+}
