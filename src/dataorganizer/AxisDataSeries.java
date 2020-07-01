@@ -335,7 +335,7 @@ public class AxisDataSeries {
 		for (int i = startIndex; i < endIndex; i++) {
 			sum += originalData[i];
 		}
-		sum /= (double) sampleRate *(startTime - endTime);
+		sum /= (double) (endIndex-startIndex);
 		normOffset = sum;
 
 		//subtract normOffset from each originalData value to create array of normalized data
