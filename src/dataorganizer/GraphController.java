@@ -1605,11 +1605,9 @@ public class GraphController implements Initializable {
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
         try {
-
             if(!playing){
                 handlePlayPauseVideo();
             }
-
             double lineChartWidth = lineChart.getWidth();
             double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
             double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\

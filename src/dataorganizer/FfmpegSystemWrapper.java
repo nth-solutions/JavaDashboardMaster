@@ -34,6 +34,9 @@ public class FfmpegSystemWrapper {
 		if(OSName.toLowerCase().contains("windows") && Arch.contains("64")) {
 			return "ffmpeg\\ffmpeg-win64-static\\bin\\";
 		}
+		else if (OSName.toLowerCase().contains("mac")){
+			return "ffmpeg/ffmpeg-mac/";
+		}
 		return null;
 	}
 }

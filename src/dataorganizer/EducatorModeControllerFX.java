@@ -2405,6 +2405,12 @@ public class EducatorModeControllerFX implements Initializable {
         /**
          * The
          */
+
+        OSManager osmanger = new OSManager();
+        String OSType = osmanger.getOSType();
+
+        String pathTofile;
+
         if (testType == "Conservation of Momentum (Elastic Collision)"){
             lineGraph = startGraphing();
             lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
@@ -2412,16 +2418,29 @@ public class EducatorModeControllerFX implements Initializable {
 
         }else if (testType == "Generic Template - Two Modules") {
             System.out.println("launchMotionVisualizationExperimentTab Generic Template - Two Modules reached");
-            String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+
+            if (OSType == "Windows"){
+                pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+            }else {
+                pathTofile = System.getProperty("user.home") + "/Documents" + File.separator + dataOrgo.getName();
+            }
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
-            pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgoTwo.getName();
+            if (OSType == "Windows"){
+                pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgoTwo.getName();
+            }else{
+                pathTofile = System.getProperty("user.home") + "/Documents" + File.separator + dataOrgoTwo.getName();
+            }
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
 
         }else{
-            String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+            if (OSType == "Windows"){
+                pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+            }else{
+                pathTofile = System.getProperty("user.home") + "/Documents" + File.separator + dataOrgo.getName();
+            }
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();

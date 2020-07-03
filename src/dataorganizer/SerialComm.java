@@ -872,10 +872,13 @@ public class SerialComm {
 		if(!selectMode('+')) {
 			return false;
 		}
-		
+
+		System.out.println("Pair Mode Entered");
+
 		//Wait for confirmation that a remote was detected or the process timed out
 		waitForPostamble(4, 1, 15000);
-		
+
+		System.out.println("Line after waitForPostamble");
 		//Get acknowledge handshake to determine if it was successful or a timeout
 		int ackValue = -1;
 		while (ackValue == -1) {

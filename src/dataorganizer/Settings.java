@@ -14,8 +14,7 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class Settings {
 	Properties prop = new Properties();			//Defines properties
-	
-	
+
 	//Defines the default configurations
 	public void restoreDefaultConfig() {			
 		this.prop.setProperty("CSVSaveLocation", FileSystemView.getFileSystemView().getDefaultDirectory().getPath());
@@ -30,11 +29,21 @@ public class Settings {
 	//Loads saved configurations from DataOrganizer.prop
 	public void loadConfigFile(){				
 		try{
-			File SettingsDirectory = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\");
-			if(!SettingsDirectory.exists()) {
-				SettingsDirectory.mkdirs();
+			OSManager osManager = new OSManager();
+			String OSType = osManager.getOSType();
+			if(OSType == "Windows"){
+				File SettingsDirectory = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\");
+				if(!SettingsDirectory.exists()) {
+					SettingsDirectory.mkdirs();
+				}
+				this.prop.load(new FileInputStream(System.getProperty("user.home")+"\\_BioForce Dashboard\\"+"DataOrganizer.prop"));
+			}else{
+				File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard\\");
+				if(!SettingsDirectory.exists()) {
+					SettingsDirectory.mkdirs();
+				}
+				this.prop.load(new FileInputStream(System.getProperty("user.home")+"/_BioForce Dashboard/"+"DataOrganizer.prop"));
 			}
-			this.prop.load(new FileInputStream(System.getProperty("user.home")+"\\_BioForce Dashboard\\"+"DataOrganizer.prop"));
 		}catch(FileNotFoundException e) {
 			this.restoreDefaultConfig();
 		}catch(IOException e) {
@@ -50,11 +59,21 @@ public class Settings {
 	//saves configuration to DataOrganizer.prop file
 	public void saveConfig() {
 		try {
-			File SettingsDirectory = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\");
-			if(!SettingsDirectory.exists()) {
-				SettingsDirectory.mkdirs();
+			OSManager osManager = new OSManager();
+			String OSType = osManager.getOSType();
+			if(OSType == "Windows") {
+				File SettingsDirectory = new File(System.getProperty("user.home") + "\\_BioForce Dashboard\\");
+				if (!SettingsDirectory.exists()) {
+					SettingsDirectory.mkdirs();
+				}
+				this.prop.store(new FileOutputStream(System.getProperty("user.home") + "\\_BioForce Dashboard\\" + "DataOrganizer.prop"), null);
+			}else {
+				File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
+				if (!SettingsDirectory.exists()) {
+					SettingsDirectory.mkdirs();
+				}
+				this.prop.store(new FileOutputStream(System.getProperty("user.home") + "/_BioForce Dashboard/" + "DataOrganizer.prop"), null);
 			}
-			this.prop.store(new FileOutputStream(System.getProperty("user.home")+"\\_BioForce Dashboard\\"+"DataOrganizer.prop"), null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
