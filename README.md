@@ -34,27 +34,30 @@ The bytes are stored chronologically in the `finalData` array in the following o
 | 11            | ax1 ax2        | ay1 ay2        | az1 az2        | gx1 gx2     | gy1 gy2     | gz1 gz2     | mx1 mx2        | my1 my2        | mz1 mz2        |
 | ...           | ...            | ...            | ...            | ...         | ...         | ...         |                |                |                |
 
-Because the magnetometer has 1/10th the sample rate of the accelerometer and gyroscope, it only has data for every 10th point on the time axis.
+Because the magnetometer has 1/10th the sample rate of the accelerometer and gyroscope (when the latter is 240 Hz or greater), it only has data for every 10th
+point on the time axis.
 
 ### Test Parameters
 
 The test parameters associated with a test's data is stored in a .CSVP file as a series of integers separated by newlines. This .CSVP file is a custom file extension and technically is not a "comma separated" file, but this design decision is an artifact carried on from the original `DataOrganizer` codebase.
 
+The .CSVP file is always 32 lines long, being padded with 0s and newlines after the test parameters to reach this length.
+
 The format of `List<Integer> testParameters` is shown below:
 
-0. Number of Tests
-1. timer0
-2. Delay After Start
-3. Battery Timeout Flag
-4. Time Test Flag
-5. Trigger on Release Flag
-6. Test Length
-7. Accel/Gyro Sample Rate
-8. Mag Sample Rate
-9. Accel Sensitivity
-10. Gyro Sensitivity
-11. Accel Filter
-12. Gyro Filter
+0. Number of Tests (`0-8`)
+1. Timer0 Tick Threshold (default `3848`)
+2. Delay After Start (milliseconds) - default `0`
+3. Battery Timeout Length (seconds) - default `300`
+4. Timed Test Flag (`0`/`1`) - default `0` - *limits maximum test length to "Test Duration" field*
+5. Trigger on Release Flag (`0`/`1`) - default `1` - *allows test to start when the remote button is released vs when pressed*
+6. Test Duration (seconds) - default `30` - *only applicable if "Timed Test Flag" is set to 1*
+7. Accel/Gyro Sample Rate (`60`/`120`/`240`/`480`/`500`/`960` Hz) - default `960`
+8. Mag Sample Rate (Hz) - default `96` - *If "Accel/Gyro sample rate" ≥ 240, mag is 1/10 of it; otherwise, sample rate is equal*
+9. Accel Sensitivity (`2`/`4`/`8`/`16` Gs) - default `4`
+10. Gyro Sensitivity (`250`/`500`/`1000`/`2000` deg/s) - default `1000`
+11. Accel Filter (`5`/`10`/`20`/`41`/`92`/`184`/`460`/`1130 (OFF)` Hz) - default `92`
+12. Gyro Filter (`10`/`20`/`41`/`92`/`184`/`250`/`3600`/`8800 (OFF)` Hz) - default `92`
 13. Accel X Offset Min
 14. Accel X Offset Max
 15. Accel Y Offset Min
@@ -64,7 +67,23 @@ The format of `List<Integer> testParameters` is shown below:
 
 ### Acceleration Offsets
 
-Indices 13-18 of `testParameters` are collectively known as the Inertial Measurement Unit (IMU) offsets. These values measure 
+Indices 13-18 of `testParameters` collectively make up the Inertial Measurement Unit (IMU) calibration offsets. These values are signed raw data samples of the accelerometer on each axis when the module is at rest, laying on a flat surface. The maximum and minimum values correspond to the two orientations the axis can be (facing up vs facing down). Averaging these two offsets for an axis and subtracting the result from each acceleration data sample "normalizes" the value to zero, counteracts any deviation in IMU measurements.
+
+> Note: this is NOT the same as *data normalization*, which is used for gravity compensation when the module is moving on only one axis.
+
+In the codebase, these offsets are in the form of an `int[]` of length 9, referred to as `mpuOffsets`, or `accelOffsets`. Each element in the list is the general offset for an acceleration axis. The length of 9 was chosen in order to match the 9 sensor axes on the module, in the event that calibration offsets were ever needed for the gyroscope and magnetometer (only 3 elements are actually populated).
+
+`SerialComm` returns these offsets in the form of an `int[][]` named `MPUMinMax`, reading data directly from the module instead of from the `testParameters` CSVP file. This is the precursor to `mpuOffsets` and is structured as follows:
+
+- (0) Acceleration X
+    - (0) Minimum Offset
+    - (1) Maximum Offset
+- (1) Acceleration Y
+    - (0) Minimum Offset
+    - (1) Maximum Offset
+- (2) Acceleration Z
+    - (0) Minimum Offset
+    - (1) Maximum Offset
 
 ## Data Conversion
 
