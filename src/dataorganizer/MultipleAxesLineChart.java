@@ -1,29 +1,19 @@
 package dataorganizer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class MultipleAxesLineChart extends StackPane {
 
@@ -176,7 +166,7 @@ public class MultipleAxesLineChart extends StackPane {
         return hBox;
     }
 
-    public void addSeries(XYChart.Series series, Color lineColor, AxisType axis) {
+    public void addSeries(XYChart.Series<Number,Number> series, Color lineColor, AxisType axis) {
 
         NumberAxis yAxisAdd = new NumberAxis();
         NumberAxis xAxisAdd = new NumberAxis();

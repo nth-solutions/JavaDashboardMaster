@@ -12,17 +12,17 @@ import java.util.List;
 import javax.swing.filechooser.FileSystemView;
 
 /**
- * This class houses methods handle reading and writing data from/to CSV files
- * Constructors can be added as needed
+ * General-purpose class used for reading and writing data to CSV files.
+ * Mainly used by the Data Analysis Graph for reading saved test data.
  */
 public class CSVHandler {
 	
 	/**
-	 * CSVP writing class copied (more or less) from dataOrganizer
-	 * @param testParameters
-	 * @param settings
-	 * @param nameOfTest
-	 * @param MPUMinMax
+	 * Writes test parameters to a CSVP file.
+	 * @param testParameters the list of test parameters <i>(further documentation is in this method's body)</i>
+	 * @param settings the {@link dataorganizer.Settings Settings} object used to store parameters such as save location path
+	 * @param nameOfTest the name used in the created CSV file
+	 * @param MPUMinMax the array of offsets applied to all acceleration calculations
 	 */
 	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][] MPUMinMax) {
 
@@ -82,11 +82,10 @@ public class CSVHandler {
 	}
 	
 	/**
-	 * CSV Writing method modified from dataOrganizer.  Not sure about int return type, might change?
-	 * @param g
-	 * @param settings
-	 * @param nameOfTest
-	 * @return
+	 * CSV Writing method modified from dataOrganizer.
+	 * @param g GenericTest object to read test data from
+	 * @param settings the {@link dataorganizer.Settings Settings} object used to store parameters such as save location path
+	 * @param nameOfTest the name used in the created CSV file
 	 */
 	public void writeCSV(GenericTest g, Settings settings, String nameOfTest) { 														
 		
@@ -135,10 +134,10 @@ public class CSVHandler {
 		PrintWriter DataFile;
 			
 			// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
-			for (int i = 0; i< g.getDataSamples().get(1).size()-1; i++) {
+			for (int i = 0; i < g.getDataSamples().get(1).size()-1; i++) {
 
 				// populate accel and gyro data points 
-				for (int j = 1; j<7; j++) {
+				for (int j = 1; j < 7; j++) {
 					builder.append(g.getDataSamples().get(j).get(i));
 					builder.append(",");
 				}
@@ -183,12 +182,8 @@ public class CSVHandler {
 	 * @return ArrayList of test parameters read from CSVP
 	 */
 	public ArrayList<Integer> readCSVP(String CSVPFilePath) {
-		
-		// Create a .CSVP file
-		File f = new File(CSVPFilePath); 
 
-		// Sets the name of the test
-		String nameOfTest = f.getName(); 
+		System.out.println("Importing test parameters from '" + CSVPFilePath + "'...");
 
 		// Need to load keys from settings file. This tells us where CSVs are stored
 		Settings settings = new Settings();
@@ -247,12 +242,14 @@ public class CSVHandler {
 	
 	/**
 	 * Reads data samples from a given CSV file.
+	 * <p><i>NOTE: The time axis (index 0) is left unpopulated to avoid having to pass in an additional parameter (sampleRate via testParameters).</i></p>
 	 * @param CSVFilePath the location of the CSV file
-	 * @param testParameters the test parameters from the associated CSVP file (see {@link #readCSVP})
+	 * @param testParameters the test parameters from the associated CSVP file (see {@link #writeCSVP})
 	 * @return 2D list of 9 axes of raw data (already converted from bytes) and one axis of time.
-	 * <p><b>NOTE: The time axis (index 0) is left unpopulated to avoid having to pass in an additional parameter (sampleRate via testParameters).</b></p>
 	 */
 	public List<List<Double>> readCSV(String CSVFilePath) {
+
+		System.out.println("Importing test data from '" + CSVFilePath + "'...");
 		
 		List<List<Double>> dataSamples = new ArrayList<List<Double>>();
 
@@ -318,28 +315,33 @@ public class CSVHandler {
 	
 	
 	/**
-	 * FOR TESTING PURPOSES ONLY - NOT FOR USE WITH GRAPHING APPLICATION
+	 * <b>FOR TESTING PURPOSES ONLY - NOT FOR USE WITH GRAPHING APPLICATION</b>
 	 * This method writes all 28 axes of a GenericTest to a CSV - this is not the CSV format that the graph accepts
-	 * This method was only written to evaluate the GenericTest data in Excel
-	 * @param g
+	 * This method was only written to evaluate the GenericTest data in Excel.
+	 * @deprecated not for use in Data Analysis Graph
+	 * @param g GenericTest object to read test data from
+	 * @param nameOfTest the name used in the created CSV file
 	 */
+	@Deprecated
 	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) {
+		
 		Settings settings = new Settings();
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile;
 			
-			//iterates through data points in the series (i is the line index)
-			for (int i = 0; i<g.getAxis(AxisType.valueOf(0)).getSamples().size(); i++) {
-				//iterates through axes (j is the column index)
-				for(int j = 0; j<28; j++) {
-					//controls for shorter mag series
-					if (!(j > 23 && i > g.getAxis(AxisType.valueOf(j)).getSamples().size()-1)) {
+		//iterates through data points in the series (i is the line index)
+		for (int i = 0; i < g.getAxis(AxisType.AccelX).getSamples().size(); i++) {
+
+			//iterates through axes (j is the column index)
+			for (int j = 0; j < AxisType.values().length; j++) {
+				//controls for shorter mag series
+				if (!(j > 23 && i > g.getAxis(AxisType.valueOf(j)).getSamples().size()-1)) {
 					builder.append(g.getAxis(AxisType.valueOf(j)).getSamples().get(i));
 					builder.append(",");
-					}
-					}
-				builder.append("\n");
 				}
+			}
+			builder.append("\n");
+		}
 			
 		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
 
@@ -347,8 +349,7 @@ public class CSVHandler {
 			if (fileOutputDirectory != null) {
 				DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
 			} 
-			else {
-				
+			else {	
 				DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
 			}
 			// writes the string buffer to the .CSV creating the file
@@ -356,7 +357,8 @@ public class CSVHandler {
 			// close the .CSV
 			DataFile.close(); 
 		}
-		catch (FileNotFoundException e) {
+		catch (Exception e) {
+			System.out.println("Error writing test data to CSV");
 			e.printStackTrace();
 		}	
 	}

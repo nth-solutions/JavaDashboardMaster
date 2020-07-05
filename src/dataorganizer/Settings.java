@@ -10,7 +10,8 @@ import java.util.Properties;
 import javax.swing.filechooser.FileSystemView;
 
 /**
- * Responsible storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
+ * Responsible for storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
+ * Also used by {@link dataorganizer.CSVHandler CSVHandler} in the Data Analysis Graph.
  */
 public class Settings {
 	Properties prop = new Properties();			//Defines properties
