@@ -90,10 +90,10 @@ public class AxisDataSeries {
 				if (this.originalData[i] > 32768) {
 					this.originalData[i] -= 65535;
 				}
-				if (axis.getValue() >= 24 && axis.getValue() <= 26) {
 
-				// apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
-				this.originalData[i] *= (double)4800 /(double) 8192;
+				if (axis.getValue() >= 24 && axis.getValue() <= 26) {
+					// apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
+					this.originalData[i] *= (double)4800 /(double) 8192;
 				}
 			}	
 		}
@@ -132,7 +132,7 @@ public class AxisDataSeries {
 	 * stores the bounds, where index 0 is the minimum offset and index 1 is the maximum offset 
 	 * @param accelSensitivity - the maximum value or "resolution" of the raw data, being 1, 2, 4, or 8 Gs;
 	 * this value is multiplied by how close the measurement was to the maximum value to calculate the physical quantity.
-	 * <p>In equation format: acceleration = sensitivity * (raw data / max value for data [32768])
+	 * <p>In equation format: acceleration = sensitivity * (raw data / max value for data [32768])</p>
 	 * @param sampleRate - the number of data samples recorded in one second
 	 */
 	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int sampleRate) {
@@ -166,14 +166,14 @@ public class AxisDataSeries {
 
 		}
 		
-		//create normalized data series using first second of module data
+		// create normalized data series using first second of module data
 		createNormalizedData(0.0, 2.0, sampleRate);
 
-		//creates smoothedData by applying rolling average to normalized data		
+		// creates smoothedData by applying rolling average to normalized data		
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
 
-		//clones smoothedData for display on graph
-		userSmoothedData= smoothedData.clone();
+		// clones smoothedData for display on graph
+		userSmoothedData = smoothedData.clone();
 
 		// print debug info about AxisDataSeries
 		System.out.println(toString());
@@ -355,7 +355,7 @@ public class AxisDataSeries {
 	public Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
 		Double[] newArray = array.clone();
-		//if (sampleBlockSize == 0) return;
+		if (sampleBlockSize == 0) return array;
 		
 		for (int i = sampleBlockSize/2; i < newArray.length - sampleBlockSize/2; i++) {
 			double localTotal = 0;
@@ -429,7 +429,7 @@ public class AxisDataSeries {
 		int i = Arrays.binarySearch(this.time, x);
 
 		// slope (m) = ∆y/∆x, where the interval is the resolution of the graphed data set
-		Double slope = (smoothedData[i+res]-smoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
+		Double slope = (userSmoothedData[i+res]-userSmoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
 		
 		return slope;
 
@@ -446,13 +446,13 @@ public class AxisDataSeries {
 		
 		if (startTime == endTime) {
 			int i = (int) Math.round(startTime*this.sampleRate);
-			slope = (smoothedData[i+1]-smoothedData[i-1])/(this.time[i+1]-this.time[i-1]);
+			slope = (userSmoothedData[i+1]-userSmoothedData[i-1])/(this.time[i+1]-this.time[i-1]);
 			return slope;
 		}
 		else {
 			int i = (int) Math.round(startTime*this.sampleRate);
 			int j = (int) Math.round(endTime*this.sampleRate);
-			slope = (smoothedData[j]-smoothedData[i])/(this.time[j]-this.time[i]);
+			slope = (userSmoothedData[j]-userSmoothedData[i])/(this.time[j]-this.time[i]);
 		}
 
 		return slope;
@@ -467,7 +467,7 @@ public class AxisDataSeries {
 		int b = (int) Math.round(endTime*this.sampleRate);
 
 		for (int i = a + 1; i < b + 1; i++) {
-			area += (smoothedData[i] + smoothedData[i-1])/2 * (time[i] - time[i-1]);
+			area += (userSmoothedData[i] + userSmoothedData[i-1])/2 * (time[i] - time[i-1]);
 		}
 
 		return area;
