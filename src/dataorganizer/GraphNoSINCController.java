@@ -10,22 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.ResourceBundle;
 
-
-import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.CheckBox;
@@ -36,21 +33,22 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 public class GraphNoSINCController implements Initializable {
 
-	// TODO implement n module functionality with ArrayList<GenericTest> ("genericTestTwo" not used currently)
-
 	// GenericTest represents a single module and associated test data
-	private GenericTest genericTestOne;
+	private GenericTest[] genericTests;
 
-	// "genericTestTwo" will NOT be assigned if running a single module test
-	private GenericTest genericTestTwo;
-	
+	// TODO fix "dataSets" to work with multiple modules
+	//
 	// tracks the axes currently graphed on the line chart
 	private Map<AxisType, XYChart.Series<Number, Number>> dataSets;
-	
+
+	// holds all the data set panels instantiated
+	private ArrayList<DataSetPanel> panels;
+
 	// the interval at which samples are drawn to the screen
 	// if value is 20 (default), every 20th sample will be rendered
 	private int resolution;
@@ -62,7 +60,7 @@ public class GraphNoSINCController implements Initializable {
 	private double zoomviewScalarY;
 	private double leftScrollPercentage;
 	private double topScrollPercentage;
-	private double zoomviewX; 
+	private double zoomviewX;
 	private double zoomviewY;
 	private double zoomviewW;
 	private double zoomviewH;
@@ -70,7 +68,7 @@ public class GraphNoSINCController implements Initializable {
 	private double resetZoomviewY;
 	private double resetZoomviewH;
 	private double resetZoomviewW;
-	private boolean vertScroll;
+
 	private double lastMouseX;
 	private double lastMouseY;
 
@@ -94,10 +92,10 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private BFALineChart<Number,Number> lineChart;
-	
+
 	@FXML
 	private NumberAxis xAxis;
-	
+
 	@FXML
 	private NumberAxis yAxis;
 
@@ -110,12 +108,14 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private AnchorPane anchorPane;
 
-	
-	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		System.out.println("initialize");
+
+		System.out.println("Initializing Data Analysis graph...");
+
 		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
+		panels = new ArrayList<DataSetPanel>();
+
 		slopePoint = new Double[2];
 		areaPoint = new Double[2];
 
@@ -130,53 +130,51 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
+
 		lineChart = multiAxis.getBaseChart();
-		lineChart.setAnimated(false);
+
 		xAxis = (NumberAxis) lineChart.getXAxis();
 		yAxis = (NumberAxis) lineChart.getYAxis();
-	
-		// hides symbols indicating data points on graph
-		lineChart.setCreateSymbols(false);
-		
+
 		redrawGraph();
-		
+
 		// listener that runs every tick the mouse scrolls, calculates zooming
 		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
 
-			public void handle(ScrollEvent event) {	
+			public void handle(ScrollEvent event) {
 
 				// saves the mouse location of the scroll event to x and y variables
 				scrollCenterX = event.getX();
 				scrollCenterY = event.getY();
-				
+
 				/**
 				 * calculates the percentage of scroll either on the left or top of the screen
 				 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is 0.5, if it is three quarters to the right, it is 0.75
 				 */
 				leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
 				topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
-				
+
 				if(!event.isAltDown()) {
 					zoomviewW -= zoomviewW * event.getDeltaY() / 300;
 					if(zoomviewW < .05) zoomviewW = .05;
 					zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 				}
-				
+
 				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
-				
+
 				// enforces a minimum zoom by limiting the size of the viewport to at least 0.05 in graph space. Can be adjusted
 				if(zoomviewH < .05) zoomviewH = .05;
-				
+
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
 				redrawGraph();
 
 			}
-			
+
 		});
-		
+
 		// listener that runs every tick the mouse is dragged, calculates panning
 		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
@@ -188,7 +186,7 @@ public class GraphNoSINCController implements Initializable {
 					// get the mouse x and y position relative to the line chart
 					mouseX = event.getX();
 					mouseY = event.getY();
-					
+
 					// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
 					zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
 					zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
@@ -196,9 +194,9 @@ public class GraphNoSINCController implements Initializable {
 					// adds the change in mouse position this tick to the zoom view, converted into graph space
 					zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
 					zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
-					
+
 					redrawGraph();
-					
+
 					// sets last tick's mouse data as this tick's
 					lastMouseX = mouseX;
 					lastMouseY = mouseY;
@@ -206,64 +204,113 @@ public class GraphNoSINCController implements Initializable {
 				}
 
 			}
-			
+
 		});
-		
+
 		// listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
 		lineChart.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			public void handle(MouseEvent event) {
-				
+
 				lastMouseX = event.getX();
 				lastMouseY = event.getY();
 
 			}
-			
+
 		});
 	}
 
 	/**
-	 * <p>Populates the data analysis graph with GenericTests.</p>
-	 * <p>g2 will be null for a One Module setup.</p>
-	 * @param g1 GenericTest associated with module 1
-	 * @param g2 GenericTest associated with module 2 (if applicable)
+	 * Populates the data analysis graph with a single GenericTest.
+	 * This constructor should be used for a One Module test.
+	 * @param g the GenericTest object storing the test's data
 	 */
-	public void setGenericTests(GenericTest g1, GenericTest g2) {
+	public void setGenericTests(GenericTest g) {
 
 		// g1/g2 are allowed to be null here (differentiating One/Two Module setup)
-		genericTestOne = g1;
-		genericTestTwo = g2;
-	
-		// TEST CODE - TO BE REPLACED LATER
-		// TODO select data set to graph based on type of GenericTest
-		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-	 	graphAxis(AxisType.AccelX);
-		
+		genericTests = new GenericTest[] { g };
+		initializePanels();
+
 	}
-	
+
 	/**
-	 *Populates the data analysis graph with a GenericTest constructed from a CSV and a CSVP
-	 * @param CSVPath
-	 * @param CSVPPath
+	 * Populates the data analysis graph with multiple GenericTests.
+	 * This constructor should be used when multiple modules are used in a test.
+	 * @param g array of GenericTests (each one represents one module)
+	 */
+	public void setGenericTests(ArrayList<GenericTest> g) {
+
+		// convert ArrayList to array
+		genericTests = new GenericTest[g.size()];
+		genericTests = g.toArray(genericTests);
+
+		initializePanels();
+
+	}
+
+	/**
+	 * Populates the data analysis graph by creating a GenericTest from a CSV and CSVP file.
+	 * @param CSVPath the location of the CSV file containing test data
+	 * @param CSVPPath the location of the CSVP file containing test parameters
 	 */
 	public void setGenericTestFromCSV(String CSVPath, String CSVPPath) {
-		
+
 		//create CSVHandler Object to read CSV, CSVP
 		CSVHandler reader = new CSVHandler();
-		genericTestOne = new GenericTest(reader.readCSV(CSVPath), reader.readCSVP(CSVPPath));
-		
-		//Creates CSV of all 28 GT axes
-		//String nameOfTest = "(allAxisDataSeries)"+CSVPath.substring(CSVPath.indexOf("(#")); 
-		//reader.writeGenericTestAxestoCSV(genericTestOne, nameOfTest);
-		
-		graphAxis(AxisType.AccelX);	
+
+		GenericTest g = new GenericTest(reader.readCSV(CSVPath), reader.readCSVP(CSVPPath));
+		genericTests = new GenericTest[] { g };
+
+		initializePanels();
+
 	}
-	
+
+	private void initializePanels() {
+
+		// create data set panels
+		for (int i = 0; i < genericTests.length; i++) {
+
+			Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
+			
+			// reference to "d" necessary for addListener() anonymous class
+			DataSetPanel d = new DataSetPanel(i);
+			d.setText("Module " + (i+1));
+
+			// convey checkbox ticking on/off from child class to this class
+			d.currentAxis.addListener((obs, oldVal, newVal) -> {
+
+				// TODO part of the hack w/ change listeners
+				if (newVal.intValue() == -1) return;	
+				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
+			
+			});
+
+			panels.add(d);
+			a.getPanes().add(d);
+
+		}
+
+		// TODO select data set to graph based on type of GenericTest
+		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
+		//
+		// if opening graph for first time, graph default axis/axes
+		if (dataSets.size() == 0) {
+			graphAxis(AxisType.AccelX, 0);
+		}
+		// otherwise, update all currently drawn axes
+		else {
+			dataSets.forEach((axis,series) -> {
+				updateAxis(axis, 0);
+			});
+		}
+
+	}
+
 	/**
 	 * Handles zooming/panning of the graph.
 	 */
-	public void redrawGraph() {
-		
+	private void redrawGraph() {
+
 		multiAxis.setXBounds(zoomviewX - zoomviewW/2,zoomviewX + zoomviewW/2);
 		//xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
 		//xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
@@ -285,25 +332,26 @@ public class GraphNoSINCController implements Initializable {
 		} else {
 			lineChart.setHorizontalGridLinesVisible(true);
 		}
-		
+
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 
 		// remove data analysis tools (if drawn)
 		lineChart.clearArea();
 		clearSlope();
-		
+
 	}
 
 	/**
 	 * Draws/removes an axis from the graph.
 	 * @param axis the AxisType to be drawn/removed
+	 * @param GTIndex the GenericTest to read the axis from (should be 0 in a single module test)
 	 */
-	public void graphAxis(AxisType axis) {
-		
+	public void graphAxis(AxisType axis, int GTIndex) {
+
 		// get checkbox by looking up FXID (the name of the AxisType)
-		CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
-		
+		//CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
+
 		// if axis is not already graphed:
 		if (!multiAxis.isAxisGraphed(axis)) {
 
@@ -321,23 +369,23 @@ public class GraphNoSINCController implements Initializable {
 
 			List<Double> time;
 			List<Double> data;
-			
+
 			// get time/samples data sets
-			time = genericTestOne.getAxis(axis).getTime();
-			data = genericTestOne.getAxis(axis).getSamples();
+			time = genericTests[GTIndex].getAxis(axis).getTime();
+			data = genericTests[GTIndex].getAxis(axis).getSamples();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
 
 				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
-			
+
 				// add tooltip with (x,y) when hovering over data point
-				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis));
+				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
 
 				seriesData.add(dataEl);
 
 			}
-	
+
 			// TODO switch this to a pretty-printed version of AxisType?
 			series.setName(axis.toString());
 
@@ -346,10 +394,10 @@ public class GraphNoSINCController implements Initializable {
 
 			// add to HashMap of currently drawn axes
 			dataSets.put(axis, series);
-			
+
 			//add graph with new axis
 			multiAxis.addSeries(series, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8), axis);
-			
+
 			// add XYChart.Series to LineChart
 			//lineChart.getData().add(series);
 
@@ -361,7 +409,7 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 			// tick the checkbox
-			c.setSelected(true);
+			panels.get(GTIndex).setCheckBox(true);
 
 		// if axis is already graphed:
 		} else {
@@ -377,7 +425,7 @@ public class GraphNoSINCController implements Initializable {
 			dataSets.remove(axis);
 
 			// untick the checkbox
-			c.setSelected(false);
+			panels.get(GTIndex).setCheckBox(false);
 
 		}
 
@@ -387,7 +435,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Redraws an axis already on the graph.
 	 * @param axis the AxisType to be drawn/removed
 	 */
-	public void updateAxis(AxisType axis) {
+	public void updateAxis(AxisType axis, int GTIndex) {
 
 		System.out.println("Updating " + axis);
 
@@ -399,21 +447,21 @@ public class GraphNoSINCController implements Initializable {
 		seriesData.clear();
 
 		// get time/samples data sets
-		List<Double> time = genericTestOne.getAxis(axis).getTime();
-		List<Double> data = genericTestOne.getAxis(axis).getSamples();
-		
+		List<Double> time = genericTests[GTIndex].getAxis(axis).getTime();
+		List<Double> data = genericTests[GTIndex].getAxis(axis).getSamples();
+
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i+=resolution) {
 
 			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
-			
+
 			// add tooltip with (x,y) when hovering over data point
-			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis));
+			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
 
 			seriesData.add(dataEl);
 
 		}
-		
+
 		// add ObservableList to XYChart.Series
 		series.setData(seriesData);
 
@@ -428,18 +476,18 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	public void handleReset(ActionEvent event) {
-		
+
 		zoomviewX = resetZoomviewX;
 		zoomviewY = resetZoomviewY;
 		zoomviewW = resetZoomviewW;
 		zoomviewH = resetZoomviewH;
 		redrawGraph();
-		
+
 	}
 
 	@FXML
 	public void rollingBlockHandler(ActionEvent event) {
-		
+
 		int sampleBlockSize = 0;
 
 		try {
@@ -462,13 +510,14 @@ public class GraphNoSINCController implements Initializable {
 		final int blockSize = sampleBlockSize;
 
 		// apply moving avgs to all currently drawn axes
+		// TODO fix
 		dataSets.forEach((axis, series) -> {
-			genericTestOne.getAxis(axis).applyCustomMovingAvg(blockSize);
-			updateAxis(axis);
+			genericTests[0].getAxis(axis).applyCustomMovingAvg(blockSize);
+			updateAxis(axis, 0);
 		});
 
 	}
-	
+
 	/**
 	 * Called by JavaFX when a data set's checkbox is ticked.
 	 */
@@ -480,7 +529,7 @@ public class GraphNoSINCController implements Initializable {
 		String axis = (String) c.getId().replace("Toggle", "");
 		AxisType a = AxisType.valueOf(axis);
 
-		graphAxis(a);
+		graphAxis(a, 0);
 
 	}
 
@@ -505,48 +554,51 @@ public class GraphNoSINCController implements Initializable {
 
 		if (mode == GraphMode.NONE) {
 			setGraphMode(GraphMode.AREA);
-		} 
+		}
 		else if (mode == GraphMode.AREA) {
 			setGraphMode(GraphMode.NONE);
 		}
 
 	}
-	
+
 	@FXML
 	public void importCSV(ActionEvent event) {
-		//Try/Catch that catches Null Pointer Exception when no file is selected
-		try {    
-			//Creates a FileChooser Object
-            FileChooser fileChooser = new FileChooser();      
-            //Sets the title of the FileChooser object
-            fileChooser.setTitle("Select a CSV");   
-          
-            Settings settings = new Settings();
-            settings.loadConfigFile();
-            
-            fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
-            //Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
-            FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");   
-            //Adds the filter to the FileChooser
-            fileChooser.getExtensionFilters().add(filterCSVs);   
-            //Assigns the user's selected file to the fileChosen variable
-            File fileChosen = fileChooser.showOpenDialog(null); 
-            if (fileChosen == null) return;
-            //Converts the file path assigned to the fileChosen variable to a string and assigns it to the csvFilePath variable
-            String CSVFilePath = fileChosen.toString();  
-          //Checks to make sure the given file path contains a valid value
-            if (CSVFilePath != null) {    
-            	
-                System.out.println(CSVFilePath);
-                //creates GenericTest object from CSV and corresponding CSVP and uses it to populate data analysis graph
-               setGenericTestFromCSV(CSVFilePath, CSVFilePath+"p");
-               
-            }
 
-        } 
-		catch (NullPointerException e) {
-            e.printStackTrace();
-        }                                                                           	
+		// used to load CSV test data directory
+		Settings settings = new Settings();
+		settings.loadConfigFile();
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select a CSV");
+		fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+
+		// filters file selection to CSVs only
+		FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
+		fileChooser.getExtensionFilters().add(filterCSVs);
+
+		File fileChosen = fileChooser.showOpenDialog(null);
+
+		// if user doesn't choose a file or closes window, don't continue
+		if (fileChosen == null) return;
+
+		String CSVFilePath = fileChosen.toString();
+
+		// if no matching CSVP file found, don't continue
+		if (!new File(CSVFilePath + "p").exists()) {
+
+			Alert alert = new Alert(AlertType.ERROR);
+
+			alert.setHeaderText("Missing test data");
+			alert.setContentText("The matching CSVP file could not be found.");
+			alert.showAndWait();
+
+			System.out.println("No matching CSVP file found for '" + CSVFilePath + "'");
+			return;
+
+		}
+
+		setGenericTestFromCSV(CSVFilePath, CSVFilePath + "p");
+
 	}
 
 	/**
@@ -554,9 +606,11 @@ public class GraphNoSINCController implements Initializable {
 	 * Use this to change between viewing the graph and finding slope/area modes.
 	 * @param g the {@link GraphMode} to change to.
 	 */
-	public void setGraphMode(GraphMode g) {
+	private void setGraphMode(GraphMode g) {
 
 		mode = g;
+
+		// first index is x, second index is y
 		slopePoint = new Double[2];
 		areaPoint = new Double[2];
 
@@ -572,9 +626,9 @@ public class GraphNoSINCController implements Initializable {
 				break;
 
 			default:
-				System.err.println("Error setting graph mode");
+				System.out.println("Error setting graph mode");
 				break;
-			
+
 		}
 
 	}
@@ -582,21 +636,30 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Graphs a line tangent to the given point.
 	 */
-	public void graphSlope(double x, double y, AxisType axis) {
-		
-		double m = genericTestOne.getAxis(axis).getSlope(x, resolution);
+	public void graphSlope(double x, double y, AxisType axis, int GTIndex) {
 
-		if (slope != null) lineChart.getData().remove(slope);
+		clearSlope();
+
+		// get slope value "m"
+		double m = genericTests[GTIndex].getAxis(axis).getSlope(x, resolution);
 
 		slope = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 
-		// y - y0 = m(x - x0) | y = m(x - x0) + y0 
-		seriesData.add(new XYChart.Data<Number,Number>(x-1, m * ((x-1)-x) + y));
+		// Formula used is point-slope form of a line:
+		// y - y0 = m(x - x0) -> y = m(x - x0) + y0
+
+		// plot the point (x0,y0) shared by the graph and tangent line
 		seriesData.add(new XYChart.Data<Number,Number>(x, y));
+
+		// plot the point one x-unit to the left (x = x0-1)
+		seriesData.add(new XYChart.Data<Number,Number>(x-1, m * ((x-1)-x) + y));
+
+		// plot the point one x-unit to the right (x = x0+1)
 		seriesData.add(new XYChart.Data<Number,Number>(x+1, m * ((x+1)-x) + y));
-		
-		seriesData.get(1).setNode(createSlopeLabel(m));
+
+		// add label for slope value to the center of the line, above the tangent point
+		seriesData.get(0).setNode(createSlopeLabel(m));
 
 		slope.setName("Slope (" + axis + ")");
 		slope.setData(seriesData);
@@ -612,22 +675,31 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Graphs a secant line between the given points.
 	 */
-	public void graphSlope(double x1, double y1, double x2, double y2, AxisType axis) {
-
-		double m = genericTestOne.getAxis(axis).getSlope(x1, x2);
+	public void graphSlope(double x1, double y1, double x2, double y2, AxisType axis, int GTIndex) {
 
 		clearSlope();
+
+		// get slope value "m"
+		double m = genericTests[GTIndex].getAxis(axis).getSlope(x1, x2);
 
 		slope = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 
-		// y - y0 = m(x - x0) | y = m(x - x0) + y0 
+		// Formula used is point-slope form of a line:
+		// y - y0 = m(x - x0) -> y = m(x - x0) + y0
+
+		// plot the left endpoint of the line
 		seriesData.add(new XYChart.Data<Number,Number>(x1, y1));
+
+		// plot the midpoint of the line
 		seriesData.add(new XYChart.Data<Number, Number>((x1+x2)/2, (y1+y2)/2));
+
+		// plot the right endpoint of the line
 		seriesData.add(new XYChart.Data<Number,Number>(x2, y2));
 
+		// add label for slope value above the midpoint
 		seriesData.get(1).setNode(createSlopeLabel(m));
-		
+
 		slope.setName("Slope (" + axis + ")");
 		slope.setData(seriesData);
 
@@ -642,7 +714,7 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Clears the slope line at/between points (if currently drawn).
 	 */
-	public void clearSlope() {
+	private void clearSlope() {
 		if (slope != null) lineChart.getData().remove(slope);
 	}
 
@@ -650,7 +722,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Creates the label for the slope of a tangent/secant line.
 	 * @param m the value for the slope
 	 */
-	public StackPane createSlopeLabel(double m) {
+	private StackPane createSlopeLabel(double m) {
 
 		double roundedM = new BigDecimal(m).round(new MathContext(SIG_FIGS)).doubleValue();
 		Label label = new Label("Slope: " + roundedM);
@@ -670,12 +742,12 @@ public class GraphNoSINCController implements Initializable {
 			public void handle(MouseEvent event) {
 				label.setText("Slope: " + m);
 			}
-			
+
 		});
 
 		// place label in StackPane and return
 		StackPane pane = new StackPane();
-		
+
 		pane.setPrefSize(15, 15);
 		pane.setStyle("-fx-background-color: transparent");
 		pane.getChildren().add(label);
@@ -688,10 +760,10 @@ public class GraphNoSINCController implements Initializable {
 	 * JavaFX component added to data points on graph.
 	 */
 	class DataPointLabel extends StackPane {
-		
-		DataPointLabel(double x, double y, AxisType axis) {
 
-			// round to two decimal places
+		DataPointLabel(double x, double y, AxisType axis, int GTIndex) {
+
+			// round to the given number of sig figs
 			final double roundedX = new BigDecimal(x).round(new MathContext(SIG_FIGS)).doubleValue();
 			final double roundedY = new BigDecimal(y).round(new MathContext(SIG_FIGS)).doubleValue();
 
@@ -717,7 +789,7 @@ public class GraphNoSINCController implements Initializable {
 					// ensure the label is on top of the graph
 					toFront();
 				}
-				
+
 			});
 
 			// when mouse stops hovering over data point, remove label
@@ -732,7 +804,7 @@ public class GraphNoSINCController implements Initializable {
 					// hide the label from the graph
 					getChildren().clear();
 				}
-				
+
 			});
 
 			setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -751,12 +823,12 @@ public class GraphNoSINCController implements Initializable {
 							// graph tangent line
 							if (slopePoint[0] == null && slopePoint[1] == null) {
 								System.out.println("Graphing tangent line...");
-								graphSlope(x, y, axis);
+								graphSlope(x, y, axis, 0);
 							}
 							// graph secant line
 							else {
 								System.out.println("Graphing secant line...");
-								graphSlope(slopePoint[0], slopePoint[1], x, y, axis);
+								graphSlope(slopePoint[0], slopePoint[1], x, y, axis, 0);
 							}
 						}
 
@@ -778,7 +850,7 @@ public class GraphNoSINCController implements Initializable {
 							Arrays.sort(areaBounds);
 
 							// calculate the definite integral with the given limits
-							double area = genericTestOne.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+							double area = genericTests[GTIndex].getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
 
 							// p1 = (x1, y1), p2 = (x2, y2)
 							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
@@ -825,71 +897,6 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 	}
-	
-	
-	/**
-	 * Old method of passing data to NewGraph reading from DataOrganizer(s).
-	 * @deprecated use {@link #setGenericTests(GenericTest, GenericTest)} instead.
-	 */
-	@Deprecated
-	public void createTest(DataOrganizer d1, DataOrganizer d2) {
-		
-		// Create GenericTest object if module exists -- otherwise, "null"
-		// "null" on one of these differentiates b/t One/Two Module setup
-		if (d1 != null) genericTestOne = new GenericTest(d1);
-        if (d2 != null) genericTestTwo = new GenericTest(d2);
-		
-		// TEST CODE - TO BE REPLACED LATER
-		// TODO select data set to graph based on type of GenericTest
-		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-        graphAxis(AxisType.AccelX);
-		
-	}
-
-	//=========================================================
-	// DEBUG CODE BELOW USED FOR TESTING -- NOT FOR PRODUCTION
-	//=========================================================
-	@FXML
-	private CheckBox debugIgnoreResCheckbox;
-	
-	@FXML
-	public void debugShowAllSamples(ActionEvent event) {
-
-		CheckBox c = (CheckBox) event.getSource();
-
-		// if checked, set resolution to 1 (no skipping over data samples);
-		// otherwise, default to graphing every 20th sample
-		resolution = c.isSelected() ? 1 : 20;
-
-		// update all currently displayed graphs
-		dataSets.forEach((axis,series) -> {
-			updateAxis(axis);
-		});
-		
-	}
-
-	@FXML
-	public void debugGraphAxis(ActionEvent event) {
-		
-		List<String> choices = new ArrayList<>();
-		
-		for (int i = 0; i < AxisType.values().length; i++) {
-
-			choices.add(AxisType.valueOf(i).toString());
-
-		}
-
-		ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
-		dialog.setTitle("[DEBUG] Graph Axis");
-		dialog.setHeaderText("This is a testing feature to graph an AxisDataSeries.");
-		dialog.setContentText("Choose axis:");
-
-		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()){
-			graphAxis(AxisType.valueOf(result.get()));
-		}
-
-	}
 
 	/**
 	 * Internal enum used to designate the state of data analysis;
@@ -901,6 +908,69 @@ public class GraphNoSINCController implements Initializable {
 		NONE,
 		SLOPE,
 		AREA
+	}
+
+	/**
+	 * Old method of passing data to the Data Analysis Graph reading from DataOrganizer(s).
+	 * @deprecated use {@link #setGenericTests(GenericTest, GenericTest)} instead.
+	 */
+	@Deprecated
+	public void createTest(DataOrganizer d1, DataOrganizer d2) {
+
+		// Create GenericTest object if module exists -- otherwise, "null"
+		// "null" on one of these differentiates b/t One/Two Module setup
+		if (d2 != null) genericTests = new GenericTest[] { new GenericTest(d1) };
+		else			genericTests = new GenericTest[] { new GenericTest(d1), new GenericTest(d2) };
+
+		// TEST CODE - TO BE REPLACED LATER
+		// TODO select data set to graph based on type of GenericTest
+		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
+        graphAxis(AxisType.AccelX, 0);
+
+	}
+
+	//=========================================================
+	// DEBUG CODE BELOW USED FOR TESTING -- NOT FOR PRODUCTION
+	//=========================================================
+	@FXML
+	private CheckBox debugIgnoreResCheckbox;
+
+	@FXML
+	public void debugShowAllSamples(ActionEvent event) {
+
+		CheckBox c = (CheckBox) event.getSource();
+
+		// if checked, set resolution to 1 (no skipping over data samples);
+		// otherwise, default to graphing every 20th sample
+		resolution = c.isSelected() ? 1 : 20;
+
+		// update all currently displayed graphs
+		dataSets.forEach((axis,series) -> {
+			updateAxis(axis, 0);
+		});
+
+	}
+
+	@FXML
+	public void debugGraphAxis(ActionEvent event) {
+
+		List<String> choices = new ArrayList<>();
+
+		for (int i = 0; i < AxisType.values().length; i++) {
+			choices.add(AxisType.valueOf(i).toString());
+		}
+
+		ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+
+		dialog.setTitle("[DEBUG] Graph Axis");
+		dialog.setHeaderText("This is a testing feature to graph an AxisDataSeries.");
+		dialog.setContentText("Choose axis:");
+
+		Optional<String> result = dialog.showAndWait();
+		if (result.isPresent()) {
+			graphAxis(AxisType.valueOf(result.get()), 0);
+		}
+
 	}
 
 }

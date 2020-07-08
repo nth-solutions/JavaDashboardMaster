@@ -25,213 +25,124 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<?import dataorganizer.BFALineChart?>
 <?import dataorganizer.MultipleAxesLineChart?>
+<?import dataorganizer.DataSetPanel?>
 
 <AnchorPane minWidth="500.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@GraphNoSINC.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dataorganizer.GraphNoSINCController">
-   <children>
-      <SplitPane dividerPositions="0.5" layoutY="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
-         <items>
-            <AnchorPane maxHeight="1080.0">
-               <children>
-                  <HBox alignment="CENTER" layoutX="50.0" layoutY="25.0" prefHeight="20.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="25.0">
-                     <children>
-                        <Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Generic Test">
-                           <font>
-                              <Font name="Open Sans" size="24.0" />
-                           </font>
-                        </Text>
-                     </children>
-                  </HBox>
-                  
-                  <MultipleAxesLineChart fx:id = "multiAxis" layoutX="50.0" layoutY="67.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0">
-                  <children>
+	<children>
+		<SplitPane dividerPositions="0.5" layoutY="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
+			<items>
+				<AnchorPane maxHeight="1080.0">
+					<children>
+						<HBox alignment="CENTER" layoutX="50.0" layoutY="25.0" prefHeight="20.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="25.0">
+							<children>
+								<Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Generic Test">
+									<font>
+										<Font name="Open Sans" size="24.0" />
+									</font>
+								</Text>
+							</children>
+						</HBox>
 
-	               </children>
-	               </MultipleAxesLineChart>
-                  <HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                     <children>
-                        <Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
-                     </children>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </HBox>
-               </children>
-            </AnchorPane>
-            <AnchorPane maxWidth="400.0" minWidth="200.0" prefWidth="200.0">
-               <children>
-                  <ScrollPane fitToHeight="true" fitToWidth="true" minViewportHeight="150.0" minViewportWidth="150.0" prefViewportHeight="400.0" prefViewportWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <content>
-                        <VBox minWidth="200.0" prefWidth="200.0">
-                           <children>
-                              <VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" prefHeight="79.0" prefWidth="398.0" spacing="5.0">
-                                 <children>
-                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="66.0" />
-                                    <HBox alignment="CENTER" layoutX="102.0" layoutY="91.0" />
-                                    <Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#debugGraphAxis" prefHeight="25.0" prefWidth="150.0" text="[DEBUG] Graph Axis" />
-                                    <CheckBox fx:id="debugIgnoreResCheckbox" mnemonicParsing="false" onAction="#debugShowAllSamples" text="[DEBUG] Show all data samples" />
-                                 </children>
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                              </VBox>
-                              <Separator prefHeight="26.0" prefWidth="398.0">
-                                 <VBox.margin>
-                                    <Insets bottom="10.0" top="10.0" />
-                                 </VBox.margin>
-                              </Separator>
-                              <VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
-                                 <children>
-                                    <Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
-                                       <padding>
-                                          <Insets bottom="5.0" top="5.0" />
-                                       </padding>
-                                    </Label>
-                                    <HBox alignment="CENTER">
-                                       <children>
-                                          <Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Sample Block Size: " />
-                                          <TextField fx:id="rollingBlockTextField" alignment="TOP_RIGHT" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="43.0">
-                                             <padding>
-                                                <Insets bottom="5.0" top="5.0" />
-                                             </padding>
-                                          </TextField>
-                                       </children>
-                                    </HBox>
-                                    <Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#rollingBlockHandler" prefHeight="25.0" prefWidth="120.0" text="Apply Average">
-                                       <VBox.margin>
-                                          <Insets />
-                                       </VBox.margin>
-                                    </Button>
-                                 </children>
-                                 <padding>
-                                    <Insets left="5.0" right="5.0" />
-                                 </padding>
-                              </VBox>
-                              <Separator prefHeight="50.0" prefWidth="398.0">
-                                 <VBox.margin>
-                                    <Insets bottom="10.0" top="10.0" />
-                                 </VBox.margin>
-                              </Separator>
-                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
-                                 <children>
-                                    <Label prefWidth="71.0" text="Data Analysis" textAlignment="CENTER" />
-                                    <Button mnemonicParsing="false" onAction="#toggleSlopeMode" text="Find slope at/between point(s)">
-                                       <VBox.margin>
-                                          <Insets bottom="10.0" top="10.0" />
-                                       </VBox.margin>
-                                    </Button>
-                                    <Button layoutX="167.0" layoutY="27.0" mnemonicParsing="false" onAction="#toggleAreaMode" text="Find area under a curve">
-                                       <VBox.margin>
-                                          <Insets bottom="10.0" />
-                                       </VBox.margin>
-                                    </Button>
-                                 </children>
-                              </VBox>
-                              <Accordion minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="398.0">
-                                <panes>
-                                  <TitledPane fx:id="dataSourceTitledPane" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="334.0" prefWidth="398.0" text="Module 1">
-                                       <font>
-                                          <Font size="10.0" />
-                                       </font>
-                                       <content>
-                                          <Pane prefHeight="200.0" prefWidth="200.0">
-                                             <children>
-                                                <GridPane alignment="CENTER" layoutX="43.0" layoutY="14.0" prefHeight="240.0" prefWidth="311.0">
-                                                  <columnConstraints>
-                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="173.0" minWidth="10.0" prefWidth="173.0" />
-                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-                                                    <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="40.0" prefWidth="40.0" />
-                                                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="40.0" minWidth="60.0" prefWidth="40.0" />
-                                                  </columnConstraints>
-                                                  <rowConstraints>
-                                                    <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                    <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                    <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                      <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                                  </rowConstraints>
-                                                   <children>
-                                                      <Label text="X" GridPane.columnIndex="1" />
-                                                      <Label text="Y" GridPane.columnIndex="2" />
-                                                      <Label text="Z" GridPane.columnIndex="3" />
-                                                      <Label text="Magnitude" GridPane.columnIndex="4" />
-                                                      <Label text="Acceleration" GridPane.rowIndex="1" />       
-                                                      <Label text="Velocity" GridPane.rowIndex="2" />
-                                                      <Label text="Displacement" GridPane.rowIndex="3" />
-                                                      <Label text="Angular Acceleration" GridPane.rowIndex="4" />
-                                                      <Label text="Angular Velocity" GridPane.rowIndex="5" />
-                                                      <Label text="Angular Displacement" GridPane.rowIndex="6" />
-                                                      <Label text="Magnetometer" GridPane.rowIndex="7" />
-                                                      <Label text="Linear Acceleration" GridPane.rowIndex="8" />
-                                                      <CheckBox fx:id="ToggleAccelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                      <CheckBox fx:id="ToggleAccelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                                      <CheckBox fx:id="ToggleAccelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                                      <CheckBox fx:id="ToggleAccelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-                                                      <CheckBox fx:id="ToggleVelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                      <CheckBox fx:id="ToggleVelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                                                      <CheckBox fx:id="ToggleVelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                                      <CheckBox fx:id="ToggleVelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-                                                      <CheckBox fx:id="ToggleDispX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                      <CheckBox fx:id="ToggleDispY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                                                      <CheckBox fx:id="ToggleDispZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                                                      <CheckBox fx:id="ToggleDispMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-                                                      <CheckBox fx:id="ToggleAngAccX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                                      <CheckBox fx:id="ToggleAngAccY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                                                      <CheckBox fx:id="ToggleAngAccZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                                                      <CheckBox fx:id="ToggleAngAccMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                                                      <CheckBox fx:id="ToggleAngVelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                                                      <CheckBox fx:id="ToggleAngVelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                                                      <CheckBox fx:id="ToggleAngVelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="5" />
-                                                      <CheckBox fx:id="ToggleAngVelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-                                                      <CheckBox fx:id="ToggleAngDispX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                                                      <CheckBox fx:id="ToggleAngDispY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                                                      <CheckBox fx:id="ToggleAngDispZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-                                                      <CheckBox fx:id="ToggleAngDispMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="6" />
-                                                      <CheckBox fx:id="ToggleMagnetX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                                                      <CheckBox fx:id="ToggleMagnetY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-                                                      <CheckBox fx:id="ToggleMagnetZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="7" />
-                                                      <CheckBox fx:id="ToggleMagnetMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="7" />
-                                                      <CheckBox fx:id="ToggleLinAccelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                                                      <CheckBox fx:id="ToggleLinAccelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="8" />
-                                                      <CheckBox fx:id="ToggleLinAccelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="8" />
-                                                      <CheckBox fx:id="ToggleLinAccelMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="8" />
-                                                      <CheckBox fx:id="ToggleSimulation" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                                                   </children>
-                                                </GridPane>
-                                             </children>
-                                          </Pane>
-                                       </content>
-                                  </TitledPane>
-                                    <TitledPane fx:id="dataSourceTitledPane1" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="229.0" prefWidth="200.0" text="Module 2">
-                                       <font>
-                                          <Font size="10.0" />
-                                       </font>
-                                    </TitledPane>
-                                </panes>
-                              </Accordion>
-                           </children>
-                        </VBox>
-                     </content>
-                  </ScrollPane>
-               </children>
-            </AnchorPane>
-         </items>
-      </SplitPane>
-      <MenuBar prefWidth="1440.0">
-         <menus>
-            <Menu mnemonicParsing="false" text="File">
-              <items>
-                <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
-              </items>
-            </Menu>
-         </menus>
-      </MenuBar>
-   </children>
+						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0"></MultipleAxesLineChart>
+						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+							<children>
+								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
+							</children>
+							<padding>
+								<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+							</padding>
+						</HBox>
+					</children>
+				</AnchorPane>
+				<AnchorPane maxWidth="400.0" minWidth="200.0" prefWidth="200.0">
+					<children>
+						<ScrollPane fitToHeight="true" fitToWidth="true" minViewportHeight="150.0" minViewportWidth="150.0" prefViewportHeight="400.0" prefViewportWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+							<content>
+								<VBox minWidth="200.0" prefWidth="200.0">
+									<children>
+										<VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" prefHeight="79.0" prefWidth="398.0" spacing="5.0">
+											<children>
+												<HBox alignment="CENTER" layoutX="102.0" layoutY="66.0" />
+												<HBox alignment="CENTER" layoutX="102.0" layoutY="91.0" />
+												<Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#debugGraphAxis" prefHeight="25.0" prefWidth="150.0" text="[DEBUG] Graph Axis" />
+												<CheckBox fx:id="debugIgnoreResCheckbox" mnemonicParsing="false" onAction="#debugShowAllSamples" text="[DEBUG] Show all data samples" />
+											</children>
+											<VBox.margin>
+												<Insets />
+											</VBox.margin>
+										</VBox>
+										<Separator prefHeight="26.0" prefWidth="398.0">
+											<VBox.margin>
+												<Insets bottom="10.0" top="10.0" />
+											</VBox.margin>
+										</Separator>
+										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
+											<children>
+												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
+													<padding>
+														<Insets bottom="5.0" top="5.0" />
+													</padding>
+												</Label>
+												<HBox alignment="CENTER">
+													<children>
+														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Sample Block Size: " />
+														<TextField fx:id="rollingBlockTextField" alignment="TOP_RIGHT" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="43.0">
+															<padding>
+																<Insets bottom="5.0" top="5.0" />
+															</padding>
+														</TextField>
+													</children>
+												</HBox>
+												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#rollingBlockHandler" prefHeight="25.0" prefWidth="120.0" text="Apply Average">
+													<VBox.margin>
+														<Insets />
+													</VBox.margin>
+												</Button>
+											</children>
+											<padding>
+												<Insets left="5.0" right="5.0" />
+											</padding>
+										</VBox>
+										<Separator prefHeight="50.0" prefWidth="398.0">
+											<VBox.margin>
+												<Insets bottom="10.0" top="10.0" />
+											</VBox.margin>
+										</Separator>
+										<VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+											<children>
+												<Label prefWidth="71.0" text="Data Analysis" textAlignment="CENTER" />
+												<Button mnemonicParsing="false" onAction="#toggleSlopeMode" text="Find slope at/between point(s)">
+													<VBox.margin>
+														<Insets bottom="10.0" top="10.0" />
+													</VBox.margin>
+												</Button>
+												<Button layoutX="167.0" layoutY="27.0" mnemonicParsing="false" onAction="#toggleAreaMode" text="Find area under a curve">
+													<VBox.margin>
+														<Insets bottom="10.0" />
+													</VBox.margin>
+												</Button>
+											</children>
+										</VBox>
+										<Accordion fx:id="dataSetAccordion" minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="398.0">
+											<panes></panes>
+										</Accordion>
+									</children>
+								</VBox>
+							</content>
+						</ScrollPane>
+					</children>
+				</AnchorPane>
+			</items>
+		</SplitPane>
+		<MenuBar prefWidth="1440.0">
+			<menus>
+				<Menu mnemonicParsing="false" text="File">
+				  <items>
+					 <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
+				  </items>
+				</Menu>
+			</menus>
+		</MenuBar>
+	</children>
 </AnchorPane>

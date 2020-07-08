@@ -24,21 +24,24 @@ import javafx.scene.shape.Polygon;
  */
 public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
-    /*
-    private XYChart.Data<Double, Double> p1;
-    private XYChart.Data<Double, Double> p2;
-
-    private ObservableList<XYChart.Data<Number, Number>> data;
-
-    private double area;
-    */
-
+    /**
+     * JavaFX component containing area label.
+     */
     private Pane areaPane;
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
     }
 
+    /**
+     * Shades area under a section of a curve by drawing trapezoids between adjacent points and the x-axis.
+     * Takes XYChart-based objects as arguments for ease of use in the Data Analysis Graph.
+     * @param p1 the left bound of the area
+     * @param p2 the right bound of the area
+     * @param data the data set that should be shaded in
+     * @param area the value of the definite integral from the two bounds
+     * @param SIG_FIGS the number of significant figures used to round the area value
+     */
     public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
 
         int start = -1;
@@ -93,7 +96,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
             double y1 = yAxis.getDisplayPosition(data.get(i).getYValue());
             double y2 = yAxis.getDisplayPosition(data.get(i+1).getYValue());
 
-            // this is a single rectangular approximation of area under the curve
+            // this is a single trapezoidal approximation of area under the curve
             Polygon poly = new Polygon();
 
             // add points to polygon
@@ -152,6 +155,11 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     }
 
+    /**
+     * Internal method used to generate the JavaFX label displaying area.
+     * @param a the value of the definite integral
+     * @return the JavaFX Label object
+     */
     private Label createAreaLabel(double a) {
 
 		Label label = new Label("Area: " + a);
@@ -172,6 +180,13 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     ==========================================================================
     TODO WIP method for real-time area shading. Does not work as of right now.
     ==========================================================================
+
+    private XYChart.Data<Double, Double> p1;
+    private XYChart.Data<Double, Double> p2;
+
+    private ObservableList<XYChart.Data<Number, Number>> data;
+
+    private double area;
 
     public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area) {
 

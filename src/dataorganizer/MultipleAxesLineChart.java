@@ -173,7 +173,7 @@ public class MultipleAxesLineChart extends StackPane {
         BFALineChart<Number, Number> lineChart;
 
         int axisTypeInt = axis.getValue() / 4;
-        System.out.println(axisTypeInt);
+
         if (!axisTypeGraphed[axisTypeInt]) {
             switch (axisTypeInt) {
             case 0: // accel
