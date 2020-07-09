@@ -471,7 +471,7 @@ public class EducatorMode extends JFrame {
 			public void run() {
 				if(graphTestBtn == e.getSource()) {
 					lineGraph = startGraphing();
-					lineGraph.setDataCollector(dataOrgo, 0); //Always use index 0 for live data, since we create a new instance of the graph.
+					lineGraph.setDataCollector(dataOrgo, 0); //TODO Always use index 0 for live data, since we create a new instance of the graph.
 					lineGraph.graphSettingsOnStart(dataOrgo.getSerialID());
 				}
 				if(mediaPlayerBtn == e.getSource()) {
@@ -530,7 +530,7 @@ public class EducatorMode extends JFrame {
 	public GraphController startGraphing() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructureEducator.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("GraphStructureEducator.fxml")); //TODO change this to the new graph NoSINC fxml
 		try {
 			root = loader.load();
 		} catch (IOException e) {

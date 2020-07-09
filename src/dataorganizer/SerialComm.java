@@ -6,11 +6,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.concurrent.FutureTask;
 
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
-
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -48,12 +46,7 @@ public class SerialComm {
 	private boolean dataStreamsInitialized = false;
 	private boolean remoteTestActive = false;
 
-	//Constructor not used to initialize anything right now.
-	public SerialComm() {
-	}
-
 	/**
-	 * Builds a list the names of all the serial ports to place in the combo box
 	 * Builds a list the names of all the serial ports to place in the combo box
 	 */
 	public ArrayList<String> findPorts() {

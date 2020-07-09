@@ -228,14 +228,16 @@ public class DataOrganizer {
 		for(int i = 0; i < testParameters.size(); i++) { //Write all parameters to the file. We really only needed like 3 at the time of writing but this was easier and probably more effective in the future.
 			dataFile.println(testParameters.get(i).toString());
 		}
+		
+		for(int i = 0; i < 9; i++) {
+			dataFile.println(MPUMinMax[i][0]);
+			dataFile.println(MPUMinMax[i][1]);
+		}
 
 		for(int i = testParameters.size(); i<32; i++){ // This makes literally no sense but for some reason the data can't be graphed unless the csvp has 32 values. After the actual test parameters it doesn't matter what there is but there has to be something. It is unclear when this can be removed.
 			dataFile.println(0);
 		}
-//		for(int i = 0; i < 9; i++) {
-//			dataFile.println(MPUMinMax[i][0]);
-//			dataFile.println(MPUMinMax[i][1]);
-//		}
+
 		dataFile.close();
 		return 0;
 	}
@@ -580,6 +582,10 @@ public class DataOrganizer {
 	public int getSampleRate() {
 		return sampleRate;
 	}
+	
+	public int getMagSampleRate() {
+		return magSampleRate;
+	}
 
 	public String getName() {
 		return nameOfTest;
@@ -602,6 +608,9 @@ public class DataOrganizer {
 		return null;
 	}
 
+	// "dofTime" is NOT populated by "createDataSamplesFromCSV()"
+	// calculate this manually using "getSampleRate()" and "getLengthOfTest()"
+	//
 	public List<Double> getTimeAxis(){
 		return dofTime;
 	}
@@ -725,6 +734,11 @@ public class DataOrganizer {
 	}
 	
 	public int[] getMPUOffsets() {
+		
+		// this length of 9 is unnecessary
+		// only 3 entries are being used, 0-2
+		// 0: Accel X offset, 1: Accel Y offset, 2: Accel Z offset
+		
 		int[] mpuOffsets = new int[9];
 		for(int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
@@ -869,9 +883,8 @@ public class DataOrganizer {
 			}
 		}*/
 		System.out.println("testtest1");
-		System.out.println(inRangeMeans);
 		System.out.println("testtest2");
-		System.out.println(Collections.min(inRangeMeans.get(0)));
+		//System.out.println(Collections.min(inRangeMeans.get(0)));
 		System.out.println("testtest3");
 
 		for(int axi = 1; axi < inRangeMeans.size(); axi++ ) { 

@@ -1,0 +1,15 @@
+
+/* Style data for the data point label with (x,y) */
+.hover-label {
+    -fx-background-color: black, white;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+}
+
+/* Style data for the lines drawn by finding slope at/between point(s) */
+.slope-line {
+    -fx-stroke: red;
+}

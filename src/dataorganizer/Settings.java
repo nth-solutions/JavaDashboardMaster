@@ -10,7 +10,8 @@ import java.util.Properties;
 import javax.swing.filechooser.FileSystemView;
 
 /**
- * Responsible storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
+ * Responsible for storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
+ * Also used by {@link dataorganizer.CSVHandler CSVHandler} in the Data Analysis Graph.
  */
 public class Settings {
 	Properties prop = new Properties();			//Defines properties
@@ -28,25 +29,20 @@ public class Settings {
 	
 	//Loads saved configurations from DataOrganizer.prop
 	public void loadConfigFile(){				
-		try{
-			OSManager osManager = new OSManager();
-			String OSType = osManager.getOSType();
-			if(OSType == "Windows"){
-				File SettingsDirectory = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\");
-				if(!SettingsDirectory.exists()) {
-					SettingsDirectory.mkdirs();
-				}
-				this.prop.load(new FileInputStream(System.getProperty("user.home")+"\\_BioForce Dashboard\\"+"DataOrganizer.prop"));
-			}else{
-				File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard\\");
-				if(!SettingsDirectory.exists()) {
-					SettingsDirectory.mkdirs();
-				}
-				this.prop.load(new FileInputStream(System.getProperty("user.home")+"/_BioForce Dashboard/"+"DataOrganizer.prop"));
-			}
+		try {
+      File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard/");
+      if(!SettingsDirectory.exists()) {
+        SettingsDirectory.mkdirs();
+      }
+      this.prop.load(new FileInputStream(SettingsDirectory + "DataOrganizer.prop"));
+
 		}catch(FileNotFoundException e) {
+      e.printStackTrace();
+      System.out.println("Config file could not be found, reverting to default config...");
 			this.restoreDefaultConfig();
-		}catch(IOException e) {
+		}catch(Exception e) {
+      e.printStackTrace();
+      System.out.println("Error loading config file");
 		}
 	}
 	
@@ -59,23 +55,15 @@ public class Settings {
 	//saves configuration to DataOrganizer.prop file
 	public void saveConfig() {
 		try {
-			OSManager osManager = new OSManager();
-			String OSType = osManager.getOSType();
-			if(OSType == "Windows") {
-				File SettingsDirectory = new File(System.getProperty("user.home") + "\\_BioForce Dashboard\\");
-				if (!SettingsDirectory.exists()) {
-					SettingsDirectory.mkdirs();
-				}
-				this.prop.store(new FileOutputStream(System.getProperty("user.home") + "\\_BioForce Dashboard\\" + "DataOrganizer.prop"), null);
-			}else {
-				File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
-				if (!SettingsDirectory.exists()) {
-					SettingsDirectory.mkdirs();
-				}
-				this.prop.store(new FileOutputStream(System.getProperty("user.home") + "/_BioForce Dashboard/" + "DataOrganizer.prop"), null);
+      File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
+      if (!SettingsDirectory.exists()) {
+        SettingsDirectory.mkdirs();
+      }
+				this.prop.store(new FileOutputStream(SettingsDirectory + "DataOrganizer.prop"), null);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+      System.out.println("Error loading config file");
 		}
 	}
 	

@@ -1,7 +1,17 @@
 package dataorganizer;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.concurrent.FutureTask;
 
-import com.sun.corba.se.impl.orbutil.graph.Graph;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -11,19 +21,23 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
-
-import javax.xml.crypto.Data;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.FutureTask;
 
 public class EducatorModeControllerFX implements Initializable {
 
@@ -192,6 +206,9 @@ public class EducatorModeControllerFX implements Initializable {
     //double radiusOfTorqueArmSpring;
     private DataOrganizer dataOrgo;
     private DataOrganizer dataOrgoTwo;
+    
+    // GenericTest represents a single module and associated test data
+    private ArrayList<GenericTest> genericTests;
 
     //Colors
     private Color DarkGreen = Color.rgb(51, 204, 51);
@@ -212,6 +229,8 @@ public class EducatorModeControllerFX implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         //primaryTabPane.getSelectionModel().select(experimentTab);
+
+        genericTests = new ArrayList<GenericTest>();
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
@@ -1410,7 +1429,8 @@ public class EducatorModeControllerFX implements Initializable {
 
                                                 try {
                                                     Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-                                                } catch (Exception exceptionalexception) {                              // This error should never happen
+                                                } catch (Exception e) {                              // This error should never happen
+                                                    e.printStackTrace();
                                                     System.out.println("If you got this error, something went seriously wrong");
                                                 }
 
@@ -1478,6 +1498,13 @@ public class EducatorModeControllerFX implements Initializable {
                             progressBar.setStyle("-fx-accent: red;");
                             progressBar.setProgress(100);
                         });
+
+                    }
+
+                    catch (Exception e) {
+
+                        e.printStackTrace();
+                        System.err.println("An error occured in readTestsFromModule()");
 
                     }
                 }
@@ -1687,7 +1714,7 @@ public class EducatorModeControllerFX implements Initializable {
 //                            Platform.runLater(() -> {
 //                                generalStatusExperimentLabel.setText("Serial Port Already In Use");
 //
-//                                generalStatusExperimentLabel.setTextFill(Color.RED);
+            //                                generalStatusExperimentLabel.setTextFill(Color.RED);
 //                                progressBar.setStyle("-fx-accent: red;");
 //                                progressBar.setProgress(100);
 //                            });
@@ -1708,12 +1735,14 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //                readTestsFromModuleTask.run(); // Runs the futureTask.
 //
-        }else if (outputSelected == "sincTechnologyRadioButton"){
+        } else if (outputSelected == "sincTechnologyRadioButton"){
+        	
             HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
             FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
                 @Override
                 public void run() {
+                	
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
@@ -1781,14 +1810,31 @@ public class EducatorModeControllerFX implements Initializable {
                                                 break;
                                             }
                                         }
+                                        
+                                        	//for use with CSVwriter
+                                        	String newName = "new (#" + (testIndex + 1) + ") " + nameOfFile;
+                                        	try {
+                                                //Initialize GenericTest object to store and organize data to be graphed
+                                                // TODO fix this to work with more than 2 modules
+                                                genericTests.add(new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax()));   
+                                        	}
+                                        	catch(Exception e) {
+                                        		e.printStackTrace();
+                                        	}
+                                          
+                                            int [][] MPUMinMax = serialHandler.getMPUMinMax();
+                                            CSVHandler writer = new CSVHandler();
+                                        
+                                       
                                         String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                         dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                         dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
                                         dataOrgoList.add(dataOrgo);
+                                        
+                                       
                                         //Define operation that can be run in separate thread
                                         //TODO: This will probably throw an error
                                         Runnable organizerOperation = () -> {
-
 
                                             //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
                                             Settings settings = new Settings();
@@ -1799,6 +1845,13 @@ public class EducatorModeControllerFX implements Initializable {
 
                                             dataOrgo.createCSVP();
                                             dataOrgo.createCSV(false, false);
+                                            //This is done to populate the testParameters array with MPU Offsets so that it's compatible with a GenericTest constructor
+                                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + tempName+"p");
+                                            //write GenericTest data to CSV
+                                            // TODO fix this to work with more than 2 modules
+                                            writer.writeCSV(genericTests.get(0), settings, newName); 
+                                            writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
+
                                         };
 
                                         //Set thread to execute previously defined operation
@@ -1867,6 +1920,7 @@ public class EducatorModeControllerFX implements Initializable {
             }, testDataArray);
 
             readTestsFromModuleTask.run(); // Runs the futureTask.
+
 
         }
     }
@@ -1939,6 +1993,11 @@ public class EducatorModeControllerFX implements Initializable {
                                             break;
                                         }
                                     }
+
+                                    //Initialize GenericTest object to store and organize data to be graphed
+                                    // TODO fix this to work with more than 2 modules
+                                    genericTests.add(new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax()));   
+                                   
                                     String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                     dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
@@ -2019,6 +2078,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void readTestsFromModuleTwoOutOfTwo(ActionEvent event){
+        
         HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
         FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
@@ -2086,6 +2146,11 @@ public class EducatorModeControllerFX implements Initializable {
                                             break;
                                         }
                                     }
+                                    
+                                    //Initialize GenericTest object to store and organize data to be graphed
+                                    // TODO fix this to work with more than 2 modules
+                                    genericTests.add(new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax()));   
+                                    
                                     String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
                                     dataOrgoTwo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
                                     dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
@@ -2392,19 +2457,74 @@ public class EducatorModeControllerFX implements Initializable {
     /*Begin Motion Visualization Tab Methods*/
 
     private GraphController lineGraph;
-    private MediaPlayerController mediaController;
-
 
     @FXML
     private void launchMotionVisualizationMainMenu(ActionEvent event) {
-        lineGraph = startGraphing();
+    	
+        Alert a = new Alert(AlertType.CONFIRMATION, "Open the Data Analysis Graph?");
+    	Optional<ButtonType> result = a.showAndWait();
+    	
+    	if (result.get() == ButtonType.OK) {
+    		
+    		Settings settings = new Settings();
+            settings.loadConfigFile();
+            
+    		GraphNoSINCController g = startGraphingNoSINC(); 
+    		
+            File directory = new File(settings.getKeyVal("CSVSaveLocation"));
+
+    		// fetches all CSV files from given folder
+    	    File[] files = directory.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".csv");
+                }           
+            });
+
+            long lastModifiedTime = Long.MIN_VALUE;
+            File chosenFile = null;
+
+            // if no CSV files could be found, don't continue
+            if (files == null || files.length == 0) {
+                System.out.println("No CSV files found");
+                return;
+            }
+
+            // Finds the most recently modified file
+            for (File f : files) {
+
+                String filePath = f.toString();
+                File csvp = new File(filePath.substring(0, filePath.length()-4) + ".csvp");
+
+                // if CSVP file with same name 
+                if (csvp.exists() && f.lastModified() > lastModifiedTime) {
+                    chosenFile = f;
+                    lastModifiedTime = f.lastModified();
+                }
+            }
+
+            // if no CSV/CSVP file pair could be found, don't continue
+            if (chosenFile == null) {
+                System.out.println("No CSV/CSVP file pair found");
+                return;
+            }
+
+    	    String pathToFile = chosenFile.toString();
+    	    
+            long start = System.nanoTime(); 
+            g.setGenericTestFromCSV(pathToFile, pathToFile+"p");
+            long elapsedTime = System.nanoTime() - start;
+            
+            System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");
+            
+    	}
+    	else {
+            lineGraph = startGraphing();
+    	}
     }
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-        /**
-         * The
-         */
 
         OSManager osmanger = new OSManager();
         String OSType = osmanger.getOSType();
@@ -2412,38 +2532,66 @@ public class EducatorModeControllerFX implements Initializable {
         String pathTofile;
 
         if (testType == "Conservation of Momentum (Elastic Collision)"){
+
             lineGraph = startGraphing();
             lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
             lineGraph.loadConservationOfMomentumTemplate();
 
-        }else if (testType == "Generic Template - Two Modules") {
+        }
+        else if (testType == "Generic Template - Two Modules") {
+          
             System.out.println("launchMotionVisualizationExperimentTab Generic Template - Two Modules reached");
 
-            if (OSType == "Windows"){
-                pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
-            }else {
-                pathTofile = System.getProperty("user.home") + "/Documents" + File.separator + dataOrgo.getName();
-            }
+            pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
+
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
-            if (OSType == "Windows"){
-                pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgoTwo.getName();
-            }else{
-                pathTofile = System.getProperty("user.home") + "/Documents" + File.separator + dataOrgoTwo.getName();
-            }
+          
+            pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgoTwo.getName();
+          
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
 
-        }else{
-            if (OSType == "Windows"){
-                pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
-            }else{
-                pathTofile = System.getProperty("user.home") + "/Documents" + File.separator + dataOrgo.getName();
-            }
-            lineGraph = startGraphing();
-            lineGraph.setCsvFilePath(pathTofile);
-            lineGraph.loadCSVData();
+        }
+      else {
+            
+            // temporary selection between graph types
+            // TODO create final UI for selecting graph applications
+        	Alert a = new Alert(AlertType.CONFIRMATION, "Launch the Data Analysis Graph?");
+        	Optional<ButtonType> result = a.showAndWait();
+        	
+        	if (result.get() == ButtonType.OK) {
+                
+                // temporary selection between data pipelines
+                // TODO eventually phase out DataOrganizer pipeline
+        		Alert b = new Alert(AlertType.CONFIRMATION, "Read data directly from module via SerialComm?");
+                Optional<ButtonType> result1 = b.showAndWait();
+                
+            	if (result1.get() == ButtonType.OK) {
+
+                    GraphNoSINCController graph = startGraphingNoSINC();
+
+                    // TODO fix GTs, have a loop that creates GTs based on # of modules
+                    graph.setGenericTests(genericTests);
+
+            	}
+            	else {
+                    GraphNoSINCController graph = startGraphingNoSINC();
+                    graph.createTest(dataOrgo, dataOrgoTwo);
+                }
+                
+        	} else {
+
+        		Settings settings = new Settings();
+        		settings.loadConfigFile();
+        		String pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
+                lineGraph = startGraphing();
+                lineGraph.setCsvFilePath(pathTofile);
+                lineGraph.loadCSVData();
+        		
+        	}
+        	
         }
     }
 
@@ -2464,10 +2612,35 @@ public class EducatorModeControllerFX implements Initializable {
         return loader.getController();
     }
 
-    /*
-     * Method creates a new window with a media player and a line graph with one overlapping the other for SINC Technology
+    /**
+     * Loads and launches the Data Analysis Graph.
      */
+    public GraphNoSINCController startGraphingNoSINC() {
+    	
+    	Stage primaryStage = new Stage();
+    	FXMLLoader loader = new FXMLLoader((getClass().getResource("GraphNoSINC.fxml")));
+        Parent root;
+        
+		try {
+			
+			root = loader.load();
+			primaryStage.setTitle("BioForce Data Analysis Graph");
+            Scene scene = new Scene(root);
 
+	        primaryStage.setMinWidth(600);
+	        primaryStage.setMinHeight(400);
+	        primaryStage.setScene(scene);
+            primaryStage.setResizable(true);
+	        primaryStage.show();
+	        
+		} catch (IOException e) {
+			System.out.println("Error loading Data Analysis Graph.");
+			e.printStackTrace();
+		}
+        
+        return loader.getController();
+    }
+    
     public GraphController startGraphing() {
         Stage primaryStage = new Stage();
         Parent root = null;
