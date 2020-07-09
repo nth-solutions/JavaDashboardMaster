@@ -28,6 +28,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.sun.jna.platform.win32.COM.TypeLibUtil;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
@@ -253,18 +254,23 @@ public class AdvancedMode extends JFrame {
 	private JTextField readBlockLengthTextField;
 	private JTextField stdDevMaxTextField;
 	private JButton btnNewButton;
+
+	private String OSType;
+
 	
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
         serialHandler = new SerialComm();
-		setTitle("BioForce Java Dashboard Advanced Mode Rev-39");
+		setTitle("BioForce Java Dashboard Advanced Mode Rev-39");//Internal: D
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
 		setVisible(true);
 		findModuleCommPort();
+		OSManager osmanager = new OSManager();
+		OSType = osmanager.getOSType();
 
 		System.out.println("advanced mode initialized");
 	}
@@ -290,7 +296,7 @@ public class AdvancedMode extends JFrame {
 		//Set the look and feel to whatever the system default is.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} 
+		}
 		catch(Exception e) {
 			System.out.println("Error Setting Look and Feel: " + e);
 		}
@@ -1442,8 +1448,13 @@ public class AdvancedMode extends JFrame {
 
 							HashMap<Integer, ArrayList<Integer>> testData;
 
+							System.out.println("Right before readTestData");
+
 							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
 							testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabel);
+
+							System.out.println("Test Data Read?");
+							System.out.println(testData);
 
 							generalStatusLabel.setText("All Data Received from Module");
 							progressBar.setValue(100);
@@ -1990,7 +2001,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public boolean writeTemplateWithOneDataSetHandler() {
-		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\_BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		Settings settings = new Settings();
 		settings.loadConfigFile();
 		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
@@ -2029,9 +2040,15 @@ public class AdvancedMode extends JFrame {
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
 
 		try {
-			ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
-			parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
-			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
+			if (OSType == "Windows"){
+				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\_BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+				parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
+				parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
+			}else if (OSType == "Mac"){
+				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/_BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
+				parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
+				parameterSpreadsheetController.saveWorkbook(CSVLocation +"/" + templateComboBox.getSelectedItem().toString());
+			}
 			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
 		} catch(Exception e){
 			e.printStackTrace();
@@ -2051,8 +2068,7 @@ public class AdvancedMode extends JFrame {
 //		return true;
 
 	}
-	
-	
+
 	public boolean writeTemplateWithTwoDataSetsHandler() {
 		Settings settings = new Settings();
 		settings.loadConfigFile();
@@ -2079,13 +2095,17 @@ public class AdvancedMode extends JFrame {
 		DataOrganizer dataOrgo = new DataOrganizer();
 		DataOrganizer dataOrgoTwo = new DataOrganizer();
 
-		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
-
+		ParameterSpreadsheetController parameterSpreadsheetController;
+		if (OSType == "Windows") {
+		 	parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\_BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+		}else{ //means that OSType == "Mac"
+			parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/_BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
+		}
 		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\_BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 //		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
 		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 0); //fills the data from the first module into the the first sheet of the workbook
 
@@ -2094,11 +2114,16 @@ public class AdvancedMode extends JFrame {
 		CSVData = dataOrgoTwo.getRawDataSamples();
 		MpuMinMax = dataOrgoTwo.MPUMinMax;
 		//SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
-		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 2); // fills the data from the second module into the third sheet of the workbook
+		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 1); // fills the data from the second module into the second sheet of the workbook
 
 		try {
-			parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
-			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+			if (OSType == "Windows") {
+				parameterSpreadsheetController.saveWorkbook(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
+				System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+			}else{
+				parameterSpreadsheetController.saveWorkbook(CSVLocation + "/" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
+				System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
+			}
 		} catch(Exception e){
 			e.printStackTrace();
 			return false;
@@ -3115,7 +3140,13 @@ public class AdvancedMode extends JFrame {
 		templateComboBox.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent arg0) {
-				File[] listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\Advanced Templates\\").listFiles();
+				File[] listOfFiles;
+				if (OSType == "Windows"){
+					listOfFiles = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\Advanced Templates\\").listFiles();
+				}else {
+					listOfFiles = new File(System.getProperty("user.home")+"/_BioForce Dashboard/Advanced Templates/").listFiles();
+				}
+
 				for(File file : listOfFiles) {
 					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
 						templateComboBox.addItem(file.getName());	

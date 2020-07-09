@@ -15,8 +15,7 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class Settings {
 	Properties prop = new Properties();			//Defines properties
-	
-	
+
 	//Defines the default configurations
 	public void restoreDefaultConfig() {			
 		this.prop.setProperty("CSVSaveLocation", FileSystemView.getFileSystemView().getDefaultDirectory().getPath());
@@ -30,15 +29,20 @@ public class Settings {
 	
 	//Loads saved configurations from DataOrganizer.prop
 	public void loadConfigFile(){				
-		try{
-			File SettingsDirectory = new File(System.getProperty("user.home")+"/.BioForce Dashboard/");
-			if(!SettingsDirectory.exists()) {
-				SettingsDirectory.mkdirs();
-			}
-			this.prop.load(new FileInputStream(SettingsDirectory + "DataOrganizer.prop"));
+		try {
+      File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard/");
+      if(!SettingsDirectory.exists()) {
+        SettingsDirectory.mkdirs();
+      }
+      this.prop.load(new FileInputStream(SettingsDirectory + "DataOrganizer.prop"));
+
 		}catch(FileNotFoundException e) {
+      e.printStackTrace();
+      System.out.println("Config file could not be found, reverting to default config...");
 			this.restoreDefaultConfig();
-		}catch(IOException e) {
+		}catch(Exception e) {
+      e.printStackTrace();
+      System.out.println("Error loading config file");
 		}
 	}
 	
@@ -51,13 +55,15 @@ public class Settings {
 	//saves configuration to DataOrganizer.prop file
 	public void saveConfig() {
 		try {
-			File SettingsDirectory = new File(System.getProperty("user.home")+"/.BioForce Dashboard/");
-			if(!SettingsDirectory.exists()) {
-				SettingsDirectory.mkdirs();
+      File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
+      if (!SettingsDirectory.exists()) {
+        SettingsDirectory.mkdirs();
+      }
+				this.prop.store(new FileOutputStream(SettingsDirectory + "DataOrganizer.prop"), null);
 			}
-			this.prop.store(new FileOutputStream(SettingsDirectory + "DataOrganizer.prop"), null);
 		} catch (Exception e) {
 			e.printStackTrace();
+      System.out.println("Error loading config file");
 		}
 	}
 	

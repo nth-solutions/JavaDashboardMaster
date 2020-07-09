@@ -1,8 +1,13 @@
 package dataorganizer;
 
 import com.aspose.cells.*;
+import sun.awt.OSInfo;
 
 import java.util.List;
+
+/**
+ * Responsible for writing test parameters / test data to excel spreadsheets.
+ */
 
 public class ParameterSpreadsheetController {
 
@@ -12,8 +17,11 @@ public class ParameterSpreadsheetController {
     private String testType;
     private int workbookSheet;
     private Boolean educationTemplateFound;
+    private String OSType;
 
     public ParameterSpreadsheetController(String FilePath) {
+        OSManager osManager = new OSManager();
+        OSType = osManager.getOSType();
 
         if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template to use and where to get it from
 
@@ -55,7 +63,9 @@ public class ParameterSpreadsheetController {
             else if(testType == "Generic Template - Two Modules"){
                 testTypeFileName = "Generic (Two Modules) Template.xlsx";
             }
+
             documentsPath = System.getProperty("user.home") + "/.BioForce Dashboard/Educator Templates/" + testTypeFileName; //The User is asked to store the templates in their documents folder. This line accounts for the different file paths due to different user names across different machines.
+
             try {
                 this.workbook = new Workbook(documentsPath); // A new workbook is created from the template
                 educationTemplateFound = true;
@@ -108,10 +118,10 @@ public class ParameterSpreadsheetController {
      */
 
     public void loadPendulumParameters (double pendulumLength, double pendulumMass, double moduleMass, double moduleDistanceFromAOR){
-        workbook.getWorksheets().get(3).getCells().get("E3").setValue(pendulumLength);
-        workbook.getWorksheets().get(3).getCells().get("E4").setValue(pendulumMass);
-        workbook.getWorksheets().get(3).getCells().get("E5").setValue(moduleMass);
-        workbook.getWorksheets().get(3).getCells().get("E6").setValue(moduleDistanceFromAOR);
+        workbook.getWorksheets().get(2).getCells().get("AB3").setValue(pendulumLength);
+        workbook.getWorksheets().get(2).getCells().get("AB4").setValue(pendulumMass);
+        workbook.getWorksheets().get(2).getCells().get("AB5").setValue(moduleMass);
+        workbook.getWorksheets().get(2).getCells().get("AB6").setValue(moduleDistanceFromAOR);
     }
 
     public void loadSpinnyStoolParameters(double massHandWeights, double wingspan, double massOfPerson, double shoulderWidth) {
@@ -122,14 +132,14 @@ public class ParameterSpreadsheetController {
     }
 
     public void loadSpringTestParameters(double springConstant, double totalMass, double Amplitude, double massOfSpring) {
-        workbook.getWorksheets().get(3).getCells().get("C8").setValue(springConstant);
         workbook.getWorksheets().get(3).getCells().get("C7").setValue(totalMass);
+        workbook.getWorksheets().get(3).getCells().get("C8").setValue(springConstant);
         workbook.getWorksheets().get(3).getCells().get("C9").setValue(massOfSpring);
         //workbook.getWorksheets().get(3).getCells().get("C9").setValue(Amplitude);
     }
     public void loadConservationofMomentumParameters (double gliderOneAndModuleOneMass, double gliderTwoAndModuleTwoMass){
-        workbook.getWorksheets().get(9).getCells().get("C8").setValue(gliderOneAndModuleOneMass);
-        workbook.getWorksheets().get(9).getCells().get("C9").setValue(gliderTwoAndModuleTwoMass);
+        workbook.getWorksheets().get(7).getCells().get("C8").setValue(gliderOneAndModuleOneMass);
+        workbook.getWorksheets().get(7).getCells().get("C9").setValue(gliderTwoAndModuleTwoMass);
     }
 
     public void loadConservationofEnergyParameters(double totalDropDistance, double massOfModuleAndHolder, double momentOfIntertia, double radiusOfTorqueArm) {

@@ -20,7 +20,11 @@ public class DashboardSelector extends Application{
     }
 
     public static void main(String[] args){
+        OSManager osManager = new OSManager();
+        System.out.println(osManager.getOSName());
+        System.out.println(osManager.getOSType());
         launch(args);
+
     }
 
 }

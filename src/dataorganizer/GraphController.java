@@ -805,12 +805,13 @@ public class GraphController implements Initializable {
                 });
             }
         } else {
+            System.out.println("NumDataSets =/= 0");
             for (final DataSeries axisOfDataSeries : dataSeriesTwo) {
                 dataSourceTitledPaneTwo.setDisable(false);
                 dataSourceTitledPaneTwo.setExpanded(true);
                 final CheckBox dataToDisplayCheckBoxTwo = new CheckBox(axisOfDataSeries.getName());
                 dataToDisplayCheckBoxTwo.setSelected(false);
-                if (axisOfDataSeries.dof == 1) dataToDisplayCheckBoxTwo.setSelected(true);
+                if (axisOfDataSeries.dof == 1) dataToDisplayCheckBoxTwo.setSelected(false);
                 dataToDisplayCheckBoxTwo.setPadding(new Insets(5));
                 // Line line = new Line(0, 10, 50, 10);
 
@@ -1604,11 +1605,9 @@ public class GraphController implements Initializable {
     @FXML
     public void updatePlaybackTime(MouseEvent event) {
         try {
-
             if(!playing){
                 handlePlayPauseVideo();
             }
-
             double lineChartWidth = lineChart.getWidth();
             double lineChartOffset = 77;   //The physical outline of the line chart is larger than the actual portion of the UI taken up by the chart itself, so an offset must be applied to account for the starting position of the tracking rectangle
             double xDistancePerMillisecond = (lineChartWidth - lineChartOffset) / totalDuration;     //Calculates the x distance the tracker bar should move during each second of playback\

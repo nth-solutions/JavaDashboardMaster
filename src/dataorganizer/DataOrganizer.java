@@ -416,6 +416,79 @@ public class DataOrganizer {
 //		return settings.getKeyVal("CSVSaveLocation") + File.separator + nameOfTest;
 //	}
 
+	public int createCSVsForTwoModuleEducationModeTest(boolean labelData, boolean signedData, int moduleNumber){
+		List<List<Double>> modifiedDataSmps;
+
+		if(!signedData)
+			modifiedDataSmps = dataSamples;
+		else
+			modifiedDataSmps = signedDataSamples;
+
+
+		StringBuilder builder = new StringBuilder();
+		PrintWriter DataFile;
+		if (!labelData) {
+			for (int smp = 0; smp < lineNum - 1; smp++) {
+				for (int dof = 1; dof <= numDof; dof++) {
+					if (modifiedDataSmps.get(dof).get(smp) != null) {
+						builder.append(modifiedDataSmps.get(dof).get(smp));
+						builder.append(",");
+
+					}
+				}
+				builder.append("\n");
+			}
+		} else {
+			builder.append("t,AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ,\n");
+			for (int smp = 0; smp < lineNum - 1; smp++) {
+				for (int dof = 0; dof < numDof; dof++) {
+					if (modifiedDataSmps.get(dof).get(smp) != null) {
+						builder.append(modifiedDataSmps.get(dof).get(smp));
+						builder.append(",");
+
+					}
+				}
+				builder.append("\n");
+			}
+		}
+
+		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
+
+		if (moduleNumber == 1){
+			try {
+				if (fileOutputDirectory != null) {
+					DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
+				} else {
+					DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView() // Creates .CSV file in default
+							// directory which is documents
+							.getDefaultDirectory().toString() + File.separator + "Module 1 " + nameOfTest)));
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return -1;
+			}
+			DataFile.write(builder.toString()); // writes the string buffer to the .CSV creating the file
+			DataFile.close(); // close the .CSV
+			return 0;
+		}else{
+			try {
+				if (fileOutputDirectory != null) {
+					DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
+				} else {
+					DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView() // Creates .CSV file in default
+							// directory which is documents
+							.getDefaultDirectory().toString() + File.separator + "Module 2 " + nameOfTest)));
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return -1;
+			}
+			DataFile.write(builder.toString()); // writes the string buffer to the .CSV creating the file
+			DataFile.close(); // close the .CSV
+			return 0;
+		}
+	}
+
 
 	public int createDataSamplesFromCSV(String CSVFilePath) { 
 		int errNum;

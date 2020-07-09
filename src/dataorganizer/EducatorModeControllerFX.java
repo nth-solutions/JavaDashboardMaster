@@ -41,6 +41,8 @@ import purejavacomm.UnsupportedCommOperationException;
 
 public class EducatorModeControllerFX implements Initializable {
 
+    //Out Files Deleted before push
+    //
     //Test Parameter Variables and Constants
     public static final int NUM_TEST_PARAMETERS = 13;
     public static final int NUM_ID_INFO_PARAMETERS = 3;
@@ -349,7 +351,7 @@ public class EducatorModeControllerFX implements Initializable {
             e.printStackTrace();
         }
 
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("Education Mode Help Menu");
         primaryStage.show();
@@ -1436,8 +1438,7 @@ public class EducatorModeControllerFX implements Initializable {
                                                     generalStatusExperimentLabel.setText("Data successfully written");
                                                     generalStatusExperimentLabel.setTextFill(Color.GREEN);
                                                 });
-
-                                            }
+                                            }//end if
                                         }
                                         dataOrgo.getSignedData();
 
@@ -2003,7 +2004,9 @@ public class EducatorModeControllerFX implements Initializable {
                                     dataOrgo.createDataSmpsRawData(finalData);
                                     dataOrgo.getSignedData();
 
-
+                                    dataOrgo.setName("Module 1 " + dataOrgo.getName());
+                                    dataOrgo.createCSV(false, false);
+                                    dataOrgo.createCSVP();
                                     Platform.runLater( () -> {
                                         generalStatusExperimentLabel.setText("Data successfully Read From Module 1");
                                         generalStatusExperimentLabel.setTextFill(Color.GREEN);
@@ -2156,6 +2159,10 @@ public class EducatorModeControllerFX implements Initializable {
                                     dataOrgoTwo.getTestParameters();
                                     dataOrgoTwo.getMPUMinMax();
 
+                                    dataOrgoTwo.setName("Module 2 "+ dataOrgoTwo.getName());
+                                    dataOrgoTwo.createCSV(false, false);
+                                    dataOrgoTwo.createCSVP();
+
                                     Platform.runLater( () -> {
                                         generalStatusExperimentLabel.setText("Data successfully Read From Module 2");
                                         generalStatusExperimentLabel.setTextFill(Color.GREEN);
@@ -2263,11 +2270,17 @@ public class EducatorModeControllerFX implements Initializable {
                         //parameterSpreadsheetController.writeTestParamsToMomentumTemplate(11,1,dataOrgoTwo.getTestParameters(),3);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
-                    } else if (testType == "Generic (Two Modules) Template"){
+                    } else if (testType == "Generic Template - Two Modules"){
+
+                        System.out.println("Generic (Two Modules) Template prior to writing");
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgo.getRawDataSamples(),0);
                         parameterSpreadsheetController.fillTwoModuleTemplateWithData(2,dataOrgoTwo.getRawDataSamples(),1);
+
                     }
                     parameterSpreadsheetController.saveWorkbook(path);
+                    System.out.println("Prior to Printing RawDataSamples");
+                    System.out.println(dataOrgo.getRawDataSamples());
+                    System.out.println(dataOrgo.getRawDataSamples());
                     System.out.println("is");
                     generalStatusExperimentLabel.setText("Data Successfully Written");
                 }catch(Exception e) {
@@ -2512,13 +2525,36 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-    	
-        if (testType == "Conservation of Momentum (Elastic Collision)") {
+
+        OSManager osmanger = new OSManager();
+        String OSType = osmanger.getOSType();
+
+        String pathTofile;
+
+        if (testType == "Conservation of Momentum (Elastic Collision)"){
+
             lineGraph = startGraphing();
             lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
             lineGraph.loadConservationOfMomentumTemplate();
 
-        } else {
+        }
+        else if (testType == "Generic Template - Two Modules") {
+          
+            System.out.println("launchMotionVisualizationExperimentTab Generic Template - Two Modules reached");
+
+            pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
+
+            lineGraph = startGraphing();
+            lineGraph.setCsvFilePath(pathTofile);
+            lineGraph.loadCSVData();
+          
+            pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgoTwo.getName();
+          
+            lineGraph.setCsvFilePath(pathTofile);
+            lineGraph.loadCSVData();
+
+        }
+      else {
             
             // temporary selection between graph types
             // TODO create final UI for selecting graph applications
@@ -2615,9 +2651,9 @@ public class EducatorModeControllerFX implements Initializable {
             e.printStackTrace();
         }
 
-        if(root!=null) primaryStage.setScene(new Scene(root, 1400, 800));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1320, 730));
 
-        primaryStage.setTitle("Graph");
+        primaryStage.setTitle("Java Graph");
         primaryStage.show();
         primaryStage.setResizable(false);
 

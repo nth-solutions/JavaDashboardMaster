@@ -1,4 +1,5 @@
 build/*
+out/*
 !build/build.xml
 bin/jre1.8.0_161
 .vscode/
