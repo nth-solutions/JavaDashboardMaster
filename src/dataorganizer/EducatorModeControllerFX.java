@@ -1845,7 +1845,7 @@ public class EducatorModeControllerFX implements Initializable {
                                             dataOrgo.createCSVP();
                                             dataOrgo.createCSV(false, false);
                                             //This is done to populate the testParameters array with MPU Offsets so that it's compatible with a GenericTest constructor
-                                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "\\Documents" + File.separator+tempName+"p");
+                                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + tempName+"p");
                                             //write GenericTest data to CSV
                                             // TODO fix this to work with more than 2 modules
                                             writer.writeCSV(genericTests.get(0), settings, newName); 
@@ -2549,7 +2549,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         		Settings settings = new Settings();
         		settings.loadConfigFile();
-        		String pathTofile = System.getProperty("user.home") + "\\Documents" + File.separator + dataOrgo.getName();
+        		String pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
                 lineGraph = startGraphing();
                 lineGraph.setCsvFilePath(pathTofile);
                 lineGraph.loadCSVData();
