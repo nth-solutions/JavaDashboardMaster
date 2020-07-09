@@ -28,21 +28,29 @@ public class Settings {
 	}
 	
 	//Loads saved configurations from DataOrganizer.prop
-	public void loadConfigFile(){				
-		try {
-      File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard/");
-      if(!SettingsDirectory.exists()) {
-        SettingsDirectory.mkdirs();
-      }
-      this.prop.load(new FileInputStream(SettingsDirectory + "DataOrganizer.prop"));
+	public void loadConfigFile() {	
 
-		}catch(FileNotFoundException e) {
-      e.printStackTrace();
-      System.out.println("Config file could not be found, reverting to default config...");
+		try {
+
+			File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard/");
+
+			if (!SettingsDirectory.exists()) {
+				SettingsDirectory.mkdirs();
+			}
+
+			this.prop.load(new FileInputStream(SettingsDirectory + "DataOrganizer.prop"));
+
+		} catch (FileNotFoundException e) {
+
+	  		e.printStackTrace();
+	  		System.out.println("Config file could not be found, reverting to default config...");
 			this.restoreDefaultConfig();
-		}catch(Exception e) {
-      e.printStackTrace();
-      System.out.println("Error loading config file");
+
+		} catch (Exception e) {
+
+	  		e.printStackTrace();
+			System.out.println("Error loading config file");
+			  
 		}
 	}
 	
@@ -54,17 +62,22 @@ public class Settings {
 	
 	//saves configuration to DataOrganizer.prop file
 	public void saveConfig() {
+
 		try {
-      File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
-      if (!SettingsDirectory.exists()) {
-        SettingsDirectory.mkdirs();
-      }
-				this.prop.store(new FileOutputStream(SettingsDirectory + "DataOrganizer.prop"), null);
-			}
+
+			File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
+
+	  		if (!SettingsDirectory.exists()) {
+				SettingsDirectory.mkdirs();
+	  		}
+			
+			this.prop.store(new FileOutputStream(SettingsDirectory + "DataOrganizer.prop"), null);
+
 		} catch (Exception e) {
 			e.printStackTrace();
-      System.out.println("Error loading config file");
+			System.out.println("Error loading config file");
 		}
+
 	}
 	
 	//returns the key value

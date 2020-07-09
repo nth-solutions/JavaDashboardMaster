@@ -2554,7 +2554,7 @@ public class EducatorModeControllerFX implements Initializable {
             lineGraph.loadCSVData();
 
         }
-      else {
+        else {
             
             // temporary selection between graph types
             // TODO create final UI for selecting graph applications
@@ -2585,7 +2585,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         		Settings settings = new Settings();
         		settings.loadConfigFile();
-        		String pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
+        		pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
                 lineGraph = startGraphing();
                 lineGraph.setCsvFilePath(pathTofile);
                 lineGraph.loadCSVData();
