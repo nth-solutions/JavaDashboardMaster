@@ -35,7 +35,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-
+import dataorganizer.BFANumberAxis;
 public class GraphNoSINCController implements Initializable {
 
 	// GenericTest represents a single module and associated test data
@@ -94,10 +94,15 @@ public class GraphNoSINCController implements Initializable {
 	private BFALineChart<Number,Number> lineChart;
 
 	@FXML
+<<<<<<< Updated upstream
 	private NumberAxis xAxis;
 
+=======
+	private BFANumberAxis xAxis;
+	
+>>>>>>> Stashed changes
 	@FXML
-	private NumberAxis yAxis;
+	private BFANumberAxis yAxis;
 
 	@FXML
 	private TextField rollingBlockTextField;
@@ -132,14 +137,24 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewH = 5;
 
 		lineChart = multiAxis.getBaseChart();
+<<<<<<< Updated upstream
 
 		xAxis = (NumberAxis) lineChart.getXAxis();
 		yAxis = (NumberAxis) lineChart.getYAxis();
 
+=======
+		lineChart.setAnimated(false);
+		xAxis = (BFANumberAxis) lineChart.getXAxis();
+		yAxis = (BFANumberAxis) lineChart.getYAxis();
+	
+		// hides symbols indicating data points on graph
+		lineChart.setCreateSymbols(false);
+		
+>>>>>>> Stashed changes
 		redrawGraph();
 
 		// listener that runs every tick the mouse scrolls, calculates zooming
-		lineChart.setOnScroll(new EventHandler<ScrollEvent>() {
+		multiAxis.setOnScroll(new EventHandler<ScrollEvent>() {
 
 			public void handle(ScrollEvent event) {
 
@@ -151,21 +166,31 @@ public class GraphNoSINCController implements Initializable {
 				 * calculates the percentage of scroll either on the left or top of the screen
 				 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is 0.5, if it is three quarters to the right, it is 0.75
 				 */
+<<<<<<< Updated upstream
 				leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
 				topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
 
+=======
+				leftScrollPercentage = (scrollCenterX - 48)/(multiAxis.getWidth() - 63);
+				topScrollPercentage = (scrollCenterY - 17)/(multiAxis.getHeight() - 88);
+				
+>>>>>>> Stashed changes
 				if(!event.isAltDown()) {
 					zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-					if(zoomviewW < .05) zoomviewW = .05;
+					
 					zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 				}
 
 				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+<<<<<<< Updated upstream
 
 				// enforces a minimum zoom by limiting the size of the viewport to at least 0.05 in graph space. Can be adjusted
 				if(zoomviewH < .05) zoomviewH = .05;
 
+=======
+				
+>>>>>>> Stashed changes
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
@@ -176,7 +201,7 @@ public class GraphNoSINCController implements Initializable {
 		});
 
 		// listener that runs every tick the mouse is dragged, calculates panning
-		lineChart.setOnMouseDragged(new EventHandler<MouseEvent>() {
+		multiAxis.setOnMouseDragged(new EventHandler<MouseEvent>() {
 
 			@Override
 			public void handle(MouseEvent event) {
@@ -208,7 +233,7 @@ public class GraphNoSINCController implements Initializable {
 		});
 
 		// listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
-		lineChart.setOnMousePressed(new EventHandler<MouseEvent>() {
+		multiAxis.setOnMousePressed(new EventHandler<MouseEvent>() {
 
 			public void handle(MouseEvent event) {
 
@@ -326,6 +351,7 @@ public class GraphNoSINCController implements Initializable {
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
 		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
 		//yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
+<<<<<<< Updated upstream
 
 		if (zoomviewH > 50) {
 			lineChart.setHorizontalGridLinesVisible(false);
@@ -335,6 +361,15 @@ public class GraphNoSINCController implements Initializable {
 
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
+=======
+		
+		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
+		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
+		for(Integer i : multiAxis.axisChartMap.keySet()){
+			((BFANumberAxis)(multiAxis.axisChartMap.get(i).getYAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3) * multiAxis.getAxisScalar(i));
+			((BFANumberAxis)(multiAxis.axisChartMap.get(i).getXAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-2));
+		}
+>>>>>>> Stashed changes
 
 		// remove data analysis tools (if drawn)
 		lineChart.clearArea();
@@ -377,8 +412,13 @@ public class GraphNoSINCController implements Initializable {
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
 
+<<<<<<< Updated upstream
 				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
 
+=======
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i)/multiAxis.getAxisScalar(axis.getValue()));
+			
+>>>>>>> Stashed changes
 				// add tooltip with (x,y) when hovering over data point
 				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
 

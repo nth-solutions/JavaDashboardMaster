@@ -6,14 +6,23 @@ import java.util.Map;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+<<<<<<< Updated upstream
+=======
+import javafx.scene.Parent;
+import javafx.scene.chart.Axis;
+import javafx.scene.chart.LineChart;
+>>>>>>> Stashed changes
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+
+import dataorganizer.BFANumberAxis;
 
 public class MultipleAxesLineChart extends StackPane {
 
@@ -21,10 +30,11 @@ public class MultipleAxesLineChart extends StackPane {
     private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
     private final Map<BFALineChart<Number, Number>, Color> chartColorMap = new HashMap<>();
     private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
+    public  final Map<Integer, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
     private final Map<AxisType, XYChart.Series<Number, Number>> axisSeriesMap = new HashMap<>();
 
-    private NumberAxis xAxis;
-    private NumberAxis yAxis;
+    private BFANumberAxis xAxis;
+    private BFANumberAxis yAxis;
     private AxisType baseAxis;
 
     private boolean[] axisTypeGraphed;
@@ -42,30 +52,39 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
-    private double getAxisScalar(AxisType axis) {
-        int axisValue = axis.getValue();
-        if (axisValue < 4) {
-            return 1;
-        } // accel
-        else if (axisValue >= 4 && axisValue < 8) {
-            return 1;
-        } else if (axisValue >= 8) {
-            return 90;
-        } // velocity
-        return 0;
+   
+    public double getAxisScalar(Integer axis) {
+        if (axis/4 < 3) {
+            return 1; //meters
+        } 
+        else{
+            return 100;
+        }
+    }
+
+    public ObservableList<BFALineChart<Number, Number>> getBackgroundCharts(){
+        return backgroundCharts;
     }
 
     public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor, Double strokeWidth) {
         super();
+        setPickOnBounds(false);
         axisTypeGraphed = new boolean[7];
         if (baseChart == null) {
-            xAxis = new NumberAxis();
-            yAxis = new NumberAxis();
+            xAxis = new BFANumberAxis();
+            yAxis = new BFANumberAxis();
             xAxis.setTickUnit(1);
+            xAxis.setOnMouseClicked(e -> System.out.println("xAxis clicked"));
             yAxis.setTickUnit(1);
             baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
             baseChart.getXAxis().setLabel("X Axis");
             baseChart.getYAxis().setLabel("Y Axis");
+            
+            baseChart.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                public void handle(MouseEvent e){
+                    System.out.println("base: " + e.getX());
+                }
+            });
 
         }
         if (strokeWidth != null) {
@@ -87,6 +106,16 @@ public class MultipleAxesLineChart extends StackPane {
 
         rebuildChart();
     }
+
+    private void turnOffPickOnBoundsFor(Node n) {
+        n.setPickOnBounds(true);
+        if (n instanceof Parent) {
+          for (Node c: ((Parent) n).getChildrenUnmodifiable()) {
+            turnOffPickOnBoundsFor(c);
+          }
+        }
+      }
+    
 
     public BFALineChart<Number, Number> getBaseChart() {
         return baseChart;
@@ -123,11 +152,11 @@ public class MultipleAxesLineChart extends StackPane {
 
     private void rebuildChart() {
         getChildren().clear();
-
-        getChildren().add(resizeBaseChart(baseChart));
         for (BFALineChart<Number, Number> lineChart : backgroundCharts) {
             getChildren().add(resizeBackgroundChart(lineChart));
         }
+        getChildren().add(resizeBaseChart(baseChart));
+        
     }
 
     private Node resizeBaseChart(BFALineChart<Number, Number> lineChart) {
@@ -151,7 +180,7 @@ public class MultipleAxesLineChart extends StackPane {
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.prefHeightProperty().bind(heightProperty());
         hBox.prefWidthProperty().bind(widthProperty());
-        hBox.setMouseTransparent(true);
+        //hBox.setMouseTransparent(true);
 
         lineChart.minWidthProperty()
                 .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
@@ -168,8 +197,8 @@ public class MultipleAxesLineChart extends StackPane {
 
     public void addSeries(XYChart.Series<Number,Number> series, Color lineColor, AxisType axis) {
 
-        NumberAxis yAxisAdd = new NumberAxis();
-        NumberAxis xAxisAdd = new NumberAxis();
+        BFANumberAxis yAxisAdd = new BFANumberAxis();
+        BFANumberAxis xAxisAdd = new BFANumberAxis();
         BFALineChart<Number, Number> lineChart;
 
         int axisTypeInt = axis.getValue() / 4;
@@ -201,15 +230,16 @@ public class MultipleAxesLineChart extends StackPane {
                 yAxisAdd.setLabel("Y-Axis");
                 break;
             }
-            double axisScale = getAxisScalar(axis);
+            double axisScale = getAxisScalar(axis.getValue());
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
             xAxisAdd.setAutoRanging(false);
 
             xAxisAdd.setOpacity(0.0); // somehow the upper setVisible does not work
-            xAxisAdd.lowerBoundProperty().bind(((NumberAxis) baseChart.getXAxis()).lowerBoundProperty());
-            xAxisAdd.upperBoundProperty().bind(((NumberAxis) baseChart.getXAxis()).upperBoundProperty());
-            // xAxis.tickUnitProperty().bind(((NumberAxis)
+            xAxisAdd.lowerBoundProperty().bind(((BFANumberAxis) baseChart.getXAxis()).lowerBoundProperty());
+            xAxisAdd.upperBoundProperty().bind(((BFANumberAxis) baseChart.getXAxis()).upperBoundProperty());
+            
+            // xAxis.tickUnitProperty().bind(((BFANumberAxis)
             // baseChart.getXAxis()).tickUnitProperty());
 
             // style y-axis
@@ -217,18 +247,20 @@ public class MultipleAxesLineChart extends StackPane {
             yAxisAdd.setAutoRanging(false);
             yAxisAdd.setSide(Side.RIGHT);
             yAxisAdd.lowerBoundProperty()
-                    .bind(((NumberAxis) baseChart.getYAxis()).lowerBoundProperty().multiply(axisScale));
+                    .bind(((BFANumberAxis) baseChart.getYAxis()).lowerBoundProperty().multiply(axisScale));
             yAxisAdd.upperBoundProperty()
-                    .bind(((NumberAxis) baseChart.getYAxis()).upperBoundProperty().multiply(axisScale));
+                    .bind(((BFANumberAxis) baseChart.getYAxis()).upperBoundProperty().multiply(axisScale));
 
             // create chart
             lineChart = new BFALineChart<Number, Number>(xAxisAdd, yAxisAdd);
-            axisTypeMap.put(axisTypeInt, lineChart);
+            lineChart.setMouseTransparent(true);
+            
             lineChart.setAnimated(false);
             lineChart.setLegendVisible(false);
             lineChart.setCreateSymbols(false);
+            lineChart.setPickOnBounds(false);
+            axisTypeMap.put(axisTypeInt,lineChart);
             backgroundCharts.add(lineChart);
-            chartColorMap.put(lineChart, lineColor);
             styleBackgroundChart(lineChart, lineColor);
             setFixedAxisWidth(lineChart);
             
@@ -239,8 +271,8 @@ public class MultipleAxesLineChart extends StackPane {
         }
 
         axisTypeGraphed[axisTypeInt] = true;
-        
-        lineChart.getData().add(series);
+        axisChartMap.put(axis.getValue(), lineChart);
+        baseChart.getData().add(series);
         axisSeriesMap.put(axis, series);
         
         for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
@@ -254,11 +286,13 @@ public class MultipleAxesLineChart extends StackPane {
     public void removeAxis(AxisType axis) {
         axisSeriesMap.get(axis).getData().clear();
         axisSeriesMap.remove(axis);
+        axisChartMap.remove(axis.getValue());
         boolean isEmpty = true;
-        for(XYChart.Series<Number,Number> series : axisTypeMap.get(axis.getValue()/4).getData()){
-            if(!series.getData().isEmpty()) isEmpty = false;
+        for(int i = Math.floorDiv(axis.getValue(),4); i < Math.floorDiv(axis.getValue(),4) + 4; i++){
+            if(axisChartMap.containsKey(i)) isEmpty = false;
         }
         if(isEmpty){
+            System.out.println("destroying " + axis.name() + " axis");
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);
             axisTypeGraphed[axis.getValue()/4] = false;
@@ -272,7 +306,7 @@ public class MultipleAxesLineChart extends StackPane {
 
         Node contentBackground = lineChart.lookup(".chart-content").lookup(".chart-plot-background");
         contentBackground.setStyle("-fx-background-color: transparent;");
-
+        contentBackground.setMouseTransparent(true);
         lineChart.setVerticalZeroLineVisible(false);
         lineChart.setHorizontalZeroLineVisible(false);
         lineChart.setVerticalGridLinesVisible(false);
