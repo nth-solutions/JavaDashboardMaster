@@ -10,12 +10,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-<<<<<<< Updated upstream
-=======
 import javafx.scene.Parent;
-import javafx.scene.chart.Axis;
-import javafx.scene.chart.LineChart;
->>>>>>> Stashed changes
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.HBox;
@@ -79,12 +74,7 @@ public class MultipleAxesLineChart extends StackPane {
             baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
             baseChart.getXAxis().setLabel("X Axis");
             baseChart.getYAxis().setLabel("Y Axis");
-            
-            baseChart.setOnMouseClicked(new EventHandler<MouseEvent>(){
-                public void handle(MouseEvent e){
-                    System.out.println("base: " + e.getX());
-                }
-            });
+        
 
         }
         if (strokeWidth != null) {
@@ -107,15 +97,6 @@ public class MultipleAxesLineChart extends StackPane {
         rebuildChart();
     }
 
-    private void turnOffPickOnBoundsFor(Node n) {
-        n.setPickOnBounds(true);
-        if (n instanceof Parent) {
-          for (Node c: ((Parent) n).getChildrenUnmodifiable()) {
-            turnOffPickOnBoundsFor(c);
-          }
-        }
-      }
-    
 
     public BFALineChart<Number, Number> getBaseChart() {
         return baseChart;
