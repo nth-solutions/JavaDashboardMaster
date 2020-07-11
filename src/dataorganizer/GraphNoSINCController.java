@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -38,7 +39,6 @@ public class GraphNoSINCController implements Initializable {
 	// GenericTest represents a single module and associated test data
 	private ArrayList<GenericTest> genericTests;
 
-	// FIXME "dataSets" to work with multiple modules
 	// tracks the axes currently graphed on the line chart
 	private ArrayList<GraphData> dataSets;
 
@@ -47,6 +47,7 @@ public class GraphNoSINCController implements Initializable {
 
 	// the interval at which samples are drawn to the screen
 	// if value is 20 (default), every 20th sample will be rendered
+	// TODO make this an advanced user setting
 	private int resolution;
 
 	// zooming + scrolling fields
@@ -287,8 +288,11 @@ public class GraphNoSINCController implements Initializable {
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
 
-			// reference to "d" necessary for addListener() anonymous class
 			DataSetPanel d = new DataSetPanel(i);
+
+			// TODO set this to name of CSV/user's custom name
+			// this could be done by adding a "name" attribute to GT
+			// maybe double clicking on this would allow a textbox to appear to change names?
 			d.setText("Module " + (i+1));
 
 			// convey checkbox ticking on/off from child class to this class
@@ -305,19 +309,18 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
-		// TODO select data set to graph based on type of GenericTest
-		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-		//
-		// if opening graph for first time, graph default axis/axes
-		if (dataSets.size() == 0) {
+		// graph any default axes
+		// runs in Platform.runLater to ensure data set panel is loaded
+		Platform.runLater(() -> {
+
+			clearGraph();
+
+			// TODO select data set to graph based on type of GenericTest
+			// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
 			graphAxis(AxisType.AccelX, 0);
-		}
-		// otherwise, update all currently drawn axes
-		else {
-			for (GraphData d : dataSets) {
-				updateAxis(d.axis, d.GTIndex);
-			}
-		}
+
+		});
+		
 
 	}
 
@@ -362,6 +365,7 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void graphAxis(AxisType axis, int GTIndex) {
 
+		// TODO old remove
 		// get checkbox by looking up FXID (the name of the AxisType)
 		//CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
 
@@ -410,9 +414,10 @@ public class GraphNoSINCController implements Initializable {
 			// add to list of currently drawn axes
 			dataSets.add(d);
 
-			//add graph with new axis
+			// add graph with new axis
 			multiAxis.addSeries(d, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8));
 
+			// TODO old remove
 			// add XYChart.Series to LineChart
 			//lineChart.getData().add(series);
 
@@ -486,6 +491,20 @@ public class GraphNoSINCController implements Initializable {
 			if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
 				n.setStyle("-fx-background-color: transparent;");
 			}
+		}
+
+	}
+
+	/**
+	 * Removes all currently drawn axes from the graph.
+	 */
+	public void clearGraph() {
+
+		// looping backwards to avoid ConcurrentModificationException
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+
+			// toggling a graph that's already drawn removes it
+			graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
 		}
 
 	}

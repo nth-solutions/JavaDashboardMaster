@@ -18,14 +18,14 @@ public class DataSetPanel extends TitledPane {
 	 * Signifies the axis (by parsing an AxisType) to graph onto the LineChart.
 	 * This field is public so that it can be observed by GraphNoSINCController.
 	 */
+	// TODO implement Observable in AxisType so that this field can directly be an AxisType?
 	public IntegerProperty currentAxis;
 
 	/**
 	 * The index of the GenericTest this DataSetPanel represents.
-	 * This value is passed to {@link dataorganizer.GraphNoSINCController#graphAxis graphAxis}
+	 * This value is read by {@link dataorganizer.GraphNoSINCController#graphAxis graphAxis}
 	 * to signify which GenericTest to read data from and display on the line chart.
 	 */
-	// TODO implement Observable in AxisType so that this field can directly be an AxisType?
 	private int GTIndex;
 
 	/**
@@ -67,13 +67,12 @@ public class DataSetPanel extends TitledPane {
 		String axis = (String) c.getId().replace("Toggle", "");
 		AxisType a = AxisType.valueOf(axis);
 
-		
 		// TODO currently using a hack by switching to -1, then to the original value
 		// this ensures that a change event is fired and data is passed to parent
 		// maybe this can be cleaned up later?
-		//
-		// convert AxisType to int
 		currentAxis.set(-1);
+
+		// convert AxisType to int
 		currentAxis.set(a.getValue());
 
 	}
