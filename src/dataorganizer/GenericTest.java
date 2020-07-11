@@ -15,9 +15,9 @@ public class GenericTest {
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
 	 * This is the preferred method of passing data to the Data Analysis Graph and features up-to-date calculations.
-	 * @param testParameters - array of test parameters
-	 * @param finalData - Array of raw data from module
-	 * @param MPUMinMax - Array of constant MPU offsets specific to the module
+	 * @param testParameters array of test parameters
+	 * @param finalData array of raw byte data from the module
+	 * @param MPUMinMax array of constant MPU offsets specific to the module
 	 */
 	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
 		
@@ -127,7 +127,6 @@ public class GenericTest {
 		}
 
 	}
-	
 	
 	/**
 	 * Creates a GenericTest using dataSamples 2D List.

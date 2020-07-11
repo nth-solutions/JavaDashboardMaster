@@ -1,23 +1,19 @@
 package dataorganizer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-
-import dataorganizer.BFANumberAxis;
 
 public class MultipleAxesLineChart extends StackPane {
 
@@ -26,13 +22,12 @@ public class MultipleAxesLineChart extends StackPane {
     private final Map<BFALineChart<Number, Number>, Color> chartColorMap = new HashMap<>();
     private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
     public  final Map<Integer, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
-    private final Map<AxisType, XYChart.Series<Number, Number>> axisSeriesMap = new HashMap<>();
+    
+    // keeps track of currently graphed data sets (GTIndex/AxisType/data)
+    private ArrayList<GraphData> dataSets;
 
     private BFANumberAxis xAxis;
     private BFANumberAxis yAxis;
-    private AxisType baseAxis;
-
-    private boolean[] axisTypeGraphed;
 
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
@@ -46,7 +41,6 @@ public class MultipleAxesLineChart extends StackPane {
         this(null, Color.RED, null);
 
     }
-
    
     public double getAxisScalar(Integer axis) {
         if (axis/4 < 3) {
@@ -64,7 +58,7 @@ public class MultipleAxesLineChart extends StackPane {
     public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor, Double strokeWidth) {
         super();
         setPickOnBounds(false);
-        axisTypeGraphed = new boolean[7];
+        dataSets = new ArrayList<GraphData>();
         if (baseChart == null) {
             xAxis = new BFANumberAxis();
             yAxis = new BFANumberAxis();
@@ -176,15 +170,16 @@ public class MultipleAxesLineChart extends StackPane {
         return hBox;
     }
 
-    public void addSeries(XYChart.Series<Number,Number> series, Color lineColor, AxisType axis) {
+    public void addSeries(GraphData d, Color lineColor) {
 
         BFANumberAxis yAxisAdd = new BFANumberAxis();
         BFANumberAxis xAxisAdd = new BFANumberAxis();
         BFALineChart<Number, Number> lineChart;
 
-        int axisTypeInt = axis.getValue() / 4;
+        int axisTypeInt = d.axis.getValue() / 4;
 
-        if (!axisTypeGraphed[axisTypeInt]) {
+        // if axis class is not graphed, create it
+        if (!isAxisClassGraphed(d.axis)) {
             switch (axisTypeInt) {
             case 0: // accel
                 yAxisAdd.setLabel("m/s²");
@@ -211,7 +206,7 @@ public class MultipleAxesLineChart extends StackPane {
                 yAxisAdd.setLabel("Y-Axis");
                 break;
             }
-            double axisScale = getAxisScalar(axis.getValue());
+            double axisScale = getAxisScalar(d.axis.getValue());
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
             xAxisAdd.setAutoRanging(false);
@@ -245,16 +240,15 @@ public class MultipleAxesLineChart extends StackPane {
             styleBackgroundChart(lineChart, lineColor);
             setFixedAxisWidth(lineChart);
             
-            lineChart.getXAxis().setLabel("#" + axis.getValue());
+            lineChart.getXAxis().setLabel("#" + d.axis.getValue());
             
         } else {
             lineChart = axisTypeMap.get(axisTypeInt);
         }
 
-        axisTypeGraphed[axisTypeInt] = true;
-        axisChartMap.put(axis.getValue(), lineChart);
-        baseChart.getData().add(series);
-        axisSeriesMap.put(axis, series);
+        axisChartMap.put(d.axis.getValue(), lineChart);
+        baseChart.getData().add(d.data);
+        dataSets.add(d);
         
         for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
             if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
@@ -264,19 +258,15 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
-    public void removeAxis(AxisType axis) {
-        axisSeriesMap.get(axis).getData().clear();
-        axisSeriesMap.remove(axis);
+    public void removeAxis(AxisType axis, int GTIndex) {
+        findGraphData(GTIndex, axis).data.getData().clear();
+        dataSets.remove(findGraphData(GTIndex, axis));
         axisChartMap.remove(axis.getValue());
-        boolean isEmpty = true;
-        for(int i = Math.floorDiv(axis.getValue(),4); i < Math.floorDiv(axis.getValue(),4) + 4; i++){
-            if(axisChartMap.containsKey(i)) isEmpty = false;
-        }
-        if(isEmpty){
+
+        if (!isAxisClassGraphed(axis)) {
             System.out.println("destroying " + axis.name() + " axis");
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);
-            axisTypeGraphed[axis.getValue()/4] = false;
         }
        
         rebuildChart();
@@ -309,7 +299,38 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
-    public boolean isAxisGraphed(AxisType axis) {
-        return axisSeriesMap.containsKey(axis);
+    /**
+	 * Finds a GraphData object given its fields.
+     * Returns <code>null</code> if none is found.
+	 * @param GTIndex the GenericTest associated with the GraphData
+	 * @param axis the AxisType associated with the GraphData
+	 */
+    private GraphData findGraphData(int GTIndex, AxisType axis) {
+        
+        for (GraphData d : dataSets) {
+            if (d.GTIndex == GTIndex && d.axis == axis) return d;
+        }
+
+        return null;
+
     }
+
+    /**
+	 * Determines whether an axis class (meaning a sensor type) is graphed.
+     * <p><i>e.g. if given "AccelX", it will check if any "Accel" AxisType is graphed.</i></p>
+	 * @param GTIndex the GenericTest associated with the GraphData
+	 * @param axis the AxisType associated with the GraphData
+	 */
+    private boolean isAxisClassGraphed(AxisType axis) {
+
+        int axisClass = axis.getValue() / 4;
+
+        for (GraphData d : dataSets) {
+            if (d.axis.getValue() / 4 == axisClass) return true;
+        }
+
+        return false;
+
+    }
+
 }

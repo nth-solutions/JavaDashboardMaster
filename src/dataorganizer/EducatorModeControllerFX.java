@@ -2512,7 +2512,7 @@ public class EducatorModeControllerFX implements Initializable {
     	    String pathToFile = chosenFile.toString();
     	    
             long start = System.nanoTime(); 
-            g.setGenericTestFromCSV(pathToFile, pathToFile+"p");
+            g.setGenericTestFromCSV(pathToFile);
             long elapsedTime = System.nanoTime() - start;
             
             System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");

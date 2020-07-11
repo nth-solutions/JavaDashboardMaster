@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Enum used to identify an AxisDataSeries.
+ * Enum used to identify an {@link dataorganizer.AxisDataSeries AxisDataSeries}.
+ * <p>Used by the Data Analysis Graph for retrieving the index of an axis in {@link dataorganizer.GenericTest GenericTest},
+ * as well as keeping track of which data sets are currently displayed in {@link dataorganizer.GraphNoSINCController GraphNoSINCController}.</p>
  */
 public enum AxisType {
 	
@@ -56,10 +58,19 @@ public enum AxisType {
 		}
 	}
 	
+	/**
+	 * Returns the AxisType associated with this integer.
+	 * @param i the integer representing the desired AxisType
+	 * @return Returns the AxisType associated with this integer
+	 */
 	public static AxisType valueOf(int i) {
 		return (AxisType) map.get(i);
 	}
 	
+	/**
+	 * Returns the integer associated with this AxisType.
+	 * @return the integer associated with this AxisType
+	 */
 	public int getValue() {
 		return value;
 	}

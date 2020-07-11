@@ -6,9 +6,7 @@ import java.math.MathContext;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -20,7 +18,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
@@ -35,16 +32,15 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import dataorganizer.BFANumberAxis;
+
 public class GraphNoSINCController implements Initializable {
 
 	// GenericTest represents a single module and associated test data
-	private GenericTest[] genericTests;
+	private ArrayList<GenericTest> genericTests;
 
-	// TODO fix "dataSets" to work with multiple modules
-	//
+	// FIXME "dataSets" to work with multiple modules
 	// tracks the axes currently graphed on the line chart
-	private Map<AxisType, XYChart.Series<Number, Number>> dataSets;
+	private ArrayList<GraphData> dataSets;
 
 	// holds all the data set panels instantiated
 	private ArrayList<DataSetPanel> panels;
@@ -78,6 +74,7 @@ public class GraphNoSINCController implements Initializable {
 	// internal enum identifying the state of data analysis
 	private GraphMode mode = GraphMode.NONE;
 
+	// object
 	private XYChart.Series<Number,Number> slope;
 
 	// keeps track of first point in secant line calculation
@@ -113,8 +110,9 @@ public class GraphNoSINCController implements Initializable {
 
 		System.out.println("Initializing Data Analysis graph...");
 
-		dataSets = new HashMap<AxisType, XYChart.Series<Number, Number>>();
+		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
+		genericTests = new ArrayList<GenericTest>();
 
 		slopePoint = new Double[2];
 		areaPoint = new Double[2];
@@ -228,7 +226,7 @@ public class GraphNoSINCController implements Initializable {
 	public void setGenericTests(GenericTest g) {
 
 		// g1/g2 are allowed to be null here (differentiating One/Two Module setup)
-		genericTests = new GenericTest[] { g };
+		genericTests.add(g);
 		initializePanels();
 
 	}
@@ -240,10 +238,7 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
 
-		// convert ArrayList to array
-		genericTests = new GenericTest[g.size()];
-		genericTests = g.toArray(genericTests);
-
+		genericTests = g;
 		initializePanels();
 
 	}
@@ -253,13 +248,28 @@ public class GraphNoSINCController implements Initializable {
 	 * @param CSVPath the location of the CSV file containing test data
 	 * @param CSVPPath the location of the CSVP file containing test parameters
 	 */
-	public void setGenericTestFromCSV(String CSVPath, String CSVPPath) {
+	public void setGenericTestFromCSV(String CSVPath) {
 
-		//create CSVHandler Object to read CSV, CSVP
+		// wrapper for array version of CSV reading
+		setGenericTestsFromCSV(new ArrayList<String>(Arrays.asList(CSVPath)));
+
+	}
+
+	/**
+	 * Populates the data analysis graph by creating a GenericTest from a CSV and CSVP file.
+	 * @param CSVPath the location of the CSV file containing test data
+	 * @param CSVPPath the location of the CSVP file containing test parameters
+	 */
+	public void setGenericTestsFromCSV(ArrayList<String> paths) {
+
+		genericTests.clear();
+
 		CSVHandler reader = new CSVHandler();
 
-		GenericTest g = new GenericTest(reader.readCSV(CSVPath), reader.readCSVP(CSVPPath));
-		genericTests = new GenericTest[] { g };
+		for (String s : paths) {
+			GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
+			genericTests.add(g);
+		}
 
 		initializePanels();
 
@@ -267,11 +277,16 @@ public class GraphNoSINCController implements Initializable {
 
 	private void initializePanels() {
 
-		// create data set panels
-		for (int i = 0; i < genericTests.length; i++) {
+		// get reference to root element
+		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
 
-			Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
-			
+		// remove existing panels
+		panels.clear();
+		a.getPanes().clear();
+
+		// create data set panels
+		for (int i = 0; i < genericTests.size(); i++) {
+
 			// reference to "d" necessary for addListener() anonymous class
 			DataSetPanel d = new DataSetPanel(i);
 			d.setText("Module " + (i+1));
@@ -299,9 +314,9 @@ public class GraphNoSINCController implements Initializable {
 		}
 		// otherwise, update all currently drawn axes
 		else {
-			dataSets.forEach((axis,series) -> {
-				updateAxis(axis, 0);
-			});
+			for (GraphData d : dataSets) {
+				updateAxis(d.axis, d.GTIndex);
+			}
 		}
 
 	}
@@ -343,7 +358,7 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Draws/removes an axis from the graph.
 	 * @param axis the AxisType to be drawn/removed
-	 * @param GTIndex the GenericTest to read the axis from (should be 0 in a single module test)
+	 * @param GTIndex the GenericTest to read data from
 	 */
 	public void graphAxis(AxisType axis, int GTIndex) {
 
@@ -351,7 +366,7 @@ public class GraphNoSINCController implements Initializable {
 		//CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
 
 		// if axis is not already graphed:
-		if (!multiAxis.isAxisGraphed(axis)) {
+		if (findGraphData(GTIndex, axis) == null) {
 
 			System.out.println("Graphing " + axis);
 
@@ -369,8 +384,8 @@ public class GraphNoSINCController implements Initializable {
 			List<Double> data;
 
 			// get time/samples data sets
-			time = genericTests[GTIndex].getAxis(axis).getTime();
-			data = genericTests[GTIndex].getAxis(axis).getSamples();
+			time = genericTests.get(GTIndex).getAxis(axis).getTime();
+			data = genericTests.get(GTIndex).getAxis(axis).getSamples();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
@@ -390,11 +405,13 @@ public class GraphNoSINCController implements Initializable {
 			// add ObservableList to XYChart.Series
 			series.setData(seriesData);
 
-			// add to HashMap of currently drawn axes
-			dataSets.put(axis, series);
+			GraphData d = new GraphData(GTIndex, axis, series);
+
+			// add to list of currently drawn axes
+			dataSets.add(d);
 
 			//add graph with new axis
-			multiAxis.addSeries(series, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8), axis);
+			multiAxis.addSeries(d, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8));
 
 			// add XYChart.Series to LineChart
 			//lineChart.getData().add(series);
@@ -415,12 +432,12 @@ public class GraphNoSINCController implements Initializable {
 			System.out.println("Removing " + axis);
 
 			// remove XYChart.Series from LineChart
-			lineChart.getData().remove(dataSets.get(axis));
+			lineChart.getData().remove(findGraphData(GTIndex, axis).data);
 
-			multiAxis.removeAxis(axis);
+			multiAxis.removeAxis(axis, GTIndex);
 
-			// remove axis & XYChart.Series key-value pair from HashMap
-			dataSets.remove(axis);
+			// remove GraphData from list of axes
+			dataSets.remove(findGraphData(GTIndex, axis));
 
 			// untick the checkbox
 			panels.get(GTIndex).setCheckBox(false);
@@ -432,21 +449,22 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Redraws an axis already on the graph.
 	 * @param axis the AxisType to be drawn/removed
+	 * @param GTIndex the GenericTest to read data from
 	 */
 	public void updateAxis(AxisType axis, int GTIndex) {
 
 		System.out.println("Updating " + axis);
 
 		// retrieve XYChart.Series and ObservableList from HashMap
-		XYChart.Series<Number, Number> series = dataSets.get(axis);
+		XYChart.Series<Number, Number> series = findGraphData(GTIndex, axis).data;
 		ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
 
 		// clear samples in ObservableList
 		seriesData.clear();
 
 		// get time/samples data sets
-		List<Double> time = genericTests[GTIndex].getAxis(axis).getTime();
-		List<Double> data = genericTests[GTIndex].getAxis(axis).getSamples();
+		List<Double> time = genericTests.get(GTIndex).getAxis(axis).getTime();
+		List<Double> data = genericTests.get(GTIndex).getAxis(axis).getSamples();
 
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i+=resolution) {
@@ -508,11 +526,10 @@ public class GraphNoSINCController implements Initializable {
 		final int blockSize = sampleBlockSize;
 
 		// apply moving avgs to all currently drawn axes
-		// TODO fix
-		dataSets.forEach((axis, series) -> {
-			genericTests[0].getAxis(axis).applyCustomMovingAvg(blockSize);
-			updateAxis(axis, 0);
-		});
+		for (GraphData d : dataSets) {
+			genericTests.get(d.GTIndex).getAxis(d.axis).applyCustomMovingAvg(blockSize);
+			updateAxis(d.axis, d.GTIndex);
+		}
 
 	}
 
@@ -574,28 +591,38 @@ public class GraphNoSINCController implements Initializable {
 		FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
 		fileChooser.getExtensionFilters().add(filterCSVs);
 
-		File fileChosen = fileChooser.showOpenDialog(null);
+		List<File> files = fileChooser.showOpenMultipleDialog(null);
 
 		// if user doesn't choose a file or closes window, don't continue
-		if (fileChosen == null) return;
+		if (files == null) return;
 
-		String CSVFilePath = fileChosen.toString();
+		// keep track of verified CSV/CSVP file paths
+		ArrayList<String> paths = new ArrayList<String>();
 
-		// if no matching CSVP file found, don't continue
-		if (!new File(CSVFilePath + "p").exists()) {
+		// loop through each file, checking for CSVP pair
+		for (File f : files) {
+			
+			String CSVFilePath = f.toString();
 
-			Alert alert = new Alert(AlertType.ERROR);
+			// if no matching CSVP file found, don't continue
+			if (!new File(CSVFilePath + "p").exists()) {
 
-			alert.setHeaderText("Missing test data");
-			alert.setContentText("The matching CSVP file could not be found.");
-			alert.showAndWait();
+				Alert alert = new Alert(AlertType.ERROR);
 
-			System.out.println("No matching CSVP file found for '" + CSVFilePath + "'");
-			return;
+				alert.setHeaderText("Missing test data");
+				alert.setContentText("The matching CSVP file could not be found.");
+				alert.showAndWait();
+
+				System.out.println("No matching CSVP file found for '" + CSVFilePath + "'");
+				return;
+
+			}
+
+			paths.add(CSVFilePath);
 
 		}
 
-		setGenericTestFromCSV(CSVFilePath, CSVFilePath + "p");
+		setGenericTestsFromCSV(paths);
 
 	}
 
@@ -639,7 +666,7 @@ public class GraphNoSINCController implements Initializable {
 		clearSlope();
 
 		// get slope value "m"
-		double m = genericTests[GTIndex].getAxis(axis).getSlope(x, resolution);
+		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, resolution);
 
 		slope = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -678,7 +705,7 @@ public class GraphNoSINCController implements Initializable {
 		clearSlope();
 
 		// get slope value "m"
-		double m = genericTests[GTIndex].getAxis(axis).getSlope(x1, x2);
+		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x1, x2);
 
 		slope = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -714,6 +741,21 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	private void clearSlope() {
 		if (slope != null) lineChart.getData().remove(slope);
+	}
+
+	/**
+	 * Finds a GraphData object given its fields.
+	 * @param GTIndex the GenericTest associated with the GraphData
+	 * @param axis the AxisType associated with the GraphData
+	 */
+	private GraphData findGraphData(int GTIndex, AxisType axis) {
+
+		for (GraphData g : dataSets) {
+			if (g.GTIndex == GTIndex && g.axis == axis) return g;
+		}
+
+		return null;
+
 	}
 
 	/**
@@ -848,7 +890,7 @@ public class GraphNoSINCController implements Initializable {
 							Arrays.sort(areaBounds);
 
 							// calculate the definite integral with the given limits
-							double area = genericTests[GTIndex].getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+							double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
 
 							// p1 = (x1, y1), p2 = (x2, y2)
 							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
@@ -856,10 +898,10 @@ public class GraphNoSINCController implements Initializable {
 
 							// ensure the lower bound is less than the upper bound
 							if (areaPoint[0] == areaBounds[0]) {
-								lineChart.graphArea(p1, p2, dataSets.get(axis).getData(), area, SIG_FIGS);
+								lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
 							}
 							else {
-								lineChart.graphArea(p2, p1, dataSets.get(axis).getData(), area, SIG_FIGS);
+								lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
 							}
 
 							setGraphMode(GraphMode.NONE);
@@ -917,8 +959,13 @@ public class GraphNoSINCController implements Initializable {
 
 		// Create GenericTest object if module exists -- otherwise, "null"
 		// "null" on one of these differentiates b/t One/Two Module setup
-		if (d2 != null) genericTests = new GenericTest[] { new GenericTest(d1) };
-		else			genericTests = new GenericTest[] { new GenericTest(d1), new GenericTest(d2) };
+		if (d2 != null) {
+			genericTests.add(new GenericTest(d1));
+		}
+		else {
+			genericTests.add(new GenericTest(d1));
+			genericTests.add(new GenericTest(d2));
+		}
 
 		// TEST CODE - TO BE REPLACED LATER
 		// TODO select data set to graph based on type of GenericTest
@@ -942,10 +989,10 @@ public class GraphNoSINCController implements Initializable {
 		// otherwise, default to graphing every 20th sample
 		resolution = c.isSelected() ? 1 : 20;
 
-		// update all currently displayed graphs
-		dataSets.forEach((axis,series) -> {
-			updateAxis(axis, 0);
-		});
+		// update all currently drawn axes
+		for (GraphData d : dataSets) {
+			updateAxis(d.axis, d.GTIndex);
+		}
 
 	}
 
