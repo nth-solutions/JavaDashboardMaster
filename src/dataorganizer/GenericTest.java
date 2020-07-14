@@ -31,6 +31,13 @@ public class GenericTest {
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
 		
+		// TODO MPUMinMax will randomly be read as "null" from SerialComm
+		// this ensures that a NullPointerException isn't thrown later in GT
+		if (MPUMinMax == null) {
+			System.out.println("Error: MPUMinMax offsets null");
+			MPUMinMax = new int[][] {{0, 0}, {0, 0}, {0, 0}};
+		}
+
 		// populate MPU offsets by taking the avg of min and max
 		// Currently used for acceleration calculations only
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
