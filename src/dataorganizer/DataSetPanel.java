@@ -1,12 +1,18 @@
 package dataorganizer;
 
+import java.util.Optional;
+
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseButton;
 
 /**
  * Custom JavaFX component for the Data Analysis Graph's panel of checkboxes toggling graphing of data sets.
@@ -56,6 +62,34 @@ public class DataSetPanel extends TitledPane {
 			e.printStackTrace();
 			System.out.println("Error loading DataSetPanel JavaFX component");
 		}
+
+		// needed for "runLater()"
+		Node ref = this;
+		
+		// ensures that FXML is loaded before code runs
+		Platform.runLater(() -> {
+
+			// if user right clicks on the title of the pane, allow them to rename it
+			ref.lookup(".title").setOnMouseClicked(e -> {
+
+				if (e.getButton().equals(MouseButton.SECONDARY)) {
+
+					TextInputDialog dialog = new TextInputDialog(this.getText());
+					dialog.setTitle("Rename Data Set");
+					dialog.setHeaderText("Rename Data Set");
+					dialog.setContentText("Enter new data set name:");
+		
+					Optional<String> result = dialog.showAndWait();
+		
+					// set the new text of this TitledPane
+					if (result.isPresent()) this.setText(result.get());
+
+				}
+	
+			});
+
+		});
+		
 
 	}
 

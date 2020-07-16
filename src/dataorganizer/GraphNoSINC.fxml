@@ -61,22 +61,6 @@
 							<content>
 								<VBox minWidth="200.0" prefWidth="200.0">
 									<children>
-										<VBox alignment="CENTER" layoutX="14.0" layoutY="120.0" prefHeight="79.0" prefWidth="398.0" spacing="5.0">
-											<children>
-												<HBox alignment="CENTER" layoutX="102.0" layoutY="66.0" />
-												<HBox alignment="CENTER" layoutX="102.0" layoutY="91.0" />
-												<Button layoutX="127.0" layoutY="125.0" mnemonicParsing="false" onAction="#debugGraphAxis" prefHeight="25.0" prefWidth="150.0" text="[DEBUG] Graph Axis" />
-												<CheckBox fx:id="debugIgnoreResCheckbox" mnemonicParsing="false" onAction="#debugShowAllSamples" text="[DEBUG] Show all data samples" />
-											</children>
-											<VBox.margin>
-												<Insets />
-											</VBox.margin>
-										</VBox>
-										<Separator prefHeight="26.0" prefWidth="398.0">
-											<VBox.margin>
-												<Insets bottom="10.0" top="10.0" />
-											</VBox.margin>
-										</Separator>
 										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
 											<children>
 												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">

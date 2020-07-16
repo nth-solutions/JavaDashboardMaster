@@ -96,42 +96,7 @@ public class GenericTest {
 			magTimeAxis.add(new Double(i) / magSampleRate); 			
 		}
 		
-		// initialize axis data series array
-		axes = new AxisDataSeries[AxisType.values().length];
-
-		// loops so that X=0, Y=1, Z=2
-		for (int i = 0; i < 3; i++) {
-
-			// acceleration (NATIVE ACCELEROMETER MEASUREMENT)
-			axes[i] = new AxisDataSeries(timeAxis, dataSamples.get(i+1), AxisType.valueOf(i), mpuOffsets, accelSensitivity, sampleRate);
-
-			// velocity
-			axes[i+4] = new AxisDataSeries(timeAxis, axes[i].integrate(), AxisType.valueOf(i+4), false, sampleRate);
-
-			// displacement
-			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
-
-			// angular velocity (NATIVE GYROSCOPE MEASUREMENT)
-			axes[i+16] = new AxisDataSeries(timeAxis, dataSamples.get(i+4), AxisType.valueOf(i+16), gyroSensitivity, sampleRate);
-
-			// angular acceleration
-			axes[i+12] = new AxisDataSeries(timeAxis, axes[i+16].differentiate(), AxisType.valueOf(i+12), false, sampleRate);	
-
-			// angular displacement
-			axes[i+20] = new AxisDataSeries(timeAxis, axes[i+16].integrate(), AxisType.valueOf(i+20), false, sampleRate);
-
-			// magnetometer (NATIVE MEASUREMENT)
-			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
-
-		}
-
-		// Creates magnitude data sets
-		for (int i = 0; i < AxisType.values().length; i+=4) {
-
-			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
-			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
-
-		}
+		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
 	
@@ -140,16 +105,9 @@ public class GenericTest {
 	 * Used for creating GenericTest from CSVHandler or DataOrganizer.
 	 * @param testParameters - array of test parameters
 	 * @param dataSamples - 2D Array of data from 9 raw axes (and time(0))
-	 * @param MPUMinMax - Array of constant MPU offsets specific to the module
 	 */
 	public GenericTest(List<List<Double>> dataSamples, ArrayList<Integer> testParameters) {
-		
-		int timer0 = testParameters.get(1);
-		int sampleRate = testParameters.get(7);
-		int magSampleRate = testParameters.get(8);
-		int accelSensitivity = testParameters.get(9);
-		int gyroSensitivity = testParameters.get(10);
-		
+
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
@@ -159,6 +117,25 @@ public class GenericTest {
 			// Currently used for acceleration calculations only
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		} 
+
+		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
+
+	}
+	
+	/**
+	 * Populates the AxisDataSeries list by looping through dataSamples.
+	 * This logic is shared by both constructors.
+	 * @param dataSamples 2D Array of data from 9 raw axes (and time(0))
+	 * @param testParameters array of test parameters
+	 * @param mpuOffsets array of acceleration offsets
+	 */
+	private void createAxisDataSeries(List<List<Double>> dataSamples, ArrayList<Integer> testParameters, int[] mpuOffsets) {
+
+		int timer0 = testParameters.get(1);
+		int sampleRate = testParameters.get(7);
+		int magSampleRate = testParameters.get(8);
+		int accelSensitivity = testParameters.get(9);
+		int gyroSensitivity = testParameters.get(10);
 
 		// TODO may try to implement use of timer0 in future
 		List<Double> timeAxis = new ArrayList<Double>();

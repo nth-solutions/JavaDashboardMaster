@@ -111,8 +111,9 @@ public class AxisDataSeries {
 		// clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
-		// print debug info about AxisDataSeries
+		/* print debug info about AxisDataSeries
 		System.out.println(toString());
+		*/
 
 	}
 
@@ -169,8 +170,9 @@ public class AxisDataSeries {
 		// clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
-		// print debug info about AxisDataSeries
+		/* print debug info about AxisDataSeries
 		System.out.println(toString());
+		*/
 
 	}
 
@@ -218,8 +220,9 @@ public class AxisDataSeries {
 		//clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
-		// print debug info about AxisDataSeries
+		/* print debug info about AxisDataSeries
 		System.out.println(toString());
+		*/
 
 	}
 
@@ -266,8 +269,9 @@ public class AxisDataSeries {
 		this.smoothedData = this.originalData.clone();
 		this.userSmoothedData = this.smoothedData.clone();
 
-		// print debug info about AxisDataSeries
+		/* print debug info about AxisDataSeries
 		System.out.println(toString());
+		*/
 
 	}
 

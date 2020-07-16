@@ -70,6 +70,11 @@ public class CSVHandler {
 			// write all parameters to the file
 			dataFile.println(testParameters.get(i).toString());
 		}
+
+		if (MPUMinMax == null) {
+			System.out.println("Error: MPU offsets null when writing CSVP");
+			MPUMinMax = new int[][] {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
+		}
 		
 		for (int i = 0; i < 9; i++) {
 			// write MPUMinMax values to file

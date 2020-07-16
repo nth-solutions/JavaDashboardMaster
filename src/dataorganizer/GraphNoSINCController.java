@@ -141,80 +141,67 @@ public class GraphNoSINCController implements Initializable {
 		redrawGraph();
 
 		// listener that runs every tick the mouse scrolls, calculates zooming
-		multiAxis.setOnScroll(new EventHandler<ScrollEvent>() {
+		multiAxis.setOnScroll(event -> {
 
-			public void handle(ScrollEvent event) {
+			// saves the mouse location of the scroll event to x and y variables
+			scrollCenterX = event.getX();
+			scrollCenterY = event.getY();
 
-				// saves the mouse location of the scroll event to x and y variables
-				scrollCenterX = event.getX();
-				scrollCenterY = event.getY();
+			/**
+			 * calculates the percentage of scroll either on the left or top of the screen
+			 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is 0.5, if it is three quarters to the right, it is 0.75
+			 */
+			leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
+			topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
 
-				/**
-				 * calculates the percentage of scroll either on the left or top of the screen
-				 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is 0.5, if it is three quarters to the right, it is 0.75
-				 */
-				leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
-				topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
-
-				if(!event.isAltDown()) {
-					zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-					
-					zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
-				}
-
-				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
-				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+			if(!event.isAltDown()) {
+				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
 				
-				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
-				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
-
-				redrawGraph();
-
+				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
+
+			// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
+			zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+			
+			// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
+			zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
+
+			redrawGraph();
 
 		});
 
 		// listener that runs every tick the mouse is dragged, calculates panning
-		multiAxis.setOnMouseDragged(new EventHandler<MouseEvent>() {
+		multiAxis.setOnMouseDragged(event -> {
 
-			@Override
-			public void handle(MouseEvent event) {
+			if (mode == GraphMode.NONE) {
 
-				if (mode == GraphMode.NONE) {
+				// get the mouse x and y position relative to the line chart
+				mouseX = event.getX();
+				mouseY = event.getY();
 
-					// get the mouse x and y position relative to the line chart
-					mouseX = event.getX();
-					mouseY = event.getY();
+				// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
+				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
+				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
 
-					// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
-					zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
-					zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
+				// adds the change in mouse position this tick to the zoom view, converted into graph space
+				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
+				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
 
-					// adds the change in mouse position this tick to the zoom view, converted into graph space
-					zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
-					zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
+				redrawGraph();
 
-					redrawGraph();
-
-					// sets last tick's mouse data as this tick's
-					lastMouseX = mouseX;
-					lastMouseY = mouseY;
-
-				}
+				// sets last tick's mouse data as this tick's
+				lastMouseX = mouseX;
+				lastMouseY = mouseY;
 
 			}
 
 		});
 
 		// listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
-		multiAxis.setOnMousePressed(new EventHandler<MouseEvent>() {
+		multiAxis.setOnMousePressed(event -> {
 
-			public void handle(MouseEvent event) {
-
-				lastMouseX = event.getX();
-				lastMouseY = event.getY();
-
-			}
+			lastMouseX = event.getX();
+			lastMouseY = event.getY();
 
 		});
 	}
@@ -795,14 +782,7 @@ public class GraphNoSINCController implements Initializable {
 		label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
 
 		// make label display full floating-point number when clicked
-		label.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-			@Override
-			public void handle(MouseEvent event) {
-				label.setText("Slope: " + m);
-			}
-
-		});
+		label.setOnMouseClicked(e -> label.setText("Slope: " + m));
 
 		// place label in StackPane and return
 		StackPane pane = new StackPane();
@@ -833,105 +813,92 @@ public class GraphNoSINCController implements Initializable {
 			setPickOnBounds(false);
 
 			// when mouse hovers over data point, display label
-			setOnMouseEntered(new EventHandler<MouseEvent>() {
+			setOnMouseEntered(e -> {
 
-				@Override
-				public void handle(MouseEvent event) {
+				// add the hover (x,y) label
+				getChildren().setAll(createLabel(roundedX, roundedY));
 
-					// add the hover (x,y) label
-					getChildren().setAll(createLabel(roundedX, roundedY));
+				// temporarily draw the data point symbol
+				// this is done by removing the "transparent" style
+				setStyle("");
 
-					// temporarily draw the data point symbol
-					// this is done by removing the "transparent" style
-					setStyle("");
-
-					// ensure the label is on top of the graph
-					toFront();
-				}
+				// ensure the label is on top of the graph
+				toFront();
 
 			});
 
 			// when mouse stops hovering over data point, remove label
-			setOnMouseExited(new EventHandler<MouseEvent>() {
+			setOnMouseExited(e -> {
 
-				@Override
-				public void handle(MouseEvent event) {
+				// hide the data point symbol
+				setStyle("-fx-background-color: transparent");
 
-					// hide the data point symbol
-					setStyle("-fx-background-color: transparent");
-
-					// hide the label from the graph
-					getChildren().clear();
-				}
+				// hide the label from the graph
+				getChildren().clear();
 
 			});
 
-			setOnMouseClicked(new EventHandler<MouseEvent>() {
+			setOnMouseClicked(e -> {
 
-				@Override
-				public void handle(MouseEvent event) {
+				if (mode == GraphMode.SLOPE) {
 
-					if (mode == GraphMode.SLOPE) {
+					// secant line graphing mode
+					if (e.isShiftDown()) {
+						System.out.println("Selected first slope point");
+						slopePoint = new Double[] {x,y};
+					}
+					else {
+						// graph tangent line
+						if (slopePoint[0] == null && slopePoint[1] == null) {
+							System.out.println("Graphing tangent line...");
+							graphSlope(x, y, axis, GTIndex);
+						}
+						// graph secant line
+						else {
+							System.out.println("Graphing secant line...");
+							graphSlope(slopePoint[0], slopePoint[1], x, y, axis, GTIndex);
+						}
+					}
 
-						// secant line graphing mode
-						if (event.isShiftDown()) {
-							System.out.println("Selected first slope point");
-							slopePoint = new Double[] {x,y};
+				}
+				else if (mode == GraphMode.AREA) {
+
+					// select first point of area calculation
+					if (areaPoint[0] == null && areaPoint[1] == null) {
+						System.out.println("Selected first area point");
+						areaPoint = new Double[] {x,y};
+					}
+					// calculate and shade area
+					else {
+
+						System.out.println("Graphing area...");
+
+						// ensures that x1 is always less than x2
+						double[] areaBounds = new double[] {areaPoint[0], x};
+						Arrays.sort(areaBounds);
+
+						// calculate the definite integral with the given limits
+						double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+
+						// p1 = (x1, y1), p2 = (x2, y2)
+						XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
+						XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
+
+						// ensure the lower bound is less than the upper bound
+						if (areaPoint[0] == areaBounds[0]) {
+							lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
 						}
 						else {
-							// graph tangent line
-							if (slopePoint[0] == null && slopePoint[1] == null) {
-								System.out.println("Graphing tangent line...");
-								graphSlope(x, y, axis, 0);
-							}
-							// graph secant line
-							else {
-								System.out.println("Graphing secant line...");
-								graphSlope(slopePoint[0], slopePoint[1], x, y, axis, 0);
-							}
+							lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
 						}
 
-					}
-					else if (mode == GraphMode.AREA) {
-
-						// select first point of area calculation
-						if (areaPoint[0] == null && areaPoint[1] == null) {
-							System.out.println("Selected first area point");
-							areaPoint = new Double[] {x,y};
-						}
-						// calculate and shade area
-						else {
-
-							System.out.println("Graphing area...");
-
-							// ensures that x1 is always less than x2
-							double[] areaBounds = new double[] {areaPoint[0], x};
-							Arrays.sort(areaBounds);
-
-							// calculate the definite integral with the given limits
-							double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
-
-							// p1 = (x1, y1), p2 = (x2, y2)
-							XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
-							XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
-
-							// ensure the lower bound is less than the upper bound
-							if (areaPoint[0] == areaBounds[0]) {
-								lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
-							}
-							else {
-								lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
-							}
-
-							setGraphMode(GraphMode.NONE);
-						}
-
-					}
-					else if (mode == GraphMode.NONE) {
-						// display full floating-point number on click
-						getChildren().setAll(createLabel(x, y));
+						setGraphMode(GraphMode.NONE);
 					}
 
+				}
+				else if (mode == GraphMode.NONE) {
+					// display full floating-point number on click
+					getChildren().setAll(createLabel(x, y));
 				}
 
 			});

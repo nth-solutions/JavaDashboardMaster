@@ -65,15 +65,17 @@ The format of `List<Integer> testParameters` is shown below:
 17. Accel Z Offset Min
 18. Accel Z Offset Max
 
+The Java representation of the test parameters, `List<Integer> testParameters`, only has elements 0-12, with 13-18, the [acceleration offsets](#acceleration-offsets), being appended on when writing the data to a .CSVP file.
+
 ### Acceleration Offsets
 
-Indices 13-18 of `testParameters` collectively make up the Inertial Measurement Unit (IMU) calibration offsets. These values are signed raw data samples of the accelerometer on each axis when the module is at rest, laying on a flat surface. The maximum and minimum values correspond to the two orientations the axis can be (facing up vs facing down). Averaging these two offsets for an axis and subtracting the result from each acceleration data sample "normalizes" the value to zero, counteracts any deviation in IMU measurements.
+[Indices 13-18](#test-parameters) of `testParameters` collectively make up the Inertial Measurement Unit (IMU) calibration offsets. These values are signed raw data samples of the accelerometer on each axis when the module is at rest, laying on a flat surface. The maximum and minimum values correspond to the two orientations the axis can be (facing up vs facing down). Averaging these two offsets for an axis and subtracting the result from each acceleration data sample "normalizes" the value to zero, counteracts any deviation in IMU measurements.
 
 > Note: this is NOT the same as *data normalization*, which is used for gravity compensation when the module is moving on only one axis.
 
 In the codebase, these offsets are in the form of an `int[]` of length 9, referred to as `mpuOffsets`, or `accelOffsets`. Each element in the list is the general offset for an acceleration axis. The length of 9 was chosen in order to match the 9 sensor axes on the module, in the event that calibration offsets were ever needed for the gyroscope and magnetometer (only 3 elements are actually populated).
 
-`SerialComm` returns these offsets in the form of an `int[][]` named `MPUMinMax`, reading data directly from the module instead of from the `testParameters` CSVP file. This is the precursor to `mpuOffsets` and is structured as follows:
+[`SerialComm`](#serialcomm) returns these offsets in the form of an `int[][]` named `MPUMinMax`, reading data directly from the module instead of from the [`testParameters`](#test-parameters) CSVP file. This is the precursor to `mpuOffsets` and is structured as follows:
 
 - (0) Acceleration X
     - (0) Minimum Offset
@@ -87,11 +89,11 @@ In the codebase, these offsets are in the form of an `int[]` of length 9, referr
 
 ## Data Conversion
 
-This section describes various formats used in `DataOrganizer`, `GenericTest`, and `AxisDataSeries` for converting raw data samples to physical quantities.
+This section describes various formats used in `DataOrganizer`, `GenericTest`, and [`AxisDataSeries`](#axis-data-series) for converting raw data samples to physical quantities.
 
 ### Data Samples
 
-Once data is read from the module via `SerialComm` converting byte format into 16-bit unsigned integer format, the raw data samples are stored in a `List<List<Double>>` named `dataSamples`. Each inner list represents a single sensor axis (accelerometer, gyroscope, and magnetometer along with either X, Y, or Z). The order of these lists is shown below:
+Once data is read from the module via [`SerialComm`](#serialcomm) converting byte format into 16-bit unsigned integer format, the raw data samples are stored in a `List<List<Double>>` named `dataSamples`. Each inner list represents a single sensor axis (accelerometer, gyroscope, and magnetometer along with either X, Y, or Z). The order of these lists is shown below:
 
 0. Time
 1. Acceleration X
@@ -106,7 +108,7 @@ Once data is read from the module via `SerialComm` converting byte format into 1
 
 ### Axis Data Series
 
-The Data Analysis Graph further processes `dataSamples` into individual `AxisDataSeries` objects. Each `AxisDataSeries` represents a single axis's data (eg. Acceleration X or Angular Velocity Y). The key difference from `dataSamples` is that `AxisDataSeries` supports "virtual" axes -- generating integrated/differentiated data sets, such as velocity or angular acceleration, from native sensor data sets. In addition, `AxisDataSeries` encapsulates all methods related to data conversion, calculation, and manipulations in a single class. This improves readability and changes without affecting other portions of the codebase.
+The Data Analysis Graph further processes [`dataSamples`](#data-samples) into individual `AxisDataSeries` objects. Each `AxisDataSeries` represents a single axis's data (eg. Acceleration X or Angular Velocity Y). The key difference from [`dataSamples`](#data-samples) is that `AxisDataSeries` supports "virtual" axes -- generating integrated/differentiated data sets, such as velocity or angular acceleration, from native sensor data sets. In addition, `AxisDataSeries` encapsulates all methods related to data conversion, calculation, and manipulations in a single class. This improves readability and changes without affecting other portions of the codebase.
 
 `GenericTest`, which represents all test data associated with a single module, contains the list of axes in its field `AxisDataSeries[] axes`, the format of which is described below:
 

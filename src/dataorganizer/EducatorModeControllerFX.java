@@ -1739,190 +1739,148 @@ public class EducatorModeControllerFX implements Initializable {
         	
             HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
-            FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
-                @Override
-                public void run() {
-                	
-                    try {
-                        ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+            //FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(() -> { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
+                
+                try {
 
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Reading Data from Module...");
-                            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                        });
+                    ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
+                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+                    genericTests.clear();
 
-                        //Read test parameters from module and store it in testParameters
+                    displayProgress("Reading tests from module...", Color.BLUE, "-fx-accent: blue;", 0);
 
-                        //Executes if the reading of the test parameters was successful
-                        if (testParameters != null) {
-
-                            int expectedTestNum = testParameters.get(0);
-
-                            //Assign local variables to their newly received values from the module
-                            int timedTestFlag = testParameters.get(4);
-                            //Trigger on release is 8
-                            int testLength = testParameters.get(6);
-                            int accelGyroSampleRate = testParameters.get(7);
-                            int magSampleRate = testParameters.get(8);
-                            int accelSensitivity = testParameters.get(9);
-                            int gyroSensitivity = testParameters.get(10);
-                            int accelFilter = testParameters.get(11);
-                            int gyroFilter = testParameters.get(12);
-
-                            double bytesPerSample = 18;
-                            if (accelGyroSampleRate / magSampleRate == 10) {
-                                bytesPerSample = 12.6;
-                            }
-
-                            String nameOfFile = "";
-
-                            //Executes if there are tests on the module
-                            if (expectedTestNum > 0) {
-
-                                //Get date for file name
-                                Date date = new Date();
-
-                                //Assigns the name of file
-                                nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-
-                                HashMap<Integer, ArrayList<Integer>> testData;
-
-                                //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                                testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("All Data Received from Module");
-                                    generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                });
-
-                                //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
-                                if (testData != null) {
-                                    ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
-                                    for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-
-                                        int[] finalData = new int[testData.get(testIndex).size()];
-
-                                        for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                            if (testData.get(testIndex).get(byteIndex) != -1) {
-                                                finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                            } else {
-                                                finalData[byteIndex] = -1;
-                                                break;
-                                            }
-                                        }
-                                        
-                                        	//for use with CSVwriter
-                                        	String newName = "new (#" + (testIndex + 1) + ") " + nameOfFile;
-                                        	try {
-                                                //Initialize GenericTest object to store and organize data to be graphed
-                                                // TODO fix this to work with more than 2 modules
-                                                genericTests.add(new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax()));   
-                                        	}
-                                        	catch(Exception e) {
-                                        		e.printStackTrace();
-                                        	}
-                                          
-                                            int [][] MPUMinMax = serialHandler.getMPUMinMax();
-                                            CSVHandler writer = new CSVHandler();
-                                        
-                                       
-                                        String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                        dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
-                                        dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
-                                        dataOrgoList.add(dataOrgo);
-                                        
-                                       
-                                        //Define operation that can be run in separate thread
-                                        //TODO: This will probably throw an error
-                                        Runnable organizerOperation = () -> {
-
-                                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-                                            Settings settings = new Settings();
-                                            settings.loadConfigFile();
-
-                                            dataOrgo.createDataSmpsRawData(finalData);
-                                            dataOrgo.getSignedData();
-
-                                            dataOrgo.createCSVP();
-                                            dataOrgo.createCSV(false, false);
-                                            //This is done to populate the testParameters array with MPU Offsets so that it's compatible with a GenericTest constructor
-                                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + tempName+"p");
-                                            //write GenericTest data to CSV
-                                            // TODO fix this to work with more than 2 modules
-                                            writer.writeCSV(genericTests.get(0), settings, newName); 
-                                            writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
-
-                                        };
-
-                                        //Set thread to execute previously defined operation
-                                        Thread organizerThread = new Thread(organizerOperation);
-                                        //Start thread
-                                        organizerThread.start();
-                                    }
-                                } else {
-                                    Platform.runLater(() -> {
-                                        generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                                        progressBar.setStyle("-fx-accent: red;");
-                                        progressBar.setProgress(100);
-                                    });
-
-                                }
-                            } else {
-
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("No Tests Found on Module");
-                                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                                    progressBar.setStyle("-fx-accent: red;");
-                                    progressBar.setProgress(100);
-                                });
-                            }
-                        } else {
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                generalStatusExperimentLabel.setTextFill(Color.RED);
-                                progressBar.setStyle("-fx-accent: red;");
-                                progressBar.setProgress(100);
-                            });
-                        }
-                    } catch (IOException e) {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-
-                    } catch (PortInUseException e) {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Serial Port Already In Use");
-
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-
-                    } catch (UnsupportedCommOperationException e) {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-
+                    if (testParameters == null) {
+                        displayProgress("Error reading test parameters from module", Color.RED, "-fx-accent: red;", 100);
+                        return;
                     }
+
+                    int expectedTestNum = testParameters.get(0);
+
+                    //Assign local variables to their newly received values from the module
+                    int timedTestFlag = testParameters.get(4);
+                    //Trigger on release is 8
+                    int testLength = testParameters.get(6);
+                    int accelGyroSampleRate = testParameters.get(7);
+                    int magSampleRate = testParameters.get(8);
+                    int accelSensitivity = testParameters.get(9);
+                    int gyroSensitivity = testParameters.get(10);
+                    int accelFilter = testParameters.get(11);
+                    int gyroFilter = testParameters.get(12);
+
+                    String nameOfFile = "";
+
+                    if (expectedTestNum == 0) {
+                        displayProgress("No tests found on module", Color.RED, "-fx-accent: red;", 100);
+                        return;
+                    }
+
+                    //Get date for file name
+                    Date date = new Date();
+
+                    //Assigns the name of file
+                    nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+
+                    //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                    HashMap<Integer, ArrayList<Integer>> testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+
+                    if (testData == null) {
+                        displayProgress("Error reading tests from module", Color.RED, "-fx-accent: red;", 100);
+                        return;
+                    }
+
+                    CSVHandler writer = new CSVHandler();
+
+                    Settings settings = new Settings();
+                    settings.loadConfigFile();
+
+                    // loop through all tests read from the module
+                    for (int i = 0; i < testData.size(); i++) {
+
+                        int[] finalData = new int[testData.get(i).size()];
+
+                        // loop through all samples in the data set
+                        for (int j = 0; j < testData.get(i).size(); j++) {
+
+                            // ensure that all negative byte data is -1
+                            if (testData.get(i).get(j) != -1) {
+                                finalData[j] = testData.get(i).get(j);
+                            } else {
+                                finalData[j] = -1;
+                                break;
+                            }
+                        }
+                        
+                        int[][] MPUMinMax = serialHandler.getMPUMinMax();
+
+                        String newName = "(#" + (i+1) + ") " + nameOfFile;
+
+                        System.out.println("Creating GenericTest");
+
+                        GenericTest g = new GenericTest(testParameters, finalData, MPUMinMax);
+                        genericTests.add(g);
+                        
+                        dataOrgo = new DataOrganizer(testParameters, "OLD_" + newName);                         // object that stores test data.
+                        dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
+                        dataOrgoList.add(dataOrgo);
+                        
+                        //Define operation that can be run in separate thread
+                        //TODO: This will probably throw an error
+                        Runnable organizerOperation = () -> {
+
+                            // write GenericTest to CSV
+                            writer.writeCSV(g, settings, newName);
+                            writer.writeCSVP(testParameters, settings, newName, MPUMinMax); 
+
+                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+                            dataOrgo.createDataSmpsRawData(finalData);
+                            dataOrgo.getSignedData();
+
+                            /*
+                            dataOrgo.createCSVP();
+                            dataOrgo.createCSV(false, false);
+                            */
+
+                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + newName+"p");
+
+                        };
+
+                        // Start CSV writing thread
+                        Thread organizerThread = new Thread(organizerOperation);
+                        organizerThread.start();
+
+                        // update test data progress
+                        displayProgress("Read test " + (i+1) + "/" + testData.size(), Color.GREEN, "-fx-accent: green", 100/(i+1));
+                    }
+
+                    displayProgress("All tests read from module", Color.GREEN, "-fx-accent: green", 100);
+
+                } catch (IOException e) {
+                    displayProgress("Error communicating over USB port", Color.RED, "-fx-accent: red", 100);
+                    e.printStackTrace();
+                } catch (PortInUseException e) {
+                    displayProgress("USB Port already in use", Color.RED, "-fx-accent: red", 100);
+                    e.printStackTrace();
+                } catch (UnsupportedCommOperationException e) {
+                    displayProgress("Check USB dongle compatibility", Color.RED, "-fx-accent: red", 100);
+                    e.printStackTrace();
                 }
 
-            }, testDataArray);
+            // }, testDataArray);
 
-            readTestsFromModuleTask.run(); // Runs the futureTask.
-
-
+            // readTestsFromModuleTask.run(); // Runs the futureTask.
+            
         }
+    }
+
+    private void displayProgress(String message, Color color, String style, int progress) {
+
+        Platform.runLater(() -> {
+            generalStatusExperimentLabel.setText(message);
+            generalStatusExperimentLabel.setTextFill(color);
+            progressBar.setStyle(style);
+            progressBar.setProgress(progress);
+        });
+
     }
 
     @FXML
