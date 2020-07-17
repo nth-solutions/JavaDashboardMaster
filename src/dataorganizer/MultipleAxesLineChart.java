@@ -26,7 +26,7 @@ public class MultipleAxesLineChart extends StackPane {
     private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
 
     /**
-     * Tracks the currently drawn axes and their respective line charts.
+     * Tracks the currently drawn data sets and their respective line charts.
      */
     public  final Map<AxisType, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
     

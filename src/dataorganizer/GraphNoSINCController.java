@@ -680,14 +680,16 @@ public class GraphNoSINCController implements Initializable {
 		// Formula used is point-slope form of a line:
 		// y - y0 = m(x - x0) -> y = m(x - x0) + y0
 
+		double axisScalar = multiAxis.getAxisScalar(axis);
+
 		// plot the point (x0,y0) shared by the graph and tangent line
-		seriesData.add(new XYChart.Data<Number,Number>(x, y));
+		seriesData.add(new XYChart.Data<Number,Number>(x, y / axisScalar));
 
 		// plot the point one x-unit to the left (x = x0-1)
-		seriesData.add(new XYChart.Data<Number,Number>(x-1, m * ((x-1)-x) + y));
+		seriesData.add(new XYChart.Data<Number,Number>(x-1, (m * ((x-1)-x) + y) / axisScalar));
 
 		// plot the point one x-unit to the right (x = x0+1)
-		seriesData.add(new XYChart.Data<Number,Number>(x+1, m * ((x+1)-x) + y));
+		seriesData.add(new XYChart.Data<Number,Number>(x+1, (m * ((x+1)-x) + y) / axisScalar));
 
 		// add label for slope value to the center of the line, above the tangent point
 		seriesData.get(0).setNode(createSlopeLabel(m));
@@ -719,14 +721,16 @@ public class GraphNoSINCController implements Initializable {
 		// Formula used is point-slope form of a line:
 		// y - y0 = m(x - x0) -> y = m(x - x0) + y0
 
+		double axisScalar = multiAxis.getAxisScalar(axis);
+
 		// plot the left endpoint of the line
-		seriesData.add(new XYChart.Data<Number,Number>(x1, y1));
+		seriesData.add(new XYChart.Data<Number,Number>(x1, y1 / axisScalar));
 
 		// plot the midpoint of the line
-		seriesData.add(new XYChart.Data<Number, Number>((x1+x2)/2, (y1+y2)/2));
+		seriesData.add(new XYChart.Data<Number, Number>((x1+x2)/2, ((y1+y2)/2) / axisScalar));
 
 		// plot the right endpoint of the line
-		seriesData.add(new XYChart.Data<Number,Number>(x2, y2));
+		seriesData.add(new XYChart.Data<Number,Number>(x2, y2 / axisScalar));
 
 		// add label for slope value above the midpoint
 		seriesData.get(1).setNode(createSlopeLabel(m));
@@ -880,9 +884,11 @@ public class GraphNoSINCController implements Initializable {
 						// calculate the definite integral with the given limits
 						double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
 
+						double axisScalar = multiAxis.getAxisScalar(axis);
+
 						// p1 = (x1, y1), p2 = (x2, y2)
-						XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1]);
-						XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y);
+						XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1] / axisScalar);
+						XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y / axisScalar);
 
 						// ensure the lower bound is less than the upper bound
 						if (areaPoint[0] == areaBounds[0]) {
