@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
-import javafx.scene.chart.XYChart;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -20,8 +19,16 @@ public class MultipleAxesLineChart extends StackPane {
     private final BFALineChart<Number, Number> baseChart;
     private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
     private final Map<BFALineChart<Number, Number>, Color> chartColorMap = new HashMap<>();
+
+    /**
+     * Tracks the axis classes and their respective line charts holding the y-axes.
+     */
     private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
-    public  final Map<Integer, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
+
+    /**
+     * Tracks the currently drawn axes and their respective line charts.
+     */
+    public  final Map<AxisType, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
     
     // keeps track of currently graphed data sets (GTIndex/AxisType/data)
     private ArrayList<GraphData> dataSets;
@@ -42,13 +49,20 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
    
-    public double getAxisScalar(Integer axis) {
-        if (axis/4 < 3) {
-            return 1; //meters
-        } 
-        else{
-            return 100;
-        }
+    /**
+     * Returns the amount that the data set's graph should be scaled by.
+     * This is used for angular and magnetometer data sets.
+     * @param axis the AxisType representing the data set
+     * @return the amount that the data set's graph should be scaled by
+     */
+    public double getAxisScalar(AxisType axis) {
+
+        // if AxisType is Accel, Vel, or Disp
+        if (axis.getValue()/4 < 3) return 1;
+
+        // all other data sets
+        else return 100;
+
     }
 
     public ObservableList<BFALineChart<Number, Number>> getBackgroundCharts(){
@@ -56,21 +70,24 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor, Double strokeWidth) {
+        
         super();
         setPickOnBounds(false);
         dataSets = new ArrayList<GraphData>();
+
         if (baseChart == null) {
+
             xAxis = new BFANumberAxis();
             yAxis = new BFANumberAxis();
             xAxis.setTickUnit(1);
-            xAxis.setOnMouseClicked(e -> System.out.println("xAxis clicked"));
             yAxis.setTickUnit(1);
+            
             baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
             baseChart.getXAxis().setLabel("X Axis");
             baseChart.getYAxis().setLabel("Y Axis");
-        
 
         }
+
         if (strokeWidth != null) {
             this.strokeWidth = strokeWidth;
         } else {
@@ -170,6 +187,12 @@ public class MultipleAxesLineChart extends StackPane {
         return hBox;
     }
 
+    /**
+     * Adds a data set to the graph.
+     * Creates a y-axis class if necessary.
+     * @param d the GraphData object representing the AxisType, GTIndex, and XYChart.Series
+     * @param lineColor the color of the data set's graph
+     */
     public void addSeries(GraphData d, Color lineColor) {
 
         BFANumberAxis yAxisAdd = new BFANumberAxis();
@@ -178,35 +201,14 @@ public class MultipleAxesLineChart extends StackPane {
 
         int axisTypeInt = d.axis.getValue() / 4;
 
+        // set the label of the new y-axis
+        yAxisAdd.setLabel(getAxisLabel(d.axis));
+
         // if axis class is not graphed, create it
         if (!isAxisClassGraphed(d.axis)) {
-            switch (axisTypeInt) {
-            case 0: // accel
-                yAxisAdd.setLabel("m/s²");
-                break;
-            case 1: // vel
-                yAxisAdd.setLabel("m/s");
-                break;
-            case 2: // disp
-                yAxisAdd.setLabel("m");
-                break;
-            case 3: // angAcc
-                yAxisAdd.setLabel("°/s²");
-                break;
-            case 4: // angVel
-                yAxisAdd.setLabel("°/s");
-                break;
-            case 5: // angDisp
-                yAxisAdd.setLabel("° (Degrees)");
-                break;
-            case 6: // mag
-                yAxisAdd.setLabel("µT");
-                break;
-            default:
-                yAxisAdd.setLabel("Y-Axis");
-                break;
-            }
-            double axisScale = getAxisScalar(d.axis.getValue());
+            
+            double axisScale = getAxisScalar(d.axis);
+
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
             xAxisAdd.setAutoRanging(false);
@@ -246,7 +248,7 @@ public class MultipleAxesLineChart extends StackPane {
             lineChart = axisTypeMap.get(axisTypeInt);
         }
 
-        axisChartMap.put(d.axis.getValue(), lineChart);
+        axisChartMap.put(d.axis, lineChart);
         baseChart.getData().add(d.data);
         dataSets.add(d);
         
@@ -258,18 +260,54 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
+    /**
+     * Removes a data set from the graph.
+     * Also removes a y-axis class if necessary.
+     * @param axis the AxisType identifying the data set
+     * @param GTIndex the GenericTest to read data from
+     */
     public void removeAxis(AxisType axis, int GTIndex) {
-        findGraphData(GTIndex, axis).data.getData().clear();
-        dataSets.remove(findGraphData(GTIndex, axis));
-        axisChartMap.remove(axis.getValue());
 
+        GraphData d = findGraphData(GTIndex, axis);
+
+        // remove GraphData from list
+        dataSets.remove(d);
+        
+        // remove XYChart.Series from its LineChart
+        d.data.getData().clear();
+        axisChartMap.get(axis).getData().remove(d.data);
+        axisChartMap.remove(axis);
+
+        // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
-            System.out.println("destroying " + axis.name() + " axis");
+            System.out.println("Removing " + axis.name() + "'s axis class: " + getAxisLabel(axis));
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);
         }
        
         rebuildChart();
+    }
+
+    /**
+     * Returns the label for a given axis class.
+     * @param axis the AxisType representing the data set
+     * @return the label for a given axis class
+     */
+    private String getAxisLabel(AxisType axis) {
+
+        // an axis class is the sensor type of the data set
+        // since AxisType is formatted "X,Y,Z,Magnitude", dividing by 4 works here
+        switch (axis.getValue() / 4) {
+            case 0: return "m/s²";
+            case 1: return "m/s";
+            case 2: return "m";
+            case 3: return "°/s²";
+            case 4: return "°/s";
+            case 5: return "° (Degrees)";
+            case 6: return "µT";
+            default: return "Y-Axis";
+        }
+
     }
 
     private void styleBackgroundChart(BFALineChart<Number, Number> lineChart, Color lineColor) {

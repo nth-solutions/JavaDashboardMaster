@@ -14,7 +14,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -27,8 +26,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -332,11 +329,14 @@ public class GraphNoSINCController implements Initializable {
 		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
 		//yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
 		
-		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
-		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
-		for(Integer i : multiAxis.axisChartMap.keySet()){
-			((BFANumberAxis)(multiAxis.axisChartMap.get(i).getYAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3) * multiAxis.getAxisScalar(i));
-			((BFANumberAxis)(multiAxis.axisChartMap.get(i).getXAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-2));
+		
+		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
+		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
+
+		// update tick spacing based on zoom level
+		for (AxisType a : multiAxis.axisChartMap.keySet()) {
+			((BFANumberAxis)(multiAxis.axisChartMap.get(a).getYAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3) * multiAxis.getAxisScalar(a));
+			((BFANumberAxis)(multiAxis.axisChartMap.get(a).getXAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-2));
 		}
 
 		// remove data analysis tools (if drawn)
@@ -381,7 +381,7 @@ public class GraphNoSINCController implements Initializable {
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i+=resolution) {
 
-				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i)/multiAxis.getAxisScalar(axis.getValue()));
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
 			
 				// add tooltip with (x,y) when hovering over data point
 				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
@@ -424,7 +424,7 @@ public class GraphNoSINCController implements Initializable {
 			System.out.println("Removing " + axis);
 
 			// remove XYChart.Series from LineChart
-			lineChart.getData().remove(findGraphData(GTIndex, axis).data);
+			//lineChart.getData().remove(findGraphData(GTIndex, axis).data);
 
 			multiAxis.removeAxis(axis, GTIndex);
 
@@ -461,7 +461,7 @@ public class GraphNoSINCController implements Initializable {
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i+=resolution) {
 
-			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i));
+			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
 
 			// add tooltip with (x,y) when hovering over data point
 			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));

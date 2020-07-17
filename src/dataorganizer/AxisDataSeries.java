@@ -30,7 +30,7 @@ public class AxisDataSeries {
 	// default rolling block size to smooth data for integration
 	private int rollBlkSize = 100;
 
-	private AxisType axis;
+	public final AxisType axis;
 
 	// samples per second in passed in data series
 	private int sampleRate;
@@ -293,6 +293,8 @@ public class AxisDataSeries {
 		this.time = accel.getTime().toArray(this.time);
 
 		this.originalData = accel.getOriginalData().clone();
+
+		this.axis = accel.axis;
 
 		Double[] gravity = new Double[this.originalData.length];
 		Arrays.fill(gravity, 0d);

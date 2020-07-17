@@ -26,8 +26,8 @@ import javafx.scene.chart.ValueAxis;
 import javafx.util.StringConverter;
 
 /**
- * A axis class that plots a range of numbers with major tick marks every "tickUnit". You can use any Number type with
- * this axis, Long, Double, BigDecimal etc.
+ * This is a clone of NumberAxis with modifications.
+ * The whole class is copied because NumberAxis itself is final and cannot be extended.
  */
 public final class BFANumberAxis extends ValueAxis<Number> {
 
