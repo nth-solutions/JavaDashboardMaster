@@ -1997,7 +1997,7 @@ public class AdvancedMode extends JFrame {
 	}
 
 	public boolean writeTemplateWithOneDataSetHandler() {
-		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\_BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 		Settings settings = new Settings();
 		settings.loadConfigFile();
 		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
@@ -2037,11 +2037,11 @@ public class AdvancedMode extends JFrame {
 
 		try {
 			if (OSType == "Windows"){
-				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\_BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
 				parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
 				parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
 			}else if (OSType == "Mac"){
-				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/_BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
+				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/.BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
 				parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
 				parameterSpreadsheetController.saveWorkbook(CSVLocation +"/" + templateComboBox.getSelectedItem().toString());
 			}
@@ -2093,15 +2093,15 @@ public class AdvancedMode extends JFrame {
 
 		ParameterSpreadsheetController parameterSpreadsheetController;
 		if (OSType == "Windows") {
-		 	parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\_BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
+		 	parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
 		}else{ //means that OSType == "Mac"
-			parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/_BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
+			parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/.BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
 		}
 		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
 		List<Integer> params = dataOrgo.getTestParameters();
 		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
 		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\_BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
+//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
 //		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
 		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 0); //fills the data from the first module into the the first sheet of the workbook
 
@@ -3138,9 +3138,9 @@ public class AdvancedMode extends JFrame {
 			public void focusGained(FocusEvent arg0) {
 				File[] listOfFiles;
 				if (OSType == "Windows"){
-					listOfFiles = new File(System.getProperty("user.home")+"\\_BioForce Dashboard\\Advanced Templates\\").listFiles();
+					listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\Advanced Templates\\").listFiles();
 				}else {
-					listOfFiles = new File(System.getProperty("user.home")+"/_BioForce Dashboard/Advanced Templates/").listFiles();
+					listOfFiles = new File(System.getProperty("user.home")+"/.BioForce Dashboard/Advanced Templates/").listFiles();
 				}
 
 				for(File file : listOfFiles) {

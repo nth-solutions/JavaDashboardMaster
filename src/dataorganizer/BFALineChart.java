@@ -69,7 +69,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // allows mouse events to pass through polygon
         // makes selecting data points easier
         areaPane.setPickOnBounds(false);
-        System.out.println(start +", " + end);
+
         // set (x,y) position of the area label to halfway between the x-bounds of the area
         areaPane.setLayoutX(data.get((start + end) / 2).getNode().getLayoutX() - 50);
         areaPane.setLayoutY(data.get((start + end) / 2).getNode().getLayoutY() - 100);
@@ -236,8 +236,6 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         areaPane.setPickOnBounds(false);
 
         getPlotChildren().add(areaPane);
-
-        System.out.println((start + end) / 2);
 
         data.get((start + end) / 2).setNode(areaPane);
 

@@ -32,7 +32,7 @@ public class Settings {
 
 		try {
 
-			File SettingsDirectory = new File(System.getProperty("user.home")+"/_BioForce Dashboard/");
+			File SettingsDirectory = new File(System.getProperty("user.home")+"/.BioForce Dashboard/");
 
 			if (!SettingsDirectory.exists()) {
 				SettingsDirectory.mkdirs();
@@ -65,7 +65,7 @@ public class Settings {
 
 		try {
 
-			File SettingsDirectory = new File(System.getProperty("user.home") + "/_BioForce Dashboard/");
+			File SettingsDirectory = new File(System.getProperty("user.home") + "/.BioForce Dashboard/");
 
 	  		if (!SettingsDirectory.exists()) {
 				SettingsDirectory.mkdirs();

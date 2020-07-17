@@ -61,11 +61,6 @@ public class EducationModeHelpMenuController implements Initializable {
     @FXML
     Tab blankTab;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("HelloHello");
-    }
-
     public void selectEraseModuelHelpTabOne(){
         EducationHelpMenuTabPane.getSelectionModel().select(eraseModuleHelpTab);
     }
@@ -95,11 +90,17 @@ public class EducationModeHelpMenuController implements Initializable {
     public void selectSINCTechnologyHelpTab(){
         EducationHelpMenuTabPane.getSelectionModel().select(SINCTechnologyHelpTab);
     }
+    // FIXME typo in FXML field name
     public void selectSINCModuleCalibrationTab(){
         EducationHelpMenuTabPane.getSelectionModel().select(SINCCalirbationHelpTab);
     }
     public void selectBlankTab(){
         EducationHelpMenuTabPane.getSelectionModel().select(blankTab);
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
     }
 
 }

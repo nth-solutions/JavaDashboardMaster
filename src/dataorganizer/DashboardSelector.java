@@ -6,10 +6,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class DashboardSelector extends Application{
+/**
+ * Entry point for BioForce's software suite.
+ * This should be the starting class for building JARs/executables.
+ */
+public class DashboardSelector extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("DashboardSelector.fxml"));
         primaryStage.setTitle("Dashboard Selector");
         Scene scene = new Scene(root, 600, 400);

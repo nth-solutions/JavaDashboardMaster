@@ -460,9 +460,6 @@ public class AxisDataSeries {
 	 */
 	public Double getSlope(Double startTime, Double endTime) {
 
-		System.out.println(startTime);
-		System.out.println(endTime);
-
 		// if start and end times are the same, return slope of tangent line
 		if (startTime.equals(endTime)) {
 			/*
