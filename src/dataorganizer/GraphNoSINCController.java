@@ -107,7 +107,7 @@ public class GraphNoSINCController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		System.out.println("Initializing Data Analysis graph...");
-
+		
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
@@ -153,13 +153,14 @@ public class GraphNoSINCController implements Initializable {
 
 			if(!event.isAltDown()) {
 				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-				
+				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW);
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
 
 			// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
 			zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 			
+			zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
 			// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
 			zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 
@@ -225,6 +226,9 @@ public class GraphNoSINCController implements Initializable {
 
 		genericTests = g;
 		initializePanels();
+		for(GenericTest test : genericTests){
+			System.out.println("Test " + genericTests.indexOf(test) + " : " + test.getClass().getName());
+		}
 
 	}
 
@@ -268,6 +272,8 @@ public class GraphNoSINCController implements Initializable {
 		// remove existing panels
 		panels.clear();
 		a.getPanes().clear();
+		ExperimentPanel experimentPanel = new ExperimentPanel();
+		a.getPanes().add(experimentPanel);
 
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
@@ -317,19 +323,13 @@ public class GraphNoSINCController implements Initializable {
 		//xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
 		//xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
 		multiAxis.setYBounds(zoomviewY - zoomviewH/2,zoomviewY + zoomviewH/2);
-
-		if(zoomviewW > 50) {
-			lineChart.setVerticalGridLinesVisible(false);
-		} else {
-			lineChart.setVerticalGridLinesVisible(true);
-		}
-
+		
 		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
 		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
-		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2);
+		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2); ,
 		//yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
-		
-		
+		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-2));
+		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
 		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
 

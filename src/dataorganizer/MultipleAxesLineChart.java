@@ -172,7 +172,6 @@ public class MultipleAxesLineChart extends StackPane {
         hBox.setAlignment(Pos.CENTER_LEFT);
         hBox.prefHeightProperty().bind(heightProperty());
         hBox.prefWidthProperty().bind(widthProperty());
-        //hBox.setMouseTransparent(true);
 
         lineChart.minWidthProperty()
                 .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
@@ -209,6 +208,33 @@ public class MultipleAxesLineChart extends StackPane {
             
             double axisScale = getAxisScalar(d.axis);
 
+            switch (axisTypeInt) {
+            case 0: // accel
+                yAxisAdd.setLabel("Acceleration m/s²");
+                break;
+            case 1: // vel
+                yAxisAdd.setLabel("Velocity m/s");
+                break;
+            case 2: // disp
+                yAxisAdd.setLabel("Displacement m");
+                break;
+            case 3: // angAcc
+                yAxisAdd.setLabel("Angular Acceleration °/s²");
+                break;
+            case 4: // angVel
+                yAxisAdd.setLabel("Angular Velocity °/s");
+                break;
+            case 5: // angDisp
+                yAxisAdd.setLabel("Angular Displacement °");
+                break;
+            case 6: // mag
+                yAxisAdd.setLabel("Magnetic Field µT");
+                break;
+            default:
+                yAxisAdd.setLabel("Y-Axis");
+                break;
+            }
+            
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
             xAxisAdd.setAutoRanging(false);

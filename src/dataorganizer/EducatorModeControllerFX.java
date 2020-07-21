@@ -206,6 +206,8 @@ public class EducatorModeControllerFX implements Initializable {
     //double radiusOfTorqueArmSpring;
     private DataOrganizer dataOrgo;
     private DataOrganizer dataOrgoTwo;
+
+    private int experimentType;
     
     // GenericTest represents a single module and associated test data
     private ArrayList<GenericTest> genericTests;
@@ -748,6 +750,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void getExtraParameters(int comboBoxIndex) {
         generalStatusExperimentLabel.setText("");
+        experimentType = comboBoxIndex;
         switch (comboBoxIndex) {
             case 1:
                 //CoM
@@ -1816,8 +1819,39 @@ public class EducatorModeControllerFX implements Initializable {
 
                         System.out.println("Creating GenericTest");
 
-                        GenericTest g = new GenericTest(testParameters, finalData, MPUMinMax);
-                        genericTests.add(g);
+                        GenericTest newTest;
+
+                        switch (experimentType) {
+                            case 1: // Conservation of Momentum
+                                newTest = new ConservationMomentumTest(testParameters, finalData, serialHandler.getMPUMinMax(), massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
+                                break;
+                            case 2: // Conservation of Energy
+                                newTest = new ConservationEnergyTest(testParameters, finalData, serialHandler.getMPUMinMax(), massOfModuleAndHolder, momentOfInertiaCOE);
+                                break;
+                            case 3: // Inclined Plane - Top
+                                newTest = new InclinedPlaneTopTest(testParameters, finalData, serialHandler.getMPUMinMax());
+                                break;
+                            case 4: // Inclined Plane - Bottom
+                                newTest = new InclinedPlaneBottomTest(testParameters, finalData, serialHandler.getMPUMinMax());
+                                break;
+                            case 5: // Physical Pendulum
+                                newTest = new PhysicalPendulumTest(testParameters, finalData, serialHandler.getMPUMinMax(), lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
+                                break;
+                            case 6: // Spring Test
+                                newTest = new SpringTest(testParameters, finalData, serialHandler.getMPUMinMax(), springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                break;
+                            case 7: // Generic Template - One Module
+                                newTest = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());
+                                break;
+                            case 8: //TODO Generic Template - Two Module
+                                newTest = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());
+                                break;
+                            default:
+                                newTest = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());
+                                break;
+                        }
+
+                        genericTests.add(newTest);
                         
                         dataOrgo = new DataOrganizer(testParameters, "OLD_" + newName);                         // object that stores test data.
                         dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
@@ -1828,7 +1862,7 @@ public class EducatorModeControllerFX implements Initializable {
                         Runnable organizerOperation = () -> {
 
                             // write GenericTest to CSV
-                            writer.writeCSV(g, settings, newName);
+                            writer.writeCSV(newTest, settings, newName);
                             writer.writeCSVP(testParameters, settings, newName, MPUMinMax); 
 
                             //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.

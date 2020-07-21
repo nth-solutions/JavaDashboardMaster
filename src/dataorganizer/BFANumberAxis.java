@@ -204,10 +204,11 @@ public final class BFANumberAxis extends ValueAxis<Number> {
             } else {
                 if (lowerBound + tickUnit < upperBound) {
                     // If tickUnit is integer, start with the nearest integer
-                    for(int i = 0; i < upperBound/tickUnit; i++){
+                    for(int i = (lowerBound > 0 ? (int)Math.floor(lowerBound/tickUnit) : 0); i < upperBound/tickUnit; i++){
                         tickValues.add(i * tickUnit);
+                        
                     }
-                    for(int i = 0; i > lowerBound/tickUnit; i--){
+                    for(int i = (upperBound < 0 ? (int)Math.floor(upperBound/tickUnit) : 0); i > lowerBound/tickUnit; i--){
                         tickValues.add(i * tickUnit);
                     }
                     /*
