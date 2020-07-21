@@ -58,7 +58,7 @@ public class MultipleAxesLineChart extends StackPane {
     public double getAxisScalar(AxisType axis) {
 
         // if AxisType is Accel, Vel, or Disp
-        if (axis.getValue()/4 < 3) return 1;
+        if (axis.getValue()/4 < 3) return 10;
 
         // all other data sets
         else return 100;
@@ -207,33 +207,6 @@ public class MultipleAxesLineChart extends StackPane {
         if (!isAxisClassGraphed(d.axis)) {
             
             double axisScale = getAxisScalar(d.axis);
-
-            switch (axisTypeInt) {
-            case 0: // accel
-                yAxisAdd.setLabel("Acceleration m/s²");
-                break;
-            case 1: // vel
-                yAxisAdd.setLabel("Velocity m/s");
-                break;
-            case 2: // disp
-                yAxisAdd.setLabel("Displacement m");
-                break;
-            case 3: // angAcc
-                yAxisAdd.setLabel("Angular Acceleration °/s²");
-                break;
-            case 4: // angVel
-                yAxisAdd.setLabel("Angular Velocity °/s");
-                break;
-            case 5: // angDisp
-                yAxisAdd.setLabel("Angular Displacement °");
-                break;
-            case 6: // mag
-                yAxisAdd.setLabel("Magnetic Field µT");
-                break;
-            default:
-                yAxisAdd.setLabel("Y-Axis");
-                break;
-            }
             
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
@@ -324,13 +297,13 @@ public class MultipleAxesLineChart extends StackPane {
         // an axis class is the sensor type of the data set
         // since AxisType is formatted "X,Y,Z,Magnitude", dividing by 4 works here
         switch (axis.getValue() / 4) {
-            case 0: return "m/s²";
-            case 1: return "m/s";
-            case 2: return "m";
-            case 3: return "°/s²";
-            case 4: return "°/s";
-            case 5: return "° (Degrees)";
-            case 6: return "µT";
+            case 0: return "Acceleration (m/s²)";
+            case 1: return "Velocity (m/s)";
+            case 2: return "Displacement (m)";
+            case 3: return "Angular Acceleration (°/s²)";
+            case 4: return "Angular Velocity (°/s)";
+            case 5: return "Angular Displacement (°)";
+            case 6: return "Magnetic Field (µT)";
             default: return "Y-Axis";
         }
 
