@@ -272,8 +272,13 @@ public class GraphNoSINCController implements Initializable {
 		// remove existing panels
 		panels.clear();
 		a.getPanes().clear();
+
+		/*
+		FIXME disabled for REV-40
+
 		ExperimentPanel experimentPanel = new ExperimentPanel();
 		a.getPanes().add(experimentPanel);
+		*/
 
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
