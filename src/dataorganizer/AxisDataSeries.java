@@ -35,6 +35,9 @@ public class AxisDataSeries {
 	// samples per second in passed in data series
 	private int sampleRate;
 
+	// acceleration due to gravity, modify this to add more sigfigs if needed
+	private final double GRAVITY = 9.80665;
+
 	/**
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.
 	 * @param time the time axis for the data set
@@ -156,8 +159,8 @@ public class AxisDataSeries {
 			// accel enum is 0-2 and offsets are 0-2 (X,Y,Z)
 			this.originalData[i] -= accelOffsets[axis.getValue()];
 
-			// apply sensitivity for accel
-			this.originalData[i] *= ((double) accelSensitivity) / 32768;
+			// apply sensitivity for accel (including acceleration due to gravity)
+			this.originalData[i] *= ((double) accelSensitivity * GRAVITY) / 32768;
 
 		}
 
