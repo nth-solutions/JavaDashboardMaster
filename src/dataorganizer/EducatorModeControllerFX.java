@@ -106,6 +106,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     RadioButton sincTechnologyRadioButton;
     @FXML
+    RadioButton DAGRadioButton;
+    @FXML
     Button readTestButton;
     @FXML
     Button sincCalibrationButton;
@@ -113,6 +115,9 @@ public class EducatorModeControllerFX implements Initializable {
     ProgressBar progressBar;
     @FXML
     Button eraseButton;
+
+    @FXML
+    ToggleGroup outputType;
 
     @FXML
     Button eraseModuleButtonMainMenu;
@@ -219,7 +224,6 @@ public class EducatorModeControllerFX implements Initializable {
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<>();
-    private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
     public static String testType;
     private Boolean moduleConnected;
 
@@ -235,8 +239,7 @@ public class EducatorModeControllerFX implements Initializable {
         genericTests = new ArrayList<GenericTest>();
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
-        backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
-        initializeToggleGroup();                                                                                        //See Method Comment
+        backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.                                                                                   //See Method Comment
         fillTestTypeHashMap();                                                                                         //See Method Comment
 
         applyConfigurationsToFirstModuleLabel.setVisible(false);
@@ -247,23 +250,6 @@ public class EducatorModeControllerFX implements Initializable {
 
         moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
         oneModuleTest = true;
-    }
-
-    /**
-     * This method is utilized solely to clean up method implementation within the initialize() method. Essentially, this
-     * method adds several key UI radioButtons to the outputTypeToggleGroup ToggleGroup, and then assigns each button a userData
-     * object which is used to identify which toggle is being selected in the readTestsFromModule() ActionEvent called below
-     */
-    private void initializeToggleGroup() {
-        //Prevents more than one output type from being selected
-        spreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);  //Adds a RadioButton to the outputTypeToggleGroup Toggle Group
-        spreadsheetRadioButton.setUserData("spreadSheetRadioButton");   //Assigns the RadioButton a userData object
-//        graphRadioButton.setToggleGroup(outputTypeToggleGroup);
-//        graphRadioButton.setUserData("graphRadioButton");
-    //    graphAndSpreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);
-     //   graphAndSpreadsheetRadioButton.setUserData("graphAndSpreadsheetRadioButton");
-        sincTechnologyRadioButton.setToggleGroup(outputTypeToggleGroup);
-        sincTechnologyRadioButton.setUserData("sincTechnologyRadioButton");
     }
 
     /**
@@ -1291,9 +1277,8 @@ public class EducatorModeControllerFX implements Initializable {
      * a string.
      * @return String that details what output type has been selected from the outputTypeToggleGroup ToggleGroup
      */
-    private String getOutputTypeToggle() {
-        String outputSelected = outputTypeToggleGroup.getSelectedToggle().getUserData().toString();
-        return outputSelected;
+    private RadioButton getOutputType() {
+        return (RadioButton) outputType.getSelectedToggle();
     }
 
     /**
@@ -1302,11 +1287,10 @@ public class EducatorModeControllerFX implements Initializable {
      * @param event
      */
     @FXML
-    private void readTestsFromModule(ActionEvent event) {
+    private void readTestsFromModule(ActionEvent event) {                                                                 //variable for selected output is used to determine what will be run.
 
-        String outputSelected = getOutputTypeToggle();                                                                  //variable for selected output is used to determine what will be run.
+        if (getOutputType().equals(spreadsheetRadioButton)) {
 
-        if (outputSelected == "spreadSheetRadioButton") {
             HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
             FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
@@ -1314,6 +1298,12 @@ public class EducatorModeControllerFX implements Initializable {
                 public void run() {
 
                     String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+
+                    if (path == null) {
+                        Alert a = new Alert(AlertType.ERROR, "Please select a location to save your Excel template to.");
+                        a.showAndWait();
+                        return;
+                    }
 
                     try {
                         ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
@@ -1386,6 +1376,7 @@ public class EducatorModeControllerFX implements Initializable {
                                         dataOrgo.createDataSmpsRawData(finalData);
 
                                         if (spreadsheetRadioButton.isSelected()) {
+                                            
                                             List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
                                             Platform.runLater(() -> {
@@ -1738,7 +1729,7 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //                readTestsFromModuleTask.run(); // Runs the futureTask.
 //
-        } else if (outputSelected == "sincTechnologyRadioButton"){
+        } else if (getOutputType().equals(sincTechnologyRadioButton) || getOutputType().equals(DAGRadioButton)) {
         	
             HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
@@ -2453,73 +2444,68 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void launchMotionVisualizationMainMenu(ActionEvent event) {
     	
-        Alert a = new Alert(AlertType.CONFIRMATION, "Open the Data Analysis Graph?");
-    	Optional<ButtonType> result = a.showAndWait();
-    	
-    	if (result.get() == ButtonType.OK) {
-    		
-    		Settings settings = new Settings();
-            settings.loadConfigFile();
-            
-    		GraphNoSINCController g = startGraphingNoSINC(); 
-    		
-            File directory = new File(settings.getKeyVal("CSVSaveLocation"));
+        lineGraph = startGraphing();
+    
+    }
 
-    		// fetches all CSV files from given folder
-    	    File[] files = directory.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".csv");
-                }           
-            });
+    @FXML
+    private void launchDAG(ActionEvent event) {
 
-            long lastModifiedTime = Long.MIN_VALUE;
-            File chosenFile = null;
+        Settings settings = new Settings();
+        settings.loadConfigFile();
+        
+        GraphNoSINCController g = startGraphingNoSINC(); 
+        
+        File directory = new File(settings.getKeyVal("CSVSaveLocation"));
 
-            // if no CSV files could be found, don't continue
-            if (files == null || files.length == 0) {
-                System.out.println("No CSV files found");
-                return;
+        // fetches all CSV files from given folder
+        File[] files = directory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".csv");
+            }           
+        });
+
+        long lastModifiedTime = Long.MIN_VALUE;
+        File chosenFile = null;
+
+        // if no CSV files could be found, don't continue
+        if (files == null || files.length == 0) {
+            System.out.println("No CSV files found");
+            return;
+        }
+
+        // Finds the most recently modified file
+        for (File f : files) {
+
+            String filePath = f.toString();
+            File csvp = new File(filePath.substring(0, filePath.length()-4) + ".csvp");
+
+            // if CSVP file with same name 
+            if (csvp.exists() && f.lastModified() > lastModifiedTime) {
+                chosenFile = f;
+                lastModifiedTime = f.lastModified();
             }
+        }
 
-            // Finds the most recently modified file
-            for (File f : files) {
+        // if no CSV/CSVP file pair could be found, don't continue
+        if (chosenFile == null) {
+            System.out.println("No CSV/CSVP file pair found");
+            return;
+        }
 
-                String filePath = f.toString();
-                File csvp = new File(filePath.substring(0, filePath.length()-4) + ".csvp");
-
-                // if CSVP file with same name 
-                if (csvp.exists() && f.lastModified() > lastModifiedTime) {
-                    chosenFile = f;
-                    lastModifiedTime = f.lastModified();
-                }
-            }
-
-            // if no CSV/CSVP file pair could be found, don't continue
-            if (chosenFile == null) {
-                System.out.println("No CSV/CSVP file pair found");
-                return;
-            }
-
-    	    String pathToFile = chosenFile.toString();
-    	    
-            long start = System.nanoTime(); 
-            g.setGenericTestFromCSV(pathToFile);
-            long elapsedTime = System.nanoTime() - start;
-            
-            System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");
-            
-    	}
-    	else {
-            lineGraph = startGraphing();
-    	}
+        String pathToFile = chosenFile.toString();
+        
+        long start = System.nanoTime(); 
+        g.setGenericTestFromCSV(pathToFile);
+        long elapsedTime = System.nanoTime() - start;
+        
+        System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");
+        
     }
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-
-        OSManager osmanger = new OSManager();
-        String OSType = osmanger.getOSType();
 
         String pathTofile;
 
@@ -2539,51 +2525,41 @@ public class EducatorModeControllerFX implements Initializable {
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
-          
+
             pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgoTwo.getName();
-          
+
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
 
         }
         else {
-            
-            // temporary selection between graph types
-            // TODO create final UI for selecting graph applications
-        	Alert a = new Alert(AlertType.CONFIRMATION, "Launch the Data Analysis Graph?");
-        	Optional<ButtonType> result = a.showAndWait();
-        	
-        	if (result.get() == ButtonType.OK) {
-                
-                // temporary selection between data pipelines
-                // TODO eventually phase out DataOrganizer pipeline
-        		Alert b = new Alert(AlertType.CONFIRMATION, "Read data directly from module via SerialComm?");
-                Optional<ButtonType> result1 = b.showAndWait();
-                
-            	if (result1.get() == ButtonType.OK) {
 
-                    GraphNoSINCController graph = startGraphingNoSINC();
+            // launch SINC Graph
+            if (sincTechnologyRadioButton.isSelected()) {
 
-                    // TODO fix GTs, have a loop that creates GTs based on # of modules
-                    graph.setGenericTests(genericTests);
-
-            	}
-            	else {
-                    GraphNoSINCController graph = startGraphingNoSINC();
-                    graph.createTest(dataOrgo, dataOrgoTwo);
-                }
-                
-        	} else {
-
-        		Settings settings = new Settings();
+                Settings settings = new Settings();
         		settings.loadConfigFile();
         		pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
                 lineGraph = startGraphing();
                 lineGraph.setCsvFilePath(pathTofile);
                 lineGraph.loadCSVData();
-        		
-        	}
-        	
+
+            }
+            // open Data Analysis Graph
+            else if (DAGRadioButton.isSelected()) {
+
+                GraphNoSINCController graph = startGraphingNoSINC();
+                graph.setGenericTests(genericTests);
+
+            }
+            // display error
+            else if (spreadsheetRadioButton.isSelected()) {
+
+                Alert a = new Alert(AlertType.ERROR, "To view your data, open the Excel spreadsheet created by the Dashboard.");
+                a.showAndWait();
+
+            }
+                    	
         }
     }
 
@@ -3436,11 +3412,11 @@ public class EducatorModeControllerFX implements Initializable {
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
         generalStatusExperimentLabel.setText("Copying File Template...");
 
-        FileChooser chooser;
-        chooser = new FileChooser();
-        chooser.setInitialDirectory(new java.io.File("."));
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(new File("."));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Name Output File (*.xlsx)", "*.xlsx"));
         File file = chooser.showSaveDialog(null);
+
         if (file != null) {
 
             String fileout = file.toString();
@@ -3457,7 +3433,7 @@ public class EducatorModeControllerFX implements Initializable {
         } else {
             generalStatusExperimentLabel.setTextFill(Color.RED);
             generalStatusExperimentLabel.setText("Invalid File Path Entered");
-            return "Invalid File Path";
+            return null;
         }
     }
 
@@ -3486,7 +3462,7 @@ public class EducatorModeControllerFX implements Initializable {
         } else {
             generalStatusExperimentLabel.setTextFill(Color.RED);
             generalStatusExperimentLabel.setText("Invalid File Path Entered");
-            return "Invalid File Path";
+            return null;
         }
     }
 

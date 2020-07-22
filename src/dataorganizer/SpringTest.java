@@ -15,7 +15,6 @@ public class SpringTest extends GenericTest {
 		this.totalMass = totalMass;
 		this.amplitude = amplitude;
 		this.springMass = springMass;
-		// TODO Auto-generated constructor stub
 	}
 
 }

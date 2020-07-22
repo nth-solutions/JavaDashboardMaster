@@ -279,50 +279,6 @@ public class AxisDataSeries {
 	}
 
 	/**
-	 * <b>USED FOR TESTING CALCULATIONS, NOT FOR PRODUCTION</b><p>
-	 * Constructor for producing linear acceleration axis.
-	 * Utilizes a low-pass filter to isolate the gravity vector,
-	 * then subtracts this from raw acceleration to yield linear acceleration.
-	 * @deprecated filter does not work as intended, will be removed in the future
-	 * @param accel - the AxisDataSeries for the raw acceleration data set
-	 */
-	@Deprecated
-	public AxisDataSeries(AxisDataSeries accel) {
-
-		// casts Lists to Double[]'s
-		// (this is done b/c DataOrganizer uses ArrayLists)
-		//
-		this.time = new Double[accel.getTime().size()];
-		this.time = accel.getTime().toArray(this.time);
-
-		this.originalData = accel.getOriginalData().clone();
-
-		this.axis = accel.axis;
-
-		Double[] gravity = new Double[this.originalData.length];
-		Arrays.fill(gravity, 0d);
-
-		// unsure about the nature of ALPHA:
-		// found it is calculated α = t / (t + dT),
-		// but not sure what "t" (time constant) would be;
-		// using a value that I have seen online.
-		final float ALPHA = 0.9f;
-
-		gravity[0] = originalData[0];
-
-		for (int i = 1; i < gravity.length; i++) {
-
-			gravity[i] = ALPHA * gravity[i-1] + (1 - ALPHA) * originalData[i];
-			originalData[i] -= gravity[i];
-
-		}
-
-		this.smoothedData = this.originalData.clone();
-		userSmoothedData = smoothedData.clone();
-
-	}
-
-	/**
 	 * Creates normalized data set with a "baseline" interval set to 0.
 	 * @param startTime the x-value of the first data point
 	 * @param endTime the x-value of the second data point
@@ -523,23 +479,4 @@ public class AxisDataSeries {
 		return new ArrayList<Double>(Arrays.asList(userSmoothedData));
 	}
 
-	@Deprecated
-	public void setOriginalDataPoint(int index, Double value) {
-		this.originalData[index] = value;
-	}
-
-	@Deprecated
-	public Double[] getSmoothedData() {
-		return this.smoothedData;
-	}
-
-	@Deprecated
-	public Double[] getOriginalData() {
-		return this.originalData;
-	}
-
-	@Deprecated
-	public void setOriginalData(Double[] data) {
-		this.originalData = data;
-	}
 }

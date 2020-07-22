@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -22,8 +21,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -73,13 +70,17 @@ public class GraphNoSINCController implements Initializable {
 	private GraphMode mode = GraphMode.NONE;
 
 	// object
-	private XYChart.Series<Number,Number> slope;
+	private XYChart.Series<Number,Number> slopeLine;
 
 	// keeps track of first point in secant line calculation
 	private Double[] slopePoint;
 
 	// keeps track of first point in area calculation
 	private Double[] areaPoint;
+
+	// the GraphData of the first point in slope/area calculations
+	// used to check if the user selected points from two different data sets
+	private GraphData selectedGraphData;
 
 	// number of sig figs that labels are rounded to
 	// TODO make this an advanced user setting
@@ -285,16 +286,13 @@ public class GraphNoSINCController implements Initializable {
 
 			DataSetPanel d = new DataSetPanel(i);
 
-			// TODO set this to name of CSV/user's custom name
-			// this could be done by adding a "name" attribute to GT
-			// maybe double clicking on this would allow a textbox to appear to change names?
 			d.setText("Module " + (i+1));
 
 			// convey checkbox ticking on/off from child class to this class
 			d.currentAxis.addListener((obs, oldVal, newVal) -> {
 
 				// TODO part of the hack w/ change listeners
-				if (newVal.intValue() == -1) return;	
+				if (newVal.intValue() == -1) return;
 				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
 			
 			});
@@ -357,10 +355,6 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void graphAxis(AxisType axis, int GTIndex) {
 
-		// TODO old remove
-		// get checkbox by looking up FXID (the name of the AxisType)
-		//CheckBox c = (CheckBox) lineChart.getScene().lookup("#Toggle" + axis);
-
 		// if axis is not already graphed:
 		if (findGraphData(GTIndex, axis) == null) {
 
@@ -408,10 +402,6 @@ public class GraphNoSINCController implements Initializable {
 
 			// add graph with new axis
 			multiAxis.addSeries(d, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8));
-
-			// TODO old remove
-			// add XYChart.Series to LineChart
-			//lineChart.getData().add(series);
 
 			// hide all data point symbols UNLESS they are for the legend
 			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
@@ -544,21 +534,6 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
-	/**
-	 * Called by JavaFX when a data set's checkbox is ticked.
-	 */
-	@FXML
-	public void chooseGraphAxis(ActionEvent event) {
-
-		// get AxisType from checkbox
-		CheckBox c = (CheckBox) event.getSource();
-		String axis = (String) c.getId().replace("Toggle", "");
-		AxisType a = AxisType.valueOf(axis);
-
-		graphAxis(a, 0);
-
-	}
-
 	@FXML
 	public void toggleSlopeMode(ActionEvent event) {
 
@@ -650,6 +625,8 @@ public class GraphNoSINCController implements Initializable {
 		slopePoint = new Double[2];
 		areaPoint = new Double[2];
 
+		selectedGraphData = null;
+
 		switch (g) {
 
 			case NONE:
@@ -679,7 +656,7 @@ public class GraphNoSINCController implements Initializable {
 		// get slope value "m"
 		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, resolution);
 
-		slope = new XYChart.Series<Number, Number>();
+		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 
 		// Formula used is point-slope form of a line:
@@ -699,12 +676,12 @@ public class GraphNoSINCController implements Initializable {
 		// add label for slope value to the center of the line, above the tangent point
 		seriesData.get(0).setNode(createSlopeLabel(m));
 
-		slope.setName("Slope (" + axis + ")");
-		slope.setData(seriesData);
+		slopeLine.setName("Slope (" + axis + ")");
+		slopeLine.setData(seriesData);
 
 		// TODO clean up, don't need to recreate XYChart.Series
-		lineChart.getData().add(slope);
-		slope.getNode().getStyleClass().add("slope-line");
+		lineChart.getData().add(slopeLine);
+		slopeLine.getNode().getStyleClass().add("slope-line");
 
 		setGraphMode(GraphMode.NONE);
 
@@ -720,7 +697,7 @@ public class GraphNoSINCController implements Initializable {
 		// get slope value "m"
 		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x1, x2);
 
-		slope = new XYChart.Series<Number, Number>();
+		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 
 		// Formula used is point-slope form of a line:
@@ -740,12 +717,12 @@ public class GraphNoSINCController implements Initializable {
 		// add label for slope value above the midpoint
 		seriesData.get(1).setNode(createSlopeLabel(m));
 
-		slope.setName("Slope (" + axis + ")");
-		slope.setData(seriesData);
+		slopeLine.setName("Slope (" + axis + ")");
+		slopeLine.setData(seriesData);
 
 		// TODO clean up, don't need to recreate XYChart.Series
-		lineChart.getData().add(slope);
-		slope.getNode().getStyleClass().add("slope-line");
+		lineChart.getData().add(slopeLine);
+		slopeLine.getNode().getStyleClass().add("slope-line");
 
 		setGraphMode(GraphMode.NONE);
 
@@ -755,7 +732,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Clears the slope line at/between points (if currently drawn).
 	 */
 	private void clearSlope() {
-		if (slope != null) lineChart.getData().remove(slope);
+		if (slopeLine != null) lineChart.getData().remove(slopeLine);
 	}
 
 	/**
@@ -855,8 +832,21 @@ public class GraphNoSINCController implements Initializable {
 					if (e.isShiftDown()) {
 						System.out.println("Selected first slope point");
 						slopePoint = new Double[] {x,y};
+						selectedGraphData = new GraphData(GTIndex, axis, null);
 					}
 					else {
+
+						// check for any issues with calculating b/t different data sets
+						if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {
+
+							Alert a = new Alert(AlertType.ERROR, "Slope calculations only work when selecting points from the same data set.");
+							a.showAndWait();
+							
+							setGraphMode(GraphMode.NONE);
+							return;
+							
+						}
+
 						// graph tangent line
 						if (slopePoint[0] == null && slopePoint[1] == null) {
 							System.out.println("Graphing tangent line...");
@@ -876,11 +866,23 @@ public class GraphNoSINCController implements Initializable {
 					if (areaPoint[0] == null && areaPoint[1] == null) {
 						System.out.println("Selected first area point");
 						areaPoint = new Double[] {x,y};
+						selectedGraphData = new GraphData(GTIndex, axis, null);
 					}
 					// calculate and shade area
 					else {
 
 						System.out.println("Graphing area...");
+
+						// check for any issues with calculating b/t different data sets
+						if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {
+
+							Alert a = new Alert(AlertType.ERROR, "Area calculations only work when selecting points from the same data set.");
+							a.showAndWait();
+
+							setGraphMode(GraphMode.NONE);
+							return;
+						
+						}
 
 						// ensures that x1 is always less than x2
 						double[] areaBounds = new double[] {areaPoint[0], x};
@@ -945,74 +947,6 @@ public class GraphNoSINCController implements Initializable {
 		NONE,
 		SLOPE,
 		AREA
-	}
-
-	/**
-	 * Old method of passing data to the Data Analysis Graph reading from DataOrganizer(s).
-	 * @deprecated use {@link #setGenericTests(GenericTest, GenericTest)} instead.
-	 */
-	@Deprecated
-	public void createTest(DataOrganizer d1, DataOrganizer d2) {
-
-		// Create GenericTest object if module exists -- otherwise, "null"
-		// "null" on one of these differentiates b/t One/Two Module setup
-		if (d2 != null) {
-			genericTests.add(new GenericTest(d1));
-		}
-		else {
-			genericTests.add(new GenericTest(d1));
-			genericTests.add(new GenericTest(d2));
-		}
-
-		// TEST CODE - TO BE REPLACED LATER
-		// TODO select data set to graph based on type of GenericTest
-		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-        graphAxis(AxisType.AccelX, 0);
-
-	}
-
-	//=========================================================
-	// DEBUG CODE BELOW USED FOR TESTING -- NOT FOR PRODUCTION
-	//=========================================================
-	@FXML
-	private CheckBox debugIgnoreResCheckbox;
-
-	@FXML
-	public void debugShowAllSamples(ActionEvent event) {
-
-		CheckBox c = (CheckBox) event.getSource();
-
-		// if checked, set resolution to 1 (no skipping over data samples);
-		// otherwise, default to graphing every 20th sample
-		resolution = c.isSelected() ? 1 : 20;
-
-		// update all currently drawn axes
-		for (GraphData d : dataSets) {
-			updateAxis(d.axis, d.GTIndex);
-		}
-
-	}
-
-	@FXML
-	public void debugGraphAxis(ActionEvent event) {
-
-		List<String> choices = new ArrayList<>();
-
-		for (int i = 0; i < AxisType.values().length; i++) {
-			choices.add(AxisType.valueOf(i).toString());
-		}
-
-		ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
-
-		dialog.setTitle("[DEBUG] Graph Axis");
-		dialog.setHeaderText("This is a testing feature to graph an AxisDataSeries.");
-		dialog.setContentText("Choose axis:");
-
-		Optional<String> result = dialog.showAndWait();
-		if (result.isPresent()) {
-			graphAxis(AxisType.valueOf(result.get()), 0);
-		}
-
 	}
 
 }

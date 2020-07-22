@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.aspose.cells.Cell;
 import com.aspose.cells.Cells;
-import com.aspose.cells.FindOptions;
-import com.aspose.cells.LookAtType;
 import com.aspose.cells.Workbook;
 import com.aspose.cells.Worksheet;
 
