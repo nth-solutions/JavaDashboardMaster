@@ -12,6 +12,17 @@ public class ConservationEnergyTest extends GenericTest {
 		// TODO Auto-generated constructor stub
 		this.mass = mass;
 		this.momentOfInertia = momentOfInertia;
+		setGraphTitle("Conservation of Energy");
+		setDefaultAxes(new AxisType[] {AxisType.AccelX});
+	}
+	public void setupExperimentPanel(ExperimentPanel panel){
+		panel.setExperimentName("Conservation of Energy");
+		panel.addParamName("Mass");
+		panel.addParamValue(mass +" kg");
+		panel.addParamName("Moment of Inertia");
+		panel.addParamValue(momentOfInertia +" kg-m²");
+
+		panel.applyParams();
 	}
 
 }

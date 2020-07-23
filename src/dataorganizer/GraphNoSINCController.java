@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.sun.corba.se.impl.ior.GenericIdentifiable;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,6 +31,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
 public class GraphNoSINCController implements Initializable {
@@ -102,6 +105,10 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private AnchorPane anchorPane;
+
+	@FXML
+	private Text generalStatusLabel;
+
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -213,7 +220,9 @@ public class GraphNoSINCController implements Initializable {
 
 		// g1/g2 are allowed to be null here (differentiating One/Two Module setup)
 		genericTests.add(g);
+		
 		initializePanels();
+		
 
 	}
 
@@ -268,11 +277,12 @@ public class GraphNoSINCController implements Initializable {
 
 		// get reference to root element
 		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
-
+		generalStatusLabel.setText(genericTests.get(0).getGraphTitle());
 		// remove existing panels
 		panels.clear();
 		a.getPanes().clear();
 		ExperimentPanel experimentPanel = new ExperimentPanel();
+		genericTests.get(0).setupExperimentPanel(experimentPanel);
 		a.getPanes().add(experimentPanel);
 
 		// create data set panels
@@ -307,7 +317,9 @@ public class GraphNoSINCController implements Initializable {
 
 			// TODO select data set to graph based on type of GenericTest
 			// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-			graphAxis(AxisType.AccelX, 0);
+			for(AxisType axisType : genericTests.get(0).getDefaultAxes()){
+				graphAxis(axisType, 0);
+			}
 
 		});
 		
@@ -962,7 +974,9 @@ public class GraphNoSINCController implements Initializable {
 		// TEST CODE - TO BE REPLACED LATER
 		// TODO select data set to graph based on type of GenericTest
 		// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-        graphAxis(AxisType.AccelX, 0);
+		for(AxisType axisType : genericTests.get(0).getDefaultAxes()){
+			graphAxis(axisType, 0);
+		}
 
 	}
 

@@ -11,7 +11,9 @@ public class GenericTest {
 	
 	private AxisDataSeries[] axes;
 	private List<List<Double>> dataSamples;
-	
+	private String graphTitle;
+	private AxisType[] defaultAxes;
+
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
 	 * This is the preferred method of passing data to the Data Analysis Graph and features up-to-date calculations.
@@ -26,11 +28,10 @@ public class GenericTest {
 		int magSampleRate = testParameters.get(8);
 		int accelSensitivity = testParameters.get(9);
 		int gyroSensitivity = testParameters.get(10);
-
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
-		
+		setDefaultAxes(new AxisType[] {AxisType.AccelX});
 		// TODO MPUMinMax will randomly be read as "null" from SerialComm
 		// this ensures that a NullPointerException isn't thrown later in GT
 		if (MPUMinMax == null) {
@@ -307,6 +308,26 @@ public class GenericTest {
 	 */
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
+	}
+
+	public void setupExperimentPanel(ExperimentPanel panel){
+		panel.setExperimentName("Generic Test");
+		panel.applyParams();
+	}
+
+	public void setDefaultAxes(AxisType[] axes){
+		defaultAxes = axes;
+	}
+	
+	public AxisType[] getDefaultAxes(){
+		return defaultAxes;
+	}
+
+	public void setGraphTitle(String title){
+		graphTitle = title;
+	}
+	public String getGraphTitle(){
+		return graphTitle;
 	}
 				
 }

@@ -15,7 +15,20 @@ public class ConservationMomentumTest extends GenericTest {
 		this.massLeftModule = massLeftModule;
 		this.massRightGlider = massRightGlider;
 		this.massLeftGlider = massLeftGlider;
+		setGraphTitle("Conservation of Momentum");
+		setDefaultAxes(new AxisType[] {AxisType.VelX});
 		// TODO Auto-generated constructor stub
 	}
-
+	public void setupExperimentPanel(ExperimentPanel panel){
+		panel.setExperimentName("Conservation of Momentum");
+		panel.addParamName("Mass of Right Module");
+		panel.addParamValue(massRightModule +" kg");
+		panel.addParamName("Mass of Left Module");
+		panel.addParamValue(massLeftModule +" kg");
+		panel.addParamName("Mass of the Right Glider");
+		panel.addParamValue(massRightGlider +" kg");
+		panel.addParamName("Mass of the Left Glider");
+		panel.addParamValue(massLeftGlider +" kg");
+		panel.applyParams();
+	}
 }

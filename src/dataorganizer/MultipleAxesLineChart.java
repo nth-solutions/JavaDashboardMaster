@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.Observable;
+import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -39,7 +40,7 @@ public class MultipleAxesLineChart extends StackPane {
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
     private double strokeWidth = 0.3;
-
+    private DoubleProperty initalXProperty;
     public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor) {
         this(baseChart, lineColor, null);
     }
@@ -124,6 +125,7 @@ public class MultipleAxesLineChart extends StackPane {
         baseChart.getYAxis().setAutoRanging(false);
         baseChart.getXAxis().setAnimated(false);
         baseChart.getYAxis().setAnimated(false);
+        baseChart.getYAxis().setOpacity(0.0);
 
     }
 
@@ -158,11 +160,11 @@ public class MultipleAxesLineChart extends StackPane {
         hBox.prefWidthProperty().bind(widthProperty());
 
         lineChart.minWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
         lineChart.prefWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
         lineChart.maxWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
 
         return lineChart;
     }
@@ -174,14 +176,22 @@ public class MultipleAxesLineChart extends StackPane {
         hBox.prefWidthProperty().bind(widthProperty());
 
         lineChart.minWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
         lineChart.prefWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
         lineChart.maxWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * backgroundCharts.size()));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
 
-        lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
-        lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * backgroundCharts.indexOf(lineChart));
+        
+        if(backgroundCharts.indexOf(lineChart) != 0){
+            lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
+            lineChart.getYAxis().setSide(Side.RIGHT);
+            lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * (backgroundCharts.indexOf(lineChart) - 1));
+        }else{
+            lineChart.translateXProperty().unbind();
+            lineChart.translateXProperty().setValue(0.0);
+            lineChart.getYAxis().setSide(Side.LEFT);
+        }
 
         return hBox;
     }
@@ -207,33 +217,6 @@ public class MultipleAxesLineChart extends StackPane {
         if (!isAxisClassGraphed(d.axis)) {
             
             double axisScale = getAxisScalar(d.axis);
-
-            switch (axisTypeInt) {
-            case 0: // accel
-                yAxisAdd.setLabel("Acceleration m/s²");
-                break;
-            case 1: // vel
-                yAxisAdd.setLabel("Velocity m/s");
-                break;
-            case 2: // disp
-                yAxisAdd.setLabel("Displacement m");
-                break;
-            case 3: // angAcc
-                yAxisAdd.setLabel("Angular Acceleration °/s²");
-                break;
-            case 4: // angVel
-                yAxisAdd.setLabel("Angular Velocity °/s");
-                break;
-            case 5: // angDisp
-                yAxisAdd.setLabel("Angular Displacement °");
-                break;
-            case 6: // mag
-                yAxisAdd.setLabel("Magnetic Field µT");
-                break;
-            default:
-                yAxisAdd.setLabel("Y-Axis");
-                break;
-            }
             
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
@@ -249,7 +232,12 @@ public class MultipleAxesLineChart extends StackPane {
             // style y-axis
             yAxisAdd.setTickUnit(axisScale);
             yAxisAdd.setAutoRanging(false);
-            yAxisAdd.setSide(Side.RIGHT);
+            if(backgroundCharts.size() == 0){
+                yAxisAdd.setSide(Side.LEFT);
+            }else{
+                yAxisAdd.setSide(Side.RIGHT);
+            }
+           
             yAxisAdd.lowerBoundProperty()
                     .bind(((BFANumberAxis) baseChart.getYAxis()).lowerBoundProperty().multiply(axisScale));
             yAxisAdd.upperBoundProperty()

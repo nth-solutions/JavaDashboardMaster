@@ -15,7 +15,20 @@ public class SpringTest extends GenericTest {
 		this.totalMass = totalMass;
 		this.amplitude = amplitude;
 		this.springMass = springMass;
+		setGraphTitle("Spring Test");
+		setDefaultAxes(new AxisType[] {AxisType.AccelX});
 		// TODO Auto-generated constructor stub
 	}
-
+	public void setupExperimentPanel(ExperimentPanel panel){
+		panel.setExperimentName("Spring Test");
+		panel.addParamName("Spring Constant");
+		panel.addParamValue(springConstant +" N/m");
+		panel.addParamName("Total Mass");
+		panel.addParamValue(totalMass +" kg");
+		panel.addParamName("Spring Amplitude");
+		panel.addParamValue(amplitude +" m");
+		panel.addParamName("Mass of the Spring");
+		panel.addParamValue(springMass +" kg");
+		panel.applyParams();
+	}
 }
