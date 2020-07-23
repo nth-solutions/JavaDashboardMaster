@@ -156,13 +156,13 @@
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField fx:id="massOfModuleAndHolderTextField" prefWidth="175.0" promptText="Mass of Module &amp; Holder (kg)" />
-                                                                                                <TextField fx:id="totalDropDistanceTextField" disable="true" prefWidth="175.0" promptText="Total Drop Distance (m)" visible="false" />
+                                                                                                <TextField fx:id="totalDropDistanceTextField" prefWidth="175.0" promptText="Total Drop Distance (m)" />
                                                                                              </children>
                                                                                           </HBox>
                                                                                           <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
                                                                                              <children>
                                                                                                 <TextField fx:id="momentOfInertiaCOETextField" prefWidth="175.0" promptText="Moment of Inertia (kg m^2)" />
-                                                                                                <TextField fx:id="radiusOfTorqueArmCOETextField" disable="true" prefWidth="175.0" promptText="Radius of Torque Arm (m)" visible="false" />
+                                                                                                <TextField fx:id="radiusOfTorqueArmCOETextField" prefWidth="175.0" promptText="Radius of Torque Arm (m)" />
                                                                                              </children>
                                                                                           </HBox>
                                                                                        </children>
@@ -175,11 +175,15 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additional Parameters">
-                                                                                       <font>
-                                                                                          <Font size="14.0" />
-                                                                                       </font>
-                                                                                    </Text>
+                                                                                    <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="400.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                       <children>
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
+                                                                                             <children>
+                                                                                                <TextField fx:id="topAngle" prefWidth="175.0" promptText="Angle of Inclination (°)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                       </children>
+                                                                                    </VBox>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>
@@ -188,11 +192,15 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additional Parameters">
-                                                                                       <font>
-                                                                                          <Font size="14.0" />
-                                                                                       </font>
-                                                                                    </Text>
+                                                                                    <VBox alignment="CENTER" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="400.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                                                       <children>
+                                                                                          <HBox alignment="CENTER" prefWidth="375.0" spacing="25.0">
+                                                                                             <children>
+                                                                                                <TextField fx:id="bottomAngle" prefWidth="175.0" promptText="Angle of Inclination (°)" />
+                                                                                             </children>
+                                                                                          </HBox>
+                                                                                       </children>
+                                                                                    </VBox>
                                                                                  </children>
                                                                               </AnchorPane>
                                                                            </content>

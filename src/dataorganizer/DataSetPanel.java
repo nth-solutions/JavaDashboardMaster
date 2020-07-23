@@ -115,8 +115,8 @@ public class DataSetPanel extends TitledPane {
 	 * Sets the state of a checkbox in the data set panel.
 	 * @param state whether the checkbox should be ticked
 	 */
-	public void setCheckBox(boolean state) {
-		CheckBox c = (CheckBox) lookup("#Toggle" + AxisType.valueOf(currentAxis.get()));
+	public void setCheckBox(boolean state,AxisType axis) {
+		CheckBox c = (CheckBox) lookup("#Toggle" +axis);
 		c.setSelected(state);
 	}
 	

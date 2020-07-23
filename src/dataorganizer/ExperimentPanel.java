@@ -46,6 +46,9 @@ public class ExperimentPanel extends TitledPane {
 	@FXML
 	private TextField value4;
 
+	@FXML
+	private Label formulaResult;
+
 	private Label[] params;
 
 	private TextField[] values;
@@ -62,6 +65,9 @@ public class ExperimentPanel extends TitledPane {
 	}
 	public void addParamValue(String value){
 		paramValues.add(value);
+	}
+	public void setFormulaResult(String result){
+		formulaResult.setText(result);
 	}
 
 	public void applyParams(){

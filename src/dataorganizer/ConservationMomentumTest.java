@@ -30,5 +30,6 @@ public class ConservationMomentumTest extends GenericTest {
 		panel.addParamName("Mass of the Left Glider");
 		panel.addParamValue(massLeftGlider +" kg");
 		panel.applyParams();
+		panel.setFormulaResult("Conservation of Momentum experiment is still a WIP");
 	}
 }

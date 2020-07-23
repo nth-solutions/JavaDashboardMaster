@@ -30,5 +30,6 @@ public class SpringTest extends GenericTest {
 		panel.addParamName("Mass of the Spring");
 		panel.addParamValue(springMass +" kg");
 		panel.applyParams();
+		panel.setFormulaResult("Period: " + 2 * Math.PI * Math.sqrt((totalMass + springMass)/springConstant) + " s");
 	}
 }

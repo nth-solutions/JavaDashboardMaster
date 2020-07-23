@@ -165,13 +165,14 @@ public class GraphNoSINCController implements Initializable {
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
 
-			// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
-			zoomviewH -= zoomviewH * event.getDeltaY() / 300;
-			
-			zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
-			// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
-			zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
-
+			if(!event.isControlDown()){
+				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
+				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+				
+				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
+				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
+				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
+			}
 			redrawGraph();
 
 		});
@@ -283,13 +284,12 @@ public class GraphNoSINCController implements Initializable {
 		panels.clear();
 		a.getPanes().clear();
 
-		/*
-		FIXME disabled for REV-40
+
 
 		ExperimentPanel experimentPanel = new ExperimentPanel();
 		genericTests.get(0).setupExperimentPanel(experimentPanel);
 		a.getPanes().add(experimentPanel);
-		*/
+		
 
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
@@ -321,6 +321,7 @@ public class GraphNoSINCController implements Initializable {
 			// TODO select data set to graph based on type of GenericTest
 			// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
 			for(AxisType axisType : genericTests.get(0).getDefaultAxes()){
+				
 				graphAxis(axisType, 0);
 			}
 
@@ -423,7 +424,9 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 			// tick the checkbox
-			panels.get(GTIndex).setCheckBox(true);
+			System.out.println("checking : " + GTIndex);
+
+			panels.get(GTIndex).setCheckBox(true,axis);
 
 		// if axis is already graphed:
 		} else {
@@ -439,7 +442,8 @@ public class GraphNoSINCController implements Initializable {
 			dataSets.remove(findGraphData(GTIndex, axis));
 
 			// untick the checkbox
-			panels.get(GTIndex).setCheckBox(false);
+			
+			panels.get(GTIndex).setCheckBox(false,axis);
 
 		}
 

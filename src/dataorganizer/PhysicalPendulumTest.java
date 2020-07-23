@@ -31,6 +31,7 @@ public class PhysicalPendulumTest extends GenericTest {
 		panel.addParamName("Mass of the Pendulum");
 		panel.addParamValue(pendulumMass +" kg");
 		panel.applyParams();
+		panel.setFormulaResult("Period: " + 2 * Math.PI * Math.sqrt(pendulumLength/(9.8)) + " s");
 	}
 
 }

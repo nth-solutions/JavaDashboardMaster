@@ -160,11 +160,11 @@ public class MultipleAxesLineChart extends StackPane {
         hBox.prefWidthProperty().bind(widthProperty());
 
         lineChart.minWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * ((backgroundCharts.size() > 0 ? backgroundCharts.size() -1 : 0))));
         lineChart.prefWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * ((backgroundCharts.size() > 0 ? backgroundCharts.size() -1 : 0))));
         lineChart.maxWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
+                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * ((backgroundCharts.size() > 0 ? backgroundCharts.size() -1 : 0))));
 
         return lineChart;
     }
@@ -294,7 +294,9 @@ public class MultipleAxesLineChart extends StackPane {
 
         // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
+            
             System.out.println("Removing " + axis.name() + "'s axis class: " + getAxisLabel(axis));
+
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);
         }

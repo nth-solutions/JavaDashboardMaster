@@ -54,6 +54,7 @@
                               <Insets top="10.0" />
                            </VBox.margin>
                             </GridPane>
+                        <Label fx:id="formulaResult" alignment="TOP_CENTER" contentDisplay="CENTER" text="Formula:" textAlignment="CENTER" wrapText="true" />
                      </children>
                      <padding>
                         <Insets top="10.0" />

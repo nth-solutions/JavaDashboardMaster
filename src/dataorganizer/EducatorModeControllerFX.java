@@ -170,7 +170,10 @@ public class EducatorModeControllerFX implements Initializable {
     TextField amplitudeSpringTextField;
     @FXML
     TextField massOfSpringTextField;
-
+    @FXML
+    TextField bottomAngle;
+    @FXML
+    TextField topAngle;
     @FXML
     Label applyConfigurationsToFirstModuleLabel;
 
@@ -199,6 +202,9 @@ public class EducatorModeControllerFX implements Initializable {
 
     double amplitudeSpring;
     double massOfSpring;
+
+    double angleFromBottom;
+    double angleFromTop;
 
     private DataOrganizer dataOrgo;
     private DataOrganizer dataOrgoTwo;
@@ -729,17 +735,34 @@ public class EducatorModeControllerFX implements Initializable {
                 break;
             case 3:
                 //IP
-                testType = "Inclined Plane - Released From Top";
-                generalStatusExperimentLabel.setTextFill(DarkGreen);
-                generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
-                nextButton.setDisable(false);
+                
+                try {
+                    angleFromTop = Double.parseDouble(topAngle.getText());
+                    testType = "Inclined Plane - Released From Top";
+
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    nextButton.setDisable(false);
+
+                } catch (NumberFormatException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Invalid or Missing Data");
+                }
                 break;
             case 4:
                 //IP
-                testType = "Inclined Plane - Projected From Bottom";
-                generalStatusExperimentLabel.setTextFill(DarkGreen);
-                generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
-                nextButton.setDisable(false);
+                try {
+                    angleFromBottom = Double.parseDouble(bottomAngle.getText());
+                    testType = "Inclined Plane - Released From Bottom";
+
+                    generalStatusExperimentLabel.setTextFill(DarkGreen);
+                    generalStatusExperimentLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+                    nextButton.setDisable(false);
+
+                } catch (NumberFormatException e) {
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    generalStatusExperimentLabel.setText("Invalid or Missing Data");
+                }
                 break;
             case 5:
                 //Pendulum
@@ -1760,13 +1783,13 @@ public class EducatorModeControllerFX implements Initializable {
                                     newTest = new ConservationMomentumTest(testParameters, finalData, MPUMinMax, massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
                                     break;
                                 case 2: // Conservation of Energy
-                                    newTest = new ConservationEnergyTest(testParameters, finalData, MPUMinMax, massOfModuleAndHolder, momentOfInertiaCOE);
+                                    newTest = new ConservationEnergyTest(testParameters, finalData, MPUMinMax, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
                                     break;
                                 case 3: // Inclined Plane - Top
-                                    newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax);
+                                    newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax,angleFromTop);
                                     break;
                                 case 4: // Inclined Plane - Bottom
-                                    newTest = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax);
+                                    newTest = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax,angleFromBottom);
                                     break;
                                 case 5: // Physical Pendulum
                                     newTest = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
