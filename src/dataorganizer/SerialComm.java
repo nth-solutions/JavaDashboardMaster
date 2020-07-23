@@ -71,60 +71,42 @@ public class SerialComm {
 
 	}
 
-
-
 	/**
 	 * Opens serial port with the name passed in as a parameter in addition to initializing input and output streams.
 	 * @param commPortID Name of comm port that will be opened
 	 */
 	public boolean openSerialPort(String commPortID) throws IOException, PortInUseException {
-		System.out.println("Attempting to connect to " + commPortID);
+
 		//Creates a list of all the ports that are available of type Enumeration (data structure that can hold several info fields such as ID, hardware interface info, and other info used by the PC 
 		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
 
-		System.out.println("getPortIdentifiers() successful");
 		//Iterates through all ports on the ports on the port list
 		while (portList.hasMoreElements()) {
-			//System.out.println("2");
-
 			//Set the temporary port to the current port that is being iterated through
 			CommPortIdentifier tempPortId = (CommPortIdentifier) portList.nextElement();
-			//System.out.println("3");
+
 			//Executes if the temporary port has the same name as the one selected by the user
 			if (tempPortId.getName().equals(commPortID)) {
-				//System.out.println("4");
 				//If it does match, then assign the portID variable so the desired port will be opened later
 				portId = tempPortId;
-				//System.out.println("5");
+
 				//break the while loop
 				break;
 			}
 		}
-		//System.out.println("6");
-		//System.out.println(portId);
-		//Open the serial port with a 2 second timeout
 
-		try{
-			serialPort = (SerialPort) portId.open("portHandler", 2000);
-
-		}catch(Exception e){
-			e.printStackTrace();
-			System.out.println("Error");
-		}
-
-		//serialPort = (SerialPort) portId.open("portHandler", 2000);
-		//System.out.println("7");
-
+		// Open the serial port with a 2 second timeout
+		serialPort = (SerialPort) portId.open("portHandler", 2000);
 
 		//Create a new buffered reader so we can define the buffer size to prevent a buffer overflow (explicitly defined in the configureForImport() method)
 		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
-		//System.out.println("8");
+
 		//Assign the output stream to the output stream of the serial port (no need for a buffer as far as we know)
 		outputStream = serialPort.getOutputStream();
-		//System.out.println("9");
+
 		//Set flag so program knows that the data streams were initialized
 		dataStreamsInitialized = true;
-		//System.out.println("10");
+
 		return true;
 
 	}
@@ -1525,7 +1507,6 @@ public class SerialComm {
 			//Just used to pull the TX line low for firmware handshake
 			byte[] pullLow = {0,0,0,0};
 
-
 			//Loops until it all of the tests are collected
 			for (int testNum = 0; testNum < expectedTestNum; testNum++) {
 
@@ -1533,12 +1514,12 @@ public class SerialComm {
 				int numSectors = 0;
 				int sectorCounter = 0;
 
-				statusLabel.setText("Transferring Test #" + (testNum + 1) + "...");
-
+				final int test = testNum;
+				Platform.runLater(() -> { statusLabel.setText("Transferring Test #" + (test + 1) + "..."); });
 
 				//Wait for start condition (preamble)
 				if(!waitForPreamble(1, 8, 1500)) {
-					statusLabel.setText("Lost communication with module. Please reconnect to the port.");
+					Platform.runLater(() -> { statusLabel.setText("Lost communication with module. Please reconnect to the port."); });
 					return null;
 				}
 
@@ -1570,7 +1551,7 @@ public class SerialComm {
 						if (!preambleFlag) {
 							//Wait for a preamble, exits method if the preamble times out
 							if(!waitForPreamble(1, 4, 1500)) {
-								statusLabel.setText("Lost communication with module. Please reconnect to the port.");
+								Platform.runLater(() -> { statusLabel.setText("Lost communication with module. Please reconnect to the port."); });
 								return null;
 							}
 							//Set preamble flag
@@ -1602,7 +1583,9 @@ public class SerialComm {
 								sectorCounter += 5;
 
 								//Display calculated progress
-								progressBar.setProgress((int)(((double)(sectorCounter)/(double)(numSectors)) * 100));
+								final int portion = sectorCounter;
+								final int total = numSectors;
+								Platform.runLater(() -> { progressBar.setProgress(((double) portion) / ((double) total)); });
 
 								//Values from bulk read method are saved as signed bytes, must convert to unsigned
 								for (byte data : tempTestData) {

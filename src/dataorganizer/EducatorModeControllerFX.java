@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.FutureTask;
 
@@ -24,7 +23,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -44,11 +42,13 @@ public class EducatorModeControllerFX implements Initializable {
     //Out Files Deleted before push
     //
     //Test Parameter Variables and Constants
-    public static final int NUM_TEST_PARAMETERS = 13;
-    public static final int NUM_ID_INFO_PARAMETERS = 3;
-    public static final int CURRENT_FIRMWARE_ID = 26;
-    private static SerialComm serialHandler;
-    //private static SerialComm serialHandler2;
+    public final int NUM_TEST_PARAMETERS = 13;
+    public final int NUM_ID_INFO_PARAMETERS = 3;
+    public final int CURRENT_FIRMWARE_ID = 26;
+    private final int NUM_ATTEMPTS = 3;
+
+    private SerialComm serialHandler;
+
     //Primary UI Control FXML Components
     @FXML
     TabPane primaryTabPane;
@@ -106,6 +106,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     RadioButton sincTechnologyRadioButton;
     @FXML
+    RadioButton DAGRadioButton;
+    @FXML
     Button readTestButton;
     @FXML
     Button sincCalibrationButton;
@@ -113,6 +115,9 @@ public class EducatorModeControllerFX implements Initializable {
     ProgressBar progressBar;
     @FXML
     Button eraseButton;
+
+    @FXML
+    ToggleGroup outputType;
 
     @FXML
     Button eraseModuleButtonMainMenu;
@@ -166,16 +171,8 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField massOfSpringTextField;
 
-
     @FXML
     Label applyConfigurationsToFirstModuleLabel;
-
-//    @FXML
-//    TextField momentOfInertiaSpringTextField;
-//    @FXML
-//    TextField radiusOfTorqueArmSpringTextField;
-
-    private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 
     //Extra Module Parameters - CoM
     double massOfRightModule;
@@ -186,42 +183,40 @@ public class EducatorModeControllerFX implements Initializable {
     double massOfRightModuleAndRightGlider;
     double massOfLeftModuleAndLeftGlider;
 
-    //Extra Module Parameters - CoE
+    // Extra Module Parameters - CoE
     double totalDropDistance;
     double massOfModuleAndHolder;
     double momentOfInertiaCOE;
     double radiusOfTorqueArmCOE;
-    //Extra Module Parameters - Pendulum
+    // Extra Module Parameters - Pendulum
     double lengthOfPendulum;
     double distanceFromPivot;
     double massOfModule;
     double massOfHolder;
-    //Extra Module Parameters - Spring
+    // Extra Module Parameters - Spring
     double springConstant;
     double totalHangingMass;
 
     double amplitudeSpring;
     double massOfSpring;
-    //double momentOfIntertiaSpring;
-    //double radiusOfTorqueArmSpring;
+
     private DataOrganizer dataOrgo;
     private DataOrganizer dataOrgoTwo;
 
     private int experimentType;
     
-    // GenericTest represents a single module and associated test data
+    // holds test data from modules
+    // each GT represents a single trial from a module
     private ArrayList<GenericTest> genericTests;
 
-    //Colors
+    // Colors
     private Color DarkGreen = Color.rgb(51, 204, 51);
 
-    //Dashboard Background Functionality
+    // Dashboard Background Functionality
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
     private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<>();
-    private ToggleGroup outputTypeToggleGroup = new ToggleGroup();
     public static String testType;
-    private Boolean moduleConnected;
 
     private Boolean oneModuleTest;
 
@@ -235,35 +230,17 @@ public class EducatorModeControllerFX implements Initializable {
         genericTests = new ArrayList<GenericTest>();
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
-        backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.
-        initializeToggleGroup();                                                                                        //See Method Comment
+        backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.                                                                                   //See Method Comment
         fillTestTypeHashMap();                                                                                         //See Method Comment
 
         applyConfigurationsToFirstModuleLabel.setVisible(false);
         applyConfigurationsButton.setVisible(false);
 
         serialHandler = new SerialComm();
-        //serialHandler2 = new SerialComm();
 
-        moduleConnected = findModuleCommPort(); //Attempts to establish a connection to the module - findModuleCommPort returns a Boolean that tells if the connection is successful.
+        // automatically connect to the module
+        connectToModule(generalStatusExperimentLabel);
         oneModuleTest = true;
-    }
-
-    /**
-     * This method is utilized solely to clean up method implementation within the initialize() method. Essentially, this
-     * method adds several key UI radioButtons to the outputTypeToggleGroup ToggleGroup, and then assigns each button a userData
-     * object which is used to identify which toggle is being selected in the readTestsFromModule() ActionEvent called below
-     */
-    private void initializeToggleGroup() {
-        //Prevents more than one output type from being selected
-        spreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);  //Adds a RadioButton to the outputTypeToggleGroup Toggle Group
-        spreadsheetRadioButton.setUserData("spreadSheetRadioButton");   //Assigns the RadioButton a userData object
-//        graphRadioButton.setToggleGroup(outputTypeToggleGroup);
-//        graphRadioButton.setUserData("graphRadioButton");
-    //    graphAndSpreadsheetRadioButton.setToggleGroup(outputTypeToggleGroup);
-     //   graphAndSpreadsheetRadioButton.setUserData("graphAndSpreadsheetRadioButton");
-        sincTechnologyRadioButton.setToggleGroup(outputTypeToggleGroup);
-        sincTechnologyRadioButton.setUserData("sincTechnologyRadioButton");
     }
 
     /**
@@ -575,64 +552,23 @@ public class EducatorModeControllerFX implements Initializable {
     /* Begin Experiment Tab Methods */
 
     @FXML
-    private void reconnectToModule1(){
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                serialHandler.closeSerialPort();
-                //serialHandler2.closeSerialPort();
-                findModuleCommPort();
-            }
-        });
-
+    private void connectExperimentTab() {
+        connectToModule(generalStatusExperimentLabel);
     }
 
     @FXML
-    public void reconnectToModule2(){
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                serialHandler.closeSerialPort();
-                //ArrayList<String> commPortIDList = serialHandler.findPorts();
-
-//                serialHandler = null;
-//                System.gc();
-//                serialHandler = new SerialComm();
-                //serialHandler2.closeSerialPort();
-                findModuleCommPort();
-            }
-        });
+    private void connectRemoteTab() {
+        connectToModule(unpairRemotesTabLabel);
     }
 
     @FXML
-    public void reconnectToModuleUnpairRemotesScreen(ActionEvent event){
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run(){
-                serialHandler.closeSerialPort();
-                if(findModuleCommPort()){
-                    unpairRemotesTabLabel.setText("Successfully Connected to Module");
-                    unpairRemotesTabLabel.setTextFill(DarkGreen);
-                }
-            }
-        });
+    private void connectEraseTab() {
+        connectToModule(eraseModuleTabLabel);
     }
 
     @FXML
-    public void reconnectToModuleEraseConfirmationScreen(){
-        Platform.runLater(new Runnable(){
-           @Override
-           public void run(){
-               findModuleCommPort();
-//               if(findModuleCommPort()){
-//                   eraseModuleTabLabel.setText("Successfully Connected To Module");
-//                   eraseModuleTabLabel.setTextFill(Color.GREEN);
-//               }else{
-//                   eraseModuleTabLabel.setText("Failed To Connect To Module");
-//                   eraseModuleTabLabel.setTextFill(Color.RED);
-//               }
-           }
-        });
+    private void connectSINCTab() {
+        connectToModule(sincCalibrationTabGeneralStatusLabel);
     }
 
     /**
@@ -1291,9 +1227,8 @@ public class EducatorModeControllerFX implements Initializable {
      * a string.
      * @return String that details what output type has been selected from the outputTypeToggleGroup ToggleGroup
      */
-    private String getOutputTypeToggle() {
-        String outputSelected = outputTypeToggleGroup.getSelectedToggle().getUserData().toString();
-        return outputSelected;
+    private RadioButton getOutputType() {
+        return (RadioButton) outputType.getSelectedToggle();
     }
 
     /**
@@ -1304,217 +1239,215 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void readTestsFromModule(ActionEvent event) {
 
-        String outputSelected = getOutputTypeToggle();                                                                  //variable for selected output is used to determine what will be run.
+        if (getOutputType().equals(spreadsheetRadioButton)) {
 
-        if (outputSelected == "spreadSheetRadioButton") {
-            HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
+            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+            String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);
 
-            FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
-                @Override
-                public void run() {
+            if (path == null) {
+                Alert a = new Alert(AlertType.ERROR, "Please select a location to save your Excel template to.");
+                a.showAndWait();
+                return;
+            }
 
-                    String path = chooseSpreadsheetOutputPath(generalStatusExperimentLabel);                            //Sets the variable path to a path chosen by the user. This paths is ultimately where the outputted template is saved.
+            try {
 
-                    try {
-                        ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+                ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Reading Data from Module...");
-                            generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                        });
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setText("Reading Data from Module...");
+                    generalStatusExperimentLabel.setTextFill(Color.BLACK);
+                });
 
-                        //Read test parameters from module and store it in testParameters
+                //Read test parameters from module and store it in testParameters
 
-                        //Executes if the reading of the test parameters was successful
-                        if (testParameters != null) {
+                //Executes if the reading of the test parameters was successful
+                if (testParameters != null) {
 
-                            int expectedTestNum = testParameters.get(0);
+                    int expectedTestNum = testParameters.get(0);
 
-                            //Assign local variables to their newly received values from the module
-                            int timedTestFlag = testParameters.get(4);
-                            //Trigger on release is 8
-                            int testLength = testParameters.get(6);
-                            int accelGyroSampleRate = testParameters.get(7);
-                            int magSampleRate = testParameters.get(8);
-                            int accelSensitivity = testParameters.get(9);
-                            int gyroSensitivity = testParameters.get(10);
-                            int accelFilter = testParameters.get(11);
-                            int gyroFilter = testParameters.get(12);
+                    //Assign local variables to their newly received values from the module
+                    int timedTestFlag = testParameters.get(4);
+                    //Trigger on release is 8
+                    int testLength = testParameters.get(6);
+                    int accelGyroSampleRate = testParameters.get(7);
+                    int magSampleRate = testParameters.get(8);
+                    int accelSensitivity = testParameters.get(9);
+                    int gyroSensitivity = testParameters.get(10);
+                    int accelFilter = testParameters.get(11);
+                    int gyroFilter = testParameters.get(12);
 
-                            double bytesPerSample = 18;
-                            if (accelGyroSampleRate / magSampleRate == 10) {
-                                bytesPerSample = 12.6;
-                            }
+                    double bytesPerSample = 18;
+                    if (accelGyroSampleRate / magSampleRate == 10) {
+                        bytesPerSample = 12.6;
+                    }
 
-                            String nameOfFile = "";
+                    String nameOfFile = "";
 
-                            //Executes if there are tests on the module
-                            if (expectedTestNum > 0) {
+                    //Executes if there are tests on the module
+                    if (expectedTestNum > 0) {
 
-                                //Get date for file name
-                                Date date = new Date();
+                        //Get date for file name
+                        Date date = new Date();
 
-                                //Assigns the name of file
-                                nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+                        //Assigns the name of file
+                        nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
-                                HashMap<Integer, ArrayList<Integer>> testData;
+                        HashMap<Integer, ArrayList<Integer>> testData;
 
-                                //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                                testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+                        //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                        testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
-                                //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
-                                if (testData != null) {
-                                    for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
+                        //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
+                        if (testData != null) {
+                            for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
-                                        int[] finalData = new int[testData.get(testIndex).size()];
+                                int[] finalData = new int[testData.get(testIndex).size()];
 
-                                        for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                            if (testData.get(testIndex).get(byteIndex) != -1) {
-                                                finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                            } else {
-                                                finalData[byteIndex] = -1;
-                                                break;
-                                            }
-                                        }
-                                        String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                        dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
-                                        //Define operation that can be run in separate thread
-                                        //TODO: This will probably throw an error
-
-                                        //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-
-                                        dataOrgo.createDataSmpsRawData(finalData);
-
-                                        if (spreadsheetRadioButton.isSelected()) {
-                                            List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
-
-                                            Platform.runLater(() -> {
-                                                generalStatusExperimentLabel.setText("Writing data to spreadsheet");
-                                                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                                            });
-
-                                            /*
-                                            Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
-                                            The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
-                                            */
-
-                                            ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
-
-                                            if(parameterSpreadsheetController.getEducationTemplateFound() == true){
-
-                                                if (testType == "Conservation of Momentum (Elastic Collision)") {
-                                                    parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Conservation of Energy") {
-                                                    parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Inclined Plane - Released From Top") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Inclined Plane - Projected From Bottom") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType.equals("Physical Pendulum")) {
-                                                    parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Spring Test - Simple Harmonics") {
-                                                    parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                }else if (testType == "Generic Template - One Module") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                } else if (testType == "Generic Template - Two Modules") {
-                                                    parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-                                                }
-
-                                                try {
-                                                    parameterSpreadsheetController.saveWorkbook(path);
-                                                }catch(Exception e){
-                                                    generalStatusExperimentLabel.setText("Error writing to spreadsheet, check file path");
-                                                }
-
-                                                try {
-                                                    Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
-                                                } catch (Exception e) {                              // This error should never happen
-                                                    e.printStackTrace();
-                                                    System.out.println("If you got this error, something went seriously wrong");
-                                                }
-
-                                                Platform.runLater( () -> {
-                                                    generalStatusExperimentLabel.setText("Data successfully written");
-                                                    generalStatusExperimentLabel.setTextFill(Color.GREEN);
-                                                });
-                                            }//end if
-                                        }
-                                        dataOrgo.getSignedData();
-
+                                for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+                                    if (testData.get(testIndex).get(byteIndex) != -1) {
+                                        finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
+                                    } else {
+                                        finalData[byteIndex] = -1;
+                                        break;
                                     }
-                                } else {
+                                }
+                                String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
+                                dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
+                                //Define operation that can be run in separate thread
+                                //TODO: This will probably throw an error
+
+                                //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+
+                                dataOrgo.createDataSmpsRawData(finalData);
+
+                                if (spreadsheetRadioButton.isSelected()) {
+                                    
+                                    List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();          //dataSamples is set to be the return of getRawDataSamples();
 
                                     Platform.runLater(() -> {
-                                        generalStatusExperimentLabel.setText("Error Reading From Module or Template Missing");
-                                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                                        progressBar.setStyle("-fx-accent: red;");
-                                        progressBar.setProgress(100);
+                                        generalStatusExperimentLabel.setText("Writing data to spreadsheet");
+                                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
                                     });
 
-                                }
-                            } else {
+                                    /*
+                                    Based on the selected test type, associated user inputted parameters and written to the spreadsheet.
+                                    The spreadsheet template is then filled based on the module data. Finally the spreadsheet (workbook) is saved to the user desired location.
+                                    */
 
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("No Tests Found on Module");
-                                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                                    progressBar.setStyle("-fx-accent: red;");
-                                    progressBar.setProgress(100);
-                                });
+                                    ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");// Creates a parameter spreadsheet controller object for managing the transfer of user inputted parameters to the spreadsheet output.
+
+                                    if(parameterSpreadsheetController.getEducationTemplateFound() == true){
+
+                                        if (testType == "Conservation of Momentum (Elastic Collision)") {
+                                            parameterSpreadsheetController.loadConservationofMomentumParameters(massOfLeftModuleAndLeftGlider, massOfRightModuleAndRightGlider);
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        } else if (testType == "Conservation of Energy") {
+                                            parameterSpreadsheetController.loadConservationofEnergyParameters(totalDropDistance, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE);
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        } else if (testType == "Inclined Plane - Released From Top") {
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        } else if (testType == "Inclined Plane - Projected From Bottom") {
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        } else if (testType.equals("Physical Pendulum")) {
+                                            parameterSpreadsheetController.loadPendulumParameters(lengthOfPendulum, massOfHolder, massOfModule, distanceFromPivot);
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        } else if (testType == "Spring Test - Simple Harmonics") {
+                                            parameterSpreadsheetController.loadSpringTestParameters(springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        }else if (testType == "Generic Template - One Module") {
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        } else if (testType == "Generic Template - Two Modules") {
+                                            parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+                                        }
+
+                                        try {
+                                            parameterSpreadsheetController.saveWorkbook(path);
+                                        }catch(Exception e){
+                                            generalStatusExperimentLabel.setText("Error writing to spreadsheet, check file path");
+                                        }
+
+                                        try {
+                                            Thread.sleep(10000);                                          // DO NOT DELETE- Opening the spreadsheet too quickly can break it entirely. Therefore, a delay is added so that the message stating the sucessful writing of data is only displayed when the spreadsheet is safe to open.
+                                        } catch (Exception e) {                              // This error should never happen
+                                            e.printStackTrace();
+                                            System.out.println("If you got this error, something went seriously wrong");
+                                        }
+
+                                        Platform.runLater( () -> {
+                                            generalStatusExperimentLabel.setText("Data successfully written");
+                                            generalStatusExperimentLabel.setTextFill(Color.GREEN);
+                                        });
+                                    }//end if
+                                }
+                                dataOrgo.getSignedData();
+
                             }
                         } else {
 
                             Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                                generalStatusExperimentLabel.setText("Error Reading From Module or Template Missing");
                                 generalStatusExperimentLabel.setTextFill(Color.RED);
                                 progressBar.setStyle("-fx-accent: red;");
                                 progressBar.setProgress(100);
                             });
+
                         }
-                    } catch (IOException e) {
+                    } else {
 
                         Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                            generalStatusExperimentLabel.setText("No Tests Found on Module");
                             generalStatusExperimentLabel.setTextFill(Color.RED);
                             progressBar.setStyle("-fx-accent: red;");
                             progressBar.setProgress(100);
                         });
-
-                    } catch (PortInUseException e) {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Serial Port Already In Use");
-
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-
-                    } catch (UnsupportedCommOperationException e) {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-
                     }
+                } else {
 
-                    catch (Exception e) {
-
-                        e.printStackTrace();
-                        System.err.println("An error occured in readTestsFromModule()");
-
-                    }
+                    Platform.runLater(() -> {
+                        generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
+                        generalStatusExperimentLabel.setTextFill(Color.RED);
+                        progressBar.setStyle("-fx-accent: red;");
+                        progressBar.setProgress(100);
+                    });
                 }
+            } catch (IOException e) {
 
-            }, testDataArray);
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    progressBar.setStyle("-fx-accent: red;");
+                    progressBar.setProgress(100);
+                });
 
-            readTestsFromModuleTask.run(); // Runs the futureTask.
+            } catch (PortInUseException e) {
+
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setText("Serial Port Already In Use");
+
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    progressBar.setStyle("-fx-accent: red;");
+                    progressBar.setProgress(100);
+                });
+
+            } catch (UnsupportedCommOperationException e) {
+
+                Platform.runLater(() -> {
+                    generalStatusExperimentLabel.setText("Check Dongle Compatability");
+                    generalStatusExperimentLabel.setTextFill(Color.RED);
+                    progressBar.setStyle("-fx-accent: red;");
+                    progressBar.setProgress(100);
+                });
+
+            }
+
+            catch (Exception e) {
+
+                e.printStackTrace();
+                System.err.println("An error occured in readTestsFromModule()");
+
+            }
+
             /**
              * Currently, the option for filling both the excel spreadsheet with data and creating a csv of the data to be used with syn technology has been disabled.
              **/
@@ -1738,175 +1671,181 @@ public class EducatorModeControllerFX implements Initializable {
 //
 //                readTestsFromModuleTask.run(); // Runs the futureTask.
 //
-        } else if (outputSelected == "sincTechnologyRadioButton"){
-        	
-            HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
 
-            //FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(() -> { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
-                
-                try {
+        // TODO split SINC Graph & DAG
+        } else if (getOutputType().equals(sincTechnologyRadioButton) || getOutputType().equals(DAGRadioButton)) {
 
-                    ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
-                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-                    genericTests.clear();
+            Task<Void> readTask = new Task<Void>() {
 
-                    displayProgress("Reading tests from module...", Color.BLUE, "-fx-accent: blue;", 0);
+                @Override
+                protected Void call() {
 
-                    if (testParameters == null) {
-                        displayProgress("Error reading test parameters from module", Color.RED, "-fx-accent: red;", 100);
-                        return;
-                    }
+                    try {
 
-                    int expectedTestNum = testParameters.get(0);
+                        ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
+                        ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
-                    //Assign local variables to their newly received values from the module
-                    int timedTestFlag = testParameters.get(4);
-                    //Trigger on release is 8
-                    int testLength = testParameters.get(6);
-                    int accelGyroSampleRate = testParameters.get(7);
-                    int magSampleRate = testParameters.get(8);
-                    int accelSensitivity = testParameters.get(9);
-                    int gyroSensitivity = testParameters.get(10);
-                    int accelFilter = testParameters.get(11);
-                    int gyroFilter = testParameters.get(12);
+                        // clear all previously read tests
+                        genericTests.clear();
 
-                    String nameOfFile = "";
+                        displayProgress("Reading tests from module...", Color.BLUE, "-fx-accent: blue", 0);
 
-                    if (expectedTestNum == 0) {
-                        displayProgress("No tests found on module", Color.RED, "-fx-accent: red;", 100);
-                        return;
-                    }
+                        // ensure test parameters have been read correctly
+                        if (testParameters == null) {
+                            displayProgress("Error reading test parameters from module", Color.RED, "-fx-accent: red", 100);
+                            return null;
+                        }
 
-                    //Get date for file name
-                    Date date = new Date();
+                        int expectedTestNum = testParameters.get(0);
+                        int accelGyroSampleRate = testParameters.get(7);
+                        int magSampleRate = testParameters.get(8);
+                        int accelSensitivity = testParameters.get(9);
+                        int gyroSensitivity = testParameters.get(10);
+                        int accelFilter = testParameters.get(11);
+                        int gyroFilter = testParameters.get(12);
 
-                    //Assigns the name of file
-                    nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
+                        String nameOfFile = "";
 
-                    //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                    HashMap<Integer, ArrayList<Integer>> testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
+                        if (expectedTestNum == 0) {
+                            displayProgress("No tests found on module", Color.RED, "-fx-accent: red;", 100);
+                            return null;
+                        }
 
-                    if (testData == null) {
-                        displayProgress("Error reading tests from module", Color.RED, "-fx-accent: red;", 100);
-                        return;
-                    }
+                        // Get date for file name
+                        Date date = new Date();
 
-                    CSVHandler writer = new CSVHandler();
+                        // Assigns the name of file
+                        nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
-                    Settings settings = new Settings();
-                    settings.loadConfigFile();
+                        // Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
+                        HashMap<Integer, ArrayList<Integer>> testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
-                    // loop through all tests read from the module
-                    for (int i = 0; i < testData.size(); i++) {
+                        if (testData == null) {
+                            displayProgress("Error reading tests from module", Color.RED, "-fx-accent: red;", 100);
+                            return null;
+                        }
 
-                        int[] finalData = new int[testData.get(i).size()];
+                        CSVHandler writer = new CSVHandler();
 
-                        // loop through all samples in the data set
-                        for (int j = 0; j < testData.get(i).size(); j++) {
+                        Settings settings = new Settings();
+                        settings.loadConfigFile();
 
-                            // ensure that all negative byte data is -1
-                            if (testData.get(i).get(j) != -1) {
-                                finalData[j] = testData.get(i).get(j);
-                            } else {
-                                finalData[j] = -1;
-                                break;
+                        // loop through all tests read from the module
+                        for (int i = 0; i < testData.size(); i++) {
+
+                            int[] finalData = new int[testData.get(i).size()];
+
+                            // loop through all samples in the data set
+                            for (int j = 0; j < testData.get(i).size(); j++) {
+
+                                // ensure that all negative byte data is -1
+                                if (testData.get(i).get(j) != -1) {
+                                    finalData[j] = testData.get(i).get(j);
+                                } else {
+                                    finalData[j] = -1;
+                                    break;
+                                }
                             }
+                            
+                            int[][] MPUMinMax = serialHandler.getMPUMinMax();
+
+                            String newName = "(#" + (i+1) + ") " + nameOfFile;
+
+                            System.out.println("Creating GenericTest");
+
+                            GenericTest newTest;
+
+                            switch (experimentType) {
+                                case 1: // Conservation of Momentum
+                                    newTest = new ConservationMomentumTest(testParameters, finalData, MPUMinMax, massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
+                                    break;
+                                case 2: // Conservation of Energy
+                                    newTest = new ConservationEnergyTest(testParameters, finalData, MPUMinMax, massOfModuleAndHolder, momentOfInertiaCOE);
+                                    break;
+                                case 3: // Inclined Plane - Top
+                                    newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax);
+                                    break;
+                                case 4: // Inclined Plane - Bottom
+                                    newTest = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax);
+                                    break;
+                                case 5: // Physical Pendulum
+                                    newTest = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
+                                    break;
+                                case 6: // Spring Test
+                                    newTest = new SpringTest(testParameters, finalData, MPUMinMax, springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                    break;
+                                case 7: // Generic Template - One Module
+                                    newTest = new GenericTest(testParameters, finalData, MPUMinMax);
+                                    break;
+                                case 8: //TODO Generic Template - Two Module
+                                    newTest = new GenericTest(testParameters, finalData, MPUMinMax);
+                                    break;
+                                default:
+                                    newTest = new GenericTest(testParameters, finalData, MPUMinMax);
+                                    break;
+                            }
+
+                            genericTests.add(newTest);
+                            
+                            // [OLD] stores test data for the SINC Graph
+                            dataOrgo = new DataOrganizer(testParameters, "OLD_" + newName);
+                            dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
+                            dataOrgoList.add(dataOrgo);
+                            
+                            //Define operation that can be run in separate thread
+                            //TODO: This will probably throw an error
+                            Runnable organizerOperation = () -> {
+
+                                // write GenericTest to CSV
+                                writer.writeCSV(newTest, settings, newName);
+                                writer.writeCSVP(testParameters, settings, newName, MPUMinMax); 
+
+                                //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+                                dataOrgo.createDataSmpsRawData(finalData);
+                                dataOrgo.getSignedData();
+
+                                /*
+                                dataOrgo.createCSVP();
+                                dataOrgo.createCSV(false, false);
+                                */
+
+                                dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + newName+"p");
+
+                            };
+
+                            // Start CSV writing thread
+                            Thread organizerThread = new Thread(organizerOperation);
+                            organizerThread.start();
+
+                            // update test data progress
+                            displayProgress("Read test " + (i+1) + "/" + testData.size(), Color.GREEN, "-fx-accent: green", ((double) (i+1)) / ((double) testData.size()));
                         }
-                        
-                        int[][] MPUMinMax = serialHandler.getMPUMinMax();
 
-                        String newName = "(#" + (i+1) + ") " + nameOfFile;
+                        displayProgress("All tests read from module", Color.GREEN, "-fx-accent: green", 1);
 
-                        System.out.println("Creating GenericTest");
-
-                        GenericTest newTest;
-
-                        switch (experimentType) {
-                            case 1: // Conservation of Momentum
-                                newTest = new ConservationMomentumTest(testParameters, finalData, serialHandler.getMPUMinMax(), massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
-                                break;
-                            case 2: // Conservation of Energy
-                                newTest = new ConservationEnergyTest(testParameters, finalData, serialHandler.getMPUMinMax(), massOfModuleAndHolder, momentOfInertiaCOE);
-                                break;
-                            case 3: // Inclined Plane - Top
-                                newTest = new InclinedPlaneTopTest(testParameters, finalData, serialHandler.getMPUMinMax());
-                                break;
-                            case 4: // Inclined Plane - Bottom
-                                newTest = new InclinedPlaneBottomTest(testParameters, finalData, serialHandler.getMPUMinMax());
-                                break;
-                            case 5: // Physical Pendulum
-                                newTest = new PhysicalPendulumTest(testParameters, finalData, serialHandler.getMPUMinMax(), lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
-                                break;
-                            case 6: // Spring Test
-                                newTest = new SpringTest(testParameters, finalData, serialHandler.getMPUMinMax(), springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                break;
-                            case 7: // Generic Template - One Module
-                                newTest = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());
-                                break;
-                            case 8: //TODO Generic Template - Two Module
-                                newTest = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());
-                                break;
-                            default:
-                                newTest = new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax());
-                                break;
-                        }
-
-                        genericTests.add(newTest);
-                        
-                        dataOrgo = new DataOrganizer(testParameters, "OLD_" + newName);                         // object that stores test data.
-                        dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
-                        dataOrgoList.add(dataOrgo);
-                        
-                        //Define operation that can be run in separate thread
-                        //TODO: This will probably throw an error
-                        Runnable organizerOperation = () -> {
-
-                            // write GenericTest to CSV
-                            writer.writeCSV(newTest, settings, newName);
-                            writer.writeCSVP(testParameters, settings, newName, MPUMinMax); 
-
-                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-                            dataOrgo.createDataSmpsRawData(finalData);
-                            dataOrgo.getSignedData();
-
-                            /*
-                            dataOrgo.createCSVP();
-                            dataOrgo.createCSV(false, false);
-                            */
-
-                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + newName+"p");
-
-                        };
-
-                        // Start CSV writing thread
-                        Thread organizerThread = new Thread(organizerOperation);
-                        organizerThread.start();
-
-                        // update test data progress
-                        displayProgress("Read test " + (i+1) + "/" + testData.size(), Color.GREEN, "-fx-accent: green", 100/(i+1));
+                    } catch (IOException e) {
+                        displayProgress("Error communicating over USB port", Color.RED, "-fx-accent: red", 1);
+                    } catch (PortInUseException e) {
+                        displayProgress("USB Port already in use", Color.RED, "-fx-accent: red", 1);
+                    } catch (UnsupportedCommOperationException e) {
+                        displayProgress("Check USB dongle compatibility", Color.RED, "-fx-accent: red", 1);
                     }
 
-                    displayProgress("All tests read from module", Color.GREEN, "-fx-accent: green", 100);
+                    return null;
 
-                } catch (IOException e) {
-                    displayProgress("Error communicating over USB port", Color.RED, "-fx-accent: red", 100);
-                    e.printStackTrace();
-                } catch (PortInUseException e) {
-                    displayProgress("USB Port already in use", Color.RED, "-fx-accent: red", 100);
-                    e.printStackTrace();
-                } catch (UnsupportedCommOperationException e) {
-                    displayProgress("Check USB dongle compatibility", Color.RED, "-fx-accent: red", 100);
-                    e.printStackTrace();
                 }
 
-            // }, testDataArray);
+            };
 
-            // readTestsFromModuleTask.run(); // Runs the futureTask.
-            
+            // start read process asynchronously
+            new Thread(readTask).start();
+
         }
     }
 
-    private void displayProgress(String message, Color color, String style, int progress) {
+    private void displayProgress(String message, Color color, String style, double progress) {
+
+        System.out.println(message + " (" + progress * 100 + "%)");
 
         Platform.runLater(() -> {
             generalStatusExperimentLabel.setText(message);
@@ -2453,73 +2392,68 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void launchMotionVisualizationMainMenu(ActionEvent event) {
     	
-        Alert a = new Alert(AlertType.CONFIRMATION, "Open the Data Analysis Graph?");
-    	Optional<ButtonType> result = a.showAndWait();
-    	
-    	if (result.get() == ButtonType.OK) {
-    		
-    		Settings settings = new Settings();
-            settings.loadConfigFile();
-            
-    		GraphNoSINCController g = startGraphingNoSINC(); 
-    		
-            File directory = new File(settings.getKeyVal("CSVSaveLocation"));
+        lineGraph = startGraphing();
+    
+    }
 
-    		// fetches all CSV files from given folder
-    	    File[] files = directory.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".csv");
-                }           
-            });
+    @FXML
+    private void launchDAG(ActionEvent event) {
 
-            long lastModifiedTime = Long.MIN_VALUE;
-            File chosenFile = null;
+        Settings settings = new Settings();
+        settings.loadConfigFile();
+        
+        GraphNoSINCController g = startGraphingNoSINC(); 
+        
+        File directory = new File(settings.getKeyVal("CSVSaveLocation"));
 
-            // if no CSV files could be found, don't continue
-            if (files == null || files.length == 0) {
-                System.out.println("No CSV files found");
-                return;
+        // fetches all CSV files from given folder
+        File[] files = directory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".csv");
+            }           
+        });
+
+        long lastModifiedTime = Long.MIN_VALUE;
+        File chosenFile = null;
+
+        // if no CSV files could be found, don't continue
+        if (files == null || files.length == 0) {
+            System.out.println("No CSV files found");
+            return;
+        }
+
+        // Finds the most recently modified file
+        for (File f : files) {
+
+            String filePath = f.toString();
+            File csvp = new File(filePath.substring(0, filePath.length()-4) + ".csvp");
+
+            // if CSVP file with same name 
+            if (csvp.exists() && f.lastModified() > lastModifiedTime) {
+                chosenFile = f;
+                lastModifiedTime = f.lastModified();
             }
+        }
 
-            // Finds the most recently modified file
-            for (File f : files) {
+        // if no CSV/CSVP file pair could be found, don't continue
+        if (chosenFile == null) {
+            System.out.println("No CSV/CSVP file pair found");
+            return;
+        }
 
-                String filePath = f.toString();
-                File csvp = new File(filePath.substring(0, filePath.length()-4) + ".csvp");
-
-                // if CSVP file with same name 
-                if (csvp.exists() && f.lastModified() > lastModifiedTime) {
-                    chosenFile = f;
-                    lastModifiedTime = f.lastModified();
-                }
-            }
-
-            // if no CSV/CSVP file pair could be found, don't continue
-            if (chosenFile == null) {
-                System.out.println("No CSV/CSVP file pair found");
-                return;
-            }
-
-    	    String pathToFile = chosenFile.toString();
-    	    
-            long start = System.nanoTime(); 
-            g.setGenericTestFromCSV(pathToFile);
-            long elapsedTime = System.nanoTime() - start;
-            
-            System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");
-            
-    	}
-    	else {
-            lineGraph = startGraphing();
-    	}
+        String pathToFile = chosenFile.toString();
+        
+        long start = System.nanoTime(); 
+        g.setGenericTestFromCSV(pathToFile);
+        long elapsedTime = System.nanoTime() - start;
+        
+        System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");
+        
     }
 
     @FXML
     private void launchMotionVisualizationExperimentTab(ActionEvent event) {
-
-        OSManager osmanger = new OSManager();
-        String OSType = osmanger.getOSType();
 
         String pathTofile;
 
@@ -2539,51 +2473,41 @@ public class EducatorModeControllerFX implements Initializable {
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
-          
+
             pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgoTwo.getName();
-          
+
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
 
         }
         else {
-            
-            // temporary selection between graph types
-            // TODO create final UI for selecting graph applications
-        	Alert a = new Alert(AlertType.CONFIRMATION, "Launch the Data Analysis Graph?");
-        	Optional<ButtonType> result = a.showAndWait();
-        	
-        	if (result.get() == ButtonType.OK) {
-                
-                // temporary selection between data pipelines
-                // TODO eventually phase out DataOrganizer pipeline
-        		Alert b = new Alert(AlertType.CONFIRMATION, "Read data directly from module via SerialComm?");
-                Optional<ButtonType> result1 = b.showAndWait();
-                
-            	if (result1.get() == ButtonType.OK) {
 
-                    GraphNoSINCController graph = startGraphingNoSINC();
+            // launch SINC Graph
+            if (sincTechnologyRadioButton.isSelected()) {
 
-                    // TODO fix GTs, have a loop that creates GTs based on # of modules
-                    graph.setGenericTests(genericTests);
-
-            	}
-            	else {
-                    GraphNoSINCController graph = startGraphingNoSINC();
-                    graph.createTest(dataOrgo, dataOrgoTwo);
-                }
-                
-        	} else {
-
-        		Settings settings = new Settings();
+                Settings settings = new Settings();
         		settings.loadConfigFile();
         		pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
                 lineGraph = startGraphing();
                 lineGraph.setCsvFilePath(pathTofile);
                 lineGraph.loadCSVData();
-        		
-        	}
-        	
+
+            }
+            // open Data Analysis Graph
+            else if (DAGRadioButton.isSelected()) {
+
+                GraphNoSINCController graph = startGraphingNoSINC();
+                graph.setGenericTests(genericTests);
+
+            }
+            // display error
+            else if (spreadsheetRadioButton.isSelected()) {
+
+                Alert a = new Alert(AlertType.ERROR, "To view your data, open the Excel spreadsheet created by the Dashboard.");
+                a.showAndWait();
+
+            }
+                    	
         }
     }
 
@@ -2674,7 +2598,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call(){
 
-                try{
+                try {
 
                     if(!serialHandler.applyCalibrationOffsets(0, 0)){                         //the TMR0 and delay after set must be reset to their defaults otherwise the ones from the last calibration will be used in this calibration.
                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
@@ -3254,179 +3178,128 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     /**
-     * Method "conducts" search for if a CommPort has a module connected
-     * @return th.getStatus(); (Boolean Value)
+     * Attempts to connect to a module.
      */
-//    public boolean findModuleCommPort2() {
-//        class threadHack {
-//            private boolean status = false;
-//
-//            public boolean getStatus() {
-//                return status;
-//            }
-//
-//            public void setStatus(boolean x) {
-//                status = x;
-//            }
-//        }
-//        final threadHack th = new threadHack();
-//
-//        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-////            try {                                                                                                       //Attempts to find ports for the module
-//                ArrayList<String> commPortIDList = serialHandler2.findPorts();
-//                System.out.println(commPortIDList);
-//                boolean moduleFound = false;
-//                int commPortIndex = 0;
-//                while (!moduleFound && commPortIndex < commPortIDList.size()) {
-//
-//                    String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
-//                    System.out.println("test3");
-//                    System.out.println(selectedCommID);
-//                    try{
-//                    if (serialHandler2.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-//                            System.out.println("test4");
-//                            int attemptCounter = 0;
-//                            while (attemptCounter < 3 && !moduleFound) {
-//                                try {
-//                                    ArrayList<Integer> moduleIDInfo = serialHandler2.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-//                                    if (moduleIDInfo != null) {
-//                                        moduleFound = true;
-//                                        System.out.println(moduleIDInfo.get(2));
-//                                        if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-//                                            generalStatusExperimentLabel.setTextFill(Color.RED);
-//                                            generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
-//                                        } else {
-//                                            generalStatusExperimentLabel.setTextFill(DarkGreen);
-//                                            generalStatusExperimentLabel.setText("Successfully Connected to Module");
-//                                        }
-//                                    } else {
-//                                        attemptCounter++;
-//                                    }
-//                                } catch (IOException e) {
-//                                    attemptCounter++;
-//                                } catch (PortInUseException e) {
-//                                    attemptCounter++;
-//                                } catch (UnsupportedCommOperationException e) {
-//                                    attemptCounter++;
-//                                }
-//                            }
-//
-//                        }else{
-//                            System.out.println("Hello");
-//                        }
-//                    }catch(Exception e){
-//                        System.out.println("Oh look, another caught exception");
-//                    }
-//                    commPortIndex++;
-//                }
-//                if (!moduleFound) {
-//                    generalStatusExperimentLabel.setTextFill(Color.RED);
-//                    generalStatusExperimentLabel.setText("1Could Not Locate a Module, Check Connections and Try Manually Connecting");
-//                    th.setStatus(false);
-//                }
-//
-////            } catch (IOException e) {
-////                generalStatusExperimentLabel.setTextFill(Color.RED);
-////                generalStatusExperimentLabel.setText("2Could Not Locate a Module, Check Connections and Try Manually Connecting");
-////                th.setStatus(false);
-////            } catch (PortInUseException e) {
-////                generalStatusExperimentLabel.setTextFill(Color.RED);
-////                generalStatusExperimentLabel.setText("3Could Not Locate a Module, Check Connections and Try Manually Connecting");
-////                th.setStatus(false);
-////            }
-//        });
-//        return th.getStatus();
-//    }
+    public void connectToModule(Label label) {
 
-    public boolean findModuleCommPort() {
-        class threadHack {
-            private boolean status = false;
+        Task<Void> connectTask = new Task<Void>() {
+            
+            @Override
+            protected Void call() {
 
-            public boolean getStatus() {
-                return status;
-            }
+                // display connecting message
+                Platform.runLater(() -> {
+                    label.setTextFill(Color.BLUE);
+                    label.setText("Connecting to module...");
+                });
 
-            public void setStatus(boolean x) {
-                status = x;
-            }
-        }
-        final threadHack th = new threadHack();
+                // get all ports
+                ArrayList<String> ports = serialHandler.findPorts();
+                System.out.println("Searching available ports: " + ports);
 
-        Platform.runLater(() -> {                                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//            try {                                                                                                       //Attempts to find ports for the module
-            ArrayList<String> commPortIDList = serialHandler.findPorts();
-            System.out.println(commPortIDList);
-            boolean moduleFound = false;
-            int commPortIndex = 0;
-            while (!moduleFound && commPortIndex < commPortIDList.size()) {
+                // loop through all ports
+                for (int i = 0; i < ports.size(); i++) {
 
-                String selectedCommID = commPortIDList.toArray()[commPortIndex].toString();                         //Get the string identifier (name) of the current port
-                System.out.println("test3");
-                System.out.println(selectedCommID);
-                try{
-                    if (serialHandler.openSerialPort(selectedCommID)) {                                                 //Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-                        System.out.println("test4");
-                        int attemptCounter = 0;
-                        while (attemptCounter < 3 && !moduleFound) {
-                            try {
-                                ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-                                if (moduleIDInfo != null) {
-                                    moduleFound = true;
-                                    System.out.println(moduleIDInfo.get(2));
-                                    if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-                                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                                        generalStatusExperimentLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_ID);
-                                    } else {
-                                        generalStatusExperimentLabel.setTextFill(DarkGreen);
-                                        generalStatusExperimentLabel.setText("Successfully Connected to Module");
+                    // get the name of the current COM port
+                    String selectedCommID = ports.get(i);
 
-                                        sincCalibrationTabGeneralStatusLabel.setTextFill(DarkGreen);
-                                        sincCalibrationTabGeneralStatusLabel.setText("Successfully Connected to Module");
+                    ArrayList<Integer> moduleIDInfo = null;
 
-                                        unpairRemotesTabLabel.setText("Successfully Connected to Module");
-                                        unpairRemotesTabLabel.setTextFill(DarkGreen);
+                    try {
+                        // attempt connection to serial port
+                        serialHandler.closeSerialPort();
+                        serialHandler.openSerialPort(selectedCommID);
 
-                                        eraseModuleTabLabel.setText("Successfully Connected to Module");
-                                        eraseModuleTabLabel.setTextFill(DarkGreen);
-
-                                    }
-                                } else {
-                                    attemptCounter++;
-                                }
-                            } catch (IOException e) {
-                                attemptCounter++;
-                            } catch (PortInUseException e) {
-                                attemptCounter++;
-                            } catch (UnsupportedCommOperationException e) {
-                                attemptCounter++;
-                            }
-                        }
-
-                    }else{
-                        System.out.println("Hello");
+                        // attempt to read module info (used to check firmware ID)
+                        moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
                     }
-                }catch(Exception e){
-                    System.out.println("Oh look, another caught exception");
-                }
-                commPortIndex++;
-            }
-            if (!moduleFound) {
-                generalStatusExperimentLabel.setTextFill(Color.RED);
-                generalStatusExperimentLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-                th.setStatus(false);
-            }
+                    catch (PortInUseException e) {
 
-//            } catch (IOException e) {
-//                generalStatusExperimentLabel.setTextFill(Color.RED);
-//                generalStatusExperimentLabel.setText("2Could Not Locate a Module, Check Connections and Try Manually Connecting");
-//                th.setStatus(false);
-//            } catch (PortInUseException e) {
-//                generalStatusExperimentLabel.setTextFill(Color.RED);
-//                generalStatusExperimentLabel.setText("3Could Not Locate a Module, Check Connections and Try Manually Connecting");
-//                th.setStatus(false);
-//            }
-        });
-        return th.getStatus();
+                        System.out.println("Error connecting to module -- port in use by another application");
+
+                        Platform.runLater(() -> {
+                            label.setTextFill(Color.RED);
+                            label.setText("Error connecting to module -- port in use by another application");
+                        });
+
+                        return null;
+                    }
+                    catch (UnsupportedCommOperationException e) {
+
+                        System.out.println("Error connecting to module -- unsupported communication operation");
+
+                        Platform.runLater(() -> {
+                            label.setTextFill(Color.RED);
+                            label.setText("Error connecting to module -- check USB dongle compatibility");
+                        });
+
+                        return null;
+                    }
+                    catch (Exception e) {
+                        System.out.println("Error connecting to module -- general exception");
+
+                        Platform.runLater(() -> {
+                            label.setTextFill(Color.RED);
+                            label.setText("Error connecting to module, try again");
+                        });
+
+                        return null;
+                    }
+
+                    // check if port has a module connected; if not, move onto next port
+                    if (moduleIDInfo == null) {
+                        System.out.println("Module ID Info null when connecting to module, trying next port...");
+                        continue;
+                    }
+
+                    int firmwareID = moduleIDInfo.get(2);
+
+                    System.out.println("Current Firmware ID: " + firmwareID);
+
+                    // make sure that Dashboard's firmware version matches the module's
+                    if (firmwareID != CURRENT_FIRMWARE_ID) {
+
+                        Platform.runLater(() -> {
+                            label.setTextFill(Color.RED);
+                            label.setText("Incompatible firmware version, update module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")");
+                        });
+
+                        System.out.println("Incompatible firmware version, update module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")");
+                        return null;
+                    }
+
+                    System.out.println("Successfully connected to module!");
+
+                    // display success message
+                    Platform.runLater(() -> {
+
+                        label.setTextFill(DarkGreen);
+                        label.setText("Successfully connected to module");
+
+                        testTypeComboBox.setDisable(false);
+
+                    });
+
+                    return null;
+
+                }
+
+                // no modules found when looping through ports
+                System.out.println("No modules found connected to ports");
+
+                Platform.runLater(() -> {
+
+                    label.setTextFill(Color.RED);
+                    label.setText("Make sure module is connected to the computer");
+
+                });
+                
+                return null;
+            }
+        };
+
+        // run the connection task 
+        new Thread(connectTask).start();
     }
 
     /*
@@ -3436,11 +3309,11 @@ public class EducatorModeControllerFX implements Initializable {
         generalStatusExperimentLabel.setTextFill(Color.BLACK);
         generalStatusExperimentLabel.setText("Copying File Template...");
 
-        FileChooser chooser;
-        chooser = new FileChooser();
-        chooser.setInitialDirectory(new java.io.File("."));
+        FileChooser chooser = new FileChooser();
+        chooser.setInitialDirectory(new File("."));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Name Output File (*.xlsx)", "*.xlsx"));
         File file = chooser.showSaveDialog(null);
+
         if (file != null) {
 
             String fileout = file.toString();
@@ -3457,7 +3330,7 @@ public class EducatorModeControllerFX implements Initializable {
         } else {
             generalStatusExperimentLabel.setTextFill(Color.RED);
             generalStatusExperimentLabel.setText("Invalid File Path Entered");
-            return "Invalid File Path";
+            return null;
         }
     }
 
@@ -3486,7 +3359,7 @@ public class EducatorModeControllerFX implements Initializable {
         } else {
             generalStatusExperimentLabel.setTextFill(Color.RED);
             generalStatusExperimentLabel.setText("Invalid File Path Entered");
-            return "Invalid File Path";
+            return null;
         }
     }
 
@@ -3538,7 +3411,6 @@ public class EducatorModeControllerFX implements Initializable {
 
         HashMap<String, CellData> param = new HashMap<>();
         CellData cell = new CellData();
-
 
         switch (testType) {
             case "Conservation of Momentum (Elastic Collision)":
@@ -3596,6 +3468,3 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
 }
-
-
-

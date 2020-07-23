@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -41,7 +42,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="117.5" prefWidth="200.0" text="SINC Technology" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="117.5" prefWidth="200.0" text="View Previous Trials" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -94,7 +95,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="36.0" prefWidth="400.0" text="Connect to Module" />
+                                                                  <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="36.0" prefWidth="400.0" text="Connect to Module" />
                                                                   <Label alignment="CENTER" prefWidth="500.0" text="Ensure module(s) are erased" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
@@ -110,7 +111,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <ComboBox fx:id="testTypeComboBox" onAction="#displayTestParameterTab" prefHeight="39.0" prefWidth="400.0" promptText="Select a Test" />
+                                                                  <ComboBox fx:id="testTypeComboBox" disable="true" onAction="#displayTestParameterTab" prefHeight="39.0" prefWidth="400.0" promptText="Select a Test" />
                                                                   <TabPane fx:id="testParametersTabPane" prefHeight="150.0" prefWidth="200.0" style="-fx-border-color: DarkGray;" styleClass="tabPane" stylesheets="@EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
                                                                     <tabs>
                                                                       <Tab text="Initial Tab">
@@ -174,7 +175,7 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additional Parameters">
                                                                                        <font>
                                                                                           <Font size="14.0" />
                                                                                        </font>
@@ -187,7 +188,7 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additional Parameters">
                                                                                        <font>
                                                                                           <Font size="14.0" />
                                                                                        </font>
@@ -256,7 +257,7 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additional Parameters">
                                                                                        <font>
                                                                                           <Font size="14.0" />
                                                                                        </font>
@@ -269,7 +270,7 @@
                                                                            <content>
                                                                               <AnchorPane>
                                                                                  <children>
-                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additonal Parameters">
+                                                                                    <Text layoutX="121.0" layoutY="79.0" strokeType="OUTSIDE" strokeWidth="0.0" text="No Additional Parameters">
                                                                                        <font>
                                                                                           <Font size="14.0" />
                                                                                        </font>
@@ -333,7 +334,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="15.0">
                                                                <children>
-                                                                  <Pane prefHeight="150.0" prefWidth="200.0" style="-fx-background-color: #DCDCDC;">
+                                                                  <Pane prefHeight="159.0" prefWidth="450.0" style="-fx-background-color: #DCDCDC;">
                                                                      <effect>
                                                                         <InnerShadow height="5.0" radius="2.0" width="5.0" />
                                                                      </effect>
@@ -345,12 +346,20 @@
                                                                                     <Font name="System Bold" size="14.0" />
                                                                                  </font>
                                                                               </Label>
-                                                                              <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" selected="true" text="Excel-Based Graphing Application">
+                                                                              <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" text="Excel Template">
+                                                                                 <font>
+                                                                                    <Font size="18.0" />
+                                                                                 </font>
+                                                                                 <toggleGroup>
+                                                                                    <ToggleGroup fx:id="outputType" />
+                                                                                 </toggleGroup>
+                                                                              </RadioButton>
+                                                                              <RadioButton fx:id="sincTechnologyRadioButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="SINC Technology Graph" toggleGroup="$outputType">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
                                                                               </RadioButton>
-                                                                              <RadioButton fx:id="sincTechnologyRadioButton" layoutX="192.0" layoutY="123.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Java-Based Graphing Application">
+                                                                              <RadioButton fx:id="DAGRadioButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="Data Analysis Graph" toggleGroup="$outputType">
                                                                                  <font>
                                                                                     <Font size="18.0" />
                                                                                  </font>
@@ -371,7 +380,7 @@
                                                                   </VBox>
                                                                   <VBox alignment="TOP_CENTER" prefHeight="53.0" prefWidth="450.0" spacing="4.0">
                                                                      <children>
-                                                                        <Label prefHeight="20.0" prefWidth="437.0" text="If using Excel, once file is sucessfully saved, double click the file at" textFill="#1f78d1">
+                                                                        <Label prefHeight="20.0" prefWidth="437.0" text="If using Excel, once the file is successfully saved, double click it at" textFill="#1f78d1">
                                                                            <font>
                                                                               <Font name="System Bold" size="14.0" />
                                                                            </font>
@@ -385,12 +394,12 @@
                                                                   </VBox>
                                                                   <VBox alignment="TOP_CENTER" prefHeight="53.0" prefWidth="450.0" spacing="4.0">
                                                                      <children>
-                                                                        <Label prefHeight="20.0" prefWidth="440.0" text="If using Java, when &quot;All Data Recieved From Module&quot; appears, " textFill="#1f78d1">
+                                                                        <Label prefHeight="20.0" prefWidth="440.0" text="If using the SINC Technology Graph or Data Analysis Graph," textFill="#1f78d1">
                                                                            <font>
                                                                               <Font name="System Bold" size="14.0" />
                                                                            </font>
                                                                         </Label>
-                                                                        <Label prefHeight="20.0" prefWidth="438.0" text="click next." textFill="#1f78d1">
+                                                                        <Label prefHeight="20.0" prefWidth="438.0" text="when &quot;All Data Received From Module&quot; appears, click next." textFill="#1f78d1">
                                                                            <font>
                                                                               <Font name="System Bold" size="14.0" />
                                                                            </font>
@@ -496,7 +505,7 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="50.0" prefWidth="535.0" text="Connect" />
+                                                                  <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="50.0" prefWidth="535.0" text="Connect" />
                                                                   <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Step 2D: Apply your Configurations to Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
@@ -547,12 +556,12 @@
                                                          <children>
                                                             <VBox prefHeight="374.0" prefWidth="500.0" spacing="10.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4: Restablish Connection" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4: Reestablish Connection" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#reconnectToModule1" prefHeight="53.0" prefWidth="500.0" text="Connect to Module 1" />
+                                                                  <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="53.0" prefWidth="500.0" text="Connect to Module 1" />
                                                                   <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4A: Read data from Module 1" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
@@ -574,7 +583,7 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="53.0" prefWidth="509.0" text="Connect to Module 2" />
+                                                                  <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="53.0" prefWidth="509.0" text="Connect to Module 2" />
                                                                </children>
                                                             </VBox>
                                                          </children>
@@ -668,7 +677,7 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="eraseButton11" mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="450.0" text="Connect">
+                                                                  <Button fx:id="eraseButton11" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="30.0" prefWidth="450.0" text="Connect">
                                                                      <font>
                                                                         <Font size="21.0" />
                                                                      </font>
@@ -838,7 +847,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="testRemotesButton11" mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="45.0" prefWidth="400.0" text="Establish Connection">
+                                                                  <Button fx:id="testRemotesButton11" mnemonicParsing="false" onAction="#connectRemoteTab" prefHeight="45.0" prefWidth="400.0" text="Establish Connection">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
@@ -909,7 +918,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="pairNewRemoteButton111" mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="45.0" prefWidth="400.0" text="Establish Connection">
+                                                                  <Button fx:id="pairNewRemoteButton111" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="45.0" prefWidth="400.0" text="Establish Connection">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
@@ -980,7 +989,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="testRemotesButton111" mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="50.0" prefWidth="400.0" text="Establish Connection">
+                                                                  <Button fx:id="testRemotesButton111" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="50.0" prefWidth="400.0" text="Establish Connection">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
@@ -1024,21 +1033,21 @@
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
                                           <VBox prefHeight="103.0" prefWidth="500.0" />
-                                          <Button mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Technology">
+                                          <Button mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
                                              <font>
-                                                <Font size="36.0" />
+                                                <Font size="24.0" />
+                                             </font>
+                                          </Button>
+                                          <Button mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Data Analysis Graph">
+                                             <font>
+                                                <Font size="24.0" />
                                              </font>
                                           </Button>
                                           <VBox prefHeight="213.0" prefWidth="500.0">
                                              <children>
                                                 <HBox prefHeight="32.0" prefWidth="500.0">
                                                    <children>
-                                                      <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="513.0" text="Click button above to launch SINC Tecnology," textFill="#1f78d1">
-                                                         <font>
-                                                            <Font name="System Bold" size="18.0" />
-                                                         </font>
-                                                      </Label>
-                                                      <Label prefHeight="28.0" prefWidth="180.0" text=" OR" textFill="#1f78d1">
+                                                      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="513.0" text="Click above to use SINC Technology, OR" textAlignment="CENTER" textFill="#1f78d1">
                                                          <font>
                                                             <Font name="System Bold" size="18.0" />
                                                          </font>
@@ -1047,7 +1056,7 @@
                                                 </HBox>
                                                 <HBox prefHeight="100.0" prefWidth="200.0">
                                                    <children>
-                                                      <Label alignment="CENTER_RIGHT" prefHeight="28.0" prefWidth="439.0" text="to launch the Java Graphing App for prior trials. " textFill="#1f78d1">
+                                                      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="520.0" text="to use the Data Analysis Graph to view prior trials." textAlignment="CENTER" textFill="#1f78d1">
                                                          <font>
                                                             <Font name="System Bold" size="18.0" />
                                                          </font>
@@ -1119,7 +1128,7 @@
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <Button mnemonicParsing="false" onAction="#reconnectToModule2" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" />
+                                          <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" />
                                           <Label prefHeight="24.0" prefWidth="471.0" text="5b. Hit the Following Button" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
@@ -1186,7 +1195,7 @@
                                                 <Font name="System Bold" size="18.0" />
                                              </font>
                                           </Label>
-                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#reconnectToModuleEraseConfirmationScreen" prefHeight="50.0" prefWidth="265.0" text="Connect">
+                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#connectEraseTab" prefHeight="50.0" prefWidth="265.0" text="Connect">
                                              <font>
                                                 <Font size="25.0" />
                                              </font>
