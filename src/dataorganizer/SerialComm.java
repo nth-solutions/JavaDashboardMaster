@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.paint.Color;
 import purejavacomm.CommPortIdentifier;
 import purejavacomm.PortInUseException;
 import purejavacomm.PureJavaIllegalStateException;
@@ -1585,7 +1586,7 @@ public class SerialComm {
 								//Display calculated progress
 								final int portion = sectorCounter;
 								final int total = numSectors;
-								Platform.runLater(() -> { progressBar.setProgress(((double) portion) / ((double) total)); });
+								Platform.runLater(() -> progressBar.setProgress(((double) portion) / ((double) total)));
 
 								//Values from bulk read method are saved as signed bytes, must convert to unsigned
 								for (byte data : tempTestData) {
@@ -1650,6 +1651,14 @@ public class SerialComm {
 
 				}
 			}
+
+			// reset progress for loading GenericTests
+			Platform.runLater(() -> {
+				statusLabel.setTextFill(Color.BLACK);
+				statusLabel.setText("Loading tests in the Dashboard...");
+				progressBar.setProgress(0);
+			});
+
 			//Method successful, return the map of test data
 			return testData;
 		}

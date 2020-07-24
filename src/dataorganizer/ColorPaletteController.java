@@ -1,16 +1,14 @@
 package dataorganizer;
 
-import com.sun.corba.se.impl.orbutil.graph.Graph;
-import com.sun.org.apache.xml.internal.security.Init;
+import java.net.URL;
+import java.util.ResourceBundle;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
-import java.net.URL;
-import java.util.ResourceBundle;
 
 public class ColorPaletteController implements Initializable {
 

@@ -2,16 +2,11 @@ package dataorganizer;
 
 import java.util.ArrayList;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 /**
  * Custom JavaFX component for the Data Analysis Graph's accordion view, provies a 
  * place for the user to view the details of the specific experiment

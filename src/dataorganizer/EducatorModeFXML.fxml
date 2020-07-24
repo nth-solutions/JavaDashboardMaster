@@ -354,14 +354,9 @@
                                                                                     <Font name="System Bold" size="14.0" />
                                                                                  </font>
                                                                               </Label>
-                                                                              <RadioButton fx:id="spreadsheetRadioButton" mnemonicParsing="false" prefWidth="365.0" text="Excel Template">
-                                                                                 <font>
-                                                                                    <Font size="18.0" />
-                                                                                 </font>
-                                                                                 <toggleGroup>
-                                                                                    <ToggleGroup fx:id="outputType" />
-                                                                                 </toggleGroup>
-                                                                              </RadioButton>
+                                                                              <fx:define>
+                                                                                 <ToggleGroup fx:id="outputType" />
+                                                                              </fx:define>
                                                                               <RadioButton fx:id="sincTechnologyRadioButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="365.0" text="SINC Technology Graph" toggleGroup="$outputType">
                                                                                  <font>
                                                                                     <Font size="18.0" />

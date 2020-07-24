@@ -30,10 +30,20 @@ public class AxisDataSeries {
 	// default rolling block size to smooth data for integration
 	private int rollBlkSize = 100;
 
+	/**
+	 * The enum representation of this axis.
+	 */
 	public final AxisType axis;
 
-	// samples per second in passed in data series
-	private int sampleRate;
+	/**
+	 * The length of the axis's test data in seconds.
+	 */
+	public final double testLength;
+
+	/**
+	 * The sample rate at which the axis's data was measured.
+	 */
+	public final int sampleRate;
 
 	// acceleration due to gravity, modify this to add more sigfigs if needed
 	private final double GRAVITY = 9.80665;
@@ -79,6 +89,8 @@ public class AxisDataSeries {
 
 		this.axis = axis;
 		this.sampleRate = sampleRate;
+
+		this.testLength = ((double) data.size()) / sampleRate; 
 
 		if (signData) {
 
@@ -148,6 +160,8 @@ public class AxisDataSeries {
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 
+		this.testLength = ((double) data.size()) / sampleRate; 
+
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
@@ -202,6 +216,8 @@ public class AxisDataSeries {
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 
+		this.testLength = ((double) data.size()) / sampleRate; 
+
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
@@ -244,8 +260,11 @@ public class AxisDataSeries {
 		this.time = a1.getTime().toArray(this.time);
 
 		this.axis = axis;
+		this.sampleRate = a1.sampleRate;
 
 		int length = a1.getSamples().size();
+
+		this.testLength = ((double) length) / sampleRate; 
 
 		// convert data ArrayLists to arrays
 		Double[] d1 = new Double[length];
@@ -270,7 +289,7 @@ public class AxisDataSeries {
 
 		this.originalData = result;
 		this.smoothedData = this.originalData.clone();
-		this.userSmoothedData = this.smoothedData.clone();
+		this.userSmoothedData = this.smoothedData.clone(); 
 
 		/* print debug info about AxisDataSeries
 		System.out.println(toString());
@@ -420,15 +439,6 @@ public class AxisDataSeries {
 	 * @return the slope of the secant line
 	 */
 	public Double getSlope(Double startTime, Double endTime) {
-
-		// if start and end times are the same, return slope of tangent line
-		if (startTime.equals(endTime)) {
-			/*
-			TODO defaulting to "1" as resolution since GraphNoSINCController can't pass this info;
-			this seems like an acceptable inaccuracy, since users shouldn't be graphing tangent lines with two points anyways
-			*/
-			return getSlope(startTime, 1);
-		}
 
 		// calculate indices of start and end times
 		int a = (int) Math.round(startTime*this.sampleRate);

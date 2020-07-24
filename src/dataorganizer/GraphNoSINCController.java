@@ -7,9 +7,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
-
-import com.sun.corba.se.impl.ior.GenericIdentifiable;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -23,8 +22,10 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -54,10 +55,27 @@ public class GraphNoSINCController implements Initializable {
 	private double zoomviewScalarY;
 	private double leftScrollPercentage;
 	private double topScrollPercentage;
+
+	/**
+	 * The x-coordinate of the point denoting the center of the viewport.
+	 */
 	private double zoomviewX;
+
+	/**
+	 * The y-coordinate of the point denoting the center of the viewport.
+	 */
 	private double zoomviewY;
+
+	/**
+	 * The current width of the viewport.
+	 */
 	private double zoomviewW;
+
+	/**
+	 * The current height of the viewport.
+	 */
 	private double zoomviewH;
+
 	private double resetZoomviewX;
 	private double resetZoomviewY;
 	private double resetZoomviewH;
@@ -120,9 +138,10 @@ public class GraphNoSINCController implements Initializable {
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
 
-		slopePoint = new Double[2];
-		areaPoint = new Double[2];
+		// initialize graph mode variables
+		Platform.runLater(() -> { setGraphMode(GraphMode.NONE); });
 
+		// zoom/viewport settings
 		resolution = 20;
 		zoomviewScalarX = 1;
 		zoomviewScalarY = 1;
@@ -135,6 +154,7 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewW = 10;
 		zoomviewH = 5;
 
+		// initialize graph and axes
 		lineChart = multiAxis.getBaseChart();
 		lineChart.setAnimated(false);
 		xAxis = (BFANumberAxis) lineChart.getXAxis();
@@ -159,13 +179,15 @@ public class GraphNoSINCController implements Initializable {
 			leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
 			topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
 
-			if(!event.isAltDown()) {
+			// vertically scale the graph
+			if (!event.isAltDown()) {
 				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
 				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW);
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
 
-			if(!event.isControlDown()){
+			// horizontally scale the graph
+			if (!event.isControlDown()) {
 				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 				
@@ -173,6 +195,7 @@ public class GraphNoSINCController implements Initializable {
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 			}
+
 			redrawGraph();
 
 		});
@@ -206,26 +229,9 @@ public class GraphNoSINCController implements Initializable {
 
 		// listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
 		multiAxis.setOnMousePressed(event -> {
-
 			lastMouseX = event.getX();
 			lastMouseY = event.getY();
-
 		});
-	}
-
-	/**
-	 * Populates the data analysis graph with a single GenericTest.
-	 * This constructor should be used for a One Module test.
-	 * @param g the GenericTest object storing the test's data
-	 */
-	public void setGenericTests(GenericTest g) {
-
-		// g1/g2 are allowed to be null here (differentiating One/Two Module setup)
-		genericTests.add(g);
-		
-		initializePanels();
-		
-
 	}
 
 	/**
@@ -234,13 +240,8 @@ public class GraphNoSINCController implements Initializable {
 	 * @param g array of GenericTests (each one represents one module)
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
-
 		genericTests = g;
 		initializePanels();
-		for(GenericTest test : genericTests){
-			System.out.println("Test " + genericTests.indexOf(test) + " : " + test.getClass().getName());
-		}
-
 	}
 
 	/**
@@ -264,6 +265,10 @@ public class GraphNoSINCController implements Initializable {
 
 		genericTests.clear();
 
+		Alert a = new Alert(AlertType.NONE, "Reloading data sets...");
+		a.setResult(ButtonType.OK);
+		a.show();
+
 		CSVHandler reader = new CSVHandler();
 
 		for (String s : paths) {
@@ -272,24 +277,31 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		initializePanels();
+		a.close();
 
 	}
 
 	private void initializePanels() {
 
+		// get primary test
+		GenericTest g = genericTests.get(0);
+
 		// get reference to root element
 		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
-		generalStatusLabel.setText(genericTests.get(0).getGraphTitle());
+		generalStatusLabel.setText(g.getGraphTitle());
+
 		// remove existing panels
 		panels.clear();
 		a.getPanes().clear();
 
+		// if primary test is a lab template, create experiment panel
+		if (!g.getClass().equals(GenericTest.class)) {
 
+			ExperimentPanel experimentPanel = new ExperimentPanel();
+			genericTests.get(0).setupExperimentPanel(experimentPanel);
+			a.getPanes().add(experimentPanel);
 
-		ExperimentPanel experimentPanel = new ExperimentPanel();
-		genericTests.get(0).setupExperimentPanel(experimentPanel);
-		a.getPanes().add(experimentPanel);
-		
+		}
 
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
@@ -313,20 +325,27 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		// graph any default axes
-		// runs in Platform.runLater to ensure data set panel is loaded
+		// runs after data set panel is loaded
 		Platform.runLater(() -> {
 
 			clearGraph();
 
-			// TODO select data set to graph based on type of GenericTest
-			// (pendulum -> angular velocity/pos, inclined plane -> AccelX)
-			for(AxisType axisType : genericTests.get(0).getDefaultAxes()){
-				
-				graphAxis(axisType, 0);
+			// TODO the first test isn't always the desired one, so we might want to change this
+			for (AxisType axis : g.getDefaultAxes()) {				
+				graphAxis(axis, 0);
 			}
 
+			double testLength = g.getAxis(g.getDefaultAxes()[0]).testLength;
+
+			// set width of viewport to fit the start and end of the test
+			resetZoomviewX = testLength/2;
+			resetZoomviewY = 0;
+			resetZoomviewW = testLength;
+			resetZoomviewH = 10;
+
+			handleReset();
+
 		});
-		
 
 	}
 
@@ -424,9 +443,7 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 			// tick the checkbox
-			System.out.println("checking : " + GTIndex);
-
-			panels.get(GTIndex).setCheckBox(true,axis);
+			panels.get(GTIndex).setCheckBox(true, axis);
 
 		// if axis is already graphed:
 		} else {
@@ -508,7 +525,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	@FXML
-	public void handleReset(ActionEvent event) {
+	public void handleReset() {
 
 		zoomviewX = resetZoomviewX;
 		zoomviewY = resetZoomviewY;
@@ -535,9 +552,6 @@ public class GraphNoSINCController implements Initializable {
 			alert.showAndWait();
 
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
 
 		// workaround to "local variable defined in enclosing scope must be final or effectively final"
 		final int blockSize = sampleBlockSize;
@@ -555,12 +569,10 @@ public class GraphNoSINCController implements Initializable {
 
 		System.out.println("Toggling slope mode...");
 
-		if (mode == GraphMode.NONE) {
+		if (mode != GraphMode.SLOPE) {
 			setGraphMode(GraphMode.SLOPE);
 		}
-		else if (mode == GraphMode.SLOPE) {
-			setGraphMode(GraphMode.NONE);
-		}
+		else setGraphMode(GraphMode.NONE);
 
 	}
 
@@ -569,12 +581,10 @@ public class GraphNoSINCController implements Initializable {
 
 		System.out.println("Toggling area mode...");
 
-		if (mode == GraphMode.NONE) {
+		if (mode != GraphMode.AREA) {
 			setGraphMode(GraphMode.AREA);
 		}
-		else if (mode == GraphMode.AREA) {
-			setGraphMode(GraphMode.NONE);
-		}
+		else setGraphMode(GraphMode.NONE);
 
 	}
 
@@ -601,6 +611,10 @@ public class GraphNoSINCController implements Initializable {
 		// keep track of verified CSV/CSVP file paths
 		ArrayList<String> paths = new ArrayList<String>();
 
+		Alert a = new Alert(AlertType.NONE, "Loading test data...");
+		a.setResult(ButtonType.OK);
+		a.show();
+
 		// loop through each file, checking for CSVP pair
 		for (File f : files) {
 			
@@ -625,6 +639,45 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		setGenericTestsFromCSV(paths);
+		a.close();
+
+	}
+
+	@FXML
+	private void changeResolution(ActionEvent event) {
+
+		TextInputDialog dialog = new TextInputDialog(Integer.toString(resolution));
+
+		dialog.setTitle("Change Resolution");
+		dialog.setHeaderText("Change Resolution");
+		dialog.setContentText("Warning: entering a value below the default (20) could severely reduce performance.");
+
+		Optional<String> result = dialog.showAndWait();
+
+		try {
+			if (result.isPresent()) resolution = Integer.parseInt(result.get());
+		}
+		catch (NumberFormatException e) {
+
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setHeaderText("Invalid input");
+			alert.setContentText("Please enter a numerical value.");
+
+			alert.showAndWait();
+			return;
+
+		}
+
+		Alert a = new Alert(AlertType.NONE, "Reloading data sets...");
+		a.setResult(ButtonType.OK);
+		a.show();
+
+		// TODO add ControlsFX to make async loading popup
+		for (GraphData d : dataSets) {
+			updateAxis(d.axis, d.GTIndex);
+		}
+
+		a.close();
 
 	}
 
@@ -707,6 +760,12 @@ public class GraphNoSINCController implements Initializable {
 	 * Graphs a secant line between the given points.
 	 */
 	public void graphSlope(double x1, double y1, double x2, double y2, AxisType axis, int GTIndex) {
+
+		// if user chose the same point twice, graph a tangent line
+		if (x1 == x2 && y1 == y2) {
+			graphSlope(x1, y1, axis, GTIndex);
+			return;
+		}
 
 		clearSlope();
 
@@ -844,32 +903,32 @@ public class GraphNoSINCController implements Initializable {
 
 				if (mode == GraphMode.SLOPE) {
 
-					// secant line graphing mode
+					// tangent line graphing mode
 					if (e.isShiftDown()) {
-						System.out.println("Selected first slope point");
-						slopePoint = new Double[] {x,y};
-						selectedGraphData = new GraphData(GTIndex, axis, null);
+						System.out.println("Graphing tangent line...");
+						graphSlope(x, y, axis, GTIndex);
 					}
 					else {
 
-						// check for any issues with calculating b/t different data sets
-						if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {
-
-							Alert a = new Alert(AlertType.ERROR, "Slope calculations only work when selecting points from the same data set.");
-							a.showAndWait();
-							
-							setGraphMode(GraphMode.NONE);
-							return;
-							
-						}
-
-						// graph tangent line
+						// secant line graphing mode
 						if (slopePoint[0] == null && slopePoint[1] == null) {
-							System.out.println("Graphing tangent line...");
-							graphSlope(x, y, axis, GTIndex);
+							System.out.println("Selected first slope point");
+							slopePoint = new Double[] {x,y};
+							selectedGraphData = new GraphData(GTIndex, axis, null);
 						}
-						// graph secant line
 						else {
+
+							// check for any issues with calculating b/t different data sets
+							if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {
+
+								Alert a = new Alert(AlertType.ERROR, "Slope calculations only work when selecting points from the same data set.");
+								a.showAndWait();
+								
+								setGraphMode(GraphMode.NONE);
+								return;
+								
+							}
+
 							System.out.println("Graphing secant line...");
 							graphSlope(slopePoint[0], slopePoint[1], x, y, axis, GTIndex);
 						}

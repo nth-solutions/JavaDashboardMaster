@@ -22,16 +22,14 @@ public class GenericTest {
 	 * @param MPUMinMax array of constant MPU offsets specific to the module
 	 */
 	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
-		
-		int timer0 = testParameters.get(1);
+
 		int sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
-		int accelSensitivity = testParameters.get(9);
-		int gyroSensitivity = testParameters.get(10);
+
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
-		setDefaultAxes(new AxisType[] {AxisType.AccelX});
+
 		// TODO MPUMinMax will randomly be read as "null" from SerialComm
 		// this ensures that a NullPointerException isn't thrown later in GT
 		if (MPUMinMax == null) {
@@ -132,7 +130,10 @@ public class GenericTest {
 	 */
 	private void createAxisDataSeries(List<List<Double>> dataSamples, ArrayList<Integer> testParameters, int[] mpuOffsets) {
 
-		int timer0 = testParameters.get(1);
+		// TODO change this to a name property that can be changed as a test selection menu
+		setGraphTitle("Generic Test");
+		setDefaultAxes(new AxisType[] { AxisType.AccelX });
+
 		int sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
 		int accelSensitivity = testParameters.get(9);
@@ -211,7 +212,7 @@ public class GenericTest {
 		return dataSamples;
 	}
 
-	public void setupExperimentPanel(ExperimentPanel panel){
+	public void setupExperimentPanel(ExperimentPanel panel) {
 		panel.setExperimentName("Generic Test");
 		panel.applyParams();
 	}
@@ -220,7 +221,7 @@ public class GenericTest {
 		defaultAxes = axes;
 	}
 	
-	public AxisType[] getDefaultAxes(){
+	public AxisType[] getDefaultAxes() {
 		return defaultAxes;
 	}
 

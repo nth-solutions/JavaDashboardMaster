@@ -63,6 +63,24 @@
 									<children>
 										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
 											<children>
+												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="DEBUG" textAlignment="CENTER">
+													<padding>
+														<Insets bottom="5.0" top="5.0" />
+													</padding>
+												</Label>
+												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#changeResolution" prefHeight="25.0" prefWidth="120.0" text="Change resolution">
+													<VBox.margin>
+														<Insets />
+													</VBox.margin>
+												</Button>
+											</children>
+											<padding>
+												<Insets left="5.0" right="5.0" />
+											</padding>
+										</VBox>
+										<Separator prefHeight="50.0" prefWidth="398.0">
+										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
+											<children>
 												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
 													<padding>
 														<Insets bottom="5.0" top="5.0" />
@@ -123,7 +141,7 @@
 			<menus>
 				<Menu mnemonicParsing="false" text="File">
 				  <items>
-					 <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV" />
+					 <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
 				  </items>
 				</Menu>
 			</menus>

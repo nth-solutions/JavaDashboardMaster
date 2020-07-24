@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.beans.Observable;
-import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -40,14 +39,13 @@ public class MultipleAxesLineChart extends StackPane {
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
     private double strokeWidth = 0.3;
-    private DoubleProperty initalXProperty;
+
     public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor) {
         this(baseChart, lineColor, null);
     }
 
     public MultipleAxesLineChart() {
         this(null, Color.RED, null);
-
     }
    
     /**
@@ -247,10 +245,6 @@ public class MultipleAxesLineChart extends StackPane {
             lineChart = new BFALineChart<Number, Number>(xAxisAdd, yAxisAdd);
             lineChart.setMouseTransparent(true);
             
-            lineChart.setAnimated(false);
-            lineChart.setLegendVisible(false);
-            lineChart.setCreateSymbols(false);
-            lineChart.setPickOnBounds(false);
             axisTypeMap.put(axisTypeInt,lineChart);
             backgroundCharts.add(lineChart);
             styleBackgroundChart(lineChart, lineColor);
@@ -300,8 +294,6 @@ public class MultipleAxesLineChart extends StackPane {
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);
         }
-       
-        rebuildChart();
     }
 
     /**
@@ -327,7 +319,6 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     private void styleBackgroundChart(BFALineChart<Number, Number> lineChart, Color lineColor) {
-        // styleChartLine(lineChart, lineColor);
 
         Node contentBackground = lineChart.lookup(".chart-content").lookup(".chart-plot-background");
         contentBackground.setStyle("-fx-background-color: transparent;");
@@ -337,6 +328,10 @@ public class MultipleAxesLineChart extends StackPane {
         lineChart.setVerticalGridLinesVisible(false);
         lineChart.setHorizontalGridLinesVisible(false);
         lineChart.setCreateSymbols(false);
+        lineChart.setAnimated(false);
+        lineChart.setLegendVisible(false);
+        lineChart.setPickOnBounds(false);
+    
     }
 
     private String toRGBCode(Color color) {
