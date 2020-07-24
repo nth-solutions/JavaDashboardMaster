@@ -265,7 +265,7 @@ public class GraphNoSINCController implements Initializable {
 
 		genericTests.clear();
 
-		Alert a = new Alert(AlertType.NONE, "Reloading data sets...");
+		Alert a = new Alert(AlertType.NONE, "Loading test data...");
 		a.setResult(ButtonType.OK);
 		a.show();
 
@@ -611,10 +611,6 @@ public class GraphNoSINCController implements Initializable {
 		// keep track of verified CSV/CSVP file paths
 		ArrayList<String> paths = new ArrayList<String>();
 
-		Alert a = new Alert(AlertType.NONE, "Loading test data...");
-		a.setResult(ButtonType.OK);
-		a.show();
-
 		// loop through each file, checking for CSVP pair
 		for (File f : files) {
 			
@@ -639,7 +635,6 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		setGenericTestsFromCSV(paths);
-		a.close();
 
 	}
 
