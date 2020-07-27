@@ -1036,12 +1036,12 @@
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
                                           <VBox prefHeight="103.0" prefWidth="500.0" />
-                                          <Button mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
+                                          <Button fx:id="launchSINCGraphSolo" mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
                                           </Button>
-                                          <Button mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Data Analysis Graph">
+                                          <Button fx:id="launchDAGSolo" mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Data Analysis Graph">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>

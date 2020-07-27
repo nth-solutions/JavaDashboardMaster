@@ -2126,7 +2126,7 @@ public class EducatorModeControllerFX implements Initializable {
      * Loads and launches the Data Analysis Graph.
      */
     public GraphNoSINCController startGraphingNoSINC() {
-    	
+
     	Stage primaryStage = new Stage();
     	FXMLLoader loader = new FXMLLoader((getClass().getResource("fxml/GraphNoSINC.fxml")));
         Parent root;

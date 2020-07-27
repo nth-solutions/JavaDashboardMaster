@@ -19,7 +19,7 @@
                   <Font size="44.0" />
                </font>
             </Button>
-            <Button mnemonicParsing="false" onAction="#launchAdvanced" prefHeight="405.0" prefWidth="321.0" text="Advanced" textFill="#ff941b">
+            <Button fx:id="AdvancedButton" mnemonicParsing="false" onAction="#launchAdvanced" prefHeight="405.0" prefWidth="321.0" text="Advanced" textFill="#ff941b">
                <font>
                   <Font size="44.0" />
                </font>
