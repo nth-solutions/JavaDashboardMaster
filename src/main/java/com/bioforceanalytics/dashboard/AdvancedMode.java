@@ -259,7 +259,7 @@ public class AdvancedMode extends JFrame {
 	 */
 	AdvancedMode() {
         serialHandler = new SerialComm();
-		setTitle("BioForce Java Dashboard Advanced Mode Rev-39");//Internal: D
+		setTitle("BioForce Java Dashboard Advanced Mode");//Internal: D
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();

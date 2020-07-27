@@ -51,6 +51,13 @@
       <version>2.1</version>
       <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.testfx/openjfx-monocle -->
+    <dependency>
+        <groupId>org.testfx</groupId>
+        <artifactId>openjfx-monocle</artifactId>
+        <version>1.8.0_20</version>
+        <scope>test</scope>
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.github.purejavacomm/purejavacomm -->
     <dependency>

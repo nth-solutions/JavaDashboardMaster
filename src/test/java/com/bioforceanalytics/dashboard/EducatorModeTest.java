@@ -3,7 +3,6 @@ package com.bioforceanalytics.dashboard;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.testfx.framework.junit.ApplicationTest;
 
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +10,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class EducatorModeTest extends ApplicationTest {
+public class EducatorModeTest extends BaseTest {
     
     private EducatorModeControllerFX emfx;
 
