@@ -2163,7 +2163,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         if(root!=null) primaryStage.setScene(new Scene(root, 1320, 730));
 
-        primaryStage.setTitle("Java Graph");
+        primaryStage.setTitle("BioForce SINC Technology Graph");
         primaryStage.show();
         primaryStage.setResizable(false);
 

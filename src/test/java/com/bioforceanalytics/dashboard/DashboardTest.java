@@ -2,15 +2,15 @@ package com.bioforceanalytics.dashboard;
 
 import static org.junit.Assert.fail;
 
-import java.awt.HeadlessException;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.testfx.api.FxAssert;
 import org.testfx.matcher.base.WindowMatchers;
 
 import javafx.stage.Stage;
 
+/**
+ * Tests the Dashboard Selector's functionality.
+ */
 public class DashboardTest extends BaseTest {
     
     private DashboardSelector dashboard;
