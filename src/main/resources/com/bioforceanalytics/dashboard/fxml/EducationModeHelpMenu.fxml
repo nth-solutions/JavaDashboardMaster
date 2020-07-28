@@ -17,7 +17,7 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/eraseModuleHelpTab.PNG" />
+                              <Image url="@../images/eraseModuleHelpTab.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -30,12 +30,12 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/unpairRemotesHelpTab.PNG" />
+                              <Image url="@../images/unpairRemotesHelpTab.PNG" />
                            </image>
                         </ImageView>
                         <ImageView fitHeight="222.0" fitWidth="982.0" layoutX="9.0" layoutY="450.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/UnpairRemotesHelpTabTwo.PNG" />
+                              <Image url="@../images/UnpairRemotesHelpTabTwo.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -48,7 +48,7 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/experimentHelpTabOne.PNG" />
+                              <Image url="@../images/experimentHelpTabOne.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -61,7 +61,7 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/experimentHelpTabTwo.PNG" />
+                              <Image url="@../images/experimentHelpTabTwo.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -74,7 +74,7 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/experimentHelpTabThree.PNG" />
+                              <Image url="@../images/experimentHelpTabThree.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -87,7 +87,7 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/experimentHelpTabFour.PNG" />
+                              <Image url="@../images/experimentHelpTabFour.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -100,7 +100,7 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/experimentHelpTabFive.PNG" />
+                              <Image url="@../images/experimentHelpTabFive.PNG" />
                            </image>
                         </ImageView>
                      </children>
@@ -113,12 +113,12 @@
                      <children>
                         <ImageView fitHeight="800.0" fitWidth="1000.0" layoutX="4.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/SINCTechnologyHelpTab.PNG" />
+                              <Image url="@../images/SINCTechnologyHelpTab.PNG" />
                            </image>
                         </ImageView>
                         <ImageView fitHeight="216.0" fitWidth="970.0" layoutX="14.0" layoutY="310.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@resources/SINCTechnologyHelpTabTwo.PNG" />
+                              <Image url="@../images/SINCTechnologyHelpTabTwo.PNG" />
                            </image>
                         </ImageView>
                      </children>
