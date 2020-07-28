@@ -4,48 +4,33 @@ name: Java CI with Maven
 on:
   push:
     branches:
-    # TODO change this once we merge w/ master
-    - maven
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Download repository
-      uses: actions/checkout@v2
-    - name: Set up JDK
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-        java-package: jdk+fx
-    - name: Cache Maven dependencies
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-    - name: Build package
-      run: mvn -B package --file pom.xml
-    - run: mkdir staging && cp target/*.jar staging  && cp target/*.exe staging
-    - name: Save package
-      uses: actions/upload-artifact@v2
-      with:
-        name: Package
-        path: staging
-
-  # TODO finish tests
-  # test-windows:
-  #   needs: build
-  #   runs-on: windows-latest
-  #   steps:
-  #   - name: Set up JDK
-  #     uses: actions/setup-java@v1
-  #     with:
-  #       java-version: 1.8
-  #       java-package: jdk+fx
-  #   - name: Download package
-  #     uses: actions/download-artifact@v2
-  #     with:
-  #       name: staging
-  #   - name: Run package
-  #     run: java -jar 
+      - name: Download repository
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          java-package: jdk+fx
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build package
+        run: mvn -B package --file pom.xml
+      - run: mkdir staging && cp target/*.jar staging  && cp target/*.exe staging
+      - name: Save package
+        uses: actions/upload-artifact@v2
+        with:
+          name: Package
+          path: staging
