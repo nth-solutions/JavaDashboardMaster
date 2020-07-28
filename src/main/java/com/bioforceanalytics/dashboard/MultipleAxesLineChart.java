@@ -149,18 +149,15 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     private void rebuildChart() {
-        System.out.println("running rebuild chart");
 
         if(getChildren().contains(baseChart)){
             resizeBaseChart(baseChart);
-            System.out.println("baseChart graphed");
         }else{
             resizeBaseChart(baseChart);
             getChildren().add(baseChart);
         }
         for (BFALineChart<Number, Number> lineChart : backgroundCharts) {
             if(!getChildren().contains(lineChart)){
-                System.out.println("adding line chart " + lineChart);
                 resizeBackgroundChart(lineChart);
                 getChildren().add(lineChart);
             }else{
@@ -171,7 +168,6 @@ public class MultipleAxesLineChart extends StackPane {
         for(Node child : getChildren()){
             if(child != baseChart){
                 if(!backgroundCharts.contains((BFALineChart) child)){
-                    System.out.println("does not contain " + child);
                     emptyChildren.add(child);
                 }
             }
@@ -203,11 +199,8 @@ public class MultipleAxesLineChart extends StackPane {
         lineChart.maxWidthProperty()
                 .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
        
-
-        System.out.println("resizing " + lineChart);
         
         if(backgroundCharts.indexOf(lineChart) != 0){
-            System.out.println("drawing on right side  " + lineChart);
             lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
             lineChart.getYAxis().setSide(Side.RIGHT);
             lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * (backgroundCharts.indexOf(lineChart) - 1));
@@ -226,7 +219,6 @@ public class MultipleAxesLineChart extends StackPane {
      * @param lineColor the color of the data set's graph
      */
     public void addSeries(GraphData d, Color lineColor) {
-        double startTime = System.currentTimeMillis();
         BFANumberAxis yAxisAdd = new BFANumberAxis();
         BFANumberAxis xAxisAdd = new BFANumberAxis();
         BFALineChart<Number, Number> lineChart;
@@ -271,9 +263,7 @@ public class MultipleAxesLineChart extends StackPane {
             lineChart.setMouseTransparent(true);
             
             axisTypeMap.put(axisTypeInt,lineChart);
-            double backgroundTimer = System.currentTimeMillis();
             backgroundCharts.add(lineChart);
-            System.out.println("background time " + (System.currentTimeMillis() - backgroundTimer));
             styleBackgroundChart(lineChart, lineColor);
             setFixedAxisWidth(lineChart);
             
@@ -286,14 +276,11 @@ public class MultipleAxesLineChart extends StackPane {
         axisChartMap.put(d.axis, lineChart);
         baseChart.getData().add(d.data);
         dataSets.add(d);
-        //resizeBaseChart(lineChart);
         for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
             if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
                 n.setStyle("-fx-background-color: transparent;");
             }
         }
-        System.out.println("Node Loop time " + (System.currentTimeMillis() - startTime));
-
     }
 
     /**
