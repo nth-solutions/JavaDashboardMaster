@@ -18,7 +18,6 @@ public class DashboardSelector extends Application {
         primaryStage.setTitle("Dashboard Selector");
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
-        //scene.getStylesheets().add(getClass().getResource("css/EducatorModeCSS.css").toExternalForm());
         primaryStage.show();
         primaryStage.setResizable(false);
     }

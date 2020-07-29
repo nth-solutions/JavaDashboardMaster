@@ -210,6 +210,7 @@ public class EducatorModeControllerFX implements Initializable {
     // holds test data from modules
     // each GT represents a single trial from a module
     private ArrayList<GenericTest> genericTests;
+    private ArrayList<DataOrganizer> dataOrgoList;
 
     // Colors
     private final Color LIGHT_GREEN = Color.rgb(51, 204, 51);
@@ -241,6 +242,7 @@ public class EducatorModeControllerFX implements Initializable {
         //primaryTabPane.getSelectionModel().select(experimentTab);
 
         genericTests = new ArrayList<GenericTest>();
+        dataOrgoList = new ArrayList<DataOrganizer>();
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.                                                                                   //See Method Comment
@@ -1143,11 +1145,13 @@ public class EducatorModeControllerFX implements Initializable {
 
                 try {
 
-                    ArrayList<DataOrganizer> dataOrgoList = new ArrayList<>();
                     ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
-                    // clear all previously read tests
-                    genericTests.clear();
+                    // clear all previously read tests for one-module tests
+                    if (oneModuleTest) {
+                        genericTests.clear();
+                        dataOrgoList.clear();
+                    }
 
                     displayProgress("Reading tests from module...", Color.BLUE, STYLE_WORKING, 0);
 
@@ -1233,17 +1237,18 @@ public class EducatorModeControllerFX implements Initializable {
                             GenericTest newTest;
 
                             switch (experimentType) {
-                                case 1: // Conservation of Momentum
+
+                                case 1: // TODO Conservation of Momentum
                                     newTest = new ConservationMomentumTest(testParameters, finalData, MPUMinMax, massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
                                     break;
-                                case 2: // Conservation of Energy
+                                case 2: // TODO Conservation of Energy
                                     newTest = new ConservationEnergyTest(testParameters, finalData, MPUMinMax, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
                                     break;
                                 case 3: // Inclined Plane - Top
-                                    newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax,angleFromTop);
+                                    newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax, angleFromTop);
                                     break;
                                 case 4: // Inclined Plane - Bottom
-                                    newTest = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax,angleFromBottom);
+                                    newTest = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax, angleFromBottom);
                                     break;
                                 case 5: // Physical Pendulum
                                     newTest = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
@@ -1277,31 +1282,38 @@ public class EducatorModeControllerFX implements Initializable {
 
                     displayProgress("All tests read from module", Color.GREEN, STYLE_SUCCESS, 1);
 
-                    // automatically launch the appropriate graph
-                    if (getOutputType().equals(sincTechnologyRadioButton)) {
+                    // automatically launch the appropriate graph for one-module tests
+                    if (oneModuleTest) {
+                        
+                        if (getOutputType().equals(sincTechnologyRadioButton)) {
 
-                        System.out.println("Launching SINC Graph...");
+                            System.out.println("Launching SINC Graph...");
 
-                        Platform.runLater(() -> {
-                            lineGraph = startGraphing();
-                            lineGraph.setCsvFilePath(System.getProperty("user.home") + "/Documents/" + dataOrgo.getName());
-                            lineGraph.loadCSVData();
-                        });
+                            Platform.runLater(() -> {
+                                lineGraph = startGraphing();
+
+                                // SINC Graph only supports 2 data sets, so hard-coding is okay
+                                lineGraph.setDataCollector(dataOrgoList.get(0), 0);
+                                lineGraph.setDataCollector(dataOrgoList.get(1), 1);
+
+                            });
+
+                        }
+                        else {
+
+                            System.out.println("Launching Data Analysis Graph...");
+
+                            Platform.runLater(() -> {
+                                GraphNoSINCController graph = startGraphingNoSINC();
+                                graph.setGenericTests(genericTests);
+                            });
+
+                        }
+                        
+                        // move to the "Launch Graph" page
+                        Platform.runLater(() -> nextTab());
 
                     }
-                    else {
-
-                        System.out.println("Launching Data Analysis Graph...");
-
-                        Platform.runLater(() -> {
-                            GraphNoSINCController graph = startGraphingNoSINC();
-                            graph.setGenericTests(genericTests);
-                        });
-
-                    }
-                    
-                    // move to the "Launch Graph" page
-                    Platform.runLater(() -> nextTab());
 
                 } catch (IOException e) {
                     displayProgress("Error reading tests -- USB connection lost", Color.RED, STYLE_FAIL, 1);
@@ -1352,315 +1364,6 @@ public class EducatorModeControllerFX implements Initializable {
             progressBar.setStyle(style);
             progressBar.setProgress(progress);
         });
-
-    }
-
-    @FXML
-    private void readTestsFromModuleOneOutOfTwo(ActionEvent event){
-        HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
-
-        FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
-            @Override
-            public void run() {
-                try {
-                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Reading Data from Module...");
-                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                    });
-
-                    //Read test parameters from module and store it in testParameters
-
-                    //Executes if the reading of the test parameters was successful
-                    if (testParameters != null) {
-
-                        int expectedTestNum = testParameters.get(0);
-
-                        //Assign local variables to their newly received values from the module
-                        int timedTestFlag = testParameters.get(4);
-                        //Trigger on release is 8
-                        int testLength = testParameters.get(6);
-                        int accelGyroSampleRate = testParameters.get(7);
-                        int magSampleRate = testParameters.get(8);
-                        int accelSensitivity = testParameters.get(9);
-                        int gyroSensitivity = testParameters.get(10);
-                        int accelFilter = testParameters.get(11);
-                        int gyroFilter = testParameters.get(12);
-
-                        double bytesPerSample = 18;
-                        if (accelGyroSampleRate / magSampleRate == 10) {
-                            bytesPerSample = 12.6;
-                        }
-
-                        String nameOfFile = "";
-
-                        //Executes if there are tests on the module
-                        if (expectedTestNum > 0) {
-
-                            //Get date for file name
-                            Date date = new Date();
-
-                            //Assigns the name of file
-                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-
-                            HashMap<Integer, ArrayList<Integer>> testData;
-
-                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                            testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
-                            //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
-                            if (testData != null) {
-                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-
-                                    int[] finalData = new int[testData.get(testIndex).size()];
-
-                                    for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                        if (testData.get(testIndex).get(byteIndex) != -1) {
-                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                        } else {
-                                            finalData[byteIndex] = -1;
-                                            break;
-                                        }
-                                    }
-
-                                    //Initialize GenericTest object to store and organize data to be graphed
-                                    // TODO fix this to work with more than 2 modules
-                                    genericTests.add(new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax()));   
-                                   
-                                    String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                    dataOrgo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
-                                    dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
-                                    dataOrgo.createDataSmpsRawData(finalData);
-                                    dataOrgo.getSignedData();
-
-                                    dataOrgo.setName("Module 1 " + dataOrgo.getName());
-                                    dataOrgo.createCSV(false, false);
-                                    dataOrgo.createCSVP();
-                                    Platform.runLater( () -> {
-                                        generalStatusExperimentLabel.setText("Data successfully Read From Module 1");
-                                        generalStatusExperimentLabel.setTextFill(Color.GREEN);
-                                    });
-
-                                }
-                            } else {
-
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                                    progressBar.setStyle("-fx-accent: red;");
-                                    progressBar.setProgress(1);
-                                });
-
-                            }
-                        } else {
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("No Tests Found on Module");
-                                generalStatusExperimentLabel.setTextFill(Color.RED);
-                                progressBar.setStyle("-fx-accent: red;");
-                                progressBar.setProgress(1);
-                            });
-                        }
-                    } else {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-                    }
-                } catch (IOException e) {
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                        progressBar.setProgress(100);
-                    });
-
-                } catch (PortInUseException e) {
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                        progressBar.setProgress(100);
-                    });
-
-                } catch (UnsupportedCommOperationException e) {
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                        progressBar.setProgress(100);
-                    });
-
-                }
-            }
-
-        }, testDataArray);
-
-        readTestsFromModuleTask.run(); // Runs the futureTask.
-    }
-
-    @FXML
-    private void readTestsFromModuleTwoOutOfTwo(ActionEvent event){
-        
-        HashMap<Integer, ArrayList<Integer>>[] testDataArray = new HashMap[1];                                      //Creates an Array; Creates a Hashmap of Integers and Arraylists of Integers. Places Hashmap into Array. This is ultimately used to store test data that is read from the module.
-
-        FutureTask<HashMap<Integer, ArrayList<Integer>>[]> readTestsFromModuleTask = new FutureTask<HashMap<Integer, ArrayList<Integer>>[]>(new Runnable() { // Future task is used because UI elements also need to be modified. In addition, the task needs to "return" values.
-            @Override
-            public void run() {
-
-                try {
-                    ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Reading Data from Module...");
-                        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-                    });
-
-                    //Read test parameters from module and store it in testParameters
-
-                    //Executes if the reading of the test parameters was successful
-                    if (testParameters != null) {
-
-                        int expectedTestNum = testParameters.get(0);
-
-                        //Assign local variables to their newly received values from the module
-                        int timedTestFlag = testParameters.get(4);
-                        //Trigger on release is 8
-                        int testLength = testParameters.get(6);
-                        int accelGyroSampleRate = testParameters.get(7);
-                        int magSampleRate = testParameters.get(8);
-                        int accelSensitivity = testParameters.get(9);
-                        int gyroSensitivity = testParameters.get(10);
-                        int accelFilter = testParameters.get(11);
-                        int gyroFilter = testParameters.get(12);
-
-                        double bytesPerSample = 18;
-                        if (accelGyroSampleRate / magSampleRate == 10) {
-                            bytesPerSample = 12.6;
-                        }
-
-                        String nameOfFile = "";
-
-                        //Executes if there are tests on the module
-                        if (expectedTestNum > 0) {
-
-                            //Get date for file name
-                            Date date = new Date();
-
-                            //Assigns the name of file
-                            nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-
-                            HashMap<Integer, ArrayList<Integer>> testData;
-
-                            //Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-                            testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
-
-                            //Executes if the data was received properly (null = fail) Organizes data read from module into an array.
-                            if (testData != null) {
-                                for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
-
-                                    int[] finalData = new int[testData.get(testIndex).size()];
-
-                                    for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-                                        if (testData.get(testIndex).get(byteIndex) != -1) {
-                                            finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-                                        } else {
-                                            finalData[byteIndex] = -1;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    //Initialize GenericTest object to store and organize data to be graphed
-                                    // TODO fix this to work with more than 2 modules
-                                    genericTests.add(new GenericTest(testParameters, finalData, serialHandler.getMPUMinMax()));   
-                                    
-                                    String tempName = "(#" + (testIndex + 1) + ") " + nameOfFile;
-                                    dataOrgoTwo = new DataOrganizer(testParameters, tempName);                         // object that stores test data.
-                                    dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
-                                    dataOrgoTwo.createDataSmpsRawData(finalData);
-                                    dataOrgoTwo.getSignedData();
-                                    dataOrgoTwo.getTestParameters();
-                                    dataOrgoTwo.getMPUMinMax();
-
-                                    dataOrgoTwo.setName("Module 2 "+ dataOrgoTwo.getName());
-                                    dataOrgoTwo.createCSV(false, false);
-                                    dataOrgoTwo.createCSVP();
-
-                                    Platform.runLater( () -> {
-                                        generalStatusExperimentLabel.setText("Data successfully Read From Module 2");
-                                        generalStatusExperimentLabel.setTextFill(Color.GREEN);
-                                    });
-
-                                }
-                            } else {
-
-                                Platform.runLater(() -> {
-                                    generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                                    generalStatusExperimentLabel.setTextFill(Color.RED);
-                                    progressBar.setStyle("-fx-accent: red;");
-                                    progressBar.setProgress(100);
-                                });
-
-                            }
-                        } else {
-
-                            Platform.runLater(() -> {
-                                generalStatusExperimentLabel.setText("No Tests Found on Module");
-                                generalStatusExperimentLabel.setTextFill(Color.RED);
-                                progressBar.setStyle("-fx-accent: red;");
-                                progressBar.setProgress(100);
-                            });
-                        }
-                    } else {
-
-                        Platform.runLater(() -> {
-                            generalStatusExperimentLabel.setText("Error Reading From Module, Try Again");
-                            generalStatusExperimentLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                            progressBar.setProgress(100);
-                        });
-                    }
-                } catch (IOException e) {
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Error Communicating With Serial Dongle");
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                        progressBar.setProgress(100);
-                    });
-
-                } catch (PortInUseException e) {
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Serial Port Already In Use");
-
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                        progressBar.setProgress(100);
-                    });
-
-                } catch (UnsupportedCommOperationException e) {
-
-                    Platform.runLater(() -> {
-                        generalStatusExperimentLabel.setText("Check Dongle Compatability");
-                        generalStatusExperimentLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                        progressBar.setProgress(100);
-                    });
-
-                }
-            }
-
-        }, testDataArray);
-
-        readTestsFromModuleTask.run(); // Runs the futureTask.
 
     }
 
@@ -1725,7 +1428,7 @@ public class EducatorModeControllerFX implements Initializable {
     private GraphController lineGraph;
 
     @FXML
-    private void launchMotionVisualizationMainMenu(ActionEvent event) {
+    private void launchSINCGraph(ActionEvent event) {
         lineGraph = startGraphing();
     }
 
@@ -1786,55 +1489,58 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    private void launchMotionVisualizationExperimentTab(ActionEvent event) {
+    private void launchChosenGraph(ActionEvent event) {
 
-        String pathTofile;
+        // launch SINC Graph
+        if (getOutputType().equals(sincTechnologyRadioButton)) {
 
-        if (testType == "Conservation of Momentum (Elastic Collision)"){
-
-            lineGraph = startGraphing();
-            lineGraph.setConservationOfMomentumFilePath(momentumTemplatePath);
-            //lineGraph.loadConservationOfMomentumTemplate();
-
-        }
-        else if (testType == "Generic Template - Two Modules") {
-          
-            System.out.println("launchMotionVisualizationExperimentTab Generic Template - Two Modules reached");
-
-            pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
-
+            Settings settings = new Settings();
+            settings.loadConfigFile();
+            String pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
             lineGraph = startGraphing();
             lineGraph.setCsvFilePath(pathTofile);
             lineGraph.loadCSVData();
 
-            pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgoTwo.getName();
-
-            lineGraph.setCsvFilePath(pathTofile);
-            lineGraph.loadCSVData();
-
         }
+        // open Data Analysis Graph
         else {
 
-            // launch SINC Graph
-            if (getOutputType().equals(sincTechnologyRadioButton)) {
+            GraphNoSINCController graph = startGraphingNoSINC();
+            graph.setGenericTests(genericTests);
 
-                Settings settings = new Settings();
-        		settings.loadConfigFile();
-        		pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
-                lineGraph = startGraphing();
-                lineGraph.setCsvFilePath(pathTofile);
-                lineGraph.loadCSVData();
-
-            }
-            // open Data Analysis Graph
-            else {
-
-                GraphNoSINCController graph = startGraphingNoSINC();
-                graph.setGenericTests(genericTests);
-
-            }
-                    	
         }
+
+    }
+
+    
+    /**
+     * <p><b>NOTE: THIS METHOD CAN ONLY BE CALLED THROUGH FXML.</b></p>
+     * Launches the selected graph application by checking the button's fx:id.
+     * @param event the event created by clicking the button
+     */
+    @FXML
+    private void launchGraphTwoModule(ActionEvent event) {
+
+        Button b = (Button) event.getSource();
+        
+        if (b.getId().equals("launchSINCTwoModule")) {
+
+            Settings settings = new Settings();
+            settings.loadConfigFile();
+            lineGraph = startGraphing();
+
+            // SINC Graph only supports 2 data sets, so hard-coding is okay
+            lineGraph.setDataCollector(dataOrgoList.get(0), 0);
+            lineGraph.setDataCollector(dataOrgoList.get(1), 1);
+
+        }
+        else if (b.getId().equals("launchDAGTwoModule")) {
+
+            GraphNoSINCController graph = startGraphingNoSINC();
+            graph.setGenericTests(genericTests);
+
+        }
+
     }
 
     public MediaPlayerController startMediaPlayer() {

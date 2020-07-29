@@ -12,11 +12,11 @@ public class EducatorModeMainFX extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("fxml/EducatorModeFXML.fxml"));
         primaryStage.setTitle("Education Mode");
-        Scene scene = new Scene(root, 700, 500);
+        Scene scene = new Scene(root, 690, 500);
         primaryStage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("css/EducatorModeCSS.css").toExternalForm());
         primaryStage.show();
-        primaryStage.setResizable(true);
+        primaryStage.setResizable(false);
     }
 
     public static void main(String[] args) {

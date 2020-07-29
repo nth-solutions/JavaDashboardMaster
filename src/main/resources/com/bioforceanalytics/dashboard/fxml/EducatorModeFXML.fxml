@@ -118,10 +118,12 @@
                                                                       <Tab text="Initial Tab">
                                                                         <content>
                                                                           <AnchorPane prefHeight="200.0" prefWidth="400.0">
-                                                                                 <children>
-                                                                                    <Button layoutX="116.0" layoutY="62.0" mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" text="Testing Motion Visualization" visible="false" />
-                                                                                    <Button layoutX="126.0" layoutY="72.0" mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" text="Testing Motion Visualization" visible="false" />
-                                                                                 </children></AnchorPane>
+                                                                          <Label alignment="CENTER" prefHeight="138.0" prefWidth="390.0" text="Select a test from above...">
+                                                                              <font>
+                                                                                 <Font size="14.0" />
+                                                                              </font>
+                                                                           </Label>
+                                                                          </AnchorPane>
                                                                         </content>
                                                                       </Tab>
                                                                         <Tab text="Conservation of Momentum">
@@ -411,7 +413,7 @@
                                                                         <Font name="System Bold" size="15.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
+                                                                  <Button mnemonicParsing="false" onAction="#launchChosenGraph" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -542,7 +544,7 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#readTestsFromModuleOneOutOfTwo" prefHeight="53.0" prefWidth="500.0" text="Read Data" />
+                                                                  <Button mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="53.0" prefWidth="500.0" text="Read Data" />
                                                                   <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4B: Unplug Module 1" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
@@ -553,7 +555,7 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4D: Restablish Connection" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 4D: Reestablish Connection" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -576,7 +578,7 @@
                                                                         <Font name="System Bold" size="25.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#readTestsFromModuleTwoOutOfTwo" prefHeight="56.0" prefWidth="500.0" text="Read Data" />
+                                                                  <Button mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="56.0" prefWidth="500.0" text="Read Data" />
                                                                </children>
                                                             </VBox>
                                                          </children>
@@ -589,26 +591,21 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 6: If you wish to use the Java-Based Graph..." textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 6: Choose your desired graph application" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="17.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchMotionVisualizationExperimentTab" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
+                                                                  <Button fx:id="launchSINCTwoModule" mnemonicParsing="false" onAction="#launchGraphTwoModule" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
                                                                      <font>
-                                                                        <Font size="36.0" />
+                                                                        <Font size="24.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" textFill="#1f78d1">
+                                                                  <Button fx:id="launchDAGTwoModule" mnemonicParsing="false" onAction="#launchGraphTwoModule" prefHeight="100.0" prefWidth="450.0" text="Launch Data Analysis Graph">
                                                                      <font>
-                                                                        <Font name="System Bold" size="14.0" />
+                                                                        <Font size="24.0" />
                                                                      </font>
-                                                                  </Label>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="14.0" />
-                                                                     </font>
-                                                                  </Label>
+                                                                  </Button>
                                                                </children>
                                                             </VBox>
                                                          </children>
@@ -1002,7 +999,7 @@
                                     <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
                                           <VBox prefHeight="103.0" prefWidth="500.0" />
-                                          <Button fx:id="launchSINCGraphSolo" mnemonicParsing="false" onAction="#launchMotionVisualizationMainMenu" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
+                                          <Button fx:id="launchSINCGraphSolo" mnemonicParsing="false" onAction="#launchSINCGraph" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
