@@ -139,7 +139,7 @@ public class GraphNoSINCController implements Initializable {
 		genericTests = new ArrayList<GenericTest>();
 
 		// initialize graph mode variables
-		Platform.runLater(() -> { setGraphMode(GraphMode.NONE); });
+		Platform.runLater(() -> setGraphMode(GraphMode.NONE));
 
 		// zoom/viewport settings
 		resolution = 20;
@@ -308,7 +308,7 @@ public class GraphNoSINCController implements Initializable {
 
 			DataSetPanel d = new DataSetPanel(i);
 
-			d.setText("Module " + (i+1));
+			d.setText("Data Set " + (i+1));
 
 			// convey checkbox ticking on/off from child class to this class
 			d.currentAxis.addListener((obs, oldVal, newVal) -> {
