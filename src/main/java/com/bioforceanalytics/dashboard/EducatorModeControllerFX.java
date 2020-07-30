@@ -1575,8 +1575,8 @@ public class EducatorModeControllerFX implements Initializable {
 			primaryStage.setTitle("BioForce Data Analysis Graph");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
-	        primaryStage.setMinWidth(600);
-	        primaryStage.setMinHeight(400);
+	        primaryStage.setMinWidth(450);
+	        primaryStage.setMinHeight(300);
 	        primaryStage.setScene(scene);
             primaryStage.setResizable(true);
 	        primaryStage.show();

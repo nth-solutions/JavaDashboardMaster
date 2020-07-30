@@ -28,13 +28,13 @@
 <?import com.bioforceanalytics.dashboard.MultipleAxesLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
 
-<AnchorPane minWidth="500.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
+<AnchorPane minHeight="200" minWidth="300.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
 	<children>
 		<SplitPane dividerPositions="0.5" layoutY="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">
 			<items>
-				<AnchorPane maxHeight="1080.0">
+				<AnchorPane minHeight="200" minWidth="200">
 					<children>
-						<HBox alignment="CENTER" layoutX="50.0" layoutY="25.0" prefHeight="20.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="25.0">
+						<HBox alignment="CENTER" prefHeight="20.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="15.0">
 							<children>
 								<Text fx:id="generalStatusLabel" strokeType="OUTSIDE" strokeWidth="0.0" text="Generic Test">
 									<font>
@@ -44,7 +44,7 @@
 							</children>
 						</HBox>
 
-						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0"></MultipleAxesLineChart>
+						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0"></MultipleAxesLineChart>
 						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
 								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
@@ -55,13 +55,13 @@
 						</HBox>
 					</children>
 				</AnchorPane>
-				<AnchorPane maxWidth="400.0" minWidth="200.0" prefWidth="200.0">
+				<AnchorPane maxWidth="400.0" minWidth="100.0" prefWidth="200.0">
 					<children>
 						<ScrollPane fitToHeight="true" fitToWidth="true" minViewportHeight="150.0" minViewportWidth="150.0" prefViewportHeight="400.0" prefViewportWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 							<content>
-								<VBox minWidth="200.0" prefWidth="200.0">
+								<VBox minWidth="100.0" prefWidth="200.0">
 									<children>
-										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
+										<VBox alignment="CENTER" prefWidth="200.0" spacing="5.0">
 											<children>
 												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="DEBUG" textAlignment="CENTER">
 													<padding>
@@ -78,12 +78,12 @@
 												<Insets left="5.0" right="5.0" />
 											</padding>
 										</VBox>
-										<Separator prefHeight="50.0" prefWidth="398.0">
+										<Separator prefHeight="50.0" prefWidth="200.0">
 											<VBox.margin>
 												<Insets bottom="10.0" top="10.0" />
 											</VBox.margin>
 										</Separator>
-										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="398.0" spacing="5.0">
+										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="5.0">
 											<children>
 												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
 													<padding>
@@ -110,7 +110,7 @@
 												<Insets left="5.0" right="5.0" />
 											</padding>
 										</VBox>
-										<Separator prefHeight="50.0" prefWidth="398.0">
+										<Separator prefHeight="50.0" prefWidth="200.0">
 											<VBox.margin>
 												<Insets bottom="10.0" top="10.0" />
 											</VBox.margin>
@@ -130,7 +130,7 @@
 												</Button>
 											</children>
 										</VBox>
-										<Accordion fx:id="dataSetAccordion" minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="398.0">
+										<Accordion fx:id="dataSetAccordion" minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="200.0">
 											<panes></panes>
 										</Accordion>
 									</children>

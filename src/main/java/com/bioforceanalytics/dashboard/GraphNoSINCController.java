@@ -91,7 +91,7 @@ public class GraphNoSINCController implements Initializable {
 	private GraphMode mode = GraphMode.NONE;
 
 	// object
-	private XYChart.Series<Number,Number> slopeLine;
+	private XYChart.Series<Number, Number> slopeLine;
 
 	// keeps track of first point in secant line calculation
 	private Double[] slopePoint;
@@ -108,11 +108,11 @@ public class GraphNoSINCController implements Initializable {
 	private final int SIG_FIGS = 3;
 
 	@FXML
-	private BFALineChart<Number,Number> lineChart;
+	private BFALineChart<Number, Number> lineChart;
 
 	@FXML
 	private BFANumberAxis xAxis;
-	
+
 	@FXML
 	private BFANumberAxis yAxis;
 
@@ -128,18 +128,19 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Text generalStatusLabel;
 
-
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		System.out.println("Initializing Data Analysis graph...");
-		
+
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
 
 		// initialize graph mode variables
-		Platform.runLater(() -> setGraphMode(GraphMode.NONE));
+		Platform.runLater(() -> {
+			setGraphMode(GraphMode.NONE);
+		});
 
 		// zoom/viewport settings
 		resolution = 20;
@@ -149,7 +150,7 @@ public class GraphNoSINCController implements Initializable {
 		resetZoomviewY = 0;
 		resetZoomviewW = 10;
 		resetZoomviewH = 5;
-		zoomviewX = 0;
+		zoomviewX = 5;
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
@@ -159,10 +160,10 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.setAnimated(false);
 		xAxis = (BFANumberAxis) lineChart.getXAxis();
 		yAxis = (BFANumberAxis) lineChart.getYAxis();
-	
+
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
-		
+
 		redrawGraph();
 
 		// listener that runs every tick the mouse scrolls, calculates zooming
@@ -174,10 +175,11 @@ public class GraphNoSINCController implements Initializable {
 
 			/**
 			 * calculates the percentage of scroll either on the left or top of the screen
-			 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is 0.5, if it is three quarters to the right, it is 0.75
+			 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is
+			 * 0.5, if it is three quarters to the right, it is 0.75
 			 */
-			leftScrollPercentage = (scrollCenterX - 48)/(lineChart.getWidth() - 63);
-			topScrollPercentage = (scrollCenterY - 17)/(lineChart.getHeight() - 88);
+			leftScrollPercentage = (scrollCenterX - 48) / (lineChart.getWidth() - 63);
+			topScrollPercentage = (scrollCenterY - 17) / (lineChart.getHeight() - 88);
 
 			// vertically scale the graph
 			if (!event.isAltDown()) {
@@ -188,11 +190,14 @@ public class GraphNoSINCController implements Initializable {
 
 			// horizontally scale the graph
 			if (!event.isControlDown()) {
-				// decreases the zoomview width and height by an amount relative to the scroll and the current size of the zoomview (slows down zooming at high levels of zoom)
+				// decreases the zoomview width and height by an amount relative to the scroll
+				// and the current size of the zoomview (slows down zooming at high levels of
+				// zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
-				
+
 				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
-				// moves the center of the zoomview to accomodate for the zoom, accounts for the position of the mouse to try an keep it in the same spot
+				// moves the center of the zoomview to accomodate for the zoom, accounts for the
+				// position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
 			}
 
@@ -209,11 +214,15 @@ public class GraphNoSINCController implements Initializable {
 				mouseX = event.getX();
 				mouseY = event.getY();
 
-				// calculate a scalar to convert pixel space into graph space (mouse data in pixels, zoomview in whatever units the graph is in)
-				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())/(lineChart.getWidth() - yAxis.getWidth());
-				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())/(lineChart.getHeight() - xAxis.getHeight());
+				// calculate a scalar to convert pixel space into graph space (mouse data in
+				// pixels, zoomview in whatever units the graph is in)
+				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())
+						/ (lineChart.getWidth() - yAxis.getWidth());
+				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())
+						/ (lineChart.getHeight() - xAxis.getHeight());
 
-				// adds the change in mouse position this tick to the zoom view, converted into graph space
+				// adds the change in mouse position this tick to the zoom view, converted into
+				// graph space
 				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
 				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
 
@@ -227,7 +236,8 @@ public class GraphNoSINCController implements Initializable {
 
 		});
 
-		// listener that runs when the mouse is clicked, only runs once per click, helps to differentiate between drags
+		// listener that runs when the mouse is clicked, only runs once per click, helps
+		// to differentiate between drags
 		multiAxis.setOnMousePressed(event -> {
 			lastMouseX = event.getX();
 			lastMouseY = event.getY();
@@ -235,8 +245,9 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph with multiple GenericTests.
-	 * This constructor should be used when multiple modules are used in a test.
+	 * Populates the data analysis graph with multiple GenericTests. This
+	 * constructor should be used when multiple modules are used in a test.
+	 * 
 	 * @param g array of GenericTests (each one represents one module)
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
@@ -245,8 +256,10 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph by creating a GenericTest from a CSV and CSVP file.
-	 * @param CSVPath the location of the CSV file containing test data
+	 * Populates the data analysis graph by creating a GenericTest from a CSV and
+	 * CSVP file.
+	 * 
+	 * @param CSVPath  the location of the CSV file containing test data
 	 * @param CSVPPath the location of the CSVP file containing test parameters
 	 */
 	public void setGenericTestFromCSV(String CSVPath) {
@@ -257,8 +270,10 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph by creating a GenericTest from a CSV and CSVP file.
-	 * @param CSVPath the location of the CSV file containing test data
+	 * Populates the data analysis graph by creating a GenericTest from a CSV and
+	 * CSVP file.
+	 * 
+	 * @param CSVPath  the location of the CSV file containing test data
 	 * @param CSVPPath the location of the CSVP file containing test parameters
 	 */
 	public void setGenericTestsFromCSV(ArrayList<String> paths) {
@@ -308,15 +323,16 @@ public class GraphNoSINCController implements Initializable {
 
 			DataSetPanel d = new DataSetPanel(i);
 
-			d.setText("Data Set " + (i+1));
+			d.setText("Module " + (i + 1));
 
 			// convey checkbox ticking on/off from child class to this class
 			d.currentAxis.addListener((obs, oldVal, newVal) -> {
 
 				// TODO part of the hack w/ change listeners
-				if (newVal.intValue() == -1) return;
+				if (newVal.intValue() == -1)
+					return;
 				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
-			
+
 			});
 
 			panels.add(d);
@@ -330,15 +346,16 @@ public class GraphNoSINCController implements Initializable {
 
 			clearGraph();
 
-			// TODO the first test isn't always the desired one, so we might want to change this
-			for (AxisType axis : g.getDefaultAxes()) {				
+			// TODO the first test isn't always the desired one, so we might want to change
+			// this
+			for (AxisType axis : g.getDefaultAxes()) {
 				graphAxis(axis, 0);
 			}
 
 			double testLength = g.getAxis(g.getDefaultAxes()[0]).testLength;
 
 			// set width of viewport to fit the start and end of the test
-			resetZoomviewX = testLength/2;
+			resetZoomviewX = testLength / 2;
 			resetZoomviewY = 0;
 			resetZoomviewW = testLength;
 			resetZoomviewH = 10;
@@ -353,29 +370,27 @@ public class GraphNoSINCController implements Initializable {
 	 * Handles zooming/panning of the graph.
 	 */
 	private void redrawGraph() {
-
-		multiAxis.setXBounds(zoomviewX - zoomviewW/2,zoomviewX + zoomviewW/2);
-		//xAxisDegrees.setLowerBound(zoomviewX - zoomviewW/2);
-		//xAxisDegrees.setUpperBound(zoomviewX + zoomviewW/2);
-		multiAxis.setYBounds(zoomviewY - zoomviewH/2,zoomviewY + zoomviewH/2);
 		
-		yAxis.setLowerBound(zoomviewY - zoomviewH/2);
-		yAxis.setUpperBound(zoomviewY + zoomviewH/2);
-		//yAxisDegrees.setLowerBound(5 * zoomviewY - 5*zoomviewH/2); ,
-		//yAxisDegrees.setUpperBound(5 * zoomviewY + 5*zoomviewH/2);
-		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-2));
-		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
-		//xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW)/Math.log(2))-2));
-		//yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3));
+		multiAxis.setXBounds(zoomviewX - zoomviewW / 2, zoomviewX + zoomviewW / 2);
+		multiAxis.setYBounds(zoomviewY - zoomviewH / 2, zoomviewY + zoomviewH / 2);
+
+		yAxis.setLowerBound(zoomviewY - zoomviewH / 2);
+		yAxis.setUpperBound(zoomviewY + zoomviewH / 2);
+
+		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
+		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2));
 
 		// update tick spacing based on zoom level
 		for (AxisType a : multiAxis.axisChartMap.keySet()) {
-			((BFANumberAxis)(multiAxis.axisChartMap.get(a).getYAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-3) * multiAxis.getAxisScalar(a));
-			((BFANumberAxis)(multiAxis.axisChartMap.get(a).getXAxis())).setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH)/Math.log(2))-2));
+			((BFANumberAxis) (multiAxis.axisChartMap.get(a).getYAxis())).setTickUnit(
+					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * multiAxis.getAxisScalar(a));
+			((BFANumberAxis) (multiAxis.axisChartMap.get(a).getXAxis()))
+					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
 		}
 
-		// remove data analysis tools (if drawn)
-		lineChart.clearArea();
+
+		
+		
 		clearSlope();
 
 	}
