@@ -1145,43 +1145,39 @@
                                     </HBox>
                                     <VBox alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0">
                                        <children>
-                                          <Label text="Are you sure you want to erase?">
+                                          <Label prefHeight="70.0" prefWidth="451.0" text="Are you sure you want to erase?">
                                              <font>
                                                 <Font name="System Bold" size="30.0" />
                                              </font>
                                           </Label>
-                                          <Button fx:id="eraseModuleButtonMainMenu" mnemonicParsing="false" onAction="#eraseTestsEraseTab" text="Yes, Erase the Module">
+                                          <Button fx:id="eraseModuleButtonMainMenu" mnemonicParsing="false" onAction="#sectorEraseTab" prefHeight="51.0" prefWidth="230.0" text="Yes, Erase Module">
                                              <font>
                                                 <Font size="24.0" />
                                              </font>
                                           </Button>
-                                          <Label prefHeight="47.0" prefWidth="490.0" text="Erasing may take up to one minute, and all test data stored on the module will be permanently deleted. If you do not wish to erase, click on a different tab." wrapText="true">
+                                          <Label prefHeight="50.0" prefWidth="490.0" text="Erasing may take up to one minute, and all test data stored on the module will be permanently deleted. If you do not wish to erase, click on a different tab." wrapText="true">
                                              <font>
                                                 <Font name="System Bold" size="13.0" />
                                              </font>
                                           </Label>
-                                          <Separator prefWidth="200.0" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="If Erasing Multiple Modules, Unplug the First Module " textAlignment="CENTER">
+                                          <Separator prefHeight="30.0" prefWidth="490.0" />
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="If swapping modules, make sure to connect before erasing:" textAlignment="CENTER">
                                              <font>
-                                                <Font name="System Bold" size="18.0" />
+                                                <Font name="System Bold" size="16.0" />
                                              </font>
                                           </Label>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="370.0" text="Connect to the Second Module" textAlignment="CENTER">
-                                             <font>
-                                                <Font name="System Bold" size="18.0" />
-                                             </font>
-                                          </Label>
-                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#connectEraseTab" prefHeight="50.0" prefWidth="265.0" text="Connect">
+                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#connectEraseTab" prefHeight="54.0" prefWidth="220.0" text="Connect">
                                              <font>
                                                 <Font size="25.0" />
                                              </font>
                                           </Button>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="392.0" text="Erase the Second Module" textAlignment="CENTER">
+                                          <Separator prefHeight="30.0" prefWidth="490.0" />
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="Having problems with your module? Try resetting your module:" textAlignment="CENTER">
                                              <font>
-                                                <Font name="System Bold" size="18.0" />
+                                                <Font name="System Bold" size="15.0" />
                                              </font>
                                           </Label>
-                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#eraseTestsEraseTab" prefHeight="50.0" prefWidth="265.0" text="Erase Module">
+                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#bulkErase" prefHeight="54.0" prefWidth="220.0" text="Reset Module">
                                              <font>
                                                 <Font size="25.0" />
                                              </font>

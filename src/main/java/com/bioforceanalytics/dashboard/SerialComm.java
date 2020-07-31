@@ -806,7 +806,7 @@ public class SerialComm {
 	 */
 	public boolean sectorEraseModule() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-		//Put the module in bulk erase mode, exit if that routine fails
+		//Put the module in sector erase mode, exit if that routine fails
 		if(!selectMode('S')) {
 			return false;
 		}
@@ -1654,7 +1654,7 @@ public class SerialComm {
 
 			// reset progress for loading GenericTests
 			Platform.runLater(() -> {
-				statusLabel.setTextFill(Color.BLACK);
+				statusLabel.setTextFill(Color.BLUE);
 				statusLabel.setText("Loading tests in the Dashboard...");
 				progressBar.setProgress(0);
 			});

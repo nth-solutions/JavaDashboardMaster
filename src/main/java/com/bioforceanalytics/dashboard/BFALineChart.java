@@ -5,15 +5,12 @@ import java.math.MathContext;
 
 import javafx.beans.NamedArg;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
@@ -29,11 +26,62 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      */
     private Pane areaPane;
 
+    // fields used for shading in area
+    private XYChart.Data<Double, Double> p1;
+    private XYChart.Data<Double, Double> p2;
+    private ObservableList<XYChart.Data<Number, Number>> data;
+    private int SIG_FIGS;
+    private double area;
+
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
     }
-
     
+    /**
+     * Clears the area label and shading of the graph.
+     */
+    public void clearArea() {
+
+        // get all children nodes of LineChart
+        ObservableList<Node> nodes = getPlotChildren();
+
+        // loops backwards to avoid ConcurrentModificationException
+        for (int i = nodes.size() - 1; i >= 0; i--) {
+
+            // if node is a polygon for graphing area, remove it
+            if (nodes.get(i) instanceof Polygon) {
+                getPlotChildren().remove(nodes.get(i));
+            }
+
+        }
+
+        // reset area label and remove from LineChart
+        getPlotChildren().remove(areaPane);
+        areaPane = new Pane();
+
+    }
+
+    /**
+     * Internal method used to generate the JavaFX label displaying area.
+     * @param a the value of the definite integral
+     * @return the JavaFX Label object
+     */
+    private Label createAreaLabel(double a) {
+
+		Label label = new Label("Area: " + a);
+
+		// add styling to label
+		label.getStyleClass().addAll("hover-label");
+
+		// place the label above the data point
+		label.translateYProperty().bind(label.heightProperty());
+
+        label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
+
+		return label;
+
+	}
+
     /**
      * Shades area under a section of a curve by drawing trapezoids between adjacent points and the x-axis.
      * Takes XYChart-based objects as arguments for ease of use in the Data Analysis Graph.
@@ -43,6 +91,103 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      * @param area the value of the definite integral from the two bounds
      * @param SIG_FIGS the number of significant figures used to round the area value
      */
+    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
+
+        System.out.println("Graphing area save version...");
+
+        this.p1 = p1;
+        this.p2 = p2;
+        this.data = data;
+        this.area = area;
+        this.SIG_FIGS = SIG_FIGS;
+        redrawArea();
+
+    }
+
+    /**
+     * Re-renders the polygon used for shading area under a curve.
+     */
+    public void redrawArea() {
+
+        if (p1 == null && p2 == null && data == null) return;
+        int start = -1;
+        int end = -1;
+
+        // get index of x1 and x2 in samples
+        for (int i = 0; i < data.size(); i++) {
+
+            if (data.get(i).getXValue().equals(p1.getXValue()) && data.get(i).getYValue().equals(p1.getYValue())) {
+                start = i;
+            }
+
+            if (data.get(i).getXValue().equals(p2.getXValue()) && data.get(i).getYValue().equals(p2.getYValue())) {
+                end = i;
+            }
+
+        }  
+
+        // remove area shading and label
+        clearArea();
+
+        // create area label
+        double roundedArea = new BigDecimal(area).round(new MathContext(SIG_FIGS)).doubleValue();
+        areaPane.getChildren().addAll(createAreaLabel(roundedArea));
+
+        // allows mouse events to pass through polygon
+        // makes selecting data points easier
+        areaPane.setPickOnBounds(false);
+
+        // set (x,y) position of the area label to halfway between the x-bounds of the area
+        areaPane.setLayoutX(data.get((start + end) / 2).getNode().getLayoutX() - 50);
+        areaPane.setLayoutY(data.get((start + end) / 2).getNode().getLayoutY() - 100);
+
+        // add area label to LineChart
+        getPlotChildren().add(areaPane);
+
+        // cast axes to NumberAxes so that certain methods can be called on them
+        BFANumberAxis xAxis = (BFANumberAxis) getXAxis();
+        BFANumberAxis yAxis = (BFANumberAxis) getYAxis();
+
+        // pixel position of y=0 on LineChart component
+        double y0 = yAxis.getDisplayPosition(0);
+
+        Polygon poly = new Polygon();
+
+        // loop through all points in [p1, p2]
+        for (int i = start; i <= end; i++) {      
+
+            // pixel positions of x=data[i] and x=data[i+1] on LineChart component
+            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
+
+            // pixel positions of y=data[i] and y=data[i+1] on LineChart component
+            double y1 = yAxis.getDisplayPosition(data.get(i).getYValue());
+
+            // add points to polygon
+            poly.getPoints().addAll(new Double[] { x1, y1 });
+
+        }
+
+        // populate points along the x-axis
+        for (int i = end; i >= start; i--) {
+            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
+            poly.getPoints().addAll(new Double[] { x1, y0 });
+        }
+
+        // TODO change this to shade the same color as the graph?
+        // not important at all, just a cosmetic feature that would be nice
+        poly.setFill(new Color(1,0,0,0.5));
+
+        // add polygon to LineChart
+        getPlotChildren().add(poly);
+
+        // ensure that the area label is on top of the shaded area
+        areaPane.toFront();
+
+        // display full floating-point number on click
+        areaPane.setOnMouseClicked(event -> areaPane.getChildren().addAll(createAreaLabel(area)));
+
+    }
+
     /*
     public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
 
@@ -130,156 +275,6 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         });
     
     }
-    
-    /**
-     * Clears the area label and shading of the graph.
-     */
-    public void clearArea() {
-
-        // get all children nodes of LineChart
-        ObservableList<Node> nodes = getPlotChildren();
-
-        // loops backwards to avoid ConcurrentModificationException
-        for (int i = nodes.size() - 1; i >= 0; i--) {
-
-            // if node is a polygon for graphing area, remove it
-            if (nodes.get(i) instanceof Polygon) {
-                getPlotChildren().remove(nodes.get(i));
-            }
-
-        }
-
-        // reset area label and remove from LineChart
-        getPlotChildren().remove(areaPane);
-        areaPane = new Pane();
-
-    }
-
-    /**
-     * Internal method used to generate the JavaFX label displaying area.
-     * @param a the value of the definite integral
-     * @return the JavaFX Label object
-     */
-    private Label createAreaLabel(double a) {
-
-		Label label = new Label("Area: " + a);
-
-		// add styling to label
-		label.getStyleClass().addAll("hover-label");
-
-		// place the label above the data point
-		label.translateYProperty().bind(label.heightProperty());
-
-        label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
-
-		return label;
-
-	} 
-
-    private XYChart.Data<Double, Double> p1;
-    private XYChart.Data<Double, Double> p2;
-    private int SIG_FIGS;
-    private ObservableList<XYChart.Data<Number, Number>> data;
-
-    private double area;
-
-    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
-
-        System.out.println("Graphing area save version...");
-
-        this.p1 = p1;
-        this.p2 = p2;
-        this.data = data;
-        this.area = area;
-        this.SIG_FIGS = SIG_FIGS;
-        redrawArea();
-
-    }
-
-    public void redrawArea() {
-        if(p1 == null && p2 == null && data == null) return;
-        int start = -1;
-        int end = -1;
-
-        // get index of x1 and x2 in samples
-        for (int i = 0; i < data.size(); i++) {
-
-            if (data.get(i).getXValue().equals(p1.getXValue()) && data.get(i).getYValue().equals(p1.getYValue())) {
-                start = i;
-            }
-
-            if (data.get(i).getXValue().equals(p2.getXValue()) && data.get(i).getYValue().equals(p2.getYValue())) {
-                end = i;
-            }
-
-        }  
-
-        // remove area shading and label
-        clearArea();
-
-        // create area label
-        double roundedArea = new BigDecimal(area).round(new MathContext(SIG_FIGS)).doubleValue();
-        areaPane.getChildren().addAll(createAreaLabel(roundedArea));
-
-        // allows mouse events to pass through polygon
-        // makes selecting data points easier
-        areaPane.setPickOnBounds(false);
-
-        // set (x,y) position of the area label to halfway between the x-bounds of the area
-        areaPane.setLayoutX(data.get((start + end) / 2).getNode().getLayoutX() - 50);
-        areaPane.setLayoutY(data.get((start + end) / 2).getNode().getLayoutY() - 100);
-
-        // add area label to LineChart
-        getPlotChildren().add(areaPane);
-
-        // cast axes to NumberAxes so that certain methods can be called on them
-        BFANumberAxis xAxis = (BFANumberAxis) getXAxis();
-        BFANumberAxis yAxis = (BFANumberAxis) getYAxis();
-
-        // pixel position of y=0 on LineChart component
-        double y0 = yAxis.getDisplayPosition(0);
-        Polygon poly = new Polygon();
-        // loop through all points in [p1, p2]
-        for (int i = start; i <= end; i++) {      
-
-            // pixel positions of x=data[i] and x=data[i+1] on LineChart component
-            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
-
-            // pixel positions of y=data[i] and y=data[i+1] on LineChart component
-            double y1 = yAxis.getDisplayPosition(data.get(i).getYValue());
-
-            // add points to polygon
-            poly.getPoints().addAll(new Double[] {
-                x1, y1,
-            });
-
-        }
-        for(int i = end; i >= start; i--){
-            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
-            poly.getPoints().addAll(new Double[] {
-                x1, y0,
-            });
-        }
-
-        // TODO change this to shade the same color as the graph?
-        // not important at all, just a cosmetic feature that would be nice
-        poly.setFill(Color.RED);
-
-        // add polygon to LineChart
-        getPlotChildren().add(poly);
-        // ensure that the area label is on top of the shaded area
-        areaPane.toFront();
-
-        // display full floating-point number on click
-        areaPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            
-            @Override
-            public void handle(MouseEvent event) {
-                areaPane.getChildren().addAll(createAreaLabel(area));
-            }
-
-        });
-
-    }
+    */
 
 }

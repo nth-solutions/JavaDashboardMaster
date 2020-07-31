@@ -213,6 +213,10 @@ public class MultipleAxesLineChart extends StackPane {
      * @param lineColor the color of the data set's graph
      */
     public void addSeries(GraphData d, Color lineColor) {
+
+        // clear area shading
+        baseChart.clearArea();
+
         BFANumberAxis yAxisAdd = new BFANumberAxis();
         BFANumberAxis xAxisAdd = new BFANumberAxis();
         BFALineChart<Number, Number> lineChart;
@@ -284,6 +288,9 @@ public class MultipleAxesLineChart extends StackPane {
      * @param GTIndex the GenericTest to read data from
      */
     public void removeAxis(AxisType axis, int GTIndex) {
+
+        // clear area shading
+        baseChart.clearArea();
 
         GraphData d = findGraphData(GTIndex, axis);
 

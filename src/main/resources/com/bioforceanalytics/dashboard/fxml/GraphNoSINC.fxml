@@ -14,6 +14,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -85,22 +86,49 @@
 										</Separator>
 										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="5.0">
 											<children>
-												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Moving Average" textAlignment="CENTER">
+												<Label alignment="CENTER" layoutX="142.0" layoutY="514.0" prefHeight="27.0" prefWidth="144.0" text="Graph Control" textAlignment="CENTER">
 													<padding>
 														<Insets bottom="5.0" top="5.0" />
 													</padding>
 												</Label>
 												<HBox alignment="CENTER">
 													<children>
-														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Sample Block Size: " />
-														<TextField fx:id="rollingBlockTextField" alignment="TOP_RIGHT" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="43.0">
+														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Moving Average:">
+															<tooltip><Tooltip text="Changing this value will apply additional smoothing to the graph."/></tooltip>
+														</Label>
+														<TextField fx:id="rollingBlockTextField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0">
 															<padding>
 																<Insets bottom="5.0" top="5.0" />
 															</padding>
 														</TextField>
 													</children>
 												</HBox>
-												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#rollingBlockHandler" prefHeight="25.0" prefWidth="120.0" text="Apply Average">
+												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#applyMovingAvg" prefHeight="25.0" prefWidth="120.0" text="Apply">
+													<VBox.margin>
+														<Insets />
+													</VBox.margin>
+												</Button>
+                        <HBox alignment="CENTER">
+													<children>
+														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Data Normalization:">
+															<tooltip><Tooltip text="Changing these values will change the interval used for the baseline average."/></tooltip>
+														</Label>
+														<TextField fx:id="baselineStartField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0">
+															<padding>
+																<Insets bottom="5.0" top="5.0" />
+															</padding>
+														</TextField>
+                            <Label prefHeight="17.0" prefWidth="15.0" alignment="CENTER" text=" - ">
+															<tooltip><Tooltip text="Changing these values will change the interval used for the baseline average."/></tooltip>
+														</Label>
+                            <TextField fx:id="baselineEndField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0">
+															<padding>
+																<Insets bottom="5.0" top="5.0" />
+															</padding>
+														</TextField>
+													</children>
+												</HBox>
+												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#applyBaseline" prefHeight="25.0" prefWidth="120.0" text="Apply">
 													<VBox.margin>
 														<Insets />
 													</VBox.margin>

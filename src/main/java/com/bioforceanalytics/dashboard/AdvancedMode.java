@@ -9,8 +9,6 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -69,6 +66,10 @@ import purejavacomm.UnsupportedCommOperationException;
 
 public class AdvancedMode extends JFrame {
 
+	// IMPORTANT: DO NOT REMOVE THIS FIELD
+	// This is a workaround in JavaFX 8 to allow the FX Application thread to be set up.
+	// Without this, launching either graphing application will fail with a "Toolkit not initialized" error.
+	private JFXPanel fxPanel = new JFXPanel();
 
 	//GUI Elements, define here if they need to be accessed in the Dashboard class. To quickly identify what panel you want to reference, open the GUI in
 	//WindowBuilder, click on the desired GUI item and see what it's "Variable" field name is. It will be defined at the bottom in the initComponents() method by default so move the definition up here
@@ -152,6 +153,7 @@ public class AdvancedMode extends JFrame {
 	private JButton applyOffsetButton;
 	private ArrayList<JButton> saveTestBtn;
 	private ArrayList<JButton> graphTestBtn;
+	private ArrayList<JButton> DAGTestBtn;
 	private ArrayList<JButton> mediaPlayerBtn;
 
 	//Progress Bars
@@ -201,7 +203,6 @@ public class AdvancedMode extends JFrame {
 	//Output File Info and Variables
 	private String nameOfFile = "";     			//Sets the name of file to an empty string to start
 	private static SerialComm serialHandler;
-	//private List<DataOrganizer> tests = new ArrayList<>();
 	//Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
@@ -218,15 +219,17 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxSignedData;
 
 	private List<DataOrganizer> dataOrgoList;
+	private ArrayList<GenericTest> genericTests;
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JPanel testRecordationPanel;
 	private ArrayList<JPanel> testNumPaneArray;
 	private ArrayList<JTextField> testNameTextField;
-	private final JFXPanel graphingPanel = new JFXPanel();
+
 	private JButton helpBtn;
 	private JTextField fileNameTextField;
 	private JPanel launcherPane;
-	private JButton graphLauncherBtn;
+	private JButton SINCGraphBtn;
+	private JButton DAGBtn;
 
 	private String moduleSerialID;
 	private JTextField serialNumberTextField;
@@ -1378,6 +1381,9 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
+					// clear DAG tests
+					genericTests.clear();
+
 					//Read test parameters from module and store it in testParameters
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 					int[][] mpuMinMax = serialHandler.getMPUMinMax();
@@ -1484,8 +1490,10 @@ public class AdvancedMode extends JFrame {
 										}
 									};
 
+									genericTests.add(new GenericTest(testParameters, finalData, mpuMinMax));
+
+									// run DataOrganizer code asynchronously
 									organizerThread = new Thread(organizerOperation);
-									//Start thread
 									organizerThread.start();	
 									
 								}
@@ -1901,7 +1909,7 @@ public class AdvancedMode extends JFrame {
 		return "NOP";
 	}
 
-	public void initFX(List<DataOrganizer> dataOrgo, ActionEvent e) {
+	public void launchSINCGraph(List<DataOrganizer> dataOrgo, ActionEvent e) {
 		final int viewableTests = dataOrgo.size();
 		Platform.setImplicitExit(false);
 		Platform.runLater(new Runnable() {
@@ -1909,26 +1917,44 @@ public class AdvancedMode extends JFrame {
 			public void run() {
 				for(int i = 0; i < viewableTests; i++) {
 					if(graphTestBtn.get(i) == e.getSource()) {
-						System.out.println("test");
+
 						lineGraph = startGraphing();
-						//lineGraph.setCsvFilePath(testNameTextField.get(i).getText());
-						//lineGraph.loadCSVData();
 						lineGraph.graphDataOrgoObject(dataOrgo.get(i));
 
-						//lineGraph.setDataCollector(dataOrgo.get(i), 0); //Always use index 0 with live data, since we are feeding it into a new instance of graph
-						//lineGraph.graphSettingsOnStart(moduleSerialID);
 					}
-//					if(mediaPlayerBtn.get(i) == e.getSource()) {
-//
-//						//mediaController = startVLCJMediaPlayer();
-//						////mediaController.scaleVideoAtStart(); // This line was commented out prior to the above line being commented out
-//						////shareFrameGraphAndMedia(lineGraph, mediaController); This line was commented out prior to the line two lines above being commented out.
-//					}
 				}
 			}
 		});
 	}
-	//see previous commit; the commit message for this commit actually refers to the previous one
+	
+	public GraphNoSINCController launchDAG() {
+
+		System.out.println("Loading Data Analysis Graph...");
+
+		Stage primaryStage = new Stage();
+		FXMLLoader loader = new FXMLLoader((getClass().getResource("fxml/GraphNoSINC.fxml")));
+		Parent root;
+		
+		try {
+			
+			root = loader.load();
+			primaryStage.setTitle("BioForce Data Analysis Graph");
+			Scene scene = new Scene(root);
+			scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
+			primaryStage.setMinWidth(600);
+			primaryStage.setMinHeight(400);
+			primaryStage.setScene(scene);
+			primaryStage.setResizable(true);
+			primaryStage.show();
+			
+		} catch (IOException e) {
+			System.out.println("Error loading Data Analysis Graph.");
+			e.printStackTrace();
+		}
+		
+		return loader.getController();
+
+	}
 	
 	public VLCJMediaPlayerController startVLCJMediaPlayer() {
 		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
@@ -2177,6 +2203,7 @@ public class AdvancedMode extends JFrame {
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
 			saveTestBtn = new ArrayList<JButton>(viewableTests);
 			graphTestBtn = new ArrayList<JButton>(viewableTests);
+			DAGTestBtn = new ArrayList<JButton>(viewableTests);
 			mediaPlayerBtn = new ArrayList<JButton>(viewableTests);
 			testNameTextField = new ArrayList<JTextField>(viewableTests);
 
@@ -2196,7 +2223,7 @@ public class AdvancedMode extends JFrame {
 				testNumPaneArray.get(i).add(testNameTextField.get(i));
 
 				saveTestBtn.add(new JButton("Save"));
-				saveTestBtn.get(i).setBounds(355, 11, 70, 23);
+				saveTestBtn.get(i).setBounds(355, 13, 60, 23);
 				saveTestBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						System.out.println("test");
@@ -2217,24 +2244,41 @@ public class AdvancedMode extends JFrame {
 
 				testNumPaneArray.get(i).add(saveTestBtn.get(i));
 
-				graphTestBtn.add(new JButton("Graph"));
-				graphTestBtn.get(i).setBounds(430, 11, 70, 23);
+				graphTestBtn.add(new JButton("SINC"));
+				graphTestBtn.get(i).setBounds(420, 13, 60, 23);
 				graphTestBtn.get(i).addActionListener(new ActionListener() {
 
 					public void actionPerformed(ActionEvent e) {
 						System.out.println("Separate graph button");
-						initFX(dataOrgo, e);
+						launchSINCGraph(dataOrgo, e);
 					}
 				});
 
 				testNumPaneArray.get(i).add(graphTestBtn.get(i));
+
+				int index = i;
+				DAGTestBtn.add(new JButton("Data Analysis Graph"));
+				DAGTestBtn.get(i).setBounds(485, 13, 130, 23);
+				DAGTestBtn.get(i).addActionListener(new ActionListener() {
+
+					public void actionPerformed(ActionEvent e) {
+						Platform.runLater(() -> {
+							GraphNoSINCController g = launchDAG();
+							g.setGenericTest(genericTests.get(index));
+						});
+
+					}
+
+				});
+
+				testNumPaneArray.get(i).add(DAGTestBtn.get(i));
 
 				mediaPlayerBtn.add(new JButton("Media Player"));
 				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
 				mediaPlayerBtn.get(i).setVisible(false);
 				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						initFX(dataOrgo, e);
+						launchSINCGraph(dataOrgo, e);
 					}
 				});
 				
@@ -2325,6 +2369,10 @@ public class AdvancedMode extends JFrame {
 	 * Creates and initializes the properties of all components on the main dashboard window. ex) panels, buttons, text fields, etc.
 	 */
 	public void createComponents() {
+
+		genericTests = new ArrayList<GenericTest>();
+		dataOrgoList = new ArrayList<DataOrganizer>();
+
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 638, 659);
@@ -3086,159 +3134,39 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
 		launcherPane.setLayout(null);
 
-		graphLauncherBtn = new JButton("Launch Application");
-		graphLauncherBtn.addActionListener(new ActionListener() {
+		SINCGraphBtn = new JButton("Launch SINC Graph");
+		SINCGraphBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("test");
 
 				Platform.setImplicitExit(false);
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
-						System.out.println("graphlauncherbutton");
-						lineGraph = startGraphing();
-						
-						//shareFrameGraphAndMedia(lineGraph, mediaController);
-					}
+				Platform.runLater(() -> {
+
+					GraphController g = startGraphing();
+
+					// if the correct number of data sets exist, graph them
+					if (dataOrgoList.size() >= 1) g.graphDataOrgoObject(dataOrgoList.get(0));
+					if (dataOrgoList.size() >= 2) g.graphDataOrgoObject(dataOrgoList.get(1));
+
 				});
 
 			}
 		});
-		graphLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		graphLauncherBtn.setBounds(0, 0, 625, 182);
-		launcherPane.add(graphLauncherBtn);
-		
-//		JButton mediaPlayerLauncherBtn = new JButton("Media Player");
-//		mediaPlayerLauncherBtn.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent arg0) {
-//				Platform.setImplicitExit(false);
-//				Platform.runLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						mediaController = startVLCJMediaPlayer();
-//						//mediaController.scaleVideoAtStart();
-//						shareFrameGraphAndMedia(lineGraph, mediaController);
-//					}
-//				});
-//			}
-//		});
-//		mediaPlayerLauncherBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-//		mediaPlayerLauncherBtn.setBounds(0, 182, 625, 190);
-//		launcherPane.add(mediaPlayerLauncherBtn);
-		
-		panel9 = new JPanel();
-		panel9.setToolTipText("");
-		mainTabbedPanel.addTab("Excel Graph", null, panel9, "Here you can take CSV data files and input them directly into Excel workbook templates.");
-		
-		templateComboBox = new JComboBox();
-		templateComboBox.setToolTipText("Select the template. To put data in.");
-		templateComboBox.setBounds(180, 24, 314, 20);
-		templateComboBox.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent arg0) {
-				File[] listOfFiles;
-				if (OSType == "Windows"){
-					listOfFiles = new File(System.getProperty("user.home")+"\\.BioForce Dashboard\\Advanced Templates\\").listFiles();
-				}else {
-					listOfFiles = new File(System.getProperty("user.home")+"/.BioForce Dashboard/Advanced Templates/").listFiles();
-				}
+		SINCGraphBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		SINCGraphBtn.setBounds(0, 0, 625, 182);
+		launcherPane.add(SINCGraphBtn);
 
-				for(File file : listOfFiles) {
-					if(((DefaultComboBoxModel)templateComboBox.getModel()).getIndexOf(file.getName()) == -1) {
-						templateComboBox.addItem(file.getName());	
-					}
-				}
-			}
-		});
-		panel9.setLayout(null);
-		
-		lblSelectTheTemplate = new JLabel("Select the template to use:");
-		lblSelectTheTemplate.setBounds(10, 11, 190, 43);
-		lblSelectTheTemplate.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		panel9.add(lblSelectTheTemplate);
-		panel9.add(templateComboBox);
-		
-		JButton createTemplateBtn = new JButton("Create 'Single-Module' Graph");
-		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
-		createTemplateBtn.setToolTipText("Generate the template with data.");
-		createTemplateBtn.addActionListener(new ActionListener() {
+		DAGBtn = new JButton("Launch Data Analysis Graph");
+		DAGBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				JDialog dialog = new JDialog();
-				dialog.setTitle("Working...");
-				dialog.setBounds(1680, 900, 200, 100);
-				dialog.getContentPane().add(new JLabel("                           Working..."));
-				dialog.setVisible(true);
-				
-				if(writeTemplateWithOneDataSetHandler()) {
-					Settings settings = new Settings();
-					settings.loadConfigFile();
-
-					//new RobotType().openAndRefreshTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					dialog.dispose();
-
-					generalStatusLabel.setText("Data successfully written to template");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(51, 204, 51));
-				}
+				Platform.runLater(() -> {
+					GraphNoSINCController g = launchDAG();
+					g.setGenericTests(genericTests);
+				});
 			}
 		});
-
-		createTemplateBtn.setBounds(10, 65, 302, 269);
-		panel9.add(createTemplateBtn);
-		
-		JButton btnCreateTwoModule = new JButton("Create 'Two-Module' Graph");
-		//createTemplateBtn.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
-		createTemplateBtn.setToolTipText("Generate the template with data.");
-		btnCreateTwoModule.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			
-				JDialog dialog = new JDialog();
-				dialog.setTitle("Working...");
-				dialog.setBounds(1680, 900, 200, 100);
-				dialog.getContentPane().add(new JLabel("                           Working..."));
-				dialog.setVisible(true);
-				
-				if(writeTemplateWithTwoDataSetsHandler()) {
-					Settings settings = new Settings();
-					settings.loadConfigFile();
-
-					//new RobotType().openAndRefreshTwoModuleTemplate(settings.getKeyVal("CSVSaveLocation") + "\\" + templateComboBox.getSelectedItem().toString(), hideWindow);
-
-					try {
-						Thread.sleep(3000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					dialog.dispose();
-
-					generalStatusLabel.setText("Data successfully written to template");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(51, 204, 51));
-				}
-			}
-		});
-		
-		btnCreateTwoModule.setToolTipText("Generate the template with data. Click \"Ok\" on the pop-up and do not touch the keyboard until you are on the results page.");
-		btnCreateTwoModule.setBounds(313, 65, 302, 269);
-		panel9.add(btnCreateTwoModule);
-		
-		JCheckBox hideWindowChckbx = new JCheckBox("Hide Excel Window");
-		hideWindowChckbx.setBounds(500, 23, 115, 23);
-		hideWindowChckbx.setVisible(false); //Hide Excel Window checkbox is currently not used for anything
-		panel9.add(hideWindowChckbx);
-		
-		hideWindowChckbx.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				hideWindow = hideWindowChckbx.isSelected();
-			}
-		});
+		DAGBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		DAGBtn.setBounds(0, 182, 625, 182);
+		launcherPane.add(DAGBtn);
 				
 				adminPanelContent = new JPanel();
 				adminPanelContent.setBounds(10, 0, 625, 356);

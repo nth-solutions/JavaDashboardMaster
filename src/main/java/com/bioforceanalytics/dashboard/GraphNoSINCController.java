@@ -90,7 +90,7 @@ public class GraphNoSINCController implements Initializable {
 	// internal enum identifying the state of data analysis
 	private GraphMode mode = GraphMode.NONE;
 
-	// object
+	// object containing the data for the slope line
 	private XYChart.Series<Number, Number> slopeLine;
 
 	// keeps track of first point in secant line calculation
@@ -127,6 +127,12 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private Text generalStatusLabel;
+
+	@FXML
+	private TextField baselineStartField;
+
+	@FXML
+	private TextField baselineEndField;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -245,14 +251,27 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
+	 * Populates the data analysis graph with a single GenericTest.
+	 * @param g the GenericTest representing a single trial
+	 */
+	public void setGenericTest(GenericTest g) {
+		genericTests.add(g);
+		initializePanels();
+	}
+
+	/**
 	 * Populates the data analysis graph with multiple GenericTests. This
-	 * constructor should be used when multiple modules are used in a test.
+	 * constructor should be used when multiple modules/trials are used in a test.
 	 * 
-	 * @param g array of GenericTests (each one represents one module)
+	 * @param g array of GenericTests (each one represents one trial)
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
+
 		genericTests = g;
-		initializePanels();
+		
+		// if ArrayList has GenericTests, create panels
+		if (g.size() > 0) initializePanels();
+
 	}
 
 	/**
@@ -323,7 +342,7 @@ public class GraphNoSINCController implements Initializable {
 
 			DataSetPanel d = new DataSetPanel(i);
 
-			d.setText("Module " + (i + 1));
+			d.setText("Data Set " + (i + 1));
 
 			// convey checkbox ticking on/off from child class to this class
 			d.currentAxis.addListener((obs, oldVal, newVal) -> {
@@ -388,9 +407,7 @@ public class GraphNoSINCController implements Initializable {
 					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
 		}
 
-
-		
-		
+		lineChart.clearArea();
 		clearSlope();
 
 	}
@@ -465,17 +482,14 @@ public class GraphNoSINCController implements Initializable {
 
 			System.out.println("Removing " + axis);
 
-			// remove XYChart.Series from LineChart
-			//lineChart.getData().remove(findGraphData(GTIndex, axis).data);
-
+			// remove axis from line chart
 			multiAxis.removeAxis(axis, GTIndex);
 
 			// remove GraphData from list of axes
 			dataSets.remove(findGraphData(GTIndex, axis));
 
 			// untick the checkbox
-			
-			panels.get(GTIndex).setCheckBox(false,axis);
+			panels.get(GTIndex).setCheckBox(false, axis);
 
 		}
 
@@ -551,14 +565,20 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	@FXML
-	public void rollingBlockHandler(ActionEvent event) {
+	public void applyMovingAvg() {
 
-		int sampleBlockSize = 0;
-
+		// verify that the input is a number
 		try {
-			sampleBlockSize = Integer.parseInt(rollingBlockTextField.getText());
-		}
-		catch (NumberFormatException e) {
+
+			int blockSize = Integer.parseInt(rollingBlockTextField.getText());
+
+			// apply moving avgs to all currently drawn axes
+			for (GraphData d : dataSets) {
+				genericTests.get(d.GTIndex).getAxis(d.axis).applyCustomMovingAvg(blockSize);
+				updateAxis(d.axis, d.GTIndex);
+			}
+		
+		} catch (NumberFormatException e) {
 
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid input");
@@ -568,13 +588,38 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
-		// workaround to "local variable defined in enclosing scope must be final or effectively final"
-		final int blockSize = sampleBlockSize;
+	}
 
-		// apply moving avgs to all currently drawn axes
-		for (GraphData d : dataSets) {
-			genericTests.get(d.GTIndex).getAxis(d.axis).applyCustomMovingAvg(blockSize);
-			updateAxis(d.axis, d.GTIndex);
+	@FXML
+	public void applyBaseline() {
+
+		try {
+
+			double start = Double.parseDouble(baselineStartField.getText());
+			double end = Double.parseDouble(baselineEndField.getText());
+
+			// make sure that baseline intervals are valid
+			if (start - end == 0 || start > end || start < 0) {
+				throw new Exception();
+			}
+
+			System.out.println("Applying new baseline average [" + start + "," + end + "]");
+
+			// update all currently drawn axes with new baseline
+			for (GraphData g : dataSets) {
+				AxisDataSeries a = genericTests.get(g.GTIndex).getAxis(g.axis);
+				a.applyNormalizedData(start, end, a.sampleRate);
+				updateAxis(g.axis, g.GTIndex);
+			}
+			
+		} catch (Exception e) {
+
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setHeaderText("Invalid inputs");
+			alert.setContentText("Please make sure your baseline intervals are correct.");
+
+			alert.showAndWait();
+
 		}
 
 	}

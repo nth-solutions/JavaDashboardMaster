@@ -284,46 +284,63 @@ public class EducatorModeControllerFX implements Initializable {
     public EducationModeHelpMenuController helpmenu;
 
     @FXML
-    private void selectHelpTab(ActionEvent event){
+    private void selectHelpTab(ActionEvent event) {
+
         helpmenu = startHelpMenu();
 
-        if(selectedTab == "eraseConfirmationTab"){
+        Tab t = primaryTabPane.getSelectionModel().getSelectedItem();
+
+        if (t.equals(eraseConfirmationTab)) {
             helpmenu.selectEraseModuelHelpTabOne();
-
-        }else if (selectedTab == "motionVisualizationTab"){
+        } else if (t.equals(motionVisualizationTab)) {
             helpmenu.selectSINCTechnologyHelpTab();
-
-        }else if (selectedTab == "sincCalibrationTab"){
+        } else if (t.equals(sincCalibrationTab)) {
             helpmenu.selectSINCModuleCalibrationTab();
+        }else if (t.equals(eraseConfirmationTab)) {
+            helpmenu.selectUnpairRemotesHelpTab();
+        } else if (t.equals(experimentTab)) {
 
-        }else if (selectedTab == "experimentTab"){
+            if (oneModuleTest) {
 
-            if(oneModuleTest){
-                if(experimentTabIndex == 0){
+                switch (experimentTabIndex) {
+
+                    case 0:
+                        helpmenu.selectExperimentHelpTabOne();
+                        break;
+
+                    case 1:
+                        helpmenu.selectExperimentHelpTabTwo();
+                        break;
+
+                    case 2:
+                        helpmenu.selectExperimentHelpTabThree();
+                        break;
+
+                    case 3:
+                        helpmenu.selectExperimentHelpTabFour();
+                        break;
+
+                    case 4:
+                        helpmenu.selectExperimentHelpTabFive();
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+            } else {
+
+                if (experimentTabIndex == 0) {
                     helpmenu.selectExperimentHelpTabOne();
-                }
-                if(experimentTabIndex == 1){
-                    helpmenu.selectExperimentHelpTabTwo();
-                }
-                if(experimentTabIndex == 2){
-                    helpmenu.selectExperimentHelpTabThree();
-                }
-                if(experimentTabIndex == 3){
-                    helpmenu.selectExperimentHelpTabFour();
-                }
-                if(experimentTabIndex == 4){
-                    helpmenu.selectExperimentHelpTabFive();
-                }
-            }else if(!oneModuleTest){
-                if(experimentTabIndex == 0){
-                    helpmenu.selectExperimentHelpTabOne();
-                }else{
+                } else {
                     helpmenu.selectBlankTab();
                 }
+
             }
-        }else if (selectedTab == "unpairRemotesTab"){
-            helpmenu.selectUnpairRemotesHelpTab();
+
         }
+
     }
 
     @FXML
@@ -1277,7 +1294,7 @@ public class EducatorModeControllerFX implements Initializable {
                         }
 
                         // update test data progress
-                        displayProgress("Read test " + (i+1) + "/" + testData.size(), Color.GREEN, STYLE_WORKING, ((double) (i+1)) / ((double) testData.size()));
+                        displayProgress("Read test " + (i+1) + "/" + testData.size(), Color.BLUE, STYLE_WORKING, ((double) (i+1)) / ((double) testData.size()));
                     }
 
                     displayProgress("All tests read from module", Color.GREEN, STYLE_SUCCESS, 1);
@@ -1293,8 +1310,8 @@ public class EducatorModeControllerFX implements Initializable {
                                 lineGraph = startGraphing();
 
                                 // SINC Graph only supports 2 data sets, so hard-coding is okay
-                                lineGraph.setDataCollector(dataOrgoList.get(0), 0);
-                                lineGraph.setDataCollector(dataOrgoList.get(1), 1);
+                                if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
+                                if (dataOrgoList.size() >= 2) lineGraph.graphDataOrgoObject(dataOrgoList.get(1));
 
                             });
 
@@ -1367,16 +1384,38 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    private String momentumTemplatePath;
-
+    
+    /**
+     * Button handler for when "Reset Module" is clicked.
+     */
     @FXML
-    private void eraseTestsExperimentTab() {
-        eraseTestsFromModule(generalStatusExperimentLabel);
+    private void bulkErase() {
+        eraseTestsFromModule(eraseModuleTabLabel, EraseMode.BULK);
     }
 
+    /**
+     * Button handler for when "Yes, Erase the Module" is clicked.
+     */
     @FXML
-    private void eraseTestsEraseTab() {
-        eraseTestsFromModule(eraseModuleTabLabel);
+    private void sectorEraseTab() {
+        eraseTestsFromModule(eraseModuleTabLabel, EraseMode.SECTOR);
+    }
+
+    /**
+     * Button handler for erasing the module from the experiment tab.
+     */
+    @FXML
+    private void eraseTestsExperimentTab() {
+        eraseTestsFromModule(generalStatusExperimentLabel, EraseMode.SECTOR);
+    }
+
+    /**
+     * Enum used to differentiate between bulk and sector erases.
+     * Used as an argument in {@link #eraseTestsFromModule}.
+     */
+    private enum EraseMode {
+        BULK,
+        SECTOR
     }
 
     /**
@@ -1385,39 +1424,46 @@ public class EducatorModeControllerFX implements Initializable {
      * Returns the thread created for chaining.
      * @param label the status label to modify
      */
-    private void eraseTestsFromModule(Label label) {
+    private void eraseTestsFromModule(Label label, EraseMode e) {
 
         Task<Void> eraseTestsTask = new Task<Void>() {
 
             @Override
             protected Void call() {
 
-                displayProgress(label, "Bulk erasing...", Color.BLUE, STYLE_WORKING, 0);
+                String message = e == EraseMode.SECTOR ? "Erasing data..." : "Resetting module...";
+                String method = e == EraseMode.SECTOR ? "Erase" : "Reset";
+                String error = e == EraseMode.SECTOR ? "erasing" : "resetting";
+
+                displayProgress(label, message, Color.BLUE, STYLE_WORKING, 0);
 
                 try {
-                    if (serialHandler.bulkEraseModule()) {
-                        displayProgress(label, "Bulk erase successful", Color.GREEN, STYLE_SUCCESS, 1);
+
+                    if (e == EraseMode.SECTOR ? serialHandler.sectorEraseModule() : serialHandler.bulkEraseModule()) {
+                        displayProgress(label, method + " successful", Color.GREEN, STYLE_SUCCESS, 1);
                     } else {
-                        displayProgress(label, "Bulk erase failed", Color.RED, STYLE_FAIL, 1);
+                        displayProgress(label, method + " failed", Color.RED, STYLE_FAIL, 1);
                     }
+
                 } catch (IOException e) {
-                    displayProgress(label, "Error erasing module -- USB connection lost", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module -- USB connection lost", Color.RED, STYLE_FAIL, 1);
                 } catch (PortInUseException e) {
-                    displayProgress(label, "Error erasing module -- port in use by another application", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module -- port in use by another application", Color.RED, STYLE_FAIL, 1);
                 }
                 catch (UnsupportedCommOperationException e) {
-                    System.out.println("Error erasing module -- unsupported communication operation");
-                    displayProgress(label, "Error erasing module -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
+                    System.out.println("Error " + error + " module -- unsupported communication operation");
+                    displayProgress(label, "Error " + error + " module -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
                 }
                 catch (Exception e) {
-                    displayProgress(label, "Error erasing module, try again", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module, try again", Color.RED, STYLE_FAIL, 1);
                 }
 
                 return null;
             }
         };
 
-        new Thread(eraseTestsTask).start(); //Starts an anonymous thread, passing it the Task defined above
+        // Erasing tests asynchronously
+        new Thread(eraseTestsTask).start();
 
     }
 
@@ -1496,10 +1542,11 @@ public class EducatorModeControllerFX implements Initializable {
 
             Settings settings = new Settings();
             settings.loadConfigFile();
-            String pathTofile = System.getProperty("user.home") + "/Documents/" + dataOrgo.getName();
+
             lineGraph = startGraphing();
-            lineGraph.setCsvFilePath(pathTofile);
-            lineGraph.loadCSVData();
+
+            if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
+            if (dataOrgoList.size() >= 2) lineGraph.graphDataOrgoObject(dataOrgoList.get(1));
 
         }
         // open Data Analysis Graph
@@ -1530,8 +1577,8 @@ public class EducatorModeControllerFX implements Initializable {
             lineGraph = startGraphing();
 
             // SINC Graph only supports 2 data sets, so hard-coding is okay
-            lineGraph.setDataCollector(dataOrgoList.get(0), 0);
-            lineGraph.setDataCollector(dataOrgoList.get(1), 1);
+            if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
+            if (dataOrgoList.size() >= 2) lineGraph.graphDataOrgoObject(dataOrgoList.get(1));
 
         }
         else if (b.getId().equals("launchDAGTwoModule")) {
@@ -2297,38 +2344,6 @@ public class EducatorModeControllerFX implements Initializable {
         t.start();
 
         return t;
-    }
-
-    /*
-     * User selects an output path for the spreadsheet template
-     */
-    public String chooseSpreadsheetOutputPath(Label label) {
-        generalStatusExperimentLabel.setTextFill(Color.BLACK);
-        generalStatusExperimentLabel.setText("Copying File Template...");
-
-        FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File("."));
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Name Output File (*.xlsx)", "*.xlsx"));
-        File file = chooser.showSaveDialog(null);
-
-        if (file != null) {
-
-            String fileout = file.toString();
-
-            generalStatusExperimentLabel.setTextFill(LIGHT_GREEN);
-            generalStatusExperimentLabel.setText("File Copy finished!");
-
-            if (!fileout.endsWith(".xlsx")) {
-                return fileout + ".xlsx";
-            } else {
-                return fileout;
-            }
-
-        } else {
-            generalStatusExperimentLabel.setTextFill(Color.RED);
-            generalStatusExperimentLabel.setText("Invalid File Path Entered");
-            return null;
-        }
     }
 
     /**

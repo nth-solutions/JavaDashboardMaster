@@ -303,7 +303,7 @@ public class AxisDataSeries {
 	 * @param endTime the x-value of the second data point
 	 * @param sampleRate the sample rate of the data set being normalized
 	 */
-	public void createNormalizedData(Double startTime, Double endTime, int sampleRate) {
+	private void createNormalizedData(Double startTime, Double endTime, int sampleRate) {
 
 		// Convert times to sample #s
 		int startIndex = (int) Math.round(startTime*sampleRate);
@@ -325,6 +325,17 @@ public class AxisDataSeries {
 		}
 	}
 
+	/**
+	 * Recalculates normalized data and smoothing.
+	 * Used by the Data Analysis Graph for user control of the baseline average.
+	 */
+	public void applyNormalizedData(Double startTime, Double endTime, int sampleRate) {
+
+		createNormalizedData(startTime, endTime, sampleRate);
+		this.smoothedData = applyMovingAvg(this.normalizedData.clone(), rollBlkSize);
+		this.userSmoothedData = this.smoothedData.clone();
+
+	}
 
 	/**
 	 * Applies a middle-based simple moving average to a data series.
