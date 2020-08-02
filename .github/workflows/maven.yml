@@ -29,11 +29,14 @@ jobs:
       - name: Build package
         run: mvn -B package --file pom.xml
       - name: Isolate binaries
-        run: mkdir staging && cp target/*.jar staging  && cp target/*.exe staging
+        run: |
+          mkdir staging
+          cp target/*.jar staging
+          cp target/*.exe staging
       - name: Save package
         uses: actions/upload-artifact@v2
         with:
-          name: package
+          name: dist
           path: staging
   release:
     runs-on: windows-latest
@@ -45,13 +48,12 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: package
+          path: target
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
           java-package: jdk+fx
-      - name: Set up binaries
-        run: mv staging target
       - name: Create installer
         uses: joncloud/makensis-action@v2.0
         with:
@@ -60,5 +62,5 @@ jobs:
       - name: Save package
         uses: actions/upload-artifact@v2
         with:
-          name: release
+          name: dist
           path: target
