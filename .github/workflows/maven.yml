@@ -31,6 +31,7 @@ jobs:
       - name: Isolate binaries
         run: |
           mkdir staging
+          rm target/original*
           cp target/*.jar staging
           cp target/*.exe staging
       - name: Save package

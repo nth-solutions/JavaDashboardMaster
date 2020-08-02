@@ -40,7 +40,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "..\dist\${PRODUCT_NAME} ${PRODUCT_VERSION} Installer.exe"
+OutFile "..\target\${PRODUCT_NAME} ${PRODUCT_VERSION} Installer.exe"
 InstallDir "$DESKTOP\EduForce Dashboard"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
