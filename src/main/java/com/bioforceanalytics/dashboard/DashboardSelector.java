@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -18,6 +19,7 @@ public class DashboardSelector extends Application {
         primaryStage.setTitle("Dashboard Selector");
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setScene(scene);
+        primaryStage.getIcons().add(new Image(getClass().getResource("images/bfa.png").toExternalForm()));
         primaryStage.show();
         primaryStage.setResizable(false);
     }

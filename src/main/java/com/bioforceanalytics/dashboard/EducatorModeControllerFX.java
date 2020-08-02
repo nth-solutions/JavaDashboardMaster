@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-import java.util.concurrent.FutureTask;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -28,6 +27,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -234,12 +234,12 @@ public class EducatorModeControllerFX implements Initializable {
 
     private Boolean oneModuleTest;
 
-    private String selectedTab;
+    private Image icon;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        //primaryTabPane.getSelectionModel().select(experimentTab);
+        icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 
         genericTests = new ArrayList<GenericTest>();
         dataOrgoList = new ArrayList<DataOrganizer>();
@@ -266,7 +266,6 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectExperimentTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(experimentTab);
-        selectedTab = "experimentTab";
     }
 
     /**
@@ -277,7 +276,6 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectSettingsTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(settingsTab);
-        selectedTab = "settingsTab";
     }
 
     @FXML
@@ -365,6 +363,7 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("Education Mode Help Menu");
+        primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
 
@@ -384,6 +383,7 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
 
         primaryStage.setTitle("SINC Calibration Help Menu");
+        primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
 
@@ -398,26 +398,22 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void selectMotionVisualizationTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(motionVisualizationTab);
-        selectedTab = "motionVisualizationTab";
     }
 
     @FXML
     private void selectSINCCalibration(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(sincCalibrationTab);
-        selectedTab = "sincCalibrationTab";
     }
 
     @FXML
     private void selectEraseConfirmationTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(eraseConfirmationTab);
-        selectedTab = "eraseConfirmationTab";
     }
 
     @FXML
     private void selectUnpairRemotesTab(ActionEvent event){
         primaryTabPane.getSelectionModel().select(unpairRemotesTab);
         remotePairingTabPane.getSelectionModel().select(0);
-        selectedTab = "unpairRemotesTab";
     }
 
     @FXML
@@ -1601,6 +1597,7 @@ public class EducatorModeControllerFX implements Initializable {
         }
 
         primaryStage.setTitle("Video Player");
+        primaryStage.getIcons().add(icon);
         if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
         primaryStage.show();
         primaryStage.setResizable(false);
@@ -1626,6 +1623,7 @@ public class EducatorModeControllerFX implements Initializable {
 	        primaryStage.setMinHeight(300);
 	        primaryStage.setScene(scene);
             primaryStage.setResizable(true);
+            primaryStage.getIcons().add(icon);
 	        primaryStage.show();
 	        
 		} catch (IOException e) {
@@ -1649,6 +1647,7 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1320, 730));
 
         primaryStage.setTitle("BioForce SINC Technology Graph");
+        primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
 

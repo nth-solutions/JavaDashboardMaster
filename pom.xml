@@ -106,6 +106,14 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
+          <configuration>
+            <systemProperties>
+              <property>
+                <name>projectVersion</name>
+                <value>${project.version}</value>
+              </property>
+            </systemProperties>
+          </configuration>
         </plugin>
 
         <!-- builds runnable JAR -->
@@ -153,7 +161,7 @@
           <version>1.7.25</version>
           <executions>
             <execution>
-              <id>l4j-clui</id>
+              <id>default</id>
               <phase>package</phase>
               <goals>
                 <goal>launch4j</goal>
@@ -164,7 +172,32 @@
                 <outfile>target/${project.artifactId}-${project.version}.exe</outfile>
                 <errTitle>The EduForce Dashboard requires Java 8.</errTitle>
                 <downloadUrl>https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</downloadUrl>
-                <icon>src/main/resources/com/bioforceanalytics/dashboard/images/nth.ico</icon>
+                <icon>src/main/resources/com/bioforceanalytics/dashboard/images/bfa.ico</icon>
+                <jre>
+                  <path>jre</path>
+                  <bundledJre64Bit>false</bundledJre64Bit>
+                  <bundledJreAsFallback>false</bundledJreAsFallback>
+                  <minVersion>1.8.0</minVersion>
+                  <maxVersion>1.8.0_261</maxVersion>
+                  <jdkPreference>jdkOnly</jdkPreference>
+                  <runtimeBits>64/32</runtimeBits>
+                </jre>
+              </configuration>
+            </execution>
+            <!-- TODO NOT FOR PRODUCTION -->
+            <execution>
+              <id>debug</id>
+              <phase>package</phase>
+              <goals>
+                <goal>launch4j</goal>
+              </goals>
+              <configuration>
+                <headerType>console</headerType>
+                <jar>target/${project.artifactId}-${project.version}.jar</jar>
+                <outfile>target/${project.artifactId}-${project.version}-debug.exe</outfile>
+                <errTitle>The EduForce Dashboard requires Java 8.</errTitle>
+                <downloadUrl>https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</downloadUrl>
+                <icon>src/main/resources/com/bioforceanalytics/dashboard/images/bfa.ico</icon>
                 <jre>
                   <path>jre</path>
                   <bundledJre64Bit>false</bundledJre64Bit>

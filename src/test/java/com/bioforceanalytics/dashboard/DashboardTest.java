@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 /**
  * Tests the Dashboard Selector's functionality.
  */
-public class DashboardTest extends BaseTest {
+public class DashboardTest extends GUITest {
     
     private DashboardSelector dashboard;
 

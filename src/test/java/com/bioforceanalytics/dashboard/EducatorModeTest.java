@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 /**
  * Tests the Educator Dashboard's functionality.
  */
-public class EducatorModeTest extends BaseTest {
+public class EducatorModeTest extends GUITest {
     
     private EducatorModeControllerFX emfx;
 

@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class EducatorModeMainFX extends Application {
@@ -15,6 +16,7 @@ public class EducatorModeMainFX extends Application {
         Scene scene = new Scene(root, 690, 500);
         primaryStage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("css/EducatorModeCSS.css").toExternalForm());
+        primaryStage.getIcons().add(new Image(getClass().getResource("images/bfa.png").toExternalForm()));
         primaryStage.show();
         primaryStage.setResizable(false);
     }
