@@ -47,7 +47,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: package
+          name: dist
           path: target
       - name: Set up JDK
         uses: actions/setup-java@v1
