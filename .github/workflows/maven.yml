@@ -37,6 +37,7 @@ jobs:
           path: staging
   release:
     runs-on: windows-latest
+    needs: build
     steps:
       - name: Download repository
         uses: actions/checkout@v2
