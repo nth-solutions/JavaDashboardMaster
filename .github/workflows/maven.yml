@@ -28,9 +28,36 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
       - name: Build package
         run: mvn -B package --file pom.xml
-      - run: mkdir staging && cp target/*.jar staging  && cp target/*.exe staging
+      - name: Isolate binaries
+        run: mkdir staging && cp target/*.jar staging  && cp target/*.exe staging
       - name: Save package
         uses: actions/upload-artifact@v2
         with:
-          name: Package
+          name: package
           path: staging
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v2
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: package
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          java-package: jdk+fx
+      - name: Set up binaries
+        run: mv staging target
+      - name: Create installer
+        uses: joncloud/makensis-action@v2.0
+        with:
+          script-file: tools/install.nsi
+          arguments: /V4
+      - name: Save package
+        uses: actions/upload-artifact@v2
+        with:
+          name: release
+          path: target
