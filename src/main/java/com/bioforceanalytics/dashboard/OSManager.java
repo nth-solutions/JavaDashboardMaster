@@ -1,10 +1,10 @@
 package com.bioforceanalytics.dashboard;
 
+/**
+ * The dashboard must behave differently across different OSes, particularly with regard to file retrieval and writing as well as using ffmpeg. This class manages various OS related things,
+ * but primarily gets the OS upon first launch of the dashboard.
+ */
 public class OSManager {
-    /**
-     * The dashboard must behave differently across different OSes, particularly with regard to file retrieval and writing as well as using ffmpeg. This class manages various OS related things,
-     * but primarily gets the OS upon first launch of the dashboard.
-     */
 
     private String OSName;
     private String OSType;

@@ -18,14 +18,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -247,6 +252,23 @@ public class GraphNoSINCController implements Initializable {
 		multiAxis.setOnMousePressed(event -> {
 			lastMouseX = event.getX();
 			lastMouseY = event.getY();
+		});
+
+		// ADD ALL FULL WINDOW LISTENERS HERE
+		Platform.runLater(() -> {
+
+			Scene s = multiAxis.getScene();
+
+			// reset graph mode on right click
+			s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+				if (e.getButton() == MouseButton.SECONDARY) setGraphMode(GraphMode.NONE);
+			});
+
+			// reset graph mode on escape
+			s.setOnKeyPressed(e -> {
+				if (e.getCode() == KeyCode.ESCAPE) setGraphMode(GraphMode.NONE);
+			});
+
 		});
 	}
 
@@ -591,6 +613,18 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	@FXML
+	public void toggleDefaultMovingAvg(ActionEvent e) {
+		
+		CheckBox c = (CheckBox) e.getSource();
+		
+		for (GraphData d : dataSets) {
+			genericTests.get(d.GTIndex).getAxis(d.axis).enableMovingAvg(c.isSelected());
+			updateAxis(d.axis, d.GTIndex);
+		}
+
+	}
+
+	@FXML
 	public void applyBaseline() {
 
 		try {
@@ -627,8 +661,6 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	public void toggleSlopeMode(ActionEvent event) {
 
-		System.out.println("Toggling slope mode...");
-
 		if (mode != GraphMode.SLOPE) {
 			setGraphMode(GraphMode.SLOPE);
 		}
@@ -638,8 +670,6 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	public void toggleAreaMode(ActionEvent event) {
-
-		System.out.println("Toggling area mode...");
 
 		if (mode != GraphMode.AREA) {
 			setGraphMode(GraphMode.AREA);
@@ -709,8 +739,11 @@ public class GraphNoSINCController implements Initializable {
 
 		Optional<String> result = dialog.showAndWait();
 
+		// if user clicks cancel, end method
+		if (!result.isPresent()) return;
+
 		try {
-			if (result.isPresent()) resolution = Integer.parseInt(result.get());
+			resolution = Integer.parseInt(result.get());
 		}
 		catch (NumberFormatException e) {
 
@@ -727,7 +760,8 @@ public class GraphNoSINCController implements Initializable {
 		a.setResult(ButtonType.OK);
 		a.show();
 
-		// TODO add ControlsFX to make async loading popup
+		// TODO potentially add ControlsFX to make async loading popup
+		// this would allow us to have a progress bar in a pop up like this for each axis
 		for (GraphData d : dataSets) {
 			updateAxis(d.axis, d.GTIndex);
 		}
@@ -767,6 +801,8 @@ public class GraphNoSINCController implements Initializable {
 				break;
 
 		}
+
+		System.out.println("Set graph mode to " + g);
 
 	}
 
@@ -1071,7 +1107,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Internal enum used to designate the state of data analysis;
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
-	 * <p>and <code>GraphMode.Area</code> is when the user is selecting the section for an area calculation.</p>
+	 * <p>and <code>GraphMode.AREA</code> is when the user is selecting the section for an area calculation.</p>
 	 */
 	private enum GraphMode {
 		NONE,

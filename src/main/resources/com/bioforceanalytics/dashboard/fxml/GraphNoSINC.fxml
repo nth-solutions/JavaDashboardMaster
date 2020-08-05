@@ -73,7 +73,11 @@
 													<VBox.margin>
 														<Insets />
 													</VBox.margin>
+													<tooltip><Tooltip text="Changing this value allows you to view more data samples on the graph."/></tooltip>
 												</Button>
+												<CheckBox onAction="#toggleDefaultMovingAvg" text="Smooth Graph" selected="true">
+													<tooltip><Tooltip text="Unchecking this will display raw normalized data without a moving average."/></tooltip>
+												</CheckBox>
 											</children>
 											<padding>
 												<Insets left="5.0" right="5.0" />

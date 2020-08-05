@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class AxisDataSeries {
 
+	// the time axis for this data set
 	private Double[] time;
 
 	// data samples BEFORE any rolling average is applied
@@ -29,6 +30,9 @@ public class AxisDataSeries {
 
 	// default rolling block size to smooth data for integration
 	private int rollBlkSize = 100;
+
+	// indicates whether or not default moving average should be applied
+	private boolean applySmoothing;
 
 	/**
 	 * The enum representation of this axis.
@@ -115,12 +119,14 @@ public class AxisDataSeries {
 			createNormalizedData(0.0, 2.0, sampleRate);
 
 			// creates smoothedData by applying rolling average to normalized data
-			smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+			this.smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
 
 		}
 		else {
-			// don't normalize if not a raw magnetometer series
-			smoothedData = applyMovingAvg(originalData.clone(), rollBlkSize);
+			// don't normalize if not a raw magnetometer series;
+			// simply copy over original data for use in integrate()
+			this.normalizedData = this.originalData.clone();
+			this.smoothedData = applyMovingAvg(originalData.clone(), rollBlkSize);
 		}
 
 		// clones smoothedData for display on graph
@@ -291,7 +297,8 @@ public class AxisDataSeries {
 		this.smoothedData = this.originalData.clone();
 		this.userSmoothedData = this.smoothedData.clone(); 
 
-		/* print debug info about AxisDataSeries
+		/*
+		print debug info about AxisDataSeries
 		System.out.println(toString());
 		*/
 
@@ -332,9 +339,9 @@ public class AxisDataSeries {
 	public void applyNormalizedData(Double startTime, Double endTime, int sampleRate) {
 
 		createNormalizedData(startTime, endTime, sampleRate);
-		this.smoothedData = applyMovingAvg(this.normalizedData.clone(), rollBlkSize);
+		this.smoothedData = applySmoothing ? applyMovingAvg(this.normalizedData.clone(), rollBlkSize) : this.normalizedData.clone();
 		this.userSmoothedData = this.smoothedData.clone();
-
+	
 	}
 
 	/**
@@ -381,18 +388,27 @@ public class AxisDataSeries {
 	}
 
 	/**
+	 * Set whether a default moving average is applied to data displayed in the DAG.
+	 * @param state whether or not the moving average should be applied
+	 */
+	public void enableMovingAvg(boolean state) {
+		userSmoothedData = state ? applyMovingAvg(smoothedData, rollBlkSize) : normalizedData.clone();
+		applySmoothing = state;
+	}
+
+	/**
 	 * Numerically integrates this AxisDataSeries.
 	 * Calculated using the trapezoidal rule.
 	 * @return the integral of this data set
 	 */
 	public List<Double> integrate() {
 
-		Double[] result = new Double[smoothedData.length];
+		Double[] result = new Double[normalizedData.length];
 
 		result[0] = 0.0;
 
-		for(int i = 1; i < smoothedData.length; i++) {
-			result[i] = result[i-1] + (smoothedData[i] + smoothedData[i-1])/2 * (time[i] - time[i-1]);
+		for(int i = 1; i < normalizedData.length; i++) {
+			result[i] = result[i-1] + (normalizedData[i] + normalizedData[i-1])/2 * (time[i] - time[i-1]);
 		}
 
 		// calculate the first integrated sample
@@ -409,15 +425,15 @@ public class AxisDataSeries {
 	 */
 	public List<Double> differentiate() {
 
-		Double[] result = new Double[smoothedData.length];
+		Double[] result = new Double[normalizedData.length];
 
-		for(int i = 1; i < smoothedData.length - 1; i++) {
-			result[i] = (smoothedData[i+1]-smoothedData[i-1])/(time[i+1]-time[i-1]);
+		for(int i = 1; i < normalizedData.length - 1; i++) {
+			result[i] = (normalizedData[i+1]-normalizedData[i-1])/(time[i+1]-time[i-1]);
 		}
 
 		// fill in first and last data point
 		result[0] = result[1];
-		result[smoothedData.length-1] = result[smoothedData.length-2];
+		result[normalizedData.length-1] = result[normalizedData.length-2];
 
 		return Arrays.asList(result);
 	}
