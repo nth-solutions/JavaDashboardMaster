@@ -82,7 +82,7 @@ public class MultipleAxesLineChart extends StackPane {
             yAxis.setTickUnit(1);
             
             baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
-            baseChart.getXAxis().setLabel("X Axis");
+            baseChart.getXAxis().setLabel("Time (s)");
             baseChart.getYAxis().setLabel("Y Axis");
 
         }

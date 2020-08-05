@@ -32,7 +32,7 @@ public class AxisDataSeries {
 	private int rollBlkSize = 100;
 
 	// indicates whether or not default moving average should be applied
-	private boolean applySmoothing;
+	private boolean applySmoothing = true;
 
 	/**
 	 * The enum representation of this axis.
