@@ -488,7 +488,7 @@
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="applyConfigurationsButton1" mnemonicParsing="false" onAction="#applyConfigurations2" prefHeight="50.0" prefWidth="535.0" text="Apply Configurations" />
+                                                                  <Button fx:id="applyConfigurationsButton1" mnemonicParsing="false" onAction="#applyConfigurations" prefHeight="50.0" prefWidth="535.0" text="Apply Configurations" />
                                                                </children>
                                                             </VBox>
                                                          </children>

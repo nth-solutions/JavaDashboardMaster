@@ -1540,7 +1540,7 @@ public class EducatorMode extends JFrame {
 					generalStatusLabelOne.setText("Initial connection to module successful");
 				}
 				try {
-					if(!serialHandler.sendTestParams(testTypeHashMap.get(testTypeCombobox.getSelectedItem().toString()))) {
+					if (!serialHandler.sendTestParams((Integer[]) testTypeHashMap.get(testTypeCombobox.getSelectedItem().toString()).toArray())) {
 						generalStatusLabelOne.setForeground(Color.RED);
 						generalStatusLabelOne.setText("Module Not Responding, parameter write failed.");
 					}

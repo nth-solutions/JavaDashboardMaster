@@ -5,6 +5,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.ResourceBundle;
@@ -36,16 +37,14 @@ import purejavacomm.UnsupportedCommOperationException;
 
 public class EducatorModeControllerFX implements Initializable {
 
-    //Out Files Deleted before push
-    //
-    //Test Parameter Variables and Constants
-    public final int NUM_TEST_PARAMETERS = 13;
-    public final int NUM_ID_INFO_PARAMETERS = 3;
-    public final int CURRENT_FIRMWARE_ID = 26;
+    // CONSTANTS AND PARAMETERS
+    private final int NUM_TEST_PARAMETERS = 13;
+    private final int NUM_ID_INFO_PARAMETERS = 3;
+    private final int CURRENT_FIRMWARE_ID = 26;
 
     private SerialComm serialHandler;
 
-    //Primary UI Control FXML Components
+    // TABS
     @FXML
     TabPane primaryTabPane;
     @FXML
@@ -64,23 +63,19 @@ public class EducatorModeControllerFX implements Initializable {
     Tab sincCalibrationTab;
     @FXML
     Tab eraseConfirmationTab;
-
     @FXML
     Tab unpairRemotesTab;
 
-    @FXML
-    TabPane twoModuleExperimentTabPane;
-
-    @FXML
-    Tab runExperimentTab;
-
+    // NEXT/BACK BUTTONS
     @FXML
     Button nextButton;
     @FXML
     Button backButton;
+
     @FXML
     ComboBox<String> testTypeComboBox;
-    //Experiment FXML Components
+
+    // EXPERIMENT TAB FXML COMPONENTS
     @FXML
     Label generalStatusExperimentLabel;
     @FXML
@@ -94,33 +89,14 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Button exitTestModeButton;
     @FXML
-    RadioButton spreadsheetRadioButton;
-    @FXML
-    RadioButton graphRadioButton;
-    @FXML
-    RadioButton graphAndSpreadsheetRadioButton;
-    @FXML
     RadioButton sincTechnologyRadioButton;
     @FXML
     RadioButton DAGRadioButton;
     @FXML
-    Button readTestButton;
-    @FXML
-    Button sincCalibrationButton;
-    @FXML
     ProgressBar progressBar;
-    @FXML
-    Button eraseButton;
 
     @FXML
     ToggleGroup outputType;
-
-    @FXML
-    Button eraseModuleButtonMainMenu;
-
-    @FXML
-    Button unpairRemotesButtonMainMenu;
-    //Extra Test Parameter TextFields
 
     @FXML
     Label sincCalibrationTabGeneralStatusLabel;
@@ -132,10 +108,9 @@ public class EducatorModeControllerFX implements Initializable {
     Label unpairRemotesTabLabel;
 
 
+    // TEST PARAMETER FXML COMPONENTS
     @FXML
     TextField massOfLeftModuleTextField;
-
-
     @FXML
     TextField massOfLeftGliderTextField;
     @FXML
@@ -178,10 +153,8 @@ public class EducatorModeControllerFX implements Initializable {
     double massOfRightGlider;
     double massOfLeftModule;
     double massOfLeftGlider;
-
     double massOfRightModuleAndRightGlider;
     double massOfLeftModuleAndLeftGlider;
-
     // Extra Module Parameters - CoE
     double totalDropDistance;
     double massOfModuleAndHolder;
@@ -195,20 +168,16 @@ public class EducatorModeControllerFX implements Initializable {
     // Extra Module Parameters - Spring
     double springConstant;
     double totalHangingMass;
-
     double amplitudeSpring;
     double massOfSpring;
-
+    // Extra Module Parameters - Inclined Plane
     double angleFromBottom;
     double angleFromTop;
 
-    private DataOrganizer dataOrgo;
-    private DataOrganizer dataOrgoTwo;
-
     private int experimentType;
     
-    // holds test data from modules
-    // each GT represents a single trial from a module
+    // holds test data from modules for DAG and SINC respectively
+    // each object represents a trial on a module
     private ArrayList<GenericTest> genericTests;
     private ArrayList<DataOrganizer> dataOrgoList;
 
@@ -222,7 +191,7 @@ public class EducatorModeControllerFX implements Initializable {
     // Dashboard Background Functionality
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
-    private HashMap<String, ArrayList<Integer>> testTypeHashMap = new HashMap<>();
+    private HashMap<String, Integer[]> testTypeHashMap = new HashMap<>();
     public static String testType;
 
     // indicates the number of pages in the Experiment tab
@@ -234,6 +203,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     private Boolean oneModuleTest;
 
+    // BFA icon used for the Dashboard, SINC Graph, and DAG
     private Image icon;
 
     @Override
@@ -560,19 +530,13 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void applyConfigurations(ActionEvent event) {
-        writeButtonHandler();
-    }
-
-    @FXML
-    private void applyConfigurations2(ActionEvent event){
-        writeButtonHandler();
+        saveTestParams();
     }
 
     /**
-     * A handler method called within the applyConfigurations() ActionEvent that writes pre-defined optimal parameters
-     * to the module's firmware for use in one of several experiments
+     * Writes test parameters to the module.
      */
-    private void writeButtonHandler() {
+    private void saveTestParams() {
 
         // reset status label and progress bar
         displayProgress("Saving test parameters...", Color.BLUE, STYLE_WORKING, 0.5);
@@ -583,16 +547,16 @@ public class EducatorModeControllerFX implements Initializable {
             return;
         }
 
-        //Disable write config button while the sendParameters() method is running
+        // disable "Next" and "Apply Configurations" buttons
         applyConfigurationsButton.setDisable(true);
         nextButton.setDisable(true);
 
-
         String testName = testTypeComboBox.getSelectionModel().getSelectedItem();
-        ArrayList<Integer> testParams = testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem());
+        Integer[] testParams = testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem());
 
-        System.out.println(testName);
-        System.out.println(testParams);
+        // print out test name + parameters for debugging
+        System.out.println("Test name: " + testName);
+        System.out.println("Test parameters: " + Arrays.toString(testParams));
 
         Task<Void> sendTestParamsTask = new Task<Void>() {
 
@@ -601,9 +565,11 @@ public class EducatorModeControllerFX implements Initializable {
                 
                 try {
                     
-                    // update test information in EMFX
-                    if (serialHandler.sendTestParams(testParams)) { 
-                        updateTestParams(selectedIndex);
+                    // save experiment test params to Dashboard
+                    updateTestParams(selectedIndex);
+
+                    // send test params to module
+                    if (serialHandler.sendTestParams(testParams)) {
                         displayProgress("Test parameters saved successfully", Color.GREEN, STYLE_SUCCESS, 1);
                     } else {
                         displayProgress("Error saving test parameters to module, try again", Color.RED, STYLE_FAIL, 1);
@@ -1149,6 +1115,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void readTestsFromModule(ActionEvent event) {
 
+        // TODO look into auto-connecting before reading tests
         //connectToModule(eraseModuleTabLabel);
 
         Task<Void> readTask = new Task<Void>() {
@@ -1231,19 +1198,19 @@ public class EducatorModeControllerFX implements Initializable {
 
                         if (getOutputType().equals(sincTechnologyRadioButton)) {
 
-                            // [OLD] stores test data for the SINC Graph
-                            dataOrgo = new DataOrganizer(testParameters, "SINC_" + newName);
-                            dataOrgo.setMPUMinMax(serialHandler.getMPUMinMax());
-                            dataOrgoList.add(dataOrgo);
+                            // Stores test data for the SINC Graph
+                            DataOrganizer d = new DataOrganizer(testParameters, "SINC_" + newName);
+                            d.setMPUMinMax(serialHandler.getMPUMinMax());
+                            dataOrgoList.add(d);
 
-                            //Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-                            dataOrgo.createDataSmpsRawData(finalData);
-                            dataOrgo.getSignedData();
+                            // Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
+                            d.createDataSmpsRawData(finalData);
+                            d.getSignedData();
 
-                            dataOrgo.createCSVP();
-                            dataOrgo.createCSV(false, false);
+                            d.createCSVP();
+                            d.createCSV(false, false);
 
-                            dataOrgo.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + newName+"p");
+                            d.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + newName+"p");
 
                         } else {
 
@@ -2007,252 +1974,33 @@ public class EducatorModeControllerFX implements Initializable {
      *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
      */
     public void fillTestTypeHashMap() {
-        ArrayList<Integer> testParamsA = new ArrayList<Integer>();
-        ArrayList<Integer> testParamsB = new ArrayList<Integer>();
-        ArrayList<Integer> testParamsC = new ArrayList<Integer>();
-        ArrayList<Integer> testParamsD = new ArrayList<Integer>();
-        ArrayList<Integer> testParamsE = new ArrayList<Integer>();
-        ArrayList<Integer> testParamsF = new ArrayList<Integer>();
-        ArrayList<Integer> testParamsG = new ArrayList<Integer>();
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsA.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsA.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsA.add(0);
-        //3 Battery timeout flag
-        testParamsA.add(300);
-        //4 Time Test Flag
-        testParamsA.add(0);
-        //5 Trigger on release flag
-        testParamsA.add(1);
-        //6 Test Length
-        testParamsA.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsA.add(960);
-        //8 Mag Sample Rate
-        testParamsA.add(96);
-        //9 Accel Sensitivity
-        testParamsA.add(4);
-        //10 Gyro Sensitivity
-        testParamsA.add(1000);
-        //11 Accel Filter
-        testParamsA.add(92);
-        //12 Gyro Filter
-        testParamsA.add(92);
-
+        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
 
-        /*
-         * ***IMPORTANT*** The following commented out code is no longer in use but is being kept in case that we do decide to bring this lab back ***IMPORTANT***
-         */
-
-//        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-//        testParams.add(0);
-//        //1 Timer0 Tick Threshold
-//        testParams.add(getTickThreshold(960));
-//        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-//        testParams.add(0);
-//        //3 Battery timeout flag
-//        testParams.add(300);
-//        //5 Trigger on release flags
-//        testParams.add(1);
-//        //6 Test Length
-//        testParams.add(30);
-//        //7 Accel Gyro Sample Rate
-//        testParams.add(960);
-//        //8 Mag Sample Rate
-//        testParams.add(96);
-//        //9 Accel Sensitivity
-//        testParams.add(4);
-//        //10 Gyro Sensitivity
-//        testParams.add(2000);
-//        //11 Accel Filter
-//        testParams.add(92);
-//        //12 Gyro Filter
-//        testParams.add(92);
-//
-//        testTypeHashMap.put("Conservation of Angular Momentum", testParams);
-
-//        testParams.clear();
-
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsB.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsB.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsB.add(0);
-        //3 Battery timeout flag
-        testParamsB.add(300);
-        //4 Time Test Flag
-        testParamsB.add(0);
-        //5 Trigger on release flag
-        testParamsB.add(1);
-        //6 Test Length
-        testParamsB.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsB.add(960);
-        //8 Mag Sample Rate
-        testParamsB.add(96);
-        //9 Accel Sensitivity
-        testParamsB.add(16);
-        //10 Gyro Sensitivity
-        testParamsB.add(2000);
-        //11 Accel Filter
-        testParamsB.add(92);
-        //12 Gyro Filter
-        testParamsB.add(92);
-
+        Integer[] testParamsB = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Conservation of Energy", testParamsB);
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsC.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsC.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsC.add(0);
-        //3 Battery timeout flag
-        testParamsC.add(300);
-        //4 Time Test Flag
-        testParamsC.add(0);
-        //5 Trigger on release flag
-        testParamsC.add(1);
-        //6 Test Length
-        testParamsC.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsC.add(960);
-        //8 Mag Sample Rate
-        testParamsC.add(96);
-        //9 Accel Sensitivity
-        testParamsC.add(4);
-        //10 Gyro Sensitivity
-        testParamsC.add(1000);
-        //11 Accel Filter
-        testParamsC.add(92);
-        //12 Gyro Filter
-        testParamsC.add(92);
-
+        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Inclined Plane", testParamsC);
         testTypeHashMap.put("Inclined Plane - Released From Top", testParamsC);
         testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParamsC);
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsD.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsD.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsD.add(0);
-        //3 Battery timeout flag
-        testParamsD.add(300);
-        //4 Time Test Flag
-        testParamsD.add(0);
-        //5 Trigger on release flag
-        testParamsD.add(1);
-        //6 Test Length
-        testParamsD.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsD.add(960);
-        //8 Mag Sample Rate
-        testParamsD.add(96);
-        //9 Accel Sensitivity
-        testParamsD.add(8);
-        //10 Gyro Sensitivity
-        testParamsD.add(2000);
-        //11 Accel Filter
-        testParamsD.add(92);
-        //12 Gyro Filter
-        testParamsD.add(92);
-
+        Integer[] testParamsD = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Physical Pendulum", testParamsD);
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsE.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsE.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsE.add(0);
-        //3 Battery timeout flag
-        testParamsE.add(300);
-        //4 Time Test Flag
-        testParamsE.add(0);
-        //5 Trigger on release flag
-        testParamsE.add(1);
-        //6 Test Length
-        testParamsE.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsE.add(960);
-        //8 Mag Sample Rate
-        testParamsE.add(96);
-        //9 Accel Sensitivity
-        testParamsE.add(4);
-        //10 Gyro Sensitivity
-        testParamsE.add(1000);
-        //11 Accel Filter
-        testParamsE.add(92);
-        //12 Gyro Filter
-        testParamsE.add(92);
-
+        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Spring Test - Simple Harmonics", testParamsE);
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsF.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsF.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsF.add(0);
-        //3 Battery timeout flag
-        testParamsF.add(300);
-        //4 Time Test Flag
-        testParamsF.add(0);
-        //5 Trigger on release flag
-        testParamsF.add(1);
-        //6 Test Length
-        testParamsF.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsF.add(960);
-        //8 Mag Sample Rate
-        testParamsF.add(96);
-        //9 Accel Sensitivity
-        testParamsF.add(4);
-        //10 Gyro Sensitivity
-        testParamsF.add(1000);
-        //11 Accel Filter
-        testParamsF.add(92);
-        //12 Gyro Filter
-        testParamsF.add(92);
-
+        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Generic Template - One Module", testParamsF);
 
-        //0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
-        testParamsG.add(0);
-        //1 Timer0 Tick Threshold
-        testParamsG.add(getTickThreshold(960));
-        //2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
-        testParamsG.add(0);
-        //3 Battery timeout flag
-        testParamsG.add(300);
-        //4 Time Test Flag
-        testParamsG.add(0);
-        //5 Trigger on release flag
-        testParamsG.add(1);
-        //6 Test Length
-        testParamsG.add(30);
-        //7 Accel Gyro Sample Rate
-        testParamsG.add(960);
-        //8 Mag Sample Rate
-        testParamsG.add(96);
-        //9 Accel Sensitivity
-        testParamsG.add(4);
-        //10 Gyro Sensitivity
-        testParamsG.add(1000);
-        //11 Accel Filter
-        testParamsG.add(92);
-        //12 Gyro Filter
-        testParamsG.add(92);
-
+        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Generic Template - Two Modules", testParamsG);
 
+        // TODO the following test is not being used, but kept in case we decide to bring this lab back
+        //Integer[] testParamsH = { 0, getTickThreshold(960), 0, 300, 1, 30, 960, 96, 16, 2000, 92, 92 };
+        //testTypeHashMap.put("Conservation of Angular Momentum", testParamsH);
     }
 
     /**
@@ -2264,7 +2012,7 @@ public class EducatorModeControllerFX implements Initializable {
         Task<Void> connectTask = new Task<Void>() {
             
             @Override
-            protected Void call() {
+            protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
                 displayProgress(label, "Connecting to module...", Color.BLUE, STYLE_WORKING, 0);
 
@@ -2273,60 +2021,46 @@ public class EducatorModeControllerFX implements Initializable {
                     testTypeComboBox.setDisable(false);
                 });
 
-                // get all ports
+                // get all ports (null if none are found)
                 ArrayList<String> ports = serialHandler.findPorts();
                 System.out.println("Searching available ports: " + ports);
 
                 // loop through all ports
                 for (int i = 0; i < ports.size(); i++) {
 
-                    try {
+                    // get the name of the current COM port
+                    String selectedCommID = ports.get(i);
 
-                        // get the name of the current COM port
-                        String selectedCommID = ports.get(i);
+                    // attempt connection to serial port
+                    serialHandler.closeSerialPort();
+                    serialHandler.openSerialPort(selectedCommID);
 
-                        // attempt connection to serial port
-                        serialHandler.closeSerialPort();
-                        serialHandler.openSerialPort(selectedCommID);
+                    // attempt to read module info (used to check firmware ID)
+                    ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
 
-                        // attempt to read module info (used to check firmware ID)
-                        ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+                    // check if port has a module connected; if not, move onto next port
+                    if (moduleIDInfo == null) {
+                        System.out.println("Module ID Info null on " + selectedCommID + ", trying next port...");
+                        continue;
+                    }
 
-                        // check if port has a module connected; if not, move onto next port
-                        if (moduleIDInfo == null) {
-                            System.out.println("Module ID Info null when connecting to module, trying next port...");
-                            continue;
-                        }
+                    int firmwareID = moduleIDInfo.get(2);
+                    System.out.println("Current Firmware ID: " + firmwareID);
 
-                        int firmwareID = moduleIDInfo.get(2);
-                        System.out.println("Current Firmware ID: " + firmwareID);
+                    // make sure that Dashboard's firmware version matches the module's
+                    if (firmwareID == CURRENT_FIRMWARE_ID) {
 
-                        // make sure that Dashboard's firmware version matches the module's
-                        if (firmwareID == CURRENT_FIRMWARE_ID) {
+                        displayProgress(label, "Successfully connected to module", Color.GREEN, STYLE_SUCCESS, 0.5);
 
-                            displayProgress(label, "Successfully connected to module", Color.GREEN, STYLE_SUCCESS, 0.5);
+                        // re-enable the test parameters selection box
+                        Platform.runLater(() -> testTypeComboBox.setDisable(false));
 
-                            // re-enable the test parameters selection box
-                            Platform.runLater(() -> testTypeComboBox.setDisable(false));
-
-                            return null;
-
-                        }
-                        else {
-                            String firmwareMsg = "Incompatible firmware version, update module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")";
-                            displayProgress(label, firmwareMsg, Color.RED, STYLE_FAIL, 1);
-                        }
+                        return null;
 
                     }
-                    catch (PortInUseException e) {
-                        displayProgress(label, "Error connecting to module -- port in use by another application", Color.RED, STYLE_FAIL, 1);
-                    }
-                    catch (UnsupportedCommOperationException e) {
-                        System.out.println("Error connecting to module -- unsupported communication operation");
-                        displayProgress(label, "Error connecting to module -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
-                    }
-                    catch (Exception e) {
-                        displayProgress(label, "Error connecting to module, try again", Color.RED, STYLE_FAIL, 1);
+                    else {
+                        String firmwareMsg = "Incompatible firmware version, update module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")";
+                        displayProgress(label, firmwareMsg, Color.RED, STYLE_FAIL, 1);
                     }
 
                 }
@@ -2337,6 +2071,27 @@ public class EducatorModeControllerFX implements Initializable {
                 return null;
             }
         };
+
+        connectTask.setOnFailed(event -> {
+
+            Throwable ex = connectTask.getException();
+
+            System.out.println("Connection failed: " + ex);
+
+            if (ex instanceof PortInUseException) {
+                displayProgress(label, "Error connecting to module -- port in use by another application", Color.RED, STYLE_FAIL, 1);
+            }
+            else if (ex instanceof UnsupportedCommOperationException) {
+                displayProgress(label, "Error connecting to module -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
+            }
+            else if (ex instanceof NullPointerException) {
+                displayProgress(label, "Make sure module is connected to the computer", Color.RED, STYLE_FAIL, 1);
+            }
+            else {
+                displayProgress(label, "Error connecting to module, try again", Color.RED, STYLE_FAIL, 1);
+            }
+
+        });
 
         // run the connection task 
         Thread t = new Thread(connectTask);

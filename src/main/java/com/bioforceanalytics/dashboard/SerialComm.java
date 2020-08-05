@@ -1127,7 +1127,7 @@ public class SerialComm {
 	 * Since this method is called in a thread, the thread will terminate automatically when this method is completed
 	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
 	 */
-	public boolean sendTestParams(ArrayList<Integer> params) throws IOException, PortInUseException, UnsupportedCommOperationException {
+	public boolean sendTestParams(Integer[] params) throws IOException, PortInUseException, UnsupportedCommOperationException {
 		//Configure the serial port for handshake   
 		configureForHandshake();
 
@@ -1140,7 +1140,7 @@ public class SerialComm {
 			}
 
 			//Iterates through each parameter in the array
-			for (int paramNum = 0; paramNum < params.size(); paramNum++) {
+			for (int paramNum = 0; paramNum < params.length; paramNum++) {
 
 				//Reset attempt counter
 				int attemptCounter = 0;
@@ -1151,8 +1151,8 @@ public class SerialComm {
 					outputStream.write(new String("1234").getBytes());
 
 					//Send parameter in binary (not ASCII) MSB first
-					outputStream.write(params.get(paramNum) / 256);
-					outputStream.write(params.get(paramNum) % 256);
+					outputStream.write(params[paramNum] / 256);
+					outputStream.write(params[paramNum] % 256);
 
 
 					int temp = -1;
@@ -1171,7 +1171,7 @@ public class SerialComm {
 					}
 
 					//If module echoed correctly, send 'CA' for Acknowledge, (C is preamble for acknowledge cycle)
-					if (temp == params.get(paramNum)) {
+					if (temp == params[paramNum]) {
 						//Sends acknowledge cycle
 						outputStream.write(new String("CA").getBytes());
 						//Reset attempt counter
@@ -1213,7 +1213,7 @@ public class SerialComm {
 	 * @throws UnsupportedCommOperationException Means that the requested operation is unsupported by the dongle, thrown to caller for cleaner handling
 	 */
 	public ArrayList<Integer> readTestParams(int numTestParams) throws IOException, PortInUseException, UnsupportedCommOperationException {
-		int expectedTestNum;
+
 		ArrayList<Integer> params = new ArrayList<Integer>();
 
 		boolean preambleFlag = false;
@@ -1267,7 +1267,7 @@ public class SerialComm {
 						//Create start time so a timeout can be calculated
 						long ackStart = System.currentTimeMillis();
 						//Executes until timeout occurs or data is received
-						while (((System.currentTimeMillis() - echoStart) < 500)) {
+						while ((ackStart - echoStart) < 500) {
 							//Wait until there are at least 2 bytes in the input buffer
 							if (inputStream.available() >= 2) {
 								//Read ack preamble

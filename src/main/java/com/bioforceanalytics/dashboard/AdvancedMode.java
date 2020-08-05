@@ -1294,8 +1294,8 @@ public class AdvancedMode extends JFrame {
 						//5 Trigger on release flag
 						testParams.add(triggerOnReleaseFlag);
 						//6 Test Length
-						if(timedTestFlag == 1) {
-							if(Integer.parseInt(testLengthTextField.getText()) <= 0 || Integer.parseInt(testLengthTextField.getText()) >= 65536){
+						if (timedTestFlag == 1) {
+							if (Integer.parseInt(testLengthTextField.getText()) <= 0 || Integer.parseInt(testLengthTextField.getText()) >= 65536){
 								testLengthTextField.setText("30");
 							}
 							testParams.add(Integer.parseInt(testLengthTextField.getText()));
@@ -1316,7 +1316,7 @@ public class AdvancedMode extends JFrame {
 						//12 Gyro Filter
 						testParams.add(Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString()));
 
-						if(!serialHandler.sendTestParams(testParams)) {
+						if (!serialHandler.sendTestParams((Integer[]) testParams.toArray())) {
 							generalStatusLabel.setText("Module Not Responding");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
