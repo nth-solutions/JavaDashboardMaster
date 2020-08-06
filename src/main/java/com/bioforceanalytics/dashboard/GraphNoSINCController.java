@@ -387,8 +387,7 @@ public class GraphNoSINCController implements Initializable {
 
 			clearGraph();
 
-			// TODO the first test isn't always the desired one, so we might want to change
-			// this
+			// TODO the first test isn't always the desired one, so we might want to change this
 			for (AxisType axis : g.getDefaultAxes()) {
 				graphAxis(axis, 0);
 			}
@@ -422,10 +421,11 @@ public class GraphNoSINCController implements Initializable {
 		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2));
 
 		// update tick spacing based on zoom level
-		for (AxisType a : multiAxis.axisChartMap.keySet()) {
-			((BFANumberAxis) (multiAxis.axisChartMap.get(a).getYAxis())).setTickUnit(
-					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * multiAxis.getAxisScalar(a));
-			((BFANumberAxis) (multiAxis.axisChartMap.get(a).getXAxis()))
+		for (GraphData d : multiAxis.axisChartMap.keySet()) {
+			
+			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getYAxis())).setTickUnit(
+					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * multiAxis.getAxisScalar(d.axis));
+			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getXAxis()))
 					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
 		}
 

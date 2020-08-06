@@ -124,7 +124,7 @@ public class GenericTest {
 	/**
 	 * Populates the AxisDataSeries list by looping through dataSamples.
 	 * This logic is shared by both constructors.
-	 * @param dataSamples 2D Array of data from 9 raw axes (and time(0))
+	 * @param dataSamples 2D array of data from 9 raw axes (and time(0))
 	 * @param testParameters array of test parameters
 	 * @param mpuOffsets array of acceleration offsets
 	 */
@@ -217,7 +217,7 @@ public class GenericTest {
 		panel.applyParams();
 	}
 
-	public void setDefaultAxes(AxisType[] axes){
+	public void setDefaultAxes(AxisType[] axes) {
 		defaultAxes = axes;
 	}
 	
@@ -225,10 +225,11 @@ public class GenericTest {
 		return defaultAxes;
 	}
 
-	public void setGraphTitle(String title){
+	public void setGraphTitle(String title) {
 		graphTitle = title;
 	}
-	public String getGraphTitle(){
+
+	public String getGraphTitle() {
 		return graphTitle;
 	}
 				

@@ -93,8 +93,6 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      */
     public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
 
-        System.out.println("Graphing area save version...");
-
         this.p1 = p1;
         this.p2 = p2;
         this.data = data;

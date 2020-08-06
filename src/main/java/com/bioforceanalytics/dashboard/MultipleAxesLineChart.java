@@ -27,7 +27,7 @@ public class MultipleAxesLineChart extends StackPane {
     /**
      * Tracks the currently drawn data sets and their respective line charts.
      */
-    public  final Map<AxisType, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
+    public final Map<GraphData, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
     
     // keeps track of currently graphed data sets (GTIndex/AxisType/data)
     private ArrayList<GraphData> dataSets;
@@ -271,7 +271,7 @@ public class MultipleAxesLineChart extends StackPane {
             lineChart = axisTypeMap.get(axisTypeInt);
         }
 
-        axisChartMap.put(d.axis, lineChart);
+        axisChartMap.put(d, lineChart);
         baseChart.getData().add(d.data);
         dataSets.add(d);
         for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
@@ -299,8 +299,8 @@ public class MultipleAxesLineChart extends StackPane {
         
         // remove XYChart.Series from its LineChart
         d.data.getData().clear();
-        axisChartMap.get(axis).getData().remove(d.data);
-        axisChartMap.remove(axis);
+        axisChartMap.get(d).getData().remove(d.data);
+        axisChartMap.remove(d);
 
         // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
