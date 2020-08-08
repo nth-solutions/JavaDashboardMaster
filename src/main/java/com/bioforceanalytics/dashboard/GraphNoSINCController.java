@@ -37,6 +37,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 
+/**
+ * Controller class for the Data Analysis Graph. Handles all user interaction with the user interface,
+ * as well as processing data sets for JavaFX use, retrieving calculations from
+ * {@link com.bioforceanalytics.dashboard.GenericTest GenericTests}, calculating zooming/panning/scaling of the graph,
+ * displaying data point labels, tracking currently graphed data sets, and more.
+ */
 public class GraphNoSINCController implements Initializable {
 
 	// GenericTest represents a single module and associated test data

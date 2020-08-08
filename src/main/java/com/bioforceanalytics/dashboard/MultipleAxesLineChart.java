@@ -56,15 +56,15 @@ public class MultipleAxesLineChart extends StackPane {
     public double getAxisScalar(AxisType axis) {
 
         // if AxisType is Accel, Vel, or Disp
-        if (axis.getValue()/4 < 3) return 10;
+        if (axis.getValue() / 4 < 3) return 10;
         //if AxisType is AngAccel
-        if(axis.getValue()/4 == 3) return 500;
+        if (axis.getValue() / 4 == 3) return 500;
         // all other data sets
         else return 100;
 
     }
 
-    public ObservableList<BFALineChart<Number, Number>> getBackgroundCharts(){
+    public ObservableList<BFALineChart<Number, Number>> getBackgroundCharts() {
         return backgroundCharts;
     }
 
@@ -144,12 +144,13 @@ public class MultipleAxesLineChart extends StackPane {
 
     private void rebuildChart() {
 
-        if(getChildren().contains(baseChart)){
+        if (getChildren().contains(baseChart)) {
             resizeBaseChart(baseChart);
-        }else{
+        } else {
             resizeBaseChart(baseChart);
             getChildren().add(baseChart);
         }
+
         for (BFALineChart<Number, Number> lineChart : backgroundCharts) {
             if(!getChildren().contains(lineChart)){
                 resizeBackgroundChart(lineChart);
@@ -158,19 +159,21 @@ public class MultipleAxesLineChart extends StackPane {
                 resizeBackgroundChart(lineChart);
             }
         }
+
         ArrayList<Node> emptyChildren = new ArrayList<Node>();
-        for(Node child : getChildren()){
-            if(child != baseChart){
-                if(!backgroundCharts.contains((BFALineChart) child)){
+
+        for (Node child : getChildren()) {
+            if (child != baseChart) {
+                if (!backgroundCharts.contains((BFALineChart) child)) {
                     emptyChildren.add(child);
                 }
             }
         }
-        for(Node child : emptyChildren){
+
+        for (Node child : emptyChildren) {
             getChildren().remove(child);
         }
-        
-        
+
     }
 
     private void resizeBaseChart(BFALineChart<Number, Number> lineChart) {

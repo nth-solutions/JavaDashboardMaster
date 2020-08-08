@@ -1,4 +1,5 @@
-<!-- Used to be used for generating EXEs, but now handled through Maven's pom.xml -->
+<!-- NOT CURRENTLY IN USE, check pom.xml instead. -->
+<!-- Configuration settings for building .exes. -->
 <?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>

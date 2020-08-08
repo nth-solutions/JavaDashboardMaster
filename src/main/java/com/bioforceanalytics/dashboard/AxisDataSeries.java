@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Used by the Data Analysis Graph to store the data associated with a single axis (eg. Acceleration X).
- * Also handles converting bitcount data into physical quantities, applying moving averages, and filtering (in the future).
+ * Also handles converting data samples into physical quantities, applying moving averages, and filtering (in the future).
  */
 public class AxisDataSeries {
 
@@ -112,7 +112,7 @@ public class AxisDataSeries {
 			}
 		}
 
-
+		// if axis class is magnetometer (24-26), normalize data
 		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
 
 			// create normalized data series using first two seconds of module data
@@ -324,6 +324,7 @@ public class AxisDataSeries {
 		}
 		normOffset /= (double) (endIndex-startIndex);
 
+		// reset normalized data to original data
 		this.normalizedData = this.originalData.clone();
 
 		// subtract offset from each data point to create normalized data
@@ -339,7 +340,11 @@ public class AxisDataSeries {
 	public void applyNormalizedData(Double startTime, Double endTime, int sampleRate) {
 
 		createNormalizedData(startTime, endTime, sampleRate);
-		this.smoothedData = applySmoothing ? applyMovingAvg(this.normalizedData.clone(), rollBlkSize) : this.normalizedData.clone();
+
+		// if smoothing is enabled, apply a moving average; otherwise, copy normalized data
+		this.smoothedData = applySmoothing ? applyMovingAvg(this.normalizedData, rollBlkSize) : this.normalizedData.clone();
+
+		// copy smoothed data to allow custom user smoothing
 		this.userSmoothedData = this.smoothedData.clone();
 	
 	}
@@ -351,21 +356,33 @@ public class AxisDataSeries {
 	 */
 	private Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
+		// work on a copy of the data for safety
 		Double[] newArray = array.clone();
-		if (sampleBlockSize == 0) return array;
 
+		// a block size less than 0 indicates resetting smoothing
+		if (sampleBlockSize <= 0) return array;
+
+		// loop through all values except (block size / 2) on the ends of the data;
+		// since this is a middle-based moving average, an index such as 0 will not work
 		for (int i = sampleBlockSize/2; i < newArray.length - sampleBlockSize/2; i++) {
+
 			double localTotal = 0;
+
+			// loop through current block (i +- block size / 2) to accumulate total
 			for (int j = (i - sampleBlockSize/2); j < (i+sampleBlockSize/2); j++) {
 				localTotal += array[j];
 			}
+
+			// calculate average value over the block as the "smoothed" point
 			newArray[i] = localTotal / sampleBlockSize;
 		}
 
 		/*
-		Zero out the start and end portions of the test.
-		Currently disabled since it isn't necessary.
-
+		===============================================================================
+		Zero out the start and end portions of the test. Currently disabled since it
+		makes the data more inaccurate than if the unsmoothed "ends" remain.
+		TODO consider removing these "ends" from the test so that users don't see them.
+		
 		for (int i = 0; i < sampleBlockSize/2; i++) {
 			newArray[i] = 0.0;
 		}
@@ -373,6 +390,7 @@ public class AxisDataSeries {
 		for (int i = newArray.length - sampleBlockSize/2; i < newArray.length; i++) {
 			newArray[i] = 0.0;
 		}
+		===============================================================================
 		*/
 
 		return newArray;
@@ -392,7 +410,11 @@ public class AxisDataSeries {
 	 * @param state whether or not the moving average should be applied
 	 */
 	public void enableMovingAvg(boolean state) {
+
+		// if `state` is true, a moving average is applied; otherwise, copy normalized data
 		userSmoothedData = state ? applyMovingAvg(smoothedData, rollBlkSize) : normalizedData.clone();
+
+		// save state so that if axis is toggled, it knows whether to apply smoothing
 		applySmoothing = state;
 	}
 
@@ -403,16 +425,21 @@ public class AxisDataSeries {
 	 */
 	public List<Double> integrate() {
 
+		// create empty array with the same length as data
 		Double[] result = new Double[normalizedData.length];
 
+		// temporarily set initial value to 0; necessary for loop below
 		result[0] = 0.0;
 
-		for(int i = 1; i < normalizedData.length; i++) {
+		// start loop at 1 in order to look at previous value
+		for (int i = 1; i < normalizedData.length; i++) {
+
+			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
 			result[i] = result[i-1] + (normalizedData[i] + normalizedData[i-1])/2 * (time[i] - time[i-1]);
+
 		}
 
-		// calculate the first integrated sample
-		// this is our initial condition (our "+C")
+		// calculate the first integrated sample as our initial condition ("+C")
 		result[0] = result[1];
 
 		return Arrays.asList(result);
@@ -425,14 +452,18 @@ public class AxisDataSeries {
 	 */
 	public List<Double> differentiate() {
 
+		// create empty array with the same length as data
 		Double[] result = new Double[normalizedData.length];
 
+		// start loop at 1 in order to look at previous value
 		for(int i = 1; i < normalizedData.length - 1; i++) {
 			result[i] = (normalizedData[i+1]-normalizedData[i-1])/(time[i+1]-time[i-1]);
 		}
 
-		// fill in first and last data point
+		// first data point matches second
 		result[0] = result[1];
+
+		// last data point matches second to last
 		result[normalizedData.length-1] = result[normalizedData.length-2];
 
 		return Arrays.asList(result);
@@ -478,7 +509,13 @@ public class AxisDataSeries {
 
 	}
 
-	// returns area under a section of a data curve utilizing the trapezoid method
+	/**
+	 * Finds the area under a section of the curve.
+	 * Utilizes trapezoid rule for numerical integration.
+	 * @param startTime the x-value of the first data point
+	 * @param endTime the x-value of the last data point
+	 * @return
+	 */
 	public Double getAreaUnder(Double startTime, Double endTime) {
 
 		Double area = 0.0;
@@ -487,17 +524,16 @@ public class AxisDataSeries {
 		int a = (int) Math.round(startTime*this.sampleRate);
 		int b = (int) Math.round(endTime*this.sampleRate);
 
+		// loop through data points to calculate area of trapezoids
 		for (int i = a + 1; i < b + 1; i++) {
+
+			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
 			area += (userSmoothedData[i] + userSmoothedData[i-1])/2 * (time[i] - time[i-1]);
+			
 		}
 
 		return area;
 
-	}
-
-	@Override
-	public String toString() {
-		return this.axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length;
 	}
 
 	/**
@@ -514,6 +550,11 @@ public class AxisDataSeries {
 	 */
 	public ArrayList<Double> getSamples() {
 		return new ArrayList<Double>(Arrays.asList(userSmoothedData));
+	}
+
+	@Override
+	public String toString() {
+		return this.axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length;
 	}
 
 }

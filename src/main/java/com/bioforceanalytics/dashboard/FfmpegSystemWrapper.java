@@ -5,7 +5,7 @@ public class FfmpegSystemWrapper {
 	private String Arch;
 	
 	//INIT
-	public void FfmpegSystemWrapper() {
+	public FfmpegSystemWrapper() {
 		Arch 	 = System.getProperty("os.arch");
 		OSName   = System.getProperty("os.name");
 	}

@@ -24,12 +24,8 @@ public class DashboardSelector extends Application {
         primaryStage.setResizable(false);
     }
 
-    public static void main(String[] args){
-        OSManager osManager = new OSManager();
-        System.out.println(osManager.getOSName());
-        System.out.println(osManager.getOSType());
+    public static void main(String[] args) {
         launch(args);
-
     }
 
 }

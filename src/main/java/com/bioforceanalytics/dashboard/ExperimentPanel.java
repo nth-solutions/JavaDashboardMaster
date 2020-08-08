@@ -7,12 +7,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+
 /**
- * Custom JavaFX component for the Data Analysis Graph's accordion view, provies a 
- * place for the user to view the details of the specific experiment
+ * Custom JavaFX component for the Data Analysis Graph's accordion view,
+ * provides a place for the user to view the details of the specific experiment type.
  */
 public class ExperimentPanel extends TitledPane {
-
 
 	@FXML
 	private Label experimentName;
