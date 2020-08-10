@@ -58,4 +58,71 @@ public class EducatorModeTest extends GUITest {
         });
     }
 
+    // TODO
+    // The following tests require a module to be plugged in to apply SINC configuration.
+    // This means these wouldn't work in CI for GitHub Actions; I don't have the heart to delete these after writing them,
+    // so maybe if we ever figure out how to get these to work, we could rework this? A man can hope
+    //====================================================================================================================
+    // @Test
+    // public void check_sinc_calibration_real_test_gui() {
+
+    //     // navigate to "SINC Module Calibration"
+    //     clickOn("#sincCalibrationButton");
+
+    //     // fill in video file path textbox
+    //     String videoFile = new File(getClass().getResource("sinc-test-real.mp4").getFile()).getPath();
+    //     TextField videoInput = lookup("#videoFilePathTextField").query();
+    //     videoInput.setText(videoFile);
+
+    //     // click "Apply SINC Configurations to Module"
+    //     clickOn("#importCalibrationDataButton11");
+
+    //     try {
+    //         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, new Callable<Boolean>() {
+    //             @Override
+    //             public Boolean call() {
+    //                 Label l = (Label) lookup("#sincCalibrationTabGeneralStatusLabel").query();
+    //                 return !l.getText().equals("Calibrating module...");
+    //             }
+    //         });
+    //     }
+    //     catch (TimeoutException e) {
+    //         fail("SINC Calibration process timed out.");
+    //     }
+
+    //     FxAssert.verifyThat("#sincCalibrationTabGeneralStatusLabel", LabeledMatchers.hasText("Successfully calibrated module (camera and module synced)"));
+
+    // }
+
+    // @Test
+    // public void check_sinc_calibration_ideal_test_gui() {
+
+    //     // navigate to "SINC Module Calibration"
+    //     clickOn("#sincCalibrationButton");
+
+    //     // fill in video file path textbox
+    //     String videoFile = new File(getClass().getResource("sinc-test-ideal.mp4").getFile()).getPath();
+    //     TextField videoInput = lookup("#videoFilePathTextField").query();
+    //     videoInput.setText(videoFile);
+
+    //     // click "Apply SINC Configurations to Module"
+    //     clickOn("#importCalibrationDataButton11");
+
+    //     try {
+    //         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, new Callable<Boolean>() {
+    //             @Override
+    //             public Boolean call() {
+    //                 Label l = (Label) lookup("#sincCalibrationTabGeneralStatusLabel").query();
+    //                 return !l.getText().equals("Calibrating module...");
+    //             }
+    //         });
+    //     }
+    //     catch (TimeoutException e) {
+    //         fail("SINC Calibration process timed out.");
+    //     }
+
+    //     FxAssert.verifyThat("#sincCalibrationTabGeneralStatusLabel", LabeledMatchers.hasText("Successfully calibrated module (camera and module synced)"));
+
+    // }
+
 }

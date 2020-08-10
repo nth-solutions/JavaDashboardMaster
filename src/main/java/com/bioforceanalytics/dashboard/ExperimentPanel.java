@@ -2,6 +2,9 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -13,6 +16,8 @@ import javafx.scene.control.TitledPane;
  * provides a place for the user to view the details of the specific experiment type.
  */
 public class ExperimentPanel extends TitledPane {
+
+	private static final Logger logger = LogManager.getLogger();
 
 	@FXML
 	private Label experimentName;
@@ -88,7 +93,7 @@ public class ExperimentPanel extends TitledPane {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error loading ExperimentPanel JavaFX component");
+			logger.error("Error loading ExperimentPanel JavaFX component");
 		}
 		params = new Label[]{param1,param2,param3,param4};
 		values = new TextField[]{value1,value2,value3,value4};
