@@ -1728,14 +1728,14 @@ public class EducatorModeControllerFX implements Initializable {
 
                 // reset timer0 and "delay after start" test parameters
                 if(!serialHandler.applyCalibrationOffsets(0, 0)) {
-                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error applying calibration offsets", 1, Status.ERROR);
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error resetting calibration offsets, try again", 1, Status.ERROR);
                 }
 
                 // configure module in SINC calibration module
                 if (serialHandler.configForCalibration()) {
-                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully configured module for SINC Calibration", 1, Status.SUCCESS);
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully configured module for calibration", 1, Status.SUCCESS);
                 } else {
-                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module in SINC calibration mode", 1, Status.ERROR);
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module for calibration, try again", 1, Status.ERROR);
                 }
 
                 return null;

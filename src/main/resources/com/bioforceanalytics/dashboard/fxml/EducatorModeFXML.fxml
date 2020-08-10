@@ -96,7 +96,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="36.0" prefWidth="400.0" text="Connect to Module" />
+                                                                  <Button fx:id="connectToModuleBtn" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="36.0" prefWidth="400.0" text="Connect to Module" />
                                                                   <Label alignment="CENTER" prefWidth="500.0" text="Ensure module(s) are erased" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />

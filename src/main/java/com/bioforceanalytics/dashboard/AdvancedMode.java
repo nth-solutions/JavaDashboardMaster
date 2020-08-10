@@ -266,15 +266,12 @@ public class AdvancedMode extends JFrame {
 	 */
 	AdvancedMode() {
         serialHandler = new SerialComm();
-		setTitle("BioForce Java Dashboard Advanced Mode");//Internal: D
+		setTitle("BioForce Advanced Dashboard");//Internal: D
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
 		setVisible(true);
 		findModuleCommPort();
-		OSManager osmanager = new OSManager();
-		OSType = osmanager.getOSType();
-
 		System.out.println("advanced mode initialized");
 	}
 
@@ -2029,146 +2026,6 @@ public class AdvancedMode extends JFrame {
 	    return loader.getController();
 
 	}
-
-	public boolean writeTemplateWithOneDataSetHandler() {
-		//SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-		String CSVLocation = settings.getKeyVal("CSVSaveLocation");
-		File[] ListOfFiles = new File(CSVLocation).listFiles();
-		String ModuleOneFileName = null;
-		for(int i = 0; i < ListOfFiles.length; i++) {
-			if(ListOfFiles[i].toString().contains("Module 1") && ListOfFiles[i].toString().substring(ListOfFiles[i].toString().length()-4, ListOfFiles[i].toString().length()).equals(".csv")) {
-				ModuleOneFileName = ListOfFiles[i].toString();
-			}
-		}
-		if(ModuleOneFileName == null) {
-			generalStatusLabel.setText("Could not find your test file.");
-			return false;
-		}
-		System.out.println(ModuleOneFileName);
-		System.out.println("test");
-
-		DataOrganizer dataOrgo = new DataOrganizer();
-		int errNum;
-		if((errNum = dataOrgo.createDataSamplesFromCSV(ModuleOneFileName)) != 0) {
-			switch(errNum) {
-				case -1:
-					generalStatusLabel.setText("Could not find your file, has it been labeled Module 1?");
-					break;
-				case -2: 
-					generalStatusLabel.setText("CSVP file corrupt");
-					break;
-				default:
-					generalStatusLabel.setText("File permissions error. Could not read file.");
-					break;
-			}
-		}
-
-		List<Integer> params = dataOrgo.getTestParameters();
-		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
-		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-
-		try {
-			if (OSType == "Windows"){
-				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
-				parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
-				parameterSpreadsheetController.saveWorkbook(CSVLocation +"\\" + templateComboBox.getSelectedItem().toString());
-			}else if (OSType == "Mac"){
-				ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/.BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
-				parameterSpreadsheetController.fillTemplateWithData(2, CSVData);
-				parameterSpreadsheetController.saveWorkbook(CSVLocation +"/" + templateComboBox.getSelectedItem().toString());
-			}
-			System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
-		} catch(Exception e){
-			e.printStackTrace();
-			return false;
-		}
-		System.out.println("test");
-		return true;
-		
-//		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
-//		try {
-//			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//			return false;
-//		}
-//		return true;
-
-	}
-
-	public boolean writeTemplateWithTwoDataSetsHandler() {
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-		String CSVLocation = settings.getKeyVal("CSVSaveLocation"); //gets the location where CSVs of raw data are saved
-		File[] ListOfFiles = new File(CSVLocation).listFiles();
-		String ModuleOneFileName = null, ModuleTwoFileName = null;
-
-		/**
-		 * Searches through the files in the location for two CSV files named "Module 1' and 'Module 2'. There are the two csv files whose data will be used to populate the template
-		 */
-		for(int i = 0; i < ListOfFiles.length; i++) {
-			if(ListOfFiles[i].toString().contains("Module 1") && ListOfFiles[i].toString().substring(ListOfFiles[i].toString().length()-4, ListOfFiles[i].toString().length()).equals(".csv")) {
-				ModuleOneFileName = ListOfFiles[i].toString();
-			}
-			if(ListOfFiles[i].toString().contains("Module 2") && ListOfFiles[i].toString().substring(ListOfFiles[i].toString().length()-4, ListOfFiles[i].toString().length()).equals(".csv")) {
-				ModuleTwoFileName = ListOfFiles[i].toString();
-			}
-		}
-		if(ModuleOneFileName == null || ModuleTwoFileName == null) {
-			generalStatusLabel.setText("Could not find one or both of your test files.");
-			return false;
-		}
-		
-		DataOrganizer dataOrgo = new DataOrganizer();
-		DataOrganizer dataOrgoTwo = new DataOrganizer();
-
-		ParameterSpreadsheetController parameterSpreadsheetController;
-		if (OSType == "Windows") {
-		 	parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "\\.BioForce Dashboard\\Advanced Templates\\" + templateComboBox.getSelectedItem().toString()));
-		}else{ //means that OSType == "Mac"
-			parameterSpreadsheetController = new ParameterSpreadsheetController((System.getProperty("user.home") + "/.BioForce Dashboard/Advanced Templates/" + templateComboBox.getSelectedItem().toString()));
-		}
-		dataOrgo.createDataSamplesFromCSV(ModuleOneFileName);
-		List<Integer> params = dataOrgo.getTestParameters();
-		List<List<Double>> CSVData = dataOrgo.getRawDataSamples();
-		int[][] MpuMinMax = dataOrgo.MPUMinMax;
-//		SpreadSheetController SSC = new SpreadSheetController((System.getProperty("user.home")+"\\.BioForce Dashboard\\EducatorTemplates\\"+templateComboBox.getSelectedItem().toString()));
-//		SSC.writeDataSetOneWithParams(MpuMinMax, params, CSVData);
-		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 0); //fills the data from the first module into the the first sheet of the workbook
-
-		dataOrgoTwo.createDataSamplesFromCSV(ModuleTwoFileName);
-		params = dataOrgoTwo.getTestParameters();
-		CSVData = dataOrgoTwo.getRawDataSamples();
-		MpuMinMax = dataOrgoTwo.MPUMinMax;
-		//SSC.writeDataSetTwoWithParams(MpuMinMax, params, CSVData);
-		parameterSpreadsheetController.fillTwoModuleTemplateWithData(2, CSVData, 1); // fills the data from the second module into the second sheet of the workbook
-
-		try {
-			if (OSType == "Windows") {
-				parameterSpreadsheetController.saveWorkbook(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
-				System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
-			}else{
-				parameterSpreadsheetController.saveWorkbook(CSVLocation + "/" + templateComboBox.getSelectedItem().toString()); // Attempts to save the workbook at the default save location
-				System.out.println(CSVLocation + templateComboBox.getSelectedItem().toString());
-			}
-		} catch(Exception e){
-			e.printStackTrace();
-			return false;
-		}
-		return true;
-//		try {
-//			SSC.save(CSVLocation + "\\" + templateComboBox.getSelectedItem().toString());
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//			return false;
-//		}
-//		return true;
-	}
-	
 	
 	public void setSerialNumberHandler() {
 		try {

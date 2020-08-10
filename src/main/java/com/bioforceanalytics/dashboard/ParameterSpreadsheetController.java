@@ -2,25 +2,23 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.List;
 
-import com.aspose.cells.*;
+import com.aspose.cells.FileFormatType;
+import com.aspose.cells.Workbook;
 
 /**
  * Responsible for writing test parameters / test data to excel spreadsheets.
+ * @deprecated Excel functionality has been removed from BioForce's software suite.
  */
-
+@Deprecated
 public class ParameterSpreadsheetController {
 
     private Workbook workbook;
     private String documentsPath;
     private String testTypeFileName;
     private String testType;
-    private int workbookSheet;
     private Boolean educationTemplateFound;
-    private String OSType;
 
     public ParameterSpreadsheetController(String FilePath) {
-        OSManager osManager = new OSManager();
-        OSType = osManager.getOSType();
 
         if (FilePath == "EducationMode"){ //If EducationMode is passed as the file path, the dashboard will use the selected test type to determine which template to use and where to get it from
 

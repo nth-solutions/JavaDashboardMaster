@@ -7,25 +7,23 @@ package com.bioforceanalytics.dashboard;
  */
 public class OSManager {
 
-    private String OSName;
-    private String OSType;
-    public OSManager(){
-        OSName = System.getProperty("os.name").toLowerCase();
-    }
-    public String getOSName(){
-        return OSName;
+    public enum OS {
+        WINDOWS,
+        MAC,
+        UNSUPPORTED
     }
 
-    public String getOSType(){
+    public static OS getOS() {
 
-        if (OSName.indexOf("win") >= 0){
-            OSType = "Windows";
-        }else if(OSName.indexOf("mac")>= 0){
-            OSType = "Mac";
-        }else{
-            System.out.println("Unsupported OS used");
+        String name = System.getProperty("os.name").toLowerCase();
+
+        if (name.contains("win")) {
+            return OS.WINDOWS;
+        } else if (name.contains("mac")) {
+            return OS.MAC;
+        } else {
+            return OS.UNSUPPORTED;
         }
 
-        return OSType;
     }
 }
