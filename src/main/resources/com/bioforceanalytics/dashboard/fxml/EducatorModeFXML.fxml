@@ -1110,11 +1110,6 @@
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
                                           </Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
-                                             <children>
-                                                <Button fx:id="applyOffsetToModuleButton" alignment="CENTER" disable="true" mnemonicParsing="false" onAction="#applyOffsetHandler" opacity="0.0" prefHeight="30.0" prefWidth="150.0" text="Apply Offset to Module" />
-                                             </children>
-                                          </HBox>
                                        </children>
                                     </VBox>
                                  </children>

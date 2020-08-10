@@ -1,6 +1,7 @@
 package com.bioforceanalytics.dashboard;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.net.URL;
@@ -9,6 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -118,6 +122,8 @@ public class GraphNoSINCController implements Initializable {
 	// TODO make this an advanced user setting
 	private final int SIG_FIGS = 3;
 
+	private static final Logger logger = LogManager.getLogger();
+
 	@FXML
 	private BFALineChart<Number, Number> lineChart;
 
@@ -148,7 +154,7 @@ public class GraphNoSINCController implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		System.out.println("Initializing Data Analysis graph...");
+		logger.info("Initializing Data Analysis graph...");
 
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
@@ -294,16 +300,12 @@ public class GraphNoSINCController implements Initializable {
 	 * @param g array of GenericTests (each one represents one trial)
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
-
 		genericTests = g;
-		
-		// if ArrayList has GenericTests, create panels
-		if (g.size() > 0) initializePanels();
-
+		initializePanels();
 	}
 
 	/**
-	 * Populates the data analysis graph by creating a GenericTest from a CSV and
+	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -317,7 +319,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph by creating a GenericTest from a CSV and
+	 * Populates the Data Analysis Hraph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -327,23 +329,48 @@ public class GraphNoSINCController implements Initializable {
 
 		genericTests.clear();
 
-		Alert a = new Alert(AlertType.NONE, "Loading test data...");
-		a.setResult(ButtonType.OK);
-		a.show();
+		Alert loading = new Alert(AlertType.NONE, "Loading test data...");
+		loading.setResult(ButtonType.OK);
+		loading.show();
 
 		CSVHandler reader = new CSVHandler();
 
+		// read test data and create GenericTests
 		for (String s : paths) {
-			GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
-			genericTests.add(g);
+
+			// try/catch placed inside loop to allow subsequent files to load, even if one of them is erroneous
+			try {
+				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
+				genericTests.add(g);
+			}
+			catch (IOException e) {
+				logger.error("IOException while loading test data");
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText("Error reading test data");
+				alert.setContentText("There was a problem loading \"" + s + "/p.\".");
+				alert.showAndWait();
+			}
+			catch (NumberFormatException e) {
+				logger.error("Could not parse test data");
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setHeaderText("Invalid test data");
+				alert.setContentText("Error parsing data in \"" + s + "/p\".");
+				alert.showAndWait();
+			}
+
 		}
 
 		initializePanels();
-		a.close();
+		loading.close();
 
 	}
 
 	private void initializePanels() {
+
+		if (genericTests.size() == 0) {
+			logger.warn("Attempted to initialize panels with 0 GenericTests loaded");
+			return;
+		}
 
 		// get primary test
 		GenericTest g = genericTests.get(0);
@@ -376,8 +403,9 @@ public class GraphNoSINCController implements Initializable {
 			d.currentAxis.addListener((obs, oldVal, newVal) -> {
 
 				// TODO part of the hack w/ change listeners
-				if (newVal.intValue() == -1)
-					return;
+				if (newVal.intValue() == -1) return;
+
+				// graph the given data set
 				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
 
 			});
@@ -450,7 +478,7 @@ public class GraphNoSINCController implements Initializable {
 		// if axis is not already graphed:
 		if (findGraphData(GTIndex, axis) == null) {
 
-			System.out.println("Graphing " + axis);
+			logger.info("Graphing " + axis + " for GT #" + (GTIndex+1));
 
 			/*
 			Hierarchy of graph in application:
@@ -508,7 +536,7 @@ public class GraphNoSINCController implements Initializable {
 		// if axis is already graphed:
 		} else {
 
-			System.out.println("Removing " + axis);
+			logger.info("Removing " + axis + " for GT #" + (GTIndex+1));
 
 			// remove axis from line chart
 			multiAxis.removeAxis(axis, GTIndex);
@@ -530,7 +558,7 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void updateAxis(AxisType axis, int GTIndex) {
 
-		System.out.println("Updating " + axis);
+		logger.info("Updating " + axis + " for GT #" + (GTIndex+1));
 
 		// retrieve XYChart.Series and ObservableList from HashMap
 		XYChart.Series<Number, Number> series = findGraphData(GTIndex, axis).data;
@@ -611,8 +639,9 @@ public class GraphNoSINCController implements Initializable {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid input");
 			alert.setContentText("Please change your rolling average block size to a numerical value.");
-
 			alert.showAndWait();
+
+			logger.warn("Invalid sample block size input for rolling average");
 
 		}
 
@@ -643,7 +672,7 @@ public class GraphNoSINCController implements Initializable {
 				throw new Exception();
 			}
 
-			System.out.println("Applying new baseline average [" + start + "," + end + "]");
+			logger.info("Applying new baseline average [" + start + "," + end + "]");
 
 			// update all currently drawn axes with new baseline
 			for (GraphData g : dataSets) {
@@ -654,10 +683,11 @@ public class GraphNoSINCController implements Initializable {
 			
 		} catch (Exception e) {
 
+			logger.warn("Invalid baseline average inputs");
+
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid inputs");
 			alert.setContentText("Please make sure your baseline intervals are correct.");
-
 			alert.showAndWait();
 
 		}
@@ -721,7 +751,7 @@ public class GraphNoSINCController implements Initializable {
 				alert.setContentText("The matching CSVP file could not be found.");
 				alert.showAndWait();
 
-				System.out.println("No matching CSVP file found for '" + CSVFilePath + "'");
+				logger.warn("No matching CSVP file found for '" + CSVFilePath + "'");
 				return;
 
 			}
@@ -803,12 +833,12 @@ public class GraphNoSINCController implements Initializable {
 				break;
 
 			default:
-				System.out.println("Error setting graph mode");
+				logger.error("Error setting graph mode");
 				break;
 
 		}
 
-		System.out.println("Set graph mode to " + g);
+		logger.info("Set graph mode to " + g);
 
 	}
 
@@ -1002,14 +1032,14 @@ public class GraphNoSINCController implements Initializable {
 
 					// tangent line graphing mode
 					if (e.isShiftDown()) {
-						System.out.println("Graphing tangent line...");
+						logger.info("Graphing tangent line...");
 						graphSlope(x, y, axis, GTIndex);
 					}
 					else {
 
 						// secant line graphing mode
 						if (slopePoint[0] == null && slopePoint[1] == null) {
-							System.out.println("Selected first slope point");
+							logger.info("Selected first slope point (" + x + "," + y + ")");
 							slopePoint = new Double[] {x,y};
 							selectedGraphData = new GraphData(GTIndex, axis, null);
 						}
@@ -1026,7 +1056,7 @@ public class GraphNoSINCController implements Initializable {
 								
 							}
 
-							System.out.println("Graphing secant line...");
+							logger.info("Graphing secant line...");
 							graphSlope(slopePoint[0], slopePoint[1], x, y, axis, GTIndex);
 						}
 					}
@@ -1036,14 +1066,14 @@ public class GraphNoSINCController implements Initializable {
 
 					// select first point of area calculation
 					if (areaPoint[0] == null && areaPoint[1] == null) {
-						System.out.println("Selected first area point");
+						logger.info("Selected first area point (" + x + "," + y + ")");
 						areaPoint = new Double[] {x,y};
 						selectedGraphData = new GraphData(GTIndex, axis, null);
 					}
 					// calculate and shade area
 					else {
 
-						System.out.println("Graphing area...");
+						logger.info("Graphing area...");
 
 						// check for any issues with calculating b/t different data sets
 						if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {

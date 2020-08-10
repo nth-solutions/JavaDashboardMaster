@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout>
+        <LevelPatternSelector>
+          <PatternMatch key="debug" pattern="[%highlight{%-level}] %msg (%F:%L)%n" />
+          <PatternMatch key="error" pattern="[%highlight{%-level}] %msg (%F:%L)%n" />
+          <PatternMatch key="info" pattern="[%highlight{%-level}] %msg%n" />
+          <PatternMatch key="warn" pattern="[%highlight{%-level}] %msg%n" />
+        </LevelPatternSelector>
+      </PatternLayout>
+    </Console>
+    <RollingFile
+        name="FileLog"
+        fileName="logs/dashboard-latest.log"
+        filePattern="logs/dashboard.%i.log.gz"
+        ignoreExceptions="false">
+      <PatternLayout>
+          <LevelPatternSelector>
+            <PatternMatch key="debug" pattern="[%-level] %msg (%F:%L)%n" />
+            <PatternMatch key="error" pattern="[%-level] %msg (%F:%L)%n" />
+            <PatternMatch key="info" pattern="[%-level] %msg%n" />
+            <PatternMatch key="warn" pattern="[%-level] %msg%n" />
+          </LevelPatternSelector>
+      </PatternLayout>
+      <Policies>
+        <OnStartupTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="5MB" />
+      </Policies>
+      <DefaultRolloverStrategy max="5" />
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="all">
+      <AppenderRef ref="Console" level="info" />
+      <AppenderRef ref="FileLog" level="debug" />
+    </Root>
+  </Loggers>
+</Configuration>

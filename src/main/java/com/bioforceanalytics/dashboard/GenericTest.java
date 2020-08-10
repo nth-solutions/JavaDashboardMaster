@@ -3,8 +3,12 @@ package com.bioforceanalytics.dashboard;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
- * Used by the Data Analysis Graph to store the data associated with a single module (in the form of multiple {@link com.bioforceanalytics.dashboard.AxisDataSeries AxisDataSeries}).
+ * Used by the Data Analysis Graph to store the data associated with a single module
+ * (in the form of multiple {@link com.bioforceanalytics.dashboard.AxisDataSeries AxisDataSeries}).
  * This is also the parent class of all educator mode "lab templates".
  */
 public class GenericTest {
@@ -13,6 +17,8 @@ public class GenericTest {
 	private List<List<Double>> dataSamples;
 	private String graphTitle;
 	private AxisType[] defaultAxes;
+
+	private static final Logger logger = LogManager.getLogger();
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
@@ -33,7 +39,7 @@ public class GenericTest {
 		// TODO MPUMinMax will randomly be read as "null" from SerialComm
 		// this ensures that a NullPointerException isn't thrown later in GT
 		if (MPUMinMax == null) {
-			System.out.println("Error: MPUMinMax offsets null");
+			logger.warn("MPUMinMax offsets null, filling with 0s...");
 			MPUMinMax = new int[][] {{0, 0}, {0, 0}, {0, 0}};
 		}
 

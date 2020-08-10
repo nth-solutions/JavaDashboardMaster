@@ -6,6 +6,9 @@ import java.util.ResourceBundle;
 
 import javax.swing.UIManager;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -24,6 +27,8 @@ public class DashboardSelectorController implements Initializable {
     Button EducatorButton;
 
     private Image icon;
+
+    private static final Logger logger = LogManager.getLogger();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,6 +53,7 @@ public class DashboardSelectorController implements Initializable {
         Runnable frameRunner = new Runnable() {
             public void run() {
                 try {
+                    logger.info("Launching Advanced Mode...");
                     AdvancedMode frame = new AdvancedMode();
                     frame.setVisible(true);
                 } catch (Exception e) {
@@ -60,7 +66,8 @@ public class DashboardSelectorController implements Initializable {
     }
 
     @FXML
-    public void launchEducator(){
+    public void launchEducator() {
+        logger.info("Launching Education Mode...");
         educator = startEducator();
     }
 

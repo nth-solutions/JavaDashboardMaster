@@ -84,6 +84,18 @@
         <version>11</version>
         <type>pom</type>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.13.3</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.13.3</version>
+    </dependency>
   </dependencies>
   <build>
       <plugins>
@@ -92,6 +104,7 @@
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.1.0</version>
         </plugin>
+
         <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
         <plugin>
           <artifactId>maven-resources-plugin</artifactId>
@@ -184,7 +197,9 @@
                 </jre>
               </configuration>
             </execution>
+
             <!-- TODO NOT FOR PRODUCTION -->
+            <!-- Builds .exe w/ console logging-->
             <execution>
               <id>debug</id>
               <phase>package</phase>

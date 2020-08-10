@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,6 +41,8 @@ public class MultipleAxesLineChart extends StackPane {
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
     private double strokeWidth = 0.3;
+
+    private static final Logger logger = LogManager.getLogger();
 
     public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor) {
         this(baseChart, lineColor, null);
@@ -308,7 +313,7 @@ public class MultipleAxesLineChart extends StackPane {
         // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
             
-            System.out.println("Removing " + axis.name() + "'s axis class: " + getAxisLabel(axis));
+            logger.info("Removing " + axis.name() + "'s axis class: " + getAxisLabel(axis));
 
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);

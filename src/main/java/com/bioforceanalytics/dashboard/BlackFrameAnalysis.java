@@ -1,45 +1,47 @@
 package com.bioforceanalytics.dashboard;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
- *
- * @author Mobile2
+ * Calculates SINC calibration values such as timer0 offset and delay after start.
+ * <p>
+ * Based on a 2 minute test where the module lights up at <code>00:02</code>, then turns off at <code>02:00</code>.
+ * Scans from <code>00:00-00:03</code> for the first non-black frame, then from <code>01:55-END</code> for the first black frame.
+ * </p>
  */
 public class BlackFrameAnalysis {
-	private int videoFPS = 30;
+
+	private final int videoFPS = 30;
 	private final int moduleSPS = 960;
 	private final int lengthOfTest = 120;
 	private final double T_INTERVAL = (1.0/(double)videoFPS);
 	private int preLitBFNum = 0;		//sets integer for the last black frame at 0
-	private int postLitBFNum = 0;		
+	private int postLitBFNum = 0;
+	
+	private static final Logger logger = LogManager.getLogger();
 
 	/*
-	 * Reads module sample rate, video sample rate, and the video file. 
+	 * TODO implement features listed below
+	 * Reads module sample rate, video sample rate, and the video file.
 	 * Returns the offset for TMR0
-	 */
-	public BlackFrameAnalysis(){
-		
-	}
-	
-	public BlackFrameAnalysis(String videoFilePath) throws IOException{
-		for(int i = 1; i < 3; i++) {			//Loop sets i == 1; then 1 == 2, while i == 1 FFMPEG checks for the last black frame before light turns on; while 1 == 2 ffMPEG checks for first black frame after light turns off
+	 */	
+
+	public BlackFrameAnalysis(String videoFilePath) throws IOException {
+		for (int i = 1; i < 3; i++) {			//Loop sets i == 1; then 1 == 2, while i == 1 FFMPEG checks for the last black frame before light turns on; while 1 == 2 ffMPEG checks for first black frame after light turns off
 			Process ffmpeg = Runtime.getRuntime().exec(cmdWrapper(videoFilePath, i));                                                               //get runtime variable to execute command line
 			BufferedReader stdError = new BufferedReader(new InputStreamReader(ffmpeg.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
 			String lineText;                                                                                                       //will store the command line outputs
 			while ((lineText = stdError.readLine()) != null) { 		//Read until end of time length
-				//If line contains the string "[P"
-				if(lineText.substring(0,2).equals("[P")){
+
+				if (lineText.contains("[Parsed_blackframe")) {
 					if (i == 1) {
 						preLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]);   			//parses the number of the frames from the line
-					}else {
+					} else {
 						i = 3;
 						postLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]); 
 						postLitBFNum += (115 * videoFPS); 
@@ -52,7 +54,7 @@ public class BlackFrameAnalysis {
 	}
 
 	public int getDelayAfterStart() {
-		System.out.println(preLitBFNum);
+		logger.debug("Last non-black frame: " + postLitBFNum);
 		if((int)(2000-(T_INTERVAL * (preLitBFNum) * 1000)) >= 0){
 			return (int)(2000-(T_INTERVAL * (preLitBFNum) * 1000)); //Milliseconds the module started before camera; formula = (2SecondsFrames - MeasuredFrames) * (periodOfFrame) * 1000; Error times period to find offset in second, times 1E3 to convert to milliseconds
 		}
@@ -63,6 +65,7 @@ public class BlackFrameAnalysis {
 	}
 
 	public int getTMR0Offset() {
+		logger.debug("First non-black frame: " + preLitBFNum);
 		double timeError =  (double)((lengthOfTest * videoFPS) - postLitBFNum) *  T_INTERVAL;  //Error in seconds; formula = (Actual - Expected) * (period); Amount of frames off times period equals error in seconds
 		//System.out.println(timeError);
 		double sampleDrift = (timeError /(moduleSPS * lengthOfTest)) * 1000000000 ;		//Error over each sample in nano seconds; formula = (Error / TotalNumSample) * 1 billion; Total error divided evenly over every individual sample times 1E9 to convert to nano seconds

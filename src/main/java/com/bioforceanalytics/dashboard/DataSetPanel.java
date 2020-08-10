@@ -2,6 +2,9 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -19,6 +22,8 @@ import javafx.scene.input.MouseButton;
  * Created so that data set panels can be dynamically created depending on the number of modules in a test.
  */
 public class DataSetPanel extends TitledPane {
+
+	private static final Logger logger = LogManager.getLogger();
 	
 	/**
 	 * Signifies the axis (by parsing an AxisType) to graph onto the LineChart.
@@ -59,8 +64,7 @@ public class DataSetPanel extends TitledPane {
 			loader.load();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Error loading DataSetPanel JavaFX component");
+			logger.error("Error loading DataSetPanel JavaFX component");
 		}
 
 		// needed for "runLater()"

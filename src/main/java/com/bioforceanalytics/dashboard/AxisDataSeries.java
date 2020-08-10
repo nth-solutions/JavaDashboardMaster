@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Used by the Data Analysis Graph to store the data associated with a single axis (eg. Acceleration X).
  * Also handles converting data samples into physical quantities, applying moving averages, and filtering (in the future).
@@ -51,6 +54,8 @@ public class AxisDataSeries {
 
 	// acceleration due to gravity, modify this to add more sigfigs if needed
 	private final double GRAVITY = 9.80665;
+
+	private static final Logger logger = LogManager.getLogger();
 
 	/**
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.
@@ -132,9 +137,8 @@ public class AxisDataSeries {
 		// clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
-		/* print debug info about AxisDataSeries
-		System.out.println(toString());
-		*/
+		// print AxisDataSeries debug info
+		logger.debug(toString());
 
 	}
 
@@ -193,9 +197,8 @@ public class AxisDataSeries {
 		// clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
-		/* print debug info about AxisDataSeries
-		System.out.println(toString());
-		*/
+		// print AxisDataSeries debug info
+		logger.debug(toString());
 
 	}
 
@@ -245,9 +248,8 @@ public class AxisDataSeries {
 		//clones smoothedData for display on graph
 		userSmoothedData = smoothedData.clone();
 
-		/* print debug info about AxisDataSeries
-		System.out.println(toString());
-		*/
+		// print AxisDataSeries debug info
+		logger.debug(toString());
 
 	}
 
@@ -297,10 +299,8 @@ public class AxisDataSeries {
 		this.smoothedData = this.originalData.clone();
 		this.userSmoothedData = this.smoothedData.clone(); 
 
-		/*
-		print debug info about AxisDataSeries
-		System.out.println(toString());
-		*/
+		// print AxisDataSeries debug info
+		logger.debug(toString());
 
 	}
 

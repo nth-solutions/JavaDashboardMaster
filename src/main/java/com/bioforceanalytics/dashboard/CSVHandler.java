@@ -11,12 +11,17 @@ import java.util.List;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * General-purpose class used for reading and writing data to CSV files.
  * Mainly used by the Data Analysis Graph for reading saved test data.
  */
 public class CSVHandler {
 	
+	private static final Logger logger = LogManager.getLogger();
+
 	/**
 	 * Writes test parameters to a CSVP file.
 	 * @param testParameters the list of test parameters <i>(further documentation is in this method's body)</i>
@@ -24,7 +29,7 @@ public class CSVHandler {
 	 * @param nameOfTest the name used in the created CSV file
 	 * @param MPUMinMax the array of offsets applied to all acceleration calculations
 	 */
-	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][] MPUMinMax) {
+	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
 
 		/***********************************How CSVPs are organized******************************************
 		 * 
@@ -58,13 +63,8 @@ public class CSVHandler {
 		String CSVPath = settings.getKeyVal("CSVSaveLocation"); 
 		PrintWriter dataFile = null;
 
-		try {
-			// create new file in CSV Directory, file extension is .CSVP
-			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); 
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		// create new file in CSV Directory, file extension is .CSVP
+		dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); 
 
 		for(int i = 0; i < testParameters.size(); i++) { 
 			// write all parameters to the file
@@ -72,7 +72,7 @@ public class CSVHandler {
 		}
 
 		if (MPUMinMax == null) {
-			System.out.println("Error: MPU offsets null when writing CSVP");
+			logger.warn("MPU offsets null when writing CSVP, filling with 0s...");
 			MPUMinMax = new int[][] {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
 		}
 		
@@ -92,7 +92,7 @@ public class CSVHandler {
 	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
 	 * @param nameOfTest the name used in the created CSV file
 	 */
-	public void writeCSV(GenericTest g, Settings settings, String nameOfTest) { 														
+	public void writeCSV(GenericTest g, Settings settings, String nameOfTest) throws FileNotFoundException { 														
 		
 		/*********************************How the CSV is organized******************************************
 		 * a = accelerometer
@@ -138,57 +138,52 @@ public class CSVHandler {
 		StringBuilder builder = new StringBuilder();
 		PrintWriter DataFile;
 			
-			// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
-			for (int i = 0; i < g.getDataSamples().get(1).size()-1; i++) {
+		// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
+		for (int i = 0; i < g.getDataSamples().get(1).size()-1; i++) {
 
-				// populate accel and gyro data points 
-				for (int j = 1; j < 7; j++) {
-					builder.append(g.getDataSamples().get(j).get(i));
+			// populate accel and gyro data points 
+			for (int j = 1; j < 7; j++) {
+				builder.append(g.getDataSamples().get(j).get(i));
+				builder.append(",");
+			}
+
+			// populate mag data points
+			if ((i%10==0) && ((i/10) < g.getDataSamples().get(7).size())) {
+				for(int j = 7; j < 10; j ++) {
+					builder.append(g.getDataSamples().get(j).get(i/10));
 					builder.append(",");
 				}
-
-				// populate mag data points
-				if ((i%10==0) && ((i/10) < g.getDataSamples().get(7).size())) {
-					for(int j = 7; j < 10; j ++) {
-						builder.append(g.getDataSamples().get(j).get(i/10));
-						builder.append(",");
-					}
-				}
-
-				builder.append("\n");
 			}
-			
+
+			builder.append("\n");
+		}
 
 		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
 
-		try {
-			if (fileOutputDirectory != null) {
-				DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
-			} 
-			else {
-				
-				DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
-			}
+		if (fileOutputDirectory != null) {
+			DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
+		} 
+		else {
+			DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
+		}
 
-			// writes the string buffer to the .CSV creating the file
-			DataFile.write(builder.toString());
-			// close the .CSV
-			DataFile.close(); 
-		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		// writes the string buffer to the .CSV creating the file
+		DataFile.write(builder.toString());
+		// close the .CSV
+		DataFile.close(); 
 		
 	}
 	
 	/**
 	 * Reads test parameters from a given CSVP file.
+	 * 
 	 * @param CSVPFilePath the location of the CSVP file
 	 * @return ArrayList of test parameters read from CSVP
+	 * @throws IOException
 	 */
-	public ArrayList<Integer> readCSVP(String CSVPFilePath) {
+	public ArrayList<Integer> readCSVP(String CSVPFilePath) throws IOException, NumberFormatException {
 
-		System.out.println("Importing test parameters from '" + CSVPFilePath + "'...");
+		logger.info("Importing test parameters from '" + CSVPFilePath + "'...");
 
 		// Need to load keys from settings file. This tells us where CSVs are stored
 		Settings settings = new Settings();
@@ -202,44 +197,17 @@ public class CSVHandler {
 		// Instantiate the testParameters object. 
 		ArrayList<Integer> testParameters = new ArrayList<Integer>(); 
 		
-		try {
-			// Open the file for reading
-			CSVPFile = new BufferedReader(new FileReader(CSVPFilePath)); 
-		} 
-		catch (FileNotFoundException e) {
+		// Open the file for reading
+		CSVPFile = new BufferedReader(new FileReader(CSVPFilePath)); 
 
-			System.out.println("No file found");
-			
-			e.printStackTrace();
-			System.out.println("Error reading CSVP file");
-		}
-		
-		try {
-			//There are 19 test parameters counting MPU Min/Max values
-			for (int i = 0; i < 19; i++) { 
-				lineText = CSVPFile.readLine();
-				// Parse as an int and add to test params
-				testParameters.add(testParameters.size(), Integer.parseInt(lineText)); 
-			}
-		}	
-		catch (NumberFormatException e) {
-			e.printStackTrace();
-			System.out.println("Error reading CSVP file -- could not parse test parameters");
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Error reading CSVP file");
+		//There are 19 test parameters counting MPU Min/Max values
+		for (int i = 0; i < 19; i++) { 
+			lineText = CSVPFile.readLine();
+			// Parse as an int and add to test params
+			testParameters.add(testParameters.size(), Integer.parseInt(lineText)); 
 		}
 
-		try {
-			// Try to close the file
-			CSVPFile.close();
-		} 
-		catch (IOException e) {
-			// If file can't be closed
-			System.out.println("Error closing CSVP file");
-			e.printStackTrace();
-		}	
+		CSVPFile.close();
 		
 		return testParameters;
 
@@ -247,14 +215,21 @@ public class CSVHandler {
 	
 	/**
 	 * Reads data samples from a given CSV file.
-	 * <p><i>NOTE: The time axis (index 0) is left unpopulated to avoid having to pass in an additional parameter (sampleRate via testParameters).</i></p>
-	 * @param CSVFilePath the location of the CSV file
-	 * @param testParameters the test parameters from the associated CSVP file (see {@link #writeCSVP})
-	 * @return 2D list of 9 axes of raw data (already converted from bytes) and one axis of time.
+	 * <p>
+	 * <i>NOTE: The time axis (index 0) is left unpopulated to avoid having to pass
+	 * in an additional parameter (sampleRate via testParameters).</i>
+	 * </p>
+	 * 
+	 * @param CSVFilePath    the location of the CSV file
+	 * @param testParameters the test parameters from the associated CSVP file (see
+	 *                       {@link #writeCSVP})
+	 * @return 2D list of 9 axes of raw data (already converted from bytes) and one
+	 *         axis of time.
+	 * @throws IOException
 	 */
-	public List<List<Double>> readCSV(String CSVFilePath) {
+	public List<List<Double>> readCSV(String CSVFilePath) throws IOException, NumberFormatException {
 
-		System.out.println("Importing test data from '" + CSVFilePath + "'...");
+		logger.info("Importing test data from '" + CSVFilePath + "'...");
 		
 		List<List<Double>> dataSamples = new ArrayList<List<Double>>();
 
@@ -264,71 +239,43 @@ public class CSVHandler {
 			dataSamples.add(axis);
 		}
 
-		BufferedReader br = null;
+		BufferedReader br = new BufferedReader(new FileReader(CSVFilePath));
 
-		try {
+		String line = "";
 
-			String line = "";
-			br = new BufferedReader(new FileReader(CSVFilePath));
+		while ((line = br.readLine()) != null) {
+			
+			// splits each line into an array of samples for each axis
+			String[] lineArr = line.split(",");
 
-			while ((line = br.readLine()) != null) {
-				
-				// splits each line into an array of samples for each axis
-				String[] lineArr = line.split(",");
+			for (int i = 0; i < lineArr.length; i++) {
+			
+				// parse characters from CSV to doubles
+				dataSamples.get(i+1).add(Double.parseDouble(lineArr[i]));
 
-				for (int i = 0; i < lineArr.length; i++) {
-				
-					try {
-						// parse characters from CSV to doubles
-						dataSamples.get(i+1).add(Double.parseDouble(lineArr[i]));
-					} 
-					catch (NumberFormatException e) {
-						e.printStackTrace();
-						System.out.println("Error reading CSV file -- could not parse sample data");
-						break;
-					}
-
-				}
 			}
-
 		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.out.println("Error reading CSV file -- file not found");
-		} 
-		catch (IOException e) {	
-			e.printStackTrace();
-			System.out.println("Error reading CSV file");
-		}
-		finally {
 
-			if (br != null) {
-				try {
-					br.close();
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-					System.out.println("Error closing CSV file");
-				}
-			}
-
-		}
+		// close file reader
+		br.close();
 		
 		return dataSamples;
 
 	}
 	
-	
 	/**
-	 * <b>FOR TESTING PURPOSES ONLY - NOT FOR USE WITH GRAPHING APPLICATION</b>
-	 * This method writes all 28 axes of a GenericTest to a CSV - this is not the CSV format that the graph accepts
-	 * This method was only written to evaluate the GenericTest data in Excel.
+	 * <b>FOR TESTING PURPOSES ONLY - NOT FOR USE WITH GRAPHING APPLICATION</b> This
+	 * method writes all 28 axes of a GenericTest to a CSV - this is not the CSV
+	 * format that the graph accepts This method was only written to evaluate the
+	 * GenericTest data in Excel.
+	 * 
 	 * @deprecated not for use in Data Analysis Graph
-	 * @param g GenericTest object to read test data from
+	 * @param g          GenericTest object to read test data from
 	 * @param nameOfTest the name used in the created CSV file
+	 * @throws FileNotFoundException
 	 */
 	@Deprecated
-	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) {
+	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) throws FileNotFoundException {
 		
 		Settings settings = new Settings();
 		StringBuilder builder = new StringBuilder();
@@ -350,22 +297,17 @@ public class CSVHandler {
 			
 		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
 
-		try {
-			if (fileOutputDirectory != null) {
-				DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
-			} 
-			else {	
-				DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
-			}
-			// writes the string buffer to the .CSV creating the file
-			DataFile.write(builder.toString());
-			// close the .CSV
-			DataFile.close(); 
+		if (fileOutputDirectory != null) {
+			DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
+		} 
+		else {	
+			DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
 		}
-		catch (Exception e) {
-			System.out.println("Error writing test data to CSV");
-			e.printStackTrace();
-		}	
+		// writes the string buffer to the .CSV creating the file
+		DataFile.write(builder.toString());
+		// close the .CSV
+		DataFile.close();
+
 	}
 	
 }

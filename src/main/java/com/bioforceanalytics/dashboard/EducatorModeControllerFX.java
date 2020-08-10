@@ -10,6 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -19,6 +22,8 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -184,10 +189,6 @@ public class EducatorModeControllerFX implements Initializable {
     // Colors
     private final Color LIGHT_GREEN = Color.rgb(51, 204, 51);
 
-    private final String STYLE_SUCCESS = "-fx-accent: green";
-    private final String STYLE_WORKING = "-fx-accent: #1f78d1";
-    private final String STYLE_FAIL = "-fx-accent: red";
-
     // Dashboard Background Functionality
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
@@ -205,6 +206,8 @@ public class EducatorModeControllerFX implements Initializable {
 
     // BFA icon used for the Dashboard, SINC Graph, and DAG
     private Image icon;
+
+    private static final Logger logger = LogManager.getLogger();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -420,7 +423,7 @@ public class EducatorModeControllerFX implements Initializable {
     private void nextTab() {
 
         // reset progress bar and status label
-        displayProgress("", Color.BLACK, STYLE_WORKING, 0);
+        displayProgress("", 0, Status.NEUTRAL);
 
         // if on the last step, reset back to the first step
         if (experimentTabIndex == (oneModuleTest ? NUM_OF_STEPS : NUM_OF_STEPS_TWO_MODULE)) {
@@ -457,7 +460,7 @@ public class EducatorModeControllerFX implements Initializable {
     private void backTab(ActionEvent event) {
 
         // reset progress bar and status label
-        displayProgress("", Color.BLACK, STYLE_WORKING, 0);
+        displayProgress("", 0, Status.NEUTRAL);
 
         // for one-module, if on any step other
         if ((experimentTabIndex != 0 && oneModuleTest) || (experimentTabIndex != NUM_OF_STEPS && !oneModuleTest)) {
@@ -539,11 +542,11 @@ public class EducatorModeControllerFX implements Initializable {
     private void saveTestParams() {
 
         // reset status label and progress bar
-        displayProgress("Saving test parameters...", Color.BLUE, STYLE_WORKING, 0.5);
+        displayProgress("Saving test parameters...", 0.5, Status.WORKING);
 
         // checks if a test is selected before continuing; shouldn't normally run but just a safeguard
         if (testParametersTabPane.getSelectionModel().getSelectedIndex() == 0) { 
-            displayProgress("Please choose a test type", Color.RED, STYLE_FAIL, 1);
+            displayProgress("Please choose a test type", 1, Status.FAIL);
             return;
         }
 
@@ -555,8 +558,8 @@ public class EducatorModeControllerFX implements Initializable {
         Integer[] testParams = testTypeHashMap.get(testTypeComboBox.getSelectionModel().getSelectedItem());
 
         // print out test name + parameters for debugging
-        System.out.println("Test name: " + testName);
-        System.out.println("Test parameters: " + Arrays.toString(testParams));
+        logger.info("Test name: " + testName);
+        logger.info("Test parameters: " + Arrays.toString(testParams));
 
         Task<Void> sendTestParamsTask = new Task<Void>() {
 
@@ -570,20 +573,19 @@ public class EducatorModeControllerFX implements Initializable {
 
                     // send test params to module
                     if (serialHandler.sendTestParams(testParams)) {
-                        displayProgress("Test parameters saved successfully", Color.GREEN, STYLE_SUCCESS, 1);
+                        displayProgress("Test parameters saved successfully", 1, Status.SUCCESS);
                     } else {
-                        displayProgress("Error saving test parameters to module, try again", Color.RED, STYLE_FAIL, 1);
+                        displayProgress("Error saving test parameters to module, try again", 1, Status.ERROR);
                     }
 
                 } catch (NumberFormatException e) {
-                    displayProgress("Check that parameters are filled out correctly", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Check that parameters are filled out correctly", 1, Status.FAIL);
                 } catch (IOException e) {
-                    displayProgress("Connection to module lost, try again", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Connection to module lost, try again", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-                    displayProgress("Port in use by another application", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Port in use by another application", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
-                    System.out.println("Unsupported comm operation");
-                    displayProgress("Check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Check USB dongle compatibility", 1, Status.ERROR);
                 }
 
                 // re-enable buttons
@@ -672,7 +674,7 @@ public class EducatorModeControllerFX implements Initializable {
                 break;
 
             default:
-                displayProgress("Invalid test parameter chosen", Color.RED, STYLE_FAIL, 1);
+                displayProgress("Invalid test parameter chosen", 1, Status.FAIL);
                 break;
         }
     }
@@ -1133,11 +1135,11 @@ public class EducatorModeControllerFX implements Initializable {
                         dataOrgoList.clear();
                     }
 
-                    displayProgress("Reading tests from module...", Color.BLUE, STYLE_WORKING, 0);
+                    displayProgress("Reading tests from module...", 0, Status.WORKING);
 
                     // ensure test parameters have been read correctly
                     if (testParameters == null) {
-                        displayProgress("Error reading test parameters from module", Color.RED, STYLE_FAIL, 100);
+                        displayProgress("Error reading test parameters from module", 1, Status.ERROR);
                         return null;
                     }
 
@@ -1152,7 +1154,7 @@ public class EducatorModeControllerFX implements Initializable {
                     String nameOfFile = "";
 
                     if (expectedTestNum == 0) {
-                        displayProgress("No tests found on module", Color.RED, STYLE_FAIL, 1);
+                        displayProgress("No tests found on module", 1, Status.FAIL);
                         return null;
                     }
 
@@ -1166,7 +1168,7 @@ public class EducatorModeControllerFX implements Initializable {
                     HashMap<Integer, ArrayList<Integer>> testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
                     if (testData == null) {
-                        displayProgress("Error reading tests from module", Color.RED, STYLE_FAIL, 1);
+                        displayProgress("Error reading tests from module", 1, Status.ERROR);
                         return null;
                     }
 
@@ -1247,27 +1249,35 @@ public class EducatorModeControllerFX implements Initializable {
                                     break;
                             }
 
-                            System.out.println("Creating " + newTest.getClass().getName());
+                            logger.info("Creating " + newTest.getClass().getName());
                             genericTests.add(newTest);
 
                             // write GenericTest to CSV
-                            writer.writeCSV(newTest, settings, newName);
-                            writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
+                            try {
+                                writer.writeCSV(newTest, settings, newName);
+                                writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
+                            }
+                            catch (Exception e) {
+                                Alert alert = new Alert(AlertType.ERROR);
+                                alert.setHeaderText("Error saving test data");
+                                alert.setContentText("There was a problem saving \"" + newName + "\".");
+                                alert.showAndWait();
+                            }
 
                         }
 
                         // update test data progress
-                        displayProgress("Read test " + (i+1) + "/" + testData.size(), Color.BLUE, STYLE_WORKING, ((double) (i+1)) / ((double) testData.size()));
+                        displayProgress("Read test " + (i+1) + "/" + testData.size(), ((double) (i+1)) / ((double) testData.size()), Status.WORKING);
                     }
 
-                    displayProgress("All tests read from module", Color.GREEN, STYLE_SUCCESS, 1);
+                    displayProgress("All tests read from module", 1, Status.SUCCESS);
 
                     // automatically launch the appropriate graph for one-module tests
                     if (oneModuleTest) {
                         
                         if (getOutputType().equals(sincTechnologyRadioButton)) {
 
-                            System.out.println("Launching SINC Graph...");
+                            logger.info("Launching SINC Graph...");
 
                             Platform.runLater(() -> {
                                 lineGraph = startGraphing();
@@ -1281,7 +1291,7 @@ public class EducatorModeControllerFX implements Initializable {
                         }
                         else {
 
-                            System.out.println("Launching Data Analysis Graph...");
+                            logger.info("Launching Data Analysis Graph...");
 
                             Platform.runLater(() -> {
                                 GraphNoSINCController graph = startGraphingNoSINC();
@@ -1296,11 +1306,11 @@ public class EducatorModeControllerFX implements Initializable {
                     }
 
                 } catch (IOException e) {
-                    displayProgress("Error reading tests -- USB connection lost", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Error reading tests -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-                    displayProgress("Error reading tests -- USB port already in use", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Error reading tests -- USB port already in use", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
-                    displayProgress("Error reading tests -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
+                    displayProgress("Error reading tests -- check USB dongle compatibility", 1, Status.ERROR);
                 }
 
                 return null;
@@ -1318,36 +1328,109 @@ public class EducatorModeControllerFX implements Initializable {
      * Updates the status label and progress bar. Can be used for all experiment steps.
      * <p>This method does <b>NOT</b> need to be run inside of <code>Platform.runLater()</code>.</p>
      * @param message the message to display in the status label
-     * @param color the color of the status label
-     * @param style the style of the progress bar (usually <code>-fx-accent: [color]</code>)
      * @param progress the status of the progress bar between 0 and 1
+     * @param status the {@link Status} of the current task being displayed
      */
-    private void displayProgress(String message, Color color, String style, double progress) {
-        displayProgress(generalStatusExperimentLabel, message, color, style, progress);
+    private void displayProgress(String message, double progress, Status status) {
+        displayProgress(generalStatusExperimentLabel, message, progress, status);
     }
 
     /**
      * Overloaded variant of {@link #displayProgress} allowing a custom label.
+     * <p>This method does <b>NOT</b> need to be run inside of <code>Platform.runLater()</code>.</p>
      * @param label the status label to update
      * @param message the message to display in the status label
-     * @param color the color of the status label
-     * @param style the style of the progress bar (usually <code>-fx-accent: [color]</code>)
      * @param progress the status of the progress bar between 0 and 1
+     * @param status the {@link Status} of the current task being displayed
      */
-    private void displayProgress(Label label, String message, Color color, String style, double progress) {
+    private void displayProgress(Label label, String message, double progress, Status status) {
 
-        if (message.length() > 0) System.out.println(message + " (" + progress * 100 + "%)");
+        // print debug messages
+        if (message.length() > 0) {
 
+            String finalMsg = message + " (" + progress * 100 + "%)";
+
+            if (status == Status.SUCCESS || status == Status.NEUTRAL || status == Status.WORKING) {
+                logger.info(finalMsg);
+            } else if (status == Status.FAIL) {
+                logger.warn(finalMsg);
+            } else if (status == Status.ERROR) {
+                logger.error(finalMsg);
+            }
+            
+        }
+
+        // set progress bar and labels
         Platform.runLater(() -> {
             label.setText(message);
-            label.setTextFill(color);
-            progressBar.setStyle(style);
+            label.setTextFill(getStatusColor(status));
+            progressBar.setStyle(getStatusStyle(status));
             progressBar.setProgress(progress);
         });
 
     }
 
-    
+    /**
+     * Gets the color associated with a {@link Status}.
+     * @param status the {@link Status} to get the color for
+     * @return the color associated with the {@link Status}
+     */
+    private Color getStatusColor(Status status) {
+
+        if (status == Status.SUCCESS) {
+            return Color.GREEN;
+        } else if (status == Status.WORKING) {
+            return Color.BLUE;
+        } else if (status == Status.FAIL || status == Status.ERROR) {
+            return Color.RED;
+        }
+        else if (status == Status.NEUTRAL) {
+            return Color.BLACK;
+        }
+        else {
+            return null;
+        }
+
+    }
+
+    /**
+     * Gets the style associated with a {@link Status}.
+     * @param status the {@link Status} to get the style for
+     * @return the style associated with the {@link Status}
+     */
+    private String getStatusStyle(Status status) {
+
+        if (status == Status.SUCCESS) {
+            return "-fx-accent: green";
+        } else if (status == Status.WORKING) {
+            return "-fx-accent: #1f78d1";
+        } else if (status == Status.FAIL || status == Status.ERROR) {
+            return "-fx-accent: red";
+        } else if (status == Status.NEUTRAL) {
+            return "-fx-accent: black";
+        }
+        else {
+            return null;
+        }
+
+    }
+
+    /**
+     * Enum used to indicate what the status of a progress update is.
+     * <p><code>SUCCESS</code> indicates a successful task,</p>
+     * <p><code>WORKING</code> indicates a task in progress,</p>
+     * <p><code>NEUTRAL</code> indicates a task providing an update with no connotation,</p>
+     * <p><code>FAIL</code> indicates a task that could not complete for a known user error,</p>
+     * <p>and <code>ERROR</code> indicates a task that could not complete for an unknown reason.</p>
+     */
+    private enum Status {
+        SUCCESS,
+        WORKING,
+        FAIL,
+        ERROR,
+        NEUTRAL
+    }
+
     /**
      * Button handler for when "Reset Module" is clicked.
      */
@@ -1398,27 +1481,27 @@ public class EducatorModeControllerFX implements Initializable {
                 String method = e == EraseMode.SECTOR ? "Erase" : "Reset";
                 String error = e == EraseMode.SECTOR ? "erasing" : "resetting";
 
-                displayProgress(label, message, Color.BLUE, STYLE_WORKING, 0);
+                // display erase message
+                displayProgress(label, message, 0, Status.WORKING);
 
                 try {
 
                     if (e == EraseMode.SECTOR ? serialHandler.sectorEraseModule() : serialHandler.bulkEraseModule()) {
-                        displayProgress(label, method + " successful", Color.GREEN, STYLE_SUCCESS, 1);
+                        displayProgress(label, method + " successful", 1, Status.SUCCESS);
                     } else {
-                        displayProgress(label, method + " failed", Color.RED, STYLE_FAIL, 1);
+                        displayProgress(label, method + " failed, try again", 1, Status.ERROR);
                     }
 
                 } catch (IOException e) {
-                    displayProgress(label, "Error " + error + " module -- USB connection lost", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-                    displayProgress(label, "Error " + error + " module -- port in use by another application", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module -- port in use by another application", 1, Status.ERROR);
                 }
                 catch (UnsupportedCommOperationException e) {
-                    System.out.println("Error " + error + " module -- unsupported communication operation");
-                    displayProgress(label, "Error " + error + " module -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module -- check USB dongle compatibility", 1, Status.ERROR);
                 }
                 catch (Exception e) {
-                    displayProgress(label, "Error " + error + " module, try again", Color.RED, STYLE_FAIL, 1);
+                    displayProgress(label, "Error " + error + " module, try again", 1, Status.ERROR);
                 }
 
                 return null;
@@ -1464,7 +1547,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         // if no CSV files could be found, don't continue
         if (files == null || files.length == 0) {
-            System.out.println("No CSV files found");
+            logger.info("No CSV files found");
             return;
         }
 
@@ -1483,7 +1566,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         // if no CSV/CSVP file pair could be found, don't continue
         if (chosenFile == null) {
-            System.out.println("No CSV/CSVP file pair found");
+            logger.info("No CSV/CSVP file pair found");
             return;
         }
 
@@ -1493,7 +1576,7 @@ public class EducatorModeControllerFX implements Initializable {
         g.setGenericTestFromCSV(pathToFile);
         long elapsedTime = System.nanoTime() - start;
         
-        System.out.println("Loaded CSV in " + elapsedTime/1e9d + " seconds");
+        logger.info("Loaded CSV in " + elapsedTime/1e9d + " seconds");
         
     }
 
@@ -1521,7 +1604,6 @@ public class EducatorModeControllerFX implements Initializable {
         }
 
     }
-
     
     /**
      * <p><b>NOTE: THIS METHOD CAN ONLY BE CALLED THROUGH FXML.</b></p>
@@ -1594,7 +1676,7 @@ public class EducatorModeControllerFX implements Initializable {
 	        primaryStage.show();
 	        
 		} catch (IOException e) {
-			System.out.println("Error loading Data Analysis Graph.");
+			logger.error("Error loading Data Analysis Graph.");
 			e.printStackTrace();
 		}
         
@@ -1639,58 +1721,52 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     public void configureModuleForCalibrationHandler(){
 
-        Task<Void> configureModuleForCalibrationTask = new Task<Void>() {
+        Task<Void> calibrationTask = new Task<Void>() {
+
             @Override
-            protected Void call(){
+            protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-                try {
+                // reset timer0 and "delay after start" test parameters
+                if(!serialHandler.applyCalibrationOffsets(0, 0)) {
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error applying calibration offsets", 1, Status.ERROR);
+                }
 
-                    if(!serialHandler.applyCalibrationOffsets(0, 0)){                         //the TMR0 and delay after set must be reset to their defaults otherwise the ones from the last calibration will be used in this calibration.
-                       sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
-                       sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    }
-
-                    if(!serialHandler.configForCalibration()){                                                          // Calibrates Module, returns a boolean indicating whether or not it was successful.
-
-                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating with Module");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                        });
-
-                    //test2
-                    }else{
-
-                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Module Successfully Configured for Calibration");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                        });
-                    }
-                }catch(IOException e){
-
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-                }catch(PortInUseException e){
-
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-
-                }catch(UnsupportedCommOperationException e){
-
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatability");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-
+                // configure module in SINC calibration module
+                if (serialHandler.configForCalibration()) {
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully configured module for SINC Calibration", 1, Status.SUCCESS);
+                } else {
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module in SINC calibration mode", 1, Status.ERROR);
                 }
 
                 return null;
             }
         };
-        new Thread(configureModuleForCalibrationTask).start();
+
+        calibrationTask.setOnFailed(event -> {
+
+            Throwable ex = calibrationTask.getException();
+
+            logger.error("Calibration failed: " + ex);
+
+            if (ex instanceof PortInUseException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- port in use by another application", 1, Status.ERROR);
+            }
+            else if (ex instanceof UnsupportedCommOperationException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- check USB dongle compatibility", 1, Status.ERROR);
+            }
+            else if (ex instanceof UnsupportedCommOperationException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- check USB dongle compatibility", 1, Status.ERROR);
+            }
+            else if (ex instanceof IOException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to module, try again", 1, Status.ERROR);
+            }
+            else {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module, try again", 1, Status.ERROR);
+            }
+
+        });
+
+        new Thread(calibrationTask).start();
     }
 
 
@@ -1715,10 +1791,7 @@ public class EducatorModeControllerFX implements Initializable {
             });
 
         } else {
-            Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                sincCalibrationTabGeneralStatusLabel.setText("Invalid File Path");
-                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-            });
+            displayProgress(sincCalibrationTabGeneralStatusLabel, "Invalid file path", 1, Status.FAIL);
         }
     }
 
@@ -1729,225 +1802,83 @@ public class EducatorModeControllerFX implements Initializable {
     public static int trueDelayAfterStart;
 
     @FXML
-    public void applySINCHandler(){
+    public void applySINCHandler() {
 
         Task<Void> SINCTask = new Task<Void>() {
+
             @Override
-            protected Void call(){
+            protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-                try{
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Calibrating module...", 1, Status.WORKING);
 
-                    BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());                  // creates a new blackframe analysis object, video file path is passed and subsequently analysis to obtain offset and delay.
-                    timerCalibrationOffset = bfo.getTMR0Offset();                                                       // sets offset to local variable
-                    trueDelayAfterStart = bfo.getDelayAfterStart();                                                         // sets delay to local variable
+                // analyze video to obtain timer0 tick offset and "delay after start" test parameters
+                BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
+                timerCalibrationOffset = bfo.getTMR0Offset();
+                trueDelayAfterStart = bfo.getDelayAfterStart();
 
-                    if (trueDelayAfterStart >= 0){
-                        delayAfterStart = trueDelayAfterStart;
-                    }else{
-                        delayAfterStart = 0;
-                    }
-
-                    System.out.println(timerCalibrationOffset);
-                    System.out.println(delayAfterStart);
-
-                }catch(IOException e){
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
+                // if delay after start is negative, set to 0
+                if (trueDelayAfterStart >= 0) {
+                    delayAfterStart = trueDelayAfterStart;
+                } else {
+                    delayAfterStart = 0;
                 }
 
-                try {
+                logger.info("Timer0 calibration offset: " + timerCalibrationOffset);
+                logger.info("Delay after start: " + delayAfterStart);
 
-                    if (!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)) {                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
-                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                        });
-
-
-                    } else {
-                        Platform.runLater(() -> {
-                            sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                        });
-
-                    }
-                } catch (IOException e) {
-                    Platform.runLater(() -> {
-                        sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-
-                } catch (PortInUseException e) {
-                    Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-
-                } catch (UnsupportedCommOperationException e) {
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-
+                // apply timer0 and delay after start to module
+                if (serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)) {
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully calibrated module (camera and module synced)", 1, Status.SUCCESS);
+                } else {
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error applying calibration offsets, try again", 1, Status.ERROR);
                 }
-
-
-
 
                 return null;
             }
         };
+
+        SINCTask.setOnFailed(event -> {
+
+            Throwable ex = SINCTask.getException();
+
+            logger.error("Calibration failed: " + ex);
+
+            if (ex instanceof PortInUseException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- port in use by another application", 1, Status.ERROR);
+            }
+            else if (ex instanceof UnsupportedCommOperationException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- check USB dongle compatibility", 1, Status.ERROR);
+            }
+            else if (ex instanceof IOException) {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to module, try again", 1, Status.ERROR);
+            }
+            else {
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module, try again", 1, Status.ERROR);
+            }
+
+        });
+
         new Thread(SINCTask).start();
 
 
+        // TODO is this comment still valid?
+        //===================================
+        // In Module Firmware 6, applying a negative delay after start will break the dashboard.
+        // Therefore, if a negative value is calculated, 0 will be applied.
+        // However, this prevents the storage of the true delay after start value in the csvp,
+        // preventing adjusting for the offset in the graph. In firmware 7,
+        // a negative delay after start will not break the module.
+        // It will still delay 0, but it will also write that negtaive value to the csvp.
+        // Allowing for correction in this graph. This section of code should be removed at that point.
 
-//        importCalibrationDataHandler();
-//        applyOffsetHandler();
     }
-
-
-    @FXML
-    public void importCalibrationDataHandler(){
-
-        Task<Void> importCalibrationDataTask = new Task<Void>() {
-            @Override
-            protected Void call(){
-
-                try{
-
-                    BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());                  // creates a new blackframe analysis object, video file path is passed and subsequently analysis to obtain offset and delay.
-                    timerCalibrationOffset = bfo.getTMR0Offset();                                                       // sets offset to local variable
-                    delayAfterStart = bfo.getDelayAfterStart();                                                         // sets delay to local variable
-
-                    System.out.println(timerCalibrationOffset);
-                    System.out.println(delayAfterStart);
-
-                    if(sincCalibrationTabGeneralStatusLabel.getText() != "File Copy Finished!")
-                    {
-//                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//                            sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
-//                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-//                        });
-                    }else{
-                        Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("TMR0 and Delay After Start Calculated, you may now apply them");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                        });
-                    }
-
-                }catch(IOException e){
-                    Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                        sincCalibrationTabGeneralStatusLabel.setText("Error Reading File");
-                        sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                    });
-                }
-
-                return null;
-            }
-        };
-        new Thread(importCalibrationDataTask).start();
-    }
-
-    @FXML
-    public void applyOffsetHandler(){
-        Task<Void> applyOffsetTask = new Task<Void>() {
-            @Override
-            protected Void call() {
-                //if (delayAfterStart >= 0) {
-                    try {
-
-                        if (!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)) {                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
-                            Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                                sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
-                                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                            });
-
-
-                        } else {
-                            Platform.runLater(() -> {
-                                sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
-                                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                            });
-
-                        }
-                    } catch (IOException e) {
-                        Platform.runLater(() -> {
-                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                        });
-
-                    } catch (PortInUseException e) {
-                        Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                        });
-
-                    } catch (UnsupportedCommOperationException e) {
-                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                            sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
-                            sincCalibrationTabGeneralStatusLabel.setTextFill(Color.RED);
-                        });
-
-                    }
-               // }
-
-//                if (delayAfterStart < 0) {  // In Module Firmware 6, applying a negative delay after start will break the dashboard. Therefore, if a negative value is calculated, 0 will be applied. However, this prevents the storage of the true delay after start value in the csvp, preventing adjusting for the offset in the graph. In firmware 7, a negative delay after start will not break the module. It will still delay 0, but it will also write that negtaive value to the csvp. Allowing for correction in this graph. This section of code should be removed at that point.
-//                    try {
-//                        if (!serialHandler.applyCalibrationOffsets(timerCalibrationOffset, 0)) {                // apply obtains offset and delay to module and returns a boolean indicating if it was successful.
-//                            Platform.runLater(() -> {                                                                       // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//                                sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Module");
-//                            });
-//
-//
-//                        } else {
-//                            Platform.runLater(() -> {
-//                                sincCalibrationTabGeneralStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
-//                            });
-//
-//                        }
-//                    } catch (IOException e) {
-//                        Platform.runLater(() -> {
-//                            sincCalibrationTabGeneralStatusLabel.setText("Error Communicating With Serial Dongle");
-//                        });
-//
-//                    } catch (PortInUseException e) {
-//                        Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//                            sincCalibrationTabGeneralStatusLabel.setText("Serial Port Already In Use");
-//                        });
-//
-//                    } catch (UnsupportedCommOperationException e) {
-//                        Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//                            sincCalibrationTabGeneralStatusLabel.setText("Check Dongle Compatibility");
-//                        });
-//
-//                    }
-//                }
-//
-//                Platform.runLater(() -> {                                                                               // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-//                    progressBar.setStyle("-fx-accent: #1f78d1;");                                                       //Updates the progress bar's color style with a CSS call, setting its color back to its origin
-//                    generalStatusExperimentLabel.setTextFill(Color.BLACK);                                              //Updates the generalStatusExperimentLabel's text fill (coloring) back to black
-//                });
-
-                return null;
-            }
-        };
-
-        new Thread(applyOffsetTask).start();
-    }
-
-    /*End SINC Module Calibration Tab Methods*/
-
-
-
 
     /* Module Parameter Settings */
 
     /**
-     * Get the desired tick threshold for the desired sample rate. This effectively sets the sample rate of the module
-     *
-     * @param accelGyroSampleRate
+     * Get the desired tick threshold for the desired sample rate.
+     * This effectively sets the sample rate of the module.
+     * @param accelGyroSampleRate the sample rate for the sensor
      * @return
      */
     public int getTickThreshold(int accelGyroSampleRate) {
@@ -2014,7 +1945,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-                displayProgress(label, "Connecting to module...", Color.BLUE, STYLE_WORKING, 0);
+                displayProgress(label, "Connecting to module...", 0, Status.WORKING);
 
                 // disable test parameters box
                 Platform.runLater(() -> {
@@ -2023,7 +1954,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                 // get all ports (null if none are found)
                 ArrayList<String> ports = serialHandler.findPorts();
-                System.out.println("Searching available ports: " + ports);
+                logger.info("Searching available ports: " + ports);
 
                 // loop through all ports
                 for (int i = 0; i < ports.size(); i++) {
@@ -2040,17 +1971,17 @@ public class EducatorModeControllerFX implements Initializable {
 
                     // check if port has a module connected; if not, move onto next port
                     if (moduleIDInfo == null) {
-                        System.out.println("Module ID Info null on " + selectedCommID + ", trying next port...");
+                        logger.debug("ModuleIDInfo null on " + selectedCommID + ", trying next port...");
                         continue;
                     }
 
                     int firmwareID = moduleIDInfo.get(2);
-                    System.out.println("Current Firmware ID: " + firmwareID);
+                    logger.info("Current Firmware ID: " + firmwareID);
 
                     // make sure that Dashboard's firmware version matches the module's
                     if (firmwareID == CURRENT_FIRMWARE_ID) {
 
-                        displayProgress(label, "Successfully connected to module", Color.GREEN, STYLE_SUCCESS, 0.5);
+                        displayProgress(label, "Successfully connected to module", 0.5, Status.SUCCESS);
 
                         // re-enable the test parameters selection box
                         Platform.runLater(() -> testTypeComboBox.setDisable(false));
@@ -2060,13 +1991,12 @@ public class EducatorModeControllerFX implements Initializable {
                     }
                     else {
                         String firmwareMsg = "Incompatible firmware version, update module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")";
-                        displayProgress(label, firmwareMsg, Color.RED, STYLE_FAIL, 1);
+                        displayProgress(label, firmwareMsg, 1, Status.FAIL);
                     }
 
                 }
 
-                System.out.println("No modules found connected to ports");
-                displayProgress(label, "Make sure module is connected to the computer", Color.RED, STYLE_FAIL, 1);
+                displayProgress(label, "Make sure module is connected to the computer", 1, Status.FAIL);
                 
                 return null;
             }
@@ -2076,19 +2006,22 @@ public class EducatorModeControllerFX implements Initializable {
 
             Throwable ex = connectTask.getException();
 
-            System.out.println("Connection failed: " + ex);
+            logger.error("Connection failed: " + ex);
 
             if (ex instanceof PortInUseException) {
-                displayProgress(label, "Error connecting to module -- port in use by another application", Color.RED, STYLE_FAIL, 1);
+                displayProgress(label, "Error connecting to module -- port in use by another application", 1, Status.ERROR);
             }
             else if (ex instanceof UnsupportedCommOperationException) {
-                displayProgress(label, "Error connecting to module -- check USB dongle compatibility", Color.RED, STYLE_FAIL, 1);
+                displayProgress(label, "Error connecting to module -- check USB dongle compatibility", 1, Status.ERROR);
+            }
+            else if (ex instanceof IOException) {
+                displayProgress(label, "Lost connection to module, try again", 1, Status.ERROR);
             }
             else if (ex instanceof NullPointerException) {
-                displayProgress(label, "Make sure module is connected to the computer", Color.RED, STYLE_FAIL, 1);
+                displayProgress(label, "Make sure module is connected to the computer", 1, Status.FAIL);
             }
             else {
-                displayProgress(label, "Error connecting to module, try again", Color.RED, STYLE_FAIL, 1);
+                displayProgress(label, "Error connecting to module, try again", 1, Status.ERROR);
             }
 
         });

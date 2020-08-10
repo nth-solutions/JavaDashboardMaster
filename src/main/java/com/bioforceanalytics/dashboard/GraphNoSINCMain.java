@@ -9,6 +9,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Testing class used to launch the Data Analysis Graph.
+ * @deprecated not up to date and potentially broken,
+ * launch through the Dashboard instead.
+ */
+@Deprecated
 public class GraphNoSINCMain extends Application {
 
 	private static GraphNoSINCController controller;
