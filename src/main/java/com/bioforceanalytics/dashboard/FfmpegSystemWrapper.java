@@ -1,19 +1,14 @@
 package com.bioforceanalytics.dashboard;
 
+/**
+ * Keeps track of FFmpeg binaries and retrieves appropriate file paths.
+ */
 public class FfmpegSystemWrapper {
+
 	private String OSName;
 	private String Arch;
 	
-	//INIT
 	public FfmpegSystemWrapper() {
-		Arch 	 = System.getProperty("os.arch");
-		OSName   = System.getProperty("os.name");
-	}
-	
-	/**
-	 * Populates the OSName and Arch variables.
-	 */
-	public void setSystemInfo(){
 		Arch 	 = System.getProperty("os.arch");
 		OSName   = System.getProperty("os.name");
 	}

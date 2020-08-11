@@ -447,8 +447,8 @@ public class MediaPlayerController implements Initializable {
      */
 
     public void readFileFPSFromFFMpeg() throws IOException {
+        
         FfmpegSystemWrapper FfmpegSystemWrapper = new FfmpegSystemWrapper();                                            //new object for reading analyzing video.
-        FfmpegSystemWrapper.setSystemInfo();
         Process runFfmpeg = Runtime.getRuntime().exec(FfmpegSystemWrapper.getBinRoot() + "ffmpeg.exe -i \"" + fileCopy + "\""); // Actaully runs ffmpeg
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runFfmpeg.getErrorStream()));

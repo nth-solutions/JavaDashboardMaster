@@ -60,7 +60,7 @@ public class SINCTest extends GUITest {
 
         try {
 
-            String videoFile = new File(getClass().getResource("sinc-test-real.mp4").getFile()).getPath();
+            String videoFile = new File(getClass().getResource("real-camera-late/test.mp4").getFile()).getPath();
             BlackFrameAnalysis bfa = new BlackFrameAnalysis(videoFile);
 
             assertEquals("Timer0 offset", timer0Offset, bfa.getTMR0Offset());
@@ -78,16 +78,25 @@ public class SINCTest extends GUITest {
         // TODO update this when Mac compatibility is added
         assumeTrue("OS must be supported", OSManager.getOS() == OS.WINDOWS);
 
-        final int timer0Offset = 0;
-        final int delayAfterStart = -466;
+        final int timer0Offset_early = 0;
+        final int delayAfterStart_early = -466;
+
+        final int timer0Offset_late = 0;
+        final int delayAfterStart_late = 533;
 
         try {
 
-            String videoFile = new File(getClass().getResource("sinc-test-ideal.mp4").getFile()).getPath();
+            String videoFile = new File(getClass().getResource("ideal-camera-early/test.mp4").getFile()).getPath();
             BlackFrameAnalysis bfa = new BlackFrameAnalysis(videoFile);
 
-            assertEquals("Timer0 offset", timer0Offset, bfa.getTMR0Offset());
-            assertEquals("Delay after start", delayAfterStart, bfa.getDelayAfterStart());
+            assertEquals("Timer0 offset", timer0Offset_early, bfa.getTMR0Offset());
+            assertEquals("Delay after start", delayAfterStart_early, bfa.getDelayAfterStart());
+
+            videoFile = new File(getClass().getResource("ideal-camera-late/test.mp4").getFile()).getPath();
+            bfa = new BlackFrameAnalysis(videoFile);
+
+            assertEquals("Timer0 offset", timer0Offset_late, bfa.getTMR0Offset());
+            assertEquals("Delay after start", delayAfterStart_late, bfa.getDelayAfterStart());
 
         } catch (IOException e) {
             fail("IOException loading video file");

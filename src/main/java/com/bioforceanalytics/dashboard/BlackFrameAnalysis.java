@@ -32,19 +32,36 @@ public class BlackFrameAnalysis {
 	 */	
 
 	public BlackFrameAnalysis(String videoFilePath) throws IOException {
-		for (int i = 1; i < 3; i++) {			//Loop sets i == 1; then 1 == 2, while i == 1 FFMPEG checks for the last black frame before light turns on; while 1 == 2 ffMPEG checks for first black frame after light turns off
-			Process ffmpeg = Runtime.getRuntime().exec(cmdWrapper(videoFilePath, i));                                                               //get runtime variable to execute command line
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(ffmpeg.getErrorStream()));                  //initializes BufferedReader to read the error stream of the CMD
-			String lineText;                                                                                                       //will store the command line outputs
-			while ((lineText = stdError.readLine()) != null) { 		//Read until end of time length
 
+		// TODO rework this method, a for loop should not be necessary
+		//
+		// when i = 1, FFmpeg checks for the last black frame before light turns on,
+		// when i = 2, FFmpeg checks for the first black frame after light turns off
+		for (int i = 1; i < 3; i++) {
+
+			// start FFmpeg process to search for black frames
+			Process ffmpeg = Runtime.getRuntime().exec(cmdWrapper(videoFilePath, i));
+
+			// save the output stream of the FFmpeg command
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(ffmpeg.getErrorStream()));
+
+			String lineText;
+			// keep reading messages from the output stream until there's nothing left
+			while ((lineText = stdError.readLine()) != null) {
+
+				// check if a black frame is detected
 				if (lineText.contains("[Parsed_blackframe")) {
+
 					if (i == 1) {
-						preLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]);   			//parses the number of the frames from the line
+						// save the last black frame number before test starts
+						preLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]);
 					} else {
-						i = 3;
+						// save the first black frame number after test ends 
 						postLitBFNum = Integer.parseInt(lineText.split(" ")[3].split(":")[1]); 
-						postLitBFNum += (115 * videoFPS); 
+						postLitBFNum += (115 * videoFPS);
+						
+						// end the loop
+						i = 3;
 						break;
 					}	
 				}
@@ -85,16 +102,18 @@ public class BlackFrameAnalysis {
 	 * Returns a String to be run as a command with the proper directory prefix, determined by os.name property and os.arch properties. 
 	 */
 	public String cmdWrapper(String videoName, int commandNum) {
-		String CMD = "ffmpeg -i \"" + videoName + "\" -vf blackframe -f rawvideo -y NUL";//Analyzes full video
-		//String CMD1 = "ffmpeg -i " + videoName + " -to 00:00:03 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		//String CMD2 = "ffmpeg -ss 00:01:55 -i " + videoName + " -to 00:00:20 -vf blackframe -f rawvideo -y NUL";                   //SKips 115 seconds in and reads next 20 seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD1 = "ffmpeg -i \"" + videoName + "\" -to 00:00:04 -vf blackframe -f rawvideo -y NUL";                   //First 3 seconds of video; analyzes next ten seconds; Command to be written into command line to run ffmpeg black frame on a certain video. Video location is written after "-i" and can be modified
-		String CMD2 = "ffmpeg -ss 00:01:55 -i \"" + videoName + "\" -to 00:00:20 -vf blackframe -f rawvideo -y NUL"; 
-		
+
+		// analyzes full video (shouldn't be used in normal function)
+		String CMD = "ffmpeg -i \"" + videoName + "\" -vf blackframe -f rawvideo -y NUL";
+
+		// analyzes the start of the video for black frames
+		String CMD1 = "ffmpeg -i \"" + videoName + "\" -to 00:00:04 -vf blackframe -f rawvideo -y NUL";
+
+		// analyzes the end of the video for black frames
+		String CMD2 = "ffmpeg -ss 00:01:55 -i \"" + videoName + "\" -to 00:00:20 -vf blackframe -f rawvideo -y NUL";
 
 		FfmpegSystemWrapper SysWrap = new FfmpegSystemWrapper();
-		//Create instance of wrapper class
-		SysWrap.setSystemInfo();
+
 		//Set internal private variable (detects system binary for OS + Architecture)
 		switch(commandNum) {
 

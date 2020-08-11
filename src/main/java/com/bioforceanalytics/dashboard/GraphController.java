@@ -1846,8 +1846,8 @@ public class GraphController implements Initializable {
     }
 
     public void readFileFPSFromFFMpeg() throws IOException {
+        
         FfmpegSystemWrapper FfmpegSystemWrapper = new FfmpegSystemWrapper();
-        FfmpegSystemWrapper.setSystemInfo();
         Process runFfmpeg = Runtime.getRuntime().exec(FfmpegSystemWrapper.getBinRoot() + "ffmpeg.exe -i \"" + fileCopy + "\"");
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(runFfmpeg.getErrorStream()));

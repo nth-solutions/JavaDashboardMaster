@@ -1,0 +1,7 @@
+00:00.0 - 00:01.5: black
+00:01.5 - 02:00.0: red
+02:00.0 - 02:01.5: black
+
+Frames 1-45: black
+Frame 46-3600: red
+Frames 3601-3645: black
