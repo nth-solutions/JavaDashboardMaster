@@ -1313,7 +1313,9 @@ public class AdvancedMode extends JFrame {
 						//12 Gyro Filter
 						testParams.add(Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString()));
 
-						if (!serialHandler.sendTestParams((Integer[]) testParams.toArray())) {
+						Integer[] testParamsArr = new Integer[testParams.size()];
+
+						if (!serialHandler.sendTestParams((Integer[]) testParams.toArray(testParamsArr))) {
 							generalStatusLabel.setText("Module Not Responding");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
