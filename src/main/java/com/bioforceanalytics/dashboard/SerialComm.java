@@ -10,6 +10,11 @@ import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
+import com.bioforceanalytics.dashboard.OSManager.OS;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
@@ -33,25 +38,33 @@ import purejavacomm.UnsupportedCommOperationException;
 
 public class SerialComm {
 
-	//Input and Output Streams of the serial port, input stream must be buffered to prevent data loss due to buffer overflows, DO NOT USE a BufferedReader, it will encode bytes via UTF-8 
+	// Input and Output Streams of the serial port, input stream must be buffered to prevent
+	// data loss due to buffer overflows. DO NOT USE a BufferedReader, it will encode bytes via UTF-8 
 	private BufferedInputStream inputStream;       
 	private OutputStream outputStream;              
 
-	//Serial port identifiers for opening and the serial port
+	// Serial port identifiers for opening and the serial port
 	private CommPortIdentifier portId;       		
 	private SerialPort serialPort;
 	private String serialPortName;
 
+	// since Macs use a dedicated name for devices instead of COMs,
+	// this will be sent to 
+	private final String MAC_PORT = "SLAB_USBtoUART";
 
-	//Flags that track object/process states
+	// Flags that track object/process states
 	private boolean dataStreamsInitialized = false;
 	private boolean remoteTestActive = false;
+
+	private static final Logger logger = LogManager.getLogger();
 
 	/**
 	 * Builds a list the names of all the serial ports to place in the combo box
 	 */
 	public ArrayList<String> findPorts() {
-		//Fills the portEnum data structure (functions like arrayList) with ports (data type that encapsulates the name and hardware interface info)
+
+		// Fills the portEnum data structure (functions like arrayList) with ports
+		// (data type that encapsulates the name and hardware interface info)
 		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();   
 
 		//Stores the names of the ports
@@ -60,10 +73,30 @@ public class SerialComm {
 		//Iterate through each port object in the portEnumList and stores the name of the port in the portNames array
 		while (portList.hasMoreElements()) {                   //adds the serial ports to a string array
 			CommPortIdentifier portIdentifier = portList.nextElement();
-			portNames.add(portIdentifier.getName());
+
+			String name = portIdentifier.getName();
+			int type = portIdentifier.getPortType();
+			String typeName = type == CommPortIdentifier.PORT_SERIAL ? "PORT_SERIAL" : "PORT_PARALLEL";
+			String owner = portIdentifier.getCurrentOwner();
+			
+			// ensure that only serial ports are added to the list
+			if (typeName == "PORT_SERIAL") {
+
+				// on Mac, only add a port to the list if its name contains the MAC_PORT prefix
+				// on Windows, all COM ports get added to the ports list
+				if ((OSManager.getOS() == OS.MAC && name.contains(MAC_PORT)) || OSManager.getOS() == OS.WINDOWS) {
+
+					portNames.add(name);
+					logger.debug("Name: " + name + " | Type: " + typeName + " | Owner: " + owner);
+				
+				}
+
+			}
+
 		}
 
-		//If at least 1 serial port is found, fill the combo box with all the known port names. Otherwise, notify the user that there are no visible dongles. 
+		//If at least 1 serial port is found, fill the combo box with all the known port names.
+		//Otherwise, notify the user that there are no visible dongles. 
 		if (portNames.size() > 0) {
 			return portNames;
 		}
@@ -78,26 +111,31 @@ public class SerialComm {
 	 */
 	public boolean openSerialPort(String commPortID) throws IOException, PortInUseException {
 
-		//Creates a list of all the ports that are available of type Enumeration (data structure that can hold several info fields such as ID, hardware interface info, and other info used by the PC 
+		// Creates a list of all the ports that are available of type Enumeration (data structure that can hold several info fields such as ID, hardware interface info, and other info used by the PC 
 		Enumeration<CommPortIdentifier> portList = CommPortIdentifier.getPortIdentifiers();
 
-		//Iterates through all ports on the ports on the port list
+		// Iterates through all ports on the ports on the port list
 		while (portList.hasMoreElements()) {
-			//Set the temporary port to the current port that is being iterated through
+
+			// Set the temporary port to the current port that is being iterated through
 			CommPortIdentifier tempPortId = (CommPortIdentifier) portList.nextElement();
 
-			//Executes if the temporary port has the same name as the one selected by the user
+			// Executes if the temporary port has the same name as the one selected by the user
 			if (tempPortId.getName().equals(commPortID)) {
-				//If it does match, then assign the portID variable so the desired port will be opened later
+				// If it does match, then assign the portID variable so the desired port will be opened later
 				portId = tempPortId;
 
-				//break the while loop
+				// break the while loop
 				break;
 			}
 		}
 
+		// Don't attempt to open the serial port if already owned
+		if (portId.isCurrentlyOwned()) return false;
+
 		// Open the serial port with a 2 second timeout
 		serialPort = (SerialPort) portId.open("portHandler", 2000);
+		logger.debug("Opening serial port " + commPortID + "...");
 
 		//Create a new buffered reader so we can define the buffer size to prevent a buffer overflow (explicitly defined in the configureForImport() method)
 		inputStream = new BufferedInputStream(serialPort.getInputStream(), 756000);
@@ -121,7 +159,8 @@ public class SerialComm {
 		if (serialPort != null) {
 
 			//Close the serial port
-			serialPort.close();  
+			serialPort.close();
+			logger.debug("Closed serial port " + portId.getName() + ".");
 
 			//Let the whole class know that the data streams are no longer initialized
 			dataStreamsInitialized = false;
@@ -1519,23 +1558,22 @@ public class SerialComm {
 				Platform.runLater(() -> { statusLabel.setText("Transferring Test #" + (test + 1) + "..."); });
 
 				//Wait for start condition (preamble)
-				if(!waitForPreamble(1, 8, 1500)) {
+				if (!waitForPreamble(1, 8, 1500)) {
 					Platform.runLater(() -> { statusLabel.setText("Lost communication with module. Please reconnect to the port."); });
 					return null;
 				}
-
 
 				//Notify that the dashboard is ready for test data
 				outputStream.write(pullLow);
 
 				//Wait for 2 bytes to be received
-				while(inputStream.available() < 2) {
-				}
+				while (inputStream.available() < 2) {}
 
 				//Read the 2 bytes into the numSectors variable
 				numSectors = inputStream.read() * 256 + inputStream.read();
+				logger.debug("Reading " + numSectors + " sectors from module...");
 
-				byte [] tempTestData;
+				byte[] tempTestData;
 
 				//Executes while the stop condition has not been received (Main loop that actually stores testing data)
 				while (true) {
@@ -1551,8 +1589,8 @@ public class SerialComm {
 						//Executes if the preamble has not yet been received for this block read sequence
 						if (!preambleFlag) {
 							//Wait for a preamble, exits method if the preamble times out
-							if(!waitForPreamble(1, 4, 1500)) {
-								Platform.runLater(() -> { statusLabel.setText("Lost communication with module. Please reconnect to the port."); });
+							if (!waitForPreamble(1, 4, 1500)) {
+								Platform.runLater(() -> statusLabel.setText("Lost communication with module. Please reconnect to the port."));
 								return null;
 							}
 							//Set preamble flag
@@ -1562,6 +1600,8 @@ public class SerialComm {
 
 						if (inputStream.available() > 0) {
 
+							logger.debug("Reading block type identifier...");
+
 							//Reset preamble flag
 							preambleFlag = false;
 
@@ -1570,9 +1610,15 @@ public class SerialComm {
 
 							//Executes when the module specifies that the next block is a full block of data (5 sectors)
 							if (temp == (int)'M') {
+
+								logger.debug("Detected full block.");
+
 								//Wait for the whole block to be transferred
 								while (inputStream.available() < 2520) {
+									logger.debug("Waiting for block data (currently at " + inputStream.available() + ")");
 								}
+
+								logger.debug("Reading full block...");
 
 								//Clear the data in tempTestData
 								tempTestData = new byte[2520];
@@ -1588,6 +1634,8 @@ public class SerialComm {
 								final int total = numSectors;
 								Platform.runLater(() -> progressBar.setProgress(((double) portion) / ((double) total)));
 
+								logger.debug("Read full block (" + portion + " sectors out of " + total + ")");
+
 								//Values from bulk read method are saved as signed bytes, must convert to unsigned
 								for (byte data : tempTestData) {
 
@@ -1601,7 +1649,10 @@ public class SerialComm {
 
 							//Executes if module specified that the next block is a partial block (less than 5 sectors)
 							else if (temp == (int)'P') {
-								for(int counter = 8; counter >= 1;) {
+
+								logger.debug("Detected partial block.");
+
+								for (int counter = 8; counter >= 1;) {
 									//Store newly read byte in the temp variable
 									if (inputStream.available() > 0) {
 
@@ -1629,12 +1680,12 @@ public class SerialComm {
 
 						}
 					}
+
 					int rmIndex = rawData.size() -1;
 					while(rawData.get(rmIndex) != 255) {
 						rawData.remove(rmIndex);
 						rmIndex--;
 					}
-
 
 					while(rawData.get(rmIndex) == 255) {
 						rawData.remove(rmIndex);

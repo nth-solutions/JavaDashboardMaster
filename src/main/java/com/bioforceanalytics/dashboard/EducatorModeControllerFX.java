@@ -1976,12 +1976,13 @@ public class EducatorModeControllerFX implements Initializable {
                     }
 
                     int firmwareID = moduleIDInfo.get(2);
-                    logger.info("Current Firmware ID: " + firmwareID);
+                    logger.debug("Current Firmware ID: " + firmwareID);
 
                     // make sure that Dashboard's firmware version matches the module's
                     if (firmwareID == CURRENT_FIRMWARE_ID) {
 
                         displayProgress(label, "Successfully connected to module", 0.5, Status.SUCCESS);
+                        logger.debug("Opened port " + selectedCommID);
 
                         // re-enable the test parameters selection box
                         Platform.runLater(() -> testTypeComboBox.setDisable(false));
