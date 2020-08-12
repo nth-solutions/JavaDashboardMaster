@@ -59,11 +59,18 @@ SectionEnd
 
 Section "Java Runtime Environment" SEC02
   SetOutPath "$INSTDIR\jre"
+  SetOverwrite ifnewer
   File /r "$%JAVA_HOME%\jre\"
 SectionEnd
 
+Section "FFmpeg" SEC03
+  SetOutPath "$INSTDIR\ffmpeg"
+  SetOverwrite ifnewer
+  File /r "..\ffmpeg\"
+SectionEnd
+
 # TODO NOT FOR PRODUCTION
-Section "Debug Version" SEC03
+Section "Debug Version" SEC04
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "/oname=debug.exe" "..\target\dashboard-${PRODUCT_VERSION}-debug.exe"
@@ -90,9 +97,10 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "The EduForce Dashboard includes both Educator and Advanced Mode, as well as the SINC Technology Graph and Data Analysis Graph."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Bundled version of JRE 8 to ensure compatibility."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Bundled version of FFmpeg. REQUIRED FOR SINC TECHNOLOGY."
 
   # TODO NOT FOR PRODUCTION
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "[NOT FOR PRODUCTION] A version of the Dashboard with console-logging output displayed."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "[NOT FOR PRODUCTION] A version of the Dashboard with console-logging output displayed."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -111,7 +119,10 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\dashboard.exe"
   Delete "$INSTDIR\debug.exe"
+  
+  RMDir /r "$INSTDIR\logs"
   RMDir /r "$INSTDIR\jre"
+  RMDir /r "$INSTDIR\ffmpeg"
 
   Delete "$SMPROGRAMS\EduForce Dashboard\Uninstall.lnk"
   Delete "$SMPROGRAMS\EduForce Dashboard\Website.lnk"
