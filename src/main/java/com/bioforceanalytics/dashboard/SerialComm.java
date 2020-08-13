@@ -49,8 +49,11 @@ public class SerialComm {
 	private String serialPortName;
 
 	// since Macs use a dedicated name for devices instead of COMs,
-	// this will be sent to 
+	// this will be the name searched for in the list of serial ports
 	private final String MAC_PORT = "SLAB_USBtoUART";
+
+	// the number of bytes in a block
+	private final int BLOCK_SIZE = 2520;
 
 	// Flags that track object/process states
 	private boolean dataStreamsInitialized = false;
@@ -1529,6 +1532,7 @@ public class SerialComm {
 	 * @return boolean that allows easy exiting of the method. Since this is called in a thread, the return statement will automatically kill the thread on completion
 	 */
 	public HashMap<Integer, ArrayList<Integer>> readTestDataFX(int expectedTestNum, ProgressBar progressBar, Label statusLabel) throws IOException, PortInUseException, UnsupportedCommOperationException {
+		
 		//Put module into export test data mode, exit method if that routine fails
 		if(!selectMode('E')) {
 			statusLabel.setText("Could not configure the module to export.");
@@ -1555,23 +1559,23 @@ public class SerialComm {
 				int sectorCounter = 0;
 
 				final int test = testNum;
-				Platform.runLater(() -> { statusLabel.setText("Transferring Test #" + (test + 1) + "..."); });
+				Platform.runLater(() -> statusLabel.setText("Transferring Test #" + (test + 1) + "..."));
 
 				//Wait for start condition (preamble)
 				if (!waitForPreamble(1, 8, 1500)) {
-					Platform.runLater(() -> { statusLabel.setText("Lost communication with module. Please reconnect to the port."); });
+					Platform.runLater(() -> statusLabel.setText("Lost communication with module. Please reconnect to the port."));
 					return null;
 				}
 
 				//Notify that the dashboard is ready for test data
 				outputStream.write(pullLow);
 
-				//Wait for 2 bytes to be received
+				// Wait for first 2 bytes to be received
 				while (inputStream.available() < 2) {}
 
-				//Read the 2 bytes into the numSectors variable
+				// Interpret the first 2 bytes as the number of data sectors
 				numSectors = inputStream.read() * 256 + inputStream.read();
-				logger.debug("Reading " + numSectors + " sectors from module...");
+				logger.trace("Reading " + numSectors + " sectors from module...");
 
 				byte[] tempTestData;
 
@@ -1600,7 +1604,7 @@ public class SerialComm {
 
 						if (inputStream.available() > 0) {
 
-							logger.debug("Reading block type identifier...");
+							logger.trace("Reading block type identifier...");
 
 							//Reset preamble flag
 							preambleFlag = false;
@@ -1608,23 +1612,31 @@ public class SerialComm {
 							//Read the block type identifier. (1st character after the 1234 sequence)
 							int temp = inputStream.read();
 
-							//Executes when the module specifies that the next block is a full block of data (5 sectors)
+							// Next block is a full block of data (5 sectors)
 							if (temp == (int)'M') {
 
-								logger.debug("Detected full block.");
+								logger.trace("Detected full block.");
 
-								//Wait for the whole block to be transferred
-								while (inputStream.available() < 2520) {
-									logger.debug("Waiting for block data (currently at " + inputStream.available() + ")");
+								int bytesAvailable = inputStream.available();
+
+								// Wait for the whole block to be transferred
+								while (bytesAvailable < BLOCK_SIZE) {
+
+									// update log if number of available bytes increases
+									if (inputStream.available() != bytesAvailable) {
+										logger.trace("Waiting for block data (currently at " + bytesAvailable + " bytes)");
+										bytesAvailable = inputStream.available();
+									}
+
 								}
 
-								logger.debug("Reading full block...");
+								logger.trace("Reading full block...");
 
 								//Clear the data in tempTestData
-								tempTestData = new byte[2520];
+								tempTestData = new byte[BLOCK_SIZE];
 
 								//Bulk read the sector that was just received
-								inputStream.read(tempTestData, 0, 2520);
+								inputStream.read(tempTestData, 0, BLOCK_SIZE);
 
 								//Update sector counter
 								sectorCounter += 5;
@@ -1634,12 +1646,13 @@ public class SerialComm {
 								final int total = numSectors;
 								Platform.runLater(() -> progressBar.setProgress(((double) portion) / ((double) total)));
 
-								logger.debug("Read full block (" + portion + " sectors out of " + total + ")");
+								logger.trace("Read full block (" + portion + " sectors out of " + total + ")");
 
-								//Values from bulk read method are saved as signed bytes, must convert to unsigned
+								// Values from bulk read method are saved as signed bytes, must convert to unsigned
 								for (byte data : tempTestData) {
 
-									//Add the bulk read data to the rawData arraylist. IMPORTANT: & 255 converts it from a signed byte to an unsigned byte when using bulk read
+									// Add the bulk read data to the rawData arraylist.
+									// IMPORTANT: & 255 converts it from a signed byte to an unsigned byte when using bulk read
 									rawData.add((int)data & 255);
 								}
 
@@ -1647,34 +1660,36 @@ public class SerialComm {
 								outputStream.write(pullLow);
 							}
 
-							//Executes if module specified that the next block is a partial block (less than 5 sectors)
+							// Next block is a partial block (less than 5 sectors)
 							else if (temp == (int)'P') {
 
-								logger.debug("Detected partial block.");
+								logger.trace("Detected partial block.");
 
-								for (int counter = 8; counter >= 1;) {
-									//Store newly read byte in the temp variable
+								// read each byte individually
+								int counter = 8;
+								while (counter >= 1) {
+
+									// make sure at least one byte is available
 									if (inputStream.available() > 0) {
 
-										//
+										// save the newly read byte
 										temp = inputStream.read();
-
 										rawData.add(temp);
 
-										//Executes of the byte received is equal to the current value of counter
+										// If new byte matches counter, decrement counter
 										if (temp == counter) {
-											//Decrement counter by 1
 											counter--;
 										}
 
-										//Executes if the counter != temp
+										// If new byte doesn't match counter, reset counter
 										else {
-											//Reset the counter
 											counter = 8;
 										}
 									}
 								}
+
 								sectorCounter++;
+								logger.trace("Read sector " + sectorCounter + ".");
 								break;
 							}
 
@@ -1731,7 +1746,6 @@ public class SerialComm {
 	public boolean streamsInitialized() {
 		return dataStreamsInitialized;
 	}
-
 
 }
 

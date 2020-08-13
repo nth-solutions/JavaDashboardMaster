@@ -18,6 +18,7 @@
         ignoreExceptions="false">
       <PatternLayout>
           <LevelPatternSelector>
+            <PatternMatch key="trace" pattern="[%-level] %msg (%F:%L)%n" />
             <PatternMatch key="debug" pattern="[%-level] %msg (%F:%L)%n" />
             <PatternMatch key="error" pattern="[%-level] %msg (%F:%L)%n" />
             <PatternMatch key="info" pattern="[%-level] %msg%n" />
@@ -34,7 +35,7 @@
   <Loggers>
     <Root level="all">
       <AppenderRef ref="Console" level="info" />
-      <AppenderRef ref="FileLog" level="debug" />
+      <AppenderRef ref="FileLog" level="trace" />
     </Root>
   </Loggers>
 </Configuration>
