@@ -1456,7 +1456,7 @@ public class AdvancedMode extends JFrame {
 							System.out.println("Right before readTestData");
 
 							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-							testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabel);
+							testData = serialHandler.readTestDataSwing(expectedTestNum, progressBar, generalStatusLabel);
 
 							System.out.println("Test Data Read?");
 							System.out.println(testData);

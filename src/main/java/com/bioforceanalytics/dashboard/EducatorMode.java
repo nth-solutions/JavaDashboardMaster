@@ -1346,7 +1346,7 @@ public class EducatorMode extends JFrame {
 								HashMap<Integer, ArrayList<Integer>> testData;
 
 								//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-								testData = serialHandler.readTestData(expectedTestNum, progressBar, generalStatusLabelThree);
+								testData = serialHandler.readTestDataSwing(expectedTestNum, progressBar, generalStatusLabelThree);
 
 								generalStatusLabelThree.setForeground(DarkGreen);
 								generalStatusLabelThree.setText("All Data Received from Module");
