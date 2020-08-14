@@ -1052,60 +1052,62 @@
                                                 </Label>
                                              </children>
                                           </HBox>
-                                          <Label prefHeight="26.0" prefWidth="470.0" text="1. Press the Configure Module for SINC Calibration Button" textFill="#1f78d1">
-                                             <font>
-                                                <Font name="System Bold" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                          <VBox alignment="CENTER" prefHeight="78.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="339.0" text="Configure Module for SINC Calibration" />
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="26.0" prefWidth="454.0" text="1. Click the button below to set your module to calibration mode." textAlignment="CENTER" textFill="#1f78d1">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Button fx:id="configureModuleForCalibrationButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#configureModuleForCalibrationHandler" prefHeight="30.0" prefWidth="339.0" text="Configure Module for SINC Calibration" textAlignment="CENTER" />
                                              </children>
-                                          </HBox>
-                                          <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="470.0" text="2. Disconnect the Module, then follow SINC Calibration Instructions." textFill="#1f78d1">
-                                             <font>
-                                                <Font name="System Bold" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button alignment="CENTER" mnemonicParsing="false" onAction="#launchSINCCalibrationHelpMenu" prefHeight="30.0" prefWidth="339.0" text="Open SINC Calibration Instructions" />
-                                          <Label prefHeight="23.0" prefWidth="468.0" text="3. Select the Video File of the Calibration" textFill="#1f78d1">
-                                             <font>
-                                                <Font name="System Bold" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                          </VBox>
+                                          <VBox alignment="CENTER" prefHeight="67.0" prefWidth="500.0">
                                              <children>
-                                                <Button mnemonicParsing="false" onAction="#videoFileHandler" prefHeight="25.0" prefWidth="65.0" text="Browse" />
-                                                <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="275.0" promptText="Video File " />
+                                                <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="470.0" text="2. Disconnect the module, then follow the instructions below." textAlignment="CENTER" textFill="#1f78d1">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#launchSINCCalibrationHelpMenu" prefHeight="30.0" prefWidth="339.0" text="Open SINC Calibration Instructions" textAlignment="CENTER" />
                                              </children>
-                                          </HBox>
-                                          <Label prefHeight="24.0" prefWidth="469.0" text="4. Hit the Following Button" textFill="#1f78d1">
-                                             <font>
-                                                <Font name="System Bold" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                          </VBox>
+                                          <VBox alignment="CENTER" prefHeight="69.0" prefWidth="500.0">
                                              <children>
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="23.0" prefWidth="355.0" text="3. Locate the saved SINC Calibration video file below." textAlignment="CENTER" textFill="#1f78d1">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <HBox alignment="CENTER" prefHeight="27.0" prefWidth="500.0">
+                                                   <children>
+                                                      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#videoFileHandler" prefHeight="25.0" prefWidth="65.0" text="Browse" textAlignment="CENTER" />
+                                                      <TextField fx:id="videoFilePathTextField" alignment="CENTER" prefHeight="25.0" prefWidth="275.0" promptText="Video File " />
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                          </VBox>
+                                          <VBox alignment="CENTER" prefHeight="68.0" prefWidth="500.0">
+                                             <children>
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="24.0" prefWidth="469.0" text="4. Click the button below to calibrate your module." textFill="#1f78d1">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
                                                 <Button fx:id="importCalibrationDataButton11" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Module" />
                                              </children>
-                                          </HBox>
-                                          <Label prefHeight="20.0" prefWidth="472.0" text="5a. For 2 modules, unplug first module; connect second module" textFill="#1f78d1">
-                                             <font>
-                                                <Font name="System Bold" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <Button mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" />
-                                          <Label prefHeight="24.0" prefWidth="471.0" text="5b. Hit the Following Button" textFill="#1f78d1">
-                                             <font>
-                                                <Font name="System Bold" size="14.0" />
-                                             </font>
-                                          </Label>
-                                          <HBox alignment="CENTER" prefHeight="50.0" prefWidth="500.0">
+                                          </VBox>
+                                          <VBox alignment="CENTER" prefHeight="75.0" prefWidth="500.0">
                                              <children>
-                                                <Button fx:id="importCalibrationDataButton111" mnemonicParsing="false" onAction="#applySINCHandler" prefHeight="30.0" prefWidth="337.0" text="Apply SINC Configurations to Second Module" />
+                                                <Label alignment="CENTER" prefHeight="20.0" prefWidth="472.0" text="5. If using a second module, swap to it, click below, then repeat step 4." textAlignment="CENTER" textFill="#1f78d1">
+                                                   <font>
+                                                      <Font name="System Bold" size="14.0" />
+                                                   </font>
+                                                </Label>
+                                                <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#connectSINCTab" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" textAlignment="CENTER" />
                                              </children>
-                                          </HBox>
-                                          <Label prefHeight="21.0" prefWidth="474.0" text="6. Erase the Module(s). You are then ready to proceed to experiment." textFill="#1f78d1">
+                                          </VBox>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="474.0" text="6. Erase module(s). You are now ready to run your experiment!" textAlignment="CENTER" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>

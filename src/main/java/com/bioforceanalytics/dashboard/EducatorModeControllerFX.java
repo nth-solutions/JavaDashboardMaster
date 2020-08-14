@@ -1719,16 +1719,19 @@ public class EducatorModeControllerFX implements Initializable {
     private Button applyOffsetToModuleButton;
 
     @FXML
-    public void configureModuleForCalibrationHandler(){
+    public void configureModuleForCalibrationHandler() {
 
         Task<Void> calibrationTask = new Task<Void>() {
 
             @Override
             protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Configuring module for SINC Calibration...", 0, Status.WORKING);
+
                 // reset timer0 and "delay after start" test parameters
                 if(!serialHandler.applyCalibrationOffsets(0, 0)) {
                     displayProgress(sincCalibrationTabGeneralStatusLabel, "Error resetting calibration offsets, try again", 1, Status.ERROR);
+                    return null;
                 }
 
                 // configure module in SINC calibration module
@@ -1780,18 +1783,27 @@ public class EducatorModeControllerFX implements Initializable {
         chooser.setInitialDirectory(new java.io.File("."));
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Select a video file", "*.mp4","*.avi","*.flac","*.mov"));
         File fileChosen = chooser.showOpenDialog(null);
+
+        // if a file was chosen and the text box filled out, then 
         if (fileChosen != null && videoFilePathTextField.getText() != null) {
 
             String fileout = fileChosen.toString();
-            Platform.runLater(() -> {                                                                           // Platform.runLater() uses a runnable (defined as a lambda expression) to control UI coloring
-                videoFilePathTextField.setAlignment(Pos.CENTER_LEFT);
+
+            Platform.runLater(() -> {
+                // set the video text field to the file's path
                 videoFilePathTextField.setText(fileout);
-                sincCalibrationTabGeneralStatusLabel.setTextFill(Color.GREEN);
-                sincCalibrationTabGeneralStatusLabel.setText("File Copy Finished!");
+
+                // this is a workaround to a bug in JDK 8 where setText() on a TextField doesn't center it;
+                // instead, resetting the alignment will cause it to recompute and fix itself
+                // TODO remove this when the codebase is migrated to JDK 11 + OpenJFX
+                videoFilePathTextField.setAlignment(Pos.TOP_LEFT);
+                videoFilePathTextField.setAlignment(Pos.CENTER);
             });
 
+            displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully loaded video file", 0.5, Status.SUCCESS);
+
         } else {
-            displayProgress(sincCalibrationTabGeneralStatusLabel, "Invalid file path", 1, Status.FAIL);
+            displayProgress(sincCalibrationTabGeneralStatusLabel, "Invalid video file path", 1, Status.FAIL);
         }
     }
 
@@ -1837,6 +1849,7 @@ public class EducatorModeControllerFX implements Initializable {
             }
         };
 
+        // failure messages for SINC calibration
         SINCTask.setOnFailed(event -> {
 
             Throwable ex = SINCTask.getException();
@@ -1858,8 +1871,8 @@ public class EducatorModeControllerFX implements Initializable {
 
         });
 
+        // run SINC calibration in separate thread
         new Thread(SINCTask).start();
-
 
         // TODO is this comment still valid?
         //===================================
@@ -1879,7 +1892,7 @@ public class EducatorModeControllerFX implements Initializable {
      * Get the desired tick threshold for the desired sample rate.
      * This effectively sets the sample rate of the module.
      * @param accelGyroSampleRate the sample rate for the sensor
-     * @return
+     * @return the tick threshold for the desired sample rate
      */
     public int getTickThreshold(int accelGyroSampleRate) {
         switch (accelGyroSampleRate) {
@@ -2003,6 +2016,7 @@ public class EducatorModeControllerFX implements Initializable {
             }
         };
 
+        // failure messages for connection
         connectTask.setOnFailed(event -> {
 
             Throwable ex = connectTask.getException();
