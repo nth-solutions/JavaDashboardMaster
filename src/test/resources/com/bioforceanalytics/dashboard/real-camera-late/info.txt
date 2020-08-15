@@ -2,5 +2,5 @@ Frames 1-22: black
 Frame 23: light begins to display at bottom (rolling shutter)
 Frame 24: light
 
-Expected timer0 offset: 4167
-(INCORRECT) Expected delay after start: 2000
+Expected timer0 offset: -43
+Expected delay after start: 1266

@@ -14,23 +14,15 @@ public class FfmpegSystemWrapper {
 	}
 	
 	/**
-	 * Print class privates
-	 */
-	public void PrintAll() {
-		System.out.println(OSName);
-		System.out.println(Arch);
-	}
-	
-	/**
 	 * Return the directory of the FFMPEG binary for the detected system.
 	 * Returns null on no match
 	 */
 	public String getBinRoot() {
-		if(OSName.toLowerCase().contains("windows") && Arch.contains("64")) {
-			return "ffmpeg\\ffmpeg-win64-static\\bin\\";
+		if (OSName.toLowerCase().contains("windows") && Arch.contains("64")) {
+			return "ffmpeg\\win64\\";
 		}
-		else if (OSName.toLowerCase().contains("mac")){
-			return "ffmpeg/ffmpeg-mac/";
+		else if (OSName.toLowerCase().contains("mac")) {
+			return "ffmpeg/mac/";
 		}
 		return null;
 	}

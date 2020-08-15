@@ -66,7 +66,7 @@ SectionEnd
 Section "FFmpeg" SEC03
   SetOutPath "$INSTDIR\ffmpeg"
   SetOverwrite ifnewer
-  File /r "..\ffmpeg\"
+  File /r "..\ffmpeg\win64"
 SectionEnd
 
 # TODO NOT FOR PRODUCTION

@@ -56,7 +56,7 @@ public class SINCTest extends GUITest {
         assumeTrue("OS must be supported", OSManager.getOS() == OS.WINDOWS);
 
         final int timer0Offset = -43;
-        final int delayAfterStart = 2000;
+        final int delayAfterStart = 1266;
 
         try {
 
