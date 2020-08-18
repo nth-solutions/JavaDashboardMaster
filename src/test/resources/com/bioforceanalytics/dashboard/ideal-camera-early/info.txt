@@ -5,3 +5,6 @@
 Frames 1-75: black
 Frame 76-3600: red
 Frames 3601-3675: black
+
+Timer0 calibration offset: 0
+Delay after start: 533

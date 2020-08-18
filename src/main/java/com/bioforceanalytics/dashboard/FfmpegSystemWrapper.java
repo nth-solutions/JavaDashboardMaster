@@ -19,10 +19,10 @@ public class FfmpegSystemWrapper {
 	 */
 	public String getBinRoot() {
 		if (OSName.toLowerCase().contains("windows") && Arch.contains("64")) {
-			return "ffmpeg\\win64\\";
+			return System.getProperty("user.dir") + "\\ffmpeg\\win64\\";
 		}
 		else if (OSName.toLowerCase().contains("mac")) {
-			return "ffmpeg/mac/";
+			return System.getProperty("user.dir") + "/ffmpeg/mac/";
 		}
 		return null;
 	}
