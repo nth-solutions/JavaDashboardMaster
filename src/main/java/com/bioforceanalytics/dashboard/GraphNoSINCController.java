@@ -319,15 +319,13 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the Data Analysis Hraph by creating a GenericTest from a CSV and
+	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
 	 * @param CSVPPath the location of the CSVP file containing test parameters
 	 */
 	public void setGenericTestsFromCSV(ArrayList<String> paths) {
-
-		genericTests.clear();
 
 		Alert loading = new Alert(AlertType.NONE, "Loading test data...");
 		loading.setResult(ButtonType.OK);
@@ -365,26 +363,32 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	/**
+	 * Internal method that generates data set panels from loaded GenericTests.
+	 */
 	private void initializePanels() {
 
+		// get reference to root element
+		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
+
+		// remove existing panels
+		panels.clear();
+		a.getPanes().clear();
+
+		// stop if no GTs are loaded
 		if (genericTests.size() == 0) {
 			logger.warn("Attempted to initialize panels with 0 GenericTests loaded");
 			return;
 		}
 
 		// get primary test
-		GenericTest g = genericTests.get(0);
+		GenericTest primaryTest = genericTests.get(0);
 
-		// get reference to root element
-		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
-		generalStatusLabel.setText(g.getGraphTitle());
-
-		// remove existing panels
-		panels.clear();
-		a.getPanes().clear();
+		// set graph title
+		generalStatusLabel.setText(primaryTest.getGraphTitle());
 
 		// if primary test is a lab template, create experiment panel
-		if (!g.getClass().equals(GenericTest.class)) {
+		if (!primaryTest.getClass().equals(GenericTest.class)) {
 
 			ExperimentPanel experimentPanel = new ExperimentPanel();
 			genericTests.get(0).setupExperimentPanel(experimentPanel);
@@ -415,18 +419,21 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
-		// graph any default axes
-		// runs after data set panel is loaded
+		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
 
 			clearGraph();
 
 			// TODO the first test isn't always the desired one, so we might want to change this
-			for (AxisType axis : g.getDefaultAxes()) {
-				graphAxis(axis, 0);
+			//
+			// graph all default axes for each GenericTest
+			for (GenericTest g : genericTests) {
+				for (AxisType axis : g.getDefaultAxes()) {
+					graphAxis(axis, genericTests.indexOf(g));
+				}
 			}
 
-			double testLength = g.getAxis(g.getDefaultAxes()[0]).testLength;
+			double testLength = primaryTest.getAxis(primaryTest.getDefaultAxes()[0]).testLength;
 
 			// set width of viewport to fit the start and end of the test
 			resetZoomviewX = testLength / 2;
@@ -597,6 +604,7 @@ public class GraphNoSINCController implements Initializable {
 
 	/**
 	 * Removes all currently drawn axes from the graph.
+	 * Does NOT clear the list of data sets or GenericTests.
 	 */
 	public void clearGraph() {
 
@@ -711,6 +719,29 @@ public class GraphNoSINCController implements Initializable {
 			setGraphMode(GraphMode.AREA);
 		}
 		else setGraphMode(GraphMode.NONE);
+
+	}
+
+	@FXML
+	public void clearDataSets(ActionEvent event) {
+
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setHeaderText("Clear Data Sets");
+		alert.setContentText("Are you sure you want to clear all data sets?");
+		Optional<ButtonType> result = alert.showAndWait();
+
+		if (result.get() == ButtonType.OK) {
+
+			logger.info("Clearing all data sets...");
+
+			// clear GTs, un-graph data sets, then clear the data sets list
+			genericTests.clear();
+			clearGraph();
+			dataSets.clear();
+
+			// redraw data set panels
+			initializePanels();
+		}
 
 	}
 

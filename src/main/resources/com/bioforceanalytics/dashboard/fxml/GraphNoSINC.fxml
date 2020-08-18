@@ -180,6 +180,11 @@
 					 <MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
 				  </items>
 				</Menu>
+				<Menu mnemonicParsing="false" text="Data">
+				  <items>
+					 <MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear data sets" />
+				  </items>
+				</Menu>
 			</menus>
 		</MenuBar>
 	</children>
