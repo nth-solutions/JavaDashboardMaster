@@ -50,7 +50,8 @@
                         <Label text="Angular Velocity" GridPane.rowIndex="5" />
                         <Label text="Angular Displacement" GridPane.rowIndex="6" />
                         <Label text="Magnetometer" GridPane.rowIndex="7" />
-                        
+                        <Label text="Momentum" GridPane.rowIndex="8" />
+
                         <CheckBox fx:id="ToggleAccelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <CheckBox fx:id="ToggleAccelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                         <CheckBox fx:id="ToggleAccelZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="1" />
@@ -79,6 +80,10 @@
                         <CheckBox fx:id="ToggleMagnetY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="7" />
                         <CheckBox fx:id="ToggleMagnetZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="7" />
                         <CheckBox fx:id="ToggleMagnetMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+                        <CheckBox fx:id="ToggleMomentumX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                        <CheckBox fx:id="ToggleMomentumY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                        <CheckBox fx:id="ToggleMomentumZ" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="3" GridPane.rowIndex="8" />
+                        <CheckBox fx:id="ToggleMomentumMag" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="4" GridPane.rowIndex="8" />
                     </children>
                 </GridPane>
             </children>

@@ -17,7 +17,8 @@ public class GenericTest {
 	private List<List<Double>> dataSamples;
 	private String graphTitle;
 	private AxisType[] defaultAxes;
-
+	private boolean useMomentum;
+	private double momentumScalar;
 	private static final Logger logger = LogManager.getLogger();
 
 	/**
@@ -26,11 +27,14 @@ public class GenericTest {
 	 * @param testParameters array of test parameters
 	 * @param finalData array of raw byte data from the module
 	 * @param MPUMinMax array of constant MPU offsets specific to the module
+	 * @param momentumScalar if included, indicates that the genericTest should include a momentum axis with that scalar as mass
 	 */
-	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
+	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double momentumScalar) {
 
 		int sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
+		if(momentumScalar > 0){useMomentum = true;}
+		else{ useMomentum = false;}
 
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
@@ -101,10 +105,16 @@ public class GenericTest {
 			magTimeAxis.add(new Double(i) / magSampleRate); 			
 		}
 		
-		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
+		createAxisDataSeries(dataSamples, testParameters, mpuOffsets, momentumScalar);
 
 	}
 	
+	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
+		this(testParameters,finalData,MPUMinMax,0);
+		
+	}
+
+
 	/**
 	 * Creates a GenericTest using dataSamples 2D List.
 	 * Used for creating GenericTest from CSVHandler or DataOrganizer.
@@ -123,7 +133,7 @@ public class GenericTest {
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		} 
 
-		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
+		createAxisDataSeries(dataSamples, testParameters, mpuOffsets,momentumScalar);
 
 	}
 	
@@ -134,7 +144,7 @@ public class GenericTest {
 	 * @param testParameters array of test parameters
 	 * @param mpuOffsets array of acceleration offsets
 	 */
-	private void createAxisDataSeries(List<List<Double>> dataSamples, ArrayList<Integer> testParameters, int[] mpuOffsets) {
+	private void createAxisDataSeries(List<List<Double>> dataSamples, ArrayList<Integer> testParameters, int[] mpuOffsets, double mass) {
 
 		// TODO change this to a name property that can be changed as a test selection menu
 		setGraphTitle("Generic Test");
@@ -163,7 +173,13 @@ public class GenericTest {
 		}
 		
 		// initialize axis data series array
-		axes = new AxisDataSeries[AxisType.values().length];
+		if(useMomentum){
+			axes = new AxisDataSeries[AxisType.values().length];
+			logger.info("using momentum");
+		}else{
+			logger.info("not using momentum");
+			axes = new AxisDataSeries[AxisType.values().length - 4];
+		}
 
 		// loops so that X=0, Y=1, Z=2
 		for (int i = 0; i < 3; i++) {
@@ -189,14 +205,17 @@ public class GenericTest {
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
+			if(useMomentum){
+				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(mass), AxisType.valueOf(i+28), false, sampleRate);
+			}
 		}
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
-
-			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
-			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
-
+			if(useMomentum || i < 28){
+				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
+				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
+			}
 		}
 
 	}
@@ -238,5 +257,5 @@ public class GenericTest {
 	public String getGraphTitle() {
 		return graphTitle;
 	}
-				
+			
 }

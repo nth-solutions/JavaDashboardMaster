@@ -446,6 +446,36 @@ public class AxisDataSeries {
 	}
 
 	/**
+	 * Numerically integrates this AxisDataSeries.
+	 * Calculated using the trapezoidal rule.
+	 * @param scalar multiplies each datapoint by a double scalar
+	 * @return the integral of this data set
+	 */
+	public List<Double> integrate(double scalar) {
+
+		// create empty array with the same length as data
+		Double[] result = new Double[normalizedData.length];
+
+		// temporarily set initial value to 0; necessary for loop below
+		result[0] = 0.0;
+
+		// start loop at 1 in order to look at previous value
+		for (int i = 1; i < normalizedData.length; i++) {
+
+			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
+			result[i] = result[i-1] + (normalizedData[i] + normalizedData[i-1])/2 * (time[i] - time[i-1]);
+			
+		}
+		for(int i = 0; i < result.length; i++){
+			result[i] = scalar * result[i];
+		}
+		// calculate the first integrated sample as our initial condition ("+C")
+		result[0] = result[1];
+
+		return Arrays.asList(result);
+	}
+
+	/**
 	 * Numerically differentiates this AxisDataSeries.
 	 * Calculated by finding slopes of secant lines between adjacent points.
 	 * @return the derivative of this data set

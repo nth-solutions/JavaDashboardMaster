@@ -43,7 +43,12 @@ public enum AxisType {
 	MagnetX(24),
 	MagnetY(25),
 	MagnetZ(26),
-	MagnetMag(27);
+	MagnetMag(27),
+
+	MomentumX(28),
+	MomentumY(29),
+	MomentumZ(30),
+	MomentumMag(31);
 	
 	private int value;
 	private static Map<Integer, AxisType> map = new HashMap<Integer, AxisType>();

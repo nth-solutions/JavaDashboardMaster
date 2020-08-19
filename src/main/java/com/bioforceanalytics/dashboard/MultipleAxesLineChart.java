@@ -60,8 +60,8 @@ public class MultipleAxesLineChart extends StackPane {
      */
     public double getAxisScalar(AxisType axis) {
 
-        // if AxisType is Accel, Vel, or Disp
-        if (axis.getValue() / 4 < 3) return 10;
+        // if AxisType is Accel, Vel, Disp, or Momentum
+        if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
         //if AxisType is AngAccel
         if (axis.getValue() / 4 == 3) return 500;
         // all other data sets
@@ -337,6 +337,7 @@ public class MultipleAxesLineChart extends StackPane {
             case 4: return "Angular Velocity (°/s)";
             case 5: return "Angular Displacement (°)";
             case 6: return "Magnetic Field (µT)";
+            case 7: return "Momentum (kg-m/s)";
             default: return "Y-Axis";
         }
 

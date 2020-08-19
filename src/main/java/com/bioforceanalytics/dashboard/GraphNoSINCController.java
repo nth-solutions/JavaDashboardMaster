@@ -391,7 +391,11 @@ public class GraphNoSINCController implements Initializable {
 		if (!primaryTest.getClass().equals(GenericTest.class)) {
 
 			ExperimentPanel experimentPanel = new ExperimentPanel();
-			genericTests.get(0).setupExperimentPanel(experimentPanel);
+			if(genericTests.get(0) instanceof ConservationMomentumModule){
+				((ConservationMomentumModule)(genericTests.get(0))).getController().setupExperimentPanel(experimentPanel);
+			}else{
+				genericTests.get(0).setupExperimentPanel(experimentPanel);
+			}
 			a.getPanes().add(experimentPanel);
 
 		}

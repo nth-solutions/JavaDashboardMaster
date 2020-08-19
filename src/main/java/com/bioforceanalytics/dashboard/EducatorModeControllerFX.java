@@ -179,6 +179,8 @@ public class EducatorModeControllerFX implements Initializable {
     double angleFromBottom;
     double angleFromTop;
 
+    private ConservationMomentumTest comTest;
+    
     private int experimentType;
     
     // holds test data from modules for DAG and SINC respectively
@@ -559,6 +561,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         // print out test name + parameters for debugging
         logger.info("Test name: " + testName);
+
         logger.info("Test parameters: " + Arrays.toString(testParams));
 
         Task<Void> sendTestParamsTask = new Task<Void>() {
@@ -624,7 +627,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                 massOfLeftModuleAndLeftGlider = massOfLeftGlider + massOfLeftModule;
                 massOfRightModuleAndRightGlider = massOfRightGlider + massOfRightModule;
-
+                comTest = new ConservationMomentumTest(massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
                 testType = "Conservation of Momentum (Elastic Collision)";
                 break;
 
@@ -1217,11 +1220,12 @@ public class EducatorModeControllerFX implements Initializable {
                         } else {
 
                             GenericTest newTest;
-
+                            logger.info("Switching experiment type");
                             switch (experimentType) {
 
                                 case 1: // TODO Conservation of Momentum
-                                    newTest = new ConservationMomentumTest(testParameters, finalData, MPUMinMax, massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
+                                    comTest.addModule(testParameters, finalData, MPUMinMax);
+                                    newTest = new GenericTest(testParameters,finalData,MPUMinMax);
                                     break;
                                 case 2: // TODO Conservation of Energy
                                     newTest = new ConservationEnergyTest(testParameters, finalData, MPUMinMax, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
@@ -1250,7 +1254,15 @@ public class EducatorModeControllerFX implements Initializable {
                             }
 
                             logger.info("Creating " + newTest.getClass().getName());
-                            genericTests.add(newTest);
+                            if(experimentType != 1){
+                                genericTests.add(newTest);
+                            }else{
+                                if(comTest.isFilled()){
+                                    genericTests.add(comTest.getModuleOne());
+                                    genericTests.add(comTest.getModuleTwo());
+                                }
+                                logger.info("running else condition");
+                            }
 
                             // write GenericTest to CSV
                             try {
