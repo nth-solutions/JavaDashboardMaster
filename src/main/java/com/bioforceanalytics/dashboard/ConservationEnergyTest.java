@@ -2,24 +2,47 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ArrayList;
 
-public class ConservationEnergyTest extends GenericTest {
+public class ConservationEnergyTest{
 
 	private double mass;
 	private double momentOfInertia;
 	private double radiusOfArm;
 	private double distanceDropped;
+	private GenericTest moduleOne;
+	private GenericTest moduleTwo;
 
-	public ConservationEnergyTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double mass, double momentOfInertia, double radiusOfArm, double distanceDropped) {
-		
-		super(testParameters, finalData, MPUMinMax);
+	public boolean isFilled(){
+		return (moduleOne != null && moduleTwo != null);
+	}
+
+	public GenericTest getModuleOne(){
+		return moduleOne;
+	}
+	public GenericTest getModuleTwo(){
+		return moduleTwo;
+	}
+
+	public void addModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax){
+		if(moduleOne == null){
+			moduleOne = new ConservationEnergyModule(testParameters,finalData, MPUMinMax,(mass),this);
+			moduleOne.setGraphTitle("Conservation of Energy");
+			moduleOne.setDefaultAxes(new AxisType[] {AxisType.DispY});
+		}else if (moduleTwo == null){
+			moduleTwo = new ConservationEnergyModule(testParameters,finalData, MPUMinMax,(radiusOfArm * momentOfInertia),this);
+			moduleTwo.setGraphTitle("Conservation of Energy");
+			moduleTwo.setDefaultAxes(new AxisType[] {AxisType.AngVelZ});
+		}else{
+			System.out.println("Conservation of Energy Error");
+		}
+
+	}
+	public ConservationEnergyTest(double mass, double momentOfInertia, double radiusOfArm, double distanceDropped) {
 
 		this.mass = mass;
 		this.momentOfInertia = momentOfInertia;
 		this.radiusOfArm = radiusOfArm;
 		this.distanceDropped = distanceDropped;
-		
-		setGraphTitle("Conservation of Energy");	
-		setDefaultAxes(new AxisType[] {AxisType.AccelX});
+
 	}
 
 	public void setupExperimentPanel(ExperimentPanel panel){

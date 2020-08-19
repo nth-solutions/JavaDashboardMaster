@@ -32,7 +32,7 @@ public class ConservationMomentumTest {
 			moduleTwo.setGraphTitle("Conservation of Momentum");
 			moduleTwo.setDefaultAxes(new AxisType[] {AxisType.MomentumX});
 		}else{
-			System.out.println("Conservation of Mass Error");
+			System.out.println("Conservation of Momentum Error");
 		}
 
 	}

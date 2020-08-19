@@ -180,6 +180,7 @@ public class EducatorModeControllerFX implements Initializable {
     double angleFromTop;
 
     private ConservationMomentumTest comTest;
+    private ConservationEnergyTest engTest;
     
     private int experimentType;
     
@@ -636,7 +637,7 @@ public class EducatorModeControllerFX implements Initializable {
                 massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
                 momentOfInertiaCOE = Double.parseDouble(momentOfInertiaCOETextField.getText());
                 radiusOfTorqueArmCOE = Double.parseDouble(radiusOfTorqueArmCOETextField.getText());
-                
+                engTest = new ConservationEnergyTest(massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
                 testType = "Conservation of Energy";
                 break;
 
@@ -1228,7 +1229,8 @@ public class EducatorModeControllerFX implements Initializable {
                                     newTest = new GenericTest(testParameters,finalData,MPUMinMax);
                                     break;
                                 case 2: // TODO Conservation of Energy
-                                    newTest = new ConservationEnergyTest(testParameters, finalData, MPUMinMax, massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
+                                    engTest.addModule(testParameters, finalData, MPUMinMax);
+                                    newTest = new GenericTest(testParameters,finalData,MPUMinMax);
                                     break;
                                 case 3: // Inclined Plane - Top
                                     newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax, angleFromTop);
@@ -1254,14 +1256,18 @@ public class EducatorModeControllerFX implements Initializable {
                             }
 
                             logger.info("Creating " + newTest.getClass().getName());
-                            if(experimentType != 1){
+                            if(experimentType  > 2){
                                 genericTests.add(newTest);
-                            }else{
+                            }else if (experimentType == 1){
                                 if(comTest.isFilled()){
                                     genericTests.add(comTest.getModuleOne());
                                     genericTests.add(comTest.getModuleTwo());
                                 }
-                                logger.info("running else condition");
+                            }else{
+                                if(engTest.isFilled()){
+                                    genericTests.add(engTest.getModuleOne());
+                                    genericTests.add(engTest.getModuleTwo());
+                                }
                             }
 
                             // write GenericTest to CSV
