@@ -5,39 +5,44 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
+import com.github.kokorin.jaffree.StreamType;
 import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
+import com.github.kokorin.jaffree.ffmpeg.FFmpegProgress;
 import com.github.kokorin.jaffree.ffmpeg.Filter;
 import com.github.kokorin.jaffree.ffmpeg.FilterChain;
 import com.github.kokorin.jaffree.ffmpeg.FilterGraph;
 import com.github.kokorin.jaffree.ffmpeg.NullOutput;
 import com.github.kokorin.jaffree.ffmpeg.OutputListener;
+import com.github.kokorin.jaffree.ffmpeg.ProgressListener;
 import com.github.kokorin.jaffree.ffmpeg.UrlInput;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Calculates SINC calibration values such as timer0 offset and delay after start.
+ * Calculates SINC calibration values such as timer0 offset and delay after
+ * start.
  * <p>
- * Based on a 2 minute test where the module lights up at <code>00:02</code>, then turns off at <code>02:00</code>.
- * Scans from <code>00:00-00:03</code> for the first non-black frame, then from <code>01:55-END</code> for the first black frame.
+ * Based on a 2 minute test where the module lights up at <code>00:02</code>,
+ * then turns off at <code>02:00</code>. Scans from <code>00:00-00:03</code> for
+ * the first non-black frame, then from <code>01:55-END</code> for the first
+ * black frame.
  * </p>
  */
 public class BlackFrameAnalysis {
 
 	/*
-	 * TODO implement features listed below:
-	 * Read module sample rate, video sample rate, and the video file
-	 * Returns the offset for TMR0
-	 */	
+	 * TODO implement features listed below: Read module sample rate, video sample
+	 * rate, and the video file Returns the offset for TMR0
+	 */
 	private final int videoFPS = 30;
 	private final int moduleSPS = 960;
 	private final int lengthOfTest = 120;
-	private final double T_INTERVAL = (1.0/(double)videoFPS);
-	
+	private final double T_INTERVAL = (1.0 / (double) videoFPS);
+
 	private int preLitBFNum = 0;
 	private int postLitBFNum = 0;
-	
+
 	private static final Logger logger = LogManager.getLogger();
 
 	public BlackFrameAnalysis(String videoFilePath) throws IOException {
@@ -47,7 +52,8 @@ public class BlackFrameAnalysis {
 		Path BIN = Paths.get(wrapper.getBinRoot());
 		Path VIDEO_MP4 = Paths.get(videoFilePath);
 
-		// settings for black frame analysis filter (https://ffmpeg.org/ffmpeg-filters.html#blackframe)
+		// settings for black frame analysis filter
+		// (https://ffmpeg.org/ffmpeg-filters.html#blackframe)
 		Filter blackframe = Filter.withName("blackframe").addArgument("amount", "80");
 
 		// find last black frame before test starts
@@ -55,7 +61,7 @@ public class BlackFrameAnalysis {
 			// set input to the first 5 seconds of the video file
 			.addInput(UrlInput.fromPath(VIDEO_MP4).setDuration(5, TimeUnit.SECONDS))
 			// use black frame analysis filter
-			.setFilter(FilterGraph.of(FilterChain.of(blackframe)))
+			.setFilter(StreamType.VIDEO, FilterGraph.of(FilterChain.of(blackframe)))
 			// don't create an output video file
 			.addOutput(new NullOutput(false))
 			// read output messages
@@ -75,10 +81,12 @@ public class BlackFrameAnalysis {
 
 		// find first black frame after test ends
 		FFmpeg.atPath(BIN)
-			// set input to 1:55-END of the video file
-			.addInput(UrlInput.fromPath(VIDEO_MP4).setPosition(115, TimeUnit.SECONDS))
+			// set input to 1:55-2:05 of the video file
+			.addInput(UrlInput.fromPath(VIDEO_MP4)
+						.setPosition(115, TimeUnit.SECONDS)
+						.setDuration(10, TimeUnit.SECONDS))
 			// use black frame analysis filter
-			.setFilter(FilterGraph.of(FilterChain.of(blackframe)))
+			.setFilter(StreamType.VIDEO, FilterGraph.of(FilterChain.of(blackframe)))
 			// don't create an output video file
 			.addOutput(new NullOutput(false))
 			// read output messages

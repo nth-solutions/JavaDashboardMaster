@@ -1767,22 +1767,20 @@ public class EducatorModeControllerFX implements Initializable {
 
             Throwable ex = calibrationTask.getException();
 
-            logger.error("Calibration failed: " + ex);
+            logger.error("Configuration failed: " + ex);
 
             if (ex instanceof PortInUseException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- port in use by another application", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module -- port in use by another application", 1, Status.ERROR);
             }
             else if (ex instanceof UnsupportedCommOperationException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- check USB dongle compatibility", 1, Status.ERROR);
-            }
-            else if (ex instanceof UnsupportedCommOperationException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- check USB dongle compatibility", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module -- check USB dongle compatibility", 1, Status.ERROR);
             }
             else if (ex instanceof IOException) {
                 displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to module, try again", 1, Status.ERROR);
             }
             else {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module, try again", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module, try again", 1, Status.ERROR);
+                ex.printStackTrace();
             }
 
         });
@@ -1885,6 +1883,7 @@ public class EducatorModeControllerFX implements Initializable {
             }
             else {
                 displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module, try again", 1, Status.ERROR);
+                ex.printStackTrace();
             }
 
         });
