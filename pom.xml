@@ -6,7 +6,7 @@
 
   <groupId>com.bioforceanalytics.dashboard</groupId>
   <artifactId>dashboard</artifactId>
-  <version>REV-42</version>
+  <version>REV-43</version>
   <packaging>jar</packaging>
 
   <name>EduForce Dashboard</name>
