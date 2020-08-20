@@ -1,8 +1,8 @@
 {
     "AccelX": "#ff0000",
-    "AccelY": "#FF5722",
-    "AccelZ": "#FF9800",
-    "AccelMag": "#FDD835",
+    "AccelY": "#ff6600",
+    "AccelZ": "#FF9900",
+    "AccelMag": "#ffd000",
 
     "VelX": "#3bcf3b",
     "VelY": "#0a7e00",

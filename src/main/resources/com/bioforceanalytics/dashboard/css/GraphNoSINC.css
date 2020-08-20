@@ -11,5 +11,5 @@
 
 /* Style data for the lines drawn by finding slope at/between point(s) */
 .slope-line {
-    -fx-stroke: red;
+    -fx-stroke: black;
 }

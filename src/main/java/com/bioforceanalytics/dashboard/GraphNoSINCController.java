@@ -291,6 +291,7 @@ public class GraphNoSINCController implements Initializable {
 			});
 
 		});
+
 	}
 
 	/**
@@ -606,12 +607,13 @@ public class GraphNoSINCController implements Initializable {
 		// add ObservableList to XYChart.Series
 		series.setData(seriesData);
 
-		// hide all data point symbols UNLESS they are for the legend
+		// hide all data point symbols
 		for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
-			if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
-				n.setStyle("-fx-background-color: transparent;");
-			}
+			n.setStyle("-fx-background-color: transparent;");
 		}
+
+		// update legend colors
+		multiAxis.styleLegend();
 
 	}
 
@@ -963,6 +965,9 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.getData().add(slopeLine);
 		slopeLine.getNode().getStyleClass().add("slope-line");
 
+		// update legend colors
+		multiAxis.styleLegend();
+
 		setGraphMode(GraphMode.NONE);
 
 	}
@@ -1010,6 +1015,9 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.getData().add(slopeLine);
 		slopeLine.getNode().getStyleClass().add("slope-line");
 
+		// update legend colors
+		multiAxis.styleLegend();
+
 		setGraphMode(GraphMode.NONE);
 
 	}
@@ -1018,7 +1026,14 @@ public class GraphNoSINCController implements Initializable {
 	 * Clears the slope line at/between points (if currently drawn).
 	 */
 	private void clearSlope() {
-		if (slopeLine != null) lineChart.getData().remove(slopeLine);
+
+		if (slopeLine != null) {
+			lineChart.getData().remove(slopeLine);
+
+			// update legend colors
+			multiAxis.styleLegend();
+		}
+
 	}
 
 	/**
@@ -1184,10 +1199,10 @@ public class GraphNoSINCController implements Initializable {
 
 						// ensure the lower bound is less than the upper bound
 						if (areaPoint[0] == areaBounds[0]) {
-							lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
+							lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis), area, SIG_FIGS);
 						}
 						else {
-							lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis).data.getData(), area, SIG_FIGS);
+							lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis), area, SIG_FIGS);
 						}
 
 						setGraphMode(GraphMode.NONE);

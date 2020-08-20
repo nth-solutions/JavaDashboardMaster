@@ -107,8 +107,6 @@ public class BFAColorMenu implements Initializable {
         // this method is boilerplate code necessary for rendering the cell
         protected void updateItem(ColorPicker item, boolean empty) {
 
-            System.out.println(item);
-
             super.updateItem(item, empty);
             if (empty)  setGraphic(null);
             else        setGraphic(picker);

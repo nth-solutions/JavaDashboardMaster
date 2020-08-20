@@ -29,7 +29,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     // fields used for shading in area
     private XYChart.Data<Double, Double> p1;
     private XYChart.Data<Double, Double> p2;
-    private ObservableList<XYChart.Data<Number, Number>> data;
+    private GraphData data;
     private int SIG_FIGS;
     private double area;
 
@@ -91,7 +91,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      * @param area the value of the definite integral from the two bounds
      * @param SIG_FIGS the number of significant figures used to round the area value
      */
-    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
+    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, GraphData data, double area, final int SIG_FIGS) {
 
         this.p1 = p1;
         this.p2 = p2;
@@ -107,18 +107,20 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      */
     public void redrawArea() {
 
+        ObservableList<XYChart.Data<Number, Number>> series = data.data.getData();
+
         if (p1 == null && p2 == null && data == null) return;
         int start = -1;
         int end = -1;
 
         // get index of x1 and x2 in samples
-        for (int i = 0; i < data.size(); i++) {
+        for (int i = 0; i < series.size(); i++) {
 
-            if (data.get(i).getXValue().equals(p1.getXValue()) && data.get(i).getYValue().equals(p1.getYValue())) {
+            if (series.get(i).getXValue().equals(p1.getXValue()) && series.get(i).getYValue().equals(p1.getYValue())) {
                 start = i;
             }
 
-            if (data.get(i).getXValue().equals(p2.getXValue()) && data.get(i).getYValue().equals(p2.getYValue())) {
+            if (series.get(i).getXValue().equals(p2.getXValue()) && series.get(i).getYValue().equals(p2.getYValue())) {
                 end = i;
             }
 
@@ -136,8 +138,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         areaPane.setPickOnBounds(false);
 
         // set (x,y) position of the area label to halfway between the x-bounds of the area
-        areaPane.setLayoutX(data.get((start + end) / 2).getNode().getLayoutX() - 50);
-        areaPane.setLayoutY(data.get((start + end) / 2).getNode().getLayoutY() - 100);
+        areaPane.setLayoutX(series.get((start + end) / 2).getNode().getLayoutX() - 50);
+        areaPane.setLayoutY(series.get((start + end) / 2).getNode().getLayoutY() - 100);
 
         // add area label to LineChart
         getPlotChildren().add(areaPane);
@@ -154,11 +156,11 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // loop through all points in [p1, p2]
         for (int i = start; i <= end; i++) {      
 
-            // pixel positions of x=data[i] and x=data[i+1] on LineChart component
-            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
+            // pixel positions of x=series[i] and x=seriesi+1] on LineChart component
+            double x1 = xAxis.getDisplayPosition(series.get(i).getXValue());
 
-            // pixel positions of y=data[i] and y=data[i+1] on LineChart component
-            double y1 = yAxis.getDisplayPosition(data.get(i).getYValue());
+            // pixel positions of y=series[i] and y=series[i+1] on LineChart component
+            double y1 = yAxis.getDisplayPosition(series.get(i).getYValue());
 
             // add points to polygon
             poly.getPoints().addAll(new Double[] { x1, y1 });
@@ -167,13 +169,13 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
         // populate points along the x-axis
         for (int i = end; i >= start; i--) {
-            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
+            double x1 = xAxis.getDisplayPosition(series.get(i).getXValue());
             poly.getPoints().addAll(new Double[] { x1, y0 });
         }
 
-        // TODO change this to shade the same color as the graph?
-        // not important at all, just a cosmetic feature that would be nice
-        poly.setFill(new Color(1,0,0,0.5));
+        // set of the shaded area to the axis's color with a lower opacity
+        Color c = BFAColorMenu.getColor(data.axis);
+        poly.setFill(new Color(c.getRed(), c.getGreen(), c.getBlue(), 0.5));
 
         // add polygon to LineChart
         getPlotChildren().add(poly);

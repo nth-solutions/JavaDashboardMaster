@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.javafx.charts.Legend;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -278,6 +280,9 @@ public class MultipleAxesLineChart extends StackPane {
         // set color/style of line
         styleChartLine(d);
 
+        // set legend symbol colors
+        styleLegend();
+
     }
 
     /**
@@ -310,6 +315,10 @@ public class MultipleAxesLineChart extends StackPane {
             backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
             axisTypeMap.remove(axis.getValue()/4);
         }
+
+        // set legend symbol colors
+        styleLegend();
+
     }
 
     /**
@@ -363,6 +372,41 @@ public class MultipleAxesLineChart extends StackPane {
         String dashedStyle = d.GTIndex % 2 == 1 ? "-fx-stroke-dash-array: 5 5 5 5;" : "";
 
         line.setStyle(colorStyle + dashedStyle);
+
+    }
+
+    /**
+     * Updates legend symbols to match line colors.
+     */
+    public void styleLegend() {
+        
+        // loop through each child of the line chart
+        for (Node n : baseChart.getChildrenUnmodifiable()) {
+
+            // ensure node is the legend
+            if (n instanceof Legend) {
+
+                // loop through each legend item
+                for (Legend.LegendItem legendItem : ((Legend) n).getItems()) {
+
+                    String style = "";
+
+                    // if this is a slope line, set the color to black
+                    if (legendItem.getText().contains("Slope")) {
+                        style = "black";
+                    }
+                    // otherwise, set it to the corresponding axis color
+                    else {
+                        AxisType a = AxisType.valueOf(legendItem.getText());
+                        style = BFAColorMenu.getHexString(a);
+                    }
+
+                    // set legend symbol color
+                    legendItem.getSymbol().setStyle("-fx-background-color: " + style + ", white;");
+                    
+                }
+            }
+        }
 
     }
 
