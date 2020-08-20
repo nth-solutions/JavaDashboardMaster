@@ -1,6 +1,8 @@
 package com.bioforceanalytics.dashboard;
 
-import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
@@ -155,7 +157,8 @@ public class BFAColorMenu implements Initializable {
         try {
 
             // load "defaultGraphColors.json" as an object
-            FileReader reader = new FileReader(BFAColorMenu.class.getResource("defaultGraphColors.json").getFile());
+            InputStream stream = BFAColorMenu.class.getResourceAsStream("defaultGraphColors.json");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
             JSONObject obj = (JSONObject) new JSONParser().parse(reader);
 
             // loop through AxisTypes to populate color map
