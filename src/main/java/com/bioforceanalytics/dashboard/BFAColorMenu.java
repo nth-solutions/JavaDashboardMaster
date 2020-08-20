@@ -1,160 +1,214 @@
 package com.bioforceanalytics.dashboard;
 
+import java.io.FileReader;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 
-import javafx.event.ActionEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class BFAColorMenu implements Initializable {
 
-    @FXML
-    private ColorPicker xAccelColorPicker;
-    @FXML
-    private ColorPicker yAccelColorPicker;
-    @FXML
-    private ColorPicker zAccelColorPicker;
-    @FXML
-    private ColorPicker xGyroColorPicker;
-    @FXML
-    private ColorPicker yGyroColorPicker;
-    @FXML
-    private ColorPicker zGyroColorPicker;
-    @FXML
-    private ColorPicker xMagColorPicker;
-    @FXML
-    private ColorPicker yMagColorPicker;
-    @FXML
-    private ColorPicker zMagColorPicker;
-    @FXML
-    private ColorPicker accelMagColorPicker;
+    // keeps track of AxisTypes and their matching colors.
+    private static HashMap<AxisType, Color> colorMap = new HashMap<AxisType, Color>();
 
+    // reference to parent GraphNoSINCController
+    private GraphNoSINCController controller;
 
+    // left column labelled "Axis Type" with axis type names
+    @FXML private TableColumn<AxisType, String> axisTypeCol;
 
-    public Color[] lineColors = new Color[10];
+    // right column labelled "Color" with color pickers
+    @FXML private TableColumn<AxisType, ColorPicker> colorCol;
 
-    private GraphController Window;
+    // Node representing the entire table
+    @FXML private TableView<AxisType> tableView;
 
-    public static String xAccelColor;
-    public static String yAccelColor;
-    public static String zAccelColor;
+    private static final Logger logger = LogManager.getLogger();
 
-    public static String xGyroColor;
-    public static String yGyroColor;
-    public static String zGyroColor;
-
-    public static String xMagColor;
-    public static String yMagColor;
-    public static String zMagColor;
-
-    public static String accelMagColor;
-
-    /**
-     * Sets default values for the colorPicker.
-     * @param location
-     * @param resources
-     */
+    static {
+        BFAColorMenu.loadColorsFromJSON();
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        xAccelColorPicker.setValue(Color.RED);
-        yAccelColorPicker.setValue(Color.DODGERBLUE);
-        zAccelColorPicker.setValue(Color.FORESTGREEN);
 
-        xGyroColorPicker.setValue(Color.GOLD);
-        yGyroColorPicker.setValue(Color.CORAL);
-        zGyroColorPicker.setValue(Color.MEDIUMBLUE);
+        // don't allow the user to click and select rows
+        tableView.setSelectionModel(null);
 
-        xMagColorPicker.setValue(Color.DARKVIOLET);
-        yMagColorPicker.setValue(Color.DARKSLATEGRAY);
-        zMagColorPicker.setValue(Color.SADDLEBROWN);
+        // center both table columns
+        axisTypeCol.setStyle("-fx-alignment: CENTER");
+        colorCol.setStyle("-fx-alignment: CENTER");
 
-        accelMagColorPicker.setValue(Color.BLACK);
+        // set the left column to the name of each AxisType
+        axisTypeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().toString()));
+
+        // set the right column to the custom color picker cell
+        colorCol.setCellFactory(column -> new ColorPickerCell());
+
+        //colorCol.setCellValueFactory(data -> new ColorPicker());
+
+        // populate table with AxisType entries
+        for (AxisType a : AxisType.values()) {
+            tableView.getItems().add(a);
+        }
+
     }
 
     /**
-     * Closes the Window
+     * Custom table cell that contains a color picker.
      */
-    private void closeWindow(){
-       Stage stage = (Stage) xAccelColorPicker.getScene().getWindow();
-       stage.close();
+    private class ColorPickerCell extends TableCell<AxisType, ColorPicker> {
+
+        final ColorPicker picker = new ColorPicker();
+
+        ColorPickerCell() {
+
+            // runs inside Platform.runLater() so "getTableRow()" is not null
+            Platform.runLater(() -> {
+
+                // get index and AxisType of this color picker
+                int rowIndex = getTableRow().getIndex();
+                AxisType a = AxisType.valueOf(rowIndex);
+
+                // set color picker's value based on color map
+                picker.setValue(colorMap.get(a));
+
+                // when color picker changes
+                picker.setOnAction(e -> {
+
+                    // update color map with the newly selected color
+                    colorMap.replace(a, picker.getValue());
+
+                    logger.info("Updated " + a + "'s color to " + picker.getValue());
+                });
+
+            });
+
+        }
+
+        @Override
+        // this method is boilerplate code necessary for rendering the cell
+        protected void updateItem(ColorPicker item, boolean empty) {
+
+            System.out.println(item);
+
+            super.updateItem(item, empty);
+            if (empty)  setGraphic(null);
+            else        setGraphic(picker);
+        
+        }
+
     }
 
     /**
-     * ActionEvent that resets all of the ColorPickers within the window to their default color.
-     * @param event
+     * Returns the color associated with an AxisType.
+     * @param axis the enum representing the data set
+     * @return the color associated with an AxisType
      */
+    public static Color getColor(AxisType axis) {
+        return colorMap.get(axis);
+    }
+
+    /**
+     * Returns the color associated with an AxisType,
+     * formatted as a hexadecimal color code.
+     * @param axis the enum representing the data set
+     * @return the color associated with an AxisType
+     */
+    public static String getHexString(AxisType axis) {
+
+        Color c = getColor(axis);
+        
+        return String.format("#%02X%02X%02X",
+            (int) (c.getRed()*255),
+            (int) (c.getGreen()*255),
+            (int) (c.getBlue()*255));
+
+    }
+
+    /**
+     * Allows communication between the color menu and the DAG's controller.
+     * @param controller the DAG controller to pair this color menu to
+     */
+    public void setParent(GraphNoSINCController controller) {
+        this.controller = controller;
+    }
+
+    // loads default colors from "defaultGraphColors.json"
+    private static void loadColorsFromJSON() {
+
+        try {
+
+            // load "defaultGraphColors.json" as an object
+            FileReader reader = new FileReader(BFAColorMenu.class.getResource("defaultGraphColors.json").getFile());
+            JSONObject obj = (JSONObject) new JSONParser().parse(reader);
+
+            // loop through AxisTypes to populate color map
+            for (AxisType a : AxisType.values()) {
+
+                // read color hexcode from JSON
+                String colorString = (String) obj.get(a.toString());
+
+                // convert hexcode to Color object
+                Color c = Color.web(colorString);
+
+                // add color to map
+                colorMap.put(a, c);
+            }
+
+            logger.info("Loaded 'defaultGraphColors.json' into color map.");
+            
+        } catch (Exception e) {
+
+            logger.error("Could not load default graph color configuration.");
+            e.printStackTrace();
+
+            // fill color map with black colors so graph still functions
+            for (AxisType a : AxisType.values()) {
+                colorMap.put(a, Color.BLACK);
+            }
+        }
+    }
+
     @FXML
-    private void resetColorPickers(ActionEvent event) {
-        xAccelColorPicker.setValue(Color.RED);
-        yAccelColorPicker.setValue(Color.DODGERBLUE);
-        zAccelColorPicker.setValue(Color.FORESTGREEN);
+    // TODO make this save "customGraphColors.json" to disk
+    private void updateGraphColors() {
+        
+        logger.info("Updating graph colors...");
+        controller.updateGraphColors();
 
-        xGyroColorPicker.setValue(Color.GOLD);
-        yGyroColorPicker.setValue(Color.CORAL);
-        zGyroColorPicker.setValue(Color.MEDIUMBLUE);
-
-        xMagColorPicker.setValue(Color.DARKVIOLET);
-        yMagColorPicker.setValue(Color.DARKSLATEGRAY);
-        zMagColorPicker.setValue(Color.SADDLEBROWN);
-
-        accelMagColorPicker.setValue(Color.BLACK);
+        // close the color menu
+        Stage stage = (Stage) tableView.getScene().getWindow();
+        stage.close();
 
     }
 
-    /**
-     * After the User clicks the save Button, the values of each colorPicker are saved to variables that are used to actually set the colors in the graph.
-     * @param event
-     */
     @FXML
-    public void saveColorPickerColors(ActionEvent event) {
-//        lineColors[0] = xAccelColorPicker.getValue();
-//        lineColors[1] = yAccelColorPicker.getValue();
-//        lineColors[2] = zAccelColorPicker.getValue();
-//
-//        lineColors[3] = xGyroColorPicker.getValue();
-//        lineColors[4] = yGyroColorPicker.getValue();
-//        lineColors[5] = zGyroColorPicker.getValue();
-//
-//        lineColors[6] = xMagColorPicker.getValue();
-//        lineColors[7] = yMagColorPicker.getValue();
-//        lineColors[8] = zMagColorPicker.getValue();
-//
-//        lineColors[9] = accelMagColorPicker.getValue();
+    private void resetGraphColors() {
 
-        xAccelColor = xAccelColorPicker.getValue().toString();
-        yAccelColor = yAccelColorPicker.getValue().toString();
-        zAccelColor = zAccelColorPicker.getValue().toString();
+        logger.info("Resetting graph colors...");
 
-        xGyroColor = xGyroColorPicker.getValue().toString();
-        yGyroColor = yGyroColorPicker.getValue().toString();
-        zGyroColor = zGyroColorPicker.getValue().toString();
+        // reload default color scheme
+        BFAColorMenu.loadColorsFromJSON();
 
-        xMagColor = xMagColorPicker.getValue().toString();
-        yMagColor = yMagColorPicker.getValue().toString();
-        zMagColor = zMagColorPicker.getValue().toString();
-
-        accelMagColor = accelMagColorPicker.getValue().toString();
-
-        //window.setLineColors(lineColors);
-
-        //window.restyleSeries();
-
-
-
-        closeWindow();
+        // re-render table with new colors
+        tableView.refresh();
+    
     }
 
-    public void setGraphControllerObject(GraphController window){
-        Window = window;
-    }
-
-    /**
-     * Gets the array containing Color objects which are used to change line colors in the graph interface
-     * @return
-     */
 }

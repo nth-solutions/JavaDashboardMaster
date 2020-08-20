@@ -8,19 +8,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.beans.Observable;
+import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 
 public class MultipleAxesLineChart extends StackPane {
 
     private final BFALineChart<Number, Number> baseChart;
     private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
-    private final Map<BFALineChart<Number, Number>, Color> chartColorMap = new HashMap<>();
 
     /**
      * Tracks the axis classes and their respective line charts holding the y-axes.
@@ -40,18 +39,13 @@ public class MultipleAxesLineChart extends StackPane {
 
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
-    private double strokeWidth = 0.3;
 
     private static final Logger logger = LogManager.getLogger();
 
-    public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor) {
-        this(baseChart, lineColor, null);
+    public MultipleAxesLineChart() {
+        this(null);
     }
 
-    public MultipleAxesLineChart() {
-        this(null, Color.RED, null);
-    }
-   
     /**
      * Returns the amount that the data set's graph should be scaled by.
      * This is used for angular and magnetometer data sets.
@@ -69,11 +63,7 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
-    public ObservableList<BFALineChart<Number, Number>> getBackgroundCharts() {
-        return backgroundCharts;
-    }
-
-    public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart, Color lineColor, Double strokeWidth) {
+    public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart) {
         
         super();
         setPickOnBounds(false);
@@ -92,17 +82,9 @@ public class MultipleAxesLineChart extends StackPane {
 
         }
 
-        if (strokeWidth != null) {
-            this.strokeWidth = strokeWidth;
-        } else {
-            this.strokeWidth = 2;
-        }
         this.baseChart = baseChart;
 
-        chartColorMap.put(baseChart, lineColor);
-
         styleBaseChart(baseChart);
-        styleChartLine(baseChart, lineColor);
         setFixedAxisWidth(baseChart);
 
         setAlignment(Pos.CENTER_LEFT);
@@ -111,7 +93,6 @@ public class MultipleAxesLineChart extends StackPane {
 
         rebuildChart();
     }
-
 
     public BFALineChart<Number, Number> getBaseChart() {
         return baseChart;
@@ -123,7 +104,7 @@ public class MultipleAxesLineChart extends StackPane {
 
     private void styleBaseChart(BFALineChart<Number, Number> baseChart) {
         baseChart.setCreateSymbols(false);
-        baseChart.setLegendVisible(false);
+        baseChart.setLegendVisible(true);
         baseChart.getXAxis().setAutoRanging(false);
         baseChart.getYAxis().setAutoRanging(false);
         baseChart.getXAxis().setAnimated(false);
@@ -149,6 +130,7 @@ public class MultipleAxesLineChart extends StackPane {
 
     private void rebuildChart() {
 
+        // resize the base chart and add it the multi axis chart if necessary
         if (getChildren().contains(baseChart)) {
             resizeBaseChart(baseChart);
         } else {
@@ -156,11 +138,14 @@ public class MultipleAxesLineChart extends StackPane {
             getChildren().add(baseChart);
         }
 
+        // loop through each background chart
         for (BFALineChart<Number, Number> lineChart : backgroundCharts) {
-            if(!getChildren().contains(lineChart)){
+
+            // resize each background chart and add it to the multi axis chart if necessary
+            if (!getChildren().contains(lineChart)) {
                 resizeBackgroundChart(lineChart);
                 getChildren().add(lineChart);
-            }else{
+            } else {
                 resizeBackgroundChart(lineChart);
             }
         }
@@ -183,30 +168,37 @@ public class MultipleAxesLineChart extends StackPane {
 
     private void resizeBaseChart(BFALineChart<Number, Number> lineChart) {
 
-        lineChart.prefWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * ((backgroundCharts.size() > 0 ? backgroundCharts.size() -1 : 0))));
-        lineChart.minWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * ((backgroundCharts.size() > 0 ? backgroundCharts.size() -1 : 0))));
-        lineChart.maxWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * ((backgroundCharts.size() > 0 ? backgroundCharts.size() -1 : 0))));
+        // calculate the width of the current line chart: if there is already a background chart,
+        // subtract the number of background charts from the current width; otherwise, subtract nothing
+        DoubleBinding binding = widthProperty()
+            .subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() > 0 ? backgroundCharts.size() - 1 : 0));
+
+        // apply widths to current line chart
+        lineChart.prefWidthProperty().bind(binding);
+        lineChart.minWidthProperty().bind(binding);
+        lineChart.maxWidthProperty().bind(binding);
 
     }
 
     private void resizeBackgroundChart(BFALineChart<Number, Number> lineChart) {
 
-        lineChart.prefWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
-        lineChart.minWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
-        lineChart.maxWidthProperty()
-                .bind(widthProperty().subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1)));
-       
+        // calculate the width of the current line chart by
+        // subtracting the number of background charts from the current width
+        DoubleBinding binding = widthProperty()
+            .subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1));
+
+        // apply widths to current line chart
+        lineChart.prefWidthProperty().bind(binding);
+        lineChart.minWidthProperty().bind(binding);
+        lineChart.maxWidthProperty().bind(binding);
         
-        if(backgroundCharts.indexOf(lineChart) != 0){
+        // if this is the first background chart, place it on the left;
+        // otherwise, place it to the right of the current line chart
+        if (backgroundCharts.indexOf(lineChart) != 0) {
             lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
             lineChart.getYAxis().setSide(Side.RIGHT);
             lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * (backgroundCharts.indexOf(lineChart) - 1));
-        }else{
+        } else {
             lineChart.translateXProperty().unbind();
             lineChart.translateXProperty().setValue(0.0);
             lineChart.getYAxis().setSide(Side.LEFT);
@@ -215,12 +207,11 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     /**
-     * Adds a data set to the graph.
-     * Creates a y-axis class if necessary.
+     * Adds a data set to the graph. Creates a y-axis class if necessary.
      * @param d the GraphData object representing the AxisType, GTIndex, and XYChart.Series
      * @param lineColor the color of the data set's graph
      */
-    public void addSeries(GraphData d, Color lineColor) {
+    public void addSeries(GraphData d) {
 
         // clear area shading
         baseChart.clearArea();
@@ -270,7 +261,7 @@ public class MultipleAxesLineChart extends StackPane {
             
             axisTypeMap.put(axisTypeInt,lineChart);
             backgroundCharts.add(lineChart);
-            styleBackgroundChart(lineChart, lineColor);
+            styleBackgroundChart(lineChart);
             setFixedAxisWidth(lineChart);
             
             lineChart.getXAxis().setLabel("#" + d.axis.getValue());
@@ -280,13 +271,13 @@ public class MultipleAxesLineChart extends StackPane {
         }
 
         axisChartMap.put(d, lineChart);
+
         baseChart.getData().add(d.data);
         dataSets.add(d);
-        for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
-            if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
-                n.setStyle("-fx-background-color: transparent;");
-            }
-        }
+
+        // set color/style of line
+        styleChartLine(d);
+
     }
 
     /**
@@ -309,6 +300,7 @@ public class MultipleAxesLineChart extends StackPane {
         d.data.getData().clear();
         axisChartMap.get(d).getData().remove(d.data);
         axisChartMap.remove(d);
+        baseChart.getData().remove(d.data);
 
         // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
@@ -343,7 +335,7 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
-    private void styleBackgroundChart(BFALineChart<Number, Number> lineChart, Color lineColor) {
+    private void styleBackgroundChart(BFALineChart<Number, Number> lineChart) {
 
         Node contentBackground = lineChart.lookup(".chart-content").lookup(".chart-plot-background");
         contentBackground.setStyle("-fx-background-color: transparent;");
@@ -359,17 +351,29 @@ public class MultipleAxesLineChart extends StackPane {
     
     }
 
-    private String toRGBCode(Color color) {
-        return String.format("#%02X%02X%02X", (int) (color.getRed() * 255), (int) (color.getGreen() * 255),
-                (int) (color.getBlue() * 255));
+    private void styleChartLine(GraphData d) {
+
+        // fetch the line object from the graph
+        Node line = d.data.getNode().lookup(".chart-series-line");
+
+        // set the color of the line and symbols from BFAColorMenu
+        String colorStyle = "-fx-stroke: " + BFAColorMenu.getHexString(d.axis) + ";";
+
+        // if GT number (not index) is even, render a dashed line
+        String dashedStyle = d.GTIndex % 2 == 1 ? "-fx-stroke-dash-array: 5 5 5 5;" : "";
+
+        line.setStyle(colorStyle + dashedStyle);
+
     }
 
-    private void styleChartLine(BFALineChart<Number, Number> chart, Color lineColor) {
-        chart.getYAxis().lookup(".axis-label")
-                .setStyle("-fx-text-fill: " + toRGBCode(lineColor) + "; -fx-font-weight: bold;");
-        Node seriesLine = chart.lookup(".chart-series-line");
-        if (seriesLine != null)
-            seriesLine.setStyle("-fx-stroke: " + toRGBCode(lineColor) + "; -fx-stroke-width: " + strokeWidth + ";");
+	/**
+	 * Updates the colors of currently graphed lines based on BFAColorMenu.
+	 */
+    public void updateGraphColors() {
+
+        for (GraphData d : dataSets) {
+            styleChartLine(d);
+        }
 
     }
 

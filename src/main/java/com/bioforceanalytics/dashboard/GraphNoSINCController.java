@@ -19,9 +19,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
@@ -32,14 +34,16 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * Controller class for the Data Analysis Graph. Handles all user interaction with the user interface,
@@ -122,6 +126,9 @@ public class GraphNoSINCController implements Initializable {
 	// TODO make this an advanced user setting
 	private final int SIG_FIGS = 3;
 
+	// BFA icon
+	private Image icon;
+
 	private static final Logger logger = LogManager.getLogger();
 
 	@FXML
@@ -155,6 +162,8 @@ public class GraphNoSINCController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		logger.info("Initializing Data Analysis graph...");
+
+		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
@@ -534,13 +543,11 @@ public class GraphNoSINCController implements Initializable {
 			dataSets.add(d);
 
 			// add graph with new axis
-			multiAxis.addSeries(d, Color.rgb(((axis.getValue() + 20) % 31) * 8,((axis.getValue() + 30) % 31) * 8,((axis.getValue() + 10) % 31) * 8));
+			multiAxis.addSeries(d);
 
-			// hide all data point symbols UNLESS they are for the legend
+			// hide all data point symbols
 			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
-				if (!n.getStyleClass().contains(".chart-legend-item-symbol")) {
-					n.setStyle("-fx-background-color: transparent;");
-				}
+				n.setStyle("-fx-background-color: transparent;");
 			}
 
 			// tick the checkbox
@@ -621,6 +628,13 @@ public class GraphNoSINCController implements Initializable {
 			graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
 		}
 
+	}
+
+	/**
+	 * Updates the colors of currently graphed lines based on BFAColorMenu.
+	 */
+	public void updateGraphColors() {
+		multiAxis.updateGraphColors();
 	}
 
 	@FXML
@@ -752,7 +766,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	@FXML
-	public void importCSV(ActionEvent event) {
+	private void importCSV(ActionEvent event) {
 
 		// used to load CSV test data directory
 		Settings settings = new Settings();
@@ -798,6 +812,39 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		setGenericTestsFromCSV(paths);
+
+	}
+
+	@FXML
+	private void openColorMenu(ActionEvent event) {
+
+		Stage primaryStage = new Stage();
+        Parent root = null;
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/BFAColorMenu.fxml"));
+		
+        try {
+
+			root = loader.load();
+
+			// set parent of color menu to allow communication b/t classes
+			((BFAColorMenu) loader.getController()).setParent(this);
+
+        } catch (IOException e) {
+			e.printStackTrace();
+			return;
+        }
+
+        if (root != null) primaryStage.setScene(new Scene(root));
+
+		// ensure that color menu stays on top and blocks everything else
+		primaryStage.setAlwaysOnTop(true);
+		primaryStage.initModality(Modality.APPLICATION_MODAL);
+		primaryStage.initOwner(lineChart.getScene().getWindow());
+
+        primaryStage.setTitle("Data Analysis Graph - Color Menu");
+		primaryStage.getIcons().add(icon);
+        primaryStage.show();
+        primaryStage.setResizable(false);
 
 	}
 
@@ -1043,9 +1090,8 @@ public class GraphNoSINCController implements Initializable {
 				// add the hover (x,y) label
 				getChildren().setAll(createLabel(roundedX, roundedY));
 
-				// temporarily draw the data point symbol
-				// this is done by removing the "transparent" style
-				setStyle("");
+				// temporarily draw the data point symbol using the appropriate axis color
+				setStyle("-fx-background-color: " + BFAColorMenu.getHexString(axis) + ", white;");
 
 				// ensure the label is on top of the graph
 				toFront();

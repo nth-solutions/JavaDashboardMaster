@@ -1,0 +1,42 @@
+{
+    "AccelX": "#ff0000",
+    "AccelY": "#FF5722",
+    "AccelZ": "#FF9800",
+    "AccelMag": "#FDD835",
+
+    "VelX": "#3bcf3b",
+    "VelY": "#0a7e00",
+    "VelZ": "#44eb9d",
+    "VelMag": "#629e1e",
+
+    "DispX": "#0011fa",
+    "DispY": "#46c7fa",
+    "DispZ": "#0071bd",
+    "DispMag": "#32d2ee",
+
+    "AngAccX": "#644ac3",
+    "AngAccY": "#3f22a7",
+    "AngAccZ": "#a44deb",
+    "AngAccMag": "#b87bfd",
+
+    "AngVelX": "#ff77c2",
+    "AngVelY": "#8d22a8",
+    "AngVelZ": "#d10884",
+    "AngVelMag": "#8a0045",
+
+    "AngDispX": "#c9782d",
+    "AngDispY": "#da5e17",
+    "AngDispZ": "#864100",
+    "AngDispMag": "#f0a55f",
+
+    "MagnetX": "#3c364d",
+    "MagnetY": "#605974",
+    "MagnetZ": "#4b4b4b",
+    "MagnetMag": "#b8b8b8",
+
+    "MomentumX": "#ffb7b7",
+    "MomentumY": "#ffdbb9",
+    "MomentumZ": "#bfffc8",
+    "MomentumMag": "#cdceff"
+
+}

@@ -182,7 +182,8 @@
 				</Menu>
 				<Menu mnemonicParsing="false" text="Data">
 				  <items>
-					 <MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear data sets" />
+            <MenuItem mnemonicParsing="false" onAction="#openColorMenu" text="Customize Colors" />
+					  <MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear Data Sets" />
 				  </items>
 				</Menu>
 			</menus>
