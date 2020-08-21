@@ -386,6 +386,9 @@ public class MultipleAxesLineChart extends StackPane {
             // ensure node is the legend
             if (n instanceof Legend) {
 
+                // TODO this code will NOT work if the codebase is updated to JDK 9 or later;
+                // more info: https://stackoverflow.com/questions/57412846/javafx-missing-legend-class
+                //
                 // loop through each legend item
                 for (Legend.LegendItem legendItem : ((Legend) n).getItems()) {
 

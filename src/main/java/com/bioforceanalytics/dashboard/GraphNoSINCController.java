@@ -65,6 +65,11 @@ public class GraphNoSINCController implements Initializable {
 	// the interval at which samples are drawn to the screen
 	// if value is 20 (default), every 20th sample will be rendered
 	// TODO make this an advanced user setting
+	/**
+	 * Internally used to calculate the graphing resolution.
+	 * @deprecated DO NOT ACCESS THIS FIELD DIRECTLY, USE {@link #getResolution(AxisType)}
+	 */
+	@Deprecated
 	private int resolution;
 
 	// zooming + scrolling fields
@@ -521,7 +526,7 @@ public class GraphNoSINCController implements Initializable {
 			data = genericTests.get(GTIndex).getAxis(axis).getSamples();
 
 			// create (Time, Data) -> (X,Y) pairs
-			for (int i = 0; i < data.size(); i+=resolution) {
+			for (int i = 0; i < data.size(); i += getResolution(axis)) {
 
 				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
 			
@@ -593,7 +598,7 @@ public class GraphNoSINCController implements Initializable {
 		List<Double> data = genericTests.get(GTIndex).getAxis(axis).getSamples();
 
 		// create (Time, Data) -> (X,Y) pairs
-		for (int i = 0; i < data.size(); i+=resolution) {
+		for (int i = 0; i < data.size(); i += getResolution(axis)) {
 
 			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
 
@@ -936,7 +941,7 @@ public class GraphNoSINCController implements Initializable {
 		clearSlope();
 
 		// get slope value "m"
-		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, resolution);
+		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, getResolution(axis));
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1235,6 +1240,17 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
+	}
+
+	/**
+	 * Calculates the graphing resolution used when plotting data to the screen.
+	 * This should be used instead of directly accessing the "resolution" field.
+	 * @param axis the AxisType to get the resolution for
+	 * @return the graphing resolution of the given axis
+	 */
+	private int getResolution(AxisType axis) {
+		// if this is a magnetometer data set, divide resolution by 10 to match 960 sps data sets
+		return (axis.getValue() / 4 == 6) ? resolution/10 : resolution;
 	}
 
 	/**
