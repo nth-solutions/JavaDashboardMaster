@@ -51,9 +51,6 @@ public class SerialComm {
 	// this will be the name searched for in the list of serial ports
 	private final String MAC_PORT = "SLAB_USBtoUART";
 
-	// the number of bytes in a block
-	private final int BLOCK_SIZE = 2520;
-
 	// Flags that track object/process states
 	private boolean dataStreamsInitialized = false;
 	private boolean remoteTestActive = false;
@@ -1473,44 +1470,50 @@ public class SerialComm {
 
 								logger.trace("Detected full block.");
 
-								int bytesAvailable = inputStream.available();
+								// specifies the number of bytes to read from the input stream
+								int BLOCK_SIZE = OSManager.getOS() == OS.WINDOWS ? 2520 : 630;
 
-								// Wait for the whole block to be transferred
-								while (bytesAvailable < BLOCK_SIZE) {
+								// if on Mac, read the block in 4 parts; otherwise, read normally
+								for (int i = 0; i < 2520 / BLOCK_SIZE; i++) {
 
-									// update log if number of available bytes increases
-									if (inputStream.available() != bytesAvailable) {
-										logger.trace("Waiting for block data (currently at " + bytesAvailable + " bytes)");
-										bytesAvailable = inputStream.available();
+									int bytesAvailable = inputStream.available();
+
+									// Wait for the whole block to be transferred
+									while (bytesAvailable < BLOCK_SIZE) {
+
+										// update log if number of available bytes increases
+										if (inputStream.available() != bytesAvailable) {
+											logger.trace("Waiting for block data (currently at " + bytesAvailable + " bytes)");
+											bytesAvailable = inputStream.available();
+										}
+
+									}
+
+									logger.trace("Reading full block...");
+
+									//Clear the data in tempTestData
+									tempTestData = new byte[BLOCK_SIZE];
+
+									//Bulk read the sector that was just received
+									inputStream.read(tempTestData, 0, BLOCK_SIZE);
+
+									// Values from bulk read method are saved as signed bytes, must convert to unsigned
+									for (byte data : tempTestData) {
+
+										// Add the bulk read data to the rawData arraylist.
+										// IMPORTANT: & 255 converts it from a signed byte to an unsigned byte when using bulk read
+										rawData.add((int)data & 255);
 									}
 
 								}
 
-								logger.trace("Reading full block...");
-
-								//Clear the data in tempTestData
-								tempTestData = new byte[BLOCK_SIZE];
-
-								//Bulk read the sector that was just received
-								inputStream.read(tempTestData, 0, BLOCK_SIZE);
-
-								//Update sector counter
+								// Update sector counter
 								sectorCounter += 5;
 
 								//Display calculated progress
-								final int portion = sectorCounter;
-								final int total = numSectors;
-								setProgress(((double) portion) / ((double) total), progressBar, platformType);
+								setProgress(((double) sectorCounter) / ((double) numSectors), progressBar, platformType);
 
-								logger.trace("Read full block (" + portion + " sectors out of " + total + ")");
-
-								// Values from bulk read method are saved as signed bytes, must convert to unsigned
-								for (byte data : tempTestData) {
-
-									// Add the bulk read data to the rawData arraylist.
-									// IMPORTANT: & 255 converts it from a signed byte to an unsigned byte when using bulk read
-									rawData.add((int)data & 255);
-								}
+								logger.trace("Read full block (" + sectorCounter + " sectors out of " + numSectors + ")");
 
 								//Handshake to Module
 								outputStream.write(pullLow);
