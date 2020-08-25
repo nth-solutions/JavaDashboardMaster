@@ -7,13 +7,11 @@ import java.util.concurrent.TimeUnit;
 
 import com.github.kokorin.jaffree.StreamType;
 import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
-import com.github.kokorin.jaffree.ffmpeg.FFmpegProgress;
 import com.github.kokorin.jaffree.ffmpeg.Filter;
 import com.github.kokorin.jaffree.ffmpeg.FilterChain;
 import com.github.kokorin.jaffree.ffmpeg.FilterGraph;
 import com.github.kokorin.jaffree.ffmpeg.NullOutput;
 import com.github.kokorin.jaffree.ffmpeg.OutputListener;
-import com.github.kokorin.jaffree.ffmpeg.ProgressListener;
 import com.github.kokorin.jaffree.ffmpeg.UrlInput;
 
 import org.apache.logging.log4j.LogManager;
@@ -147,24 +145,24 @@ public class BlackFrameAnalysis {
 	 */
 	public int getTMR0Offset() {
 		
-		// Total number of frames = frame rate * duration
-		int totalNumFrames = videoFPS * lengthOfTest;
+		// Expected number of frames = frame rate * duration
+		int expectedNumFrames = videoFPS * lengthOfTest;
 
-		// Error in seconds = (Actual - Expected) * period
-		double timeError = (double) (totalNumFrames - postLitBFNum) * T_INTERVAL;
+		// Error in seconds = (expected number of frames - actual end of test frame) * period
+		double timeError = (double) (expectedNumFrames - postLitBFNum) * T_INTERVAL;
 
-		// Total number of samples = Sample rate * duration
+		// Total number of samples = sample rate * duration
 		int totalNumSamples = moduleSPS * lengthOfTest;
 
-		// Error over each sample = error / total number of samples;
-		// multiplied by 1 billion to convert from seconds to nanoseconds
+		// Error over each sample = time error / total number of samples;
+		// (multiplied by 1 billion to convert from seconds to nanoseconds)
 		double sampleDrift = (timeError / totalNumSamples) * 1E9;
 
 		// convert sample drift to clock cycles (each bit of TMR0 offset is 250 nanoseconds)
-		double tmr0Adj = sampleDrift / 250;
+		double tmr0 = sampleDrift / 250;
 
 		// round fraction to an integer
-		return (int) Math.round(tmr0Adj);
+		return (int) Math.round(tmr0);
 
 	}
 	
