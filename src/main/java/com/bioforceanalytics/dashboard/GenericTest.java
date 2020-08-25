@@ -17,9 +17,9 @@ public class GenericTest {
 	private List<List<Double>> dataSamples;
 	private String graphTitle;
 	private AxisType[] defaultAxes;
-	private boolean useMomentum;
-	private double momentumScalar;
 	private static final Logger logger = LogManager.getLogger();
+	ArrayList<Integer> savedTestParameters;
+	int[] savedMPUOffsets;
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
@@ -29,12 +29,11 @@ public class GenericTest {
 	 * @param MPUMinMax array of constant MPU offsets specific to the module
 	 * @param momentumScalar if included, indicates that the genericTest should include a momentum axis with that scalar as mass
 	 */
-	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double momentumScalar) {
+	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
 
 		int sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
-		if(momentumScalar > 0){useMomentum = true;}
-		else{ useMomentum = false;}
+
 
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
@@ -104,15 +103,15 @@ public class GenericTest {
 			// it must have a separate time axis for its data set(s)
 			magTimeAxis.add(new Double(i) / magSampleRate); 			
 		}
-		
-		createAxisDataSeries(dataSamples, testParameters, mpuOffsets, momentumScalar);
+		if(!(this instanceof ConservationMomentumModule)){
+			createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
+		}else{
+			savedTestParameters = testParameters;
+			savedMPUOffsets = mpuOffsets;
+		}
 
 	}
 	
-	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
-		this(testParameters,finalData,MPUMinMax,0);
-		
-	}
 
 
 	/**
@@ -133,10 +132,12 @@ public class GenericTest {
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		} 
 
-		createAxisDataSeries(dataSamples, testParameters, mpuOffsets,momentumScalar);
+		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
-	
+	public void createAxisDataSeries(){
+		createAxisDataSeries(dataSamples, savedTestParameters, savedMPUOffsets);
+	}
 	/**
 	 * Populates the AxisDataSeries list by looping through dataSamples.
 	 * This logic is shared by both constructors.
@@ -144,7 +145,7 @@ public class GenericTest {
 	 * @param testParameters array of test parameters
 	 * @param mpuOffsets array of acceleration offsets
 	 */
-	private void createAxisDataSeries(List<List<Double>> dataSamples, ArrayList<Integer> testParameters, int[] mpuOffsets, double mass) {
+	private void createAxisDataSeries(List<List<Double>> dataSamples, ArrayList<Integer> testParameters, int[] mpuOffsets) {
 
 		// TODO change this to a name property that can be changed as a test selection menu
 		setGraphTitle("Generic Test");
@@ -173,7 +174,7 @@ public class GenericTest {
 		}
 		
 		// initialize axis data series array
-		if(useMomentum){
+		if(this instanceof ConservationMomentumModule){
 			axes = new AxisDataSeries[AxisType.values().length];
 			logger.info("using momentum");
 		}else{
@@ -205,14 +206,15 @@ public class GenericTest {
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
-			if(useMomentum){
-				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(mass), AxisType.valueOf(i+28), false, sampleRate);
+			if(this instanceof ConservationMomentumModule){
+				logger.info(((ConservationMomentumModule)(this)).getMomentumScalar() +" momentum scalar");
+				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(((ConservationMomentumModule)(this)).getMomentumScalar()), AxisType.valueOf(i+28), false, sampleRate);
 			}
 		}
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
-			if(useMomentum || i < 28){
+			if(this instanceof ConservationMomentumModule || i < 28){
 				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 			}
