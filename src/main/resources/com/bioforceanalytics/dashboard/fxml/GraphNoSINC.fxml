@@ -11,6 +11,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
@@ -45,7 +46,7 @@
 							</children>
 						</HBox>
 
-						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0"></MultipleAxesLineChart>
+						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
 						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
 								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
@@ -75,9 +76,6 @@
 													</VBox.margin>
 													<tooltip><Tooltip text="Changing this value allows you to view more data samples on the graph."/></tooltip>
 												</Button>
-												<CheckBox onAction="#toggleDefaultMovingAvg" text="Smooth Graph" selected="true">
-													<tooltip><Tooltip text="Unchecking this will display raw normalized data without a moving average."/></tooltip>
-												</CheckBox>
 											</children>
 											<padding>
 												<Insets left="5.0" right="5.0" />
@@ -97,22 +95,21 @@
 												</Label>
 												<HBox alignment="CENTER">
 													<children>
-														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Moving Average:">
-															<tooltip><Tooltip text="Changing this value will apply additional smoothing to the graph."/></tooltip>
+														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="75.0" text="Smoothing:">
+															<tooltip><Tooltip text="This controls the sample block size for the moving average used to smooth the graph."/></tooltip>
 														</Label>
-														<TextField fx:id="rollingBlockTextField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0">
-															<padding>
-																<Insets bottom="5.0" top="5.0" />
-															</padding>
-														</TextField>
+														<Slider fx:id="blockSizeSlider" layoutX="214.0" layoutY="554.0" prefWidth="125.0" value="100" min="0" max="500" />
+														<Label fx:id="blockSizeLabel" prefWidth="25" text="100">
+															<tooltip><Tooltip text="This is the sample block size for the moving average used to smooth the graph."/></tooltip>
+														</Label>
 													</children>
 												</HBox>
-												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#applyMovingAvg" prefHeight="25.0" prefWidth="120.0" text="Apply">
+												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#resetMovingAvg" prefHeight="25.0" prefWidth="120.0" text="Reset">
 													<VBox.margin>
 														<Insets />
 													</VBox.margin>
 												</Button>
-                        <HBox alignment="CENTER">
+                        						<HBox alignment="CENTER">
 													<children>
 														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="115.0" text="Data Normalization:">
 															<tooltip><Tooltip text="Changing these values will change the interval used for the baseline average."/></tooltip>
@@ -122,10 +119,10 @@
 																<Insets bottom="5.0" top="5.0" />
 															</padding>
 														</TextField>
-                            <Label prefHeight="17.0" prefWidth="15.0" alignment="CENTER" text=" - ">
+                            							<Label prefHeight="17.0" prefWidth="15.0" alignment="CENTER" text=" - ">
 															<tooltip><Tooltip text="Changing these values will change the interval used for the baseline average."/></tooltip>
 														</Label>
-                            <TextField fx:id="baselineEndField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0">
+                            							<TextField fx:id="baselineEndField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0">
 															<padding>
 																<Insets bottom="5.0" top="5.0" />
 															</padding>
