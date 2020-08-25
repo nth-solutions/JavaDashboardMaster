@@ -10,8 +10,9 @@ public class ConservationEnergyModule extends GenericTest{
         return controller;
     }
 
+
 	public ConservationEnergyModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double mass,ConservationEnergyTest controller) {
-        super(testParameters,finalData,MPUMinMax,mass);
+        super(testParameters,finalData,MPUMinMax);
 		this.controller = controller;
 		// TODO Auto-generated constructor stub
 	}
