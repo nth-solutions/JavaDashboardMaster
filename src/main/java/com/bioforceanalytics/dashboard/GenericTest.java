@@ -20,6 +20,9 @@ public class GenericTest {
 	private static final Logger logger = LogManager.getLogger();
 	ArrayList<Integer> savedTestParameters;
 	int[] savedMPUOffsets;
+	int sampleRate;
+	int offsetIndex;
+	
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
@@ -33,7 +36,8 @@ public class GenericTest {
 
 		int sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
-
+		savedTestParameters = testParameters;
+		
 
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
@@ -51,7 +55,7 @@ public class GenericTest {
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
 		}
-		
+		savedMPUOffsets = mpuOffsets;
 		dataSamples = new ArrayList<List<Double>>();
 		
 		// populate "dataSamples"'s inner lists
@@ -105,10 +109,9 @@ public class GenericTest {
 		}
 		if(!(this instanceof ConservationMomentumModule)){
 			createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
-		}else{
-			savedTestParameters = testParameters;
-			savedMPUOffsets = mpuOffsets;
 		}
+		
+		
 
 	}
 	
@@ -125,13 +128,14 @@ public class GenericTest {
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
-		
+		this.dataSamples = dataSamples;
+		savedTestParameters = testParameters;
 		for(int i = 0; i < 3; i++) {
 			// populate MPU offsets by taking the avg of min and max
 			// Currently used for acceleration calculations only
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		} 
-
+		savedMPUOffsets = mpuOffsets;
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
@@ -151,7 +155,7 @@ public class GenericTest {
 		setGraphTitle("Generic Test");
 		setDefaultAxes(new AxisType[] { AxisType.AccelX });
 
-		int sampleRate = testParameters.get(7);
+		sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
 		int accelSensitivity = testParameters.get(9);
 		int gyroSensitivity = testParameters.get(10);
@@ -163,7 +167,8 @@ public class GenericTest {
 		// using number of accelx samples as proxy for total number of samples
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
-			timeAxis.add(new Double(i) / sampleRate);
+			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
+			if(i == 0) logger.info("first time : " + (new Double(i+offsetIndex)));
 
 			//populate to avoid complications from this being null for now
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -238,7 +243,25 @@ public class GenericTest {
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
 	}
-
+	/**
+	 * Different from MPU Offsets, this allows the data to be shifted for module synchronization.
+	 * @param offset the signed amount by which the data should be offset
+	 */
+	public void setDataOffset(double offset){
+		offsetIndex = (int)(offset * sampleRate);
+		createAxisDataSeries();
+	}
+	/**
+	 * Get the index by which the data is offset
+	 * @return amount by which the data is shifted in time
+	 */
+	public int getDataOffset(){
+		return offsetIndex;
+	}
+	/**
+	 * Generic method to initialize the experimental panel for any test class
+	 * @param panel the panel to be initialized
+	 */
 	public void setupExperimentPanel(ExperimentPanel panel) {
 		panel.setExperimentName("Generic Test");
 		panel.applyParams();

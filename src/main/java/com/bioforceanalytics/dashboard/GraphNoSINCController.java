@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.aspose.cells.Axis;
+import com.aspose.cells.ExceptionType;
+import com.github.kokorin.jaffree.ffprobe.Error;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -123,6 +127,12 @@ public class GraphNoSINCController implements Initializable {
 	// keeps track of first point in area calculation
 	private Double[] areaPoint;
 
+	// keeps track of initial x location for the graph sync
+	private double syncFirstPoint;
+
+	// keeps track of the intial GTIndex for the graph sync
+	private int syncFirstGT;
+
 	// the GraphData of the first point in slope/area calculations
 	// used to check if the user selected points from two different data sets
 	private GraphData selectedGraphData;
@@ -191,7 +201,7 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
-
+		syncFirstPoint = -1;
 		// initialize graph and axes
 		lineChart = multiAxis.getBaseChart();
 		lineChart.setAnimated(false);
@@ -651,6 +661,15 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = resetZoomviewY;
 		zoomviewW = resetZoomviewW;
 		zoomviewH = resetZoomviewH;
+		for(int GTIndex = 0; GTIndex < genericTests.size(); GTIndex++){
+			genericTests.get(GTIndex).setDataOffset(0);
+			for(AxisType a : AxisType.values()){
+				try{
+				updateAxis(a,GTIndex);
+				}catch(Exception error){};
+			}
+			
+		}
 		redrawGraph();
 
 	}
@@ -738,7 +757,13 @@ public class GraphNoSINCController implements Initializable {
 		else setGraphMode(GraphMode.NONE);
 
 	}
-
+	@FXML
+	public void toggleMoveMode(ActionEvent event) {
+		if (mode != GraphMode.MOVE) {
+			setGraphMode(GraphMode.MOVE);
+		}
+		else setGraphMode(GraphMode.NONE);
+	}
 	@FXML
 	public void toggleAreaMode(ActionEvent event) {
 
@@ -922,7 +947,7 @@ public class GraphNoSINCController implements Initializable {
 			case AREA:
 				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
 				break;
-
+			case MOVE:
 			default:
 				logger.error("Error setting graph mode");
 				break;
@@ -1097,7 +1122,6 @@ public class GraphNoSINCController implements Initializable {
 			// round to the given number of sig figs
 			final double roundedX = new BigDecimal(x).round(new MathContext(SIG_FIGS)).doubleValue();
 			final double roundedY = new BigDecimal(y).round(new MathContext(SIG_FIGS)).doubleValue();
-
 			setPrefSize(15, 15);
 
 			// allows mouse events to pass through label
@@ -1128,7 +1152,6 @@ public class GraphNoSINCController implements Initializable {
 				getChildren().clear();
 
 			});
-
 			setOnMouseClicked(e -> {
 
 				if (mode == GraphMode.SLOPE) {
@@ -1214,6 +1237,23 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 				}
+				else if (mode == GraphMode.MOVE){
+					if(syncFirstPoint == -1){
+						syncFirstPoint = roundedX;
+						syncFirstGT = GTIndex;
+					}else{
+						genericTests.get(syncFirstGT).setDataOffset(roundedX - syncFirstPoint);
+						for(AxisType a : AxisType.values()){
+							try{
+								updateAxis(a, syncFirstGT);
+							}catch(Exception error){
+							}
+						}
+						syncFirstPoint = -1;
+						syncFirstGT = -1;
+					}
+
+				}
 				else if (mode == GraphMode.NONE) {
 					// display full floating-point number on click
 					getChildren().setAll(createLabel(x, y));
@@ -1262,7 +1302,8 @@ public class GraphNoSINCController implements Initializable {
 	private enum GraphMode {
 		NONE,
 		SLOPE,
-		AREA
+		AREA,
+		MOVE
 	}
 
 }

@@ -160,6 +160,11 @@
 														<Insets bottom="10.0" />
 													</VBox.margin>
 												</Button>
+												<Button mnemonicParsing="false" onAction="#toggleMoveMode" text="Adjust synchronization of data">
+													<VBox.margin>
+														<Insets bottom="10.0" top="10.0" />
+													</VBox.margin>
+												</Button>
 											</children>
 										</VBox>
 										<Accordion fx:id="dataSetAccordion" minHeight="-Infinity" minWidth="-Infinity" prefHeight="561.0" prefWidth="200.0">
