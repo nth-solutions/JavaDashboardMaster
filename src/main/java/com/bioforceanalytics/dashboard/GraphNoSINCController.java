@@ -34,8 +34,8 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
@@ -156,7 +156,10 @@ public class GraphNoSINCController implements Initializable {
 	private BFANumberAxis yAxis;
 
 	@FXML
-	private TextField rollingBlockTextField;
+	private Slider blockSizeSlider;
+	
+	@FXML
+	private Label blockSizeLabel;
 
 	@FXML
 	private MultipleAxesLineChart multiAxis;
@@ -210,6 +213,12 @@ public class GraphNoSINCController implements Initializable {
 
 		// hides symbols indicating data points on graph
 		lineChart.setCreateSymbols(false);
+
+		Platform.runLater(() -> {
+			blockSizeSlider.valueProperty().addListener(e -> {
+				applyMovingAvg();
+			});
+		});
 
 		redrawGraph();
 
@@ -674,42 +683,36 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
-	@FXML
 	public void applyMovingAvg() {
 
-		// verify that the input is a number
-		try {
+		// round slider to nearest integer
+		int blockSize = (int) blockSizeSlider.getValue();
 
-			int blockSize = Integer.parseInt(rollingBlockTextField.getText());
+		// update smoothing label
+		blockSizeLabel.setText("" + blockSize);
 
-			// apply moving avgs to all currently drawn axes
-			for (GraphData d : dataSets) {
-				genericTests.get(d.GTIndex).getAxis(d.axis).applyCustomMovingAvg(blockSize);
-				updateAxis(d.axis, d.GTIndex);
-			}
-		
-		} catch (NumberFormatException e) {
+		// apply moving avgs to all currently drawn axes
+		for (GraphData d : dataSets) {
 
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setHeaderText("Invalid input");
-			alert.setContentText("Please change your rolling average block size to a numerical value.");
-			alert.showAndWait();
+			// if this is a magnetometer data set, divide block size by 10
+			int axisBlockSize = d.axis.getValue() / 4 == 6 ? blockSize / 10 : blockSize;
 
-			logger.warn("Invalid sample block size input for rolling average");
+			genericTests.get(d.GTIndex).getAxis(d.axis).smoothData(axisBlockSize);
 
+			logger.info("Applying sample block size of " + axisBlockSize + " to " + d.axis + " for GT #" + (d.GTIndex + 1));
+			updateAxis(d.axis, d.GTIndex);
 		}
 
 	}
 
 	@FXML
-	public void toggleDefaultMovingAvg(ActionEvent e) {
-		
-		CheckBox c = (CheckBox) e.getSource();
-		
-		for (GraphData d : dataSets) {
-			genericTests.get(d.GTIndex).getAxis(d.axis).enableMovingAvg(c.isSelected());
-			updateAxis(d.axis, d.GTIndex);
-		}
+	public void resetMovingAvg() {
+
+		// reset smoothing slider
+		blockSizeSlider.setValue(AxisDataSeries.DEFAULT_BLOCK_SIZE);
+
+		// apply moving average
+		applyMovingAvg();
 
 	}
 

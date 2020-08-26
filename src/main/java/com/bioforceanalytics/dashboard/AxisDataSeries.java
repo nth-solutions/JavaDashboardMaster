@@ -24,18 +24,16 @@ public class AxisDataSeries {
 	// data samples after rolling average is applied to original data
 	private Double[] smoothedData;
 
-	// data for display on the graph that the user can access and modify (via applying a custom rolling average) without modifying smoothedData
-	// same as smoothedData by default
-	private Double[] userSmoothedData;
-
 	// array of data samples with normalization offset applied
 	private Double[] normalizedData;
 
-	// default rolling block size to smooth data for integration
-	private int rollBlkSize = 100;
+	/*
+	The default rolling block size used to smooth data.
+	*/
+	public final static int DEFAULT_BLOCK_SIZE = 100;
 
-	// indicates whether or not default moving average should be applied
-	private boolean applySmoothing = true;
+	// the sample block size used for smoothing data
+	private int rollBlkSize;
 
 	/**
 	 * The enum representation of this axis.
@@ -77,10 +75,7 @@ public class AxisDataSeries {
 		// If dealing w/ magnetometer, only save every 10th data sample removing nulls
 		// This is because mag data is sampled at 1/10 the rate of accel/gyro,
 		// but the List "data" is filled w/ null samples assuming 960 samples/sec
-		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
-
-			// magnetometer uses rolling block size of 10
-			rollBlkSize = 10;
+		if (axis.getValue() / 4 == 6) {
 
 			// this is to remove nulls from dataOrganizer series
 			for (int i = data.size() - 1; i >= 0; i--) {
@@ -100,6 +95,7 @@ public class AxisDataSeries {
 		this.sampleRate = sampleRate;
 
 		this.testLength = ((double) data.size()) / sampleRate; 
+		this.rollBlkSize = axis.getValue() / 4 == 6 ? DEFAULT_BLOCK_SIZE / 10 : DEFAULT_BLOCK_SIZE;
 
 		if (signData) {
 
@@ -110,15 +106,16 @@ public class AxisDataSeries {
 					this.originalData[i] -= 65535;
 				}
 
-				if (axis.getValue() >= 24 && axis.getValue() <= 26) {
+				// if axis class is magnetometer
+				if (axis.getValue() / 4 == 6) {
 					// apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
 					this.originalData[i] *= (double)4800 /(double) 8192;
 				}
 			}
 		}
 
-		// if axis class is magnetometer (24-26), normalize data
-		if (axis.getValue() >= 24 && axis.getValue() <= 26) {
+		// if axis class is magnetometer (24-27), normalize data
+		if (axis.getValue() / 4 == 6) {
 
 			// create normalized data series using first two seconds of module data
 			createNormalizedData(0.0, 2.0, sampleRate);
@@ -131,11 +128,8 @@ public class AxisDataSeries {
 			// don't normalize if not a raw magnetometer series;
 			// simply copy over original data for use in integrate()
 			this.normalizedData = this.originalData.clone();
-			this.smoothedData = applyMovingAvg(originalData.clone(), rollBlkSize);
+			this.smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
 		}
-
-		// clones smoothedData for display on graph
-		userSmoothedData = smoothedData.clone();
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -170,7 +164,8 @@ public class AxisDataSeries {
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 
-		this.testLength = ((double) data.size()) / sampleRate; 
+		this.testLength = ((double) data.size()) / sampleRate;
+		this.rollBlkSize = axis.getValue() / 4 == 6 ? DEFAULT_BLOCK_SIZE / 10 : DEFAULT_BLOCK_SIZE;
 
 		for (int i = 0; i < this.originalData.length; i++) {
 
@@ -193,9 +188,6 @@ public class AxisDataSeries {
 
 		// creates smoothedData by applying rolling average to normalized data
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
-
-		// clones smoothedData for display on graph
-		userSmoothedData = smoothedData.clone();
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -225,7 +217,8 @@ public class AxisDataSeries {
 		this.axis = axis;
 		this.sampleRate = sampleRate;
 
-		this.testLength = ((double) data.size()) / sampleRate; 
+		this.testLength = ((double) data.size()) / sampleRate;
+		this.rollBlkSize = axis.getValue() / 4 == 6 ? DEFAULT_BLOCK_SIZE / 10 : DEFAULT_BLOCK_SIZE;
 
 		for (int i = 0; i < this.originalData.length; i++) {
 
@@ -244,9 +237,6 @@ public class AxisDataSeries {
 
 		//creates smoothedData by applying rolling average to normalized data
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
-
-		//clones smoothedData for display on graph
-		userSmoothedData = smoothedData.clone();
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -272,7 +262,8 @@ public class AxisDataSeries {
 
 		int length = a1.getSamples().size();
 
-		this.testLength = ((double) length) / sampleRate; 
+		this.testLength = ((double) length) / sampleRate;
+		this.rollBlkSize = axis.getValue() / 4 == 6 ? DEFAULT_BLOCK_SIZE / 10 : DEFAULT_BLOCK_SIZE;
 
 		// convert data ArrayLists to arrays
 		Double[] d1 = new Double[length];
@@ -296,8 +287,8 @@ public class AxisDataSeries {
 		}
 
 		this.originalData = result;
-		this.smoothedData = this.originalData.clone();
-		this.userSmoothedData = this.smoothedData.clone(); 
+		this.normalizedData = this.originalData.clone();
+		this.smoothedData = this.normalizedData.clone();
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -342,10 +333,7 @@ public class AxisDataSeries {
 		createNormalizedData(startTime, endTime, sampleRate);
 
 		// if smoothing is enabled, apply a moving average; otherwise, copy normalized data
-		this.smoothedData = applySmoothing ? applyMovingAvg(this.normalizedData, rollBlkSize) : this.normalizedData.clone();
-
-		// copy smoothed data to allow custom user smoothing
-		this.userSmoothedData = this.smoothedData.clone();
+		this.smoothedData = applyMovingAvg(this.normalizedData, this.rollBlkSize);
 	
 	}
 
@@ -360,7 +348,7 @@ public class AxisDataSeries {
 		Double[] newArray = array.clone();
 
 		// a block size less than 0 indicates resetting smoothing
-		if (sampleBlockSize <= 0) return array;
+		if (sampleBlockSize <= 1) return array;
 
 		// loop through all values except (block size / 2) on the ends of the data;
 		// since this is a middle-based moving average, an index such as 0 will not work
@@ -401,21 +389,16 @@ public class AxisDataSeries {
 	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smoothe the data set.
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
 	 */
-	public void applyCustomMovingAvg(int sampleBlockSize) {
-		userSmoothedData = applyMovingAvg(smoothedData, sampleBlockSize);
+	public void smoothData(int sampleBlockSize) {
+		this.rollBlkSize = sampleBlockSize;
+		smoothedData = applyMovingAvg(normalizedData, this.rollBlkSize);
 	}
 
 	/**
-	 * Set whether a default moving average is applied to data displayed in the DAG.
-	 * @param state whether or not the moving average should be applied
+	 * Resets the smoothed data set to the default smoothing value.
 	 */
-	public void enableMovingAvg(boolean state) {
-
-		// if `state` is true, a moving average is applied; otherwise, copy normalized data
-		userSmoothedData = state ? applyMovingAvg(smoothedData, rollBlkSize) : normalizedData.clone();
-
-		// save state so that if axis is toggled, it knows whether to apply smoothing
-		applySmoothing = state;
+	public void resetSmoothing() {
+		smoothData(this.rollBlkSize);
 	}
 
 	/**
@@ -514,7 +497,7 @@ public class AxisDataSeries {
 		int i = (int) Math.round(x*this.sampleRate);
 
 		// slope (m) = ∆y/∆x, where the interval is the resolution of the graphed data set
-		Double slope = (userSmoothedData[i+res]-userSmoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
+		Double slope = (smoothedData[i+res]-smoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
 
 		return slope;
 
@@ -533,7 +516,7 @@ public class AxisDataSeries {
 		int b = (int) Math.round(endTime*this.sampleRate);
 
 		// slope (m) = ∆y/∆x
-		Double slope = (userSmoothedData[b]-userSmoothedData[a])/(this.time[b]-this.time[a]);
+		Double slope = (smoothedData[b]-smoothedData[a])/(this.time[b]-this.time[a]);
 
 		return slope;
 
@@ -558,7 +541,7 @@ public class AxisDataSeries {
 		for (int i = a + 1; i < b + 1; i++) {
 
 			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
-			area += (userSmoothedData[i] + userSmoothedData[i-1])/2 * (time[i] - time[i-1]);
+			area += (smoothedData[i] + smoothedData[i-1])/2 * (time[i] - time[i-1]);
 			
 		}
 
@@ -579,7 +562,7 @@ public class AxisDataSeries {
 	 * Used by the Data Analysis Graph for plotting an axis.
 	 */
 	public ArrayList<Double> getSamples() {
-		return new ArrayList<Double>(Arrays.asList(userSmoothedData));
+		return new ArrayList<Double>(Arrays.asList(smoothedData));
 	}
 
 	@Override
