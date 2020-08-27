@@ -265,8 +265,10 @@ public class EducatorModeControllerFX implements Initializable {
         Tab t = primaryTabPane.getSelectionModel().getSelectedItem();
 
         if (t.equals(eraseConfirmationTab)) {
-            helpmenu.selectEraseModuelHelpTabOne();
-        } else if (t.equals(motionVisualizationTab)) {
+            helpmenu.selectEraseModuleHelpTabOne();
+        } else if (t.equals(unpairRemotesTab)) {
+            helpmenu.selectUnpairRemotesHelpTab();
+        }else if (t.equals(motionVisualizationTab)) {
             helpmenu.selectSINCTechnologyHelpTab();
         } else if (t.equals(sincCalibrationTab)) {
             helpmenu.selectSINCModuleCalibrationTab();
