@@ -915,13 +915,27 @@ public class GraphNoSINCController implements Initializable {
 		if (!result.isPresent()) return;
 
 		try {
+
 			resolution = Integer.parseInt(result.get());
+
+			if (resolution <= 0) throw new IllegalArgumentException();
+
 		}
 		catch (NumberFormatException e) {
 
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid input");
 			alert.setContentText("Please enter a numerical value.");
+
+			alert.showAndWait();
+			return;
+
+		}
+		catch (IllegalArgumentException e) {
+
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setHeaderText("Invalid input");
+			alert.setContentText("Please enter a value greater than 0.");
 
 			alert.showAndWait();
 			return;
