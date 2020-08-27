@@ -41,7 +41,7 @@ public class MultipleAxesLineChart extends StackPane {
 
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
-
+    private final double xAxisHeight = 30;
     private static final Logger logger = LogManager.getLogger();
 
     public MultipleAxesLineChart() {
@@ -186,24 +186,34 @@ public class MultipleAxesLineChart extends StackPane {
 
         // calculate the width of the current line chart by
         // subtracting the number of background charts from the current width
-        DoubleBinding binding = widthProperty()
+        DoubleBinding wBinding = widthProperty()
             .subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1));
 
+        DoubleBinding hBinding = heightProperty().subtract(xAxisHeight);
+
         // apply widths to current line chart
-        lineChart.prefWidthProperty().bind(binding);
-        lineChart.minWidthProperty().bind(binding);
-        lineChart.maxWidthProperty().bind(binding);
+        lineChart.prefWidthProperty().bind(wBinding);
+        lineChart.minWidthProperty().bind(wBinding);
+        lineChart.maxWidthProperty().bind(wBinding);
+        lineChart.prefHeightProperty().bind(hBinding);
+        lineChart.minHeightProperty().bind(hBinding);
+        lineChart.maxHeightProperty().bind(hBinding);
         
         // if this is the first background chart, place it on the left;
         // otherwise, place it to the right of the current line chart
         if (backgroundCharts.indexOf(lineChart) != 0) {
             lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
+            //lineChart.translateYProperty().bind(baseChart.translateYProperty());
             lineChart.getYAxis().setSide(Side.RIGHT);
             lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * (backgroundCharts.indexOf(lineChart) - 1));
+            lineChart.getYAxis().setTranslateY(-xAxisHeight/2);
+            
         } else {
             lineChart.translateXProperty().unbind();
             lineChart.translateXProperty().setValue(0.0);
             lineChart.getYAxis().setSide(Side.LEFT);
+            lineChart.getYAxis().setTranslateY(-xAxisHeight/2);
+            
         }
 
     }
