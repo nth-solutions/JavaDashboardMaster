@@ -9,7 +9,7 @@ public class InclinedPlaneTopTest extends GenericTest {
 	public InclinedPlaneTopTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double angleFromTop) {
 		super(testParameters, finalData, MPUMinMax);
 		setGraphTitle("Inclined Plane from Top");
-		setDefaultAxes(new AxisType[] { AxisType.AccelX });
+		setDefaultAxes(AxisType.AccelX);
 		angle = angleFromTop;
 	}
 

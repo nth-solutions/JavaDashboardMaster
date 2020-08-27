@@ -23,15 +23,15 @@ public class ConservationMomentumTest {
 	}
 
 	public void addModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax){
-		if(moduleOne == null){
+		if (moduleOne == null) {
 			moduleOne = new ConservationMomentumModule(testParameters,finalData, MPUMinMax,(massLeftGlider + massLeftModule),this);
 			moduleOne.setGraphTitle("Conservation of Momentum");
-			moduleOne.setDefaultAxes(new AxisType[] {AxisType.MomentumX});
-		}else if (moduleTwo == null){
+			moduleOne.setDefaultAxes(AxisType.MomentumX);
+		} else if (moduleTwo == null) {
 			moduleTwo = new ConservationMomentumModule(testParameters,finalData, MPUMinMax,(massRightGlider + massRightModule),this);
 			moduleTwo.setGraphTitle("Conservation of Momentum");
-			moduleTwo.setDefaultAxes(new AxisType[] {AxisType.MomentumX});
-		}else{
+			moduleTwo.setDefaultAxes(AxisType.MomentumX);
+		} else {
 			System.out.println("Conservation of Momentum Error");
 		}
 
@@ -42,10 +42,9 @@ public class ConservationMomentumTest {
 		this.massLeftModule = massLeftModule;
 		this.massRightGlider = massRightGlider;
 		this.massLeftGlider = massLeftGlider;
-
-		// TODO Auto-generated constructor stub
 	}
-	public void setupExperimentPanel(ExperimentPanel panel){
+
+	public void setupExperimentPanel(ExperimentPanel panel) {
 		panel.setExperimentName("Conservation of Momentum");
 		panel.addParamName("Mass of Right Module");
 		panel.addParamValue(massRightModule +" kg");

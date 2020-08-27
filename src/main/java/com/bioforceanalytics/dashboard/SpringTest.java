@@ -16,9 +16,9 @@ public class SpringTest extends GenericTest {
 		this.amplitude = amplitude;
 		this.springMass = springMass;
 		setGraphTitle("Spring Test");
-		setDefaultAxes(new AxisType[] {AxisType.AccelX});
-		// TODO Auto-generated constructor stub
+		setDefaultAxes(AxisType.AccelX);
 	}
+	
 	public void setupExperimentPanel(ExperimentPanel panel){
 		panel.setExperimentName("Spring Test");
 		panel.addParamName("Spring Constant");

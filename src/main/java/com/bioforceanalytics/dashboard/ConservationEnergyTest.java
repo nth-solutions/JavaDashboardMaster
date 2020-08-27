@@ -22,16 +22,17 @@ public class ConservationEnergyTest{
 		return moduleTwo;
 	}
 
-	public void addModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax){
-		if(moduleOne == null){
+	public void addModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
+
+		if (moduleOne == null) {
 			moduleOne = new ConservationEnergyModule(testParameters,finalData, MPUMinMax,(mass),this);
 			moduleOne.setGraphTitle("Conservation of Energy");
-			moduleOne.setDefaultAxes(new AxisType[] {AxisType.DispY});
-		}else if (moduleTwo == null){
-			moduleTwo = new ConservationEnergyModule(testParameters,finalData, MPUMinMax,(radiusOfArm * momentOfInertia),this);
+			moduleOne.setDefaultAxes(AxisType.DispY);
+		} else if (moduleTwo == null) {
+			moduleTwo = new ConservationEnergyModule(testParameters, finalData, MPUMinMax, (radiusOfArm * momentOfInertia), this);
 			moduleTwo.setGraphTitle("Conservation of Energy");
-			moduleTwo.setDefaultAxes(new AxisType[] {AxisType.AngVelZ});
-		}else{
+			moduleTwo.setDefaultAxes(AxisType.AngVelZ);
+		} else {
 			System.out.println("Conservation of Energy Error");
 		}
 

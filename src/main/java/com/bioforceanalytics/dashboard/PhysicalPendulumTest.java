@@ -16,11 +16,10 @@ public class PhysicalPendulumTest extends GenericTest {
 		this.moduleMass = moduleMass;
 		this.pendulumMass = pendulumMass;
 		setGraphTitle("Physical Pendulum");
-		setDefaultAxes(new AxisType[]{AxisType.AngDispX});
-		// TODO Auto-generated constructor stub
+		setDefaultAxes(AxisType.AngDispX);
 	}
 
-	public void setupExperimentPanel(ExperimentPanel panel){
+	public void setupExperimentPanel(ExperimentPanel panel) {
 		panel.setExperimentName("Physical Pendulum");
 		panel.addParamName("Pendulum Length");
 		panel.addParamValue(pendulumLength +" m");
