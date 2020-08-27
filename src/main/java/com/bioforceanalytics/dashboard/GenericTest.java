@@ -98,7 +98,7 @@ public class GenericTest {
 		// index of dataSamples list is arbitrary; anything other than mag data will work
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
-			timeAxis.add(new Double(i) / sampleRate);
+			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
 
 			//for use with CSV writing
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -270,8 +270,8 @@ public class GenericTest {
 	 * Different from MPU Offsets, this allows the data to be shifted for module synchronization.
 	 * @param offset the signed amount by which the data should be offset
 	 */
-	public void setDataOffset(double offset) {
-		offsetIndex = (int) (offset * sampleRate);
+	public void addDataOffset(double offset) {
+		offsetIndex += (int) (offset * sampleRate);
 		createAxisDataSeries();
 	}
 
@@ -279,8 +279,11 @@ public class GenericTest {
 	 * Get the index by which the data is offset
 	 * @return amount by which the data is shifted in time
 	 */
-	public int getDataOffset() {
-		return offsetIndex;
+	public double getDataOffset() {
+		return ((double)offsetIndex) / sampleRate;
+	}
+	public void resetDataOffset(){
+		offsetIndex = 0;
 	}
 
 	/**

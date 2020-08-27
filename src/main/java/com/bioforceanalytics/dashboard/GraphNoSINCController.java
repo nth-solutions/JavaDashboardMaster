@@ -120,6 +120,9 @@ public class GraphNoSINCController implements Initializable {
 	// keeps track of a point selected during data analysis
 	private Double[] selectedPoint;
 
+	// keeps trackl of the intial axis for the graph sync
+	private AxisType syncFirstAxis;
+
 	// the GraphData of the first point in slope/area calculations
 	// used to check if the user selected points from two different data sets
 	private GraphData selectedGraphData;
@@ -659,7 +662,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			genericTests.get(g.GTIndex).setDataOffset(0);
+			genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
 			updateAxis(g.axis, g.GTIndex);
 		}
 
@@ -1259,8 +1262,11 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.LINEUP && !firstClick) {
 
 					// shift the graph by this point's x-value minus the selected point's x-value
-					genericTests.get(selectedGraphData.GTIndex).setDataOffset(roundedX - selectedPoint[0]);
-					updateAxis(selectedGraphData.axis, selectedGraphData.GTIndex);
+					genericTests.get(selectedGraphData.GTIndex).addDataOffset(roundedX - selectedPoint[0]);
+					for(GraphData g : dataSets){
+						updateAxis(g.axis, g.GTIndex);
+						logger.info(genericTests.get(g.GTIndex).getDataOffset());
+					}
 
 					setGraphMode(GraphMode.NONE);
 
