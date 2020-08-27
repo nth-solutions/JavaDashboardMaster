@@ -18,11 +18,11 @@ public class GenericTest {
 	private String graphTitle;
 	private AxisType[] defaultAxes;
 	private static final Logger logger = LogManager.getLogger();
-	ArrayList<Integer> savedTestParameters;
-	int[] savedMPUOffsets;
-	int sampleRate;
-	int offsetIndex;
-	
+
+	private ArrayList<Integer> savedTestParameters;
+	private int[] savedMPUOffsets;
+	private int sampleRate;
+	private int offsetIndex;
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
@@ -38,7 +38,6 @@ public class GenericTest {
 		int magSampleRate = testParameters.get(8);
 		savedTestParameters = testParameters;
 		
-
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
@@ -55,6 +54,7 @@ public class GenericTest {
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
 		}
+
 		savedMPUOffsets = mpuOffsets;
 		dataSamples = new ArrayList<List<Double>>();
 		
@@ -107,15 +107,12 @@ public class GenericTest {
 			// it must have a separate time axis for its data set(s)
 			magTimeAxis.add(new Double(i) / magSampleRate); 			
 		}
-		if(!(this instanceof ConservationMomentumModule)){
+
+		if (!(this instanceof ConservationMomentumModule)) {
 			createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 		}
 		
-		
-
 	}
-	
-
 
 	/**
 	 * Creates a GenericTest using dataSamples 2D List.
@@ -130,18 +127,21 @@ public class GenericTest {
 		int[] mpuOffsets = new int[9];
 		this.dataSamples = dataSamples;
 		savedTestParameters = testParameters;
-		for(int i = 0; i < 3; i++) {
+
+		for (int i = 0; i < 3; i++) {
 			// populate MPU offsets by taking the avg of min and max
 			// Currently used for acceleration calculations only
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
-		} 
+		}
+
 		savedMPUOffsets = mpuOffsets;
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
-	public void createAxisDataSeries(){
+	public void createAxisDataSeries() {
 		createAxisDataSeries(dataSamples, savedTestParameters, savedMPUOffsets);
 	}
+
 	/**
 	 * Populates the AxisDataSeries list by looping through dataSamples.
 	 * This logic is shared by both constructors.
@@ -153,7 +153,7 @@ public class GenericTest {
 
 		// TODO change this to a name property that can be changed as a test selection menu
 		setGraphTitle("Generic Test");
-		setDefaultAxes(new AxisType[] { AxisType.AccelX });
+		setDefaultAxes(AxisType.AccelX);
 
 		sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
@@ -168,7 +168,6 @@ public class GenericTest {
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
 			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
-			if(i == 0) logger.info("first time : " + (new Double(i+offsetIndex)));
 
 			//populate to avoid complications from this being null for now
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -179,11 +178,10 @@ public class GenericTest {
 		}
 		
 		// initialize axis data series array
-		if(this instanceof ConservationMomentumModule){
+		if (this instanceof ConservationMomentumModule) {
 			axes = new AxisDataSeries[AxisType.values().length];
-			logger.info("using momentum");
-		}else{
-			logger.info("not using momentum");
+			logger.info("Creating momentum data sets...");
+		} else {
 			axes = new AxisDataSeries[AxisType.values().length - 4];
 		}
 
@@ -211,18 +209,42 @@ public class GenericTest {
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
-			if(this instanceof ConservationMomentumModule){
-				logger.info(((ConservationMomentumModule)(this)).getMomentumScalar() +" momentum scalar");
+			if (this instanceof ConservationMomentumModule) {
+				logger.info(((ConservationMomentumModule)(this)).getMomentumScalar() + " momentum scalar");
 				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(((ConservationMomentumModule)(this)).getMomentumScalar()), AxisType.valueOf(i+28), false, sampleRate);
 			}
 		}
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
-			if(this instanceof ConservationMomentumModule || i < 28){
+			if (this instanceof ConservationMomentumModule || i < 28) {
 				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 			}
+		}
+
+	}
+
+	/**
+	 * Recalculates velocity and displacement when normalizing acceleration.
+	 */
+	public void recalcKinematics() {
+
+		// loops through X,Y,Z
+		for (int i = 0; i < 3; i++) {
+
+			// velocity
+			axes[i+4] = new AxisDataSeries(axes[i].getTime(), axes[i].integrate(), AxisType.valueOf(i+4), false, sampleRate);
+			
+			// displacement
+			axes[i+8] = new AxisDataSeries(axes[i].getTime(), axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
+
+		}
+
+		// recalculate magnitude data sets
+		for (int i = 0; i < AxisType.DispMag.getValue(); i+=4) {
+			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
+			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 		}
 
 	}
@@ -235,7 +257,7 @@ public class GenericTest {
 	public AxisDataSeries getAxis(AxisType axis) {
 		return axes[axis.getValue()];
 	}
-	
+
 	/**
 	 * Returns raw data samples organized from SerialComm in the appropriate format for CSV.
 	 * @return a 2D ArrayList of raw data samples for each sensor
@@ -243,21 +265,24 @@ public class GenericTest {
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
 	}
+
 	/**
 	 * Different from MPU Offsets, this allows the data to be shifted for module synchronization.
 	 * @param offset the signed amount by which the data should be offset
 	 */
-	public void setDataOffset(double offset){
-		offsetIndex = (int)(offset * sampleRate);
+	public void setDataOffset(double offset) {
+		offsetIndex = (int) (offset * sampleRate);
 		createAxisDataSeries();
 	}
+
 	/**
 	 * Get the index by which the data is offset
 	 * @return amount by which the data is shifted in time
 	 */
-	public int getDataOffset(){
+	public int getDataOffset() {
 		return offsetIndex;
 	}
+
 	/**
 	 * Generic method to initialize the experimental panel for any test class
 	 * @param panel the panel to be initialized
@@ -267,7 +292,7 @@ public class GenericTest {
 		panel.applyParams();
 	}
 
-	public void setDefaultAxes(AxisType[] axes) {
+	public void setDefaultAxes(AxisType...axes) {
 		defaultAxes = axes;
 	}
 	

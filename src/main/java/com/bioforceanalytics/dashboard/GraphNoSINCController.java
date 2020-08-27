@@ -11,10 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import com.aspose.cells.Axis;
-import com.aspose.cells.ExceptionType;
-import com.github.kokorin.jaffree.ffprobe.Error;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -121,17 +117,8 @@ public class GraphNoSINCController implements Initializable {
 	// object containing the data for the slope line
 	private XYChart.Series<Number, Number> slopeLine;
 
-	// keeps track of first point in secant line calculation
-	private Double[] slopePoint;
-
-	// keeps track of first point in area calculation
-	private Double[] areaPoint;
-
-	// keeps track of initial x location for the graph sync
-	private double syncFirstPoint;
-
-	// keeps track of the intial GTIndex for the graph sync
-	private int syncFirstGT;
+	// keeps track of a point selected during data analysis
+	private Double[] selectedPoint;
 
 	// the GraphData of the first point in slope/area calculations
 	// used to check if the user selected points from two different data sets
@@ -204,7 +191,7 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = 0;
 		zoomviewW = 10;
 		zoomviewH = 5;
-		syncFirstPoint = -1;
+
 		// initialize graph and axes
 		lineChart = multiAxis.getBaseChart();
 		lineChart.setAnimated(false);
@@ -277,8 +264,7 @@ public class GraphNoSINCController implements Initializable {
 				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())
 						/ (lineChart.getHeight() - xAxis.getHeight());
 
-				// adds the change in mouse position this tick to the zoom view, converted into
-				// graph space
+				// adds the change in mouse position this tick to the zoom view, converted into graph space
 				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
 				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
 
@@ -670,15 +656,13 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = resetZoomviewY;
 		zoomviewW = resetZoomviewW;
 		zoomviewH = resetZoomviewH;
-		for(int GTIndex = 0; GTIndex < genericTests.size(); GTIndex++){
-			genericTests.get(GTIndex).setDataOffset(0);
-			for(AxisType a : AxisType.values()){
-				try{
-				updateAxis(a,GTIndex);
-				}catch(Exception error){};
-			}
-			
+
+		// update all currently drawn data sets
+		for (GraphData g : dataSets) {
+			genericTests.get(g.GTIndex).setDataOffset(0);
+			updateAxis(g.axis, g.GTIndex);
 		}
+
 		redrawGraph();
 
 	}
@@ -731,16 +715,35 @@ public class GraphNoSINCController implements Initializable {
 
 			logger.info("Applying new baseline average [" + start + "," + end + "]");
 
-			// update all currently drawn axes with new baseline
+			// loop through each GenericTest
+			for (GenericTest g : genericTests) {
+
+				// loop through each acceleration data set
+				for (int i = 0; i <= AxisType.AccelMag.getValue(); i++) {
+
+					// apply data normalization
+					AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
+					a.applyNormalizedData(start, end);
+				}
+
+				// recalculate Vel/Disp data sets
+				g.recalcKinematics();
+
+			}
+
+			// update all currently drawn acceleration axes
 			for (GraphData g : dataSets) {
-				AxisDataSeries a = genericTests.get(g.GTIndex).getAxis(g.axis);
-				a.applyNormalizedData(start, end, a.sampleRate);
-				updateAxis(g.axis, g.GTIndex);
+				
+				// if axis class is kinematic data (Accel/Vel/Disp)
+				if (g.axis.getValue() / 4 <= 2) {
+					updateAxis(g.axis, g.GTIndex);
+				}
 			}
 			
 		} catch (Exception e) {
 
 			logger.warn("Invalid baseline average inputs");
+			e.printStackTrace();
 
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid inputs");
@@ -760,13 +763,27 @@ public class GraphNoSINCController implements Initializable {
 		else setGraphMode(GraphMode.NONE);
 
 	}
+
 	@FXML
-	public void toggleMoveMode(ActionEvent event) {
-		if (mode != GraphMode.MOVE) {
-			setGraphMode(GraphMode.MOVE);
+	public void toggleLineUpMode(ActionEvent event) {
+
+		if (mode != GraphMode.LINEUP) {
+			setGraphMode(GraphMode.LINEUP);
 		}
 		else setGraphMode(GraphMode.NONE);
+
 	}
+
+	@FXML
+	public void toggleNormMode(ActionEvent event) {
+
+		if (mode != GraphMode.NORM) {
+			setGraphMode(GraphMode.NORM);
+		}
+		else setGraphMode(GraphMode.NONE);
+		
+	}
+
 	@FXML
 	public void toggleAreaMode(ActionEvent event) {
 
@@ -935,8 +952,7 @@ public class GraphNoSINCController implements Initializable {
 		mode = g;
 
 		// first index is x, second index is y
-		slopePoint = new Double[2];
-		areaPoint = new Double[2];
+		selectedPoint = new Double[2];
 
 		selectedGraphData = null;
 
@@ -948,9 +964,11 @@ public class GraphNoSINCController implements Initializable {
 
 			case SLOPE:
 			case AREA:
+			case LINEUP:
+			case NORM:
 				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
 				break;
-			case MOVE:
+
 			default:
 				logger.error("Error setting graph mode");
 				break;
@@ -1157,6 +1175,22 @@ public class GraphNoSINCController implements Initializable {
 			});
 			setOnMouseClicked(e -> {
 
+				// tracks if this is the first click in an action
+				boolean firstClick;
+
+				// check if point was selected and if so, save its info
+				if (selectedPoint[0] == null && selectedPoint[1] == null) {
+
+					logger.info("Selected point (" + x + "," + y + ")");
+					selectedPoint = new Double[] {x,y};
+					selectedGraphData = new GraphData(GTIndex, axis, null);
+
+					firstClick = true;
+					
+				} else {
+					firstClick = false;
+				}
+
 				if (mode == GraphMode.SLOPE) {
 
 					// tangent line graphing mode
@@ -1164,97 +1198,80 @@ public class GraphNoSINCController implements Initializable {
 						logger.info("Graphing tangent line...");
 						graphSlope(x, y, axis, GTIndex);
 					}
-					else {
-
-						// secant line graphing mode
-						if (slopePoint[0] == null && slopePoint[1] == null) {
-							logger.info("Selected first slope point (" + x + "," + y + ")");
-							slopePoint = new Double[] {x,y};
-							selectedGraphData = new GraphData(GTIndex, axis, null);
-						}
-						else {
-
-							// check for any issues with calculating b/t different data sets
-							if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {
-
-								Alert a = new Alert(AlertType.ERROR, "Slope calculations only work when selecting points from the same data set.");
-								a.showAndWait();
-								
-								setGraphMode(GraphMode.NONE);
-								return;
-								
-							}
-
-							logger.info("Graphing secant line...");
-							graphSlope(slopePoint[0], slopePoint[1], x, y, axis, GTIndex);
-						}
-					}
-
-				}
-				else if (mode == GraphMode.AREA) {
-
-					// select first point of area calculation
-					if (areaPoint[0] == null && areaPoint[1] == null) {
-						logger.info("Selected first area point (" + x + "," + y + ")");
-						areaPoint = new Double[] {x,y};
-						selectedGraphData = new GraphData(GTIndex, axis, null);
-					}
-					// calculate and shade area
-					else {
-
-						logger.info("Graphing area...");
+					else if (!firstClick) {
 
 						// check for any issues with calculating b/t different data sets
-						if (selectedGraphData != null && (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis)) {
+						if (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis) {
 
-							Alert a = new Alert(AlertType.ERROR, "Area calculations only work when selecting points from the same data set.");
+							Alert a = new Alert(AlertType.ERROR, "Slope calculations only work when selecting points from the same data set.");
 							a.showAndWait();
-
+							
 							setGraphMode(GraphMode.NONE);
 							return;
-						
+							
 						}
 
-						// ensures that x1 is always less than x2
-						double[] areaBounds = new double[] {areaPoint[0], x};
-						Arrays.sort(areaBounds);
+						logger.info("Graphing secant line...");
+						graphSlope(selectedPoint[0], selectedPoint[1], x, y, axis, GTIndex);
 
-						// calculate the definite integral with the given limits
-						double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
-
-						double axisScalar = multiAxis.getAxisScalar(axis);
-
-						// p1 = (x1, y1), p2 = (x2, y2)
-						XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(areaPoint[0], areaPoint[1] / axisScalar);
-						XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y / axisScalar);
-
-						// ensure the lower bound is less than the upper bound
-						if (areaPoint[0] == areaBounds[0]) {
-							lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis), area, SIG_FIGS);
-						}
-						else {
-							lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis), area, SIG_FIGS);
-						}
-
-						setGraphMode(GraphMode.NONE);
 					}
 
 				}
-				else if (mode == GraphMode.MOVE){
-					if(syncFirstPoint == -1){
-						syncFirstPoint = roundedX;
-						syncFirstGT = GTIndex;
-					}else{
-						genericTests.get(syncFirstGT).setDataOffset(roundedX - syncFirstPoint);
-						for(AxisType a : AxisType.values()){
-							try{
-								updateAxis(a, syncFirstGT);
-							}catch(Exception error){
-							}
-						}
-						syncFirstPoint = -1;
-						syncFirstGT = -1;
+				else if (mode == GraphMode.AREA && !firstClick) {
+
+					logger.info("Graphing area...");
+
+					// check for any issues with calculating b/t different data sets
+					if (selectedGraphData.GTIndex != GTIndex || selectedGraphData.axis != axis) {
+
+						Alert a = new Alert(AlertType.ERROR, "Area calculations only work when selecting points from the same data set.");
+						a.showAndWait();
+
+						setGraphMode(GraphMode.NONE);
+						return;
+					
 					}
+
+					// ensures that x1 is always less than x2
+					double[] areaBounds = new double[] {selectedPoint[0], x};
+					Arrays.sort(areaBounds);
+
+					// calculate the definite integral with the given limits
+					double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+
+					double axisScalar = multiAxis.getAxisScalar(axis);
+
+					// p1 = (x1, y1), p2 = (x2, y2)
+					XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(selectedPoint[0], selectedPoint[1] / axisScalar);
+					XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y / axisScalar);
+
+					// ensure the lower bound is less than the upper bound
+					if (selectedPoint[0] == areaBounds[0]) {
+						lineChart.graphArea(p1, p2, findGraphData(GTIndex, axis), area, SIG_FIGS);
+					}
+					else {
+						lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis), area, SIG_FIGS);
+					}
+
+					setGraphMode(GraphMode.NONE);
+
+				}
+				else if (mode == GraphMode.LINEUP && !firstClick) {
+
+					// shift the graph by this point's x-value minus the selected point's x-value
+					genericTests.get(selectedGraphData.GTIndex).setDataOffset(roundedX - selectedPoint[0]);
+					updateAxis(selectedGraphData.axis, selectedGraphData.GTIndex);
+
+					setGraphMode(GraphMode.NONE);
+
+				}
+				else if (mode == GraphMode.NORM) {
+
+					AxisDataSeries a = genericTests.get(GTIndex).getAxis(axis);
+					a.applyNormalizedData(x, x);
+					updateAxis(axis, GTIndex);
+
+					setGraphMode(GraphMode.NONE);
 
 				}
 				else if (mode == GraphMode.NONE) {
@@ -1300,13 +1317,15 @@ public class GraphNoSINCController implements Initializable {
 	 * Internal enum used to designate the state of data analysis;
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
-	 * <p>and <code>GraphMode.AREA</code> is when the user is selecting the section for an area calculation.</p>
+	 * <p><code>GraphMode.AREA</code> is when the user is selecting the section for an area calculation,</p>
+	 * <p><code>GraphMode.LINEUP</code> is when the user is selecting the points to line up in two different data sets.</p>
 	 */
 	private enum GraphMode {
 		NONE,
 		SLOPE,
 		AREA,
-		MOVE
+		LINEUP,
+		NORM
 	}
 
 }

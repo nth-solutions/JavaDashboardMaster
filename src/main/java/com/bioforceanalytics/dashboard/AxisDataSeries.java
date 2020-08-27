@@ -118,7 +118,7 @@ public class AxisDataSeries {
 		if (axis.getValue() / 4 == 6) {
 
 			// create normalized data series using first two seconds of module data
-			createNormalizedData(0.0, 2.0, sampleRate);
+			createNormalizedData(0.0, 2.0);
 
 			// creates smoothedData by applying rolling average to normalized data
 			this.smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
@@ -184,7 +184,7 @@ public class AxisDataSeries {
 		}
 
 		// create normalized data series using first second of module data
-		createNormalizedData(0.0, 2.0, sampleRate);
+		createNormalizedData(0.0, 2.0);
 
 		// creates smoothedData by applying rolling average to normalized data
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
@@ -233,7 +233,7 @@ public class AxisDataSeries {
 		}
 
 		//create normalized data series using first second of module data
-		createNormalizedData(0.0, 2.0, sampleRate);
+		createNormalizedData(0.0, 2.0);
 
 		//creates smoothedData by applying rolling average to normalized data
 		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
@@ -299,9 +299,8 @@ public class AxisDataSeries {
 	 * Creates normalized data set with a "baseline" interval set to 0.
 	 * @param startTime the x-value of the first data point
 	 * @param endTime the x-value of the second data point
-	 * @param sampleRate the sample rate of the data set being normalized
 	 */
-	private void createNormalizedData(Double startTime, Double endTime, int sampleRate) {
+	private void createNormalizedData(Double startTime, Double endTime) {
 
 		// Convert times to sample #s
 		int startIndex = (int) Math.round(startTime*sampleRate);
@@ -309,10 +308,18 @@ public class AxisDataSeries {
 
 		double normOffset = 0;
 
-		// calculate average value over the interval [startTime, endTime]
+		// if data points are the same, manually make the baseline 20 samples
+		// TODO fix this so that data can be normalized to "true" 0
+		if (startIndex == endIndex) {
+			startIndex -= 10;
+			endIndex += 10;
+		}
+
+		// calculate the average over the interval [startTime, endTime]
 		for (int i = startIndex; i < endIndex; i++) {
 			normOffset += originalData[i];
 		}
+
 		normOffset /= (double) (endIndex-startIndex);
 
 		// reset normalized data to original data
@@ -328,9 +335,9 @@ public class AxisDataSeries {
 	 * Recalculates normalized data and smoothing.
 	 * Used by the Data Analysis Graph for user control of the baseline average.
 	 */
-	public void applyNormalizedData(Double startTime, Double endTime, int sampleRate) {
+	public void applyNormalizedData(Double startTime, Double endTime) {
 
-		createNormalizedData(startTime, endTime, sampleRate);
+		createNormalizedData(startTime, endTime);
 
 		// if smoothing is enabled, apply a moving average; otherwise, copy normalized data
 		this.smoothedData = applyMovingAvg(this.normalizedData, this.rollBlkSize);
