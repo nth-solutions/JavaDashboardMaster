@@ -9,8 +9,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.filechooser.FileSystemView;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,8 +43,8 @@ public class CSVHandler {
 		// create new file in CSV Directory, file extension is .CSVP
 		PrintWriter dataFile = new PrintWriter(CSVPath + "/" + nameOfTest); 
 
+		// write all parameters to the file
 		for(int i = 0; i < testParameters.size(); i++) { 
-			// write all parameters to the file
 			dataFile.println(testParameters.get(i).toString());
 		}
 
@@ -215,7 +213,6 @@ public class CSVHandler {
 		
 		Settings settings = new Settings();
 		StringBuilder builder = new StringBuilder();
-		PrintWriter DataFile;
 			
 		//iterates through data points in the series (i is the line index)
 		for (int i = 0; i < g.getAxis(AxisType.AccelX).getSamples().size(); i++) {
@@ -237,12 +234,13 @@ public class CSVHandler {
 		// if directory doesn't exist, create it
 		if (!testDir.exists()) testDir.mkdirs();
 
-		DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + "/" + nameOfTest)));
+		PrintWriter writer = new PrintWriter(new File(testDir + "/" + nameOfTest));
 
-		// writes the string buffer to the .CSV creating the file
-		DataFile.write(builder.toString());
-		// close the .CSV
-		DataFile.close();
+		// write the string data to the file
+		writer.write(builder.toString());
+
+		// close the PrintWriter
+		writer.close(); 
 
 	}
 	
