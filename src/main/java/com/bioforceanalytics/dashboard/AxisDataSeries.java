@@ -35,6 +35,9 @@ public class AxisDataSeries {
 	// the sample block size used for smoothing data
 	private int rollBlkSize;
 
+	// the amount the smoothed data set should be shifted up/down
+	private double vertOffset = 0;
+
 	/**
 	 * The enum representation of this axis.
 	 */
@@ -121,14 +124,14 @@ public class AxisDataSeries {
 			createNormalizedData(0.0, 2.0);
 
 			// creates smoothedData by applying rolling average to normalized data
-			this.smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+			this.smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
 
 		}
 		else {
 			// don't normalize if not a raw magnetometer series;
 			// simply copy over original data for use in integrate()
 			this.normalizedData = this.originalData.clone();
-			this.smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+			this.smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
 		}
 
 		// print AxisDataSeries debug info
@@ -187,7 +190,7 @@ public class AxisDataSeries {
 		createNormalizedData(0.0, 2.0);
 
 		// creates smoothedData by applying rolling average to normalized data
-		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+		smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -236,7 +239,7 @@ public class AxisDataSeries {
 		createNormalizedData(0.0, 2.0);
 
 		//creates smoothedData by applying rolling average to normalized data
-		smoothedData = applyMovingAvg(normalizedData.clone(), rollBlkSize);
+		smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -355,7 +358,7 @@ public class AxisDataSeries {
 		Double[] newArray = array.clone();
 
 		// a block size less than 0 indicates resetting smoothing
-		if (sampleBlockSize <= 1) return array;
+		if (sampleBlockSize <= 1) return newArray;
 
 		// loop through all values except (block size / 2) on the ends of the data;
 		// since this is a middle-based moving average, an index such as 0 will not work
@@ -397,15 +400,45 @@ public class AxisDataSeries {
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
 	 */
 	public void smoothData(int sampleBlockSize) {
+
+		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
+
 		this.rollBlkSize = sampleBlockSize;
 		smoothedData = applyMovingAvg(normalizedData, this.rollBlkSize);
+
+		// apply vertical offset to smoothed data
+		for (int i = 0; i < smoothedData.length; i++) {
+			smoothedData[i] += vertOffset;
+		}
+
 	}
 
 	/**
 	 * Resets the smoothed data set to the default smoothing value.
 	 */
 	public void resetSmoothing() {
+
+		vertOffset = 0;
 		smoothData(this.rollBlkSize);
+
+	}
+
+	// TODO make "createNormalizedData" use vertOffset as well?
+	// this would allow us to eliminate the normalizedData array,
+	// simplifying the codebase and being more consistent
+
+	/**
+	 * Vertically shifts the graph up or down.
+	 * Used by the Data Analysis Graph to normalize a single data set.
+	 * @param the amount to shift the graph up/down
+	 */
+	public void vertShift(double amount) {
+
+		logger.info("Vertically shifting " + axis + " by " + amount);
+
+		vertOffset += amount;
+		smoothData(this.rollBlkSize);
+
 	}
 
 	/**
@@ -443,26 +476,13 @@ public class AxisDataSeries {
 	 */
 	public List<Double> integrate(double scalar) {
 
-		// create empty array with the same length as data
-		Double[] result = new Double[normalizedData.length];
+		// integrate the data normally
+		List<Double> data = integrate();
 
-		// temporarily set initial value to 0; necessary for loop below
-		result[0] = 0.0;
+		// multiply by the scalar value
+		for (Double d : data) d *= scalar;
 
-		// start loop at 1 in order to look at previous value
-		for (int i = 1; i < normalizedData.length; i++) {
-
-			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
-			result[i] = result[i-1] + (normalizedData[i] + normalizedData[i-1])/2 * (time[i] - time[i-1]);
-			
-		}
-		for(int i = 0; i < result.length; i++){
-			result[i] = scalar * result[i];
-		}
-		// calculate the first integrated sample as our initial condition ("+C")
-		result[0] = result[1];
-
-		return Arrays.asList(result);
+		return data;
 	}
 
 	/**

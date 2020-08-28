@@ -699,8 +699,6 @@ public class GraphNoSINCController implements Initializable {
 			int axisBlockSize = d.axis.getValue() / 4 == 6 ? blockSize / 10 : blockSize;
 
 			genericTests.get(d.GTIndex).getAxis(d.axis).smoothData(axisBlockSize);
-
-			logger.info("Applying sample block size of " + axisBlockSize + " to " + d.axis + " for GT #" + (d.GTIndex + 1));
 			updateAxis(d.axis, d.GTIndex);
 		}
 
@@ -1302,7 +1300,7 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.NORM) {
 
 					AxisDataSeries a = genericTests.get(GTIndex).getAxis(axis);
-					a.applyNormalizedData(x, x);
+					a.vertShift(-y);
 					updateAxis(axis, GTIndex);
 
 					setGraphMode(GraphMode.NONE);
