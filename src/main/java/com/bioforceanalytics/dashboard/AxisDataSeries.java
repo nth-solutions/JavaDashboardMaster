@@ -130,7 +130,9 @@ public class AxisDataSeries {
 		else {
 			// don't normalize if not a raw magnetometer series;
 			// simply copy over original data for use in integrate()
-			this.normalizedData = this.originalData.clone();
+			this.normalizedData = new Double[originalData.length];
+			copyArray(this.originalData, this.normalizedData);
+
 			this.smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
 		}
 
@@ -290,8 +292,12 @@ public class AxisDataSeries {
 		}
 
 		this.originalData = result;
-		this.normalizedData = this.originalData.clone();
-		this.smoothedData = this.normalizedData.clone();
+
+		// copy originalData to normalizedData and smoothedData
+		this.normalizedData = new Double[originalData.length];
+		this.smoothedData = new Double[originalData.length];
+		copyArray(this.originalData, this.normalizedData);
+		copyArray(this.normalizedData, this.smoothedData);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -326,7 +332,8 @@ public class AxisDataSeries {
 		normOffset /= (double) (endIndex-startIndex);
 
 		// reset normalized data to original data
-		this.normalizedData = this.originalData.clone();
+		this.normalizedData = new Double[originalData.length];
+		copyArray(this.originalData, this.normalizedData);
 
 		// subtract offset from each data point to create normalized data
 		for (int i = 0; i < originalData.length; i++) {
@@ -355,7 +362,8 @@ public class AxisDataSeries {
 	private Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
 		// work on a copy of the data for safety
-		Double[] newArray = array.clone();
+		Double[] newArray = new Double[array.length];
+		copyArray(array, newArray);
 
 		// a block size less than 0 indicates resetting smoothing
 		if (sampleBlockSize <= 1) return newArray;
@@ -590,6 +598,16 @@ public class AxisDataSeries {
 	 */
 	public ArrayList<Double> getSamples() {
 		return new ArrayList<Double>(Arrays.asList(smoothedData));
+	}
+
+	/**
+	 * Internal wrapper for System.arraycopy(...).
+	 * Creates a full copy of an array.
+	 * @param src the array to copy data from
+	 * @param dest the array to copy data to
+	 */
+	private void copyArray(Double[] src, Double[] dest) {
+		System.arraycopy(src, 0, dest, 0, src.length);
 	}
 
 	@Override
