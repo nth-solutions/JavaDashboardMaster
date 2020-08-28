@@ -30,20 +30,22 @@
 <?import com.bioforceanalytics.dashboard.MultipleAxesLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
 
-<AnchorPane fx:id="root" minHeight="400.0" minWidth="400.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
+<AnchorPane fx:id="root" minHeight="400.0" minWidth="400.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
+	xmlns="http://javafx.com/javafx/11.0.1"
+	xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
 	<children>
 		<MenuBar prefWidth="${root.width}">
 			<menus>
 				<Menu mnemonicParsing="false" text="File">
-				<items>
-					<MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
-				</items>
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
+					</items>
 				</Menu>
 				<Menu mnemonicParsing="false" text="Data">
-				<items>
-					<MenuItem mnemonicParsing="false" onAction="#openColorMenu" text="Customize Colors" />
-					<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear Data Sets" />
-				</items>
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#openColorMenu" text="Customize Colors" />
+						<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear Data Sets" />
+					</items>
 				</Menu>
 			</menus>
 		</MenuBar>
@@ -81,27 +83,33 @@
 										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="5.0">
 											<children>
 												<Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="View Controls" textAlignment="CENTER">
-                          <font>
-                            <Font name="System Bold" size="15.0" />
-                          </font>
+													<font>
+														<Font name="System Bold" size="15.0" />
+													</font>
 													<padding>
 														<Insets bottom="10.0" top="10.0" />
 													</padding>
 												</Label>
-                        <Button mnemonicParsing="false" onAction="#changeResolution" prefHeight="25.0" prefWidth="120.0" text="Change resolution">
+												<Button mnemonicParsing="false" onAction="#changeResolution" prefHeight="25.0" prefWidth="120.0" text="Change resolution">
 													<VBox.margin>
 														<Insets bottom="10.0" />
 													</VBox.margin>
-													<tooltip><Tooltip text="Changing this value allows you to view more data samples on the graph."/></tooltip>
+													<tooltip>
+														<Tooltip text="Changing this value allows you to view more data samples on the graph."/>
+													</tooltip>
 												</Button>
 												<HBox alignment="CENTER">
 													<children>
 														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="75.0" text="Smoothing:">
-															<tooltip><Tooltip text="This controls the sample block size for the moving average used to smooth the graph."/></tooltip>
+															<tooltip>
+																<Tooltip text="This controls the sample block size for the moving average used to smooth the graph."/>
+															</tooltip>
 														</Label>
 														<Slider fx:id="blockSizeSlider" layoutX="214.0" layoutY="554.0" prefWidth="125.0" value="100" min="0" max="500" />
 														<Label fx:id="blockSizeLabel" prefWidth="25" text="100">
-															<tooltip><Tooltip text="This is the sample block size for the moving average used to smooth the graph."/></tooltip>
+															<tooltip>
+																<Tooltip text="This is the sample block size for the moving average used to smooth the graph."/>
+															</tooltip>
 														</Label>
 													</children>
 												</HBox>
@@ -115,7 +123,7 @@
 												<Insets left="5.0" right="5.0" />
 											</padding>
 										</VBox>
-                    <Separator prefHeight="50.0" prefWidth="200.0">
+										<Separator prefHeight="50.0" prefWidth="200.0">
 											<VBox.margin>
 												<Insets bottom="10.0" top="10.0" />
 											</VBox.margin>
@@ -123,27 +131,33 @@
 										<VBox alignment="CENTER" prefHeight="0.0" prefWidth="200.0" spacing="5.0">
 											<children>
 												<Label alignment="CENTER" prefHeight="27.0" prefWidth="144.0" text="Graph Controls" textAlignment="CENTER">
-                          <font>
-                            <Font name="System Bold" size="15.0" />
-                          </font>
+													<font>
+														<Font name="System Bold" size="15.0" />
+													</font>
 													<padding>
 														<Insets bottom="10.0" />
 													</padding>
 												</Label>
-                        <HBox alignment="CENTER">
+												<HBox alignment="CENTER">
 													<children>
 														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="125.0" text="Acceleration Baseline:">
-															<tooltip><Tooltip text="This is the interval used to normalize acceleration data sets."/></tooltip>
+															<tooltip>
+																<Tooltip text="This is the interval used to normalize acceleration data sets."/>
+															</tooltip>
 														</Label>
 														<TextField fx:id="baselineStartField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0" text="0.0">
+															<tooltip>
+																<Tooltip text="This is the starting time (in seconds) of the baseline." />
+															</tooltip>
 															<padding>
 																<Insets bottom="5.0" top="5.0" />
 															</padding>
 														</TextField>
-                            <Label prefHeight="17.0" prefWidth="15.0" alignment="CENTER" text=" - ">
-															<tooltip><Tooltip text="This is the interval used to normalize acceleration data sets."/></tooltip>
-														</Label>
-                            <TextField fx:id="baselineEndField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0" text="2.0">
+														<Label prefHeight="17.0" prefWidth="15.0" alignment="CENTER" text=" - " />
+														<TextField fx:id="baselineEndField" alignment="CENTER" layoutX="214.0" layoutY="554.0" prefHeight="27.0" prefWidth="40.0" text="2.0">
+															<tooltip>
+																<Tooltip text="This is the ending time (in seconds) of the baseline." />
+															</tooltip>
 															<padding>
 																<Insets bottom="5.0" top="5.0" />
 															</padding>
@@ -155,25 +169,29 @@
 														<Insets />
 													</VBox.margin>
 												</Button>
-                        <HBox alignment="CENTER">
-                          <children>
-                            <Button mnemonicParsing="false" onAction="#toggleLineUpMode" text="Line up data sets">
-                              <tooltip><Tooltip text="This is useful for ensuring two-module test data is correct."/></tooltip>
-                              <HBox.margin>
-                                <Insets right="2.5" />
-                              </HBox.margin>
-                            </Button>
-                            <Button mnemonicParsing="false" onAction="#toggleNormMode" text="Normalize data set">
-                              <tooltip><Tooltip text="This is useful when you need to compensate for drift or external variables that cause a non-zero variable."/></tooltip>
-                              <HBox.margin>
-                                <Insets left="2.5" />
-                              </HBox.margin>
-                            </Button>
-                          </children>
-                          <padding>
-                            <Insets top="5.0" />
-                          </padding>
-                        </HBox>
+												<HBox alignment="CENTER">
+													<children>
+														<Button fx:id="lineUpBtn" mnemonicParsing="false" onAction="#toggleLineUpMode" text="Line up trials">
+															<tooltip>
+																<Tooltip text="Use this to synchronize data sets in two-module tests. Click on two data points, and the first point will be shifted to match the x-position of the second." />
+															</tooltip>
+															<HBox.margin>
+																<Insets right="2.5" />
+															</HBox.margin>
+														</Button>
+														<Button mnemonicParsing="false" onAction="#toggleNormMode" text="Normalize data set">
+															<tooltip>
+																<Tooltip text="Used to set velocity or displacement equal to 0 at a specific time." />
+															</tooltip>
+															<HBox.margin>
+																<Insets left="2.5" />
+															</HBox.margin>
+														</Button>
+													</children>
+													<padding>
+														<Insets top="5.0" />
+													</padding>
+												</HBox>
 											</children>
 											<padding>
 												<Insets left="5.0" right="5.0" />
@@ -187,19 +205,25 @@
 										<VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
 											<children>
 												<Label prefWidth="100.0" text="Data Analysis" textAlignment="CENTER">
-                          <font>
-                            <Font name="System Bold" size="15.0" />
-                          </font>
-                          <padding>
-                            <Insets bottom="5.0" />
-                          </padding>
-                        </Label>
+													<font>
+														<Font name="System Bold" size="15.0" />
+													</font>
+													<padding>
+														<Insets bottom="5.0" />
+													</padding>
+												</Label>
 												<Button mnemonicParsing="false" onAction="#toggleSlopeMode" text="Find slope at/between point(s)">
+													<tooltip>
+														<Tooltip text="Click two points to plot a secant line; Shift+Click to plot a tangent line." />
+													</tooltip>
 													<VBox.margin>
 														<Insets bottom="10.0" top="10.0" />
 													</VBox.margin>
 												</Button>
 												<Button layoutX="167.0" layoutY="27.0" mnemonicParsing="false" onAction="#toggleAreaMode" text="Find area under a curve">
+													<tooltip>
+														<Tooltip text="Click two points to shade a section of the selected graph." />
+													</tooltip>
 													<VBox.margin>
 														<Insets bottom="10.0" />
 													</VBox.margin>
