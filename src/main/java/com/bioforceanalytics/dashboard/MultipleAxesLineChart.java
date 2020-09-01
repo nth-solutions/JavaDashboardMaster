@@ -61,6 +61,8 @@ public class MultipleAxesLineChart extends StackPane {
         if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
         //if AxisType is AngAccel
         if (axis.getValue() / 4 == 3) return 500;
+        //if AxisType is Momentum
+        if (axis.getValue() / 4 == 7) return 0.1;
         // all other data sets
         else return 100;
 

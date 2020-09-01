@@ -231,7 +231,7 @@ public class GraphNoSINCController implements Initializable {
 			// vertically scale the graph
 			if (!event.isAltDown()) {
 				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW);
+				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW); 
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
 
@@ -242,7 +242,7 @@ public class GraphNoSINCController implements Initializable {
 				// zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 
-				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
+				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH); 
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the
 				// position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
