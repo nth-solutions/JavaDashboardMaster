@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1150,25 +1152,12 @@ public class EducatorModeControllerFX implements Initializable {
                     }
 
                     int expectedTestNum = testParameters.get(0);
-                    int accelGyroSampleRate = testParameters.get(7);
-                    int magSampleRate = testParameters.get(8);
-                    int accelSensitivity = testParameters.get(9);
-                    int gyroSensitivity = testParameters.get(10);
-                    int accelFilter = testParameters.get(11);
-                    int gyroFilter = testParameters.get(12);
 
-                    String nameOfFile = "";
-
+                    // check if there are tests on the module
                     if (expectedTestNum == 0) {
                         displayProgress("No tests found on module", 1, Status.FAIL);
                         return null;
                     }
-
-                    // Get date for file name
-                    Date date = new Date();
-
-                    // Assigns the name of file
-                    nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
 
                     // Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
                     HashMap<Integer, ArrayList<Integer>> testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
@@ -1202,12 +1191,17 @@ public class EducatorModeControllerFX implements Initializable {
                         
                         int[][] MPUMinMax = serialHandler.getMPUMinMax();
 
-                        String newName = "(#" + (i+1) + ") " + nameOfFile;
+                        // create timestamp for CSV/CSVP
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
+                        String timestamp = sdf.format(new Timestamp(new Date().getTime()));
 
+                        // SINC Technology Graph logic
                         if (getOutputType().equals(sincTechnologyRadioButton)) {
 
+                            String testName = "SINC #" + (i+1) + " " + timestamp;
+
                             // Stores test data for the SINC Graph
-                            DataOrganizer d = new DataOrganizer(testParameters, "SINC_" + newName);
+                            DataOrganizer d = new DataOrganizer(testParameters, testName + ".csv");
                             d.setMPUMinMax(serialHandler.getMPUMinMax());
                             dataOrgoList.add(d);
 
@@ -1218,69 +1212,89 @@ public class EducatorModeControllerFX implements Initializable {
                             d.createCSVP();
                             d.createCSV(false, false);
 
-                            d.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + newName+"p");
+                            d.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + testName + ".csvp");
 
+                        // Data Analysis Graph logic
                         } else {
 
-                            GenericTest newTest;
-                            logger.info("Switching experiment type");
+                            GenericTest test;
+                            int moduleNumber = -1;
+                            
                             switch (experimentType) {
 
-                                case 1: // TODO Conservation of Momentum
-                                    comTest.addModule(testParameters, finalData, MPUMinMax);
-                                    newTest = new GenericTest(testParameters,finalData,MPUMinMax);
+                                case 1: // Conservation of Momentum
+                                    double totalMass = massOfLeftGlider + massOfLeftModule;
+                                    test = new ConservationMomentumModule(testParameters, finalData, MPUMinMax, totalMass, comTest);
+                                    moduleNumber = comTest.addModule(test);
                                     break;
-                                case 2: // TODO Conservation of Energy
-                                    engTest.addModule(testParameters, finalData, MPUMinMax);
-                                    newTest = new GenericTest(testParameters,finalData,MPUMinMax);
+                                case 2: // Conservation of Energy
+                                    test = new ConservationEnergyModule(testParameters, finalData, MPUMinMax, engTest);
+                                    moduleNumber = engTest.addModule(test);
                                     break;
                                 case 3: // Inclined Plane - Top
-                                    newTest = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax, angleFromTop);
+                                    test = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax, angleFromTop);
                                     break;
                                 case 4: // Inclined Plane - Bottom
-                                    newTest = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax, angleFromBottom);
+                                    test = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax, angleFromBottom);
                                     break;
                                 case 5: // Physical Pendulum
-                                    newTest = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
+                                    test = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
                                     break;
                                 case 6: // Spring Test
-                                    newTest = new SpringTest(testParameters, finalData, MPUMinMax, springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                    test = new SpringTest(testParameters, finalData, MPUMinMax, springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
                                     break;
                                 case 7: // Generic Template - One Module
-                                    newTest = new GenericTest(testParameters, finalData, MPUMinMax);
+                                    test = new GenericTest(testParameters, finalData, MPUMinMax);
                                     break;
-                                case 8: // TODO Generic Template - Two Module
-                                    newTest = new GenericTest(testParameters, finalData, MPUMinMax);
+                                case 8: // Generic Template - Two Module
+                                    test = new GenericTest(testParameters, finalData, MPUMinMax);
                                     break;
                                 default:
-                                    newTest = new GenericTest(testParameters, finalData, MPUMinMax);
+                                    test = new GenericTest(testParameters, finalData, MPUMinMax);
                                     break;
                             }
 
-                            logger.info("Creating " + newTest.getClass().getName());
-                            if(experimentType  > 2){
-                                genericTests.add(newTest);
-                            }else if (experimentType == 1){
-                                if(comTest.isFilled()){
+                            // for one module tests, use the order in which tests were read;
+                            // if this is a two module test, use the module's number (1/2)
+                            int testNum = oneModuleTest ? (i+1) : moduleNumber;
+
+                            String testType = test.getClass().getSimpleName();
+                            String testName = testType + " #" + testNum + " " + timestamp;
+
+                            logger.info("Created " + testName);
+
+                            // conservation of momentum
+                            if (experimentType == 1) {
+
+                                // wait until both tests are read to add to list of GTs
+                                if (comTest.isFilled()) {
+
                                     genericTests.add(comTest.getModuleOne());
                                     genericTests.add(comTest.getModuleTwo());
+
                                 }
-                            }else{
-                                if(engTest.isFilled()){
+
+                            // conservation of energy
+                            } else if (experimentType == 2) {
+
+                                // wait until both tests are read to add to list of GTs
+                                if (engTest.isFilled()) {
                                     genericTests.add(engTest.getModuleOne());
                                     genericTests.add(engTest.getModuleTwo());
                                 }
-                            }
+
+                            // all other tests
+                            } else genericTests.add(test);
 
                             // write GenericTest to CSV
                             try {
-                                writer.writeCSV(newTest, settings, newName);
-                                writer.writeCSVP(testParameters, settings, newName, MPUMinMax);
+                                writer.writeCSV(test, settings, testName + ".csv");
+                                writer.writeCSVP(testParameters, settings, testName + ".csvp", MPUMinMax);
                             }
                             catch (Exception e) {
                                 Alert alert = new Alert(AlertType.ERROR);
                                 alert.setHeaderText("Error saving test data");
-                                alert.setContentText("There was a problem saving \"" + newName + "\".");
+                                alert.setContentText("There was a problem saving \"" + testName + "\".");
                                 alert.showAndWait();
                             }
 
@@ -1300,6 +1314,7 @@ public class EducatorModeControllerFX implements Initializable {
                             logger.info("Launching SINC Graph...");
 
                             Platform.runLater(() -> {
+
                                 lineGraph = startGraphing();
 
                                 // SINC Graph only supports 2 data sets, so hard-coding is okay

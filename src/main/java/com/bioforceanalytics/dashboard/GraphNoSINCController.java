@@ -29,6 +29,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -120,9 +121,6 @@ public class GraphNoSINCController implements Initializable {
 	// keeps track of a point selected during data analysis
 	private Double[] selectedPoint;
 
-	// keeps trackl of the intial axis for the graph sync
-	private AxisType syncFirstAxis;
-
 	// the GraphData of the first point in slope/area calculations
 	// used to check if the user selected points from two different data sets
 	private GraphData selectedGraphData;
@@ -165,6 +163,9 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private TextField baselineEndField;
+
+	@FXML
+	private Button lineUpBtn;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -359,7 +360,8 @@ public class GraphNoSINCController implements Initializable {
 		// read test data and create GenericTests
 		for (String s : paths) {
 
-			// try/catch placed inside loop to allow subsequent files to load, even if one of them is erroneous
+			// try/catch placed inside loop to allow subsequent files to load,
+			// even if loading one of them causes an error
 			try {
 				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
 				genericTests.add(g);
@@ -404,6 +406,14 @@ public class GraphNoSINCController implements Initializable {
 			return;
 		}
 
+		// disable "line up trials" if only one GT exists 
+		if (genericTests.size() == 1) {
+			lineUpBtn.setDisable(true);
+		}
+		else {
+			lineUpBtn.setDisable(false);
+		}
+
 		// get primary test
 		GenericTest primaryTest = genericTests.get(0);
 
@@ -414,13 +424,17 @@ public class GraphNoSINCController implements Initializable {
 		if (!primaryTest.getClass().equals(GenericTest.class)) {
 
 			ExperimentPanel experimentPanel = new ExperimentPanel();
-			if(genericTests.get(0) instanceof ConservationMomentumModule){
-				((ConservationMomentumModule)(genericTests.get(0))).getController().setupExperimentPanel(experimentPanel);
-			}else if(genericTests.get(0) instanceof ConservationEnergyModule){
-				((ConservationEnergyModule)(genericTests.get(0))).getController().setupExperimentPanel(experimentPanel);
-			}else{
-				genericTests.get(0).setupExperimentPanel(experimentPanel);
+
+			// set up experiment panels
+			if (primaryTest instanceof ConservationMomentumModule) {
+				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+			} else if (primaryTest instanceof ConservationEnergyModule) {
+				((ConservationEnergyModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+			} else {
+				primaryTest.setupExperimentPanel(experimentPanel);
 			}
+
+			// add panel to window
 			a.getPanes().add(experimentPanel);
 
 		}
@@ -685,8 +699,6 @@ public class GraphNoSINCController implements Initializable {
 			int axisBlockSize = d.axis.getValue() / 4 == 6 ? blockSize / 10 : blockSize;
 
 			genericTests.get(d.GTIndex).getAxis(d.axis).smoothData(axisBlockSize);
-
-			logger.info("Applying sample block size of " + axisBlockSize + " to " + d.axis + " for GT #" + (d.GTIndex + 1));
 			updateAxis(d.axis, d.GTIndex);
 		}
 
@@ -1288,7 +1300,7 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.NORM) {
 
 					AxisDataSeries a = genericTests.get(GTIndex).getAxis(axis);
-					a.applyNormalizedData(x, x);
+					a.vertShift(-y);
 					updateAxis(axis, GTIndex);
 
 					setGraphMode(GraphMode.NONE);

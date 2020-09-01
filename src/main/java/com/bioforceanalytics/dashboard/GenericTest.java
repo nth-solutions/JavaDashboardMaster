@@ -209,18 +209,25 @@ public class GenericTest {
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
+			// momentum (if this is a CoE test)
 			if (this instanceof ConservationMomentumModule) {
-				logger.info(((ConservationMomentumModule)(this)).getMomentumScalar() + " momentum scalar");
-				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(((ConservationMomentumModule)(this)).getMomentumScalar()), AxisType.valueOf(i+28), false, sampleRate);
+
+				double mass = ((ConservationMomentumModule) this).getMomentumScalar();
+				logger.info("Mass: " + mass);
+
+				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(mass), AxisType.valueOf(i+28), false, sampleRate);
+			
 			}
 		}
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
+
 			if (this instanceof ConservationMomentumModule || i < 28) {
 				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 			}
+			
 		}
 
 	}

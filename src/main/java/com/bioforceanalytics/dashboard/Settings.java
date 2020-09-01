@@ -8,16 +8,25 @@ import java.util.Properties;
 
 import javax.swing.filechooser.FileSystemView;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Responsible for storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
  * Also used by {@link com.bioforceanalytics.dashboard.CSVHandler CSVHandler} in the Data Analysis Graph.
  */
 public class Settings {
-	Properties prop = new Properties();			//Defines properties
+
+	Properties prop = new Properties();
+
+	private static final Logger logger = LogManager.getLogger();
 
 	//Defines the default configurations
-	public void restoreDefaultConfig() {			
-		this.prop.setProperty("CSVSaveLocation", FileSystemView.getFileSystemView().getDefaultDirectory().getPath());
+	public void restoreDefaultConfig() {
+		
+		String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath() + "/BioForce Tests/";
+		
+		this.prop.setProperty("CSVSaveLocation", path);
 		this.prop.setProperty("DefaultProfile", "");
 		this.prop.setProperty("TemplateDirectory", "");
 		this.prop.setProperty("OpenOnRead", "False");
@@ -33,22 +42,18 @@ public class Settings {
 
 			File SettingsDirectory = new File(System.getProperty("user.home")+"/.BioForce Dashboard/");
 
-			if (!SettingsDirectory.exists()) {
-				SettingsDirectory.mkdirs();
-			}
+			if (!SettingsDirectory.exists()) SettingsDirectory.mkdirs();
 
-			this.prop.load(new FileInputStream(SettingsDirectory + "DataOrganizer.prop"));
+			this.prop.load(new FileInputStream(SettingsDirectory + "/DataOrganizer.prop"));
 
 		} catch (FileNotFoundException e) {
 
-	  		e.printStackTrace();
-	  		System.out.println("Config file could not be found, reverting to default config...");
+	  		logger.warn("Config file could not be found, reverting to default config...");
 			this.restoreDefaultConfig();
 
 		} catch (Exception e) {
-
-	  		e.printStackTrace();
-			System.out.println("Error loading config file");
+			e.printStackTrace();
+			logger.error("Error loading config file");
 			  
 		}
 	}
@@ -70,11 +75,11 @@ public class Settings {
 				SettingsDirectory.mkdirs();
 	  		}
 			
-			this.prop.store(new FileOutputStream(SettingsDirectory + "DataOrganizer.prop"), null);
+			this.prop.store(new FileOutputStream(SettingsDirectory + "/DataOrganizer.prop"), null);
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("Error loading config file");
+			logger.error("Error saving config file");
 		}
 
 	}
