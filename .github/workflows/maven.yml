@@ -37,7 +37,7 @@ jobs:
           rm target/original*
           cp target/*.jar staging
           cp target/*.exe staging
-          cp target/**/*.app staging
+          cp -r target/**/*.app staging
           cp target/**/*.dmg staging
       - name: Save package
         uses: actions/upload-artifact@v2
