@@ -272,7 +272,13 @@ public class GenericTest {
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
 	}
-
+	/**
+	 * returns sample rate
+	 * @return integer value of sample rate
+	 */
+	public int getSampleRate(){
+		return sampleRate;
+	}
 	/**
 	 * Different from MPU Offsets, this allows the data to be shifted for module synchronization.
 	 * @param offset the signed amount by which the data should be offset
