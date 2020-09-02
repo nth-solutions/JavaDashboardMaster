@@ -119,6 +119,13 @@
         <artifactId>json-simple</artifactId>
         <version>1.1.1</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/sh.tak.appbundler/appbundle-maven-plugin -->
+    <dependency>
+        <groupId>sh.tak.appbundler</groupId>
+        <artifactId>appbundle-maven-plugin</artifactId>
+        <version>1.2.0</version>
+    </dependency>
   </dependencies>
   <build>
       <plugins>
@@ -246,6 +253,26 @@
                   <runtimeBits>64/32</runtimeBits>
                 </jre>
               </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Builds .app/.dmg for Macs -->
+        <plugin>
+          <groupId>sh.tak.appbundler</groupId>
+          <artifactId>appbundle-maven-plugin</artifactId>
+          <version>1.2.0</version>
+          <configuration>
+            <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
+            <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
+            <generateDiskImageFile>true</generateDiskImageFile>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>bundle</goal>
+              </goals>
             </execution>
           </executions>
         </plugin>
