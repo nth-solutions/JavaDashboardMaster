@@ -392,7 +392,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Internal method that generates data set panels from loaded GenericTests.
 	 */
 	private void initializePanels() {
-
+		logger.info("running initialize panels");
 		// get reference to root element
 		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
 
@@ -428,6 +428,12 @@ public class GraphNoSINCController implements Initializable {
 			// set up experiment panels
 			if (primaryTest instanceof ConservationMomentumModule) {
 				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+				if(findGraphData(-2, AxisType.MomentumX) == null){
+					AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController().getMomentumAxes();
+					for(int i = 0; i < momentumAxes.length; i++){
+						graphExternalAxis(momentumAxes[i], AxisType.valueOf((i%4) + 28),i/4);
+					}
+				}
 			} else if (primaryTest instanceof ConservationEnergyModule) {
 				((ConservationEnergyModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
 			} else {
@@ -465,7 +471,7 @@ public class GraphNoSINCController implements Initializable {
 		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
 
-			clearGraph();
+			//clearGraph();
 
 			// TODO the first test isn't always the desired one, so we might want to change this
 			//
@@ -593,7 +599,9 @@ public class GraphNoSINCController implements Initializable {
 			dataSets.remove(findGraphData(GTIndex, axis));
 
 			// untick the checkbox
-			panels.get(GTIndex).setCheckBox(false, axis);
+			if(GTIndex >= 0){
+				panels.get(GTIndex).setCheckBox(false, axis);
+			}
 
 		}
 
@@ -643,6 +651,86 @@ public class GraphNoSINCController implements Initializable {
 		multiAxis.styleLegend();
 
 	}
+	public void graphExternalAxis(AxisDataSeries dataSeries, AxisType axis){
+		graphExternalAxis(dataSeries, axis,-1);
+	}
+
+
+
+	/**
+	 * Graph an external AxisDataSeries onto the main graph. Ues this method for adding axes that do not belong to any one GenericTest object specifically.
+	 * @param dataSeries the AxisDataSeries to be graphed
+	 * @param axis the AxisType of the AxisDataSeries
+	 * @param GTIndex the GTIndex of the data's source. Only use this if the data is directly based off ONLY one GT (e.g. momentum axis of a GT)
+	 */
+	public void graphExternalAxis(AxisDataSeries dataSeries, AxisType axis,int GTIndex){
+		GTIndex = -GTIndex - 2; 
+		// negating the GTIndex prevents conflicts with existing GT's while keeping seperation of GT's.
+		// the -2 is to keep to keep GTIndex = -1 a special case for non-specific externalAxes (e.g. total momentum)
+
+		if(findGraphData(GTIndex, axis) == null){
+			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
+
+			List<Double> time;
+			List<Double> data;
+
+			// get time/samples data sets
+			time = dataSeries.getTime();
+			data = dataSeries.getSamples();
+
+			// create (Time, Data) -> (X,Y) pairs
+			for (int i = 0; i < data.size(); i += getResolution(axis)) {
+
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+			
+				// add tooltip with (x,y) when hovering over data point
+				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, -1));
+
+				seriesData.add(dataEl);
+
+			}
+
+			// TODO switch this to a pretty-printed version of AxisType?
+			series.setName(axis.toString());
+
+			// add ObservableList to XYChart.Series
+			series.setData(seriesData);
+
+			GraphData d = new GraphData(GTIndex, axis, series);
+
+			// add to list of currently drawn axes
+			dataSets.add(d);
+
+			// add graph with new axis
+			multiAxis.addSeries(d);
+
+			logger.info("Adding external axis " + axis + " for GT # " + (GTIndex + 1));
+			// hide all data point symbols
+			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+				n.setStyle("-fx-background-color: transparent;");
+			}
+
+			// tick the checkbox
+			//panels.get(-1).setCheckBox(true, axis);
+
+		// if axis is already graphed:
+		} else {
+
+			logger.info("Removing " + axis + " for GT #" + (GTIndex+1));
+
+			// remove axis from line chart
+			multiAxis.removeAxis(axis, GTIndex);
+
+			// remove GraphData from list of axes
+			dataSets.remove(findGraphData(GTIndex, axis));
+
+			// untick the checkbox
+			//panels.get(GTIndex).setCheckBox(false, axis);
+
+		}
+
+}
 
 	/**
 	 * Removes all currently drawn axes from the graph.

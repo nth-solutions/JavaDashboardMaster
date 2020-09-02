@@ -13,7 +13,20 @@ public class ConservationMomentumTest extends TwoModuleTest {
 		this.massRightGlider = massRightGlider;
 		this.massLeftGlider = massLeftGlider;
 	}
-
+	public AxisDataSeries[] getMomentumAxes(){
+		AxisDataSeries[] series = new AxisDataSeries[8];
+		for(int i = 0; i < 4; i++){
+			series[i] = new AxisDataSeries(getModuleOne().getAxis(AxisType.valueOf(i)).getTime(),
+			getModuleOne().getAxis(AxisType.valueOf(i)).integrate(((ConservationMomentumModule)getModuleOne()).getMomentumScalar()),
+			AxisType.valueOf(i+28), false, getModuleOne().getSampleRate());
+		}
+		for(int i = 0; i < 4; i++){
+			series[i+4] = new AxisDataSeries(getModuleTwo().getAxis(AxisType.valueOf(i)).getTime(),
+			getModuleTwo().getAxis(AxisType.valueOf(i)).integrate(((ConservationMomentumModule)getModuleTwo()).getMomentumScalar()),
+			AxisType.valueOf(i+28), false, getModuleTwo().getSampleRate());
+		}
+		return series;
+	}
 	public void setupExperimentPanel(ExperimentPanel panel) {
 		panel.setExperimentName("Conservation of Momentum");
 		panel.addParamName("Mass of Right Module");
