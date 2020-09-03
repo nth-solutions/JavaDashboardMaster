@@ -1,19 +1,40 @@
 package com.bioforceanalytics.dashboard;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.Font;
-import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import javafx.application.Platform;
@@ -23,25 +44,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
-
-import javax.swing.UIManager;
-import java.awt.Color;
-import javax.swing.JTextField;
-import java.io.IOException;
-import java.util.*;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.CardLayout;
-
-import javax.swing.AbstractButton;
-import javax.swing.ButtonGroup;
-import javax.swing.SwingConstants;
-import javax.swing.JRadioButton;
-import javax.swing.JCheckBox;
-import javax.swing.JProgressBar;
-import java.awt.SystemColor;
-import javax.swing.border.LineBorder;
-import java.awt.FlowLayout;
 
 public class EducatorMode extends JFrame {
 

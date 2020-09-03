@@ -14,9 +14,9 @@ import javafx.scene.layout.Pane;
  * Manages the display of a help menu in the advanced mode dashboard.
  */
 
-public class HelpMenuController implements Initializable{
+public class HelpMenuController implements Initializable {
 
-					//Index  //tab name
+	//Index  //tab name
 	private HashMap<Integer, String> tabIndexList = new HashMap<Integer, String>(7);
 	private int currentTab;
 	

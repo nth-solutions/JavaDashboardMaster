@@ -3,9 +3,12 @@ package com.bioforceanalytics.dashboard;
 import javafx.scene.chart.XYChart;
 
 /**
- * Data type used to store information about currently graphed data sets.
- * Used by the Data Analysis Graph in {@link com.bioforceanalytics.dashboard.GraphNoSINCController GraphNoSINCController}
- * and {@link com.bioforceanalytics.dashboard.MultipleAxesLineChart MultipleAxesLineChart}.
+ * Data type used to store information about currently graphed data sets. Used
+ * by the Data Analysis Graph in
+ * {@link com.bioforceanalytics.dashboard.GraphNoSINCController
+ * GraphNoSINCController} and
+ * {@link com.bioforceanalytics.dashboard.MultipleAxesLineChart
+ * MultipleAxesLineChart}.
  */
 public class GraphData {
 

@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+
 /**
  * Entry point for BioForce's software suite.
  * This should be the starting class for building JARs/executables.

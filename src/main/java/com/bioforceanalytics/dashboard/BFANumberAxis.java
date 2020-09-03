@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.sun.javafx.charts.ChartLayoutAnimator;
-import com.sun.javafx.css.converters.SizeConverter;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.BooleanPropertyBase;
 import javafx.beans.property.DoubleProperty;
@@ -21,6 +18,7 @@ import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.SizeConverter;
 import javafx.geometry.Dimension2D;
 import javafx.scene.chart.ValueAxis;
 import javafx.util.StringConverter;
@@ -32,7 +30,6 @@ import javafx.util.StringConverter;
 public final class BFANumberAxis extends ValueAxis<Number> {
 
     private Object currentAnimationID;
-    private final ChartLayoutAnimator animator = new ChartLayoutAnimator(this);
     private final StringProperty currentFormatterProperty = new SimpleStringProperty(this, "currentFormatter", "");
     private final DefaultFormatter defaultFormatter = new DefaultFormatter(this);
 

@@ -27,38 +27,6 @@
   </repositories>
 
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13-beta-3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>testfx-junit</artifactId>
-      <version>4.0.15-alpha</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>testfx-core</artifactId>
-      <version>4.0.16-alpha</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest</artifactId>
-      <version>2.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.testfx/openjfx-monocle -->
-    <dependency>
-        <groupId>org.testfx</groupId>
-        <artifactId>openjfx-monocle</artifactId>
-        <version>1.8.0_20</version>
-        <scope>test</scope>
-    </dependency>
-
     <!-- https://mvnrepository.com/artifact/com.github.purejavacomm/purejavacomm -->
     <dependency>
       <groupId>com.github.purejavacomm</groupId>
@@ -77,13 +45,33 @@
         <artifactId>vlcj</artifactId>
         <version>3.10.1</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
+
+    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
     <dependency>
         <groupId>org.openjfx</groupId>
-        <artifactId>javafx</artifactId>
+        <artifactId>javafx-controls</artifactId>
         <version>11</version>
         <type>pom</type>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-fxml</artifactId>
+        <version>11</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-swing</artifactId>
+        <version>11</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-media</artifactId>
+        <version>11</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
     <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -118,6 +106,39 @@
         <groupId>com.googlecode.json-simple</groupId>
         <artifactId>json-simple</artifactId>
         <version>1.1.1</version>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13-beta-3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit</artifactId>
+      <version>4.0.15-alpha</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-core</artifactId>
+      <version>4.0.16-alpha</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <version>2.1</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.testfx/openjfx-monocle -->
+    <dependency>
+        <groupId>org.testfx</groupId>
+        <artifactId>openjfx-monocle</artifactId>
+        <version>jdk-11+26</version>
+        <scope>test</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/sh.tak.appbundler/appbundle-maven-plugin -->

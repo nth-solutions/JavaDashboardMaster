@@ -1,11 +1,23 @@
 package com.bioforceanalytics.dashboard;
 
+import static java.lang.Math.round;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.util.ResourceBundle;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -16,18 +28,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import javafx.event.ActionEvent;
 import javafx.util.Duration;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.text.DecimalFormat;
-import java.util.ResourceBundle;
-
-import static java.lang.Math.round;
 
 //GOALS:
 //TODO: INTEGRATE FFMPEG INTO PROGRAM *SHELVED FOR LATER DEVELOPMENT

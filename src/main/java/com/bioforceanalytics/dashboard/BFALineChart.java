@@ -189,6 +189,11 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     }
 
     /*
+    //=================================================================================================
+    // TODO if real-time area is ever re-added, it would be best to start from a copy of redrawArea();
+    // the method below is an older version of the logic above and would be missing features
+    //================================================================================================
+
     public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
 
         int start = -1;
@@ -255,7 +260,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
             });
         }
 
-        // TODO change this to shade the same color as the graph?
+        // change this to shade the same color as the graph?
         // not important at all, just a cosmetic feature that would be nice
         poly.setFill(Color.RED);
 

@@ -31,13 +31,16 @@ public class BFAColorMenu implements Initializable {
     private GraphNoSINCController controller;
 
     // left column labelled "Axis Type" with axis type names
-    @FXML private TableColumn<AxisType, String> axisTypeCol;
+    @FXML
+    private TableColumn<AxisType, String> axisTypeCol;
 
     // right column labelled "Color" with color pickers
-    @FXML private TableColumn<AxisType, ColorPicker> colorCol;
+    @FXML
+    private TableColumn<AxisType, ColorPicker> colorCol;
 
     // Node representing the entire table
-    @FXML private TableView<AxisType> tableView;
+    @FXML
+    private TableView<AxisType> tableView;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -61,7 +64,7 @@ public class BFAColorMenu implements Initializable {
         // set the right column to the custom color picker cell
         colorCol.setCellFactory(column -> new ColorPickerCell());
 
-        //colorCol.setCellValueFactory(data -> new ColorPicker());
+        // colorCol.setCellValueFactory(data -> new ColorPicker());
 
         // populate table with AxisType entries
         for (AxisType a : AxisType.values()) {
@@ -77,7 +80,8 @@ public class BFAColorMenu implements Initializable {
 
         final ColorPicker picker = new ColorPicker();
 
-        ColorPickerCell() {}
+        ColorPickerCell() {
+        }
 
         @Override
         // this method handles rendering color pickers
@@ -109,14 +113,16 @@ public class BFAColorMenu implements Initializable {
                 setGraphic(picker);
             }
             // if empty, don't render anything
-            else setGraphic(null);
-        
+            else
+                setGraphic(null);
+
         }
 
     }
 
     /**
      * Returns the color associated with an AxisType.
+     * 
      * @param axis the enum representing the data set
      * @return the color associated with an AxisType
      */
@@ -125,24 +131,24 @@ public class BFAColorMenu implements Initializable {
     }
 
     /**
-     * Returns the color associated with an AxisType,
-     * formatted as a hexadecimal color code.
+     * Returns the color associated with an AxisType, formatted as a hexadecimal
+     * color code.
+     * 
      * @param axis the enum representing the data set
      * @return the color associated with an AxisType
      */
     public static String getHexString(AxisType axis) {
 
         Color c = getColor(axis);
-        
-        return String.format("#%02X%02X%02X",
-            (int) (c.getRed()*255),
-            (int) (c.getGreen()*255),
-            (int) (c.getBlue()*255));
+
+        return String.format("#%02X%02X%02X", (int) (c.getRed() * 255), (int) (c.getGreen() * 255),
+                (int) (c.getBlue() * 255));
 
     }
 
     /**
      * Allows communication between the color menu and the DAG's controller.
+     * 
      * @param controller the DAG controller to pair this color menu to
      */
     public void setParent(GraphNoSINCController controller) {
@@ -173,7 +179,7 @@ public class BFAColorMenu implements Initializable {
             }
 
             logger.info("Loaded 'defaultGraphColors.json' into color map.");
-            
+
         } catch (Exception e) {
 
             logger.error("Could not load default graph color configuration.");
@@ -189,7 +195,7 @@ public class BFAColorMenu implements Initializable {
     @FXML
     // TODO make this save "customGraphColors.json" to disk
     private void updateGraphColors() {
-        
+
         logger.info("Updating graph colors...");
         controller.updateGraphColors();
 
@@ -209,7 +215,7 @@ public class BFAColorMenu implements Initializable {
 
         // re-render table with new colors
         tableView.refresh();
-    
+
     }
 
 }

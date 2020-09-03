@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.javafx.charts.Legend;
-import com.sun.javafx.charts.Legend.LegendItem;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -391,57 +388,57 @@ public class MultipleAxesLineChart extends StackPane {
      */
     public void styleLegend() {
         
-        // loop through each child of the line chart
-        for (Node n : baseChart.getChildrenUnmodifiable()) {
+        // // loop through each child of the line chart
+        // for (Node n : baseChart.getChildrenUnmodifiable()) {
 
-            // ensure node is the legend
-            if (n instanceof Legend) {
+        //     // ensure node is the legend
+        //     if (n instanceof Legend) {
 
-                // tracks the AxisTypes of legend items to check for duplicates
-                ArrayList<AxisType> legendAxes = new ArrayList<AxisType>();
+        //         // tracks the AxisTypes of legend items to check for duplicates
+        //         ArrayList<AxisType> legendAxes = new ArrayList<AxisType>();
 
-                ObservableList<LegendItem> legendItems = ((Legend) n).getItems();
+        //         ObservableList<LegendItem> legendItems = ((Legend) n).getItems();
 
-                // TODO this code will NOT work if the codebase is updated to JDK 9 or later;
-                // more info: https://stackoverflow.com/questions/57412846/javafx-missing-legend-class
-                //
-                // loop through each legend item
-                for (int i = 0; i < legendItems.size(); i++) {
+        //         // TODO this code will NOT work if the codebase is updated to JDK 9 or later;
+        //         // more info: https://stackoverflow.com/questions/57412846/javafx-missing-legend-class
+        //         //
+        //         // loop through each legend item
+        //         for (int i = 0; i < legendItems.size(); i++) {
 
-                    LegendItem legendItem = legendItems.get(i);
+        //             LegendItem legendItem = legendItems.get(i);
 
-                    String style = "";
+        //             String style = "";
 
-                    // if this is a slope line, set the color to black
-                    if (legendItem.getText().contains("Slope")) {
-                        style = "black";
-                    }
-                    else {
+        //             // if this is a slope line, set the color to black
+        //             if (legendItem.getText().contains("Slope")) {
+        //                 style = "black";
+        //             }
+        //             else {
 
-                        // get AxisType of this legend item
-                        AxisType a = AxisType.valueOf(legendItem.getText());
+        //                 // get AxisType of this legend item
+        //                 AxisType a = AxisType.valueOf(legendItem.getText());
 
-                        // if this legend item is not a duplicate AxisType
-                        if (!legendAxes.contains(a)) {
+        //                 // if this legend item is not a duplicate AxisType
+        //                 if (!legendAxes.contains(a)) {
 
-                            // get the corresponding color
-                            style = BFAColorMenu.getHexString(a);
+        //                     // get the corresponding color
+        //                     style = BFAColorMenu.getHexString(a);
 
-                            // track this legend's AxisType
-                            legendAxes.add(a);
+        //                     // track this legend's AxisType
+        //                     legendAxes.add(a);
 
-                        }
-                        // if this legend item is a duplicate, remove it
-                        else legendItems.remove(i);
+        //                 }
+        //                 // if this legend item is a duplicate, remove it
+        //                 else legendItems.remove(i);
                         
-                    }
+        //             }
 
-                    // set legend symbol color
-                    legendItem.getSymbol().setStyle("-fx-background-color: " + style + ", white;");
+        //             // set legend symbol color
+        //             legendItem.getSymbol().setStyle("-fx-background-color: " + style + ", white;");
                     
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
 
     }
 
