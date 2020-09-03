@@ -427,17 +427,23 @@ public class GraphNoSINCController implements Initializable {
 
 			// set up experiment panels
 			if (primaryTest instanceof ConservationMomentumModule) {
+
 				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
-				if(findGraphData(-2, AxisType.MomentumX) == null){
-					AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController().getMomentumAxes();
-					for(int i = 0; i < momentumAxes.length; i++){
-						graphExternalAxis(momentumAxes[i], AxisType.valueOf((i%4) + 28),i/4);
-					}
+
+				AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController().getMomentumAxes();
+
+				for(int i = 0; i < momentumAxes.length; i++){
+					graphCustomAxis(momentumAxes[i], new CustomAxisType("Momentum " + ((i % 4 == 3) ? "Mag" : (char)(88+(i%4))),1));
 				}
+
 			} else if (primaryTest instanceof ConservationEnergyModule) {
+
 				((ConservationEnergyModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+
 			} else {
+
 				primaryTest.setupExperimentPanel(experimentPanel);
+
 			}
 
 			// add panel to window
@@ -512,9 +518,14 @@ public class GraphNoSINCController implements Initializable {
 
 		// update tick spacing based on zoom level
 		for (GraphData d : multiAxis.axisChartMap.keySet()) {
-			
+			double axisScalar;
+			if(d.customAxisType != null){
+				axisScalar = d.customAxisType.getAxisScalar();
+			}else{
+				axisScalar = multiAxis.getAxisScalar(d.axis);
+			}
 			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getYAxis())).setTickUnit(
-					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * multiAxis.getAxisScalar(d.axis));
+					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * axisScalar);
 			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getXAxis()))
 					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
 		}
@@ -651,24 +662,18 @@ public class GraphNoSINCController implements Initializable {
 		multiAxis.styleLegend();
 
 	}
-	public void graphExternalAxis(AxisDataSeries dataSeries, AxisType axis){
-		graphExternalAxis(dataSeries, axis,-1);
-	}
-
 
 
 	/**
 	 * Graph an external AxisDataSeries onto the main graph. Ues this method for adding axes that do not belong to any one GenericTest object specifically.
 	 * @param dataSeries the AxisDataSeries to be graphed
-	 * @param axis the AxisType of the AxisDataSeries
-	 * @param GTIndex the GTIndex of the data's source. Only use this if the data is directly based off ONLY one GT (e.g. momentum axis of a GT)
+	 * @param customAxisType the specific CustomAxisType that the axis uses
 	 */
-	public void graphExternalAxis(AxisDataSeries dataSeries, AxisType axis,int GTIndex){
-		GTIndex = -GTIndex - 2; 
+	public void graphCustomAxis(AxisDataSeries dataSeries, CustomAxisType customAxisType){
 		// negating the GTIndex prevents conflicts with existing GT's while keeping seperation of GT's.
 		// the -2 is to keep to keep GTIndex = -1 a special case for non-specific externalAxes (e.g. total momentum)
 
-		if(findGraphData(GTIndex, axis) == null){
+		if(findGraphData(customAxisType) == null){
 			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 			ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
 
@@ -680,24 +685,25 @@ public class GraphNoSINCController implements Initializable {
 			data = dataSeries.getSamples();
 
 			// create (Time, Data) -> (X,Y) pairs
-			for (int i = 0; i < data.size(); i += getResolution(axis)) {
+			for (int i = 0; i < data.size(); i += resolution) {
 
-				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / customAxisType.getAxisScalar());
 			
 				// add tooltip with (x,y) when hovering over data point
-				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, -1));
+				//TODO change the DataPointLabel code to work with CustomAxisType
+				//dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), customAxisType, -1));
 
 				seriesData.add(dataEl);
 
 			}
 
 			// TODO switch this to a pretty-printed version of AxisType?
-			series.setName(axis.toString());
+			series.setName(customAxisType.getName());
 
 			// add ObservableList to XYChart.Series
 			series.setData(seriesData);
 
-			GraphData d = new GraphData(GTIndex, axis, series);
+			GraphData d = new GraphData(customAxisType, series);
 
 			// add to list of currently drawn axes
 			dataSets.add(d);
@@ -705,7 +711,7 @@ public class GraphNoSINCController implements Initializable {
 			// add graph with new axis
 			multiAxis.addSeries(d);
 
-			logger.info("Adding external axis " + axis + " for GT # " + (GTIndex + 1));
+			logger.info("Adding external axis " + customAxisType.getName());
 			// hide all data point symbols
 			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
 				n.setStyle("-fx-background-color: transparent;");
@@ -717,13 +723,13 @@ public class GraphNoSINCController implements Initializable {
 		// if axis is already graphed:
 		} else {
 
-			logger.info("Removing " + axis + " for GT #" + (GTIndex+1));
+			logger.info("Removing " + customAxisType.getName());
 
 			// remove axis from line chart
-			multiAxis.removeAxis(axis, GTIndex);
+			multiAxis.removeAxis(customAxisType);
 
 			// remove GraphData from list of axes
-			dataSets.remove(findGraphData(GTIndex, axis));
+			dataSets.remove(findGraphData(customAxisType));
 
 			// untick the checkbox
 			//panels.get(GTIndex).setCheckBox(false, axis);
@@ -764,8 +770,10 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
-			updateAxis(g.axis, g.GTIndex);
+			if(g.GTIndex >= 0){
+				genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
+				updateAxis(g.axis, g.GTIndex);
+			}
 		}
 
 		redrawGraph();
@@ -1217,6 +1225,13 @@ public class GraphNoSINCController implements Initializable {
 
 		return null;
 
+	}
+	private GraphData findGraphData(CustomAxisType customAxisType){
+		
+		for (GraphData g : dataSets){
+			if(g.customAxisType == customAxisType) return g;
+		}
+		return null;
 	}
 
 	/**
