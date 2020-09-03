@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.aspose.cells.Axis;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -141,6 +143,22 @@ public class AxisDataSeries {
 
 	}
 
+
+
+
+
+
+/**
+	 * Constructor for data NOT natively recorded by the module OR from the magnetometer. 
+	 * Use this for CustomAxisType AxisDataSeries, because it does not require axis type
+	 * @param time the time axis for the data set
+	 * @param data the samples for the data set
+	 * @param signData indicates whether the data should be converted from unsigned to signed
+	 * @param sampleRate the number of data samples recorded in one second
+	 */
+	public AxisDataSeries(List<Double> time, List<Double> data, boolean signData, int sampleRate) {
+		this(time, data, AxisType.AccelX,signData,sampleRate); //NOTE: the AccelX is only for the purpose of passing some generic axis to the ADS constructor
+	}
 	/**
 	 * Constructor for acceleration data.
 	 * @param time the time axis for the data set

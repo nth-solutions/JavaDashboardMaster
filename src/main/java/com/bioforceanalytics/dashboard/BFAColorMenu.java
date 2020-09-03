@@ -131,8 +131,13 @@ public class BFAColorMenu implements Initializable {
      * @return the color associated with an AxisType
      */
     public static String getHexString(AxisType axis) {
-
-        Color c = getColor(axis);
+        Color c;
+        if(axis==null){
+            c = Color.RED;
+        }
+        else{
+        c = getColor(axis);
+        }
         
         return String.format("#%02X%02X%02X",
             (int) (c.getRed()*255),

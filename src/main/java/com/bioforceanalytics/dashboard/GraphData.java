@@ -12,10 +12,14 @@ public class GraphData {
     public int GTIndex;
     public AxisType axis;
     public XYChart.Series<Number,Number> data;
-
+    public CustomAxisType customAxisType;
     public GraphData(int GTIndex, AxisType axis, XYChart.Series<Number, Number> data) {
         this.GTIndex = GTIndex;
         this.axis = axis;
+        this.data = data;
+    }
+    public GraphData(CustomAxisType customAxisType, XYChart.Series<Number,Number> data){
+        this.customAxisType = customAxisType;
         this.data = data;
     }
 
