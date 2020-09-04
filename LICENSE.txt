@@ -1,5 +1,5 @@
 1. Introduction and Your Account
-Please read these Terms and Conditions (“Terms”) carefully as they contain the legal terms and conditions that you (“you”) agree to when you access and use this website (the “Website”), and/or purchase from BioForce Analytics, LLC. By placing an order you accept these Terms and you acknowledge these Terms constitute a binding agreement between you and BioForce Analytics, LLC. In addition, you agree to faithfully comply with all rules and requirements that appear during your order process on the Website.
+Please read these Terms and Conditions ("Terms") carefully as they contain the legal terms and conditions that you ("you") agree to when you access and use this website (the "Website"), and/or purchase from BioForce Analytics, LLC. By placing an order you accept these Terms and you acknowledge these Terms constitute a binding agreement between you and BioForce Analytics, LLC. In addition, you agree to faithfully comply with all rules and requirements that appear during your order process on the Website.
 
 You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer to prevent unauthorized access to your account. You agree to accept responsibility for all activities that occur under your account or password. You should take all necessary steps to ensure that the password is kept confidential and secure and should inform us immediately if you have any reason to believe that your password has become known to anyone else, or if the password is being, or is likely to be, used in an unauthorized manner. Please ensure that the details you provide us with are correct and complete and inform us immediately of any changes to the information that you provided when you registered.
 
@@ -44,14 +44,14 @@ This Website may provide links to third-party sites that might be of interest to
 
 9. Proprietary Rights
 
-This Website, the BioForce Analytics, LLC services, and all software, systems and processes used in connection with the Website and service (“Software”) contain proprietary and confidential information that is protected by applicable intellectual property and other laws and are covered by and/or for use with U.S. Patents.
+This Website, the BioForce Analytics, LLC services, and all software, systems and processes used in connection with the Website and service ("Software") contain proprietary and confidential information that is protected by applicable intellectual property and other laws and are covered by and/or for use with U.S. Patents.
 
 10. LIMITED WARRANTY
 
-WARRANTIES AND DISCLAIMER: MANUFACTURER WARRANTS THAT EDUFORCE DASHBOARD® (“THE PRODUCTS”) ARE SOLD FREE OF MANUFACTURING DEFECTS FOR NINETY (90) DAYS. MANUFACTURER’S PRODUCTS LIABILITY SHALL BE LIMITED SOLELY TO THE REPLACEMENT OF THE PRODUCTS FOR A PERIOD OF NINETY (90) DAYS AFTER PURCHASE DATE WITH PROOF OF PURCHASE DATE. NO OTHER WARRANTY, EXPRESSED OR IMPLIED, SHALL APPLY, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, AND ANY SUCH IMPLIED WARRANTIES ARE EXPRESSLY DISCLAIMED. THERE ARE NO WARRANTIES WHICH EXTEND BEYOND NINETY (90) DAYS FROM THE DATE OF PURCHASE. MANUFACTURER SHALL NOT BE RESPONSIBLE OR LIABLE FOR INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, INCLUDING BUT NOT LIMITED TO COST INCURRED FOR THE USE OF THE PRODUCTS, LOSS OF TIME, LOSS OF PROFITS, INCONVENIENCE, OR OTHER INCIDENTAL OR CONSEQUENTIAL DAMAGES WITH RESPECT TO PERSONS, BUSINESS OR PROPERTY, WHETHER OR NOT SUCH CLAIMS ARE AS A RESULT OF BREACH OF WARRANTY. THIS WARRANTY DOES NOT EXTEND TO ANY DEFECT OR PROBLEM CAUSED BY ACTS OR OMISSIONS OF YOU OR OTHERS, IMPROPER USE, TAMPERING, ACCIDENTS, ALTERATIONS, OR ORDINARY WEAR AND TEAR BEYOND NINETY (90) DAYS.
+WARRANTIES AND DISCLAIMER: MANUFACTURER WARRANTS THAT EDUFORCE DASHBOARD® ("THE PRODUCTS") ARE SOLD FREE OF MANUFACTURING DEFECTS FOR NINETY (90) DAYS. MANUFACTURER’S PRODUCTS LIABILITY SHALL BE LIMITED SOLELY TO THE REPLACEMENT OF THE PRODUCTS FOR A PERIOD OF NINETY (90) DAYS AFTER PURCHASE DATE WITH PROOF OF PURCHASE DATE. NO OTHER WARRANTY, EXPRESSED OR IMPLIED, SHALL APPLY, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, AND ANY SUCH IMPLIED WARRANTIES ARE EXPRESSLY DISCLAIMED. THERE ARE NO WARRANTIES WHICH EXTEND BEYOND NINETY (90) DAYS FROM THE DATE OF PURCHASE. MANUFACTURER SHALL NOT BE RESPONSIBLE OR LIABLE FOR INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, INCLUDING BUT NOT LIMITED TO COST INCURRED FOR THE USE OF THE PRODUCTS, LOSS OF TIME, LOSS OF PROFITS, INCONVENIENCE, OR OTHER INCIDENTAL OR CONSEQUENTIAL DAMAGES WITH RESPECT TO PERSONS, BUSINESS OR PROPERTY, WHETHER OR NOT SUCH CLAIMS ARE AS A RESULT OF BREACH OF WARRANTY. THIS WARRANTY DOES NOT EXTEND TO ANY DEFECT OR PROBLEM CAUSED BY ACTS OR OMISSIONS OF YOU OR OTHERS, IMPROPER USE, TAMPERING, ACCIDENTS, ALTERATIONS, OR ORDINARY WEAR AND TEAR BEYOND NINETY (90) DAYS.
 11. Disclaimer and Limitation of Liability
 
-This Website is provided by BioForce Analytics, LLC on an “as is” and “as available” basis. BioForce Analytics, LLC makes no representations or warranties of any kind, express or implied, as to the operation of this Website or the information, content, materials, or products included on this Website. It is expressly agreed by you that your use of this Website is at your sole risk.
+This Website is provided by BioForce Analytics, LLC on an "as is" and "as available" basis. BioForce Analytics, LLC makes no representations or warranties of any kind, express or implied, as to the operation of this Website or the information, content, materials, or products included on this Website. It is expressly agreed by you that your use of this Website is at your sole risk.
 
 BioForce Analytics, LLC disclaims all warranties, express or implied, including, but not limited to, implied warranties of salability and fitness for purpose to the fullest extent permissible by applicable law. BioForce Analytics, LLC does not warrant that this Website, its servers, or e-mail by us are free of viruses or other harmful components.
 
@@ -97,7 +97,7 @@ Rules to Follow for Your Return:
 
 a)     You must request a return for refund within 30 days after the invoice date. No refunds are issued after 30 days.
 
-b)     Each return MUST have an RMA number, a “Return Merchandise Authorization” number. Please write down your RMA number on the outside of the box that contains the merchandise you want to return.
+b)     Each return MUST have an RMA number, a "Return Merchandise Authorization" number. Please write down your RMA number on the outside of the box that contains the merchandise you want to return.
 
 c)     One RMA number can only be issued per invoice number. If you have different items from different invoices, then you need to request a different RMA number for each return.
 
@@ -119,9 +119,9 @@ Return Policy for Refunds
 
 This only applies to products purchased via this website. BioForce Analytics, LLC products purchased in a store or on another website must be returned to the original place of purchase.
 
-You must follow the “Rules to Follow for Your Return” listed above.
+You must follow the "Rules to Follow for Your Return" listed above.
 
-You may return Products sold by BioForce Analytics, LLC within 30 days from the invoice date for a full refund. Please include a copy of your invoice. If you don’t have the invoice, then please include a note with your order number and RMA number. Please note that all items returned for a refund must be returned in “as new” condition in the original packaging and include all accessories, blank warranty cards, UPC codes (attached), and user manuals. A 15% restocking fee may be applied to all returns for a refund if the reason for the return is due to customer error.
+You may return Products sold by BioForce Analytics, LLC within 30 days from the invoice date for a full refund. Please include a copy of your invoice. If you don’t have the invoice, then please include a note with your order number and RMA number. Please note that all items returned for a refund must be returned in "as new" condition in the original packaging and include all accessories, blank warranty cards, UPC codes (attached), and user manuals. A 15% restocking fee may be applied to all returns for a refund if the reason for the return is due to customer error.
 
 We cannot accept returns of certain items for a refund, including:
 
@@ -135,7 +135,7 @@ This only applies to products purchased via this website that are within warrant
 
 Please email your Return Merchandise Authorization (RMA) request to rma@nth-solutions.com.com.
 
-You must follow the “Rules to Follow for Your Return” listed above.
+You must follow the "Rules to Follow for Your Return" listed above.
 
 Following these steps will help ensure the Product(s) arrive at the correct destination and in good condition within a timely fashion. Please note that your failure to follow this procedure may result in the returned Product(s) being rejected upon receipt and you may forfeit your right to a Replacement.
 
@@ -206,7 +206,7 @@ We communicate with users on a regular basis to provide requested services. Both
 
 E. Social Media
 
-Our site includes social media features such as Facebook “Like” and “Share This” buttons. These features may collect your IP address, which page you are visiting on our site, and may set a cookie to enable the feature to function properly. Social media features are either hosted by a third party or hosted directly on our site. Your interactions with these features are governed by the privacy policy of the company providing it.
+Our site includes social media features such as Facebook "Like" and "Share This" buttons. These features may collect your IP address, which page you are visiting on our site, and may set a cookie to enable the feature to function properly. Social media features are either hosted by a third party or hosted directly on our site. Your interactions with these features are governed by the privacy policy of the company providing it.
 
 F. Blog and Testimonials
 
@@ -218,7 +218,7 @@ G. Cookies and Other Technologies
 
 A cookie is a piece of data stored on the user’s computer tied to information about the user. We use persistent cookies. A persistent cookie is a small text file stored on the user’s hard drive for an extended period of time. Persistent cookies can be removed by following Internet browser help file directions. Cookies may be used by BioForce Analytics, LLC in the order section in order to uniquely identify users, associate user files with orders, and to enable the shopping basket. Our site cannot be used with cookies turned off.
 
-We use clear gifs in our HTML-based emails to let us know which emails have been opened by recipients. This allows us to gauge the effectiveness of certain communications and the effectiveness of our marketing campaigns. If you would like to opt-out of these emails, please see “Choice and Opt-out.”
+We use clear gifs in our HTML-based emails to let us know which emails have been opened by recipients. This allows us to gauge the effectiveness of certain communications and the effectiveness of our marketing campaigns. If you would like to opt-out of these emails, please see "Choice and Opt-out."
 
 H. Log Files
 
