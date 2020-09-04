@@ -77,8 +77,6 @@ public class BFAColorMenu implements Initializable {
 
         final ColorPicker picker = new ColorPicker();
 
-        ColorPickerCell() {}
-
         @Override
         // this method handles rendering color pickers
         protected void updateItem(ColorPicker item, boolean empty) {
