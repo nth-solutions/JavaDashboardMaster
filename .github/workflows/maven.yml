@@ -63,8 +63,6 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
-      - name: Install macOS build dependency
-        run: sudo apt-get install -y genisoimage
       - name: Build package
         run: mvn -B package --file pom.xml
       - name: Isolate binaries
