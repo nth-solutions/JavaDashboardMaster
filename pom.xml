@@ -14,37 +14,34 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
   </properties>
 
-  <repositories>
-      <repository>
-          <id>AsposeJavaAPI</id>
-          <name>Aspose Java API</name>
-          <url>http://repository.aspose.com/repo/</url>
-      </repository>
-  </repositories>
-
   <dependencies>
+
+    <!-- PROJECT DEPENDENCIES -->
+
     <!-- https://mvnrepository.com/artifact/com.github.purejavacomm/purejavacomm -->
     <dependency>
       <groupId>com.github.purejavacomm</groupId>
       <artifactId>purejavacomm</artifactId>
       <version>1.0.2.RELEASE</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.aspose/aspose-cells -->
+    <!-- https://mvnrepository.com/artifact/com.github.kokorin.jaffree/jaffree -->
     <dependency>
-        <groupId>com.aspose</groupId>
-        <artifactId>aspose-cells</artifactId>
-        <version>18.11</version>
+        <groupId>com.github.kokorin.jaffree</groupId>
+        <artifactId>jaffree</artifactId>
+        <version>0.9.6</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/uk.co.caprica/vlcj -->
+    <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
     <dependency>
-        <groupId>uk.co.caprica</groupId>
-        <artifactId>vlcj</artifactId>
-        <version>3.10.1</version>
+        <groupId>com.googlecode.json-simple</groupId>
+        <artifactId>json-simple</artifactId>
+        <version>1.1.1</version>
     </dependency>
+
+    <!-- JAVAFX DEPENDENCIES -->
 
     <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
     <dependency>
@@ -72,6 +69,8 @@
         <version>11</version>
     </dependency>
 
+    <!-- LOGGING DEPENDENCIES -->
+
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
     <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -84,68 +83,55 @@
         <artifactId>log4j-core</artifactId>
         <version>2.13.3</version>
     </dependency>
-
-    <dependency>
-        <groupId>com.github.kokorin.jaffree</groupId>
-        <artifactId>jaffree</artifactId>
-        <version>0.9.6</version>
-    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
     <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>1.7.25</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
     <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-slf4j-impl</artifactId>
         <version>2.13.3</version>
     </dependency>
     
-    <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
-    <dependency>
-        <groupId>com.googlecode.json-simple</groupId>
-        <artifactId>json-simple</artifactId>
-        <version>1.1.1</version>
-    </dependency>
+    <!-- TESTING DEPENDENCIES -->
 
-    <!-- Testing -->
+    <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13-beta-3</version>
-      <scope>test</scope>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13</version>
+        <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.testfx/testfx-junit -->
     <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>testfx-junit</artifactId>
-      <version>4.0.15-alpha</version>
-      <scope>test</scope>
+        <groupId>org.testfx</groupId>
+        <artifactId>testfx-junit</artifactId>
+        <version>4.0.15-alpha</version>
+        <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.testfx/testfx-core -->
     <dependency>
-      <groupId>org.testfx</groupId>
-      <artifactId>testfx-core</artifactId>
-      <version>4.0.16-alpha</version>
-      <scope>test</scope>
+        <groupId>org.testfx</groupId>
+        <artifactId>testfx-core</artifactId>
+        <version>4.0.16-alpha</version>
+        <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest</artifactId>
-      <version>2.1</version>
-      <scope>test</scope>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>2.2</version>
+        <scope>test</scope>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.testfx/openjfx-monocle -->
     <dependency>
         <groupId>org.testfx</groupId>
         <artifactId>openjfx-monocle</artifactId>
-        <version>jdk-11+26</version>
+        <version>jdk-12.0.1+2</version>
         <scope>test</scope>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/sh.tak.appbundler/appbundle-maven-plugin -->
-    <dependency>
-        <groupId>sh.tak.appbundler</groupId>
-        <artifactId>appbundle-maven-plugin</artifactId>
-        <version>1.2.0</version>
     </dependency>
   </dependencies>
   <build>
@@ -163,7 +149,10 @@
         </plugin>
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.6.0</version>
+          <configuration>
+            <release>11</release>
+          </configuration>
         </plugin>
 
         <!-- code testing -->
