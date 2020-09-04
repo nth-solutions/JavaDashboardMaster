@@ -1290,7 +1290,6 @@ public class EducatorMode extends JFrame {
 		String path = chooseSpreadsheetOutputPath(generalStatusLabelThree);
 //		PendulumSpreadsheetController pendulumSpreadsheetController = new PendulumSpreadsheetController();
 //		SpinnyStoolSpreadsheetController spinnyStoolSpreadsheetController = new SpinnyStoolSpreadsheetController();
-		ParameterSpreadsheetController parameterSpreadsheetController = new ParameterSpreadsheetController("EducationMode");
 		generalStatusLabelThree.setForeground(DarkGreen);
 		generalStatusLabelThree.setText("File Copy finished!");
 		
@@ -1377,73 +1376,69 @@ public class EducatorMode extends JFrame {
 												//Organize data into .CSV
 												dataOrgo.createDataSmpsRawData(finalData);
 
-												if (dataExcelRadioBtn.isSelected()) {
+// 												if (dataExcelRadioBtn.isSelected()) {
 													
-													List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
+// 													List<List<Double>> dataSamples = dataOrgo.getRawDataSamples();
 
 													
 
-													//TODO: Add Constructor with Dynamic Path Getting
-													generalStatusLabelThree.setForeground(Color.BLACK);
-													generalStatusLabelThree.setText("Writing data to spreadsheet");
+// 													//TODO: Add Constructor with Dynamic Path Getting
+// 													generalStatusLabelThree.setForeground(Color.BLACK);
+// 													generalStatusLabelThree.setText("Writing data to spreadsheet");
 
-													if (testType == "Conservation of Momentum (Elastic Collision)"){
-														parameterSpreadsheetController.loadConservationofMomentumParameters(gliderOneMassDouble, gliderTwoMassDouble);
-														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														parameterSpreadsheetController.saveWorkbook(path);
-													}
-													else if(testType == "Conservation of Angular Momentum"){
 
-													}
-													else if(testType == "Conservation of Energy"){
+// 													if(testType == "Conservation of Angular Momentum"){
 
-//														parameterSpreadsheetController.loadConservationofEnergyParameters();
-//														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-//														parameterSpreadsheetController.saveWorkbook(path);
+// 													}
+// 													else if(testType == "Conservation of Energy"){
 
-														//parameterSpreadsheetController.loadConservationofEnergyParameters();
-														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														parameterSpreadsheetController.saveWorkbook(path);
+// //														parameterSpreadsheetController.loadConservationofEnergyParameters();
+// //														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+// //														parameterSpreadsheetController.saveWorkbook(path);
 
-													}
-													else if(testType == "Inclined Plane") {
+// 														//parameterSpreadsheetController.loadConservationofEnergyParameters();
+// 														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+// 														parameterSpreadsheetController.saveWorkbook(path);
 
-													}
-													else if(testType == "Physical Pendulum"){
+// 													}
+// 													else if(testType == "Inclined Plane") {
 
-														parameterSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
-														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														parameterSpreadsheetController.saveWorkbook(path);
+// 													}
+// 													else if(testType == "Physical Pendulum"){
 
-													}else if(testType == "Spinny Stool"){
-														parameterSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
-														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														parameterSpreadsheetController.saveWorkbook(path);
+// 														parameterSpreadsheetController.loadPendulumParameters(pendulumLengthDouble, pendulumMassDouble, pendulumModuleMassDouble, pendulumModulePositionDouble);
+// 														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+// 														parameterSpreadsheetController.saveWorkbook(path);
 
-													}else if(testType == "Spring Test - Simple Haromincs"){
-														parameterSpreadsheetController.loadSpringTestParameters(springConstantDouble, totalMassDouble, amplitudeDouble, massOfSpringDouble);
-														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
-														parameterSpreadsheetController.saveWorkbook(path);
+// 													}else if(testType == "Spinny Stool"){
+// 														parameterSpreadsheetController.loadSpinnyStoolParameters(massHandWeightsDouble, wingSpanDouble, massOfPersonDouble, shoulderWidthDouble);
+// 														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+// 														parameterSpreadsheetController.saveWorkbook(path);
 
-													}
+// 													}else if(testType == "Spring Test - Simple Haromincs"){
+// 														parameterSpreadsheetController.loadSpringTestParameters(springConstantDouble, totalMassDouble, amplitudeDouble, massOfSpringDouble);
+// 														parameterSpreadsheetController.fillTemplateWithData(2, dataSamples);
+// 														parameterSpreadsheetController.saveWorkbook(path);
 
-													try {
-														Thread.sleep(10000);
+// 													}
+
+// 													try {
+// 														Thread.sleep(10000);
 														
-													}catch(Exception exceptionalexception) {
-														System.out.println("If you got this error, something went seriously wrong");
-													}
+// 													}catch(Exception exceptionalexception) {
+// 														System.out.println("If you got this error, something went seriously wrong");
+// 													}
 													
 													
-													generalStatusLabelThree.setForeground(DarkGreen);
-													generalStatusLabelThree.setText("Data Successfully Written");
+// 													generalStatusLabelThree.setForeground(DarkGreen);
+// 													generalStatusLabelThree.setText("Data Successfully Written");
 
-													//Re-enable read button upon read completion
-													backBtnThree.setEnabled(true);
-													nextBtnThree.setEnabled(true);
-													readTestBtn.setEnabled(true);
+// 													//Re-enable read button upon read completion
+// 													backBtnThree.setEnabled(true);
+// 													nextBtnThree.setEnabled(true);
+// 													readTestBtn.setEnabled(true);
 												
-												}			
+// 												}			
 												dataOrgo.getSignedData();
 												//dataOrgo.createCSVP();
 												//dataOrgo.createCSV(true, true); //Create CSV file, do label (column labels) the data (includes time axis), and sign the data
