@@ -289,7 +289,13 @@
             <configuration>
               <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
               <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
-              <jrePath>${JAVA_HOME}</jrePath>
+              
+              <!--
+                IMPORTANT: the below path is configured for GitHub Actions,
+                and WILL NOT WORK on MacOS unless $JAVA_HOME/jre is copied to jre_bundle/Contents/Home.
+                This is a limitation of "appbundle-maven-plugin", and is the reason for this workaround.
+              -->
+              <jrePath>jre_bundle</jrePath>
               <generateDiskImageFile>true</generateDiskImageFile>
             </configuration>
             <executions>

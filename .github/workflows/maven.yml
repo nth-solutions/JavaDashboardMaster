@@ -61,6 +61,10 @@ jobs:
           java-package: jdk+fx
       - name: Print JDK info
         run: echo $JAVA_HOME
+      - name: Configure bundled JRE
+      - run: |
+          mkdir -p jre_bundle/Contents/Home
+          cp -R $JAVA_HOME/jre jre_bundle/Contents/Home
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
