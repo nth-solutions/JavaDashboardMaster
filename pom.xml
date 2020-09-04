@@ -57,7 +57,7 @@
     <dependency>
       <groupId>org.testfx</groupId>
       <artifactId>openjfx-monocle</artifactId>
-      <version>1.8.0_20</version>
+      <version>8u76-b04</version>
       <scope>test</scope>
     </dependency>
 
@@ -120,13 +120,6 @@
       <groupId>com.googlecode.json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>1.1.1</version>
-    </dependency>
-
-    <!-- https://mvnrepository.com/artifact/sh.tak.appbundler/appbundle-maven-plugin -->
-    <dependency>
-      <groupId>sh.tak.appbundler</groupId>
-      <artifactId>appbundle-maven-plugin</artifactId>
-      <version>1.2.0</version>
     </dependency>
   </dependencies>
 
