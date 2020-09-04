@@ -289,7 +289,7 @@
             <configuration>
               <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
               <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
-              <jrePath>/Library/Java/JavaVirtualMachines/jdk1.8.0_202.jdk</jrePath>
+              <jrePath>${JAVA_HOME}/jre</jrePath>
               <generateDiskImageFile>true</generateDiskImageFile>
             </configuration>
             <executions>
