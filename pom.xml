@@ -51,6 +51,11 @@
       <version>2.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.7</version>
+    </dependency>
 
     <!-- It turns out TestFX Monocle doesn't work with JDK 8u261, so if encountering errors, use an earlier version instead. -->
     <!-- https://mvnrepository.com/artifact/org.testfx/openjfx-monocle -->

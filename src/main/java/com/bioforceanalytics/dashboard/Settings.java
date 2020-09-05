@@ -33,8 +33,9 @@ public class Settings {
 
 	/**
 	 * Reverts configuration file to default settings.
+	 * @return whether or not the process completed successfully
 	 */
-	public static void restoreDefaultConfig() {
+	public static boolean restoreDefaultConfig() {
 
 		Path documentsDir = null;
 
@@ -53,6 +54,7 @@ public class Settings {
 			Files.createDirectories(saveDir);
 		} catch (IOException e) {
 			logger.error("Could not create CSV save location: " + saveDir);
+			return false;
 		}
 
 		prop.setProperty("CSVSaveLocation", saveDir.toString());
@@ -62,14 +64,15 @@ public class Settings {
 		prop.setProperty("AutoSave", "True");
 
 		// save properties to file
-		saveConfig();
+		return saveConfig();
 
 	}
 	
 	/**
 	 * Loads the configuration file into a properties object.
+	 * @return whether or not the process completed successfully
 	 */
-	public static void loadConfigFile() {	
+	public static boolean loadConfigFile() {	
 
 		try {
 
@@ -92,11 +95,13 @@ public class Settings {
 			prop.load(new FileInputStream(settingsPath.resolve("DataOrganizer.prop").toFile()));
 
 			logger.info("Loaded config file.");
+			return true;
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
 			logger.error("Error loading config file");
+			return false;
 			  
 		}
 	}
@@ -106,22 +111,28 @@ public class Settings {
 	 * @param key the name of the property
 	 * @param val the value of the property
 	 */
-	public static void set(String key, String val) {
+	public static boolean set(String key, String val) {
 		prop.setProperty(key, val);
-		saveConfig();
+		return saveConfig();
 	}
 	
-	//saves configuration to DataOrganizer.prop file
-	public static void saveConfig() {
+	/**
+	 * Saves settings to configuration file.
+	 * @return whether or not the process completed successfully
+	 */
+	public static boolean saveConfig() {
 
 		try {
 
 			Path settingsPath = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard");
 			prop.store(new FileOutputStream(settingsPath.resolve("DataOrganizer.prop").toString()), null);
 
+			return true;
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("Error saving config file");
+			return false;
 		}
 
 	}
