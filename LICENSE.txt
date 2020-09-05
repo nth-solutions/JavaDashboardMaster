@@ -19,7 +19,7 @@ You agree that BioForce Analytics, LLC may at any time without notice:
 
 A. Refuse to accept your orders for service;
 B. Move or suspend any part of the service; or
-C. Refuse to fulfill any order, or any part of any order or terminate your account and delete any content stored in your account if, in BioForce Analytics, LLC ‘s sole discretion, you fail to comply with any of these Terms or if a competent regulatory authority requires BioForce Analytics, LLC to do so.
+C. Refuse to fulfill any order, or any part of any order or terminate your account and delete any content stored in your account if, in BioForce Analytics, LLC 's sole discretion, you fail to comply with any of these Terms or if a competent regulatory authority requires BioForce Analytics, LLC to do so.
 
 BioForce Analytics, LLC will not be liable to you or any third party for any suspension or termination of your access to the Website or failure to produce any product, except that BioForce Analytics, LLC will refund to you any amounts paid by you for products not produced.
 4. Age and Geographical Requirements
@@ -28,7 +28,7 @@ You must be at least 18 years of age to use this website. In addition, BioForce 
 
 5. Privacy
 
-BioForce Analytics, LLC has a firm commitment to safeguarding your privacy. Please review BioForce Analytics, LLC Privacy Policy in addendum at end of document. The terms of BioForce Analytics, LLC’s Privacy Policy are incorporated into, and considered part of, these Terms.
+BioForce Analytics, LLC has a firm commitment to safeguarding your privacy. Please review BioForce Analytics, LLC Privacy Policy in addendum at end of document. The terms of BioForce Analytics, LLC's Privacy Policy are incorporated into, and considered part of, these Terms.
 
 6. Compliance with Law
 
@@ -36,11 +36,11 @@ You agree that you will use the Website and any products ordered thereon at all 
 
 7. Indemnity
 
-You agree to indemnify and hold BioForce Analytics, LLC and its subsidiaries, affiliates, officers, shareholders, employees, agents, printers, contractors, vendors, co-branders, suppliers, internet service providers, and partners harmless from any loss, cost, claim, demand or other harm of any kind, including reasonable attorneys’ fees, due to or arising out of your use of the Website, your default under any provision in these Terms, your violation of any laws and your violation of any rights of another person.
+You agree to indemnify and hold BioForce Analytics, LLC and its subsidiaries, affiliates, officers, shareholders, employees, agents, printers, contractors, vendors, co-branders, suppliers, internet service providers, and partners harmless from any loss, cost, claim, demand or other harm of any kind, including reasonable attorneys' fees, due to or arising out of your use of the Website, your default under any provision in these Terms, your violation of any laws and your violation of any rights of another person.
 
 8. Third Party Links
 
-This Website may provide links to third-party sites that might be of interest to you. We have no control over the content or availability of the contents of these sites. It is your responsibility to become familiar with each site’s privacy and other policies and terms of service, and to contact that site’s Webmaster or site administrator with any concerns.
+This Website may provide links to third-party sites that might be of interest to you. We have no control over the content or availability of the contents of these sites. It is your responsibility to become familiar with each site's privacy and other policies and terms of service, and to contact that site's Webmaster or site administrator with any concerns.
 
 9. Proprietary Rights
 
@@ -48,7 +48,7 @@ This Website, the BioForce Analytics, LLC services, and all software, systems an
 
 10. LIMITED WARRANTY
 
-WARRANTIES AND DISCLAIMER: MANUFACTURER WARRANTS THAT EDUFORCE DASHBOARD® ("THE PRODUCTS") ARE SOLD FREE OF MANUFACTURING DEFECTS FOR NINETY (90) DAYS. MANUFACTURER’S PRODUCTS LIABILITY SHALL BE LIMITED SOLELY TO THE REPLACEMENT OF THE PRODUCTS FOR A PERIOD OF NINETY (90) DAYS AFTER PURCHASE DATE WITH PROOF OF PURCHASE DATE. NO OTHER WARRANTY, EXPRESSED OR IMPLIED, SHALL APPLY, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, AND ANY SUCH IMPLIED WARRANTIES ARE EXPRESSLY DISCLAIMED. THERE ARE NO WARRANTIES WHICH EXTEND BEYOND NINETY (90) DAYS FROM THE DATE OF PURCHASE. MANUFACTURER SHALL NOT BE RESPONSIBLE OR LIABLE FOR INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, INCLUDING BUT NOT LIMITED TO COST INCURRED FOR THE USE OF THE PRODUCTS, LOSS OF TIME, LOSS OF PROFITS, INCONVENIENCE, OR OTHER INCIDENTAL OR CONSEQUENTIAL DAMAGES WITH RESPECT TO PERSONS, BUSINESS OR PROPERTY, WHETHER OR NOT SUCH CLAIMS ARE AS A RESULT OF BREACH OF WARRANTY. THIS WARRANTY DOES NOT EXTEND TO ANY DEFECT OR PROBLEM CAUSED BY ACTS OR OMISSIONS OF YOU OR OTHERS, IMPROPER USE, TAMPERING, ACCIDENTS, ALTERATIONS, OR ORDINARY WEAR AND TEAR BEYOND NINETY (90) DAYS.
+WARRANTIES AND DISCLAIMER: MANUFACTURER WARRANTS THAT EDUFORCE DASHBOARD® ("THE PRODUCTS") ARE SOLD FREE OF MANUFACTURING DEFECTS FOR NINETY (90) DAYS. MANUFACTURER'S PRODUCTS LIABILITY SHALL BE LIMITED SOLELY TO THE REPLACEMENT OF THE PRODUCTS FOR A PERIOD OF NINETY (90) DAYS AFTER PURCHASE DATE WITH PROOF OF PURCHASE DATE. NO OTHER WARRANTY, EXPRESSED OR IMPLIED, SHALL APPLY, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, AND ANY SUCH IMPLIED WARRANTIES ARE EXPRESSLY DISCLAIMED. THERE ARE NO WARRANTIES WHICH EXTEND BEYOND NINETY (90) DAYS FROM THE DATE OF PURCHASE. MANUFACTURER SHALL NOT BE RESPONSIBLE OR LIABLE FOR INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, INCLUDING BUT NOT LIMITED TO COST INCURRED FOR THE USE OF THE PRODUCTS, LOSS OF TIME, LOSS OF PROFITS, INCONVENIENCE, OR OTHER INCIDENTAL OR CONSEQUENTIAL DAMAGES WITH RESPECT TO PERSONS, BUSINESS OR PROPERTY, WHETHER OR NOT SUCH CLAIMS ARE AS A RESULT OF BREACH OF WARRANTY. THIS WARRANTY DOES NOT EXTEND TO ANY DEFECT OR PROBLEM CAUSED BY ACTS OR OMISSIONS OF YOU OR OTHERS, IMPROPER USE, TAMPERING, ACCIDENTS, ALTERATIONS, OR ORDINARY WEAR AND TEAR BEYOND NINETY (90) DAYS.
 11. Disclaimer and Limitation of Liability
 
 This Website is provided by BioForce Analytics, LLC on an "as is" and "as available" basis. BioForce Analytics, LLC makes no representations or warranties of any kind, express or implied, as to the operation of this Website or the information, content, materials, or products included on this Website. It is expressly agreed by you that your use of this Website is at your sole risk.
@@ -103,7 +103,7 @@ c)     One RMA number can only be issued per invoice number. If you have differe
 
 d)     When returning the product, we strongly recommend the use of a carrier that can track packages. You are also responsible for insuring the returned item. BioForce Analytics, LLC will not be responsible for any shipping loss.
 
-e)     The customer must inform BioForce Analytics, LLC of any order discrepancy within 7 days of the delivery date. Physical damage to the returned product will void the product’s warranty and the RMA policy.
+e)     The customer must inform BioForce Analytics, LLC of any order discrepancy within 7 days of the delivery date. Physical damage to the returned product will void the product's warranty and the RMA policy.
 
 f)      All return(s) must have the original packaging and accessories.
 
@@ -121,7 +121,7 @@ This only applies to products purchased via this website. BioForce Analytics, LL
 
 You must follow the "Rules to Follow for Your Return" listed above.
 
-You may return Products sold by BioForce Analytics, LLC within 30 days from the invoice date for a full refund. Please include a copy of your invoice. If you don’t have the invoice, then please include a note with your order number and RMA number. Please note that all items returned for a refund must be returned in "as new" condition in the original packaging and include all accessories, blank warranty cards, UPC codes (attached), and user manuals. A 15% restocking fee may be applied to all returns for a refund if the reason for the return is due to customer error.
+You may return Products sold by BioForce Analytics, LLC within 30 days from the invoice date for a full refund. Please include a copy of your invoice. If you don't have the invoice, then please include a note with your order number and RMA number. Please note that all items returned for a refund must be returned in "as new" condition in the original packaging and include all accessories, blank warranty cards, UPC codes (attached), and user manuals. A 15% restocking fee may be applied to all returns for a refund if the reason for the return is due to customer error.
 
 We cannot accept returns of certain items for a refund, including:
 
@@ -133,7 +133,7 @@ Return Policy for Replacement (Warranty Claim)
 
 This only applies to products purchased via this website that are within warranty. BioForce Analytics, LLC product purchased in a store or on another website must be returned to the original place of purchase.
 
-Please email your Return Merchandise Authorization (RMA) request to rma@nth-solutions.com.com.
+Please email your Return Merchandise Authorization (RMA) request to rma@nth-solutions.com.
 
 You must follow the "Rules to Follow for Your Return" listed above.
 
@@ -177,11 +177,11 @@ Customers may send the above information to RMA@nth-solutions.com. A representat
 
 Unauthorized Return
 
-All returns require a Return Merchandise Authorization (RMA) number. BioForce Analytics, LLC will not accept any return without the RMA number. The package will be returned at the sender’s expense.
+All returns require a Return Merchandise Authorization (RMA) number. BioForce Analytics, LLC will not accept any return without the RMA number. The package will be returned at the sender's expense.
 Addendum: Shipping
 A.  All shipments are UPS or USPS.
 
-B.  F.O.B. Exton, PA via common carrier. BioForce Analytics, LLC accepts no responsibility for lost packages shipped without a signature guarantee; you must agree to delivery without the recipient‘s signature unless you choose to pay for delivery signature service. If you do not choose delivery signature service on a parcel a signature waiver applies to all past, present and future shipments.
+B.  F.O.B. Exton, PA via common carrier. BioForce Analytics, LLC accepts no responsibility for lost packages shipped without a signature guarantee; you must agree to delivery without the recipient's signature unless you choose to pay for delivery signature service. If you do not choose delivery signature service on a parcel a signature waiver applies to all past, present and future shipments.
 
  
 
@@ -216,13 +216,13 @@ With your consent we may post your testimonial along with your name. If you wish
 
 G. Cookies and Other Technologies
 
-A cookie is a piece of data stored on the user’s computer tied to information about the user. We use persistent cookies. A persistent cookie is a small text file stored on the user’s hard drive for an extended period of time. Persistent cookies can be removed by following Internet browser help file directions. Cookies may be used by BioForce Analytics, LLC in the order section in order to uniquely identify users, associate user files with orders, and to enable the shopping basket. Our site cannot be used with cookies turned off.
+A cookie is a piece of data stored on the user's computer tied to information about the user. We use persistent cookies. A persistent cookie is a small text file stored on the user's hard drive for an extended period of time. Persistent cookies can be removed by following Internet browser help file directions. Cookies may be used by BioForce Analytics, LLC in the order section in order to uniquely identify users, associate user files with orders, and to enable the shopping basket. Our site cannot be used with cookies turned off.
 
 We use clear gifs in our HTML-based emails to let us know which emails have been opened by recipients. This allows us to gauge the effectiveness of certain communications and the effectiveness of our marketing campaigns. If you would like to opt-out of these emails, please see "Choice and Opt-out."
 
 H. Log Files
 
-Like most standard website servers, we use log files. This includes internet protocol (IP) addresses, browser type, internet service provider (ISP), referring/exit pages, platform type, date/time stamp, and number of clicks to analyze trends, administer the site, track users’ movement in the aggregate, and gather broad demographic information for aggregate use. This data is not linked to personally identifiable information.
+Like most standard website servers, we use log files. This includes internet protocol (IP) addresses, browser type, internet service provider (ISP), referring/exit pages, platform type, date/time stamp, and number of clicks to analyze trends, administer the site, track users' movement in the aggregate, and gather broad demographic information for aggregate use. This data is not linked to personally identifiable information.
 
 I. Security
 
@@ -234,11 +234,11 @@ We will share your personal information with third parties only in the ways that
 
 We use an outside shipping company to ship orders, an email service provider to submit email communications to you on our behalf, and a credit card processing company to bill users for goods and services. These companies do not retain, share, store or use personally identifiable information for any secondary purposes.
 
-If BioForce Analytics, LLC should go through a business transition, such as a merger, acquisition by another company, or sale of a portion of its assets, users’ personal information will, in most instances, be part of the assets transferred. If as a result of the business transition, the users’ personally identifiable information is to be used in a manner different from that stated at the time of collection they will be given choice consistent with our notification of changes section.
+If BioForce Analytics, LLC should go through a business transition, such as a merger, acquisition by another company, or sale of a portion of its assets, users' personal information will, in most instances, be part of the assets transferred. If as a result of the business transition, the users' personally identifiable information is to be used in a manner different from that stated at the time of collection they will be given choice consistent with our notification of changes section.
 
 K. Choice/Opt-out
 
-Our users are given the opportunity to ‘opt-out’ of having their information used for purposes not directly related to our site at the point where we ask for information. Users who no longer wish to receive our newsletter and promotional communications may opt-out of receiving these communications by replying to unsubscribe in the subject line in the email, emailing us at remove@nth-solutions.com or by following the unsubscribe instructions within the email.
+Our users are given the opportunity to 'opt-out' of having their information used for purposes not directly related to our site at the point where we ask for information. Users who no longer wish to receive our newsletter and promotional communications may opt-out of receiving these communications by replying to unsubscribe in the subject line in the email, emailing us at remove@nth-solutions.com or by following the unsubscribe instructions within the email.
 
 L. Links
 
