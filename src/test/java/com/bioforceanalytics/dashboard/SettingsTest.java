@@ -10,11 +10,16 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runners.MethodSorters;
 
+// test1 MUST be run before test2 due to file access issues;
+// the Settings class locks the settings files/directory,
+// so the CSV test (which uses Settings) must come second
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SettingsTest {
 
     private static final Logger logger = LogManager.getLogger();
@@ -22,17 +27,16 @@ public class SettingsTest {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
-    @Ignore("Problem with deleting settings file when used by Java process")
     @Test
-    public void check_if_config_file_regenerates() {
+    public void test1_check_if_config_file_regenerates() {
 
         File settingsDir = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard").toFile();
         File configFile = new File(settingsDir, "DataOrganizer.prop");
 
         try {
 
-            logger.info("Saving a copy of current settings directory to \"{}\"...", tempFolder.getRoot());
-            FileUtils.copyDirectory(settingsDir, tempFolder.getRoot());
+            // IMPORTANT -- do NOT try to copy & restore settings directory as in test2;
+            // due to the file access lock from the Settings class, this will cause test1 to fail
 
             logger.info("Deleting settings directory...");
             FileUtils.deleteDirectory(settingsDir);
@@ -48,9 +52,6 @@ public class SettingsTest {
             assertTrue(settingsDir.exists());
             assertTrue(configFile.exists());
 
-            logger.info("Regenerating original settings directory...");
-            FileUtils.copyDirectory(tempFolder.getRoot(), settingsDir);
-
         } catch (IOException e) {
             e.printStackTrace();
             fail("Error deleting settings directory");
@@ -59,7 +60,7 @@ public class SettingsTest {
     }
 
     @Test
-    public void check_if_csv_save_location_regenerates() {
+    public void test2_check_if_csv_save_location_regenerates() {
 
         File saveDir = new File(Settings.get("CSVSaveLocation"));
 
