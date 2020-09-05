@@ -676,7 +676,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
+			genericTests.get(g.GTIndex).resetTimeOffset();
 			updateAxis(g.axis, g.GTIndex);
 		}
 
@@ -1284,10 +1284,11 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.LINEUP && !firstClick) {
 
 					// shift the graph by this point's x-value minus the selected point's x-value
-					genericTests.get(selectedGraphData.GTIndex).addDataOffset(roundedX - selectedPoint[0]);
-					for(GraphData g : dataSets){
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(roundedX - selectedPoint[0]);
+					
+					for (GraphData g : dataSets) {
 						updateAxis(g.axis, g.GTIndex);
-						logger.info(genericTests.get(g.GTIndex).getDataOffset());
+						logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 					}
 
 					setGraphMode(GraphMode.NONE);
