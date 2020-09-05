@@ -463,10 +463,8 @@ public class GraphController implements Initializable {
         try {                                                                                                                                        //Try/Catch that catches Null Pointer Exception when no file is selected
             FileChooser fileChooser = new FileChooser();                                                                                            //Creates a FileChooser Object
             fileChooser.setTitle("Select a CSV");                                                                                                    //Sets the title of the FileChooser object
-            Settings settings = new Settings();
-            settings.loadConfigFile();
-            System.out.println(settings.getKeyVal("CSVSaveLocation"));
-            fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+            System.out.println(Settings.get("CSVSaveLocation"));
+            fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
             FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");        //Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
             fileChooser.getExtensionFilters().add(filterCSVs);                                                                                        //Adds the filter to the FileChooser
             File fileChosen = fileChooser.showOpenDialog(null);                                                                        //Assigns the user's selected file to the fileChosen variable
@@ -530,9 +528,7 @@ public class GraphController implements Initializable {
         try {                                                                                                                                        //Try/Catch that catches Null Pointer Exception when no file is selected
             FileChooser fileChooser = new FileChooser();                                                                                            //Creates a FileChooser Object
             fileChooser.setTitle("Select a CSV");                                                                                                    //Sets the title of the FileChooser object
-            Settings settings = new Settings();
-            settings.loadConfigFile();
-            fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+            fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
             FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.xlsx)", "*.xlsx");        //Creates a filter object that restricts the available files within the FileChooser window strictly CSV files
             fileChooser.getExtensionFilters().add(filterCSVs);                                                                                        //Adds the filter to the FileChooser
             File fileChosen = fileChooser.showOpenDialog(null);                                                                        //Assigns the user's selected file to the fileChosen variable
@@ -1531,9 +1527,7 @@ public class GraphController implements Initializable {
      */
     private File createFileOpener() {
         FileChooser fileChooser = new FileChooser(); // Creates a FileChooser Object
-        Settings settings = new Settings();
-        settings.loadConfigFile();
-        fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+        fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
         fileChooser.setTitle("Select a Video File"); // Sets the title of the file selector
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4"); // Creates a filter that limits fileChooser's search parameters to *.mp4 files
         fileChooser.getExtensionFilters().add(filter);// Initializes the filter into the fileChooser object

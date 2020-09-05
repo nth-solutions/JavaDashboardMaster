@@ -2,80 +2,122 @@ package com.bioforceanalytics.dashboard;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import javax.swing.filechooser.FileSystemView;
+
+import com.bioforceanalytics.dashboard.OSManager.OS;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Responsible for storing settings that can be altered from a settings menu in the Advanced Mode Dashboard.
- * Also used by {@link com.bioforceanalytics.dashboard.CSVHandler CSVHandler} in the Data Analysis Graph.
+ * Responsible for storing settings that can be altered from a settings menu in
+ * the Advanced Mode Dashboard. Also used by
+ * {@link com.bioforceanalytics.dashboard.CSVHandler CSVHandler} in the Data
+ * Analysis Graph.
  */
 public class Settings {
 
-	Properties prop = new Properties();
-
+	private static Properties prop = new Properties();
 	private static final Logger logger = LogManager.getLogger();
 
-	//Defines the default configurations
-	public void restoreDefaultConfig() {
-		
-		String path = FileSystemView.getFileSystemView().getDefaultDirectory().getPath() + "/BioForce Tests/";
-		
-		this.prop.setProperty("CSVSaveLocation", path);
-		this.prop.setProperty("DefaultProfile", "");
-		this.prop.setProperty("TemplateDirectory", "");
-		this.prop.setProperty("OpenOnRead", "False");
-		this.prop.setProperty("AutoSave", "True");
-		this.saveConfig();
+	static {
+		loadConfigFile();
+	}
+
+	/**
+	 * Reverts configuration file to default settings.
+	 */
+	public static void restoreDefaultConfig() {
+
+		Path documentsDir = null;
+
+		if (OSManager.getOS() == OS.WINDOWS) {
+			documentsDir = FileSystemView.getFileSystemView().getDefaultDirectory().toPath();
+		}
+		else if (OSManager.getOS() == OS.MAC) {
+			documentsDir = Paths.get(System.getProperty("user.home"), "Documents");
+		}
+
+		// OS's "Documents" folder + "BioForce Tests"
+		Path saveDir = documentsDir.resolve("BioForce Tests");
+
+		try {
+			// create directory if it doesn't exist
+			Files.createDirectories(saveDir);
+		} catch (IOException e) {
+			logger.error("Could not create CSV save location: " + saveDir);
+		}
+
+		prop.setProperty("CSVSaveLocation", saveDir.toString());
+		prop.setProperty("DefaultProfile", "");
+		prop.setProperty("TemplateDirectory", "");
+		prop.setProperty("OpenOnRead", "False");
+		prop.setProperty("AutoSave", "True");
+
+		// save properties to file
+		saveConfig();
 
 	}
 	
-	//Loads saved configurations from DataOrganizer.prop
-	public void loadConfigFile() {	
+	/**
+	 * Loads the configuration file into a properties object.
+	 */
+	public static void loadConfigFile() {	
 
 		try {
 
-			File SettingsDirectory = new File(System.getProperty("user.home")+"/.BioForce Dashboard/");
+			Path settingsPath = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard");
 
-			if (!SettingsDirectory.exists()) SettingsDirectory.mkdirs();
+			// create settings if it doesn't exist
+			if (!settingsPath.toFile().exists()) {
 
-			this.prop.load(new FileInputStream(SettingsDirectory + "/DataOrganizer.prop"));
+				logger.warn("Settings directory not found, restoring default configuration...");
 
-		} catch (FileNotFoundException e) {
+				// create settings directory
+				Files.createDirectories(settingsPath);
 
-	  		logger.warn("Config file could not be found, reverting to default config...");
-			this.restoreDefaultConfig();
+				// generate default config file
+				restoreDefaultConfig();
+
+			}
+
+			// load properties file into memory
+			prop.load(new FileInputStream(settingsPath.resolve("DataOrganizer.prop").toFile()));
+
+			logger.info("Loaded config file.");
 
 		} catch (Exception e) {
+
 			e.printStackTrace();
 			logger.error("Error loading config file");
 			  
 		}
 	}
 	
-	//Sets the key value and saves
-	public void setProp(String key, String val) {
-		this.prop.setProperty(key, val);
-		this.saveConfig();
+	/**
+	 * Adds or updates a property in the configuration file.
+	 * @param key the name of the property
+	 * @param val the value of the property
+	 */
+	public static void set(String key, String val) {
+		prop.setProperty(key, val);
+		saveConfig();
 	}
 	
 	//saves configuration to DataOrganizer.prop file
-	public void saveConfig() {
+	public static void saveConfig() {
 
 		try {
 
-			File SettingsDirectory = new File(System.getProperty("user.home") + "/.BioForce Dashboard/");
-
-	  		if (!SettingsDirectory.exists()) {
-				SettingsDirectory.mkdirs();
-	  		}
-			
-			this.prop.store(new FileOutputStream(SettingsDirectory + "/DataOrganizer.prop"), null);
+			Path settingsPath = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard");
+			prop.store(new FileOutputStream(settingsPath.resolve("DataOrganizer.prop").toString()), null);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -84,8 +126,19 @@ public class Settings {
 
 	}
 	
-	//returns the key value
-	public String getKeyVal(String Key) {
-		return this.prop.getProperty(Key);
+	/**
+	 * Retrieves a property from the settings config file.
+	 * @param key the name of the property
+	 * @return the given settings property
+	 */
+	public static String get(String key) {
+
+		String value = prop.getProperty(key);
+
+		// create save directory if it doesn't exist
+		if (key == "CSVSaveLocation") new File(value).mkdirs();
+
+		return value;
+
 	}
 }

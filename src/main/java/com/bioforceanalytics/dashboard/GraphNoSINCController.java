@@ -835,13 +835,9 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private void importCSV(ActionEvent event) {
 
-		// used to load CSV test data directory
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a CSV");
-		fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
 
 		// filters file selection to CSVs only
 		FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");

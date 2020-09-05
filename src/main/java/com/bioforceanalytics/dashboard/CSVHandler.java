@@ -27,21 +27,13 @@ public class CSVHandler {
 	 * @param nameOfTest the name used in the created CSV file
 	 * @param MPUMinMax the array of offsets applied to all acceleration calculations
 	 */
-	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
-		
-		settings.loadConfigFile();
+	public void writeCSVP(ArrayList<Integer> testParameters, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
 
-		// pull up the Directory to write CSV/CSVP files to
-		String CSVPath = settings.getKeyVal("CSVSaveLocation");
-
-		String testDirPath = settings.getKeyVal("CSVSaveLocation");
-		File testDir = new File(testDirPath);
-
-		// if directory doesn't exist, create it
-		if (!testDir.exists()) testDir.mkdirs();
+		// retrieve the directory to write CSV/CSVP files to
+		String testDirPath = Settings.get("CSVSaveLocation");
 
 		// create new file in CSV Directory, file extension is .CSVP
-		PrintWriter dataFile = new PrintWriter(CSVPath + "/" + nameOfTest); 
+		PrintWriter dataFile = new PrintWriter(testDirPath + "/" + nameOfTest); 
 
 		// write all parameters to the file
 		for(int i = 0; i < testParameters.size(); i++) { 
@@ -69,7 +61,7 @@ public class CSVHandler {
 	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
 	 * @param nameOfTest the name used in the created CSV file
 	 */
-	public void writeCSV(GenericTest g, Settings settings, String nameOfTest) throws FileNotFoundException { 														
+	public void writeCSV(GenericTest g, String nameOfTest) throws FileNotFoundException { 														
 	
 		StringBuilder builder = new StringBuilder();
 			
@@ -93,12 +85,7 @@ public class CSVHandler {
 			builder.append("\n");
 		}
 
-		String testDirPath = settings.getKeyVal("CSVSaveLocation");
-		File testDir = new File(testDirPath);
-
-		// if directory doesn't exist, create it
-		if (!testDir.exists()) testDir.mkdirs();
-
+		String testDir = Settings.get("CSVSaveLocation");
 		PrintWriter writer = new PrintWriter(new File(testDir + "/" + nameOfTest));
 
 		// write the string data to the file
@@ -118,10 +105,6 @@ public class CSVHandler {
 	public ArrayList<Integer> readCSVP(String CSVPFilePath) throws IOException, NumberFormatException {
 
 		logger.info("Importing test parameters from '" + CSVPFilePath + "'...");
-
-		// Need to load keys from settings file. This tells us where CSVs are stored
-		Settings settings = new Settings();
-		settings.loadConfigFile();
 
 		// Reader for reading from the file
 		BufferedReader CSVPFile = null; 
@@ -211,7 +194,6 @@ public class CSVHandler {
 	@Deprecated
 	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) throws FileNotFoundException {
 		
-		Settings settings = new Settings();
 		StringBuilder builder = new StringBuilder();
 			
 		//iterates through data points in the series (i is the line index)
@@ -228,7 +210,7 @@ public class CSVHandler {
 			builder.append("\n");
 		}
 			
-		String testDirPath = settings.getKeyVal("CSVSaveLocation");
+		String testDirPath = Settings.get("CSVSaveLocation");
 		File testDir = new File(testDirPath);
 
 		// if directory doesn't exist, create it

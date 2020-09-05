@@ -1169,9 +1169,6 @@ public class EducatorModeControllerFX implements Initializable {
 
                     CSVHandler writer = new CSVHandler();
 
-                    Settings settings = new Settings();
-                    settings.loadConfigFile();
-
                     // loop through all tests read from the module
                     for (int i = 0; i < testData.size(); i++) {
 
@@ -1288,8 +1285,8 @@ public class EducatorModeControllerFX implements Initializable {
 
                             // write GenericTest to CSV
                             try {
-                                writer.writeCSV(test, settings, testName + ".csv");
-                                writer.writeCSVP(testParameters, settings, testName + ".csvp", MPUMinMax);
+                                writer.writeCSV(test, testName + ".csv");
+                                writer.writeCSVP(testParameters, testName + ".csvp", MPUMinMax);
                             }
                             catch (Exception e) {
                                 Alert alert = new Alert(AlertType.ERROR);
@@ -1561,13 +1558,10 @@ public class EducatorModeControllerFX implements Initializable {
 
     @FXML
     private void launchDAG(ActionEvent event) {
-
-        Settings settings = new Settings();
-        settings.loadConfigFile();
         
         GraphNoSINCController g = startGraphingNoSINC(); 
         
-        File directory = new File(settings.getKeyVal("CSVSaveLocation"));
+        File directory = new File(Settings.get("CSVSaveLocation"));
 
         // fetches all CSV files from given folder
         File[] files = directory.listFiles(new FilenameFilter() {
@@ -1621,9 +1615,6 @@ public class EducatorModeControllerFX implements Initializable {
         // launch SINC Graph
         if (getOutputType().equals(sincTechnologyRadioButton)) {
 
-            Settings settings = new Settings();
-            settings.loadConfigFile();
-
             lineGraph = startGraphing();
 
             if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
@@ -1652,8 +1643,6 @@ public class EducatorModeControllerFX implements Initializable {
         
         if (b.getId().equals("launchSINCTwoModule")) {
 
-            Settings settings = new Settings();
-            settings.loadConfigFile();
             lineGraph = startGraphing();
 
             // SINC Graph only supports 2 data sets, so hard-coding is okay
