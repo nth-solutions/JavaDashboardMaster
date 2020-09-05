@@ -52,9 +52,6 @@ public class SINCTest extends GUITest {
     @Test
     public void check_sinc_calibration_real_test() {
 
-        // TODO update this when Mac compatibility is added
-        assumeTrue("OS must be supported", OSManager.getOS() == OS.WINDOWS);
-
         final int timer0Offset = -43;
         final int delayAfterStart = 1266;
 
@@ -74,9 +71,6 @@ public class SINCTest extends GUITest {
 
     @Test
     public void check_sinc_calibration_ideal_test() {
-
-        // TODO update this when Mac compatibility is added
-        assumeTrue("OS must be supported", OSManager.getOS() == OS.WINDOWS);
 
         final int timer0Offset_early = 0;
         final int delayAfterStart_early = -466;
