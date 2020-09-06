@@ -2,19 +2,22 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ArrayList;
 
-public class ConservationEnergyModule extends GenericTest{
+public class ConservationEnergyModule extends GenericTest {
 
     private ConservationEnergyTest controller;
 
-    public ConservationEnergyTest getController(){
+    public ConservationEnergyTest getController() {
         return controller;
     }
 
 
-	public ConservationEnergyModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double mass,ConservationEnergyTest controller) {
-        super(testParameters,finalData,MPUMinMax);
+	public ConservationEnergyModule(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, ConservationEnergyTest controller) {
+        
+        super(testParameters, finalData, MPUMinMax);
 		this.controller = controller;
-		// TODO Auto-generated constructor stub
+        
+        this.setGraphTitle("Conservation of Energy");
+
 	}
 
 }

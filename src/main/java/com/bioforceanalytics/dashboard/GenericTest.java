@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Used by the Data Analysis Graph to store the data associated with a single module
+ * Used by the Data Analysis Graph to store the data associated with a single trial
  * (in the form of multiple {@link com.bioforceanalytics.dashboard.AxisDataSeries AxisDataSeries}).
  * This is also the parent class of all educator mode "lab templates".
  */
@@ -22,15 +22,13 @@ public class GenericTest {
 	private ArrayList<Integer> savedTestParameters;
 	private int[] savedMPUOffsets;
 	private int sampleRate;
-	private int offsetIndex;
+	private int timeOffset;
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
-	 * This is the preferred method of passing data to the Data Analysis Graph and features up-to-date calculations.
 	 * @param testParameters array of test parameters
 	 * @param finalData array of raw byte data from the module
 	 * @param MPUMinMax array of constant MPU offsets specific to the module
-	 * @param momentumScalar if included, indicates that the genericTest should include a momentum axis with that scalar as mass
 	 */
 	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
 
@@ -42,7 +40,7 @@ public class GenericTest {
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
 
-		// TODO MPUMinMax will randomly be read as "null" from SerialComm
+		// TODO MPUMinMax is sometimes randomly be read as "null" from SerialComm
 		// this ensures that a NullPointerException isn't thrown later in GT
 		if (MPUMinMax == null) {
 			logger.warn("MPUMinMax offsets null, filling with 0s...");
@@ -98,7 +96,7 @@ public class GenericTest {
 		// index of dataSamples list is arbitrary; anything other than mag data will work
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
-			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
+			timeAxis.add(new Double(i+timeOffset) / sampleRate);
 
 			//for use with CSV writing
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -117,8 +115,8 @@ public class GenericTest {
 	/**
 	 * Creates a GenericTest using dataSamples 2D List.
 	 * Used for creating GenericTest from CSVHandler or DataOrganizer.
-	 * @param testParameters - array of test parameters
-	 * @param dataSamples - 2D Array of data from 9 raw axes (and time(0))
+	 * @param testParameters array of test parameters
+	 * @param dataSamples 2D Array of data from 9 raw axes (and time(0))
 	 */
 	public GenericTest(List<List<Double>> dataSamples, ArrayList<Integer> testParameters) {
 
@@ -167,7 +165,7 @@ public class GenericTest {
 		// using number of accelx samples as proxy for total number of samples
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
-			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
+			timeAxis.add(new Double(i+timeOffset) / sampleRate);
 
 			//populate to avoid complications from this being null for now
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -209,18 +207,25 @@ public class GenericTest {
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
+			// momentum (if this is a CoE test)
 			if (this instanceof ConservationMomentumModule) {
-				logger.info(((ConservationMomentumModule)(this)).getMomentumScalar() + " momentum scalar");
-				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(((ConservationMomentumModule)(this)).getMomentumScalar()), AxisType.valueOf(i+28), false, sampleRate);
+
+				double mass = ((ConservationMomentumModule) this).getMomentumScalar();
+				logger.info("Mass: " + mass);
+
+				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(mass), AxisType.valueOf(i+28), false, sampleRate);
+			
 			}
 		}
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
+
 			if (this instanceof ConservationMomentumModule || i < 28) {
 				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
 			}
+			
 		}
 
 	}
@@ -267,23 +272,29 @@ public class GenericTest {
 	}
 
 	/**
-	 * Different from MPU Offsets, this allows the data to be shifted for module synchronization.
-	 * @param offset the signed amount by which the data should be offset
+	 * Shifts the time axis of all AxisDataSeries for module synchronization.
+	 * Used to shift all data sets in a GenericTest left/right.
+	 * @param offset the number of samples by which the time axis should be offset
 	 */
-	public void addDataOffset(double offset) {
-		offsetIndex += (int) (offset * sampleRate);
+	public void addTimeOffset(double offset) {
+		timeOffset += (int) (offset * sampleRate);
 		createAxisDataSeries();
 	}
 
 	/**
-	 * Get the index by which the data is offset
-	 * @return amount by which the data is shifted in time
+	 * Get the number of samples by which the time axis is offset.
+	 * @return the number of samples by which the time axis is offset
 	 */
-	public double getDataOffset() {
-		return ((double)offsetIndex) / sampleRate;
+	public double getTimeOffset() {
+		return ((double) timeOffset) / sampleRate;
 	}
-	public void resetDataOffset(){
-		offsetIndex = 0;
+
+	/**
+	 * Resets the amount by which the time axis is offset to 0.
+	 * This resets all data sets in a GenericTest to starting from 0.
+	 */
+	public void resetTimeOffset() {
+		timeOffset = 0;
 	}
 
 	/**

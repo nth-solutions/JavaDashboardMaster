@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 public class RootLauncher {
 
 	private JFrame frame;
-	private Settings settings;
 	
 	/**
 	 * Launch the application.
@@ -43,10 +42,8 @@ public class RootLauncher {
 	
 	//Returns true if property is not set correctly
 	public boolean checkProp() {
-		settings = new Settings();
-		settings.loadConfigFile();
 
-		String defaultProfile = settings.getKeyVal("DefaultProfile");
+		String defaultProfile = Settings.get("DefaultProfile");
 		if(defaultProfile.equals("Professional")) {
 			runProfessional();
 			return false;
@@ -71,10 +68,7 @@ public class RootLauncher {
 		JButton professionalBtn = new JButton("Professional");
 		professionalBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				settings = new Settings();
-				settings.loadConfigFile();
-				settings.setProp("DefaultProfile", "Professional");
-				settings.saveConfig();
+				Settings.set("DefaultProfile", "Professional");
 				runProfessional();
 				frame.setVisible(false);
 			}
@@ -85,10 +79,7 @@ public class RootLauncher {
 		JButton educatorBtn = new JButton("Educator");
 		educatorBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				settings = new Settings();
-				settings.loadConfigFile();
-				settings.setProp("DefaultProfile", "Educator");
-				settings.saveConfig();
+				Settings.set("DefaultProfile", "Educator");
 				runEducator();
 				frame.setVisible(false);
 			}

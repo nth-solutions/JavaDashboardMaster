@@ -31,10 +31,8 @@ public class Profiles extends JFrame {
 			public void run() {
 					JFrame frame = null;
 					try {
-						Settings settings = new Settings();
-						settings.loadConfigFile();
-						if(settings.getKeyVal("DefaultProfile") != null) {   // If there is a value for the default profile, ru
-							switch(settings.getKeyVal("DefaultProfile")) {
+						if(Settings.get("DefaultProfile") != null) {   // If there is a value for the default profile, ru
+							switch(Settings.get("DefaultProfile")) {
 								case "Professional":						// if the profile selected is professional, create a new instance of the advanced mode dashboard.
 									frame = new AdvancedMode();
 							}

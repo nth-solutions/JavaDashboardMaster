@@ -37,7 +37,6 @@ public class VLCJMediaPlayerController {
 	private JButton playBtn;
 	private JLabel statusLabel;
 	private JLabel timeTrackerLabel;
-	Settings settings;
 
 	private MediaPlayerFactory mediaPlayerFactory;
 	private EmbeddedMediaPlayer mediaPlayer;
@@ -87,8 +86,6 @@ public class VLCJMediaPlayerController {
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		frame.setResizable(false);
-
-		settings = new Settings();
 		
 		JPanel SouthContainer = new JPanel();
 		SouthContainer.setBounds(0, 597, 1167, 84);
@@ -346,8 +343,7 @@ public class VLCJMediaPlayerController {
 	 */
 	public void importVideo() {
 		JFileChooser chooser = new JFileChooser();
-		settings.loadConfigFile();
-		chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));  
+		chooser.setCurrentDirectory(new File(Settings.get("CSVSaveLocation")));  
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setAcceptAllFileFilterUsed(false);
 		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {

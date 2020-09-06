@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.sun.javafx.charts.Legend;
+import com.sun.javafx.charts.Legend.LegendItem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,6 +61,8 @@ public class MultipleAxesLineChart extends StackPane {
         if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
         //if AxisType is AngAccel
         if (axis.getValue() / 4 == 3) return 500;
+        //if AxisType is Momentum
+        if (axis.getValue() / 4 == 7) return 0.1;
         // all other data sets
         else return 100;
 
@@ -396,11 +399,18 @@ public class MultipleAxesLineChart extends StackPane {
             // ensure node is the legend
             if (n instanceof Legend) {
 
+                // tracks the AxisTypes of legend items to check for duplicates
+                ArrayList<AxisType> legendAxes = new ArrayList<AxisType>();
+
+                ObservableList<LegendItem> legendItems = ((Legend) n).getItems();
+
                 // TODO this code will NOT work if the codebase is updated to JDK 9 or later;
                 // more info: https://stackoverflow.com/questions/57412846/javafx-missing-legend-class
                 //
                 // loop through each legend item
-                for (Legend.LegendItem legendItem : ((Legend) n).getItems()) {
+                for (int i = 0; i < legendItems.size(); i++) {
+
+                    LegendItem legendItem = legendItems.get(i);
 
                     String style = "";
 
@@ -408,10 +418,24 @@ public class MultipleAxesLineChart extends StackPane {
                     if (legendItem.getText().contains("Slope")) {
                         style = "black";
                     }
-                    // otherwise, set it to the corresponding axis color
                     else {
+
+                        // get AxisType of this legend item
                         AxisType a = AxisType.valueOf(legendItem.getText());
-                        style = BFAColorMenu.getHexString(a);
+
+                        // if this legend item is not a duplicate AxisType
+                        if (!legendAxes.contains(a)) {
+
+                            // get the corresponding color
+                            style = BFAColorMenu.getHexString(a);
+
+                            // track this legend's AxisType
+                            legendAxes.add(a);
+
+                        }
+                        // if this legend item is a duplicate, remove it
+                        else legendItems.remove(i);
+                        
                     }
 
                     // set legend symbol color

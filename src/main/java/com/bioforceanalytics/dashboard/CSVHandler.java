@@ -9,8 +9,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.filechooser.FileSystemView;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,50 +22,21 @@ public class CSVHandler {
 
 	/**
 	 * Writes test parameters to a CSVP file.
-	 * @param testParameters the list of test parameters <i>(further documentation is in this method's body)</i>
+	 * @param testParameters the list of test parameters
 	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
 	 * @param nameOfTest the name used in the created CSV file
 	 * @param MPUMinMax the array of offsets applied to all acceleration calculations
 	 */
-	public void writeCSVP(ArrayList<Integer> testParameters, Settings settings, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
+	public void writeCSVP(ArrayList<Integer> testParameters, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
 
-		/***********************************How CSVPs are organized******************************************
-		 * 
-		 * The parameters are listed in the file in the following order.  Here they are aligned with their indices in the testParameters list.
-		 * MPU min and max values are added via int[][] MPUMinMax and are not intended to be stored in the testParameters list passed into this constructor.
-		 * 
-		 * 0. Number of Tests
-		 * 1. timer0 
-		 * 2. Delay After Start
-		 * 3. Battery Timeout Flag
-		 * 4. Time Test Flag
-		 * 5. Trigger on Release Flag
-		 * 6. Test Length
-		 * 7. Accel/Gyro Sample Rate
-		 * 8. Mag Sample Rate
-		 * 9. Accel Sensitivity
-		 * 10. Gyro Sensitivity
-		 * 11. Accel Filter
-		 * 12. Gyro Filter
-		 * 13. Accel X Offset Min
-		 * 14. Accel X Offset Max
-		 * 15. Accel Y Offset Min
-		 * 16. Accel Y Offset Max
-		 * 17. Accel Z Offset Min
-		 * 18. Accel Z Offset Max
-		 */
-		
-		settings.loadConfigFile();
-
-		// pull up the Directory to write CSV/CSVP files to
-		String CSVPath = settings.getKeyVal("CSVSaveLocation"); 
-		PrintWriter dataFile = null;
+		// retrieve the directory to write CSV/CSVP files to
+		String testDirPath = Settings.get("CSVSaveLocation");
 
 		// create new file in CSV Directory, file extension is .CSVP
-		dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); 
+		PrintWriter dataFile = new PrintWriter(testDirPath + "/" + nameOfTest); 
 
+		// write all parameters to the file
 		for(int i = 0; i < testParameters.size(); i++) { 
-			// write all parameters to the file
 			dataFile.println(testParameters.get(i).toString());
 		}
 
@@ -92,51 +61,9 @@ public class CSVHandler {
 	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
 	 * @param nameOfTest the name used in the created CSV file
 	 */
-	public void writeCSV(GenericTest g, Settings settings, String nameOfTest) throws FileNotFoundException { 														
-		
-		/*********************************How the CSV is organized******************************************
-		 * a = accelerometer
-		 * g = gyroscope
-		 * m = magnetometer
-		 * x,y,z = x,y,z axes
-		 * 
-		 * Data samples are written chronologically in the following order with all samples in a given row being from the same point in time:
-		 * 
-		 * 1. ax, ay, az, gx, gy, gz, mx, my, mz
-		 * 2. ax, ay, az, gx, gy, gz
-		 * 3. ax, ay, az, gx, gy, gz
-		 * 4. ax, ay, az, gx, gy, gz
-		 * 5. ax, ay, az, gx, gy, gz
-		 * 6. ax, ay, az, gx, gy, gz
-		 * 7. ax, ay, az, gx, gy, gz
-		 * 8. ax, ay, az, gx, gy, gz
-		 * 9. ax, ay, az, gx, gy, gz
-		 * 10. ax, ay, az, gx, gy, gz
-		 * 11. ax, ay, az, gx, gy, gz, mx, my, mx
-		 * ...
-		 * 
-		 * Because the magnetometer has 1/10th the sample rate of the accelerometer and gyroscope, it only has data for every 10th
-		 * point on the time axis.
-		 */
-		
-		/*
-		 * In this instance, we populate the CSV from GenericTest's 2D "dataSamples" list, which has the following format, with each list (with the exception of time)
-		 * corresponding to a column in the CSV.
-		 * 
-		 * 0 - Time
-		 * 1 - Acceleration X
-		 * 2 - Acceleration Y
-		 * 3 - Acceleration Z
-		 * 4 - Gyroscope (Angular Velocity) X
-		 * 5 - Gyroscope (Angular Velocity) Y
-		 * 6 - Gyroscope (Angular Velocity) Z
-		 * 7 - Magnetometer X
-		 * 8 - Magnetometer Y
-		 * 9 - Magnetometer Z
-		 */ 
+	public void writeCSV(GenericTest g, String nameOfTest) throws FileNotFoundException { 														
 	
 		StringBuilder builder = new StringBuilder();
-		PrintWriter DataFile;
 			
 		// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
 		for (int i = 0; i < g.getDataSamples().get(1).size()-1; i++) {
@@ -158,19 +85,14 @@ public class CSVHandler {
 			builder.append("\n");
 		}
 
-		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
+		String testDir = Settings.get("CSVSaveLocation");
+		PrintWriter writer = new PrintWriter(new File(testDir + "/" + nameOfTest));
 
-		if (fileOutputDirectory != null) {
-			DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
-		} 
-		else {
-			DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
-		}
+		// write the string data to the file
+		writer.write(builder.toString());
 
-		// writes the string buffer to the .CSV creating the file
-		DataFile.write(builder.toString());
-		// close the .CSV
-		DataFile.close(); 
+		// close the PrintWriter
+		writer.close(); 
 		
 	}
 	
@@ -179,15 +101,10 @@ public class CSVHandler {
 	 * 
 	 * @param CSVPFilePath the location of the CSVP file
 	 * @return ArrayList of test parameters read from CSVP
-	 * @throws IOException
 	 */
 	public ArrayList<Integer> readCSVP(String CSVPFilePath) throws IOException, NumberFormatException {
 
 		logger.info("Importing test parameters from '" + CSVPFilePath + "'...");
-
-		// Need to load keys from settings file. This tells us where CSVs are stored
-		Settings settings = new Settings();
-		settings.loadConfigFile();
 
 		// Reader for reading from the file
 		BufferedReader CSVPFile = null; 
@@ -277,9 +194,7 @@ public class CSVHandler {
 	@Deprecated
 	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) throws FileNotFoundException {
 		
-		Settings settings = new Settings();
 		StringBuilder builder = new StringBuilder();
-		PrintWriter DataFile;
 			
 		//iterates through data points in the series (i is the line index)
 		for (int i = 0; i < g.getAxis(AxisType.AccelX).getSamples().size(); i++) {
@@ -295,18 +210,19 @@ public class CSVHandler {
 			builder.append("\n");
 		}
 			
-		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
+		String testDirPath = Settings.get("CSVSaveLocation");
+		File testDir = new File(testDirPath);
 
-		if (fileOutputDirectory != null) {
-			DataFile = new PrintWriter(new File(fileOutputDirectory + File.separator + nameOfTest));
-		} 
-		else {	
-			DataFile = new PrintWriter(new File((FileSystemView.getFileSystemView().getDefaultDirectory().toString() + File.separator + nameOfTest)));
-		}
-		// writes the string buffer to the .CSV creating the file
-		DataFile.write(builder.toString());
-		// close the .CSV
-		DataFile.close();
+		// if directory doesn't exist, create it
+		if (!testDir.exists()) testDir.mkdirs();
+
+		PrintWriter writer = new PrintWriter(new File(testDir + "/" + nameOfTest));
+
+		// write the string data to the file
+		writer.write(builder.toString());
+
+		// close the PrintWriter
+		writer.close(); 
 
 	}
 	

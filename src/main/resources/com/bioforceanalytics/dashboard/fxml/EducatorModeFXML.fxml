@@ -1069,7 +1069,7 @@
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
                                                 </Label>
-                                                <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#launchSINCCalibrationHelpMenu" prefHeight="30.0" prefWidth="339.0" text="Open SINC Calibration Instructions" textAlignment="CENTER" />
+                                                <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#selectHelpTab" prefHeight="30.0" prefWidth="339.0" text="Open SINC Calibration Instructions" textAlignment="CENTER" />
                                              </children>
                                           </VBox>
                                           <VBox alignment="CENTER" prefHeight="69.0" prefWidth="500.0">

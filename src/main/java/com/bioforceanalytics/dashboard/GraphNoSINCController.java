@@ -29,6 +29,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -120,9 +121,6 @@ public class GraphNoSINCController implements Initializable {
 	// keeps track of a point selected during data analysis
 	private Double[] selectedPoint;
 
-	// keeps trackl of the intial axis for the graph sync
-	private AxisType syncFirstAxis;
-
 	// the GraphData of the first point in slope/area calculations
 	// used to check if the user selected points from two different data sets
 	private GraphData selectedGraphData;
@@ -165,6 +163,9 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private TextField baselineEndField;
+
+	@FXML
+	private Button lineUpBtn;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -230,7 +231,7 @@ public class GraphNoSINCController implements Initializable {
 			// vertically scale the graph
 			if (!event.isAltDown()) {
 				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW);
+				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW); 
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
 
@@ -241,7 +242,7 @@ public class GraphNoSINCController implements Initializable {
 				// zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 
-				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
+				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH); 
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the
 				// position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
@@ -359,7 +360,8 @@ public class GraphNoSINCController implements Initializable {
 		// read test data and create GenericTests
 		for (String s : paths) {
 
-			// try/catch placed inside loop to allow subsequent files to load, even if one of them is erroneous
+			// try/catch placed inside loop to allow subsequent files to load,
+			// even if loading one of them causes an error
 			try {
 				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
 				genericTests.add(g);
@@ -404,6 +406,14 @@ public class GraphNoSINCController implements Initializable {
 			return;
 		}
 
+		// disable "line up trials" if only one GT exists 
+		if (genericTests.size() == 1) {
+			lineUpBtn.setDisable(true);
+		}
+		else {
+			lineUpBtn.setDisable(false);
+		}
+
 		// get primary test
 		GenericTest primaryTest = genericTests.get(0);
 
@@ -414,13 +424,17 @@ public class GraphNoSINCController implements Initializable {
 		if (!primaryTest.getClass().equals(GenericTest.class)) {
 
 			ExperimentPanel experimentPanel = new ExperimentPanel();
-			if(genericTests.get(0) instanceof ConservationMomentumModule){
-				((ConservationMomentumModule)(genericTests.get(0))).getController().setupExperimentPanel(experimentPanel);
-			}else if(genericTests.get(0) instanceof ConservationEnergyModule){
-				((ConservationEnergyModule)(genericTests.get(0))).getController().setupExperimentPanel(experimentPanel);
-			}else{
-				genericTests.get(0).setupExperimentPanel(experimentPanel);
+
+			// set up experiment panels
+			if (primaryTest instanceof ConservationMomentumModule) {
+				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+			} else if (primaryTest instanceof ConservationEnergyModule) {
+				((ConservationEnergyModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+			} else {
+				primaryTest.setupExperimentPanel(experimentPanel);
 			}
+
+			// add panel to window
 			a.getPanes().add(experimentPanel);
 
 		}
@@ -662,7 +676,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
+			genericTests.get(g.GTIndex).resetTimeOffset();
 			updateAxis(g.axis, g.GTIndex);
 		}
 
@@ -685,8 +699,6 @@ public class GraphNoSINCController implements Initializable {
 			int axisBlockSize = d.axis.getValue() / 4 == 6 ? blockSize / 10 : blockSize;
 
 			genericTests.get(d.GTIndex).getAxis(d.axis).smoothData(axisBlockSize);
-
-			logger.info("Applying sample block size of " + axisBlockSize + " to " + d.axis + " for GT #" + (d.GTIndex + 1));
 			updateAxis(d.axis, d.GTIndex);
 		}
 
@@ -823,13 +835,9 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private void importCSV(ActionEvent event) {
 
-		// used to load CSV test data directory
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a CSV");
-		fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
 
 		// filters file selection to CSVs only
 		FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
@@ -918,13 +926,27 @@ public class GraphNoSINCController implements Initializable {
 		if (!result.isPresent()) return;
 
 		try {
+
 			resolution = Integer.parseInt(result.get());
+
+			if (resolution <= 0) throw new IllegalArgumentException();
+
 		}
 		catch (NumberFormatException e) {
 
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid input");
 			alert.setContentText("Please enter a numerical value.");
+
+			alert.showAndWait();
+			return;
+
+		}
+		catch (IllegalArgumentException e) {
+
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setHeaderText("Invalid input");
+			alert.setContentText("Please enter a value greater than 0.");
 
 			alert.showAndWait();
 			return;
@@ -1262,10 +1284,11 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.LINEUP && !firstClick) {
 
 					// shift the graph by this point's x-value minus the selected point's x-value
-					genericTests.get(selectedGraphData.GTIndex).addDataOffset(roundedX - selectedPoint[0]);
-					for(GraphData g : dataSets){
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(roundedX - selectedPoint[0]);
+					
+					for (GraphData g : dataSets) {
 						updateAxis(g.axis, g.GTIndex);
-						logger.info(genericTests.get(g.GTIndex).getDataOffset());
+						logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 					}
 
 					setGraphMode(GraphMode.NONE);
@@ -1274,7 +1297,7 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.NORM) {
 
 					AxisDataSeries a = genericTests.get(GTIndex).getAxis(axis);
-					a.applyNormalizedData(x, x);
+					a.vertShift(-y);
 					updateAxis(axis, GTIndex);
 
 					setGraphMode(GraphMode.NONE);

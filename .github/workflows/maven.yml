@@ -11,16 +11,60 @@ on:
       - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-windows:
+    runs-on: windows-latest
     steps:
       - name: Download repository
         uses: actions/checkout@v2
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 1.8
+          java-version: 8
           java-package: jdk+fx
+      - name: Print JDK info
+        run: echo %JAVA_HOME%
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: \%userprofile%/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Build package
+        run: mvn -B package --file pom.xml
+      - name: Create installer
+        uses: joncloud/makensis-action@v2.0
+        with:
+          script-file: tools/install.nsi
+          arguments: /V4
+      - name: Isolate binaries
+        run: |
+          mkdir staging
+          del target\original*.jar
+          copy LICENSE.txt staging
+          copy target\*.jar staging
+          copy target\*.exe staging
+      - name: Save package
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-windows
+          path: staging
+
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+          java-package: jdk+fx
+      - name: Print JDK info
+        run: echo $JAVA_HOME
+      - name: Configure bundled JRE
+        run: |
+          mkdir -p jre_bundle/Contents/Home
+          cp -R $JAVA_HOME/jre jre_bundle/Contents/Home
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
@@ -32,40 +76,27 @@ jobs:
       - name: Isolate binaries
         run: |
           mkdir staging
-          rm target/original*
-          cp target/*.jar staging
-          cp target/*.exe staging
+          cp target/*.dmg staging
       - name: Save package
         uses: actions/upload-artifact@v2
         with:
-          name: dist
+          name: dist-mac
           path: staging
+
   release:
-    runs-on: windows-latest
-    needs: build
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-mac]
     steps:
-      - name: Download repository
-        uses: actions/checkout@v2
-      - name: Download artifacts
+      - name: Download Windows artifacts
         uses: actions/download-artifact@v2
         with:
-          name: dist
-          path: target
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+          name: dist-windows
+          path: target-windows
+      - name: Download Mac artifacts
+        uses: actions/download-artifact@v2
         with:
-          java-version: 1.8
-          java-package: jdk+fx
-      - name: Create installer
-        uses: joncloud/makensis-action@v2.0
-        with:
-          script-file: tools/install.nsi
-          arguments: /V4
-      - name: Save package
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: target
+          name: dist-mac
+          path: target-mac
       - name: Push release
         uses: marvinpinto/action-automatic-releases@latest
         with:
@@ -74,6 +105,7 @@ jobs:
           prerelease: true
           title: Development Build
           files: |
-            LICENSE.txt
-            target/*.jar
-            target/*.exe
+            target-windows/LICENSE.txt
+            target-windows/*.jar
+            target-windows/*.exe
+            target-mac/*.dmg

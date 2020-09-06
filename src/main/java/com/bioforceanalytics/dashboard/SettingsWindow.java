@@ -47,40 +47,21 @@ public class SettingsWindow extends JFrame {
 	}
 
 	public void updateUI() {
-		Settings settings = getSettingsInstance();
-		settings.loadConfigFile();
-		saveDirectoryTextField.setText(settings.getKeyVal("CSVSaveLocation"));
-		saveOnReadCheckBox.setSelected(Boolean.parseBoolean(settings.getKeyVal("AutoSave")));
-		profileComboBox.setSelectedItem(settings.getKeyVal("DefaultProfile"));
-	}
-	
-	public Settings getSettingsInstance() {
-		Settings settings = new Settings();
-		String saveDirectoryString = null;
-		try {
-			settings.loadConfigFile();
-			saveDirectoryString = settings.getKeyVal("CSVSaveLocation");
-		}catch(Exception e) {
-			e.printStackTrace();
-			settings.restoreDefaultConfig();
-			settings.saveConfig();
-		}
-		return settings;
+		saveDirectoryTextField.setText(Settings.get("CSVSaveLocation"));
+		saveOnReadCheckBox.setSelected(Boolean.parseBoolean(Settings.get("AutoSave")));
+		profileComboBox.setSelectedItem(Settings.get("DefaultProfile"));
 	}
 	
 	public void restoreDefaultsBtnHandler() {
-		Settings settings = getSettingsInstance();
-		settings.restoreDefaultConfig();
-		settings.loadConfigFile();
+		Settings.restoreDefaultConfig();
 	}
 	
 	public void saveBtnHandler() {
-		Settings settings = getSettingsInstance();
-		settings.loadConfigFile();
-		settings.setProp("CSVSaveLocation", saveDirectoryTextField.getText());
-		settings.setProp("AutoSave", String.valueOf(saveOnReadCheckBox.isSelected()));
-		settings.setProp("DefaultProfile", profileComboBox.getSelectedItem().toString());
-		settings.saveConfig();
+		Settings.loadConfigFile();
+		Settings.set("CSVSaveLocation", saveDirectoryTextField.getText());
+		Settings.set("AutoSave", String.valueOf(saveOnReadCheckBox.isSelected()));
+		Settings.set("DefaultProfile", profileComboBox.getSelectedItem().toString());
+		Settings.saveConfig();
 	}
 	
 	

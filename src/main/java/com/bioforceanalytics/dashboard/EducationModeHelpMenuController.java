@@ -61,7 +61,7 @@ public class EducationModeHelpMenuController implements Initializable {
     @FXML
     Tab blankTab;
 
-    public void selectEraseModuelHelpTabOne(){
+    public void selectEraseModuleHelpTabOne(){
         EducationHelpMenuTabPane.getSelectionModel().select(eraseModuleHelpTab);
     }
     public void selectUnpairRemotesHelpTab(){
