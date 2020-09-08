@@ -442,9 +442,8 @@ public class GraphNoSINCController implements Initializable {
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
 
-			DataSetPanel d = new DataSetPanel(i);
-
-			d.setText("Data Set " + (i + 1));
+			DataSetPanel d = new DataSetPanel("Data Set " + (i + 1), i);
+			d.setController(this);
 
 			// convey checkbox ticking on/off from child class to this class
 			d.currentAxis.addListener((obs, oldVal, newVal) -> {
@@ -657,6 +656,49 @@ public class GraphNoSINCController implements Initializable {
 			graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
 		}
 
+	}
+
+	/**
+	 * Removes all currently drawn axes from a specific GenericTest.
+	 * Does NOT clear the list of data sets.
+	 */
+	public void clearGraph(int GTIndex) {
+
+		// looping backwards to avoid ConcurrentModificationException
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+
+			// only remove if on the right GenericTest
+			if (dataSets.get(i).GTIndex == GTIndex) {
+				// toggling a graph that's already drawn removes it	
+				graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
+			}
+		}
+
+	}
+
+	/**
+	 * Removes this GenericTest and its DataSetPanel from DAG 
+	 * @param GTIndex index of GenericTest
+	 */
+	public void removeGT(int GTIndex) {
+
+		//Remove all axes
+		clearGraph(GTIndex);
+
+		//Remove the GenericTest
+		genericTests.remove(GTIndex);
+		
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+			
+			// only remove if on the right GenericTest
+			if (dataSets.get(i).GTIndex == GTIndex) {
+
+				// Removes data set
+				dataSets.remove(GTIndex);
+			}
+		}
+		//Redraw DataSetPanels
+		initializePanels();
 	}
 
 	/**

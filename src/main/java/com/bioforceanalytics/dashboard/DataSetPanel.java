@@ -12,10 +12,19 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.layout.HBox;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseButton;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Priority;
+import javafx.geometry.Pos;
+import javafx.geometry.Insets;
+import javafx.scene.image.Image;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 
 /**
  * Custom JavaFX component for the Data Analysis Graph's panel of checkboxes toggling graphing of data sets.
@@ -39,19 +48,21 @@ public class DataSetPanel extends TitledPane {
 	 */
 	private int GTIndex;
 
+	private GraphNoSINCController controller;
+
 	/**
 	 * No argument constructor called when parsing the FXML associated with the Data Analysis Graph.
 	 * Under normal circumstances, this constructor will not be called, as DataSetPanels are instantiated in GraphNoSINCController.
 	 */
 	public DataSetPanel() {
-		this(0);
+		this("", 0);
 	}
 
 	/**
 	 * Creates a DataSetPanel JavaFX component representing a single module/GenericTest.
 	 * @param GTIndex the index of the GenericTest this DataSetPanel represents
 	 */
-	public DataSetPanel(int GTIndex) {
+	public DataSetPanel(String title, int GTIndex) {
 
 		this.GTIndex = GTIndex;
 		this.currentAxis = new SimpleIntegerProperty();
@@ -66,10 +77,49 @@ public class DataSetPanel extends TitledPane {
 		catch (Exception e) {
 			logger.error("Error loading DataSetPanel JavaFX component");
 		}
+		
+		//Adds HamburgerMenu to DataSetPanel TitledPane
+		HBox titleBox = new HBox();
+		titleBox.setAlignment(Pos.CENTER);	
+		titleBox.setPadding(new Insets(0, 25, 0, 0));
+		titleBox.minWidthProperty().bind(this.widthProperty());
+
+		HBox region = new HBox();
+		region.setAlignment(Pos.CENTER);
+		region.setMaxWidth(Double.MAX_VALUE);
+		HBox.setHgrow(region, Priority.ALWAYS);
+
+		Image img = new Image(getClass().getResource("images/HamburgerMenu.png").toExternalForm());
+		ImageView view = new ImageView(img);
+		view.setFitHeight(20);
+		view.setPreserveRatio(true);
+		
+		MenuItem clear = new MenuItem("Clear Data Sets");
+		MenuItem edit = new MenuItem("Edit");
+		MenuItem remove = new MenuItem("Remove");
+		
+		MenuButton button = new MenuButton(null, view, clear, edit, remove);
+
+		clear.setOnAction(e -> controller.clearGraph(GTIndex));
+
+		edit.setOnAction(e -> renameDataSet());
+
+		remove.setOnAction(e -> controller.removeGT(GTIndex));
+
+		button.setStyle("-fx-border-color: transparent;");
+		button.setStyle("-fx-border-width: 0;");
+		button.setStyle("-fx-background-radius: 0;");
+		button.setStyle("-background-color: transparent;");
+		//button.setGraphic(view);
+
+		Label label = new Label(title);
+		label.setId("data-set-title");
+		titleBox.getChildren().addAll(label, region, button);
+		this.setGraphic(titleBox);
 
 		// needed for "runLater()"
 		Node ref = this;
-		
+
 		// ensures that FXML is loaded before code runs
 		Platform.runLater(() -> {
 
@@ -78,7 +128,7 @@ public class DataSetPanel extends TitledPane {
 
 				if (e.getButton().equals(MouseButton.SECONDARY)) {
 
-					TextInputDialog dialog = new TextInputDialog(this.getText());
+					TextInputDialog dialog = new TextInputDialog(getTitle());
 					dialog.setTitle("Rename Data Set");
 					dialog.setHeaderText("Rename Data Set");
 					dialog.setContentText("Enter new data set name:");
@@ -86,7 +136,7 @@ public class DataSetPanel extends TitledPane {
 					Optional<String> result = dialog.showAndWait();
 		
 					// set the new text of this TitledPane
-					if (result.isPresent()) this.setText(result.get());
+					if (result.isPresent()) setTitle(result.get());
 
 				}
 	
@@ -94,8 +144,8 @@ public class DataSetPanel extends TitledPane {
 
 		});
 		
-
 	}
+
 
 	@FXML
 	public void chooseGraphAxis(ActionEvent event) {
@@ -126,4 +176,41 @@ public class DataSetPanel extends TitledPane {
 	
 	public int getGTIndex() { return GTIndex; }
 
+	public void setController(GraphNoSINCController controller) {
+		this.controller = controller;
+	}
+
+	/**
+	 * Sets the title of this data set panel.
+	 * @param text title of panel
+	 */
+	public void setTitle(String text) {
+		Label l = (Label) this.lookup("#data-set-title");
+		l.setText(text);
+	}
+
+	/**
+	 * Gets the title of this data set panel.
+	 * @return title of panel
+	 */
+	public String getTitle() {
+		Label l = (Label) this.lookup("#data-set-title");
+		return l.getText();
+	}
+
+	/**
+	 * Renames this data set.
+	 */
+	public void renameDataSet() {
+
+		TextInputDialog dialog = new TextInputDialog(getTitle());
+		dialog.setTitle("Rename Data Set");
+		dialog.setHeaderText("Rename Data Set");
+		dialog.setContentText("Enter new data set name:");
+
+		Optional<String> result = dialog.showAndWait();
+
+		// set the new text of this TitledPane
+		if (result.isPresent()) setTitle(result.get());
+	}
 }
