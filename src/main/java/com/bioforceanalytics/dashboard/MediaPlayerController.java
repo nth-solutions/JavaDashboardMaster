@@ -86,9 +86,8 @@ public class MediaPlayerController implements Initializable {
     @FXML
     public void handleFileOpener(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();                                                                                                            // Creates a FileChooser Object
-        Settings settings = new Settings();
-        settings.loadConfigFile();
-        fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+        
+        fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
         fileChooser.setTitle("Select a Video File");                                                                                                            // Sets the title of the file selector
         FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");                           // Creates a filter that limits fileChooser's search parameters to *.mp4 files
         fileChooser.getExtensionFilters().add(filter);                                                                                                          // Initializes the filter into the fileChooser object

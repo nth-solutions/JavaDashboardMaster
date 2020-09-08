@@ -17,7 +17,6 @@ import javafx.stage.Stage;
 @Deprecated
 public class GraphNoSINCMain extends Application {
 
-	private static GraphNoSINCController controller;
 	private static ArrayList<Double> testDataSamples;
 	private static ArrayList<Double> testDataTime;
 	
@@ -26,7 +25,7 @@ public class GraphNoSINCMain extends Application {
 
     	FXMLLoader loader = new FXMLLoader((getClass().getResource("fxml/GraphNoSINC.fxml")));
         Parent root = loader.load();
-        controller = loader.getController();
+        loader.getController();
         
         primaryStage.setTitle("BioForce Experiment Graph");
         Scene scene = new Scene(root);

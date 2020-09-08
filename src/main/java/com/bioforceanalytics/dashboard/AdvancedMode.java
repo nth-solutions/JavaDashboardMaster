@@ -1501,9 +1501,7 @@ public class AdvancedMode extends JFrame {
 									
 								}
 								
-								Settings settings = new Settings();
-								settings.loadConfigFile();
-								if(Boolean.parseBoolean(settings.getKeyVal("AutoSave"))) {
+								if (Boolean.parseBoolean(Settings.get("AutoSave"))) {
 									for(DataOrganizer dO: dataOrgoList) {
 										dO.createCSVP();
 										dO.createCSV(false, false);
@@ -2903,9 +2901,7 @@ public class AdvancedMode extends JFrame {
 					public void actionPerformed(ActionEvent arg0) {
 						JFileChooser chooser;
 						chooser = new JFileChooser(); 
-						Settings settings = new Settings();
-						settings.loadConfigFile();
-						chooser.setCurrentDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+						chooser.setCurrentDirectory(new File(Settings.get("CSVSaveLocation")));
 						chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 						FileNameExtensionFilter filter = new FileNameExtensionFilter("CSV Files", "csv");
 						chooser.setFileFilter(filter);

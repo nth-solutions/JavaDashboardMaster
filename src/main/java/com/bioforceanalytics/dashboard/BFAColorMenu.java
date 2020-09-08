@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -78,10 +77,15 @@ public class BFAColorMenu implements Initializable {
 
         final ColorPicker picker = new ColorPicker();
 
-        ColorPickerCell() {
+        @Override
+        // this method handles rendering color pickers
+        protected void updateItem(ColorPicker item, boolean empty) {
 
-            // runs inside Platform.runLater() so "getTableRow()" is not null
-            Platform.runLater(() -> {
+            // necessary for this method
+            super.updateItem(item, empty);
+
+            // if cell is not empty, add color picker
+            if (!empty) {
 
                 // get index and AxisType of this color picker
                 int rowIndex = getTableRow().getIndex();
@@ -99,17 +103,11 @@ public class BFAColorMenu implements Initializable {
                     logger.info("Updated " + a + "'s color to " + picker.getValue());
                 });
 
-            });
-
-        }
-
-        @Override
-        // this method is boilerplate code necessary for rendering the cell
-        protected void updateItem(ColorPicker item, boolean empty) {
-
-            super.updateItem(item, empty);
-            if (empty)  setGraphic(null);
-            else        setGraphic(picker);
+                // render color picker
+                setGraphic(picker);
+            }
+            // if empty, don't render anything
+            else setGraphic(null);
         
         }
 

@@ -34,7 +34,6 @@ public class DataOrganizer {
 	private String dataSourceID;
 	private int sourceID;
 	private String moduleSerialID;
-	Settings settings = new Settings();
 
 	private int delayAfterStart; //
 	private int lineNum;
@@ -215,8 +214,7 @@ public class DataOrganizer {
 	 * Creates new .CSVP file for storing the test parameters of a given test, We need this alongside the CSV file for graphing purposes.
 	 */
 	public int createCSVP() {
-		settings.loadConfigFile();
-		String CSVPath = settings.getKeyVal("CSVSaveLocation"); //Pull up the directory of chosen as CSV location files
+		String CSVPath = Settings.get("CSVSaveLocation"); //Pull up the directory of chosen as CSV location files
 		PrintWriter dataFile = null;
 		try {
 			dataFile = new PrintWriter(CSVPath + File.separator + nameOfTest + "p"); //Create new file in CSV Directory, file extension is .csvp 
@@ -249,7 +247,6 @@ public class DataOrganizer {
 	public int readAndSetTestParameters(String pathToFile) {
 		File f = new File(pathToFile); //Create a file object of the .csvp, just to get the file name. I was told this way is more efficient than substrings. Its definitely shorter than string manipulation. Plus I would have had to taken other OS file separators into account
 		this.nameOfTest = f.getName(); //set the name of the test
-		settings.loadConfigFile(); //need to load keys from settings file. This tells us where CSV's are stored
 		BufferedReader CSVPFile = null; //Reader for reading from the file
 		String lineText = "";
 		testParameters = new ArrayList<Integer>(); //Reinstantiate the testParameters object. Just for a quick while loop. 
@@ -392,7 +389,7 @@ public class DataOrganizer {
 			}
 		}
 
-		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
+		String fileOutputDirectory = Settings.get("CSVSaveLocation");
 
 		try {
 			if (fileOutputDirectory != null) {
@@ -452,7 +449,7 @@ public class DataOrganizer {
 			}
 		}
 
-		String fileOutputDirectory = settings.getKeyVal("CSVSaveLocation");
+		String fileOutputDirectory = Settings.get("CSVSaveLocation");
 
 		if (moduleNumber == 1){
 			try {

@@ -231,7 +231,7 @@ public class GraphNoSINCController implements Initializable {
 			// vertically scale the graph
 			if (!event.isAltDown()) {
 				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW);
+				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW); 
 				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
 			}
 
@@ -242,7 +242,7 @@ public class GraphNoSINCController implements Initializable {
 				// zoom)
 				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 
-				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH);
+				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH); 
 				// moves the center of the zoomview to accomodate for the zoom, accounts for the
 				// position of the mouse to try an keep it in the same spot
 				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
@@ -718,7 +718,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
+			genericTests.get(g.GTIndex).resetTimeOffset();
 			updateAxis(g.axis, g.GTIndex);
 		}
 
@@ -877,13 +877,9 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private void importCSV(ActionEvent event) {
 
-		// used to load CSV test data directory
-		Settings settings = new Settings();
-		settings.loadConfigFile();
-
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a CSV");
-		fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
 
 		// filters file selection to CSVs only
 		FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
@@ -1330,10 +1326,11 @@ public class GraphNoSINCController implements Initializable {
 				else if (mode == GraphMode.LINEUP && !firstClick) {
 
 					// shift the graph by this point's x-value minus the selected point's x-value
-					genericTests.get(selectedGraphData.GTIndex).addDataOffset(roundedX - selectedPoint[0]);
-					for(GraphData g : dataSets){
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(roundedX - selectedPoint[0]);
+					
+					for (GraphData g : dataSets) {
 						updateAxis(g.axis, g.GTIndex);
-						logger.info(genericTests.get(g.GTIndex).getDataOffset());
+						logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 					}
 
 					setGraphMode(GraphMode.NONE);
