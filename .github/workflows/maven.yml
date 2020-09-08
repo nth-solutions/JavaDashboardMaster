@@ -18,7 +18,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 8
           java-package: jdk+fx
       - name: Print JDK info
         run: echo %JAVA_HOME%
@@ -56,7 +56,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: 11
+          java-version: 8
           java-package: jdk+fx
       - name: Print JDK info
         run: echo $JAVA_HOME
