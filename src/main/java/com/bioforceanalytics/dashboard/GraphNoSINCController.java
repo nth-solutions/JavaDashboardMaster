@@ -363,7 +363,13 @@ public class GraphNoSINCController implements Initializable {
 			// try/catch placed inside loop to allow subsequent files to load,
 			// even if loading one of them causes an error
 			try {
+
+				// get test name from the file name minus the extension
+				String fileName = new File(s).getName();
+				String testName = fileName.substring(0, fileName.length()-4);
+
 				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
+				g.setName(testName);
 				genericTests.add(g);
 			}
 			catch (IOException e) {
@@ -442,7 +448,7 @@ public class GraphNoSINCController implements Initializable {
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
 
-			DataSetPanel d = new DataSetPanel("Data Set " + (i + 1), i);
+			DataSetPanel d = new DataSetPanel(genericTests.get(i).getName(), i);
 			d.setController(this);
 
 			// convey checkbox ticking on/off from child class to this class

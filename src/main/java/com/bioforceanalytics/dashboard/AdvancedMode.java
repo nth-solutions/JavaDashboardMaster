@@ -1495,6 +1495,10 @@ public class AdvancedMode extends JFrame {
 
 									genericTests.add(new GenericTest(testParameters, finalData, mpuMinMax));
 
+									GenericTest g = new GenericTest(testParameters, finalData, mpuMinMax);
+									g.setName(tempNameOfFile);
+									genericTests.add(g);
+
 									// run DataOrganizer code asynchronously
 									organizerThread = new Thread(organizerOperation);
 									organizerThread.start();	
