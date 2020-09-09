@@ -51,14 +51,6 @@ public class DataSetPanel extends TitledPane {
 	private GraphNoSINCController controller;
 
 	/**
-	 * No argument constructor called when parsing the FXML associated with the Data Analysis Graph.
-	 * Under normal circumstances, this constructor will not be called, as DataSetPanels are instantiated in GraphNoSINCController.
-	 */
-	public DataSetPanel() {
-		this("", 0);
-	}
-
-	/**
 	 * Creates a DataSetPanel JavaFX component representing a single module/GenericTest.
 	 * @param GTIndex the index of the GenericTest this DataSetPanel represents
 	 */
