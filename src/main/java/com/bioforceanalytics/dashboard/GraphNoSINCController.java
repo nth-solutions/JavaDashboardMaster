@@ -716,6 +716,15 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
+	 * Renames GenericTest
+	 * @param name name of GenericTest
+	 * @param GTIndex the index of the GenericTest
+	 */
+	public void renameGT(String name, int GTIndex) {
+		genericTests.get(GTIndex).setName(name);
+	}
+
+	/**
 	 * Updates the colors of currently graphed lines based on BFAColorMenu.
 	 */
 	public void updateGraphColors() {

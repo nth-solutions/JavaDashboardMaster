@@ -127,17 +127,7 @@ public class DataSetPanel extends TitledPane {
 			ref.lookup(".title").setOnMouseClicked(e -> {
 
 				if (e.getButton().equals(MouseButton.SECONDARY)) {
-
-					TextInputDialog dialog = new TextInputDialog(getTitle());
-					dialog.setTitle("Rename Data Set");
-					dialog.setHeaderText("Rename Data Set");
-					dialog.setContentText("Enter new data set name:");
-		
-					Optional<String> result = dialog.showAndWait();
-		
-					// set the new text of this TitledPane
-					if (result.isPresent()) setTitle(result.get());
-
+					renameDataSet();
 				}
 	
 			});
@@ -212,5 +202,7 @@ public class DataSetPanel extends TitledPane {
 
 		// set the new text of this TitledPane
 		if (result.isPresent()) setTitle(result.get());
+
+		controller.renameGT(result.get(), GTIndex);
 	}
 }
