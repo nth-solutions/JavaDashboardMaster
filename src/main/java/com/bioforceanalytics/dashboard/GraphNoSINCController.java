@@ -397,6 +397,7 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Internal method that generates data set panels from loaded GenericTests.
 	 */
+	// TODO break this up into add/remove panel methods
 	private void initializePanels() {
 
 		// get reference to root element
@@ -683,28 +684,35 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Removes this GenericTest and its DataSetPanel from DAG 
-	 * @param GTIndex index of GenericTest
+	 * Removes a GenericTest and its data set panel from the DAG.
+	 * @param GTIndex the index of the GenericTest
 	 */
 	public void removeGT(int GTIndex) {
 
-		//Remove all axes
+		// remove all currently graphed axes
 		clearGraph(GTIndex);
-
-		//Remove the GenericTest
-		genericTests.remove(GTIndex);
 		
+		// loop through all data sets
 		for (int i = dataSets.size() - 1; i >= 0; i--) {
-			
-			// only remove if on the right GenericTest
-			if (dataSets.get(i).GTIndex == GTIndex) {
 
-				// Removes data set
-				dataSets.remove(GTIndex);
+			int currentGTIndex = dataSets.get(i).GTIndex;
+			
+			// every index above the removed index needs to be shifted down;
+			// e.g. removing index 4 in [0,9] means indices [5,9] become [4,8]
+			if (currentGTIndex > GTIndex) {
+
+				// update GTIndex with correct value
+				dataSets.get(i).GTIndex--;
+
 			}
 		}
-		//Redraw DataSetPanels
+
+		// remove the GenericTest
+		genericTests.remove(GTIndex);
+
+		// redraw data set panels
 		initializePanels();
+
 	}
 
 	/**
