@@ -294,7 +294,14 @@
             <configuration>
               <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
               <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
-              
+
+              <additionalResourcesClasspathResources>
+                <fileSet>
+                  <directory>ffmpeg/mac</directory>
+                  <outputDirectory>ffmpeg/mac</outputDirectory>
+                  <include>*</include>
+                </fileSet>
+              </additionalResourcesClasspathResources>
               <!--
                 IMPORTANT: the below path is configured for GitHub Actions,
                 and WILL NOT WORK on MacOS unless $JAVA_HOME/jre is copied to jre_bundle/Contents/Home.
