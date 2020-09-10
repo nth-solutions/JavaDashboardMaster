@@ -452,17 +452,6 @@ public class GraphNoSINCController implements Initializable {
 			DataSetPanel d = new DataSetPanel(genericTests.get(i).getName(), i);
 			d.setController(this);
 
-			// convey checkbox ticking on/off from child class to this class
-			d.currentAxis.addListener((obs, oldVal, newVal) -> {
-
-				// TODO part of the hack w/ change listeners
-				if (newVal.intValue() == -1) return;
-
-				// graph the given data set
-				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
-
-			});
-
 			panels.add(d);
 			a.getPanes().add(d);
 
