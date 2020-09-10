@@ -1258,6 +1258,8 @@ public class EducatorModeControllerFX implements Initializable {
                             String testType = test.getClass().getSimpleName();
                             String testName = testType + " #" + testNum + " " + timestamp;
 
+                            test.setName(testName);
+
                             logger.info("Created " + testName);
 
                             // conservation of momentum

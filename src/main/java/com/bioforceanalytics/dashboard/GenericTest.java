@@ -15,14 +15,17 @@ public class GenericTest {
 	
 	private AxisDataSeries[] axes;
 	private List<List<Double>> dataSamples;
+
+	private String name;
 	private String graphTitle;
 	private AxisType[] defaultAxes;
-	private static final Logger logger = LogManager.getLogger();
 
 	private ArrayList<Integer> savedTestParameters;
 	private int[] savedMPUOffsets;
 	private int sampleRate;
 	private int timeOffset;
+
+	private static final Logger logger = LogManager.getLogger();
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
@@ -306,20 +309,53 @@ public class GenericTest {
 		panel.applyParams();
 	}
 
+	/**
+	 * Sets the default axes to be graphed for this test.
+	 * @param axes an array of AxisTypes with default axes
+	 */
 	public void setDefaultAxes(AxisType...axes) {
 		defaultAxes = axes;
 	}
 	
+	/**
+	 * Gets the default axes to be graphed for this test.
+	 * @return an array of AxisTypes with default axes
+	 */
 	public AxisType[] getDefaultAxes() {
 		return defaultAxes;
 	}
 
+	/**
+	 * Sets the title to be displayed above the graph.
+	 * @param the graph title to be displayed
+	 */
 	public void setGraphTitle(String title) {
 		graphTitle = title;
 	}
 
+	/**
+	 * Gets the title to be displayed above the graph.
+	 * @return the graph title to be displayed
+	 */
 	public String getGraphTitle() {
 		return graphTitle;
+	}
+
+	/**
+	 * Sets the name of this test.
+	 * Used as the title of data set panels and read from
+	 * the name of the CSV being imported.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * Gets the name of this test.
+	 * @return the name of this test.
+	 */
+	public String getName() {
+		return this.name;
 	}
 			
 }

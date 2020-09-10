@@ -363,7 +363,13 @@ public class GraphNoSINCController implements Initializable {
 			// try/catch placed inside loop to allow subsequent files to load,
 			// even if loading one of them causes an error
 			try {
+
+				// get test name from the file name minus the extension
+				String fileName = new File(s).getName();
+				String testName = fileName.substring(0, fileName.length()-4);
+
 				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
+				g.setName(testName);
 				genericTests.add(g);
 			}
 			catch (IOException e) {
@@ -391,6 +397,7 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Internal method that generates data set panels from loaded GenericTests.
 	 */
+	// TODO break this up into add/remove panel methods
 	private void initializePanels() {
 
 		// get reference to root element
@@ -442,20 +449,8 @@ public class GraphNoSINCController implements Initializable {
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
 
-			DataSetPanel d = new DataSetPanel(i);
-
-			d.setText("Data Set " + (i + 1));
-
-			// convey checkbox ticking on/off from child class to this class
-			d.currentAxis.addListener((obs, oldVal, newVal) -> {
-
-				// TODO part of the hack w/ change listeners
-				if (newVal.intValue() == -1) return;
-
-				// graph the given data set
-				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
-
-			});
+			DataSetPanel d = new DataSetPanel(genericTests.get(i).getName(), i);
+			d.setController(this);
 
 			panels.add(d);
 			a.getPanes().add(d);
@@ -657,6 +652,65 @@ public class GraphNoSINCController implements Initializable {
 			graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
 		}
 
+	}
+
+	/**
+	 * Removes all currently drawn axes from a specific GenericTest.
+	 * Does NOT clear the list of data sets.
+	 */
+	public void clearGraph(int GTIndex) {
+
+		// looping backwards to avoid ConcurrentModificationException
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+
+			// only remove if on the right GenericTest
+			if (dataSets.get(i).GTIndex == GTIndex) {
+				// toggling a graph that's already drawn removes it	
+				graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
+			}
+		}
+
+	}
+
+	/**
+	 * Removes a GenericTest and its data set panel from the DAG.
+	 * @param GTIndex the index of the GenericTest
+	 */
+	public void removeGT(int GTIndex) {
+
+		// remove all currently graphed axes
+		clearGraph(GTIndex);
+		
+		// loop through all data sets
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+
+			int currentGTIndex = dataSets.get(i).GTIndex;
+			
+			// every index above the removed index needs to be shifted down;
+			// e.g. removing index 4 in [0,9] means indices [5,9] become [4,8]
+			if (currentGTIndex > GTIndex) {
+
+				// update GTIndex with correct value
+				dataSets.get(i).GTIndex--;
+
+			}
+		}
+
+		// remove the GenericTest
+		genericTests.remove(GTIndex);
+
+		// redraw data set panels
+		initializePanels();
+
+	}
+
+	/**
+	 * Renames GenericTest
+	 * @param name name of GenericTest
+	 * @param GTIndex the index of the GenericTest
+	 */
+	public void renameGT(String name, int GTIndex) {
+		genericTests.get(GTIndex).setName(name);
 	}
 
 	/**
