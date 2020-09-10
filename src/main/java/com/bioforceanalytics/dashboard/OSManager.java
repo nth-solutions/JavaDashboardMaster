@@ -13,6 +13,10 @@ public class OSManager {
         UNSUPPORTED
     }
 
+    /**
+     * Retrieves the operating system this application is running on.
+     * @return an {@link com.bioforceanalytics.dashboard.OSManager.OS OS} enum representing the current operating system
+     */
     public static OS getOS() {
 
         String name = System.getProperty("os.name").toLowerCase();
