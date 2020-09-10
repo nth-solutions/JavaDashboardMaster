@@ -286,6 +286,48 @@
       </activation>
       <build>
         <plugins>
+          <!-- Copy ffmpeg binaries -->
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.0.2</version>
+            <executions>
+              <execution>
+                <id>copy-ffmpeg</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${basedir}/ffmpeg/mac</directory>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Set ffmpeg file permissions -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+              <execution>
+                <id>process-classes</id>
+                <phase>package</phase>
+                <configuration>
+                  <target>
+                    <chmod file="${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac/ffmpeg" perm="755" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
           <!-- Builds .app/.dmg for Macs -->
           <plugin>
             <groupId>sh.tak.appbundler</groupId>
@@ -295,13 +337,6 @@
               <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
               <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
 
-              <additionalResourcesClasspathResources>
-                <fileSet>
-                  <directory>ffmpeg/mac</directory>
-                  <outputDirectory>ffmpeg/mac</outputDirectory>
-                  <include>*</include>
-                </fileSet>
-              </additionalResourcesClasspathResources>
               <!--
                 IMPORTANT: the below path is configured for GitHub Actions,
                 and WILL NOT WORK on MacOS unless $JAVA_HOME/jre is copied to jre_bundle/Contents/Home.
