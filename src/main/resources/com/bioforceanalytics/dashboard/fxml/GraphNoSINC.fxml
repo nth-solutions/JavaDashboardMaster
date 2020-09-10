@@ -30,7 +30,7 @@
 <?import com.bioforceanalytics.dashboard.MultipleAxesLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
 
-<AnchorPane fx:id="root" minHeight="400.0" minWidth="400.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
+<AnchorPane fx:id="root" minHeight="400.0" minWidth="600.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
 	xmlns="http://javafx.com/javafx/11.0.1"
 	xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
 	<children>
@@ -74,7 +74,7 @@
 						</HBox>
 					</children>
 				</AnchorPane>
-				<AnchorPane SplitPane.resizableWithParent="false" maxWidth="400.0" minWidth="100.0" prefWidth="200.0">
+				<AnchorPane SplitPane.resizableWithParent="false" maxWidth="450" minWidth="400.0" prefWidth="400">
 					<children>
 						<ScrollPane fitToHeight="true" fitToWidth="true" minViewportHeight="150.0" minViewportWidth="150.0" prefViewportHeight="400.0" prefViewportWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 							<content>
