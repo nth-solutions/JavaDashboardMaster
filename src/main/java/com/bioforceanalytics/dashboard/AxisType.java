@@ -8,7 +8,7 @@ import java.util.Map;
  * <p>Used by the Data Analysis Graph for retrieving the index of an axis in {@link com.bioforceanalytics.dashboard.GenericTest GenericTest},
  * as well as keeping track of which data sets are currently displayed in {@link com.bioforceanalytics.dashboard.GraphNoSINCController GraphNoSINCController}.</p>
  */
-public enum AxisType {
+public enum AxisType implements Axis {
 	
 	AccelX(0),
 	AccelY(1),
@@ -74,6 +74,61 @@ public enum AxisType {
 	 * @return the integer associated with this AxisType
 	 */
 	public int getValue() {
+		return value;
+	}
+
+	@Override
+	public String getName() {
+		switch (getValue() / 4) {
+            case 0: return "Acceleration";
+            case 1: return "Velocity";
+            case 2: return "Displacement";
+            case 3: return "Angular Acceleration";
+            case 4: return "Angular Velocity";
+            case 5: return "Angular Displacement";
+            case 6: return "Magnetic Field";
+            case 7: return "Momentum";
+            default: return "Unnamed Axis";
+        }
+	}
+
+	@Override
+	public String getUnits() {
+		switch (getValue() / 4) {
+            case 0: return "m/s²";
+            case 1: return "m/s";
+            case 2: return "m";
+            case 3: return "°/s²";
+            case 4: return "°/s";
+            case 5: return "°";
+            case 6: return "µT";
+            case 7: return "kg-m/s";
+            default: return "";
+        }
+	}
+
+	@Override
+	public boolean isCustomAxis() {
+		return false;
+	}
+	@Override
+	public String getNameAndUnits(){
+		return getName() + " ("+ getUnits()+")";
+	}
+	@Override
+	public double getAxisScalar() {
+		 // if AxisType is Accel, Vel, Disp, or Momentum
+		 if (getValue() / 4 < 3 || getValue() == 7) return 10;
+		 //if AxisType is AngAccel
+		 if (getValue() / 4 == 3) return 500;
+		 //if AxisType is Momentum
+		 if (getValue() / 4 == 7) return 1;
+		 // all other data sets
+		 else return 100;
+	}
+
+	@Override
+	public int getIndex() {
 		return value;
 	}
 
