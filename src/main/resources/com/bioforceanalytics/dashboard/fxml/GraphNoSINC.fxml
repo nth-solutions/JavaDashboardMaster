@@ -68,13 +68,9 @@
 						</HBox>
 
 						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
-						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" opacity="0.3" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" pickOnBounds="false">
+						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" opacity="0.3" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
 							<children>
-								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" fitWidth="${multiAxis.width-90}" preserveRatio="false" pickOnBounds="false">
-									<viewport>
-										<Rectangle2D />
-									</viewport>
-								</MediaView>
+								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
 							</children>
 						</Pane>
 						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">

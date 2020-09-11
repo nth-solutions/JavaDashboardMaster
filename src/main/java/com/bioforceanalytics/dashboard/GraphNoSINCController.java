@@ -318,8 +318,6 @@ public class GraphNoSINCController implements Initializable {
 
 		});
 
-		mediaView.setPickOnBounds(false);
-
 	}
 
 	/**
