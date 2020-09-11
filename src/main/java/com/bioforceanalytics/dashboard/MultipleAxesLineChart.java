@@ -25,14 +25,14 @@ public class MultipleAxesLineChart extends StackPane {
     private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
 
     /**
-     * Tracks the axis classes and their respective line charts holding the y-axes.
+     * Tracks the axis units and their respective line charts holding the y-axes.
      */
-    private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
+    private final Map<String, BFALineChart<Number, Number>> axisUnitMap = new HashMap<>();
 
     /**
      * Tracks the custom axis types and their respective line charts holding the y-axes
      */
-    private final Map<CustomAxisType, BFALineChart<Number,Number>> customAxisTypeMap = new HashMap<>();
+    //private final Map<CustomAxisType, BFALineChart<Number,Number>> customAxisTypeMap = new HashMap<>();
 
     /**
      * Tracks the currently drawn data sets and their respective line charts.
@@ -238,22 +238,19 @@ public class MultipleAxesLineChart extends StackPane {
 
         BFANumberAxis yAxisAdd = new BFANumberAxis();
         BFANumberAxis xAxisAdd = new BFANumberAxis();
-        int axisTypeInt = -1;
+        
         double axisScale;
+
         BFALineChart<Number, Number> lineChart;
 
-        if(d.customAxisType == null){
-            axisTypeInt = d.axis.getValue() / 4;
-            // set the label of the new y-axis
-            yAxisAdd.setLabel(getAxisLabel(d.axis));
-            axisScale = getAxisScalar(d.axis);
-        }else{
-            yAxisAdd.setLabel(d.customAxisType.getName());
-            axisScale = d.customAxisType.getAxisScalar();
-        }
-        // if axis class is not graphed, create it
-        if (d.customAxisType != null || !isAxisClassGraphed(d)) {
+        
             
+        // set the label of the new y-axis
+        yAxisAdd.setLabel(d.axis.getNameAndUnits());
+        axisScale = d.axis.getAxisScalar();
+
+        // if axis class is not graphed, create it
+        if (!isUnitGraphed(d)) {
             
             
             // style x-axis
@@ -284,13 +281,7 @@ public class MultipleAxesLineChart extends StackPane {
             // create chart
             lineChart = new BFALineChart<Number, Number>(xAxisAdd, yAxisAdd);
             lineChart.setMouseTransparent(true);
-            if(axisTypeInt != -1){
-              axisTypeMap.put(axisTypeInt,lineChart);
-
-            }else{
-
-                customAxisTypeMap.put(d.customAxisType,lineChart);
-            }
+            axisUnitMap.put(d.axis.getUnits(), lineChart);
             backgroundCharts.add(lineChart);
             styleBackgroundChart(lineChart);
             setFixedAxisWidth(lineChart);
@@ -298,11 +289,8 @@ public class MultipleAxesLineChart extends StackPane {
            
             
         } else {
-            if(axisTypeInt != -1){
-                lineChart = axisTypeMap.get(axisTypeInt);
-            }else{
-                lineChart = customAxisTypeMap.get(d.customAxisType);
-            }
+
+            lineChart = axisUnitMap.get(d.axis.getUnits());
         }
 
         axisChartMap.put(d, lineChart);
@@ -349,16 +337,15 @@ public class MultipleAxesLineChart extends StackPane {
         baseChart.getData().remove(d.data);
 
         // remove axis class if necessary (only for Non-custom axis)
-        if(d.customAxisType == null){
-            if (!isAxisClassGraphed(d)) {
+
+            if (!isUnitGraphed(d)) {
                 
-                logger.info("Removing " + d.axis.name() + "'s axis class: " + getAxisLabel(d.axis));
+                logger.info("Removing " + d.axis.getName()+ "'s axis class: " + d.axis.getNameAndUnits());
 
-                backgroundCharts.remove(axisTypeMap.get(d.axis.getValue()/4));
-                axisTypeMap.remove(d.axis.getValue()/4);
+                backgroundCharts.remove(axisUnitMap.get(d.axis.getUnits()));
+                axisUnitMap.remove(d.axis.getUnits());
             }
-        }
-
+        
         // set legend symbol colors
         styleLegend();
 
@@ -522,7 +509,7 @@ public class MultipleAxesLineChart extends StackPane {
     private GraphData findGraphData(CustomAxisType customAxisType){
 		
 		for (GraphData g : dataSets){
-			if(g.customAxisType == customAxisType) return g;
+			if(g.axis == customAxisType) return g;
 		}
 		return null;
 	}
@@ -533,19 +520,13 @@ public class MultipleAxesLineChart extends StackPane {
 	 * @param GTIndex the GenericTest associated with the GraphData
 	 * @param axis the AxisType associated with the GraphData
 	 */
-    private boolean isAxisClassGraphed(GraphData g) {
+    private boolean isUnitGraphed(GraphData g) {
 
-        if(g.customAxisType == null){
-            int axisClass = g.axis.getValue() / 4;
             for (GraphData d : dataSets) {
-                if (d.customAxisType == null && d.axis.getValue() / 4 == axisClass) return true;
+                if (d.axis.getUnits().equals(g.axis.getUnits())) return true;
             }
 
             return false;
-        }else{
-            //TODO
-            return false;
-        }
 
     }
 

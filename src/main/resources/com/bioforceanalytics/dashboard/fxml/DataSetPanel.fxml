@@ -50,7 +50,6 @@
                         <Label text="Angular Velocity" GridPane.rowIndex="5" />
                         <Label text="Angular Displacement" GridPane.rowIndex="6" />
                         <Label text="Magnetometer" GridPane.rowIndex="7" />
-                        <Label text="Momentum" GridPane.rowIndex="8" />
 
                         <CheckBox fx:id="ToggleAccelX" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <CheckBox fx:id="ToggleAccelY" mnemonicParsing="false" onAction="#chooseGraphAxis" GridPane.columnIndex="2" GridPane.rowIndex="1" />

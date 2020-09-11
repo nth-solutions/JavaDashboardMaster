@@ -433,7 +433,7 @@ public class GraphNoSINCController implements Initializable {
 				AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController().getMomentumAxes();
 
 				for(int i = 0; i < momentumAxes.length; i++){
-					graphCustomAxis(momentumAxes[i], new CustomAxisType("Momentum " + ((i % 4 == 3) ? "Mag" : (char)(88+(i%4))),1));
+					graphCustomAxis(momentumAxes[i], new CustomAxisType("Momentum " + ((i % 4 == 3) ? "Mag" : (char)(88+(i%4))),"kg-m/s",1));
 				}
 
 			} else if (primaryTest instanceof ConservationEnergyModule) {
@@ -518,12 +518,8 @@ public class GraphNoSINCController implements Initializable {
 
 		// update tick spacing based on zoom level
 		for (GraphData d : multiAxis.axisChartMap.keySet()) {
-			double axisScalar;
-			if(d.customAxisType != null){
-				axisScalar = d.customAxisType.getAxisScalar();
-			}else{
-				axisScalar = multiAxis.getAxisScalar(d.axis);
-			}
+			double axisScalar = d.axis.getAxisScalar();
+			
 			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getYAxis())).setTickUnit(
 					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * axisScalar);
 			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getXAxis()))
@@ -533,6 +529,14 @@ public class GraphNoSINCController implements Initializable {
 		lineChart.clearArea();
 		clearSlope();
 
+	}
+
+	public void graphAxis(Axis axis, int GTIndex){
+		if(axis.isCustomAxis()){
+			logger.warn("Trying to graph custom graph " + axis.getName() + " as Module axis");
+		}else{
+			graphAxis((AxisType) axis, GTIndex);
+		}
 	}
 
 	/**
@@ -618,48 +622,56 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	public void updateAxis(Axis axis, int GTIndex){
+		logger.info("Updating " + axis + " for GT #" + (GTIndex+1));
+		
+		updateAxis(findGraphData(GTIndex,axis));
+	}
+
 	/**
 	 * Redraws an axis already on the graph.
 	 * @param axis the AxisType to be drawn/removed
 	 * @param GTIndex the GenericTest to read data from
 	 */
-	public void updateAxis(AxisType axis, int GTIndex) {
+	public void updateAxis(GraphData d) {
 
-		logger.info("Updating " + axis + " for GT #" + (GTIndex+1));
+		if(!d.axis.isCustomAxis()){
+			// retrieve XYChart.Series and ObservableList from HashMap
+			XYChart.Series<Number, Number> series = d.data;
+			ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
 
-		// retrieve XYChart.Series and ObservableList from HashMap
-		XYChart.Series<Number, Number> series = findGraphData(GTIndex, axis).data;
-		ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
+			// clear samples in ObservableList
+			seriesData.clear();
+			AxisType axis = (AxisType)d.axis;
+			// get time/samples data sets
+			List<Double> time = genericTests.get(d.GTIndex).getAxis(axis).getTime();
+			List<Double> data = genericTests.get(d.GTIndex).getAxis(axis).getSamples();
 
-		// clear samples in ObservableList
-		seriesData.clear();
+			// create (Time, Data) -> (X,Y) pairs
+			for (int i = 0; i < data.size(); i += getResolution(axis)) {
 
-		// get time/samples data sets
-		List<Double> time = genericTests.get(GTIndex).getAxis(axis).getTime();
-		List<Double> data = genericTests.get(GTIndex).getAxis(axis).getSamples();
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
 
-		// create (Time, Data) -> (X,Y) pairs
-		for (int i = 0; i < data.size(); i += getResolution(axis)) {
+				// add tooltip with (x,y) when hovering over data point
+				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, d.GTIndex));
 
-			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+				seriesData.add(dataEl);
 
-			// add tooltip with (x,y) when hovering over data point
-			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
+			}
 
-			seriesData.add(dataEl);
+			// add ObservableList to XYChart.Series
+			series.setData(seriesData);
+
+			// hide all data point symbols
+			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+				n.setStyle("-fx-background-color: transparent;");
+			}
+
+			// update legend colors
+			multiAxis.styleLegend();
+		}else{
 
 		}
-
-		// add ObservableList to XYChart.Series
-		series.setData(seriesData);
-
-		// hide all data point symbols
-		for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
-			n.setStyle("-fx-background-color: transparent;");
-		}
-
-		// update legend colors
-		multiAxis.styleLegend();
 
 	}
 
@@ -792,12 +804,13 @@ public class GraphNoSINCController implements Initializable {
 		for (GraphData d : dataSets) {
 
 			// if this is a magnetometer data set, divide block size by 10
-			int axisBlockSize = d.axis.getValue() / 4 == 6 ? blockSize / 10 : blockSize;
-
-			genericTests.get(d.GTIndex).getAxis(d.axis).smoothData(axisBlockSize);
-			updateAxis(d.axis, d.GTIndex);
+			int axisBlockSize = d.axis.getUnits() == "µT" ? blockSize / 10 : blockSize;
+			if(!d.axis.isCustomAxis()){
+				genericTests.get(d.GTIndex).getAxis((AxisType)d.axis).smoothData(axisBlockSize);
+				updateAxis(d.axis, d.GTIndex);
+			}
 		}
-
+		
 	}
 
 	@FXML
@@ -846,7 +859,7 @@ public class GraphNoSINCController implements Initializable {
 			for (GraphData g : dataSets) {
 				
 				// if axis class is kinematic data (Accel/Vel/Disp)
-				if (g.axis.getValue() / 4 <= 2) {
+				if (g.axis.getUnits() =="m/s" || g.axis.getUnits() == "m" || g.axis.getUnits() == "m/s²") {
 					updateAxis(g.axis, g.GTIndex);
 				}
 			}
@@ -1217,10 +1230,17 @@ public class GraphNoSINCController implements Initializable {
 	 * @param GTIndex the GenericTest associated with the GraphData
 	 * @param axis the AxisType associated with the GraphData
 	 */
-	private GraphData findGraphData(int GTIndex, AxisType axis) {
-
-		for (GraphData g : dataSets) {
-			if (g.GTIndex == GTIndex && g.axis == axis) return g;
+	private GraphData findGraphData(int GTIndex, Axis axis) {
+		if(axis.isCustomAxis()){
+			for(GraphData g : dataSets){
+				if(g.axis == axis) return g;
+			}
+		}
+		else{
+			for (GraphData g : dataSets) {
+				
+				if (g.GTIndex == GTIndex && g.axis == axis) return g;
+			}
 		}
 
 		return null;
@@ -1228,10 +1248,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 	private GraphData findGraphData(CustomAxisType customAxisType){
 		
-		for (GraphData g : dataSets){
-			if(g.customAxisType == customAxisType) return g;
-		}
-		return null;
+		return findGraphData(-1,customAxisType);
 	}
 
 	/**

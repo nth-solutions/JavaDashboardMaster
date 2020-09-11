@@ -178,12 +178,8 @@ public class GenericTest {
 		}
 		
 		// initialize axis data series array
-		if (this instanceof ConservationMomentumModule) {
-			axes = new AxisDataSeries[AxisType.values().length];
-			logger.info("Creating momentum data sets...");
-		} else {
-			axes = new AxisDataSeries[AxisType.values().length - 4];
-		}
+		axes = new AxisDataSeries[AxisType.values().length];
+		
 
 		// loops so that X=0, Y=1, Z=2
 		for (int i = 0; i < 3; i++) {
