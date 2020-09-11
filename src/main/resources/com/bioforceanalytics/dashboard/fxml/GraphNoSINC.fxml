@@ -26,6 +26,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.media.MediaPlayer?>
+<?import javafx.scene.media.MediaView?>
+<?import javafx.geometry.Rectangle2D?>
 
 <?import com.bioforceanalytics.dashboard.MultipleAxesLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
@@ -39,6 +42,7 @@
 				<Menu mnemonicParsing="false" text="File">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
+						<MenuItem mnemonicParsing="false" onAction="#importVideo" text="Import Video" />
 					</items>
 				</Menu>
 				<Menu mnemonicParsing="false" text="Data">
@@ -64,6 +68,15 @@
 						</HBox>
 
 						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
+						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" opacity="0.3" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" pickOnBounds="false">
+							<children>
+								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" fitWidth="${multiAxis.width-90}" preserveRatio="false" pickOnBounds="false">
+									<viewport>
+										<Rectangle2D />
+									</viewport>
+								</MediaView>
+							</children>
+						</Pane>
 						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
 								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />

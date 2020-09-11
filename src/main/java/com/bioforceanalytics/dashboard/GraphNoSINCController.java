@@ -40,7 +40,11 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -132,6 +136,8 @@ public class GraphNoSINCController implements Initializable {
 	// BFA icon
 	private Image icon;
 
+	private MediaPlayer mediaPlayer;
+
 	private static final Logger logger = LogManager.getLogger();
 
 	@FXML
@@ -166,6 +172,12 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private Button lineUpBtn;
+
+	@FXML
+	private MediaView mediaView;
+
+	@FXML
+	private Pane mediaViewPane;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -305,6 +317,8 @@ public class GraphNoSINCController implements Initializable {
 			});
 
 		});
+
+		mediaView.setPickOnBounds(false);
 
 	}
 
@@ -883,6 +897,35 @@ public class GraphNoSINCController implements Initializable {
 			// redraw data set panels
 			initializePanels();
 		}
+
+	}
+
+	@FXML
+	private void importVideo(ActionEvent event) {
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select a Video");
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
+
+		// filters file selection to videos only
+		//
+		// TODO add support for .mov by adding method to BlackFrameAnalysis converting to .mp4;
+		// this will use "Files.createTempDirectory()" and use ffmpeg (Jaffree) to create an .mp4.
+		FileChooser.ExtensionFilter filterVideos = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");
+		fileChooser.getExtensionFilters().add(filterVideos);
+
+		File videoFile = fileChooser.showOpenDialog(null);
+
+		// if user doesn't choose a file or closes window, don't continue
+		if (videoFile == null) return;
+
+		// stop any previous videos
+		if (mediaPlayer != null) mediaPlayer.stop();
+
+		// TODO quick test
+		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
+		mediaView.setMediaPlayer(mediaPlayer);
+		mediaPlayer.play();
 
 	}
 
