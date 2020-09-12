@@ -1,7 +1,10 @@
 package com.bioforceanalytics.dashboard;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javafx.beans.NamedArg;
 import javafx.collections.ObservableList;
@@ -11,8 +14,12 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 
 /**
  * Custom LineChart created solely to shade in sections of area under a curve.
@@ -32,6 +39,15 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private GraphData data;
     private int SIG_FIGS;
     private double area;
+
+    // used to play SINC videos
+    private MediaPlayer mediaPlayer;
+    private Timer timer;
+
+    // JavaFX SINC components
+    private MediaView mediaView;
+    private Pane mediaViewPane;
+    private Rectangle scrubber;
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
@@ -186,6 +202,76 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // display full floating-point number on click
         areaPane.setOnMouseClicked(event -> areaPane.getChildren().addAll(createAreaLabel(area)));
 
+    }
+
+    /**
+     * Passes references to SINC components from GraphNoSINCController to this class.
+     * @param mediaView the JavaFX component that displays video 
+     * @param mediaViewPane the JavaFX component that contains the media view and scrubber
+     * @param scrubber the JavaFX component that displays the video scrubber
+     */
+    public void initSINC(MediaView mediaView, Pane mediaViewPane, Rectangle scrubber) {
+        this.mediaView = mediaView;
+        this.mediaViewPane = mediaViewPane;
+        this.scrubber = scrubber;
+    }
+
+    /**
+     * Plays a SINC video overlayed on this chart.
+     * @param videoFile the File object for this video
+     */
+    public void playVideo(File videoFile) {
+        
+        // stop any previous videos/timers
+        if (mediaPlayer != null) mediaPlayer.stop();
+        if (timer != null) timer.cancel();
+
+		//=============================================
+		// TODO SINC testing code
+		// TODO This will be reorganized in the future.
+		//=============================================
+		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
+		mediaView.setMediaPlayer(mediaPlayer);
+		mediaPlayer.play();
+
+		scrubber.setVisible(true);
+		scrubber.setX(0);
+
+        // needed for TimerTask
+        BFALineChart<Number,Number> lineChart = (BFALineChart<Number,Number>) this;
+
+        timer = new Timer();
+
+		TimerTask sincTask = new TimerTask() {
+
+			double time = 0;
+
+			@Override
+			public void run() {
+				time += ((double) 1)/((double) 60);
+				scrubber.setX(lineChart.getXAxis().getDisplayPosition(time));
+			}
+
+		};
+
+		timer.scheduleAtFixedRate(sincTask, 0, 1000/60);
+
+		// Task<Void> sincTask = new Task<Void>() {
+
+		// 	@Override
+		// 	protected Void call() {
+
+		// 		// TODO use a "playing" flag here
+		// 		while (true) {
+		// 			scrubber.setX(Math.round(mediaPlayer.getCurrentTime().toMillis() / 10));
+		// 		}
+
+		// 	}
+
+		// };
+
+        // new Thread(sincTask).start();
+        
     }
 
     /*

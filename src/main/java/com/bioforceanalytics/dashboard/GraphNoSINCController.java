@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -43,8 +42,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -89,8 +86,6 @@ public class GraphNoSINCController implements Initializable {
 	// BFA icon
 	private Image icon;
 
-	private MediaPlayer mediaPlayer;
-
 	private static final Logger logger = LogManager.getLogger();
 
 	@FXML
@@ -120,14 +115,9 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Button lineUpBtn;
 
-	@FXML
-	private MediaView mediaView;
-
-	@FXML
-	private Pane mediaViewPane;
-
-	@FXML
-	private Rectangle scrubber;
+	@FXML private MediaView mediaView;
+	@FXML private Pane mediaViewPane;
+	@FXML private Rectangle scrubber;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -141,6 +131,7 @@ public class GraphNoSINCController implements Initializable {
 		genericTests = new ArrayList<GenericTest>();
 
 		lineChart = multiAxis.getBaseChart();
+		lineChart.initSINC(mediaView, mediaViewPane, scrubber);
 
 		// pass reference to controller to graph
 		multiAxis.setController(this);
@@ -736,34 +727,8 @@ public class GraphNoSINCController implements Initializable {
 		// if user doesn't choose a file or closes window, don't continue
 		if (videoFile == null) return;
 
-		// stop any previous videos
-		if (mediaPlayer != null) mediaPlayer.stop();
-
-		//=============================================
-		// TODO SINC testing code
-		// TODO This will be reorganized in the future.
-		//=============================================
-		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
-		mediaView.setMediaPlayer(mediaPlayer);
-		mediaPlayer.play();
-
-		scrubber.setVisible(true);
-
-		Task<Void> sincTask = new Task<Void>() {
-
-			@Override
-			protected Void call() {
-				
-				// TODO use a "playing" flag here
-				while (true) {
-					scrubber.setX(Math.round(mediaPlayer.getCurrentTime().toMillis() / 10));
-				}
-
-			}
-
-		};
-
-		new Thread(sincTask).start();
+		// start SINC playback
+		lineChart.playVideo(videoFile);
 
 	}
 
