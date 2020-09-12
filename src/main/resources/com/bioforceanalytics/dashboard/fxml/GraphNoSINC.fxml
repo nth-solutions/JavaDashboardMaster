@@ -29,6 +29,7 @@
 <?import javafx.scene.media.MediaPlayer?>
 <?import javafx.scene.media.MediaView?>
 <?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.shape.Rectangle?>
 
 <?import com.bioforceanalytics.dashboard.MultipleAxesLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
@@ -68,9 +69,10 @@
 						</HBox>
 
 						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
-						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" opacity="0.3" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
+						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
 							<children>
-								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
+								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" opacity="0.3" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
+								<Rectangle fx:id="scrubber" fill="DODGERBLUE" width="5.0" height="${multiAxis.height-103}" stroke="BLACK" strokeType="INSIDE" visible="false" />
 							</children>
 						</Pane>
 						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">

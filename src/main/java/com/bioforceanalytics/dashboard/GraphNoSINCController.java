@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -45,6 +46,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -178,6 +180,9 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private Pane mediaViewPane;
+
+	@FXML
+	private Rectangle scrubber;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -920,10 +925,31 @@ public class GraphNoSINCController implements Initializable {
 		// stop any previous videos
 		if (mediaPlayer != null) mediaPlayer.stop();
 
-		// TODO quick test
+		//=============================================
+		// TODO SINC testing code
+		// TODO This will be reorganized in the future.
+		//=============================================
 		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
 		mediaView.setMediaPlayer(mediaPlayer);
 		mediaPlayer.play();
+
+		scrubber.setVisible(true);
+
+		Task<Void> sincTask = new Task<Void>() {
+
+			@Override
+			protected Void call() {
+				
+				// TODO use a "playing" flag here
+				while (true) {
+					scrubber.setX(Math.round(mediaPlayer.getCurrentTime().toMillis() / 10));
+				}
+
+			}
+
+		};
+
+		new Thread(sincTask).start();
 
 	}
 
