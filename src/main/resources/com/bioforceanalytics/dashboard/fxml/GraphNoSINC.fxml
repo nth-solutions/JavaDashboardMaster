@@ -31,7 +31,7 @@
 <?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.shape.Rectangle?>
 
-<?import com.bioforceanalytics.dashboard.MultipleAxesLineChart?>
+<?import com.bioforceanalytics.dashboard.MultiAxisLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
 
 <AnchorPane fx:id="root" minHeight="400.0" minWidth="400.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
@@ -68,7 +68,7 @@
 							</children>
 						</HBox>
 
-						<MultipleAxesLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
+						<MultiAxisLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
 						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
 							<children>
 								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" opacity="0.3" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
