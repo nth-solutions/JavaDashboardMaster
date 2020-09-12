@@ -3,9 +3,9 @@ package com.bioforceanalytics.dashboard;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Timer;
 import java.util.TimerTask;
 
+import javafx.animation.AnimationTimer;
 import javafx.beans.NamedArg;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -22,9 +22,8 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
 /**
- * Custom LineChart created solely to shade in sections of area under a curve.
- * Should not be manually instantiated, instead reference this component in FXML;
- * the fields for NumberAxes will be populated from the FXMLLoader that reads the file.
+ * Custom LineChart created shade in sections of area under a curve and playing overlayed video for SINC Technology.
+ * This is also the "base chart" used by {@link com.bioforceanalytics.dashboard.MultiAxisLineChart MultiAxisLineChart}.
  */
 public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
@@ -42,7 +41,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     // used to play SINC videos
     private MediaPlayer mediaPlayer;
-    private Timer timer;
+    private AnimationTimer timer;
 
     // JavaFX SINC components
     private MediaView mediaView;
@@ -120,6 +119,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Re-renders the polygon used for shading area under a curve.
+     * Currently not being called multiple times, only once.
+     * TODO at some point we may look into real-time shading with this method.
      */
     public void redrawArea() {
 
@@ -224,143 +225,70 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         
         // stop any previous videos/timers
         if (mediaPlayer != null) mediaPlayer.stop();
-        if (timer != null) timer.cancel();
+        if (timer != null) timer.stop();
 
-		//=============================================
-		// TODO SINC testing code
-		// TODO This will be reorganized in the future.
-		//=============================================
+        // load and play video
 		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
 		mediaView.setMediaPlayer(mediaPlayer);
-		mediaPlayer.play();
+        mediaPlayer.play();
 
+        // when the video ends, set the media player's status to STOPPED
+        mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.stop());
+
+        // initialize scrubber
 		scrubber.setVisible(true);
 		scrubber.setX(0);
 
         // needed for TimerTask
         BFALineChart<Number,Number> lineChart = (BFALineChart<Number,Number>) this;
 
-        timer = new Timer();
-
-		TimerTask sincTask = new TimerTask() {
-
-			double time = 0;
-
-			@Override
-			public void run() {
-				time += ((double) 1)/((double) 60);
-				scrubber.setX(lineChart.getXAxis().getDisplayPosition(time));
-			}
-
-		};
-
-		timer.scheduleAtFixedRate(sincTask, 0, 1000/60);
-
-		// Task<Void> sincTask = new Task<Void>() {
-
-		// 	@Override
-		// 	protected Void call() {
-
-		// 		// TODO use a "playing" flag here
-		// 		while (true) {
-		// 			scrubber.setX(Math.round(mediaPlayer.getCurrentTime().toMillis() / 10));
-		// 		}
-
-		// 	}
-
-		// };
-
-        // new Thread(sincTask).start();
+        // start scrubber animation
+        timer = new ScrubberAnimation(lineChart, mediaPlayer);
+        timer.start();
         
     }
 
-    /*
-    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
+    class ScrubberAnimation extends AnimationTimer {
 
-        int start = -1;
-        int end = -1;
+        // the time (in nanoseconds) at which this animation started
+        private long animStartTime = 0;
 
-        // get index of x1 and x2 in samples
-        for (int i = 0; i < data.size(); i++) {
+        // the current time of the scrubber
+        // TODO modify this for next/last frame + playback speed
+        private double time = 0;
 
-            if (data.get(i).getXValue().equals(p1.getXValue()) && data.get(i).getYValue().equals(p1.getYValue())) {
-                start = i;
-            }
+        private BFALineChart<Number, Number> lineChart;
+        private MediaPlayer mediaPlayer;
 
-            if (data.get(i).getXValue().equals(p2.getXValue()) && data.get(i).getYValue().equals(p2.getYValue())) {
-                end = i;
-            }
-
-        }  
-
-        // remove area shading and label
-        clearArea();
-
-        // create area label
-        double roundedArea = new BigDecimal(area).round(new MathContext(SIG_FIGS)).doubleValue();
-        areaPane.getChildren().addAll(createAreaLabel(roundedArea));
-
-        // allows mouse events to pass through polygon
-        // makes selecting data points easier
-        areaPane.setPickOnBounds(false);
-
-        // set (x,y) position of the area label to halfway between the x-bounds of the area
-        areaPane.setLayoutX(data.get((start + end) / 2).getNode().getLayoutX() - 50);
-        areaPane.setLayoutY(data.get((start + end) / 2).getNode().getLayoutY() - 100);
-
-        // add area label to LineChart
-        getPlotChildren().add(areaPane);
-
-        // cast axes to NumberAxes so that certain methods can be called on them
-        BFANumberAxis xAxis = (BFANumberAxis) getXAxis();
-        BFANumberAxis yAxis = (BFANumberAxis) getYAxis();
-
-        // pixel position of y=0 on LineChart component
-        double y0 = yAxis.getDisplayPosition(0);
-
-        Polygon poly = new Polygon();
-        // loop through all points in [p1, p2]
-        for (int i = start; i <= end; i++) {      
-
-            // pixel positions of x=data[i] and x=data[i+1] on LineChart component
-            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
-
-            // pixel positions of y=data[i] and y=data[i+1] on LineChart component
-            double y1 = yAxis.getDisplayPosition(data.get(i).getYValue());
-
-            // add points to polygon
-            poly.getPoints().addAll(new Double[] {
-                x1, y1,
-            });
-
-        }
-        for(int i = end; i >= start; i--){
-            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
-            poly.getPoints().addAll(new Double[] {
-                x1, y0,
-            });
+        public ScrubberAnimation(BFALineChart<Number, Number> lineChart, MediaPlayer mediaPlayer) {
+            this.lineChart = lineChart;
+            this.mediaPlayer = mediaPlayer;
         }
 
-        // TODO change this to shade the same color as the graph?
-        // not important at all, just a cosmetic feature that would be nice
-        poly.setFill(Color.RED);
+        @Override
+        public void handle(long now) {
 
-        // add polygon to LineChart
-        getPlotChildren().add(poly);
-        // ensure that the area label is on top of the shaded area
-        areaPane.toFront();
-
-        // display full floating-point number on click
-        areaPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            
-            @Override
-            public void handle(MouseEvent event) {
-                areaPane.getChildren().addAll(createAreaLabel(area));
+            // set initial timestamp
+            if (animStartTime == 0) {
+                animStartTime = now;
             }
 
-        });
-    
+            switch (mediaPlayer.getStatus()) {
+
+                case PLAYING:
+                    // current time = elapsed time converted to seconds
+                    time = ((double) (now - animStartTime)) / 1e9;
+                    break;
+
+                default:
+                    break;
+            }
+
+            // set scrubber's position to the time's position on the x-axis
+            scrubber.setX(lineChart.getXAxis().getDisplayPosition(time));
+        
+        }
+        
     }
-    */
 
 }
