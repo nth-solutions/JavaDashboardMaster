@@ -36,7 +36,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -159,9 +159,39 @@ public class GraphNoSINCController implements Initializable {
 				if (e.getButton() == MouseButton.SECONDARY) setGraphMode(GraphMode.NONE);
 			});
 
-			// reset graph mode on escape
-			s.setOnKeyPressed(e -> {
-				if (e.getCode() == KeyCode.ESCAPE) setGraphMode(GraphMode.NONE);
+			s.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+
+				// if key was pressed somewhere other than in a text field
+				if (!(e.getTarget() instanceof TextField)) {
+
+					switch (e.getCode()) {
+
+						case ESCAPE:
+							setGraphMode(GraphMode.NONE);
+							break;
+	
+						case SPACE:
+							lineChart.togglePlayback();
+							break;
+	
+						case LEFT:
+							lineChart.lastFrame();
+							break;
+	
+						case RIGHT:
+							lineChart.nextFrame();
+							break;
+	
+						default:
+							break;
+	
+					}
+
+					// prevent key from triggering further events
+					e.consume();
+
+				}
+
 			});
 
 		});

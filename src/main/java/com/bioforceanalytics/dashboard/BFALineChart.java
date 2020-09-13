@@ -3,7 +3,9 @@ package com.bioforceanalytics.dashboard;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.TimerTask;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.NamedArg;
@@ -20,6 +22,7 @@ import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 /**
  * Custom LineChart created shade in sections of area under a curve and playing overlayed video for SINC Technology.
@@ -43,10 +46,19 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private MediaPlayer mediaPlayer;
     private AnimationTimer timer;
 
+    // TODO read this information from videos
+    private final int FPS = 30;
+
+    // the amount of time (in seconds) between frames
+    private final double DELTA_TIME = ((double) 1)/((double) FPS);
+
     // JavaFX SINC components
     private MediaView mediaView;
     private Pane mediaViewPane;
     private Rectangle scrubber;
+
+
+    private static final Logger logger = LogManager.getLogger();
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
@@ -232,30 +244,70 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 		mediaView.setMediaPlayer(mediaPlayer);
         mediaPlayer.play();
 
-        // when the video ends, set the media player's status to STOPPED
-        mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.stop());
-
         // initialize scrubber
 		scrubber.setVisible(true);
 		scrubber.setX(0);
 
-        // needed for TimerTask
-        BFALineChart<Number,Number> lineChart = (BFALineChart<Number,Number>) this;
-
         // start scrubber animation
-        timer = new ScrubberAnimation(lineChart, mediaPlayer);
+        timer = new ScrubberAnimation((BFALineChart<Number,Number>) this, mediaPlayer);
         timer.start();
         
     }
 
+    /**
+     * Plays/pauses the current video.
+     */
+    public void togglePlayback() {
+
+        // cancel if no video is playing
+        if (mediaPlayer == null) return;
+
+        if (mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED) {
+            logger.info("Started video from {}s", mediaPlayer.getCurrentTime().toSeconds());
+            mediaPlayer.play();
+        }
+        else if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            logger.info("Paused video at {}s", mediaPlayer.getCurrentTime().toSeconds());
+            mediaPlayer.pause();
+        }
+    }
+
+    /**
+     * Jumps one frame back in the video.
+     */
+    public void lastFrame() {
+
+        // cancel if no video is playing
+        if (mediaPlayer == null) return;
+
+        double seconds = mediaPlayer.getCurrentTime().toSeconds();
+        Duration time = Duration.seconds(seconds - DELTA_TIME);
+        mediaPlayer.seek(time);
+
+        logger.info("Jumped back to {}s", seconds);
+
+    }
+
+    /**
+     * Jumps one frame forward in the video.
+     */
+    public void nextFrame() {
+
+        // cancel if no video is playing
+        if (mediaPlayer == null) return;
+
+        double seconds = mediaPlayer.getCurrentTime().toSeconds();
+        Duration time = Duration.seconds(seconds + DELTA_TIME);
+        mediaPlayer.seek(time);
+
+        logger.info("Jumped forward to {}s", seconds);
+
+    }
+
+    /**
+     * Controls the scrubber's position on the graph.
+     */
     class ScrubberAnimation extends AnimationTimer {
-
-        // the time (in nanoseconds) at which this animation started
-        private long animStartTime = 0;
-
-        // the current time of the scrubber
-        // TODO modify this for next/last frame + playback speed
-        private double time = 0;
 
         private BFALineChart<Number, Number> lineChart;
         private MediaPlayer mediaPlayer;
@@ -268,24 +320,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         @Override
         public void handle(long now) {
 
-            // set initial timestamp
-            if (animStartTime == 0) {
-                animStartTime = now;
-            }
-
-            switch (mediaPlayer.getStatus()) {
-
-                case PLAYING:
-                    // current time = elapsed time converted to seconds
-                    time = ((double) (now - animStartTime)) / 1e9;
-                    break;
-
-                default:
-                    break;
-            }
-
             // set scrubber's position to the time's position on the x-axis
-            scrubber.setX(lineChart.getXAxis().getDisplayPosition(time));
+            scrubber.setX(lineChart.getXAxis().getDisplayPosition(mediaPlayer.getCurrentTime().toSeconds()));
         
         }
         
