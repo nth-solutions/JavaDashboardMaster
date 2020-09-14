@@ -1850,14 +1850,7 @@ public class EducatorModeControllerFX implements Initializable {
                 // analyze video to obtain timer0 tick offset and "delay after start" test parameters
                 BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
                 timerCalibrationOffset = bfo.getTMR0Offset();
-                trueDelayAfterStart = bfo.getDelayAfterStart();
-
-                // if delay after start is negative, set to 0
-                if (trueDelayAfterStart >= 0) {
-                    delayAfterStart = trueDelayAfterStart;
-                } else {
-                    delayAfterStart = 0;
-                }
+                delayAfterStart = bfo.getDelayAfterStart();
 
                 logger.info("Timer0 calibration offset: " + timerCalibrationOffset);
                 logger.info("Delay after start: " + delayAfterStart);
@@ -1943,6 +1936,8 @@ public class EducatorModeControllerFX implements Initializable {
      *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
      */
     public void fillTestTypeHashMap() {
+
+        // NOTE: index 2 (delayAfterStart) will not be overwritten through test parameters.
 
         Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);

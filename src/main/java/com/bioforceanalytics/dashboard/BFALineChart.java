@@ -54,9 +54,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     // JavaFX SINC components
     private MediaView mediaView;
-    private Pane mediaViewPane;
     private Rectangle scrubber;
-
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -220,12 +218,10 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     /**
      * Passes references to SINC components from GraphNoSINCController to this class.
      * @param mediaView the JavaFX component that displays video 
-     * @param mediaViewPane the JavaFX component that contains the media view and scrubber
      * @param scrubber the JavaFX component that displays the video scrubber
      */
-    public void initSINC(MediaView mediaView, Pane mediaViewPane, Rectangle scrubber) {
+    public void initSINC(MediaView mediaView, Rectangle scrubber) {
         this.mediaView = mediaView;
-        this.mediaViewPane = mediaViewPane;
         this.scrubber = scrubber;
     }
 
@@ -318,6 +314,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         }
 
         @Override
+        // runs every frame
         public void handle(long now) {
 
             // set scrubber's position to the time's position on the x-axis

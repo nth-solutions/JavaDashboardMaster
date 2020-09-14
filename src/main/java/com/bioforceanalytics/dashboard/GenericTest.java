@@ -20,8 +20,8 @@ public class GenericTest {
 	private String graphTitle;
 	private AxisType[] defaultAxes;
 
-	private ArrayList<Integer> savedTestParameters;
-	private int[] savedMPUOffsets;
+	private ArrayList<Integer> testParameters;
+	private int[] MPUOffsets;
 	private int sampleRate;
 	private int timeOffset;
 
@@ -37,7 +37,7 @@ public class GenericTest {
 
 		int sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
-		savedTestParameters = testParameters;
+		this.testParameters = testParameters;
 		
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
@@ -56,7 +56,7 @@ public class GenericTest {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
 		}
 
-		savedMPUOffsets = mpuOffsets;
+		MPUOffsets = mpuOffsets;
 		dataSamples = new ArrayList<List<Double>>();
 		
 		// populate "dataSamples"'s inner lists
@@ -127,7 +127,7 @@ public class GenericTest {
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
 		this.dataSamples = dataSamples;
-		savedTestParameters = testParameters;
+		this.testParameters = testParameters;
 
 		for (int i = 0; i < 3; i++) {
 			// populate MPU offsets by taking the avg of min and max
@@ -135,12 +135,12 @@ public class GenericTest {
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		}
 
-		savedMPUOffsets = mpuOffsets;
+		MPUOffsets = mpuOffsets;
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
 	public void createAxisDataSeries() {
-		createAxisDataSeries(dataSamples, savedTestParameters, savedMPUOffsets);
+		createAxisDataSeries(dataSamples, testParameters, MPUOffsets);
 	}
 
 	/**
@@ -155,6 +155,10 @@ public class GenericTest {
 		// TODO change this to a name property that can be changed as a test selection menu
 		setGraphTitle("Generic Test");
 		setDefaultAxes(AxisType.AccelX);
+
+		// convert unsigned delayAfterStart to signed
+		short delayAfterStart = testParameters.get(2).shortValue();
+		testParameters.set(2, (int) delayAfterStart);
 
 		sampleRate = testParameters.get(7);
 		int magSampleRate = testParameters.get(8);
@@ -272,6 +276,15 @@ public class GenericTest {
 	 */
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
+	}
+
+	/**
+	 * Retrieves a test parameter.
+	 * @param index the index to retrieve
+	 * @return the given test parameter
+	 */
+	public int getTestParam(int index) {
+		return testParameters.get(index);
 	}
 
 	/**

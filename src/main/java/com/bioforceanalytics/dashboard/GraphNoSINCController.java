@@ -131,34 +131,30 @@ public class GraphNoSINCController implements Initializable {
 		genericTests = new ArrayList<GenericTest>();
 
 		lineChart = multiAxis.getBaseChart();
-		lineChart.initSINC(mediaView, mediaViewPane, scrubber);
+		lineChart.initSINC(mediaView, scrubber);
 
 		// pass reference to controller to graph
 		multiAxis.setController(this);
-
-		// initialize graph mode variables
+		
 		Platform.runLater(() -> {
+
+			// initialize graph mode variables
 			setGraphMode(GraphMode.NONE);
-		});
 
-		Platform.runLater(() -> {
+			// update smoothing in real-time
 			blockSizeSlider.valueProperty().addListener(e -> {
 				applyMovingAvg();
 			});
-		});
-
-		multiAxis.redrawGraph();
-
-		// ADD ALL FULL WINDOW LISTENERS HERE
-		Platform.runLater(() -> {
 
 			Scene s = multiAxis.getScene();
 
-			// reset graph mode on right click
+			// FULL WINDOW MOUSE LISTENERS
 			s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+				// reset graph mode on right click
 				if (e.getButton() == MouseButton.SECONDARY) setGraphMode(GraphMode.NONE);
 			});
 
+			// FULL WINDOW KEY LISTENERS
 			s.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
 
 				// if key was pressed somewhere other than in a text field
@@ -195,6 +191,8 @@ public class GraphNoSINCController implements Initializable {
 			});
 
 		});
+
+		multiAxis.redrawGraph();
 
 	}
 
@@ -758,6 +756,7 @@ public class GraphNoSINCController implements Initializable {
 		if (videoFile == null) return;
 
 		// start SINC playback
+		shiftSINC();
 		lineChart.playVideo(videoFile);
 
 	}
@@ -1045,6 +1044,35 @@ public class GraphNoSINCController implements Initializable {
 
 			// update legend colors
 			multiAxis.styleLegend();
+		}
+
+	}
+
+	/**
+	 * Shifts all GenericTests by their SINC calibration offset.
+	 * This uses index 2 of test parameters, <code>delayAfterStart</code>.
+	 */
+	private void shiftSINC() {
+
+		// loop through each GT and shift its time axis
+		for (GenericTest g : genericTests) {
+			
+			// converting milliseconds to seconds
+			double delayAfterStart = ((double) g.getTestParam(2)) / 1000;
+
+			// if the camera started early, delayAfterStart will be negative,
+			// and we should compensate by shifting the graph by -delayAfterStart.
+
+			if (delayAfterStart < 0) {
+				g.resetTimeOffset();
+				g.addTimeOffset(-delayAfterStart);
+			}
+		}
+
+		// update each currently drawn axis
+		for (GraphData g : dataSets) {
+			updateAxis(g.axis, g.GTIndex);
+			logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 		}
 
 	}
