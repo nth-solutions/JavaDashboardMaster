@@ -46,10 +46,13 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private MediaPlayer mediaPlayer;
     private AnimationTimer timer;
 
-    // TODO read this information from videos
+    // the amount of time to jump forward/backward with arrow keys
+    private final int JUMP_AMOUNT = 1;
+
+    // the frame rate of the video
     private final int FPS = 30;
 
-    // the amount of time (in seconds) between frames
+    // the amount of time between frames (1/FPS)
     private final double DELTA_TIME = ((double) 1)/((double) FPS);
 
     // JavaFX SINC components
@@ -269,34 +272,52 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     }
 
     /**
+     * Jumps back in the video by a specified time amount.
+     */
+    public void jumpBack() {
+        double seconds = relativeSeek(-JUMP_AMOUNT);
+        logger.info("Jumped back to {}s", seconds);
+    }
+
+    /**
+     * Jumps forward in the video by a specified time amount.
+     */
+    public void jumpForward() {
+        double seconds = relativeSeek(JUMP_AMOUNT);
+        logger.info("Jumped forward to {}s", seconds);
+    }
+
+    /**
      * Jumps one frame back in the video.
      */
     public void lastFrame() {
-
-        // cancel if no video is playing
-        if (mediaPlayer == null) return;
-
-        double seconds = mediaPlayer.getCurrentTime().toSeconds();
-        Duration time = Duration.seconds(seconds - DELTA_TIME);
-        mediaPlayer.seek(time);
-
-        logger.info("Jumped back to {}s", seconds);
-
+        double seconds = relativeSeek(-DELTA_TIME);
+        logger.info("Jumped back one frame to {}s", seconds);
     }
 
     /**
      * Jumps one frame forward in the video.
      */
     public void nextFrame() {
+        double seconds = relativeSeek(DELTA_TIME);
+        logger.info("Jumped forward one frame to {}s", seconds);
+    }
+
+    /**
+     * Internal method to move the scrubber relative to the current time.
+     * @param delta the amount of time (in seconds) to move the scrubber
+     * @return the current time (in seconds) of the scrubber 
+     */
+    private double relativeSeek(double delta) {
 
         // cancel if no video is playing
-        if (mediaPlayer == null) return;
+        if (mediaPlayer == null) return -1;
 
         double seconds = mediaPlayer.getCurrentTime().toSeconds();
-        Duration time = Duration.seconds(seconds + DELTA_TIME);
+        Duration time = Duration.seconds(seconds + delta);
         mediaPlayer.seek(time);
 
-        logger.info("Jumped forward to {}s", seconds);
+        return time.toSeconds();
 
     }
 

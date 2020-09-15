@@ -170,12 +170,20 @@ public class GraphNoSINCController implements Initializable {
 							lineChart.togglePlayback();
 							break;
 	
-						case LEFT:
+						case COMMA:
 							lineChart.lastFrame();
 							break;
 	
-						case RIGHT:
+						case PERIOD:
 							lineChart.nextFrame();
+							break;
+
+						case LEFT:
+							lineChart.jumpBack();
+							break;
+
+						case RIGHT:
+							lineChart.jumpForward();
 							break;
 	
 						default:
