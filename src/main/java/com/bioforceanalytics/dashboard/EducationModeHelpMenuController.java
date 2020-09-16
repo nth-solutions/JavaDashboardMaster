@@ -14,22 +14,7 @@ import java.util.ResourceBundle;
 public class EducationModeHelpMenuController implements Initializable {
 
     @FXML
-    TabPane EraseModuleHelpTabPane;
-
-    @FXML
-    TabPane UnpairRemotesHelpTabPane;
-
-    @FXML
-    TabPane ExperimentHelpTabPane;
-
-    @FXML
-    TabPane SINCTechnologyHelpTabPane;
-
-    @FXML
-    TabPane SINCModuleCalibrationTabPane;
-
-    @FXML
-    TabPane EducationHelpMenuTabPane;
+    TabPane educationHelpMenuTabPane;
 
     @FXML
     Tab eraseModuleHelpTab;
@@ -44,7 +29,7 @@ public class EducationModeHelpMenuController implements Initializable {
     Tab SINCTechnologyHelpTab;
 
     @FXML
-    Tab SINCCalirbationHelpTab;
+    Tab SINCCalibrationHelpTab;
 
     @FXML
     Tab experimentHelpTabTwo;
@@ -62,40 +47,23 @@ public class EducationModeHelpMenuController implements Initializable {
     Tab blankTab;
 
     public void selectEraseModuleHelpTabOne(){
-        EducationHelpMenuTabPane.getSelectionModel().select(eraseModuleHelpTab);
+        educationHelpMenuTabPane.getSelectionModel().select(eraseModuleHelpTab);
     }
     public void selectUnpairRemotesHelpTab(){
-        EducationHelpMenuTabPane.getSelectionModel().select(unpairRemotesHelpTab);
+        educationHelpMenuTabPane.getSelectionModel().select(unpairRemotesHelpTab);
     }
-    public void selectExperimentHelpTabOne(){
-        EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTab);
+    public void selectExperimentHelpTab(int index){
+        System.out.println(educationHelpMenuTabPane.getSelectionModel().getSelectedIndex());
+        educationHelpMenuTabPane.getSelectionModel().select(index);
     }
-
-    public void selectExperimentHelpTabTwo(){
-        EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTabTwo);
-    }
-
-    public void selectExperimentHelpTabThree(){
-        EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTabThree);
-    }
-
-    public void selectExperimentHelpTabFour(){
-        EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTabFour);
-    }
-
-    public void selectExperimentHelpTabFive(){
-        EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTabFive);
-    }
-
     public void selectSINCTechnologyHelpTab(){
-        EducationHelpMenuTabPane.getSelectionModel().select(SINCTechnologyHelpTab);
+        educationHelpMenuTabPane.getSelectionModel().select(SINCTechnologyHelpTab);
     }
-    // FIXME typo in FXML field name
     public void selectSINCModuleCalibrationTab(){
-        EducationHelpMenuTabPane.getSelectionModel().select(SINCCalirbationHelpTab);
+        educationHelpMenuTabPane.getSelectionModel().select(SINCCalibrationHelpTab);
     }
     public void selectBlankTab(){
-        EducationHelpMenuTabPane.getSelectionModel().select(blankTab);
+        educationHelpMenuTabPane.getSelectionModel().select(blankTab);
     }
 
     @Override
