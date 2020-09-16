@@ -19,7 +19,7 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 
-public class MultipleAxesLineChart extends StackPane {
+public class MultiAxisLineChart extends StackPane {
 
     private final BFALineChart<Number, Number> baseChart;
     private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
@@ -43,51 +43,60 @@ public class MultipleAxesLineChart extends StackPane {
     private final double yAxisWidth = 60;
     private final double yAxisSeparation = 20;
     private final double xAxisHeight = 30;
+
+    // the interval at which samples are drawn to the screen
+	// if value is 20 (default), every 20th sample will be rendered
+	// TODO make this an advanced user setting
+	private int resolution;
+
+	// zooming + scrolling fields
+	private double mouseX;
+	private double mouseY;
+	private double zoomviewScalarX;
+	private double zoomviewScalarY;
+	private double leftScrollPercentage;
+	private double topScrollPercentage;
+
+	// coordinates of the center of the viewport
+	private double zoomviewX;
+	private double zoomviewY;
+
+    // size of the viewport
+	private double zoomviewW;
+	private double zoomviewH;
+
+    // coordinates of the center of the resetted viewport
+	private double resetZoomviewX;
+    private double resetZoomviewY;
+    
+    // size of the resetted viewport
+	private double resetZoomviewH;
+	private double resetZoomviewW;
+
+    // coordinates of the last location of the mouse
+	private double lastMouseX;
+	private double lastMouseY;
+
+	private double scrollCenterX;
+	private double scrollCenterY;
+
+    private GraphNoSINCController controller;
+
     private static final Logger logger = LogManager.getLogger();
 
-    public MultipleAxesLineChart() {
-        this(null);
-    }
-
-    /**
-     * Returns the amount that the data set's graph should be scaled by.
-     * This is used for angular and magnetometer data sets.
-     * @param axis the AxisType representing the data set
-     * @return the amount that the data set's graph should be scaled by
-     */
-    public double getAxisScalar(AxisType axis) {
-
-        // if AxisType is Accel, Vel, Disp, or Momentum
-        if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
-        //if AxisType is AngAccel
-        if (axis.getValue() / 4 == 3) return 500;
-        //if AxisType is Momentum
-        if (axis.getValue() / 4 == 7) return 0.1;
-        // all other data sets
-        else return 100;
-
-    }
-
-    public MultipleAxesLineChart(BFALineChart<Number, Number> baseChart) {
+    public MultiAxisLineChart() {
         
-        super();
         setPickOnBounds(false);
         dataSets = new ArrayList<GraphData>();
 
-        if (baseChart == null) {
-
-            xAxis = new BFANumberAxis();
-            yAxis = new BFANumberAxis();
-            xAxis.setTickUnit(1);
-            yAxis.setTickUnit(1);
-            
-            baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
-            baseChart.getXAxis().setLabel("Time (s)");
-            baseChart.getYAxis().setLabel("Y Axis");
-
-        }
-
-        this.baseChart = baseChart;
+        xAxis = new BFANumberAxis();
+        yAxis = new BFANumberAxis();
+        xAxis.setTickUnit(1);
+        yAxis.setTickUnit(1);
+        
+        baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
+        baseChart.getXAxis().setLabel("Time (s)");
+        baseChart.getYAxis().setLabel("Y Axis");
 
         styleBaseChart(baseChart);
         setFixedAxisWidth(baseChart);
@@ -95,12 +104,105 @@ public class MultipleAxesLineChart extends StackPane {
         setAlignment(Pos.CENTER_LEFT);
 
         backgroundCharts.addListener((Observable observable) -> rebuildChart());
-
         rebuildChart();
+
+        // zoom/viewport settings
+		resolution = 20;
+		zoomviewScalarX = 1;
+		zoomviewScalarY = 1;
+		resetZoomviewX = 0;
+		resetZoomviewY = 0;
+		resetZoomviewW = 10;
+		resetZoomviewH = 5;
+		zoomviewX = 5;
+		zoomviewY = 0;
+		zoomviewW = 10;
+		zoomviewH = 5;
+
+        // listener that runs every tick the mouse scrolls, calculates zooming
+		this.setOnScroll(event -> {
+
+			// saves the mouse location of the scroll event to x and y variables
+			scrollCenterX = event.getX();
+			scrollCenterY = event.getY();
+
+			/**
+			 * calculates the percentage of scroll either on the left or top of the screen
+			 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is
+			 * 0.5, if it is three quarters to the right, it is 0.75
+			 */
+			leftScrollPercentage = (scrollCenterX - 48) / (baseChart.getWidth() - 63);
+			topScrollPercentage = (scrollCenterY - 17) / (baseChart.getHeight() - 88);
+
+			// vertically scale the graph
+			if (!event.isAltDown()) {
+				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
+				zoomviewW = Math.max(baseChart.getWidth() * .00005, zoomviewW); 
+				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
+			}
+
+			// horizontally scale the graph
+			if (!event.isControlDown()) {
+				// decreases the zoomview width and height by an amount relative to the scroll
+				// and the current size of the zoomview (slows down zooming at high levels of
+				// zoom)
+				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+
+				zoomviewH = Math.max(baseChart.getHeight() * .00005, zoomviewH); 
+				// moves the center of the zoomview to accomodate for the zoom, accounts for the
+				// position of the mouse to try an keep it in the same spot
+				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
+			}
+
+			redrawGraph();
+
+		});
+
+		// listener that runs every tick the mouse is dragged, calculates panning
+		this.setOnMouseDragged(event -> {
+
+			if (controller.getGraphMode() == GraphNoSINCController.GraphMode.NONE) {
+
+				// get the mouse x and y position relative to the line chart
+				mouseX = event.getX();
+				mouseY = event.getY();
+
+				// calculate a scalar to convert pixel space into graph space (mouse data in
+				// pixels, zoomview in whatever units the graph is in)
+				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())
+						/ (baseChart.getWidth() - yAxis.getWidth());
+				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())
+						/ (baseChart.getHeight() - xAxis.getHeight());
+
+				// adds the change in mouse position this tick to the zoom view, converted into graph space
+				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
+				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
+
+				redrawGraph();
+
+				// sets last tick's mouse data as this tick's
+				lastMouseX = mouseX;
+				lastMouseY = mouseY;
+
+			}
+
+		});
+
+		// listener that runs when the mouse is clicked, only runs once per click, helps
+		// to differentiate between drags
+		this.setOnMousePressed(event -> {
+			lastMouseX = event.getX();
+			lastMouseY = event.getY();
+		});
+
     }
 
-    public BFALineChart<Number, Number> getBaseChart() {
-        return baseChart;
+    /**
+     * Sets a reference to the parent DAG controller class.
+     * @param controller the GraphNoSINCController parenting this graph
+     */
+    public void setController(GraphNoSINCController controller) {
+        this.controller = controller;
     }
 
     public boolean isBaseEmpty() {
@@ -108,6 +210,7 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     private void styleBaseChart(BFALineChart<Number, Number> baseChart) {
+        baseChart.setAnimated(false);
         baseChart.setCreateSymbols(false);
         baseChart.setLegendVisible(true);
         baseChart.getXAxis().setAutoRanging(false);
@@ -131,6 +234,10 @@ public class MultipleAxesLineChart extends StackPane {
     public void setYBounds(double lowerBound, double upperBound) {
         yAxis.setLowerBound(lowerBound);
         yAxis.setUpperBound(upperBound);
+    }
+
+    public BFALineChart<Number, Number> getBaseChart() {
+        return baseChart;
     }
 
     private void rebuildChart() {
@@ -335,6 +442,66 @@ public class MultipleAxesLineChart extends StackPane {
     }
 
     /**
+	 * Handles zooming/panning of the graph.
+	 */
+	public void redrawGraph() {
+		
+		this.setXBounds(zoomviewX - zoomviewW / 2, zoomviewX + zoomviewW / 2);
+		this.setYBounds(zoomviewY - zoomviewH / 2, zoomviewY + zoomviewH / 2);
+
+		yAxis.setLowerBound(zoomviewY - zoomviewH / 2);
+		yAxis.setUpperBound(zoomviewY + zoomviewH / 2);
+
+		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
+		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2));
+
+		// update tick spacing based on zoom level
+		for (GraphData d : this.axisChartMap.keySet()) {
+			
+			((BFANumberAxis) (this.axisChartMap.get(d).getYAxis())).setTickUnit(
+					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * this.getAxisScalar(d.axis));
+			((BFANumberAxis) (this.axisChartMap.get(d).getXAxis()))
+					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
+		}
+
+		baseChart.clearArea();
+		controller.clearSlope();
+
+    }
+
+    /**
+     * Resets the viewport of the graph to the specified bounds.
+     * @param x the x-value of the point to center on when resetting
+     * @param y the y-value of the point to center on when resetting
+     * @param width the width of the viewport when resetting
+     * @param height the height of the viewport when resetting
+     */
+    public void resetViewport(double x, double y, double width, double height) {
+
+        resetZoomviewX = x;
+        resetZoomviewY = y;
+        resetZoomviewW = width;
+        resetZoomviewH = height;
+
+        resetViewport();
+
+    }
+
+    /**
+     * Resets the viewport of the graph.
+     */
+    public void resetViewport() {
+
+        zoomviewX = resetZoomviewX;
+        zoomviewY = resetZoomviewY;
+        zoomviewW = resetZoomviewW;
+        zoomviewH = resetZoomviewH;
+
+        redrawGraph();
+
+    }
+
+    /**
      * Returns the label for a given axis class.
      * @param axis the AxisType representing the data set
      * @return the label for a given axis class
@@ -490,6 +657,44 @@ public class MultipleAxesLineChart extends StackPane {
 
         return false;
 
+    }
+
+    /**
+     * Returns the amount that the data set's graph should be scaled by.
+     * This is used for angular and magnetometer data sets.
+     * @param axis the AxisType representing the data set
+     * @return the amount that the data set's graph should be scaled by
+     */
+    public double getAxisScalar(AxisType axis) {
+
+        // if AxisType is Accel, Vel, Disp, or Momentum
+        if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
+        //if AxisType is AngAccel
+        if (axis.getValue() / 4 == 3) return 500;
+        //if AxisType is Momentum
+        if (axis.getValue() / 4 == 7) return 0.1;
+        // all other data sets
+        else return 100;
+
+    }
+
+    /**
+	 * Calculates the graphing resolution used when plotting data to the screen.
+	 * This should be used instead of directly accessing the "resolution" field.
+	 * @param axis the AxisType to get the resolution for
+	 * @return the graphing resolution of the given axis
+	 */
+	public int getResolution(AxisType axis) {
+		// if this is a magnetometer data set, divide resolution by 10 to match 960 sps data sets
+		return (axis.getValue() / 4 == 6) ? resolution/10 : resolution;
+    }
+    
+    /**
+     * Sets the graphing resolution used when plotting data to the screen.
+     * @param resolution the graphing resolution to use
+     */
+    public void setResolution(int resolution) {
+        this.resolution = resolution;
     }
 
 }
