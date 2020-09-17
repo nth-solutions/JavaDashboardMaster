@@ -7,4 +7,5 @@ interface Axis{
     public double getAxisScalar();
     public String getNameAndUnits();
     public int getIndex();
+    public int getValue();
 }

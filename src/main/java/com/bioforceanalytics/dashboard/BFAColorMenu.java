@@ -104,7 +104,11 @@ public class BFAColorMenu implements Initializable {
                     final Axis a;
                     Axis temp = null;
                     for(Axis axis : colorMap.keySet()){
-                        if (axis != null && axis.getIndex() == rowIndex) temp = axis;
+                        if (axis != null){
+                            if((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)||(axis.getIndex() == rowIndex)){
+                                temp = axis;
+                            }
+                        }
                     }
                     a=temp;
 
@@ -229,7 +233,7 @@ public class BFAColorMenu implements Initializable {
         
         logger.info("Updating graph colors...");
         controller.updateGraphColors();
-
+        
         // close the color menu
         Stage stage = (Stage) tableView.getScene().getWindow();
         stage.close();
