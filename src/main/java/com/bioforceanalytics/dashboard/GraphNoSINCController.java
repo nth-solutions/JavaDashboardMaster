@@ -1070,11 +1070,14 @@ public class GraphNoSINCController implements Initializable {
 
 			// if the camera started early, delayAfterStart will be negative,
 			// and we should compensate by shifting the graph by -delayAfterStart.
+			g.resetTimeOffset();
 
 			if (delayAfterStart < 0) {
-				g.resetTimeOffset();
 				g.addTimeOffset(-delayAfterStart);
 			}
+
+			// apply SINC error correction
+			g.addTimeOffset(lineChart.SINC_TIME_ERROR);
 		}
 
 		// update each currently drawn axis

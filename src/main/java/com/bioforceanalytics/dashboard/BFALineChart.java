@@ -53,7 +53,20 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private final int FPS = 30;
 
     // the amount of time between frames (1/FPS)
-    private final double DELTA_TIME = ((double) 1)/((double) FPS);
+    private final double DELTA_TIME = ((double) 1) / ((double) FPS);
+
+    // the number of frames to offset all SINC calculations
+    private final int SINC_FRAME_ERROR = 12;
+
+    /**
+     * The amount of time to offset all SINC calculations.
+     * <hr>
+     * For some reason, SINC calibration is off by 12 frames; this is likely caused
+     * by a firmware or remote issue, but since this is a consistent problem,
+     * this value will be applied on top of <code>delayAfterStart</code>
+     * from the calibration process when graphing SINC trials in the DAG.
+     */
+    public final double SINC_TIME_ERROR = ((double) SINC_FRAME_ERROR) / ((double) FPS);
 
     // JavaFX SINC components
     private MediaView mediaView;

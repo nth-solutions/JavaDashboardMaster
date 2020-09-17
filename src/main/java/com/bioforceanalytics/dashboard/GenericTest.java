@@ -290,7 +290,8 @@ public class GenericTest {
 	/**
 	 * Shifts the time axis of all AxisDataSeries for module synchronization.
 	 * Used to shift all data sets in a GenericTest left/right.
-	 * @param offset the number of samples by which the time axis should be offset
+	 * @param offset the number of samples by which the time axis should be offset;
+	 * a positive value will shift the graph to the right.
 	 */
 	public void addTimeOffset(double offset) {
 		timeOffset += (int) (offset * sampleRate);
