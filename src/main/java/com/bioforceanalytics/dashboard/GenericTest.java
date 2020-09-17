@@ -138,6 +138,9 @@ public class GenericTest {
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
+	public GenericTest(){
+		
+	};
 	public void createAxisDataSeries() {
 		createAxisDataSeries(dataSamples, savedTestParameters, savedMPUOffsets);
 	}
@@ -245,7 +248,7 @@ public class GenericTest {
 	 * @param axis the {@link com.bioforceanalytics.dashboard.AxisType AxisType} to retrieve
 	 * @return the AxisDataSeries selected
 	 */
-	public AxisDataSeries getAxis(AxisType axis) {
+	public AxisDataSeries getAxis(Axis axis) {
 		return axes[axis.getValue()];
 	}
 

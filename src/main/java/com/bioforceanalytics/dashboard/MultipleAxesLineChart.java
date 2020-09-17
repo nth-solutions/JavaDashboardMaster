@@ -60,16 +60,8 @@ public class MultipleAxesLineChart extends StackPane {
      * @param axis the AxisType representing the data set
      * @return the amount that the data set's graph should be scaled by
      */
-    public double getAxisScalar(AxisType axis) {
-
-        // if AxisType is Accel, Vel, Disp, or Momentum
-        if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
-        //if AxisType is AngAccel
-        if (axis.getValue() / 4 == 3) return 500;
-        //if AxisType is Momentum
-        if (axis.getValue() / 4 == 7) return 1;
-        // all other data sets
-        else return 100;
+    public double getAxisScalar(Axis axis) {
+        return axis.getAxisScalar();
 
     }
 
@@ -306,14 +298,6 @@ public class MultipleAxesLineChart extends StackPane {
 
     }
 
-    /**
-     * Removes a data set from the graph.
-     * Also removes a y-axis class if necessary.
-     * @param customAxisType the CustomAxisType of the data set to be removed
-     */
-    public void removeAxis(CustomAxisType customAxisType){
-        removeAxis(findGraphData(customAxisType));
-    }
 
     /**
      * Removes a data set from the graph.
@@ -321,7 +305,7 @@ public class MultipleAxesLineChart extends StackPane {
      * @param axis the AxisType identifying the data set
      * @param GTIndex the GenericTest to read data from
      */
-    public void removeAxis(AxisType axis, int GTIndex) {
+    public void removeAxis(Axis axis, int GTIndex) {
         removeAxis(findGraphData(GTIndex, axis));
     }
 
@@ -417,8 +401,7 @@ public class MultipleAxesLineChart extends StackPane {
             if (n instanceof Legend) {
 
                 // tracks the AxisTypes of legend items to check for duplicates
-                ArrayList<AxisType> legendAxes = new ArrayList<AxisType>();
-                ArrayList<CustomAxisType> customLegendAxes = new ArrayList<CustomAxisType>();
+                ArrayList<Axis> legendAxes = new ArrayList<Axis>();
                 ObservableList<LegendItem> legendItems = ((Legend) n).getItems();
 
                 // TODO this code will NOT work if the codebase is updated to JDK 9 or later;
@@ -438,10 +421,15 @@ public class MultipleAxesLineChart extends StackPane {
                     else {
                         
                         // get AxisType of this legend item
-                        AxisType a = null;
+                        Axis a = null;
                         try{
-                        a = AxisType.valueOf(legendItem.getText());
+                             a = AxisType.valueOf(legendItem.getText());
+                            
                         }catch(Exception e){}
+                        if(a == null){
+                            a = CustomAxisType.getCustomAxisType(legendItem.getText());
+                            
+                        }
                         if(a != null){
                             // if this legend item is not a duplicate AxisType
                             if (!legendAxes.contains(a)) {
@@ -455,20 +443,7 @@ public class MultipleAxesLineChart extends StackPane {
                             }
                             // if this legend item is a duplicate, remove it
                             else legendItems.remove(i);
-                        }else{
-                            CustomAxisType cat = CustomAxisType.getCustomAxisType(legendItem.getText());
-                            if(!customLegendAxes.contains(cat)){
-
-                                style = BFAColorMenu.getHexString(null);
-                                customLegendAxes.add(cat);
-                            }
-                            else legendItems.remove(i);
                         }
-                        
-                        
-
-                        
-                        
                     }
 
                     // set legend symbol color
@@ -497,7 +472,7 @@ public class MultipleAxesLineChart extends StackPane {
 	 * @param GTIndex the GenericTest associated with the GraphData
 	 * @param axis the AxisType associated with the GraphData
 	 */
-    private GraphData findGraphData(int GTIndex, AxisType axis) {
+    private GraphData findGraphData(int GTIndex, Axis axis) {
         
         for (GraphData d : dataSets) {
             if (d.GTIndex == GTIndex && d.axis == axis) return d;
@@ -506,13 +481,7 @@ public class MultipleAxesLineChart extends StackPane {
         return null;
 
     }
-    private GraphData findGraphData(CustomAxisType customAxisType){
-		
-		for (GraphData g : dataSets){
-			if(g.axis == customAxisType) return g;
-		}
-		return null;
-	}
+
 
     /**
 	 * Determines whether an axis class (meaning a sensor type) is graphed.

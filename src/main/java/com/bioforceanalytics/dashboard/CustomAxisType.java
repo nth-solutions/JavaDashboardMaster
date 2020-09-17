@@ -62,6 +62,15 @@ public class CustomAxisType implements Axis{
     public String getNameAndUnits() {
         return getName() +" (" + getUnits() +")";
     }
+
+    public String toString(){
+        return name;
+    }
+
+    @Override
+    public int getValue() {
+        return -1;
+    }
     
     
 }

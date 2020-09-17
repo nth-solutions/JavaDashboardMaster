@@ -13,7 +13,7 @@ public class GraphData {
     public Axis axis;
     public XYChart.Series<Number,Number> data;
 
-    public GraphData(int GTIndex, AxisType axis, XYChart.Series<Number, Number> data) {
+    public GraphData(int GTIndex, Axis axis, XYChart.Series<Number, Number> data) {
         this.GTIndex = GTIndex;
         this.axis = axis;
         this.data = data;
@@ -21,6 +21,10 @@ public class GraphData {
     public GraphData(CustomAxisType customAxisType, XYChart.Series<Number,Number> data){
         this.axis = customAxisType;
         this.data = data;
+    }
+    public GraphData(int GTIndex, Axis axis){
+        this.axis = axis;
+        this.GTIndex = GTIndex;
     }
 
 }
