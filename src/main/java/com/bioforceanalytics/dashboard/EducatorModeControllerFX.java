@@ -277,46 +277,7 @@ public class EducatorModeControllerFX implements Initializable {
         }else if (t.equals(eraseConfirmationTab)) {
             helpmenu.selectUnpairRemotesHelpTab();
         } else if (t.equals(experimentTab)) {
-
-            if (oneModuleTest) {
-
-                switch (experimentTabIndex) {
-
-                    case 0:
-                        helpmenu.selectExperimentHelpTabOne();
-                        break;
-
-                    case 1:
-                        helpmenu.selectExperimentHelpTabTwo();
-                        break;
-
-                    case 2:
-                        helpmenu.selectExperimentHelpTabThree();
-                        break;
-
-                    case 3:
-                        helpmenu.selectExperimentHelpTabFour();
-                        break;
-
-                    case 4:
-                        helpmenu.selectExperimentHelpTabFive();
-                        break;
-
-                    default:
-                        break;
-
-                }
-
-            } else {
-
-                if (experimentTabIndex == 0) {
-                    helpmenu.selectExperimentHelpTabOne();
-                } else {
-                    helpmenu.selectBlankTab();
-                }
-
-            }
-
+            helpmenu.selectExperimentHelpTab(experimentTabIndex);
         }
 
     }
@@ -1694,8 +1655,8 @@ public class EducatorModeControllerFX implements Initializable {
 			primaryStage.setTitle("BioForce Data Analysis Graph");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
-	        primaryStage.setMinWidth(450);
-	        primaryStage.setMinHeight(300);
+	        primaryStage.setMinWidth(900);
+	        primaryStage.setMinHeight(600);
 	        primaryStage.setScene(scene);
             primaryStage.setResizable(true);
             primaryStage.getIcons().add(icon);
