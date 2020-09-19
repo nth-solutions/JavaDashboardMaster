@@ -1493,8 +1493,6 @@ public class AdvancedMode extends JFrame {
 										}
 									};
 
-									genericTests.add(new GenericTest(testParameters, finalData, mpuMinMax));
-
 									GenericTest g = new GenericTest(testParameters, finalData, mpuMinMax);
 									g.setName(tempNameOfFile);
 									genericTests.add(g);
