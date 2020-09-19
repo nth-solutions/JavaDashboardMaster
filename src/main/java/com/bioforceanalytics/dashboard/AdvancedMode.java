@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -255,10 +256,8 @@ public class AdvancedMode extends JFrame {
 	private JTextField stdDevMaxTextField;
 	private JButton btnNewButton;
 
-	private String OSType;
-
-	// icon
-	private Image icon;
+	// icon for DAG + SINC Graph
+	private Image FXIcon;
 
 	
 	/**
@@ -1948,7 +1947,7 @@ public class AdvancedMode extends JFrame {
 			primaryStage.setMinHeight(400);
 			primaryStage.setScene(scene);
 			primaryStage.setResizable(true);
-			primaryStage.getIcons().add(icon);
+			primaryStage.getIcons().add(FXIcon);
 			primaryStage.show();
 			
 		} catch (IOException e) {
@@ -1980,7 +1979,7 @@ public class AdvancedMode extends JFrame {
 		
 	    primaryStage.setTitle("Video Player");
 		if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 	    primaryStage.show();
 	    primaryStage.setResizable(false);
 	    return loader.getController();
@@ -2000,7 +1999,7 @@ public class AdvancedMode extends JFrame {
 		if(root!=null) primaryStage.setScene(new Scene(root, 1430, 800));
 		
 		primaryStage.setTitle("SINC Technology Graph");
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 		primaryStage.show();
 		primaryStage.setResizable(false);
 		
@@ -2022,7 +2021,7 @@ public class AdvancedMode extends JFrame {
 		
 	    primaryStage.setTitle("Help Menu");
 		if(root!=null) primaryStage.setScene(new Scene(root, 535, 600));
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 	    primaryStage.show();
 	    primaryStage.setResizable(false);
 	    return loader.getController();
@@ -2244,7 +2243,8 @@ public class AdvancedMode extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 638, 659);
 
-		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
+		FXIcon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
+		setIconImage(new ImageIcon(getClass().getResource("images/bfa.png")).getImage());
 
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(0, 10, 10, 10));
