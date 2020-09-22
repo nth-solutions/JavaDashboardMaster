@@ -19,7 +19,7 @@ jobs:
           java-version: 8
           java-package: jdk+fx
       - name: Print JDK info
-        run: echo %JAVA_HOME%
+        run: echo $env:JAVA_HOME
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
