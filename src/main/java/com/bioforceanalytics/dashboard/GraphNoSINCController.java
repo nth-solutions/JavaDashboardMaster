@@ -617,8 +617,8 @@ public class GraphNoSINCController implements Initializable {
 			// update all currently drawn acceleration axes
 			for (GraphData g : dataSets) {
 				
-				// if axis class is kinematic data (Accel/Vel/Disp)
-				if (g.axis.getValue() / 4 <= 2) {
+				// if axis class is kinematic data (Accel/Vel/Disp) or momentum
+				if (g.axis.getValue() / 4 <= 2 || g.axis.getValue() / 4 <= 7) {
 					updateAxis(g.axis, g.GTIndex);
 				}
 			}
