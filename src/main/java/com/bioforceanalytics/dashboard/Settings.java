@@ -27,6 +27,9 @@ public class Settings {
 	private static Properties prop = new Properties();
 	private static final Logger logger = LogManager.getLogger();
 
+	private static String version;
+	private static String buildDate;
+
 	static {
 		loadConfigFile();
 	}
@@ -92,7 +95,13 @@ public class Settings {
 			}
 
 			// load properties file into memory
-			prop.load(new FileInputStream(settingsPath.resolve("DataOrganizer.prop").toFile()));
+			prop.load(new FileInputStream(settingsPath.resolve("DataOrganizer.properties").toFile()));
+
+			// retrieve debug info about current build
+			Properties buildProp = new Properties();
+			buildProp.load(Settings.class.getResourceAsStream("build.properties"));
+			version = buildProp.getProperty("version");
+			buildDate = buildProp.getProperty("build.date");
 
 			logger.info("Loaded config file.");
 			return true;
@@ -125,7 +134,7 @@ public class Settings {
 		try {
 
 			Path settingsPath = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard");
-			prop.store(new FileOutputStream(settingsPath.resolve("DataOrganizer.prop").toString()), null);
+			prop.store(new FileOutputStream(settingsPath.resolve("DataOrganizer.properties").toString()), null);
 
 			return true;
 
@@ -151,5 +160,21 @@ public class Settings {
 
 		return value;
 
+	}
+
+	/**
+	 * Retrieves the current version of the Dashboard.
+	 * @return the current version of the Dashboard
+	 */
+	public static String getVersion() {
+		return version;
+	}
+
+	/**
+	 * Retrieves the timestamp of this build of the Dashboard.
+	 * @return the timestamp of this build of the Dashboard
+	 */
+	public static String getBuildDate() {
+		return buildDate;
 	}
 }

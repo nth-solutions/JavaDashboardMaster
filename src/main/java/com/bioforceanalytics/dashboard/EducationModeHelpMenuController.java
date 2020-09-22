@@ -1,15 +1,13 @@
 package com.bioforceanalytics.dashboard;
 
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.paint.Color;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 
 public class EducationModeHelpMenuController implements Initializable {
 
@@ -46,6 +44,9 @@ public class EducationModeHelpMenuController implements Initializable {
     @FXML
     Tab blankTab;
 
+    @FXML
+    Label debugInfo;
+
     public void selectEraseModuleHelpTabOne(){
         educationHelpMenuTabPane.getSelectionModel().select(eraseModuleHelpTab);
     }
@@ -68,7 +69,7 @@ public class EducationModeHelpMenuController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        debugInfo.setText("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
     }
 
 }

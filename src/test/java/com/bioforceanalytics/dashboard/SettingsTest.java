@@ -31,7 +31,7 @@ public class SettingsTest {
     public void test1_check_if_config_file_regenerates() {
 
         File settingsDir = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard").toFile();
-        File configFile = new File(settingsDir, "DataOrganizer.prop");
+        File configFile = new File(settingsDir, "DataOrganizer.properties");
 
         try {
 

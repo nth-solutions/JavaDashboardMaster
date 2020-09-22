@@ -5,12 +5,13 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.EducationModeHelpMenuController">
+<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.EducationModeHelpMenuController">
    <children>
-      <TabPane fx:id="educationHelpMenuTabPane" prefHeight="800.0" prefWidth="1000.0" stylesheets="@../css/EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="educationHelpMenuTabPane" prefHeight="550.0" prefWidth="1000.0" stylesheets="@../css/EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
         <tabs>
             <Tab fx:id="experimentHelpTab" text="experimentHelpTab">
                <content>
@@ -873,5 +874,14 @@
             </Tab>
         </tabs>
       </TabPane>
+      <HBox alignment="CENTER" layoutY="550.0" prefHeight="50.0" prefWidth="1000.0">
+         <children>
+            <Label fx:id="debugInfo" text="Version: [insert version here] | Build Date: [insert build date here]">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>

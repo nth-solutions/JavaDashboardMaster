@@ -40,6 +40,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
@@ -259,6 +262,7 @@ public class AdvancedMode extends JFrame {
 	// icon for DAG + SINC Graph
 	private Image FXIcon;
 
+	private static final Logger logger = LogManager.getLogger();
 	
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
@@ -291,6 +295,9 @@ public class AdvancedMode extends JFrame {
 	 * @param args
 	 */
 	public static void main(String args[]) {
+
+		logger.info("Version: " + Settings.getVersion());
+        logger.info("Build date: " + Settings.getBuildDate());
 
 		//Set the look and feel to whatever the system default is.
 		try {
