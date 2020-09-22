@@ -321,7 +321,7 @@ public class EducatorModeControllerFX implements Initializable {
         }catch (IOException e){
             e.printStackTrace();
         }
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
+        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("SINC Calibration Help Menu");
         primaryStage.getIcons().add(icon);

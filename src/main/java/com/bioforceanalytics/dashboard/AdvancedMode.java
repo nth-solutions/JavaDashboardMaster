@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -38,6 +39,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -255,11 +259,10 @@ public class AdvancedMode extends JFrame {
 	private JTextField stdDevMaxTextField;
 	private JButton btnNewButton;
 
-	private String OSType;
+	// icon for DAG + SINC Graph
+	private Image FXIcon;
 
-	// icon
-	private Image icon;
-
+	private static final Logger logger = LogManager.getLogger();
 	
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
@@ -292,6 +295,9 @@ public class AdvancedMode extends JFrame {
 	 * @param args
 	 */
 	public static void main(String args[]) {
+
+		logger.info("Version: " + Settings.getVersion());
+        logger.info("Build date: " + Settings.getBuildDate());
 
 		//Set the look and feel to whatever the system default is.
 		try {
@@ -1493,8 +1499,6 @@ public class AdvancedMode extends JFrame {
 										}
 									};
 
-									genericTests.add(new GenericTest(testParameters, finalData, mpuMinMax));
-
 									GenericTest g = new GenericTest(testParameters, finalData, mpuMinMax);
 									g.setName(tempNameOfFile);
 									genericTests.add(g);
@@ -1950,7 +1954,7 @@ public class AdvancedMode extends JFrame {
 			primaryStage.setMinHeight(400);
 			primaryStage.setScene(scene);
 			primaryStage.setResizable(true);
-			primaryStage.getIcons().add(icon);
+			primaryStage.getIcons().add(FXIcon);
 			primaryStage.show();
 			
 		} catch (IOException e) {
@@ -1982,7 +1986,7 @@ public class AdvancedMode extends JFrame {
 		
 	    primaryStage.setTitle("Video Player");
 		if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 	    primaryStage.show();
 	    primaryStage.setResizable(false);
 	    return loader.getController();
@@ -2002,7 +2006,7 @@ public class AdvancedMode extends JFrame {
 		if(root!=null) primaryStage.setScene(new Scene(root, 1430, 800));
 		
 		primaryStage.setTitle("SINC Technology Graph");
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 		primaryStage.show();
 		primaryStage.setResizable(false);
 		
@@ -2024,7 +2028,7 @@ public class AdvancedMode extends JFrame {
 		
 	    primaryStage.setTitle("Help Menu");
 		if(root!=null) primaryStage.setScene(new Scene(root, 535, 600));
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 	    primaryStage.show();
 	    primaryStage.setResizable(false);
 	    return loader.getController();
@@ -2246,7 +2250,8 @@ public class AdvancedMode extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 638, 659);
 
-		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
+		FXIcon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
+		setIconImage(new ImageIcon(getClass().getResource("images/bfa.png")).getImage());
 
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(0, 10, 10, 10));

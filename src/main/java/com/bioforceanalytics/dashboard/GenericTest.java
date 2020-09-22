@@ -20,8 +20,8 @@ public class GenericTest {
 	private String graphTitle;
 	private AxisType[] defaultAxes;
 
-	private ArrayList<Integer> savedTestParameters;
-	private int[] savedMPUOffsets;
+	private ArrayList<Integer> testParameters;
+	private int[] accelOffsets;
 	private int sampleRate;
 	private int timeOffset;
 
@@ -35,9 +35,7 @@ public class GenericTest {
 	 */
 	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
 
-		int sampleRate = testParameters.get(7);
-		int magSampleRate = testParameters.get(8);
-		savedTestParameters = testParameters;
+		this.testParameters = testParameters;
 		
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
@@ -51,21 +49,21 @@ public class GenericTest {
 		}
 
 		// populate MPU offsets by taking the avg of min and max
-		// Currently used for acceleration calculations only
+		// (currently used for acceleration calculations only)
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
 		}
 
-		savedMPUOffsets = mpuOffsets;
+		this.accelOffsets = mpuOffsets;
 		dataSamples = new ArrayList<List<Double>>();
 		
-		// populate "dataSamples"'s inner lists
+		// populate dataSamples's inner lists
 		for (int i = 0; i < 10; i++) {
 			List<Double> axis = new ArrayList<Double>();
 			dataSamples.add(axis);
 		}
 
-		// Populate acceleration x, y, and z
+		// populate acceleration X, Z, and Z
 		for(int i = 0; i < finalData.length - 7; i+=7) {
 			dataSamples.get(1).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
 			dataSamples.get(2).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
@@ -75,7 +73,7 @@ public class GenericTest {
 			if((i-5)%126==0) i+=6;		
 		}
 
-		// Populate gyroscope x, y, and z
+		// Populate gyroscope X, Y, and Z
 		for (int i = 6; i < finalData.length - 7; i+=7) {
 			dataSamples.get(4).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
 			dataSamples.get(5).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
@@ -85,28 +83,11 @@ public class GenericTest {
 			if((i-11)%126==0) i+=6;	
 		}
 		
-		// Populate magnetometer x, y, and z
+		// Populate magnetometer X, Y, and Z
 		for (int i = 12; i < finalData.length - 121; i+=121) {
 			dataSamples.get(7).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
 			dataSamples.get(8).add((double)(finalData[i]*256)+finalData[i+1]); i+=2; 
 			dataSamples.get(9).add((double)(finalData[i]*256)+finalData[i+1]); i+=1;		
-		}
-		
-		// TODO may try to implement use of timer0 in future
-		List<Double> timeAxis = new ArrayList<Double>();
-		List<Double> magTimeAxis = new ArrayList<Double>();
-
-		// index of dataSamples list is arbitrary; anything other than mag data will work
-		for (int i = 0; i < dataSamples.get(1).size(); i++) {
-
-			timeAxis.add(new Double(i+timeOffset) / sampleRate);
-
-			//for use with CSV writing
-			dataSamples.get(0).add(new Double(i) / sampleRate);
-
-			// since the magnetometer runs at 96 sps compared to 960,
-			// it must have a separate time axis for its data set(s)
-			magTimeAxis.add(new Double(i) / magSampleRate); 			
 		}
 
 		if (!(this instanceof ConservationMomentumModule)) {
@@ -127,7 +108,7 @@ public class GenericTest {
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
 		this.dataSamples = dataSamples;
-		savedTestParameters = testParameters;
+		this.testParameters = testParameters;
 
 		for (int i = 0; i < 3; i++) {
 			// populate MPU offsets by taking the avg of min and max
@@ -135,12 +116,17 @@ public class GenericTest {
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		}
 
-		savedMPUOffsets = mpuOffsets;
+		this.accelOffsets = mpuOffsets;
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
+
+	/**
+	 * Populates the AxisDataSeries list by looping through dataSamples.
+	 * This logic is shared by both constructors.
+	 */
 	public void createAxisDataSeries() {
-		createAxisDataSeries(dataSamples, savedTestParameters, savedMPUOffsets);
+		createAxisDataSeries(dataSamples, testParameters, accelOffsets);
 	}
 
 	/**
@@ -156,7 +142,8 @@ public class GenericTest {
 		setGraphTitle("Generic Test");
 		setDefaultAxes(AxisType.AccelX);
 
-		sampleRate = testParameters.get(7);
+		this.sampleRate = testParameters.get(7);
+
 		int magSampleRate = testParameters.get(8);
 		int accelSensitivity = testParameters.get(9);
 		int gyroSensitivity = testParameters.get(10);
@@ -165,12 +152,14 @@ public class GenericTest {
 		List<Double> timeAxis = new ArrayList<Double>();
 		List<Double> magTimeAxis = new ArrayList<Double>();
 
-		// using number of accelx samples as proxy for total number of samples
+		// populate various axes by looping through each sample
+		// using "1" (AccelX) is arbitrary here, any axis will work
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
+			// populate time axis and apply time offset (if any)
 			timeAxis.add(new Double(i+timeOffset) / sampleRate);
 
-			//populate to avoid complications from this being null for now
+			// populate to avoid complications from this being null for now
 			dataSamples.get(0).add(new Double(i) / sampleRate);
 
 			// since the magnetometer runs at 96 sps compared to 960,
@@ -235,6 +224,7 @@ public class GenericTest {
 
 	/**
 	 * Recalculates velocity and displacement when normalizing acceleration.
+	 * If this is a conservation of momentum test, it will also recalculate momentum.
 	 */
 	public void recalcKinematics() {
 
@@ -247,12 +237,26 @@ public class GenericTest {
 			// displacement
 			axes[i+8] = new AxisDataSeries(axes[i].getTime(), axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
 
+			// momentum (if this is a CoE test)
+			if (this instanceof ConservationMomentumModule) {
+
+				double mass = ((ConservationMomentumModule) this).getMomentumScalar();
+				logger.info("Mass: " + mass);
+
+				axes[i+28] = new AxisDataSeries(axes[i+28].getTime(), axes[i].integrate(mass), AxisType.valueOf(i+28), false, sampleRate);
+			
+			}
+
 		}
 
 		// recalculate magnitude data sets
 		for (int i = 0; i < AxisType.DispMag.getValue(); i+=4) {
-			// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
-			axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
+
+			if (this instanceof ConservationMomentumModule || i < 28) {
+				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
+				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
+			}
+			
 		}
 
 	}
@@ -301,7 +305,8 @@ public class GenericTest {
 	}
 
 	/**
-	 * Generic method to initialize the experimental panel for any test class
+	 * Initializes the experimental panel associated with this test.
+	 * This method is overriden in each experiment template class.
 	 * @param panel the panel to be initialized
 	 */
 	public void setupExperimentPanel(ExperimentPanel panel) {
