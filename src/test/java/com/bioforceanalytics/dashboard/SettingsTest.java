@@ -45,6 +45,9 @@ public class SettingsTest {
             assertTrue(!settingsDir.exists());
             assertTrue(!configFile.exists());
 
+            // recreate settings folder
+            FileUtils.forceMkdir(settingsDir);
+
             logger.info("Restoring default config...");
             assertTrue(Settings.restoreDefaultConfig());
 
