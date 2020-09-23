@@ -428,7 +428,7 @@ public class GraphNoSINCController implements Initializable {
 		if (!primaryTest.getClass().equals(GenericTest.class)) {
 
 			ExperimentPanel experimentPanel = new ExperimentPanel();
-
+			
 			// set up experiment panels
 			if (primaryTest instanceof ConservationMomentumModule) {
 
@@ -436,12 +436,19 @@ public class GraphNoSINCController implements Initializable {
 
 				CustomTest momentumGT = new CustomTest();
 				AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController().getMomentumAxes();
+				experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
 
+					// TODO part of the hack w/ change listeners
+					if (newVal.intValue() == -1) return;
+	
+					// graph the given data set
+					graphAxis(CustomAxisType.getCustomAxisByIndex(newVal.intValue()), customTests.size() - 1);
+	
+				});
 				for(int i = 0; i < momentumAxes.length; i++){
 					momentumGT.addAxisDataSeries(momentumAxes[i], new CustomAxisType("Momentum " + ((i % 4 == 3) ? "Mag" : (char)(88+(i%4))),"kg-m/s",1), new CheckBox());
 					customTests.add(momentumGT);
 				}
-				graphAxis(CustomAxisType.getCustomAxisByIndex(0),0);
 
 			} else if (primaryTest instanceof ConservationEnergyModule) {
 
@@ -714,7 +721,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			if(g.GTIndex >= 0){
+			if(g.GTIndex >= 0 && !g.axis.isCustomAxis()){
 				genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
 				updateAxis(g.axis, g.GTIndex);
 			}
