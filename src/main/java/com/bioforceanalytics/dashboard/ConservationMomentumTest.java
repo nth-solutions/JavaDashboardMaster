@@ -37,6 +37,7 @@ public class ConservationMomentumTest extends TwoModuleTest {
 		panel.addParamValue(massRightGlider +" kg");
 		panel.addParamName("Mass of the Left Glider");
 		panel.addParamValue(massLeftGlider +" kg");
+		
 		panel.applyParams();
 		panel.setFormulaResult("m1v1 = m2v2");
 	}
