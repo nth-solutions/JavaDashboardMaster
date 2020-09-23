@@ -80,9 +80,10 @@ public class Settings {
 		try {
 
 			Path settingsPath = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard");
+			File settingsFile = settingsPath.resolve("DataOrganizer.properties").toFile();
 
 			// create settings if it doesn't exist
-			if (!settingsPath.toFile().exists()) {
+			if (!settingsPath.toFile().exists() || !settingsFile.exists()) {
 
 				logger.warn("Settings directory not found, restoring default configuration...");
 
@@ -95,7 +96,7 @@ public class Settings {
 			}
 
 			// load properties file into memory
-			prop.load(new FileInputStream(settingsPath.resolve("DataOrganizer.properties").toFile()));
+			prop.load(new FileInputStream(settingsFile));
 
 			// retrieve debug info about current build
 			Properties buildProp = new Properties();
