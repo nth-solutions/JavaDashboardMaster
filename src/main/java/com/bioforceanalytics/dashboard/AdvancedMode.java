@@ -2135,9 +2135,16 @@ public class AdvancedMode extends JFrame {
 				DAGTestBtn.get(i).addActionListener(new ActionListener() {
 
 					public void actionPerformed(ActionEvent e) {
+
 						Platform.runLater(() -> {
-							GraphNoSINCController g = launchDAG();
-							g.setGenericTest(genericTests.get(index));
+
+							GraphNoSINCController controller = launchDAG();
+
+							GenericTest g = genericTests.get(index);
+							g.setName(testNameTextField.get(index).getText());
+
+							controller.setGenericTest(g);
+
 						});
 
 					}
@@ -3006,7 +3013,7 @@ public class AdvancedMode extends JFrame {
 																						calibrationPanel.add(applyOffsetButton);
 		
 		launcherPane = new JPanel();
-		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
+		mainTabbedPanel.addTab("Launch Graph", null, launcherPane, "Choose a graphing application to view previously saved tests.");
 		launcherPane.setLayout(null);
 
 		SINCGraphBtn = new JButton("Launch SINC Graph");
