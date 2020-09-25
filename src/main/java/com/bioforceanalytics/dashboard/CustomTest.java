@@ -11,6 +11,7 @@ class CustomTest extends GenericTest{
 
     private HashMap<Axis,AxisDataSeries> axisMap;
     private HashMap<Axis,CheckBox> axisCheckboxMap;
+    public ArrayList<AxisDataSeries> customAxes;
 	private List<List<Double>> dataSamples;
 	private String graphTitle;
     private Axis[] defaultAxes;
@@ -20,8 +21,10 @@ class CustomTest extends GenericTest{
     public CustomTest(){
         axisMap = new HashMap<Axis,AxisDataSeries>();
         axisCheckboxMap = new HashMap<Axis,CheckBox>();
+        customAxes = new ArrayList<AxisDataSeries>();
     }
     public void addAxisDataSeries(AxisDataSeries ads, Axis axisType, CheckBox checkbox){
+        customAxes.add(ads);
         axisMap.put(axisType,ads);
         axisCheckboxMap.put(axisType,checkbox);
     }

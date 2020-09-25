@@ -37,6 +37,8 @@ public class AxisDataSeries {
 	// the sample block size used for smoothing data
 	private int rollBlkSize;
 
+	double timeOffset;
+
 	// the amount the smoothed data set should be shifted up/down
 	private double vertOffset = 0;
 
@@ -631,6 +633,13 @@ public class AxisDataSeries {
 	@Override
 	public String toString() {
 		return this.axis + " | " + "Time: " + this.time.length + " | Data: " + this.smoothedData.length;
+	}
+
+	public void setTimeOffset(double offset){
+		timeOffset = offset;
+	}
+	public double getTimeOffset(){
+		return timeOffset;
 	}
 
 }

@@ -570,18 +570,19 @@ public class GraphNoSINCController implements Initializable {
 
 			List<Double> time;
 			List<Double> data;
-
+			double timeOffset;
 			// get time/samples data sets
 			time = test.getAxis(axis).getTime();
 			data = test.getAxis(axis).getSamples();
+			timeOffset = test.getAxis(axis).getTimeOffset();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i += getResolution(axis)) {
 
-				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset, data.get(i) / multiAxis.getAxisScalar(axis));
 			
 				// add tooltip with (x,y) when hovering over data point
-				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
+				dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, GTIndex));
 
 				seriesData.add(dataEl);
 
@@ -647,26 +648,27 @@ public class GraphNoSINCController implements Initializable {
 	 * @param GTIndex the GenericTest to read data from
 	 */
 	public void updateAxis(GraphData d) {
-
-		if(!d.axis.isCustomAxis()){
+		GenericTest test = d.axis.isCustomAxis() ? customTests.get(d.GTIndex) : genericTests.get(d.GTIndex);
+		
 			// retrieve XYChart.Series and ObservableList from HashMap
 			XYChart.Series<Number, Number> series = d.data;
 			ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
 
 			// clear samples in ObservableList
 			seriesData.clear();
-			AxisType axis = (AxisType)d.axis;
+			Axis axis = d.axis;
 			// get time/samples data sets
-			List<Double> time = genericTests.get(d.GTIndex).getAxis(axis).getTime();
-			List<Double> data = genericTests.get(d.GTIndex).getAxis(axis).getSamples();
+			List<Double> time = test.getAxis(axis).getTime();
+			List<Double> data = test.getAxis(axis).getSamples();
+			double timeOffset = test.getAxis(axis).getTimeOffset();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i += getResolution(axis)) {
 
-				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset, data.get(i) / multiAxis.getAxisScalar(axis));
 
 				// add tooltip with (x,y) when hovering over data point
-				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, d.GTIndex));
+				dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, d.GTIndex));
 
 				seriesData.add(dataEl);
 
@@ -682,9 +684,6 @@ public class GraphNoSINCController implements Initializable {
 
 			// update legend colors
 			multiAxis.styleLegend();
-		}else{
-
-		}
 
 	}
 
@@ -718,13 +717,13 @@ public class GraphNoSINCController implements Initializable {
 		zoomviewY = resetZoomviewY;
 		zoomviewW = resetZoomviewW;
 		zoomviewH = resetZoomviewH;
-
+		GenericTest test;
 		// update all currently drawn data sets
-		for (GraphData g : dataSets) {
-			if(g.GTIndex >= 0 && !g.axis.isCustomAxis()){
-				genericTests.get(g.GTIndex).addDataOffset(-genericTests.get(g.GTIndex).getDataOffset());
-				updateAxis(g.axis, g.GTIndex);
-			}
+		for (GraphData d : dataSets) {
+			test = d.axis.isCustomAxis() ? customTests.get(d.GTIndex) : genericTests.get(d.GTIndex);
+			test.resetDataOffset();
+			updateAxis(d.axis, d.GTIndex);
+			
 		}
 
 		redrawGraph();
@@ -1337,23 +1336,15 @@ public class GraphNoSINCController implements Initializable {
 
 				}
 				else if (mode == GraphMode.LINEUP && !firstClick) {
-
+					GenericTest selectedTest = selectedGraphData.axis.isCustomAxis() ? customTests.get(selectedGraphData.GTIndex) : genericTests.get(selectedGraphData.GTIndex);
 					// shift the graph by this point's x-value minus the selected point's x-value
-					if(selectedGraphData.axis.isCustomAxis()) {
 
-						Alert a = new Alert(AlertType.ERROR, "Line Up feature is still in development for Custom Axis Types");
-						a.showAndWait();
-
-						setGraphMode(GraphMode.NONE);
-						return;
-					
-					}
-					genericTests.get(selectedGraphData.GTIndex).addDataOffset(roundedX - selectedPoint[0]);
+					selectedTest.addDataOffset(roundedX - selectedPoint[0]);
 					
 					
 					for(GraphData g : dataSets){
 						updateAxis(g.axis, g.GTIndex);
-						logger.info(genericTests.get(g.GTIndex).getDataOffset());
+						logger.info(selectedTest.getDataOffset());
 					}
 
 					setGraphMode(GraphMode.NONE);
