@@ -285,6 +285,19 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     }
 
     /**
+     * Sets the playback speed of the video.
+     * @param speed the new speed of the video
+     */
+    public void setPlaybackSpeed(double speed) {
+        
+        // cancel if no video is playing
+        if (mediaPlayer == null) return;
+
+        mediaPlayer.setRate(speed);
+
+    }
+
+    /**
      * Jumps back in the video by a specified time amount.
      */
     public void jumpBack() {

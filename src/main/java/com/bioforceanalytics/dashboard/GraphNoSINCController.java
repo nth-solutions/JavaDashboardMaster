@@ -119,7 +119,9 @@ public class GraphNoSINCController implements Initializable {
 	@FXML private MediaView mediaView;
 	@FXML private Pane mediaViewPane;
 	@FXML private Rectangle scrubber;
+	
 	@FXML private HBox sincControls;
+	@FXML private Slider playbackSlider;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -146,6 +148,11 @@ public class GraphNoSINCController implements Initializable {
 			// update smoothing in real-time
 			blockSizeSlider.valueProperty().addListener(e -> {
 				applyMovingAvg();
+			});
+
+			// update playback speed in real-time
+			playbackSlider.valueProperty().addListener((obs, newValue, oldValue) -> {
+				lineChart.setPlaybackSpeed(newValue.doubleValue());
 			});
 
 			Scene s = multiAxis.getScene();

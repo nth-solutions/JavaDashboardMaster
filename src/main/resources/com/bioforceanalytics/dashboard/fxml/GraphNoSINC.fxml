@@ -70,59 +70,75 @@
 							</children>
 						</HBox>
 
-						<HBox fx:id="sincControls" visible="false" alignment="CENTER" prefHeight="30.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+						<HBox fx:id="sincControls" visible="false" alignment="CENTER" spacing="30.0" prefHeight="50.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
 							<children>
-								<Button onAction="#jumpBack" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-									<graphic>
-										<Glyph fontFamily="FontAwesome" icon="BACKWARD"/>
-									</graphic>
-									<tooltip>
-										<Tooltip text="Jumps back in the video by the specified amount (default 1 second)."/>
-									</tooltip>
-								</Button>
-								<Button onAction="#lastFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-									<graphic>
-										<Glyph fontFamily="FontAwesome" icon="STEP_BACKWARD"/>
-									</graphic>
-									<tooltip>
-										<Tooltip text="Goes back to the previous frame in the video."/>
-									</tooltip>
-								</Button>
-								<Button onAction="#togglePlayback" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-									<graphic>
-										<Glyph fontFamily="FontAwesome" icon="PLAY"/>
-									</graphic>
-									<tooltip>
-										<Tooltip text="Plays/pauses the video."/>
-									</tooltip>
-								</Button>
-								<Button onAction="#nextFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-									<graphic>
-										<Glyph fontFamily="FontAwesome" icon="STEP_FORWARD"/>
-									</graphic>
-									<tooltip>
-										<Tooltip text="Goes to the next frame in the video."/>
-									</tooltip>
-								</Button>
-								<Button onAction="#jumpForward" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-									<graphic>
-										<Glyph fontFamily="FontAwesome" icon="FORWARD"/>
-									</graphic>
-									<tooltip>
-										<Tooltip text="Jumps forward in the video by the specified amount (default 1 second)."/>
-									</tooltip>
-								</Button>
+								<HBox spacing="5" alignment="CENTER">
+									<children>
+										<Label text="Video Speed"/>
+										<Slider fx:id="playbackSlider" prefWidth="250.0" value="1" min="0" max="4" showTickMarks="true" majorTickUnit="1" minorTickCount="4" showTickLabels="true" snapToTicks="true" blockIncrement="0.25" />
+									</children>
+								</HBox>
+								<HBox fx:id="playbackControls" alignment="CENTER">
+									<children>
+										<Button onAction="#jumpBack" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+											<graphic>
+												<Glyph fontFamily="FontAwesome" icon="BACKWARD"/>
+											</graphic>
+											<tooltip>
+												<Tooltip text="Jumps back in the video by the specified amount (default 1 second)."/>
+											</tooltip>
+										</Button>
+										<Button onAction="#lastFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+											<graphic>
+												<Glyph fontFamily="FontAwesome" icon="STEP_BACKWARD"/>
+											</graphic>
+											<tooltip>
+												<Tooltip text="Goes back to the previous frame in the video."/>
+											</tooltip>
+										</Button>
+										<Button onAction="#togglePlayback" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+											<graphic>
+												<Glyph fontFamily="FontAwesome" icon="PLAY"/>
+											</graphic>
+											<tooltip>
+												<Tooltip text="Plays/pauses the video."/>
+											</tooltip>
+										</Button>
+										<Button onAction="#nextFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+											<graphic>
+												<Glyph fontFamily="FontAwesome" icon="STEP_FORWARD"/>
+											</graphic>
+											<tooltip>
+												<Tooltip text="Goes to the next frame in the video."/>
+											</tooltip>
+										</Button>
+										<Button onAction="#jumpForward" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+											<graphic>
+												<Glyph fontFamily="FontAwesome" icon="FORWARD"/>
+											</graphic>
+											<tooltip>
+												<Tooltip text="Jumps forward in the video by the specified amount (default 1 second)."/>
+											</tooltip>
+										</Button>
+									</children>
+								</HBox>
+								<HBox spacing="5" alignment="CENTER">
+                  <children>
+                    <Label text="Video Opacity"/>
+									  <Slider fx:id="opacitySlider" prefWidth="250.0" value="0.3" min="0" max="1" />
+                  </children>
+                </HBox>
 							</children>
 						</HBox>
 
-						<MultiAxisLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
-						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="90.0" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
+						<MultiAxisLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="90.0" />
+						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="105.0" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
 							<children>
-								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" opacity="0.3" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
+								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" opacity="${opacitySlider.value}" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
 								<Rectangle fx:id="scrubber" fill="DODGERBLUE" width="5.0" height="${multiAxis.height-103}" stroke="BLACK" strokeType="INSIDE" visible="false" />
 							</children>
 						</Pane>
-						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+						<HBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
 								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
 							</children>
