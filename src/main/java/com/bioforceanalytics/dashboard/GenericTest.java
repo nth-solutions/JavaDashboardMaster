@@ -22,7 +22,7 @@ public class GenericTest {
 	private ArrayList<Integer> savedTestParameters;
 	private int[] savedMPUOffsets;
 	private int sampleRate;
-	private int offsetIndex;
+	private double offsetIndex;
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.
@@ -98,7 +98,7 @@ public class GenericTest {
 		// index of dataSamples list is arbitrary; anything other than mag data will work
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
-			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
+			timeAxis.add(new Double(i) / sampleRate);
 
 			//for use with CSV writing
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -170,7 +170,7 @@ public class GenericTest {
 		// using number of accelx samples as proxy for total number of samples
 		for (int i = 0; i < dataSamples.get(1).size(); i++) {
 
-			timeAxis.add(new Double(i+offsetIndex) / sampleRate);
+			timeAxis.add(new Double(i) / sampleRate);
 
 			//populate to avoid complications from this being null for now
 			dataSamples.get(0).add(new Double(i) / sampleRate);
@@ -271,8 +271,18 @@ public class GenericTest {
 	 * @param offset the signed amount by which the data should be offset
 	 */
 	public void addDataOffset(double offset) {
-		offsetIndex += (int) (offset * sampleRate);
-		createAxisDataSeries();
+		offsetIndex += offset;
+		if(this instanceof CustomTest){
+			for(AxisDataSeries ads : ((CustomTest)this).customAxes){
+				ads.setTimeOffset(offsetIndex);
+			}
+		}else
+		{
+			for(int i = 0; i < axes.length; i++){
+				axes[i].setTimeOffset(offsetIndex);
+			}
+		}
+		//createAxisDataSeries();
 	}
 
 	/**
@@ -283,7 +293,7 @@ public class GenericTest {
 		return ((double)offsetIndex) / sampleRate;
 	}
 	public void resetDataOffset(){
-		offsetIndex = 0;
+		addDataOffset(-offsetIndex);
 	}
 
 	/**
