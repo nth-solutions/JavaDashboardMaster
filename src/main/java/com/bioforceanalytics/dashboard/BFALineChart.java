@@ -25,7 +25,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 /**
- * Custom LineChart created shade in sections of area under a curve and playing overlayed video for SINC Technology.
+ * Custom LineChart created to shade in area under a curve and to play overlayed video for SINC Technology.
  * This is also the "base chart" used by {@link com.bioforceanalytics.dashboard.MultiAxisLineChart MultiAxisLineChart}.
  */
 public class BFALineChart<X,Y> extends LineChart<X,Y> {
@@ -47,7 +47,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private AnimationTimer timer;
 
     // the amount of time to jump forward/backward with arrow keys
-    private final int JUMP_AMOUNT = 1;
+    public final int JUMP_AMOUNT = 1;
 
     // the frame rate of the video
     private final int FPS = 30;

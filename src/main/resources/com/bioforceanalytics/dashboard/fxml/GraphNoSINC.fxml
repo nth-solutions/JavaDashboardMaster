@@ -34,6 +34,8 @@
 <?import com.bioforceanalytics.dashboard.MultiAxisLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
 
+<?import org.controlsfx.glyphfont.Glyph?>
+
 <AnchorPane fx:id="root" minHeight="400.0" minWidth="400.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
 	xmlns="http://javafx.com/javafx/11.0.1"
 	xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
@@ -65,6 +67,51 @@
 										<Font name="Open Sans" size="24.0" />
 									</font>
 								</Text>
+							</children>
+						</HBox>
+
+						<HBox fx:id="sincControls" visible="false" alignment="CENTER" prefHeight="30.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+							<children>
+								<Button onAction="#jumpBack" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+									<graphic>
+										<Glyph fontFamily="FontAwesome" icon="BACKWARD"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="Jumps back in the video by the specified amount (default 1 second)."/>
+									</tooltip>
+								</Button>
+								<Button onAction="#lastFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+									<graphic>
+										<Glyph fontFamily="FontAwesome" icon="STEP_BACKWARD"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="Goes back to the previous frame in the video."/>
+									</tooltip>
+								</Button>
+								<Button onAction="#togglePlayback" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+									<graphic>
+										<Glyph fontFamily="FontAwesome" icon="PLAY"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="Plays/pauses the video."/>
+									</tooltip>
+								</Button>
+								<Button onAction="#nextFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+									<graphic>
+										<Glyph fontFamily="FontAwesome" icon="STEP_FORWARD"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="Goes to the next frame in the video."/>
+									</tooltip>
+								</Button>
+								<Button onAction="#jumpForward" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+									<graphic>
+										<Glyph fontFamily="FontAwesome" icon="FORWARD"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="Jumps forward in the video by the specified amount (default 1 second)."/>
+									</tooltip>
+								</Button>
 							</children>
 						</HBox>
 

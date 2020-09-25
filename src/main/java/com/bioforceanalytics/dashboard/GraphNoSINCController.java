@@ -40,6 +40,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.MediaView;
@@ -118,6 +119,7 @@ public class GraphNoSINCController implements Initializable {
 	@FXML private MediaView mediaView;
 	@FXML private Pane mediaViewPane;
 	@FXML private Rectangle scrubber;
+	@FXML private HBox sincControls;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -763,11 +765,20 @@ public class GraphNoSINCController implements Initializable {
 		// if user doesn't choose a file or closes window, don't continue
 		if (videoFile == null) return;
 
+		sincControls.setVisible(true);
+
 		// start SINC playback
 		shiftSINC();
 		lineChart.playVideo(videoFile);
 
 	}
+
+	// SINC PLAYBACK CONTROL HANDLERS
+	@FXML void togglePlayback() { lineChart.togglePlayback(); }
+	@FXML void lastFrame() 		{ lineChart.lastFrame(); }
+	@FXML void nextFrame() 		{ lineChart.nextFrame(); }
+	@FXML void jumpBack() 		{ lineChart.jumpBack(); }
+	@FXML void jumpForward() 	{ lineChart.jumpForward(); }
 
 	@FXML
 	private void importCSV(ActionEvent event) {
