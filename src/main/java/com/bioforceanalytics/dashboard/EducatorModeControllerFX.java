@@ -1932,12 +1932,11 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     /***
-     *  Fills the testTypeHashMap with the module settings associated with each test type
-     *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
+     *  Fills the testTypeHashMap with the module settings associated with each test type.
      */
     public void fillTestTypeHashMap() {
 
-        // NOTE: index 2 (delayAfterStart) will not be overwritten through test parameters.
+        // NOTE: index 2 (delayAfterStart) will NOT be overwritten through test parameters.
 
         Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
