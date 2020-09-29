@@ -19,4 +19,9 @@ public class GraphData {
         this.data = data;
     }
 
+    @Override
+    public String toString() {
+        return "Test #" + (GTIndex + 1) + ", " + axis; 
+    }
+
 }
