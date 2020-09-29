@@ -72,6 +72,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private MediaView mediaView;
     private Rectangle scrubber;
 
+    private boolean hasSINC;
+
     private static final Logger logger = LogManager.getLogger();
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
@@ -239,6 +241,15 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     public void initSINC(MediaView mediaView, Rectangle scrubber) {
         this.mediaView = mediaView;
         this.scrubber = scrubber;
+        hasSINC = true;
+    }
+    
+    /**
+     * Indicates whether or not the graph is currently displaying a SINC trial.
+     * @return whether or not the graph is currently displaying a SINC trial
+     */
+    public boolean hasSINC() {
+        return hasSINC;
     }
 
     /**
@@ -327,6 +338,16 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     public void nextFrame() {
         double seconds = relativeSeek(DELTA_TIME);
         logger.info("Jumped forward one frame to {}s", seconds);
+    }
+
+    /**
+     * Resets scrubber to 0 seconds.
+     */
+    public void resetVideo() {
+
+        // if video is playing, reset video time to 0 seconds
+        if (mediaPlayer != null) mediaPlayer.seek(Duration.seconds(0));
+
     }
 
     /**

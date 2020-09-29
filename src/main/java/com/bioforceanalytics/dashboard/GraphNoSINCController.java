@@ -318,8 +318,9 @@ public class GraphNoSINCController implements Initializable {
 			return;
 		}
 
-		// disable "line up trials" if only one GT exists 
-		if (genericTests.size() == 1) {
+		// disable "line up trials" if only one GT exists;
+		// if this is a SINC trial, don't disable "line up trials"
+		if (genericTests.size() == 1 || lineChart.hasSINC()) {
 			lineUpBtn.setDisable(true);
 		}
 		else {
@@ -602,6 +603,7 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		multiAxis.resetViewport();
+		lineChart.resetVideo();
 
 	}
 
@@ -773,6 +775,7 @@ public class GraphNoSINCController implements Initializable {
 		if (videoFile == null) return;
 
 		sincControls.setVisible(true);
+		lineUpBtn.setDisable(false);
 
 		// start SINC playback
 		shiftSINC();
