@@ -33,9 +33,10 @@ import javafx.util.Duration;
  */
 public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
-    /**
-     * JavaFX component containing area label.
-     */
+    // reference to the MultiAxisLineChart that controls this chart
+    private MultiAxisLineChart parentChart;
+
+    // JavaFX component containing area label
     private Pane areaPane;
 
     // fields used for shading in area
@@ -75,6 +76,10 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private MediaView mediaView;
     private Rectangle scrubber;
 
+    // Mouse X-coordinate (used for scrubber)
+    private double lastMouseX;
+
+    // indicates whether line chart is playing a SINC video
     private boolean hasSINC;
 
     private static final Logger logger = LogManager.getLogger();
@@ -83,6 +88,15 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         super(xAxis, yAxis);
     }
     
+    /**
+     * Passes a reference to MultiAxisLineChart to BFALineChart.
+     * Needed to retrieve <code>zoomviewScalarX</code> for dragging the scrubber.
+     * @param parentChart the MultiAxisLineChart to link this chart to
+     */
+    public void setParentChart(MultiAxisLineChart parentChart) {
+        this.parentChart = parentChart;
+    }
+
     /**
      * Clears the area label and shading of the graph.
      */
@@ -242,9 +256,11 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      * @param scrubber the JavaFX component that displays the video scrubber
      */
     public void initSINC(MediaView mediaView, Rectangle scrubber) {
+        
         this.mediaView = mediaView;
         this.scrubber = scrubber;
         hasSINC = true;
+
     }
     
     /**
@@ -256,19 +272,39 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     }
 
     /**
+     * Disables all SINC features.
+     */
+    public void exitSINC() {
+
+        hasSINC = false;
+
+        mediaPlayer.dispose();
+        timer.stop();
+
+        mediaView.setVisible(false);
+        scrubber.setVisible(false);
+
+    }
+
+    /**
      * Plays a SINC video overlayed on this chart.
      * @param videoFile the File object for this video
      */
     public void playVideo(File videoFile) {
         
         // stop any previous videos/timers
-        if (mediaPlayer != null) mediaPlayer.stop();
+        if (mediaPlayer != null) mediaPlayer.dispose();
         if (timer != null) timer.stop();
 
         // load and play video
 		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
-		mediaView.setMediaPlayer(mediaPlayer);
+        mediaView.setMediaPlayer(mediaPlayer);
+        mediaView.setVisible(true);
         mediaPlayer.play();
+
+        // get "toggle playback" button and reset icon to "PAUSE"
+        Button b = (Button) this.getScene().lookup("#togglePlayback");
+        b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PAUSE));
 
         // initialize scrubber
 		scrubber.setVisible(true);
@@ -395,9 +431,23 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // runs every frame
         public void handle(long now) {
 
+            BFANumberAxis xAxis = (BFANumberAxis) lineChart.getXAxis();
+            double currentTime = mediaPlayer.getCurrentTime().toSeconds();
+
+            // if the current time's position is not visible in the viewport
+            if (!xAxis.isValueOnAxis(currentTime)) {
+
+                // clamps the current time value to the closest bound visible on the x-axis
+                //
+                // (if the time is to the right of the upper bound, clamp to the upper bound;
+                // if not, then it must be less than the lower bound, so clamp to that)
+                currentTime = currentTime >= xAxis.getUpperBound() ? xAxis.getUpperBound() : xAxis.getLowerBound();
+
+            }
+
             // set scrubber's position to the time's position on the x-axis
-            scrubber.setX(lineChart.getXAxis().getDisplayPosition(mediaPlayer.getCurrentTime().toSeconds()));
-        
+            scrubber.setX(lineChart.getXAxis().getDisplayPosition(currentTime));
+
         }
         
     }

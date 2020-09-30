@@ -128,6 +128,14 @@
 										<Slider fx:id="opacitySlider" prefWidth="250.0" value="0.3" min="0" max="1" />
                   					</children>
                 				</HBox>
+								<Button onAction="#exitSINC" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+									<graphic>
+										<Glyph fontFamily="FontAwesome" icon="CLOSE"/>
+									</graphic>
+									<tooltip>
+										<Tooltip text="Exit SINC trial and hides the control bar."/>
+									</tooltip>
+								</Button>
 							</children>
 						</HBox>
 
@@ -247,7 +255,7 @@
 													<children>
 														<Button fx:id="lineUpBtn" mnemonicParsing="false" onAction="#toggleLineUpMode" text="Line up trials">
 															<tooltip>
-																<Tooltip text="Use this to synchronize data sets in two-module tests. Click on two data points, and the first point will be shifted to match the x-position of the second." />
+																<Tooltip text="Use this to synchronize data sets in two-module tests or to manually correct a SINC trial. Click on two data points, and the first point will be shifted to match the x-position of the second." />
 															</tooltip>
 															<HBox.margin>
 																<Insets right="2.5" />

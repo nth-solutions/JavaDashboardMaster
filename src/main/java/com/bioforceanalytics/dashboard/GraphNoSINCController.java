@@ -783,6 +783,23 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	@FXML
+	public void exitSINC() {
+		
+		// hide SINC control bar
+		sincControls.setVisible(false);
+
+		// if there are less than two tests, disable "Line up"
+		if (genericTests.size() < 2) {
+			lineUpBtn.setDisable(true);
+		}
+
+		// stop SINC features in line chart
+		lineChart.exitSINC();
+
+		multiAxis.redrawGraph();
+	}
+
 	// SINC PLAYBACK CONTROL HANDLERS
 	@FXML void togglePlayback() { lineChart.togglePlayback(); }
 	@FXML void lastFrame() 		{ lineChart.lastFrame(); }
