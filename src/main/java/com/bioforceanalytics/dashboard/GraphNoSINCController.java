@@ -1106,16 +1106,23 @@ public class GraphNoSINCController implements Initializable {
 			// converting milliseconds to seconds
 			double delayAfterStart = ((double) g.getTestParam(2)) / 1000;
 
-			// if the camera started early, delayAfterStart will be negative,
-			// and we should compensate by shifting the graph by -delayAfterStart.
+			// reset any shift in the x-axis
 			g.resetTimeOffset();
 
+			// if delayAfterStart is negative, the camera starts earlier than the module;
+			// we compensate by shifting the graph by -delayAfterStart (to the right)
 			if (delayAfterStart < 0) {
 				g.addTimeOffset(-delayAfterStart);
 			}
+			// if delayAfterStart is positive, the camera starts later than the module;
+			// compensation is done in firmware, but we must also apply manual SINC correction
+			// (see BFALineChart.SINC_TIME_ERROR for more information)
+			else if (delayAfterStart > 0) {
+				g.addTimeOffset(lineChart.SINC_TIME_ERROR);
+			}
 
-			// apply SINC error correction
-			g.addTimeOffset(lineChart.SINC_TIME_ERROR);
+			// TODO intentionally not accounting for delayAfterStart == 0;
+			// more testing has to be done to see how to correct this case
 		}
 
 		// update each currently drawn axis
