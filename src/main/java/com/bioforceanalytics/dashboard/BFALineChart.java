@@ -6,6 +6,8 @@ import java.math.MathContext;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.controlsfx.glyphfont.Glyph;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.NamedArg;
@@ -14,6 +16,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
@@ -285,13 +288,20 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // cancel if no video is playing
         if (mediaPlayer == null) return;
 
+        // get "toggle playback" button
+        Button b = (Button) this.getScene().lookup("#togglePlayback");
+
         if (mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED) {
             logger.info("Started video from {}s", mediaPlayer.getCurrentTime().toSeconds());
             mediaPlayer.play();
+
+            b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PAUSE));
         }
         else if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
             logger.info("Paused video at {}s", mediaPlayer.getCurrentTime().toSeconds());
             mediaPlayer.pause();
+
+            b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PLAY));
         }
     }
 

@@ -96,9 +96,9 @@
 												<Tooltip text="Goes back to the previous frame in the video."/>
 											</tooltip>
 										</Button>
-										<Button onAction="#togglePlayback" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
+										<Button onAction="#togglePlayback" fx:id="togglePlayback" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
 											<graphic>
-												<Glyph fontFamily="FontAwesome" icon="PLAY"/>
+												<Glyph fontFamily="FontAwesome" icon="PAUSE"/>
 											</graphic>
 											<tooltip>
 												<Tooltip text="Plays/pauses the video."/>
