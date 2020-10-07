@@ -50,11 +50,16 @@ public class MultiAxisLineChart extends StackPane {
 	// TODO make this an advanced user setting
 	private int resolution;
 
-	// zooming + scrolling fields
+	// mouse coordinates
 	private double mouseX;
-	private double mouseY;
+    private double mouseY;
+    
+    // scalars to convert pixel space into graph space
 	private double zoomviewScalarX;
-	private double zoomviewScalarY;
+    private double zoomviewScalarY;
+    
+    // indicates the amount to scroll based on the relative position
+    // of the mouse to the center of the viewport
 	private double leftScrollPercentage;
 	private double topScrollPercentage;
 

@@ -12,6 +12,7 @@ import org.controlsfx.glyphfont.Glyph;
 import javafx.animation.AnimationTimer;
 import javafx.beans.NamedArg;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
@@ -65,8 +66,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     /**
      * The amount of time to offset all SINC calculations.
      * <hr>
-     * For some reason, SINC calibration is off by 12 frames; this is likely caused
-     * by a firmware or remote issue, but since this is a consistent problem,
+     * For some reason, SINC calibration is off by 12 frames when <code>delayAfterStart > 0</code>;
+     * this is likely caused by a firmware or remote issue, but since this is a consistent problem,
      * this value will be applied on top of <code>delayAfterStart</code>
      * from the calibration process when graphing SINC trials in the DAG.
      */
@@ -75,9 +76,6 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     // JavaFX SINC components
     private MediaView mediaView;
     private Rectangle scrubber;
-
-    // Mouse X-coordinate (used for scrubber)
-    private double lastMouseX;
 
     // indicates whether line chart is playing a SINC video
     private boolean hasSINC;
@@ -259,7 +257,28 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         
         this.mediaView = mediaView;
         this.scrubber = scrubber;
+
+        // indicate that SINC is enabled
         hasSINC = true;
+
+        // enable scrubber dragging
+        this.scrubber.setOnMouseDragged(event -> {
+
+            // get mouse coordinates in the scope of the entire window
+            Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
+
+            // get x-coordinate of the mouse in the scope of the graph
+            double displayX = getXAxis().sceneToLocal(mouseSceneCoords).getX();
+
+            // convert display x-coordinate to graph's x-coordinate (aka time-value)
+            Number time = ((BFANumberAxis) getXAxis()).getValueForDisplay(displayX);
+
+            // jump to the given time in the video
+            mediaPlayer.seek(Duration.seconds(time.doubleValue()));
+
+            logger.info("Dragged scrubber to {}s", mediaPlayer.getCurrentTime().toSeconds());
+
+        });
 
     }
     
@@ -276,11 +295,16 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
      */
     public void exitSINC() {
 
+        // indicate that SINC is disabled
         hasSINC = false;
 
+        // remove media player + media from memory
         mediaPlayer.dispose();
+
+        // stop scrubber animation
         timer.stop();
 
+        // hide media player pane + scrubber
         mediaView.setVisible(false);
         scrubber.setVisible(false);
 

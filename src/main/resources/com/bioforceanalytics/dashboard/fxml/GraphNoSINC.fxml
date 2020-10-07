@@ -140,12 +140,8 @@
 						</HBox>
 
 						<MultiAxisLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="90.0" />
-						<Pane fx:id="mediaViewPane" layoutX="100.0" layoutY="105.0" prefHeight="${multiAxis.height-103}" prefWidth="${multiAxis.width-90}" mouseTransparent="true">
-							<children>
-								<MediaView fx:id="mediaView" fitHeight="${multiAxis.height-103}" opacity="${opacitySlider.value}" fitWidth="${multiAxis.width-90}" preserveRatio="false" />
-								<Rectangle fx:id="scrubber" fill="DODGERBLUE" width="5.0" height="${multiAxis.height-103}" stroke="BLACK" strokeType="INSIDE" visible="false" />
-							</children>
-						</Pane>
+						<MediaView fx:id="mediaView" layoutX="100.0" layoutY="105.0" fitHeight="${multiAxis.height-103}" opacity="${opacitySlider.value}" fitWidth="${multiAxis.width-90}" preserveRatio="false" mouseTransparent="true" />
+						<Rectangle fx:id="scrubber" layoutX="100.0" layoutY="105.0" fill="DODGERBLUE" width="5.0" height="${multiAxis.height-103}" stroke="BLACK" strokeType="INSIDE" visible="false" />
 						<HBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
 								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
