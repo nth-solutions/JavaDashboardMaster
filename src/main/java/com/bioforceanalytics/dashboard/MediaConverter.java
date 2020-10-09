@@ -30,7 +30,7 @@ public class MediaConverter {
      * @param videoFilePath the file path of the video to convert
      * @return the file path of the converted video
      */
-    public static String toMP4(String videoFilePath) {
+    public static String convertToMP4(String videoFilePath) throws RuntimeException {
 
         // fetch location of FFmpeg binary and input file
         FfmpegSystemWrapper wrapper = new FfmpegSystemWrapper();
@@ -40,14 +40,31 @@ public class MediaConverter {
         Path INPUT = Paths.get(videoFilePath);
         Path OUTPUT = Paths.get(convertFileExt(videoFilePath));
         
-        // convert video to .mp4
-        // TODO add "setProgressListener()"
-        FFmpeg.atPath(BIN)
+        // retrieve file extension of video to convert
+        String fileExt = getFileExt(videoFilePath);
+
+        // initialize FFmpeg command chain
+        FFmpeg cmd = FFmpeg.atPath(BIN);
+
+        // apply fix to FFmpeg if video is .avi
+        //
+        // FIXME Jaffree doesn't put arguments before inputs;
+        // find a workaround to make sure AVI conversions work
+        if (fileExt.equals("avi")) {
+            cmd.addArguments("-fflags", "+genpts");
+        }
+
+        cmd
             // set input to "videoFilePath"
             .addInput(UrlInput.fromPath(INPUT))
             // set output to "videoFilePath" with .mp4 extension
             .addOutput(UrlOutput.toPath(OUTPUT)
                 // don't re-encode the video (wastes time)
+                //
+                // FIXME this command shouldn't be run for H.265 videos;
+                // these should actually be re-encoded in H.264.
+                // To do so, check the codec in GraphNoSINCController.
+                // (May need a quick FFprobe to check this [MediaConverter.getCodec()])
                 .copyAllCodecs()
             )
             .execute();
@@ -57,11 +74,26 @@ public class MediaConverter {
     }
 
     /**
-     * Internal method used to convert a given file path's extension into ".mp4".
+     * Gets the file extension associated with a file path.
+     * @param filePath the file path
+     * @return the extension of the file
+     */
+    public static String getFileExt(String filePath) {
+
+        // split file extension from name
+        String[] arr = filePath.split("\\.");
+
+        // return last element (file extension)
+        return arr[arr.length-1].toLowerCase();
+
+    }
+
+    /**
+     * Converts a given file path's extension to ".mp4".
      * @param filePath the file path to convert
      * @return the converted file path
      */
-    private static String convertFileExt(String filePath) {
+    public static String convertFileExt(String filePath) {
 
         // split file extension from name
         // (will also split at all periods in file name, this is accounted for)

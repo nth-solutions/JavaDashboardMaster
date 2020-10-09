@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.util.Throwables;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -766,13 +767,52 @@ public class GraphNoSINCController implements Initializable {
 		//
 		// TODO add support for .mov by adding method to BlackFrameAnalysis converting to .mp4;
 		// this will use "Files.createTempDirectory()" and use ffmpeg (Jaffree) to create an .mp4.
-		FileChooser.ExtensionFilter filterVideos = new FileChooser.ExtensionFilter("Select a File (*.mp4)", "*.mp4");
+		FileChooser.ExtensionFilter filterVideos = new FileChooser.ExtensionFilter("Select a Video File", "*.mp4", "*.mov");
 		fileChooser.getExtensionFilters().add(filterVideos);
 
 		File videoFile = fileChooser.showOpenDialog(null);
 
 		// if user doesn't choose a file or closes window, don't continue
 		if (videoFile == null) return;
+
+		// if the selected video file is not an .mp4, prompt the user for conversion
+		if (!MediaConverter.getFileExt(videoFile.getName()).equals("mp4")) {
+
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+
+			// TODO add a file chooser so that users can change save location
+			alert.setHeaderText("Import SINC video");
+			alert.setContentText(
+				"The video you have chosen needs to be converted to an .mp4 for use with SINC Technology.\n\n" +
+				"Would you like the BioForce Graph to automatically save this new video file to \"" +
+				MediaConverter.convertFileExt(videoFile.getAbsolutePath()) + "\"?"
+			);
+
+			Optional<ButtonType> result = alert.showAndWait();
+
+			// if "yes", convert file to MP4 and replace old video file variable
+			if (result.get() == ButtonType.OK) {
+
+				try {
+					String newFilePath = MediaConverter.convertToMP4(videoFile.getAbsolutePath());
+					videoFile = new File(newFilePath);
+				}
+				// if ffmpeg encounters an error, gracefully handle it
+				catch (RuntimeException e) {
+
+					Alert error = new Alert(AlertType.ERROR);
+					String errorMessage = Throwables.getRootCause(e).getMessage();
+
+					error.setHeaderText("Error converting video");
+					error.setContentText("There was an problem converting your video: \n\n" + errorMessage);
+					error.showAndWait();
+
+					logger.info("Error converting video: " + errorMessage);
+					return;
+
+				}
+			}
+		}
 
 		sincControls.setVisible(true);
 		lineUpBtn.setDisable(false);

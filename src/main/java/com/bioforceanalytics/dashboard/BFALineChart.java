@@ -258,9 +258,6 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         this.mediaView = mediaView;
         this.scrubber = scrubber;
 
-        // indicate that SINC is enabled
-        hasSINC = true;
-
         // enable scrubber dragging
         this.scrubber.setOnMouseDragged(event -> {
 
@@ -337,6 +334,9 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // start scrubber animation
         timer = new ScrubberAnimation((BFALineChart<Number,Number>) this, mediaPlayer);
         timer.start();
+
+        // indicate that SINC is enabled
+        hasSINC = true;
         
     }
 
@@ -446,6 +446,11 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         private BFALineChart<Number, Number> lineChart;
         private MediaPlayer mediaPlayer;
 
+        /**
+         * Constructs a scrubber animation.
+         * @param lineChart the LineChart that this scrubber is overlaid on
+         * @param mediaPlayer the media player dictating this scrubber's position
+         */
         public ScrubberAnimation(BFALineChart<Number, Number> lineChart, MediaPlayer mediaPlayer) {
             this.lineChart = lineChart;
             this.mediaPlayer = mediaPlayer;
