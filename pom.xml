@@ -334,6 +334,9 @@
                   <target>
                     <chmod file="${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac/ffmpeg" perm="755" />
                   </target>
+                  <target>
+                    <chmod file="${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac/ffprobe" perm="755" />
+                  </target>
                 </configuration>
                 <goals>
                   <goal>run</goal>

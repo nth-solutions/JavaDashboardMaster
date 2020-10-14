@@ -775,8 +775,8 @@ public class GraphNoSINCController implements Initializable {
 		// if user doesn't choose a file or closes window, don't continue
 		if (videoFile == null) return;
 
-		// if the selected video file is not an .mp4, prompt the user for conversion
-		if (!MediaConverter.getFileExt(videoFile.getName()).equals("mp4")) {
+		// if the selected video file does not use H.264 codec, prompt the user for conversion
+		if (!MediaConverter.getCodec(videoFile.getAbsolutePath()).equals("h264")) {
 
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 
