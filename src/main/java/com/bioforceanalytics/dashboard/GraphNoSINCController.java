@@ -775,13 +775,14 @@ public class GraphNoSINCController implements Initializable {
 		// if user doesn't choose a file or closes window, don't continue
 		if (videoFile == null) return;
 
-		// if the selected video file does not use H.264 codec, prompt the user for conversion
-		if (!MediaConverter.getCodec(videoFile.getAbsolutePath()).equals("h264")) {
+		// if the selected video file does not use H.264 codec or is not an .mp4, prompt the user for conversion
+		if (!MediaConverter.getCodec(videoFile.getAbsolutePath()).equals("h264") ||
+			!MediaConverter.getFileExt(videoFile.getAbsolutePath()).equals("mp4")) {
 
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 
 			// TODO add a file chooser so that users can change save location
-			alert.setHeaderText("Import SINC video");
+			alert.setHeaderText("Import SINC Video");
 			alert.setContentText(
 				"The video you have chosen needs to be converted to an .mp4 for use with SINC Technology.\n\n" +
 				"Would you like the BioForce Graph to automatically save this new video file to \"" +

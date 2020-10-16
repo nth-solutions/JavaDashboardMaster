@@ -30,13 +30,6 @@ import com.github.kokorin.jaffree.ffprobe.Stream;
  */
 public class MediaConverter {
 
-    public static void main(String[] args) {
-       System.out.println(MediaConverter.getCodec("C:\\Users\\shrey\\Downloads\\IMG_0690.mov"));
-       System.out.println(MediaConverter.getCodec("C:\\Users\\shrey\\Downloads\\IMG_0690.mp4"));
-       System.out.println(MediaConverter.getCodec("C:\\Users\\shrey\\Downloads\\jellyfish-3-mbps-hd-hevc.mp4"));
-       System.out.println(MediaConverter.getCodec("C:\\Users\\shrey\\Downloads\\IMG_7452.mp4"));
-    }
-
     /**
      * Converts a given file to an .mp4 and saves the converted version alongside the original.
      * @param videoFilePath the file path of the video to convert
@@ -72,6 +65,21 @@ public class MediaConverter {
 
         // return file path of converted video for UI purposes
         return OUTPUT.toString();
+    }
+
+    /**
+     * Gets the file extension associated with a file path.
+     * @param filePath the file path
+     * @return the extension of the file
+     */
+    public static String getFileExt(String filePath) {
+
+        // split file extension from name
+        String[] arr = filePath.split("\\.");
+
+        // return last element (file extension)
+        return arr[arr.length-1].toLowerCase();
+
     }
 
     /**
