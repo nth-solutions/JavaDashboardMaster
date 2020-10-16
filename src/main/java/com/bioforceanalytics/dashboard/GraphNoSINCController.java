@@ -14,10 +14,12 @@ import java.util.ResourceBundle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.Throwables;
+import org.controlsfx.dialog.ProgressDialog;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -794,9 +796,39 @@ public class GraphNoSINCController implements Initializable {
 			// if "yes", convert file to MP4 and replace old video file variable
 			if (result.get() == ButtonType.OK) {
 
+				// store file path to pre-converted video
+				String originalVideo = videoFile.getAbsolutePath();
+
+				// update video file object to use new converted file path
+				videoFile = new File(MediaConverter.convertFileExt(videoFile.getAbsolutePath()));
+
 				try {
-					String newFilePath = MediaConverter.convertToMP4(videoFile.getAbsolutePath());
-					videoFile = new File(newFilePath);
+					Task<Void> conversionTask = new Task<Void>() {
+					
+						@Override
+						protected Void call() {
+
+							// update progress bar when media conversion has progress update
+							MediaConverter.progressProperty().addListener((obs, oldVal, newVal) -> {
+								updateProgress(newVal.doubleValue(), 1);
+							});
+
+							// perform media conversion via FFmpeg
+							MediaConverter.convertToMP4(originalVideo);
+							return null;
+						}
+
+					};
+
+					ProgressDialog converting = new ProgressDialog(conversionTask);
+
+					converting.setHeaderText("Please wait...");
+					converting.setContentText("Converting your video. This might take a while.");
+
+					// begin media conversion & show progress dialog
+					new Thread(conversionTask).start();
+					converting.showAndWait();
+
 				}
 				// if ffmpeg encounters an error, gracefully handle it
 				catch (RuntimeException e) {

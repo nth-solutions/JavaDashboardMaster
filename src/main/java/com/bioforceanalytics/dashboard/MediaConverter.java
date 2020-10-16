@@ -4,14 +4,19 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import com.github.kokorin.jaffree.StreamType;
 import com.github.kokorin.jaffree.ffmpeg.FFmpeg;
+import com.github.kokorin.jaffree.ffmpeg.ProgressListener;
 import com.github.kokorin.jaffree.ffmpeg.UrlInput;
 import com.github.kokorin.jaffree.ffmpeg.UrlOutput;
 import com.github.kokorin.jaffree.ffprobe.FFprobe;
 import com.github.kokorin.jaffree.ffprobe.FFprobeResult;
 import com.github.kokorin.jaffree.ffprobe.Stream;
+
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
 
 /**
  * Handles converting various file formats to MP4 for use with JavaFX Media.
@@ -29,6 +34,20 @@ import com.github.kokorin.jaffree.ffprobe.Stream;
  * video interactions in the SINC+DAG rework of SINC Technology.
  */
 public class MediaConverter {
+
+    // internal progress property
+    private static ReadOnlyDoubleWrapper progress;
+
+    static {
+        progress = new ReadOnlyDoubleWrapper();
+    }
+
+    /**
+     * Observable property indicating the progress of the current conversion task.
+     */
+    public static ReadOnlyDoubleProperty progressProperty() {
+        return progress.getReadOnlyProperty();
+    }
 
     /**
      * Converts a given file to an .mp4 and saves the converted version alongside the original.
@@ -56,11 +75,21 @@ public class MediaConverter {
             FINAL_OUT.copyAllCodecs();
         }
 
+        long duration = getDuration(videoFilePath);
+
+        // update progress property each time FFmpeg updates
+        ProgressListener listener = status -> {
+            // progress = current time / duration
+            progress.set((double) status.getTimeMillis() / duration);
+        };
+
         cmd
             // set input to "videoFilePath"
             .addInput(UrlInput.fromPath(INPUT))
             // set output to "videoFilePath" with .mp4 extension
             .addOutput(FINAL_OUT)
+            // update progress dialog
+            .setProgressListener(listener)
             .execute();
 
         // return file path of converted video for UI purposes
@@ -148,6 +177,41 @@ public class MediaConverter {
         }
 
         return codec;
+
+    }
+
+    /**
+     * Retrieves the duration for a given video.
+     * @param filePath the path to the video
+     * @return the duration of the video (in milliseconds)
+     */
+    public static long getDuration(String filePath) {
+
+        // fetch location of FFprobe binary and input file
+        FfmpegSystemWrapper wrapper = new FfmpegSystemWrapper();
+        Path BIN = Paths.get(wrapper.getBinRoot());
+
+        // define input and output files for FFprobe
+        Path INPUT = Paths.get(filePath);
+
+        // initialize FFprobe command chain        
+        FFprobeResult result = FFprobe.atPath(BIN)
+            // show info about each media stream
+            .setShowStreams(true)
+            // set input to "filePath"
+            .setInput(INPUT)
+            .execute();
+        
+        long duration = -1;
+
+        // find the duration of the video stream
+        for (Stream stream : result.getStreams()) {
+            if (stream.getCodecType() == StreamType.VIDEO) {
+                duration = stream.getDuration(TimeUnit.MILLISECONDS);
+            }
+        }
+
+        return duration;
 
     }
 
