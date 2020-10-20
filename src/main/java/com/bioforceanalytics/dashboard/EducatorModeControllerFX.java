@@ -1905,13 +1905,13 @@ public class EducatorModeControllerFX implements Initializable {
      */
     public void fillTestTypeHashMap() {
 
-        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
 
         Integer[] testParamsB = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Conservation of Energy", testParamsB);
 
-        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Inclined Plane", testParamsC);
         testTypeHashMap.put("Inclined Plane - Released From Top", testParamsC);
         testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParamsC);
@@ -1919,13 +1919,13 @@ public class EducatorModeControllerFX implements Initializable {
         Integer[] testParamsD = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Physical Pendulum", testParamsD);
 
-        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Spring Test - Simple Harmonics", testParamsE);
 
-        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Generic Template - One Module", testParamsF);
 
-        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Generic Template - Two Modules", testParamsG);
 
         // TODO the following test is not being used, but kept in case we decide to bring this lab back
