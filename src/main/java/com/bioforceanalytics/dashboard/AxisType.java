@@ -91,6 +91,40 @@ public enum AxisType implements Axis {
             default: return "Unnamed Axis";
         }
 	}
+	public String getExactName(){
+		switch(getValue()){
+			case 0: return "AccelX";
+			case 1: return "AccelY";
+			case 2: return "AccelZ";
+			case 3: return "AccelMag";
+            case 4: return "VelX";
+			case 5: return "VelY";
+			case 6: return "VelZ";
+			case 7: return "VelMag";
+			case 8: return "DispX";
+			case 9: return "DispY";
+			case 10: return "DispZ";
+			case 11: return "DispMag";
+			case 12: return "AngAccelX";
+			case 13: return "AngAccelY";
+			case 14: return "AngAccelZ";
+			case 15: return "AngAccMag";
+			case 16: return "AngVelX";
+			case 17: return "AngVelY";
+			case 18: return "AngVelZ";
+			case 19: return "AngVelMag";
+			case 20: return "AngDispX";
+			case 21: return "AngDispY";
+			case 22: return "AngDispZ";
+			case 23: return "AngDispMag";
+			case 24: return "MagnetX";
+			case 25: return "MagnetY";
+			case 26: return "MagnetZ";
+			case 27: return "MagnetMag";
+			default:
+				return "";
+		}
+	}
 
 	@Override
 	public String getUnits() {
