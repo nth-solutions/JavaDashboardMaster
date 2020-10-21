@@ -3,9 +3,9 @@ package com.bioforceanalytics.dashboard;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.aspose.cells.Axis;
-
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -62,6 +62,18 @@ public class AxisDataSeries {
 
 	private static final Logger logger = LogManager.getLogger();
 
+	public static HashMap<String, AxisDataSeries> nameADSMap = new HashMap<String,AxisDataSeries>();
+
+	public static AxisDataSeries getAxisDataSeries(String name){
+		return nameADSMap.get(name);
+	}
+	public static void addADS(String name, AxisDataSeries ads){
+        if(nameADSMap.containsKey(name)){
+			name += "#" + Collections.frequency(nameADSMap.keySet(), name);
+		}
+		nameADSMap.put(name,ads);
+    }
+
 	/**
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.
 	 * @param time the time axis for the data set
@@ -78,7 +90,7 @@ public class AxisDataSeries {
 		//
 		this.time = new Double[time.size()];
 		this.time = time.toArray(this.time);
-
+		addADS(axis.getName(),this);
 		// If dealing w/ magnetometer, only save every 10th data sample removing nulls
 		// This is because mag data is sampled at 1/10 the rate of accel/gyro,
 		// but the List "data" is filled w/ null samples assuming 960 samples/sec
@@ -145,10 +157,25 @@ public class AxisDataSeries {
 
 	}
 
+	public AxisDataSeries(AxisData axisData,Axis axisName){
+		this.sampleRate = 960;
+		this.time =  new Double[axisData.getData().length];
 
+		addADS(axisName.getName(),this);
+		this.originalData = axisData.getData();
+		this.normalizedData = axisData.getData();
+		this.smoothedData = axisData.getData();
+		this.axis = AxisType.AccelX;
+		
 
+		this.testLength = ((double) axisData.getData().length) / sampleRate; 
+		for(int i = 0; i < time.length; i++){
+			time[i] = ((double) i)/sampleRate;
+		}
+		
 
-
+	}
+	
 
 /**
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer. 
@@ -182,7 +209,7 @@ public class AxisDataSeries {
 		//
 		this.time = new Double[time.size()];
 		this.time = time.toArray(this.time);
-
+		addADS(axis.getName(),this);
 		this.originalData = new Double[data.size()];
 		this.originalData = data.toArray(this.originalData);
 
@@ -235,7 +262,7 @@ public class AxisDataSeries {
 		// (this is done b/c DataOrganizer uses ArrayLists)
 		this.time = new Double[time.size()];
 		this.time = time.toArray(this.time);
-
+		addADS(axis.getName(),this);
 		this.originalData = new Double[data.size()];
 		this.originalData = data.toArray(this.originalData);
 
@@ -281,7 +308,7 @@ public class AxisDataSeries {
 
 		this.time = new Double[a1.getTime().size()];
 		this.time = a1.getTime().toArray(this.time);
-
+		addADS(axis.getName(),this);
 		this.axis = axis;
 		this.sampleRate = a1.sampleRate;
 

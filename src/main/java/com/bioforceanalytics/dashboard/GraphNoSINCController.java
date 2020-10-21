@@ -182,6 +182,7 @@ public class GraphNoSINCController implements Initializable {
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
 		customTests = new ArrayList<CustomTest>();
+	
 		// initialize graph mode variables
 		Platform.runLater(() -> {
 			setGraphMode(GraphMode.NONE);
@@ -318,6 +319,10 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void setGenericTest(GenericTest g) {
 		genericTests.add(g);
+		for(AxisType axis : AxisType.values()){
+			String name = axis.getName() + (genericTests.size() <= 1 ? "" : genericTests.size());
+			AxisData.nameAxisDataMap.put(name,new AxisData((Double[])g.getAxis(axis).getSamples().toArray(),name));
+		}
 		initializePanels();
 	}
 
@@ -329,6 +334,12 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
 		genericTests = g;
+		for(GenericTest test : genericTests){
+			for(AxisType axis : AxisType.values()){
+				String name = axis.getExactName() + (genericTests.size() <= 1 ? "" : genericTests.size());
+				AxisData.nameAxisDataMap.put(name + (genericTests.size() <= 1 ? "" : genericTests.size()),new AxisData(test.getAxis(axis).getSamples(),name));
+			}
+		}
 		initializePanels();
 	}
 
@@ -501,6 +512,36 @@ public class GraphNoSINCController implements Initializable {
 					graphAxis(axis, genericTests.indexOf(g));
 				}
 			}
+			ArrayList<Token> tokens = new ArrayList<Token>();
+			tokens.add(new Token("("));
+			tokens.add(new Token("AccelX"));
+			tokens.add(new Token("^"));
+			tokens.add(new Token(2));
+			tokens.add(new Token("+"));
+			tokens.add(new Token("AccelY"));
+			tokens.add(new Token("^"));
+			tokens.add(new Token(2));
+			tokens.add(new Token("+"));
+			tokens.add(new Token("AccelZ"));
+			tokens.add(new Token("^"));
+			tokens.add(new Token(2));
+			tokens.add(new Token(")"));
+			tokens.add(new Token("^"));
+			tokens.add(new Token(0.5));
+			CustomTest test = new CustomTest();
+			CheckBox customCheckBox = new CheckBox();
+			CustomAxisType customAxis = new CustomAxisType("CustomAxis", "units", 10);
+			try{
+				Token result = processTokens(tokens);
+				if(result.type == TokenType.AXIS){
+					AxisDataSeries resultSeries = new AxisDataSeries(result.axis, customAxis);
+					test.addAxisDataSeries(resultSeries, customAxis,customCheckBox);
+				}
+			}catch(Exception e){
+				logger.info(e.getMessage());
+			}
+			customTests.add(test);
+			graphAxis(customAxis,0);
 
 			double testLength = primaryTest.getAxis(primaryTest.getDefaultAxes()[0]).testLength;
 
@@ -551,7 +592,7 @@ public class GraphNoSINCController implements Initializable {
 	 * @param GTIndex the GenericTest to read data from
 	 */
 	public void graphAxis(Axis axis, int GTIndex) {
-		GenericTest test = axis.isCustomAxis() ? customTests.get(GTIndex) : genericTests.get(GTIndex);
+		GenericTest test = getTest(axis,GTIndex);
 		
 		// if axis is not already graphed:
 		if (findGraphData(GTIndex, axis) == null) {
@@ -578,8 +619,14 @@ public class GraphNoSINCController implements Initializable {
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i += getResolution(axis)) {
-
-				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset, data.get(i) / multiAxis.getAxisScalar(axis));
+				logger.info(time.get(i));
+				logger.info(data.get(i));
+				logger.info(multiAxis.getAxisScalar(axis));
+				logger.info(timeOffset);
+				XYChart.Data<Number, Number> dataEl;
+				dataEl = new XYChart.Data<Number,Number>(time.get(i)
+				 + timeOffset,
+				  data.get(i) / multiAxis.getAxisScalar(axis));
 			
 				// add tooltip with (x,y) when hovering over data point
 				dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, GTIndex));
@@ -648,7 +695,7 @@ public class GraphNoSINCController implements Initializable {
 	 * @param GTIndex the GenericTest to read data from
 	 */
 	public void updateAxis(GraphData d) {
-		GenericTest test = d.axis.isCustomAxis() ? customTests.get(d.GTIndex) : genericTests.get(d.GTIndex);
+		GenericTest test = getTest(d);
 		
 			// retrieve XYChart.Series and ObservableList from HashMap
 			XYChart.Series<Number, Number> series = d.data;
@@ -731,22 +778,21 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	public void applyMovingAvg() {
-
+		
 		// round slider to nearest integer
 		int blockSize = (int) blockSizeSlider.getValue();
-
+		GenericTest test;
 		// update smoothing label
 		blockSizeLabel.setText("" + blockSize);
 
 		// apply moving avgs to all currently drawn axes
 		for (GraphData d : dataSets) {
-
+			test = getTest(d);
 			// if this is a magnetometer data set, divide block size by 10
 			int axisBlockSize = d.axis.getUnits() == "µT" ? blockSize / 10 : blockSize;
-			if(!d.axis.isCustomAxis()){
-				genericTests.get(d.GTIndex).getAxis((AxisType)d.axis).smoothData(axisBlockSize);
-				updateAxis(d.axis, d.GTIndex);
-			}
+			test.getAxis(d.axis).smoothData(axisBlockSize);
+			updateAxis(d.axis, d.GTIndex);
+			
 		}
 		
 	}
@@ -805,7 +851,7 @@ public class GraphNoSINCController implements Initializable {
 		} catch (Exception e) {
 
 			logger.warn("Invalid baseline average inputs");
-			e.printStackTrace();
+			//e.printStackTrace();
 
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid inputs");
@@ -1059,7 +1105,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Graphs a line tangent to the given point.
 	 */
 	public void graphSlope(double x, double y, Axis axis, int GTIndex) {
-		GenericTest test = axis.isCustomAxis() ? customTests.get(GTIndex) : genericTests.get(GTIndex);
+		GenericTest test = getTest(axis,GTIndex);
 		clearSlope();
 		double m;
 		double axisScalar;
@@ -1106,7 +1152,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Graphs a secant line between the given points.
 	 */
 	public void graphSlope(double x1, double y1, double x2, double y2, Axis axis, int GTIndex) {
-		GenericTest test = axis.isCustomAxis() ? customTests.get(GTIndex) : genericTests.get(GTIndex);
+		GenericTest test = getTest(axis,GTIndex);
 		// if user chose the same point twice, graph a tangent line
 		if (x1 == x2 && y1 == y2) {
 			graphSlope(x1, y1, axis, GTIndex);
@@ -1179,8 +1225,12 @@ public class GraphNoSINCController implements Initializable {
 		return null;
 
 	}
-
-
+	private GenericTest getTest(GraphData d){
+		return d.axis.isCustomAxis() ? customTests.get(d.GTIndex) : genericTests.get(d.GTIndex);
+	}
+	private GenericTest getTest(Axis axis, int GTIndex){
+		return axis.isCustomAxis() ? customTests.get(GTIndex) : genericTests.get(GTIndex);
+	}
 	/**
 	 * Creates the label for the slope of a tangent/secant line.
 	 * @param m the value for the slope
@@ -1212,6 +1262,138 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	public ArrayList<Token> tokenizeString(String code){
+		ArrayList<Token> tokens = new ArrayList<Token>();
+		String currentToken = "";
+		String letter = "";
+		boolean generatingToken = false;
+		for(int i = 0; i < code.length(); i++){
+			letter = code.substring(i,i+1);
+			if(letter.equals("+") || letter.equals("-")  || letter.equals("*")  || letter.equals("/")  || letter.equals("^")  || letter.equals("(")  || letter.equals(")")){
+				if(generatingToken){
+					tokens.add(new Token(currentToken));
+					currentToken = "";
+					generatingToken = false;
+				}
+				tokens.add(new Token(letter));
+				
+			}else if(!letter.equals(" ")){
+				currentToken += letter;
+				generatingToken = true;
+			}
+		}
+		return tokens;
+	}
+	public static void replaceCollection (List<Token> tokens, Token token, int startPos, int endPos){
+		tokens.add(endPos + 1, token);
+		for(int j = endPos; j >= startPos; j--){
+			tokens.remove(j);
+		}
+	}
+
+	public static Token processTokens(List<Token> tokens) throws Exception{
+		Token result;
+		int currentOperationLevel = 0;
+		while(tokens.size()>1){
+			int openIndex = -1;
+			int parenthesesCounter = 0;
+			int closeIndex = -1;
+			if(currentOperationLevel == 0){
+				for(int i = 0; i < tokens.size(); i++){
+					if(tokens.get(i).operation == Operation.OPEN_PAREN){
+						if(parenthesesCounter == 0)openIndex = i;
+						parenthesesCounter++;	
+					}
+					if(tokens.get(i).operation == Operation.CLOSE_PAREN) parenthesesCounter--;
+					if(openIndex != -1 && parenthesesCounter == 0){
+						replaceCollection(tokens,processTokens(tokens.subList(openIndex + 1, i)),openIndex,openIndex+2);
+					}
+				}
+				if(openIndex == -1){
+					currentOperationLevel++;
+				}
+			}else{
+				for(int i = 0; i < tokens.size() - 2; i++){
+					try{
+						if(tokens.get(i+1).type == TokenType.OPERATOR){
+							if(tokens.get(i+1).isInOrder(currentOperationLevel)){
+								replaceCollection(tokens,tokens.get(i+1).operate(tokens.get(i),tokens.get(i+2)),i,i+2);
+								i--;
+							}	
+						}
+					}catch(Exception e){
+						throw e;
+					}	
+				}
+				currentOperationLevel++;
+			}
+		}
+		return tokens.get(0);
+
+	}
+	public static void main(String[] args){
+		logger.info("running debug");
+		ArrayList<Token> tokens = new ArrayList<Token>();
+		tokens.add(new Token(new AxisData(new Double[]{new Double(10),new Double(10),new Double(10)},"firstAxis")));
+		tokens.add(new Token("+"));
+		tokens.add(new Token(new AxisData(new Double[]{new Double(3),new Double(4),new Double(3)},"secondAxis")));
+		tokens.add(new Token("*"));
+		tokens.add(new Token(new AxisData(new Double[]{new Double(1),new Double(2),new Double(3)},"mainAxis")));
+		tokens.add(new Token("^"));
+		tokens.add(new Token("("));
+		tokens.add(new Token("1"));
+		tokens.add(new Token("+"));
+		tokens.add(new Token("2"));
+		tokens.add(new Token(")"));
+		logger.info(tokens);
+		try{
+			Token result = processTokens(tokens);
+			if(result.type == TokenType.AXIS){
+				AxisDataSeries resultSeries = new AxisDataSeries(result.axis, new CustomAxisType("CustomAxis","Units",10));
+				logger.info(resultSeries);
+				logger.info(AxisData.nameAxisDataMap.keySet());
+			}
+			logger.info(result);
+		}catch(Exception e){
+			logger.info(e.getMessage());
+		}
+	}
+	public AxisDataSeries createCustomAxis(String[] inputs){
+		Axis axisOne = null;
+		Axis axisTwo = null;
+		String operation = null;
+		for(int i = 0; i < inputs.length; i++){
+			String input = inputs[i];
+			if(Axis.getAxis(input) != null){
+				if(axisOne == null){
+					axisOne = Axis.getAxis(input);
+				}else{
+					axisTwo = Axis.getAxis(input);
+				}
+			}else if (input == "+" || input == "*" || input == "-" || input == "/"){
+				operation = input;
+			}
+		}
+		switch(operation){
+			case "+":
+				//return axisOne.add(axisTwo);
+				break;
+			case "-":
+				//return axisOne.subtract(axisTwo);
+				break;
+			case "*":
+				//return axisOne.multiply(axisTwo);
+				break;
+			case "/":
+				//return axisOne.divide(axisTwo);
+				break;
+			default:
+				break;
+		}
+		return null;
+	}
+
+
 	/**
 	 * JavaFX component added to data points on graph.
 	 */
@@ -1223,7 +1405,7 @@ public class GraphNoSINCController implements Initializable {
 			final double roundedX = new BigDecimal(x).round(new MathContext(SIG_FIGS)).doubleValue();
 			final double roundedY = new BigDecimal(y).round(new MathContext(SIG_FIGS)).doubleValue();
 			setPrefSize(15, 15);
-			GenericTest test = axis.isCustomAxis() ? customTests.get(GTIndex) : genericTests.get(GTIndex);
+			GenericTest test = getTest(axis,GTIndex);
 			// allows mouse events to pass through label
 			// makes selecting nearby data points easier
 			setPickOnBounds(false);

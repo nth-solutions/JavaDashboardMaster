@@ -16,9 +16,12 @@ public class ConservationMomentumTest extends TwoModuleTest {
 	public AxisDataSeries[] getMomentumAxes(){
 		AxisDataSeries[] series = new AxisDataSeries[8];
 		for(int i = 0; i < 4; i++){
+			//series[i] = getModuleOne().getAxis(AxisType.valueOf(i)).add(getModuleOne().getAxis(AxisType.valueOf(i)));
+			/*
 			series[i] = new AxisDataSeries(getModuleOne().getAxis(AxisType.valueOf(i)).getTime(),
 			getModuleOne().getAxis(AxisType.valueOf(i)).integrate(((ConservationMomentumModule)getModuleOne()).getMomentumScalar())
 			, false, getModuleOne().getSampleRate());
+			*/
 		}
 		for(int i = 0; i < 4; i++){
 			series[i+4] = new AxisDataSeries(getModuleTwo().getAxis(AxisType.valueOf(i)).getTime(),
