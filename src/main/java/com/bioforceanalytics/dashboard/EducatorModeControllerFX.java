@@ -189,7 +189,6 @@ public class EducatorModeControllerFX implements Initializable {
     // holds test data from modules for DAG and SINC respectively
     // each object represents a trial on a module
     private ArrayList<GenericTest> genericTests;
-    private ArrayList<DataOrganizer> dataOrgoList;
 
     // Colors
     private final Color LIGHT_GREEN = Color.rgb(51, 204, 51);
@@ -220,7 +219,6 @@ public class EducatorModeControllerFX implements Initializable {
         icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 
         genericTests = new ArrayList<GenericTest>();
-        dataOrgoList = new ArrayList<DataOrganizer>();
 
         testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.                                                                                   //See Method Comment
@@ -1131,7 +1129,6 @@ public class EducatorModeControllerFX implements Initializable {
                     // clear all previously read tests for one-module tests
                     if (oneModuleTest) {
                         genericTests.clear();
-                        dataOrgoList.clear();
                     }
 
                     displayProgress("Reading tests from module...", 0, Status.WORKING);
@@ -1495,17 +1492,6 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    /*End Experiment Tab Methods*/
-
-    /*Begin Motion Visualization Tab Methods*/
-
-    private GraphController lineGraph;
-
-    @FXML
-    private void launchSINCGraph(ActionEvent event) {
-        lineGraph = startGraphing();
-    }
-
     @FXML
     private void launchDAG(ActionEvent event) {
         
@@ -1604,26 +1590,6 @@ public class EducatorModeControllerFX implements Initializable {
 			e.printStackTrace();
 		}
         
-        return loader.getController();
-    }
-    
-    public GraphController startGraphing() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/UpdatedGraphStructureEducator.fxml"));
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(root!=null) primaryStage.setScene(new Scene(root, 1320, 730));
-
-        primaryStage.setTitle("BioForce SINC Technology Graph");
-        primaryStage.getIcons().add(icon);
-        primaryStage.show();
-        primaryStage.setResizable(false);
-
         return loader.getController();
     }
 

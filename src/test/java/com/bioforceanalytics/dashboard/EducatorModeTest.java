@@ -60,14 +60,6 @@ public class EducatorModeTest extends GUITest {
         });
     }
 
-    @Test
-    public void should_launch_sinc_graph() {
-        Platform.runLater(() -> {
-            emfx.startGraphing();
-            FxAssert.verifyThat(window("BioForce SINC Technology Graph"), WindowMatchers.isShowing());
-        });
-    }
-
     // TODO
     // The following tests require a module to be plugged in to apply SINC configuration.
     // This has problems since other tests establish connections to the module as well.

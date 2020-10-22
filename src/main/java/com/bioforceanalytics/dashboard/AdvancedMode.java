@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
@@ -153,19 +152,13 @@ public class AdvancedMode extends JFrame {
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
 	private ArrayList<JButton> saveTestBtn;
-	private ArrayList<JButton> graphTestBtn;
 	private ArrayList<JButton> DAGTestBtn;
-	private ArrayList<JButton> mediaPlayerBtn;
 
 	//Progress Bars
 	private JProgressBar progressBar;
 
 	//JSeparators
 	private JSeparator separator;
-
-	//UI Controllers
-	GraphController lineGraph;
-	VLCJMediaPlayerController mediaController;
 	
 	//Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
@@ -219,7 +212,6 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxLabelCSV;
 	private JCheckBox checkBoxSignedData;
 
-	private List<DataOrganizer> dataOrgoList;
 	private ArrayList<GenericTest> genericTests;
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JPanel testRecordationPanel;
@@ -229,7 +221,6 @@ public class AdvancedMode extends JFrame {
 	private JButton helpBtn;
 	private JTextField fileNameTextField;
 	private JPanel launcherPane;
-	private JButton SINCGraphBtn;
 	private JButton DAGBtn;
 
 	private String moduleSerialID;
@@ -237,9 +228,6 @@ public class AdvancedMode extends JFrame {
 	private JTextField modelNumberTextField;
 	private JTextField passwordTextField;
 	private JPanel adminPanelContent;
-	private JPanel panel9;
-	private JComboBox templateComboBox;
-	private JLabel lblSelectTheTemplate;
 	private JPanel mpuCalibrationPanel;
 	private JTextField xAxisAccelTextField;
 	private JTextField xAxisGyroTextField;
@@ -1467,7 +1455,7 @@ public class AdvancedMode extends JFrame {
 
 							//Executes if the data was received properly (null = fail)
 							if(testData != null) {
-								dataOrgoList = new ArrayList<DataOrganizer>(testData.size()-1);
+								
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
 									int [] finalData = new int[testData.get(testIndex).size()];
@@ -1483,38 +1471,17 @@ public class AdvancedMode extends JFrame {
 									}
 									String tempNameOfFile = "(#" + (testIndex+1) + ")" + nameOfFile; 
 
-									DataOrganizer dataOrgo = new DataOrganizer(testParameters, tempNameOfFile);
-									dataOrgo.setMPUMinMax(mpuMinMax);
-									dataOrgoList.add(dataOrgo);
-									Runnable organizerOperation = new Runnable() {
-										public void run() {
-											dataOrgo.createDataSmpsRawData(finalData);
-											dataOrgo.getSignedData();
-										}
-									};
-
 									genericTests.add(new GenericTest(testParameters, finalData, mpuMinMax));
 
 									GenericTest g = new GenericTest(testParameters, finalData, mpuMinMax);
 									g.setName(tempNameOfFile);
 									genericTests.add(g);
-
-									// run DataOrganizer code asynchronously
-									organizerThread = new Thread(organizerOperation);
-									organizerThread.start();	
 									
 								}
+
+								addTestsToRecordationPane();
 								
-								if (Boolean.parseBoolean(Settings.get("AutoSave"))) {
-									for(DataOrganizer dO: dataOrgoList) {
-										dO.createCSVP();
-										dO.createCSV(false, false);
-									}
-								}
-								
-								addTestsToRecordationPane(dataOrgoList);
-							}
-							else {
+							} else {
 								generalStatusLabel.setText("Error Reading From Module, Try Again");
 								progressBar.setValue(100);
 								progressBar.setForeground(new Color(255, 0, 0));
@@ -1913,24 +1880,6 @@ public class AdvancedMode extends JFrame {
 		}
 		return "NOP";
 	}
-
-	public void launchSINCGraph(List<DataOrganizer> dataOrgo, ActionEvent e) {
-		final int viewableTests = dataOrgo.size();
-		Platform.setImplicitExit(false);
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				for(int i = 0; i < viewableTests; i++) {
-					if(graphTestBtn.get(i) == e.getSource()) {
-
-						lineGraph = startGraphing();
-						lineGraph.graphDataOrgoObject(dataOrgo.get(i));
-
-					}
-				}
-			}
-		});
-	}
 	
 	public GraphNoSINCController launchDAG() {
 
@@ -1961,14 +1910,7 @@ public class AdvancedMode extends JFrame {
 		return loader.getController();
 
 	}
-	
-	public VLCJMediaPlayerController startVLCJMediaPlayer() {
-		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
-		vlcjController.frame.setVisible(true);
-		return vlcjController;
-	}
 
-	
 	public MediaPlayerController startMediaPlayer() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
@@ -1987,29 +1929,6 @@ public class AdvancedMode extends JFrame {
 	    primaryStage.setResizable(false);
 	    return loader.getController();
 	}
-
-	public GraphController startGraphing() {
-		Stage primaryStage = new Stage();
-		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/UpdatedGraphStructureEducator.fxml"));
-		try {
-			root = loader.load();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if(root!=null) primaryStage.setScene(new Scene(root, 1430, 800));
-		
-		primaryStage.setTitle("SINC Technology Graph");
-		primaryStage.getIcons().add(icon);
-		primaryStage.show();
-		primaryStage.setResizable(false);
-		
-		return loader.getController();
-	}
-	
-	
 	
 	public HelpMenuController startHelpMenu() {
 		Stage primaryStage = new Stage();
@@ -2065,15 +1984,13 @@ public class AdvancedMode extends JFrame {
 			}
 	}
 	
-	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
-		if(dataOrgo != null) {
+	public void addTestsToRecordationPane() {
+		if(genericTests != null) {
             testRecordationPanel.removeAll();
-			final int viewableTests = dataOrgo.size();
+			final int viewableTests = genericTests.size();
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
 			saveTestBtn = new ArrayList<JButton>(viewableTests);
-			graphTestBtn = new ArrayList<JButton>(viewableTests);
 			DAGTestBtn = new ArrayList<JButton>(viewableTests);
-			mediaPlayerBtn = new ArrayList<JButton>(viewableTests);
 			testNameTextField = new ArrayList<JTextField>(viewableTests);
 
 			for(int i = 0; i < viewableTests; i++) {
@@ -2086,8 +2003,7 @@ public class AdvancedMode extends JFrame {
 				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
 				testNameTextField.get(i).setBounds(10, 11, 335, 29);
 				testNameTextField.get(i).setColumns(10);
-				testNameTextField.get(i).setText(dataOrgo.get(i).getName());
-
+				testNameTextField.get(i).setText(genericTests.get(i).getName());
 
 				testNumPaneArray.get(i).add(testNameTextField.get(i));
 
@@ -2098,32 +2014,23 @@ public class AdvancedMode extends JFrame {
 						System.out.println("test");
 						for(int i = 0; i < viewableTests; i++) {
 							if(saveTestBtn.get(i) == e.getSource()) {
-								dataOrgo.get(i).setName(testNameTextField.get(i).getText()); // This changes the name of the test (within the dataOrgoObject) to match the test name text field. Therefore, the save button will save a csv of the test data with the new name to the designated save location.
-								if(dataOrgo.get(i).createCSVP() != 0) {
+								genericTests.get(i).setName(testNameTextField.get(i).getText()); // This changes the name of the test (within the dataOrgoObject) to match the test name text field. Therefore, the save button will save a csv of the test data with the new name to the designated save location.
+								
+								/*
+								======================================
+								FIXME add "Save" functionality back in
+								======================================
+								if(genericTests.get(i).createCSVP() != 0) {
 									generalStatusLabel.setText("Could not save file parameters. You will not be able to regraph this test in our application.");
 								}
-								if(dataOrgo.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected()) != 0)
+								if(genericTests.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected()) != 0)
 									generalStatusLabel.setText("Could not save your file. Do you have a file with that name already?");
 								generalStatusLabel.setText("File created successfully");
-									
+								*/
 							}
 						}
 					}
 				});
-
-				testNumPaneArray.get(i).add(saveTestBtn.get(i));
-
-				graphTestBtn.add(new JButton("SINC"));
-				graphTestBtn.get(i).setBounds(420, 13, 60, 23);
-				graphTestBtn.get(i).addActionListener(new ActionListener() {
-
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("Separate graph button");
-						launchSINCGraph(dataOrgo, e);
-					}
-				});
-
-				testNumPaneArray.get(i).add(graphTestBtn.get(i));
 
 				int index = i;
 				DAGTestBtn.add(new JButton("Data Analysis Graph"));
@@ -2140,18 +2047,9 @@ public class AdvancedMode extends JFrame {
 
 				});
 
+				testNumPaneArray.get(i).add(saveTestBtn.get(i));
 				testNumPaneArray.get(i).add(DAGTestBtn.get(i));
 
-				mediaPlayerBtn.add(new JButton("Media Player"));
-				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
-				mediaPlayerBtn.get(i).setVisible(false);
-				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						launchSINCGraph(dataOrgo, e);
-					}
-				});
-				
-				testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
 			}
 
 			for(int i = 0; i < testNumPaneArray.size();i++) {
@@ -2159,37 +2057,6 @@ public class AdvancedMode extends JFrame {
 			}
 		}
 	}
-
-	public void shareFrameGraphAndMedia(GraphController graph, VLCJMediaPlayerController MPC) {
-		Runnable updatePosInGraph = new Runnable() {
-			public void run() {
-				try {
-					int currentFrame = -1;
-					while(true) {
-						if(MPC != null) 
-							if(MPC.hasVideoSelected()) {
-								while(currentFrame != MPC.getCurrentFrame()) {
-									Thread.sleep(75);
-									if(graph != null)
-										graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
-									currentFrame = MPC.getCurrentFrame();
-								}
-							}
-						Thread.sleep(100);
-					} 
-				}catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		};
-		
-		Thread updatePosInGraphThread = new Thread(updatePosInGraph);
-		updatePosInGraphThread.start();
-	}
-	
-	
-	
 	
 	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		DataOrganizer dataOrgo = new DataOrganizer();
@@ -2240,7 +2107,6 @@ public class AdvancedMode extends JFrame {
 	public void createComponents() {
 
 		genericTests = new ArrayList<GenericTest>();
-		dataOrgoList = new ArrayList<DataOrganizer>();
 
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -3003,27 +2869,6 @@ public class AdvancedMode extends JFrame {
 		launcherPane = new JPanel();
 		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
 		launcherPane.setLayout(null);
-
-		SINCGraphBtn = new JButton("Launch SINC Graph");
-		SINCGraphBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				Platform.setImplicitExit(false);
-				Platform.runLater(() -> {
-
-					GraphController g = startGraphing();
-
-					// if the correct number of data sets exist, graph them
-					if (dataOrgoList.size() >= 1) g.graphDataOrgoObject(dataOrgoList.get(0));
-					if (dataOrgoList.size() >= 2) g.graphDataOrgoObject(dataOrgoList.get(1));
-
-				});
-
-			}
-		});
-		SINCGraphBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		SINCGraphBtn.setBounds(0, 0, 625, 182);
-		launcherPane.add(SINCGraphBtn);
 
 		DAGBtn = new JButton("Launch Data Analysis Graph");
 		DAGBtn.addActionListener(new ActionListener() {
