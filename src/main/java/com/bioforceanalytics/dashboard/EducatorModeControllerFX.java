@@ -1155,8 +1155,6 @@ public class EducatorModeControllerFX implements Initializable {
                         return null;
                     }
 
-                    CSVHandler writer = new CSVHandler();
-
                     // loop through all tests read from the module
                     for (int i = 0; i < testData.size(); i++) {
 
@@ -1253,8 +1251,8 @@ public class EducatorModeControllerFX implements Initializable {
 
                         // write GenericTest to CSV
                         try {
-                            writer.writeCSV(test, testName + ".csv");
-                            writer.writeCSVP(testParameters, testName + ".csvp", MPUMinMax);
+                            CSVHandler.writeCSV(test, testName + ".csv");
+                            CSVHandler.writeCSVP(testParameters, testName + ".csvp", MPUMinMax);
                         }
                         catch (Exception e) {
                             Alert alert = new Alert(AlertType.ERROR);

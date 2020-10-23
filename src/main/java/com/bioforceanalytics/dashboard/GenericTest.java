@@ -288,6 +288,22 @@ public class GenericTest {
 	}
 
 	/**
+	 * Retrieves all test parameters.
+	 * @return the list of test parameters
+	 */
+	public ArrayList<Integer> getTestParams() {
+		return testParameters;
+	}
+
+	/**
+	 * Retrieves the list of acceleration MPU offsets.
+	 * @return the list of acceleration MPU offsets
+	 */
+	public int[] getMPUOffsets() {
+		return MPUOffsets;
+	}
+
+	/**
 	 * Shifts the time axis of all AxisDataSeries for module synchronization.
 	 * Used to shift all data sets in a GenericTest left/right.
 	 * @param offset the number of samples by which the time axis should be offset;
