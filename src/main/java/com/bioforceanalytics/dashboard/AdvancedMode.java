@@ -300,7 +300,7 @@ public class AdvancedMode extends JFrame {
 	 * 
 	 * @param args
 	 */
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 
 		// Set the look and feel to whatever the system default is.
 		try {
