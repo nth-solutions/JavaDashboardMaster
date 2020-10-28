@@ -368,6 +368,12 @@ public class SerialComm {
 	
 							//Executes if the counter != temp
 							else {
+
+								if(counter == 2 && temp == 1){
+									logger.info("SECTOR COUNT misread, ignoring...");
+									continue;
+								}
+
 								//Reset the counter
 								counter = start;
 							}
@@ -1560,6 +1566,12 @@ public class SerialComm {
 						rawData.remove(rmIndex);
 						rmIndex--;
 					}
+
+					if(rawData.size() < 960){
+                        setText("Sorry, test "+ testNum +" was not recorded", statusLabel, platformType);
+                        setProgress(0, progressBar, platformType);
+                        continue;
+                    }
 
 					while(rawData.get(rmIndex) == 255) {
 						rawData.remove(rmIndex);
