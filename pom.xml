@@ -72,18 +72,6 @@
       <artifactId>purejavacomm</artifactId>
       <version>1.0.2.RELEASE</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.aspose/aspose-cells -->
-    <dependency>
-      <groupId>com.aspose</groupId>
-      <artifactId>aspose-cells</artifactId>
-      <version>18.11</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/uk.co.caprica/vlcj -->
-    <dependency>
-      <groupId>uk.co.caprica</groupId>
-      <artifactId>vlcj</artifactId>
-      <version>3.10.1</version>
-    </dependency>
     <!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
     <dependency>
       <groupId>org.openjfx</groupId>
