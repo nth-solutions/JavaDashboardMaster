@@ -95,13 +95,17 @@ jobs:
         with:
           name: dist-mac
           path: target-mac
+      - name: Extract branch name
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV"
       - name: Push release
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          automatic_release_tag: latest-${GITHUB_REF##*/}
+          automatic_release_tag: latest-${{ env.BRANCH_NAME }}
           prerelease: true
-          title: Latest Build - \"${GITHUB_REF##*/}\" branch
+          title: Latest Build - \"${{ env.BRANCH_NAME }}\" branch
           files: |
             target-windows/LICENSE.txt
             target-windows/*.jar
