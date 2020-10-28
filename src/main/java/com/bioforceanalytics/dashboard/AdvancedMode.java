@@ -12,6 +12,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,8 +40,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.sun.media.jfxmedia.logging.Logger;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -209,7 +209,6 @@ public class AdvancedMode extends JFrame {
 	private Thread getParamThread;
 
 	// Output File Info and Variables
-	private String nameOfFile = ""; // Sets the name of file to an empty string to start
 	private static SerialComm serialHandler;
 	// Flags
 	private boolean frameInitialized = false;
@@ -1407,38 +1406,23 @@ public class AdvancedMode extends JFrame {
 						testLengthTextFieldRead.setText(Integer.toString(testLength)); // Test Length
 						numTestsTextFieldRead.setText(Integer.toString(expectedTestNum)); // Number of tests
 						accelGyroSampleRateTextFieldRead.setText(Integer.toString(accelGyroSampleRate));// Accel Gyro
-																										// Sample Rate
+
 						magSampleRateTextFieldRead.setText(Integer.toString(magSampleRate)); // Mag Sample Rate
 						accelSensitivityTextFieldRead.setText(Integer.toString(accelSensitivity)); // Accel Sensitivity
 						gyroSensitivityTextFieldRead.setText(Integer.toString(gyroSensitivity)); // Gyro Sensitivity
 						accelFilterTextFieldRead.setText(Integer.toString(accelFilter)); // Accel Filter
 						gyroFilterTextFieldRead.setText(Integer.toString(gyroFilter)); // Gyro Filter
-						nameOfFile = fileNameTextField.getText();
 
 						// Executes if there are tests on the module
 						if (expectedTestNum > 0) {
 
-							// Get date for file name
-							Date date = new Date();
-
-							// Assign file name
-							nameOfFile = "";
-							nameOfFile += prefixTextField.getText();
-							nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity
-									+ "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N "
-									+ date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-							fileNameTextField.setText(nameOfFile);
-
 							HashMap<Integer, ArrayList<Integer>> testData;
-
-							System.out.println("Right before readTestData");
 
 							// Store the test data from the dashboard passing in enough info that the
 							// progress bar will be accurately updated
 							testData = serialHandler.readTestDataSwing(expectedTestNum, progressBar,
 									generalStatusLabel);
 
-							System.out.println("Test Data Read?");
 							System.out.println(testData);
 
 							generalStatusLabel.setText("All Data Received from Module");
@@ -1460,11 +1444,18 @@ public class AdvancedMode extends JFrame {
 											break;
 										}
 									}
-									String tempNameOfFile = "(#" + (testIndex + 1) + ")" + nameOfFile;
 
-									GenericTest g = new GenericTest(testParameters, finalData, mpuMinMax);
-									g.setName(tempNameOfFile);
-									genericTests.add(g);
+									GenericTest test = new GenericTest(testParameters, finalData, mpuMinMax);
+									
+									// create timestamp for CSV/CSVP
+									SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
+									String timestamp = sdf.format(new Timestamp(new Date().getTime()));
+
+									String testType = test.getClass().getSimpleName();
+									String testName = testType + " #" + (testIndex + 1) + " " + timestamp;
+
+									test.setName(testName);
+									genericTests.add(test);
 
 								}
 
@@ -2023,14 +2014,14 @@ public class AdvancedMode extends JFrame {
 
 								// create CSV
 								try {
-									CSVHandler.writeCSV(test, nameOfTest);
+									CSVHandler.writeCSV(test, nameOfTest + ".csv");
 								} catch (FileNotFoundException e1) {
 									generalStatusLabel.setText("Error saving CSV file.");
 								}
 
 								// create CSVP
 								try {
-									CSVHandler.writeCSVP(test.getTestParams(), nameOfTest + "p", test.getMPUOffsets());
+									CSVHandler.writeCSVP(test.getTestParams(), nameOfTest + ".csvp", test.getMPUOffsets());
 								} catch (FileNotFoundException e1) {
 									generalStatusLabel.setText("Error saving CSVP file.");
 								}
