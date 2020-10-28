@@ -2030,7 +2030,7 @@ public class AdvancedMode extends JFrame {
 
 								// create CSVP
 								try {
-									CSVHandler.writeCSVP(test.getTestParams(), nameOfTest, test.getMPUOffsets());
+									CSVHandler.writeCSVP(test.getTestParams(), nameOfTest + "p", test.getMPUOffsets());
 								} catch (FileNotFoundException e1) {
 									generalStatusLabel.setText("Error saving CSVP file.");
 								}
