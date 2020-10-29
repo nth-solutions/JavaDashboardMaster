@@ -200,11 +200,11 @@ public class EducatorModeControllerFX implements Initializable {
     public static String testType;
 
     // indicates the number of pages in the Experiment tab
-    private final int NUM_OF_STEPS = 4;
+    private final int NUM_OF_STEPS = 3;
 
     // actually indicates the last page for two-module tests;
-    // since indices 0-4 are one-module, 5-10 are two-module
-    private final int NUM_OF_STEPS_TWO_MODULE = 10;
+    // since indices 0-3 are one-module, 4-9 are two-module
+    private final int NUM_OF_STEPS_TWO_MODULE = 9;
 
     private Boolean oneModuleTest;
 
@@ -442,7 +442,7 @@ public class EducatorModeControllerFX implements Initializable {
         }
         // if this is a two-module test and the user clicks next on step 1, skip to the two-module steps at index 5
         else if (!oneModuleTest && experimentTabIndex == 0) {
-            experimentTabIndex = 5;
+            experimentTabIndex = NUM_OF_STEPS + 1;
             backButton.setVisible(true);
         }
         // otherwise, move to the next step
