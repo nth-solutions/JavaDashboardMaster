@@ -105,7 +105,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           automatic_release_tag: latest-${{ env.BRANCH_NAME }}
           prerelease: true
-          title: Latest Build - \"${{ env.BRANCH_NAME }}\" branch
+          title: Latest "${{ env.BRANCH_NAME }}" build
           files: |
             target-windows/LICENSE.txt
             target-windows/*.jar
