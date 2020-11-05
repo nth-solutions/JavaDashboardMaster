@@ -746,13 +746,13 @@ public class GraphNoSINCController implements Initializable {
 	public void clearDataSets(ActionEvent event) {
 
 		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setHeaderText("Clear Data Sets");
-		alert.setContentText("Are you sure you want to clear all data sets?");
+		alert.setHeaderText("Remove All Tests");
+		alert.setContentText("Are you sure you want to remove all currently loaded tests?");
 		Optional<ButtonType> result = alert.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
 
-			logger.info("Clearing all data sets...");
+			logger.info("Removing all tests...");
 
 			// clear GTs, un-graph data sets, then clear the data sets list
 			genericTests.clear();

@@ -44,7 +44,7 @@
 				<Menu mnemonicParsing="false" text="Data">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#openColorMenu" text="Customize Colors" />
-						<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear Data Sets" />
+						<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Remove All Tests" />
 					</items>
 				</Menu>
 			</menus>
