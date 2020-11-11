@@ -320,14 +320,6 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    SINCCalibrationHelpMenuController SINCCalibrationHelpMenu;
-
-    @FXML
-    public void launchSINCCalibrationHelpMenu(){
-        SINCCalibrationHelpMenu = startSINCHelpMenu();
-    }
-
-    @FXML
     public EducationModeHelpMenuController startHelpMenu() {
         Stage primaryStage = new Stage();
         Parent root = null;
@@ -341,26 +333,6 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("Education Mode Help Menu");
-        primaryStage.getIcons().add(icon);
-        primaryStage.show();
-        primaryStage.setResizable(false);
-
-        return loader.getController();
-    }
-
-    @FXML
-    public SINCCalibrationHelpMenuController startSINCHelpMenu() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/SINCCalibrationHelpMenu.fxml"));
-        try{
-            root = loader.load();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 800));
-
-        primaryStage.setTitle("SINC Calibration Help Menu");
         primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
@@ -1541,24 +1513,6 @@ public class EducatorModeControllerFX implements Initializable {
         
         logger.info("Loaded CSV in " + elapsedTime/1e9d + " seconds");
         
-    }
-
-    public MediaPlayerController startMediaPlayer() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/MediaPlayerStructure.fxml"));
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        primaryStage.setTitle("Video Player");
-        primaryStage.getIcons().add(icon);
-        if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
-        primaryStage.show();
-        primaryStage.setResizable(false);
-        return loader.getController();
     }
 
     /**

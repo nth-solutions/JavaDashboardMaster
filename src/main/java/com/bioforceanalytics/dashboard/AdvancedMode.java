@@ -1900,26 +1900,6 @@ public class AdvancedMode extends JFrame {
 
 	}
 
-	public MediaPlayerController startMediaPlayer() {
-		Stage primaryStage = new Stage();
-		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/MediaPlayerStructure.fxml"));
-		try {
-			root = loader.load();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		primaryStage.setTitle("Video Player");
-		if (root != null)
-			primaryStage.setScene(new Scene(root, 1280, 720));
-		primaryStage.getIcons().add(icon);
-		primaryStage.show();
-		primaryStage.setResizable(false);
-		return loader.getController();
-	}
-
 	public HelpMenuController startHelpMenu() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
