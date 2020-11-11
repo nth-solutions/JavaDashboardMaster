@@ -41,6 +41,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.io.IoBuilder;
+
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
@@ -300,6 +304,11 @@ public class AdvancedMode extends JFrame {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
+		// redirect stdout and stderr to Log4J: this adds more detailed info,
+        // and most importantly, saves all console output to a .log file
+        System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
+        System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
 
 		// Set the look and feel to whatever the system default is.
 		try {
