@@ -10,7 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Testing class used to launch the Data Analysis Graph.
+ * Testing class used to launch the BioForce Graph.
  * @deprecated not up to date and potentially broken,
  * launch through the Dashboard instead.
  */

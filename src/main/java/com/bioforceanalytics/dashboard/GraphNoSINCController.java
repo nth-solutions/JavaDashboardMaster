@@ -54,7 +54,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
- * Controller class for the Data Analysis Graph. Handles all user interaction with the user interface,
+ * Controller class for the BioForce Graph. Handles all user interaction with the user interface,
  * as well as processing data sets for JavaFX use, retrieving calculations from
  * {@link com.bioforceanalytics.dashboard.GenericTest GenericTests}, calculating zooming/panning/scaling of the graph,
  * displaying data point labels, tracking currently graphed data sets, and more.
@@ -129,7 +129,7 @@ public class GraphNoSINCController implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		logger.info("Initializing Data Analysis graph...");
+		logger.info("Initializing BioForce Graph...");
 
 		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 
@@ -217,7 +217,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph with a single GenericTest.
+	 * Populates the BioForce Graph with a single GenericTest.
 	 * @param g the GenericTest representing a single trial
 	 */
 	public void setGenericTest(GenericTest g) {
@@ -226,7 +226,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph with multiple GenericTests. This
+	 * Populates the BioForce Graph with multiple GenericTests. This
 	 * constructor should be used when multiple modules/trials are used in a test.
 	 * 
 	 * @param g array of GenericTests (each one represents one trial)
@@ -237,7 +237,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
+	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -251,7 +251,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
+	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -952,7 +952,7 @@ public class GraphNoSINCController implements Initializable {
 		primaryStage.initModality(Modality.APPLICATION_MODAL);
 		primaryStage.initOwner(lineChart.getScene().getWindow());
 
-        primaryStage.setTitle("Data Analysis Graph - Color Menu");
+        primaryStage.setTitle("BioForce Graph - Color Menu");
 		primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);

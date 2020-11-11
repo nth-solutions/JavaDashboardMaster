@@ -142,7 +142,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Shades area under a section of a curve by drawing trapezoids between adjacent points and the x-axis.
-     * Takes XYChart-based objects as arguments for ease of use in the Data Analysis Graph.
+     * Takes XYChart-based objects as arguments for ease of use in the BioForce Graph.
      * @param p1 the left bound of the area
      * @param p2 the right bound of the area
      * @param data the data set that should be shaded in

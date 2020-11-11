@@ -1872,7 +1872,7 @@ public class AdvancedMode extends JFrame {
 
 	public GraphNoSINCController launchDAG() {
 
-		System.out.println("Loading Data Analysis Graph...");
+		System.out.println("Loading BioForce Graph...");
 
 		Stage primaryStage = new Stage();
 		FXMLLoader loader = new FXMLLoader((getClass().getResource("fxml/GraphNoSINC.fxml")));
@@ -1881,7 +1881,7 @@ public class AdvancedMode extends JFrame {
 		try {
 
 			root = loader.load();
-			primaryStage.setTitle("BioForce Data Analysis Graph");
+			primaryStage.setTitle("BioForce Graph");
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
 			primaryStage.setMinWidth(600);
@@ -1892,7 +1892,7 @@ public class AdvancedMode extends JFrame {
 			primaryStage.show();
 
 		} catch (IOException e) {
-			System.out.println("Error loading Data Analysis Graph.");
+			System.out.println("Error loading BioForce Graph.");
 			e.printStackTrace();
 		}
 
@@ -2014,7 +2014,7 @@ public class AdvancedMode extends JFrame {
 				});
 
 				int index = i;
-				DAGTestBtn.add(new JButton("Data Analysis Graph"));
+				DAGTestBtn.add(new JButton("BioForce Graph"));
 				DAGTestBtn.get(i).setBounds(485, 13, 130, 23);
 				DAGTestBtn.get(i).addActionListener(new ActionListener() {
 
@@ -2851,7 +2851,7 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
 		launcherPane.setLayout(null);
 
-		DAGBtn = new JButton("Launch Data Analysis Graph");
+		DAGBtn = new JButton("Launch BioForce Graph");
 		DAGBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Platform.runLater(() -> {

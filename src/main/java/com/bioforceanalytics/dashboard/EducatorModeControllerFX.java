@@ -208,7 +208,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     private Boolean oneModuleTest;
 
-    // BFA icon used for the Dashboard, SINC Graph, and DAG
+    // BFA icon used for the Dashboard and Graph
     private Image icon;
 
     private static final Logger logger = LogManager.getLogger();
@@ -1242,7 +1242,7 @@ public class EducatorModeControllerFX implements Initializable {
                     // automatically launch the appropriate graph for one-module tests
                     if (oneModuleTest) {
 
-                        logger.info("Launching Data Analysis Graph...");
+                        logger.info("Launching BioForce Graph...");
 
                         Platform.runLater(() -> {
                             GraphNoSINCController graph = startGraphingNoSINC();
@@ -1516,7 +1516,7 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     /**
-     * Loads and launches the Data Analysis Graph.
+     * Loads and launches the BioForce Graph.
      */
     public GraphNoSINCController startGraphingNoSINC() {
 
@@ -1527,7 +1527,7 @@ public class EducatorModeControllerFX implements Initializable {
 		try {
 			
 			root = loader.load();
-			primaryStage.setTitle("BioForce Data Analysis Graph");
+			primaryStage.setTitle("BioForce Graph");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
 	        primaryStage.setMinWidth(450);
@@ -1538,7 +1538,7 @@ public class EducatorModeControllerFX implements Initializable {
 	        primaryStage.show();
 	        
 		} catch (IOException e) {
-			logger.error("Error loading Data Analysis Graph.");
+			logger.error("Error loading BioForce Graph.");
 			e.printStackTrace();
 		}
         

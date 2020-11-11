@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * General-purpose class used for reading and writing data to CSV files.
- * Mainly used by the Data Analysis Graph for reading saved test data.
+ * Mainly used by the BioForce Graph for reading saved test data.
  */
 public class CSVHandler {
 	
