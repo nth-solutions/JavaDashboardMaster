@@ -23,9 +23,6 @@ public class EducationModeHelpMenuController implements Initializable {
     TabPane ExperimentHelpTabPane;
 
     @FXML
-    TabPane SINCTechnologyHelpTabPane;
-
-    @FXML
     TabPane SINCModuleCalibrationTabPane;
 
     @FXML
@@ -41,10 +38,7 @@ public class EducationModeHelpMenuController implements Initializable {
     Tab experimentHelpTab;
 
     @FXML
-    Tab SINCTechnologyHelpTab;
-
-    @FXML
-    Tab SINCCalirbationHelpTab;
+    Tab SINCCalibrationHelpTab;
 
     @FXML
     Tab experimentHelpTabTwo;
@@ -54,9 +48,6 @@ public class EducationModeHelpMenuController implements Initializable {
 
     @FXML
     Tab experimentHelpTabFour;
-
-    @FXML
-    Tab experimentHelpTabFive;
 
     @FXML
     Tab blankTab;
@@ -83,16 +74,9 @@ public class EducationModeHelpMenuController implements Initializable {
         EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTabFour);
     }
 
-    public void selectExperimentHelpTabFive(){
-        EducationHelpMenuTabPane.getSelectionModel().select(experimentHelpTabFive);
-    }
-
-    public void selectSINCTechnologyHelpTab(){
-        EducationHelpMenuTabPane.getSelectionModel().select(SINCTechnologyHelpTab);
-    }
     // FIXME typo in FXML field name
     public void selectSINCModuleCalibrationTab(){
-        EducationHelpMenuTabPane.getSelectionModel().select(SINCCalirbationHelpTab);
+        EducationHelpMenuTabPane.getSelectionModel().select(SINCCalibrationHelpTab);
     }
     public void selectBlankTab(){
         EducationHelpMenuTabPane.getSelectionModel().select(blankTab);

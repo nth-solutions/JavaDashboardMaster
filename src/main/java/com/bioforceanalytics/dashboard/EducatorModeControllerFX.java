@@ -96,10 +96,6 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Button exitTestModeButton;
     @FXML
-    RadioButton sincTechnologyRadioButton;
-    @FXML
-    RadioButton DAGRadioButton;
-    @FXML
     ProgressBar progressBar;
 
     @FXML
@@ -268,8 +264,6 @@ public class EducatorModeControllerFX implements Initializable {
             helpmenu.selectEraseModuleHelpTabOne();
         } else if (t.equals(unpairRemotesTab)) {
             helpmenu.selectUnpairRemotesHelpTab();
-        }else if (t.equals(motionVisualizationTab)) {
-            helpmenu.selectSINCTechnologyHelpTab();
         } else if (t.equals(sincCalibrationTab)) {
             helpmenu.selectSINCModuleCalibrationTab();
         }else if (t.equals(eraseConfirmationTab)) {
@@ -291,13 +285,9 @@ public class EducatorModeControllerFX implements Initializable {
                     case 2:
                         helpmenu.selectExperimentHelpTabThree();
                         break;
-
+                    
                     case 3:
                         helpmenu.selectExperimentHelpTabFour();
-                        break;
-
-                    case 4:
-                        helpmenu.selectExperimentHelpTabFive();
                         break;
 
                     default:
