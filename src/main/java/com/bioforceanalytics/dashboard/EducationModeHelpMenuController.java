@@ -39,9 +39,6 @@ public class EducationModeHelpMenuController implements Initializable {
     Tab experimentHelpTabFour;
 
     @FXML
-    Tab experimentHelpTabFive;
-
-    @FXML
     Tab blankTab;
 
     @FXML

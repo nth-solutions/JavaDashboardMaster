@@ -9,13 +9,18 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -25,6 +30,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
@@ -33,6 +39,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -40,7 +47,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
@@ -54,32 +63,44 @@ import purejavacomm.PortInUseException;
 import purejavacomm.UnsupportedCommOperationException;
 
 /**
- * AdvancedMode.java
- * Purpose: This class handles the advanced gui and interacts with the SerialComm.java utility class to talk to the module
+ * AdvancedMode.java Purpose: This class handles the advanced gui and interacts
+ * with the SerialComm.java utility class to talk to the module
  *
- * Design Patterns: This class exclusively handles GUI elements and calls external methods for any other operations. Every action event should call a handler method
- * 					which sets the GUI elements, defines a Runnable operation then starts that operation in a separate thread. No GUI elements can be updated until
- * 					the action event completes so by starting the actual operation in a separate thread then completing the action event, the dashboard will update.
- * 					Additionally, most methods return a boolean if not a data structure in order to allow for easy exiting of the method if the execution is unsuccessful
- * 					If a method is unsuccessful, it will return false or return a null data structure (such as a null ArrayList). In many cases, it is necessary to surround
- * 					a method call with an if statement to track whether or not the method successfully completed.* 
+ * Design Patterns: This class exclusively handles GUI elements and calls
+ * external methods for any other operations. Every action event should call a
+ * handler method which sets the GUI elements, defines a Runnable operation then
+ * starts that operation in a separate thread. No GUI elements can be updated
+ * until the action event completes so by starting the actual operation in a
+ * separate thread then completing the action event, the dashboard will update.
+ * Additionally, most methods return a boolean if not a data structure in order
+ * to allow for easy exiting of the method if the execution is unsuccessful If a
+ * method is unsuccessful, it will return false or return a null data structure
+ * (such as a null ArrayList). In many cases, it is necessary to surround a
+ * method call with an if statement to track whether or not the method
+ * successfully completed.*
  *
- * COMMENT TERMINOLOGY:
- *  - Caller: The class, object, location, or method in which the currently executing method was called. ex) The bulkEraseHandler() 'Calls' the bulkEraseModule() method so the bulkEraseHandler() is the caller
- *  - User: The person using the dashboard, not the programmer.
+ * COMMENT TERMINOLOGY: - Caller: The class, object, location, or method in
+ * which the currently executing method was called. ex) The bulkEraseHandler()
+ * 'Calls' the bulkEraseModule() method so the bulkEraseHandler() is the caller
+ * - User: The person using the dashboard, not the programmer.
  */
 
 public class AdvancedMode extends JFrame {
 
 	// IMPORTANT: DO NOT REMOVE THIS FIELD
-	// This is a workaround in JavaFX 8 to allow the FX Application thread to be set up.
-	// Without this, launching either graphing application will fail with a "Toolkit not initialized" error.
+	// This is a workaround in JavaFX 8 to allow the FX Application thread to be set
+	// up.
+	// Without this, launching either graphing application will fail with a "Toolkit
+	// not initialized" error.
 	private JFXPanel fxPanel = new JFXPanel();
 
-	//GUI Elements, define here if they need to be accessed in the Dashboard class. To quickly identify what panel you want to reference, open the GUI in
-	//WindowBuilder, click on the desired GUI item and see what it's "Variable" field name is. It will be defined at the bottom in the initComponents() method by default so move the definition up here
+	// GUI Elements, define here if they need to be accessed in the Dashboard class.
+	// To quickly identify what panel you want to reference, open the GUI in
+	// WindowBuilder, click on the desired GUI item and see what it's "Variable"
+	// field name is. It will be defined at the bottom in the initComponents()
+	// method by default so move the definition up here
 
-	//Panels
+	// Panels
 	private JPanel contentPanel;
 	private JPanel mainPanelContainer;
 	private JTabbedPane mainTabbedPanel;
@@ -96,19 +117,19 @@ public class AdvancedMode extends JFrame {
 	private JPanel remoteTab;
 	private JPanel RemoteButtonPanel;
 
-	//Labels
+	// Labels
 	private JLabel generalStatusLabel;
 	private JLabel moduleSerialNumberLabel;
 	private JLabel hardwareIDLabel;
 	private JLabel firmwareIDLabel;
 
-	//CheckBoxes
+	// CheckBoxes
 	private JCheckBox timedTestCheckbox;
 	private JCheckBox triggerOnReleaseCheckbox;
 
-	//Text Fields
+	// Text Fields
 
-	//Configuration Tab
+	// Configuration Tab
 	private JTextField testLengthTextField;
 
 	private JTextField magSampleRateTextField;
@@ -116,7 +137,7 @@ public class AdvancedMode extends JFrame {
 	private JTextField timer0TickThreshTextField;
 	private JTextField batteryTimeoutTextField;
 
-	//Read Tab
+	// Read Tab
 	private JTextField prefixTextField;
 	private JTextField suffixTextField;
 	private JTextField numTestsTextFieldRead;
@@ -128,17 +149,17 @@ public class AdvancedMode extends JFrame {
 	private JTextField accelFilterTextFieldRead;
 	private JTextField gyroFilterTextFieldRead;
 
-	//Calibration Tab
+	// Calibration Tab
 	private JTextField tmr0OffsetTextField;
 
-	//Combo Boxes
+	// Combo Boxes
 	private JComboBox commPortCombobox;
 	private JComboBox accelGyroSampleRateCombobox;
 	private JComboBox accelSensitivityCombobox;
 	private JComboBox gyroSensitivityCombobox;
 	private JComboBox accelFilterCombobox;
 	private JComboBox gyroFilterCombobox;
-	//Buttons
+	// Buttons
 	private JButton refreshPortButton;
 	private JButton disconnectButton;
 	private JButton writeConfigsButton;
@@ -156,44 +177,35 @@ public class AdvancedMode extends JFrame {
 	private JButton configForCalButton;
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
-	private ArrayList<JButton> saveTestBtn;
-	private ArrayList<JButton> graphTestBtn;
-	private ArrayList<JButton> DAGTestBtn;
-	private ArrayList<JButton> mediaPlayerBtn;
 
-	//Progress Bars
+	// Progress Bars
 	private JProgressBar progressBar;
 
-	//JSeparators
+	// JSeparators
 	private JSeparator separator;
 
-	//UI Controllers
-	GraphController lineGraph;
-	VLCJMediaPlayerController mediaController;
-	
-	//Test Parameter Variables and Constants
+	// Test Parameter Variables and Constants
 	public static final int NUM_TEST_PARAMETERS = 13;
 	public static final int NUM_ID_INFO_PARAMETERS = 3;
 	public static final int CURRENT_FIRMWARE_ID = 26;
 	public static final String CURRENT_FIRMWARE_STRING = "26";
 
 	private int expectedTestNum;
-	//Test Parameters (All must be of type "int")
+	// Test Parameters (All must be of type "int")
 	private int timedTestFlag;
 	private int triggerOnReleaseFlag;
 	private int battTimeoutLength;
 	private int timer0TickThreshold;
 	private int delayAfterStart;
-	private int testLength;      			
-	private int accelGyroSampleRate;    		
-	private int magSampleRate;          			
-	private int accelSensitivity;       		
-	private int gyroSensitivity;        		
-	private int accelFilter;            			
-	private int gyroFilter;             		
+	private int testLength;
+	private int accelGyroSampleRate;
+	private int magSampleRate;
+	private int accelSensitivity;
+	private int gyroSensitivity;
+	private int accelFilter;
+	private int gyroFilter;
 
-
-	//Operation Threads
+	// Operation Threads
 	private Thread readThread;
 	private Thread paramThread;
 	private Thread infoThread;
@@ -205,15 +217,16 @@ public class AdvancedMode extends JFrame {
 	private Thread testRemoteThread;
 	private Thread getParamThread;
 
-	//Output File Info and Variables
-	private String nameOfFile = "";     			//Sets the name of file to an empty string to start
+	// Output File Info and Variables
 	private static SerialComm serialHandler;
-	//Flags
+	// Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
 	private boolean hideWindow = false;
 
-	public static AdvancedMode guiInstance;		//The single instance of the dashboard that can be referenced anywhere in the class. Defined to follow the Singleton Method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples		
+	public static AdvancedMode guiInstance; // The single instance of the dashboard that can be referenced anywhere in
+											// the class. Defined to follow the Singleton Method:
+											// https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples
 	private JPanel calOffsetsPanel;
 	private JTextField delayAfterTextField;
 	private JPanel videoBrowsePanel;
@@ -223,17 +236,20 @@ public class AdvancedMode extends JFrame {
 	private JCheckBox checkBoxLabelCSV;
 	private JCheckBox checkBoxSignedData;
 
-	private List<DataOrganizer> dataOrgoList;
 	private ArrayList<GenericTest> genericTests;
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JPanel testRecordationPanel;
 	private ArrayList<JPanel> testNumPaneArray;
+	private ArrayList<JCheckBox> testCheckBoxes;
 	private ArrayList<JTextField> testNameTextField;
+	private JButton clearSelectedBtn;
+	private JButton saveSelectedBtn;
+	private JButton graphSelectedBtn;
+	private boolean noneSelected = true;
 
 	private JButton helpBtn;
 	private JTextField fileNameTextField;
 	private JPanel launcherPane;
-	private JButton SINCGraphBtn;
 	private JButton DAGBtn;
 
 	private String moduleSerialID;
@@ -241,9 +257,6 @@ public class AdvancedMode extends JFrame {
 	private JTextField modelNumberTextField;
 	private JTextField passwordTextField;
 	private JPanel adminPanelContent;
-	private JPanel panel9;
-	private JComboBox templateComboBox;
-	private JLabel lblSelectTheTemplate;
 	private JPanel mpuCalibrationPanel;
 	private JTextField xAxisAccelTextField;
 	private JTextField xAxisGyroTextField;
@@ -262,14 +275,13 @@ public class AdvancedMode extends JFrame {
 	// icon for DAG + SINC Graph
 	private Image FXIcon;
 
-	private static final Logger logger = LogManager.getLogger();
-	
 	/**
-	 * Dashboard constructor that initializes the name of the window, all the components on it, and the data within the necessary text fields
+	 * Dashboard constructor that initializes the name of the window, all the
+	 * components on it, and the data within the necessary text fields
 	 */
 	AdvancedMode() {
-        serialHandler = new SerialComm();
-		setTitle("BioForce Advanced Dashboard");//Internal: D
+		serialHandler = new SerialComm();
+		setTitle("BioForce Advanced Dashboard");// Internal: D
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -279,8 +291,13 @@ public class AdvancedMode extends JFrame {
 	}
 
 	/**
-	 * Necessary for singleton design pattern, especially the "synchronized" keyword for more info on the singleton method: https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples
-	 * @return the one and only allowed dashboard instance, singleton pattern specifies only one instance can exist so there are not several instances of the dashboard with different variable values
+	 * Necessary for singleton design pattern, especially the "synchronized" keyword
+	 * for more info on the singleton method:
+	 * https://www.journaldev.com/1377/java-singleton-design-pattern-best-practices-examples
+	 * 
+	 * @return the one and only allowed dashboard instance, singleton pattern
+	 *         specifies only one instance can exist so there are not several
+	 *         instances of the dashboard with different variable values
 	 */
 	public static synchronized AdvancedMode getFrameInstance() {
 		if (guiInstance == null) {
@@ -289,26 +306,32 @@ public class AdvancedMode extends JFrame {
 		return guiInstance;
 	}
 
-
 	/**
 	 * Main execution loop.
+	 * 
 	 * @param args
 	 */
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 
+		// redirect stdout and stderr to Log4J: this adds more detailed info,
+		// and most importantly, saves all console output to a .log file
+		System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
+		System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
+
+		// Set the look and feel to whatever the system default is.
 		logger.info("Version: " + Settings.getVersion());
-        logger.info("Build date: " + Settings.getBuildDate());
+    logger.info("Build date: " + Settings.getBuildDate());
 
 		//Set the look and feel to whatever the system default is.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			System.out.println("Error Setting Look and Feel: " + e);
 		}
 
-		//Default the gui that will be opened to null (gui selected in following try/catch block
-		//serialHandler = new SerialComm();
+		// Default the gui that will be opened to null (gui selected in following
+		// try/catch block
+		// serialHandler = new SerialComm();
 		Runnable frameRunner = new Runnable() {
 			public void run() {
 				try {
@@ -323,7 +346,8 @@ public class AdvancedMode extends JFrame {
 		frameThread.run();
 	}
 
-	//see previous commit for associated changes with the commit message for this commit.
+	// see previous commit for associated changes with the commit message for this
+	// commit.
 
 	/**
 	 * Updates the ports combobox with the string ID's of the available serial ports
@@ -333,8 +357,7 @@ public class AdvancedMode extends JFrame {
 		if (commPortIDList != null) {
 			commPortCombobox.setEnabled(true);
 			commPortCombobox.setModel(new DefaultComboBoxModel(commPortIDList.toArray()));
-		}
-		else {
+		} else {
 			generalStatusLabel.setText("No Serial Dongle Found");
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255, 0, 0));
@@ -345,92 +368,97 @@ public class AdvancedMode extends JFrame {
 	public void findModuleCommPort() {
 		Runnable findModuleOperation = new Runnable() {
 			public void run() {
-				Platform.setImplicitExit(false); // Given that this runs when the dashboard opens, this prevents the initial thread from petering out and breaking future threads.
+				Platform.setImplicitExit(false); // Given that this runs when the dashboard opens, this prevents the
+													// initial thread from petering out and breaking future threads.
 				try {
 					ArrayList<String> commPortIDList = serialHandler.findPorts();
 					updateCommPortComboBox();
 					boolean moduleFound = false;
 					int commPortIndex = 0;
-					if(commPortIDList != null)
+					if (commPortIDList != null)
 						while (!moduleFound && commPortIndex < commPortIDList.size()) {
-							//Get the string identifier (name) of the current port
-							String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();      
-	
-							//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-							if(serialHandler.openSerialPort(selectedCommID)){
+							// Get the string identifier (name) of the current port
+							String selectedCommID = commPortCombobox.getItemAt(commPortIndex).toString();
+
+							// Open the serial port with the selected name, initialize input and output
+							// streams, set necessary flags so the whole program know that everything is
+							// initialized
+							if (serialHandler.openSerialPort(selectedCommID)) {
 								int attemptCounter = 0;
 								while (attemptCounter < 3 && !moduleFound) {
 									try {
-										ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-	
+										ArrayList<Integer> moduleIDInfo = serialHandler
+												.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+
 										if (moduleIDInfo != null) {
 											moduleFound = true;
-	
-											moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
+
+											moduleSerialNumberLabel
+													.setText("Module Serial Number: " + moduleIDInfo.get(0));
 											moduleSerialID = moduleIDInfo.get(0).toString();
-											hardwareIDLabel.setText("Module Hardware ID: " + (char)(moduleIDInfo.get(1)/256) + (char)(moduleIDInfo.get(1)%256));
+											hardwareIDLabel
+													.setText("Module Hardware ID: " + (char) (moduleIDInfo.get(1) / 256)
+															+ (char) (moduleIDInfo.get(1) % 256));
 											firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
 											if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-												generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
+												generalStatusLabel.setText("Incompatable Firmware Version: "
+														+ moduleIDInfo.get(2) + ", Program Module with Version "
+														+ CURRENT_FIRMWARE_STRING);
 												progressBar.setValue(100);
-												progressBar.setForeground(new Color(255, 0, 0));	
-											}
-											else {
+												progressBar.setForeground(new Color(255, 0, 0));
+											} else {
 												getConfigsHandler();
 												enableTabChanges();
 												generalStatusLabel.setText("Successfully Connected to Module");
 												progressBar.setValue(100);
 												progressBar.setForeground(new Color(51, 204, 51));
-	
-												//Enable the buttons that can now be used since the serial port opened
+
+												// Enable the buttons that can now be used since the serial port opened
 												disconnectButton.setEnabled(true);
 												getModuleIDButton.setEnabled(true);
 												readDataButton.setEnabled(true);
 												writeConfigsButton.setEnabled(true);
 												getCurrentConfigurationsButton.setEnabled(true);
 												mainTabbedPanel.setEnabled(true);
-												//Disable COMM port combobox so the user doesn't accidentally reopen a port
+												// Disable COMM port combobox so the user doesn't accidentally reopen a
+												// port
 												commPortCombobox.setEnabled(false);
 											}
-										}
-										else {
+										} else {
 											attemptCounter++;
 										}
-									}
-									catch (IOException e) {
+									} catch (IOException e) {
 										attemptCounter++;
-									}
-									catch (PortInUseException e) {
+									} catch (PortInUseException e) {
 										attemptCounter++;
-									}
-									catch (UnsupportedCommOperationException e) {
+									} catch (UnsupportedCommOperationException e) {
 										attemptCounter++;
-									}
-									catch(NullPointerException e) {
+									} catch (NullPointerException e) {
 										attemptCounter++;
 									}
 								}
-	
+
 							}
 							commPortIndex++;
 						}
 					if (!moduleFound) {
-						generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+						generalStatusLabel
+								.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 						progressBar.setValue(100);
-						progressBar.setForeground(new Color(255, 0, 0));	
+						progressBar.setForeground(new Color(255, 0, 0));
 					}
 
-				}
-				catch (IOException e) {
-					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+				} catch (IOException e) {
+					generalStatusLabel
+							.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
+					progressBar.setValue(100);
+					progressBar.setForeground(new Color(255, 0, 0));
+				} catch (PortInUseException e) {
+					generalStatusLabel
+							.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
-				catch (PortInUseException e) {
-					generalStatusLabel.setText("Could Not Locate a Module, Check Connections and Try Manually Connecting");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				} 
 			}
 		};
 		Thread findModuleThread = new Thread(findModuleOperation);
@@ -439,47 +467,49 @@ public class AdvancedMode extends JFrame {
 	}
 
 	/**
-	 * This method handles which methods will be called when the user selects a port from the COMM port combobox. This entails looking up which port they selected and then opening that port
+	 * This method handles which methods will be called when the user selects a port
+	 * from the COMM port combobox. This entails looking up which port they selected
+	 * and then opening that port
 	 */
 	private void portSelectedHandler() {
 		try {
-			//Executes if the user selected a valid COMM port
+			// Executes if the user selected a valid COMM port
 			if (commPortCombobox.getSelectedItem() != null) {
 
-				//Get the string identifier (name) of the port the user selected
-				String selectedCommID = commPortCombobox.getSelectedItem().toString();      
+				// Get the string identifier (name) of the port the user selected
+				String selectedCommID = commPortCombobox.getSelectedItem().toString();
 
-				//Open the serial port with the selected name, initialize input and output streams, set necessary flags so the whole program know that everything is initialized
-				if(serialHandler.openSerialPort(selectedCommID)){
-					System.out.println("Advanced Mode serialHandler able to open "+ selectedCommID + "when selection it");
+				// Open the serial port with the selected name, initialize input and output
+				// streams, set necessary flags so the whole program know that everything is
+				// initialized
+				if (serialHandler.openSerialPort(selectedCommID)) {
+					System.out.println(
+							"Advanced Mode serialHandler able to open " + selectedCommID + "when selection it");
 					enableTabChanges();
-					
-					//Notify the user that the port as opened successfully and is ready for a new command
+
+					// Notify the user that the port as opened successfully and is ready for a new
+					// command
 					generalStatusLabel.setText("Serial Port Opened Successfully, Awaiting Commands");
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					//Enable the buttons that can now be used since the serial port opened
+					// Enable the buttons that can now be used since the serial port opened
 					disconnectButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
 					readDataButton.setEnabled(true);
 					writeConfigsButton.setEnabled(true);
 					getCurrentConfigurationsButton.setEnabled(true);
 
-					//Disable COMM port combobox so the user doesn't accidentally reopen a port
+					// Disable COMM port combobox so the user doesn't accidentally reopen a port
 					commPortCombobox.setEnabled(false);
-					
-					
-					
+
 				}
 			}
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			generalStatusLabel.setText("Error Communicating With Serial Dongle");
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255, 0, 0));
-		}
-		catch (PortInUseException e) {
+		} catch (PortInUseException e) {
 			generalStatusLabel.setText("Serial Port Already In Use");
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255, 0, 0));
@@ -488,75 +518,69 @@ public class AdvancedMode extends JFrame {
 	}
 
 	/**
-	 * Executed when disconnect button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 * Executed when disconnect button is pressed. Since this is an action event, it
+	 * must complete before GUI changes will be visible
 	 */
 	public void disconnectButtonHandler() {
 		serialHandler.closeSerialPort();
 
-		//Notify the user that the port has been closed
-		generalStatusLabel.setText("Port Closed");  
+		// Notify the user that the port has been closed
+		generalStatusLabel.setText("Port Closed");
 
-		//Disable buttons that only work when the port is opened
+		// Disable buttons that only work when the port is opened
 		disconnectButton.setEnabled(false);
 		getModuleIDButton.setEnabled(false);
 		readDataButton.setEnabled(false);
 		writeConfigsButton.setEnabled(false);
 		getCurrentConfigurationsButton.setEnabled(false);
 
-		//Re-enable COMM port combobox so the user can select a new port to connect to
+		// Re-enable COMM port combobox so the user can select a new port to connect to
 		commPortCombobox.setEnabled(true);
 	}
 
 	public void startTestBtnHandler() {
 		Runnable startTestOperation = new Runnable() {
 			public void run() {
-				try{
+				try {
 					generalStatusLabel.setText("Taking a test...");
 					boolean NullPtrExcept = false;
-					try	{
-						if(startTestBtn.getText().toString() == "Start Test") {
+					try {
+						if (startTestBtn.getText().toString() == "Start Test") {
 							startTestBtn.setEnabled(false);
 							startTestBtn.setText("Stop Test");
 
-							if(serialHandler.startTest()) {
+							if (serialHandler.startTest()) {
 								startTestBtn.setText("Start Test");
+							} else {
+								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
 							}
-							else {
+						} else {
+							if (serialHandler.stopTest()) {
+								startTestBtn.setText("Start Test");
+							} else {
 								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
 							}
 						}
-						else {
-							if(serialHandler.stopTest()) {
-								startTestBtn.setText("Start Test");
-							}
-							else {
-								generalStatusLabel.setText("Error configuring for handshake or setting mode of module");
-							}
-						}
-					}
-					catch(NullPointerException e){
+					} catch (NullPointerException e) {
 						startTestBtn.setText("Start Test");
 						generalStatusLabel.setText("Not connected to serial port.");
 						NullPtrExcept = true;
 					}
-					if(!NullPtrExcept) {
+					if (!NullPtrExcept) {
 						generalStatusLabel.setText("Test Taken Successfully! Read the test back in \"Read Mode\" ");
 						progressBar.setForeground(new Color(51, 204, 51));
 						progressBar.setValue(100);
 						NullPtrExcept = !NullPtrExcept;
 					}
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -564,9 +588,9 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 		Runnable btnCntrl = new Runnable() {
-			public void run() {		
+			public void run() {
 				long startTime = System.currentTimeMillis();
-				//While the loop has been executing for less than 500ms
+				// While the loop has been executing for less than 500ms
 				while (((System.currentTimeMillis() - startTime) < 5500)) {
 					startTestBtn.setEnabled(false);
 					getModuleIDButton.setEnabled(false);
@@ -578,22 +602,22 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 
-
 		Thread startTestOperationThread = new Thread(startTestOperation);
 		startTestOperationThread.start();
 
 		Thread btnCntrlThread = new Thread(btnCntrl);
-		btnCntrlThread.start();  
+		btnCntrlThread.start();
 	}
 
 	/**
-	 * Executed when pair new remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 * Executed when pair new remote button is pressed. Since this is an action
+	 * event, it must complete before GUI changes will be visible
 	 */
 	public void pairNewRemoteHandler() {
-		//Specify new operation that can be run in a separate thread
+		// Specify new operation that can be run in a separate thread
 		Runnable pairNewRemoteOperation = new Runnable() {
 			public void run() {
-				//Disable buttons that should not be used in the middle of a sequence
+				// Disable buttons that should not be used in the middle of a sequence
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
@@ -606,36 +630,31 @@ public class AdvancedMode extends JFrame {
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					if(serialHandler.pairNewRemote()) {
+					if (serialHandler.pairNewRemote()) {
 						generalStatusLabel.setText("New Remote Successfully Paired");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
-					}
-					else {
+					} else {
 						generalStatusLabel.setText("Pair Unsuccessful, Receiver Timed Out");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 
-
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-				//Enable buttons that can now be used since the bulk erase completed
+				// Enable buttons that can now be used since the bulk erase completed
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
@@ -643,25 +662,24 @@ public class AdvancedMode extends JFrame {
 				getModuleIDButton.setEnabled(true);
 				exitTestModeButton.setEnabled(true);
 
-
 			}
 		};
 
-		//Define a new thread to run the operation previously defined
+		// Define a new thread to run the operation previously defined
 		pairNewRemoteThread = new Thread(pairNewRemoteOperation);
-		//Start the thread
+		// Start the thread
 		pairNewRemoteThread.start();
 	}
 
-
 	/**
-	 * Executed when unpair all remotes button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 * Executed when unpair all remotes button is pressed. Since this is an action
+	 * event, it must complete before GUI changes will be visible
 	 */
 	public void unpairAllRemotesHandler() {
-		//Specify new operation that can be run in a separate thread
+		// Specify new operation that can be run in a separate thread
 		Runnable unpairAllRemotesOperation = new Runnable() {
 			public void run() {
-				//Disable buttons that should not be used in the middle of a sequence
+				// Disable buttons that should not be used in the middle of a sequence
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
@@ -676,23 +694,19 @@ public class AdvancedMode extends JFrame {
 
 				try {
 					serialHandler.unpairAllRemotes();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
-
 
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
@@ -708,21 +722,23 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 
-		//Define a new thread to run the operation previously defined
+		// Define a new thread to run the operation previously defined
 		unpairAllRemotesThread = new Thread(unpairAllRemotesOperation);
-		//Start the thread
+		// Start the thread
 		unpairAllRemotesThread.start();
 	}
 
 	/**
-	 * Runs a thread that will put the module in a test remote mode that will automatically update the GUI based on which remote button is pressed 
-	 * Executed when test remote button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 * Runs a thread that will put the module in a test remote mode that will
+	 * automatically update the GUI based on which remote button is pressed Executed
+	 * when test remote button is pressed. Since this is an action event, it must
+	 * complete before GUI changes will be visible
 	 */
 	public void testRemotesHandler() {
-		//Specify new operation that can be run in a separate thread
+		// Specify new operation that can be run in a separate thread
 		Runnable testRemoteOperation = new Runnable() {
 			public void run() {
-				//Disable buttons that should not be used in the middle of a sequence
+				// Disable buttons that should not be used in the middle of a sequence
 				pairNewRemoteButton.setEnabled(false);
 				unpairAllRemotesButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
@@ -731,35 +747,32 @@ public class AdvancedMode extends JFrame {
 				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
 
-				//Notify the user that the bulk erase sequence has began
+				// Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Press a Button on a Remote to Test if it is Paired");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					if(!serialHandler.testRemotes(generalStatusLabel)) {
+					if (!serialHandler.testRemotes(generalStatusLabel)) {
 						generalStatusLabel.setText("Error Communicating with Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-				//Enable button
+				// Enable button
 				pairNewRemoteButton.setEnabled(true);
 				unpairAllRemotesButton.setEnabled(true);
 				testRemotesButton.setEnabled(true);
@@ -767,79 +780,77 @@ public class AdvancedMode extends JFrame {
 				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
 
-				//Notify the user that the sequence has completed
+				// Notify the user that the sequence has completed
 				generalStatusLabel.setText("Test Mode Successfully Exited");
 				progressBar.setValue(100);
 				progressBar.setForeground(new Color(51, 204, 51));
 			}
 		};
 
-		//Define a new thread to run the operation previously defined
+		// Define a new thread to run the operation previously defined
 		testRemoteThread = new Thread(testRemoteOperation);
-		//Start the thread
+		// Start the thread
 		testRemoteThread.start();
 
 	}
 
 	/**
 	 * Sets flag that will cause the testRemoteThread to exit the test remote mode
-	 * Executed when exit remote test mode button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 * Executed when exit remote test mode button is pressed. Since this is an
+	 * action event, it must complete before GUI changes will be visible
 	 */
 	public void exitTestModeHandler() {
 		serialHandler.exitRemoteTest();
 	}
 
-
 	/**
-	 * Handles the button press of the bulk erase button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
-	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume.
+	 * Handles the button press of the bulk erase button. This is an action event
+	 * which must handled before the rest of the program resumes. To prevent the
+	 * dashboard from stalling, a thread is created to run the desired operation in
+	 * the background then the handler is promptly exited so the program can resume.
 	 */
 	public void bulkEraseHandler() {
-		//Specify new operation that can be run in a separate thread
+		// Specify new operation that can be run in a separate thread
 		Runnable bulkEraseOperation = new Runnable() {
 			public void run() {
-				//Disable buttons that should not be used in the middle of a sequence
+				// Disable buttons that should not be used in the middle of a sequence
 				bulkEraseButton.setEnabled(false);
 				sectorEraseButton.setEnabled(false);
 				testRemotesButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
-				//Notify the user that the bulk erase sequence has began
+				// Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Bulk Erasing...");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
 
-					if(serialHandler.bulkEraseModule()) {
-						//Notify the user that the sequence has completed
+					if (serialHandler.bulkEraseModule()) {
+						// Notify the user that the sequence has completed
 						generalStatusLabel.setText("Bulk Erase Complete");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
-					}
-					else {
-						//Notify the user that the sequence has failed
+					} else {
+						// Notify the user that the sequence has failed
 						generalStatusLabel.setText("Bulk Erase Failed");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
-					//Enable buttons that can now be used since the sector erase completed
+					// Enable buttons that can now be used since the sector erase completed
 					bulkEraseButton.setEnabled(true);
 					sectorEraseButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -847,63 +858,59 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 
-		//Define a new thread to run the operation previously defined
+		// Define a new thread to run the operation previously defined
 		bulkEraseThread = new Thread(bulkEraseOperation);
-		//Start the thread
+		// Start the thread
 		bulkEraseThread.start();
 	}
 
-
-
 	/**
-	 * Handles the button press of the sector erase button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
-	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume.
+	 * Handles the button press of the sector erase button. This is an action event
+	 * which must handled before the rest of the program resumes. To prevent the
+	 * dashboard from stalling, a thread is created to run the desired operation in
+	 * the background then the handler is promptly exited so the program can resume.
 	 */
 	public void sectorEraseHandler() {
-		//Specify new operation that can be run in a separate thread
+		// Specify new operation that can be run in a separate thread
 		Runnable sectorEraseOperation = new Runnable() {
 			public void run() {
-				//Disable buttons that should not be used in the middle of a sequence
+				// Disable buttons that should not be used in the middle of a sequence
 				bulkEraseButton.setEnabled(false);
 				sectorEraseButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
-				//Notify the user that the bulk erase sequence has began
+				// Notify the user that the bulk erase sequence has began
 				generalStatusLabel.setText("Sector Erasing...");
 				progressBar.setValue(0);
 				progressBar.setForeground(new Color(51, 204, 51));
 
 				try {
-					if(serialHandler.sectorEraseModule()) {
-						//Notify the user that the sequence has completed
+					if (serialHandler.sectorEraseModule()) {
+						// Notify the user that the sequence has completed
 						generalStatusLabel.setText("Sector Erase Complete");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
-					}
-					else {
+					} else {
 
-						//Notify the user that the sequence has failed
+						// Notify the user that the sequence has failed
 						generalStatusLabel.setText("Sector Erase Failed");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
-					//Enable buttons that can now be used since the sector erase completed
+					// Enable buttons that can now be used since the sector erase completed
 					bulkEraseButton.setEnabled(true);
 					sectorEraseButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -911,78 +918,74 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 
-		//Define a new thread to run the operation previously defined
+		// Define a new thread to run the operation previously defined
 		sectorEraseThread = new Thread(sectorEraseOperation);
-		//Start the thread
+		// Start the thread
 		sectorEraseThread.start();
 	}
 
-
-
 	/**
-	 * Handles the button press of the get module info button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
-	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume. See the method calls within the runnable for more info
-	 * on what this handler actually does.
+	 * Handles the button press of the get module info button. This is an action
+	 * event which must handled before the rest of the program resumes. To prevent
+	 * the dashboard from stalling, a thread is created to run the desired operation
+	 * in the background then the handler is promptly exited so the program can
+	 * resume. See the method calls within the runnable for more info on what this
+	 * handler actually does.
 	 */
 	public void getModuleInfoButtonHandler() {
-		//Specify new operation that can be run in a separate thread
+		// Specify new operation that can be run in a separate thread
 		Runnable getIDInfoOperation = new Runnable() {
 			public void run() {
-				//Disable button until routine is complete
+				// Disable button until routine is complete
 				getModuleIDButton.setEnabled(false);
 
 				try {
 					ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
-					
+
 					if (moduleIDInfo != null) {
 						moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
-						hardwareIDLabel.setText("Module Hardware ID: " + (char)(moduleIDInfo.get(1)/256) + (char)(moduleIDInfo.get(1)%256));
+						hardwareIDLabel.setText("Module Hardware ID: " + (char) (moduleIDInfo.get(1) / 256)
+								+ (char) (moduleIDInfo.get(1) % 256));
 						firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
 						if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-							generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2) + ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
+							generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2)
+									+ ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
 							progressBar.setValue(100);
-							progressBar.setForeground(new Color(255, 0, 0));	
-						}
-						else {
+							progressBar.setForeground(new Color(255, 0, 0));
+						} else {
 							generalStatusLabel.setText("Module Information Successfully Received");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(51, 204, 51));
 						}
-					}
-					else {
+					} else {
 						generalStatusLabel.setText("Module not Responding, Check Connections");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-
-				//Re-enable button since previous method call was complete
+				// Re-enable button since previous method call was complete
 				getModuleIDButton.setEnabled(true);
 			}
 		};
 
-		//Assign new thread to run the previously defined operation
+		// Assign new thread to run the previously defined operation
 		infoThread = new Thread(getIDInfoOperation);
-		//Start separate thread
+		// Start separate thread
 		infoThread.start();
 	}
-
 
 	public void configForCalHandler() {
 		Runnable calforConfigOperation = new Runnable() {
@@ -994,12 +997,11 @@ public class AdvancedMode extends JFrame {
 				disableTabChanges();
 
 				try {
-					if(!serialHandler.configForCalibration()) {
+					if (!serialHandler.configForCalibration()) {
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
-					}
-					else {
+					} else {
 						generalStatusLabel.setText("Module Configured for Calibration");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
@@ -1010,18 +1012,15 @@ public class AdvancedMode extends JFrame {
 					applyOffsetButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -1035,7 +1034,7 @@ public class AdvancedMode extends JFrame {
 	public void importCalDataHandler() {
 		generalStatusLabel.setText("Calculating Timer0 and Delay After start...");
 		Runnable getConfigsOperation = new Runnable() {
-			public void run() {	
+			public void run() {
 				configForCalButton.setEnabled(false);
 				importCalDataButton.setEnabled(false);
 				applyOffsetButton.setEnabled(false);
@@ -1053,7 +1052,7 @@ public class AdvancedMode extends JFrame {
 					applyOffsetButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
-					
+
 					generalStatusLabel.setText("Timer0 and Delay After Start calculated, you may now apply them.");
 
 				} catch (IOException e) {
@@ -1080,12 +1079,13 @@ public class AdvancedMode extends JFrame {
 				disableTabChanges();
 
 				try {
-					if(!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()), Integer.parseInt(delayAfterTextField.getText()))) { //Constant 0 because we dont do Timer0 Calibration... yet
+					if (!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()),
+							Integer.parseInt(delayAfterTextField.getText()))) { // Constant 0 because we dont do Timer0
+																				// Calibration... yet
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
-					}
-					else {
+					} else {
 						generalStatusLabel.setText("Offset Successfully Applied, Camera and Module are now Synced");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(51, 204, 51));
@@ -1097,18 +1097,15 @@ public class AdvancedMode extends JFrame {
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
@@ -1121,13 +1118,15 @@ public class AdvancedMode extends JFrame {
 	}
 
 	/**
-	 * Obtains test parameters from module and updates each data field on the configuration tab with those newly red values
-	 * Executed when get current configs button is pressed. Since this is an action event, it must complete before GUI changes will be visible 
+	 * Obtains test parameters from module and updates each data field on the
+	 * configuration tab with those newly red values Executed when get current
+	 * configs button is pressed. Since this is an action event, it must complete
+	 * before GUI changes will be visible
 	 */
 	public void getConfigsHandler() {
 		Runnable getConfigsOperation = new Runnable() {
 			public void run() {
-				//Disable get configs button while read is in progress
+				// Disable get configs button while read is in progress
 				getCurrentConfigurationsButton.setEnabled(false);
 				writeConfigsButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
@@ -1141,12 +1140,10 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-
-
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 
-					if(testParameters != null) {
-						//Assign local variables to their newly received values from the module
+					if (testParameters != null) {
+						// Assign local variables to their newly received values from the module
 						timer0TickThreshold = testParameters.get(1);
 						delayAfterStart = testParameters.get(2);
 						battTimeoutLength = testParameters.get(3);
@@ -1158,35 +1155,34 @@ public class AdvancedMode extends JFrame {
 						accelSensitivity = testParameters.get(9);
 						gyroSensitivity = testParameters.get(10);
 						accelFilter = testParameters.get(11);
-						gyroFilter = testParameters.get(12);					
+						gyroFilter = testParameters.get(12);
 
-						
-						if(delayAfterStart > 2000) {
+						if (delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
 							testParameters.set(2, delayAfterStart);
 						}
 
-						if(timedTestFlag > 0) {
+						if (timedTestFlag > 0) {
 							timedTestCheckbox.setSelected(true);
 							testLengthTextField.setEnabled(true);
-						}
-						else {
+						} else {
 							timedTestCheckbox.setSelected(false);
 						}
-						if(triggerOnReleaseFlag > 0) {
+						if (triggerOnReleaseFlag > 0) {
 							triggerOnReleaseCheckbox.setSelected(true);
-						}
-						else {
+						} else {
 							triggerOnReleaseCheckbox.setSelected(false);
 						}
 
-						//Assign/lookup values on gui based on read configs. If any of the lookup methods detect corrupt data they set corruptConfigFlag to true
+						// Assign/lookup values on gui based on read configs. If any of the lookup
+						// methods detect corrupt data they set corruptConfigFlag to true
 						testLengthTextField.setText(Integer.toString(testLength));
-						accelGyroSampleRateCombobox.setSelectedIndex(lookupAccelGyroSampleRateIndex(accelGyroSampleRate));
-						//Executes if the magnetometer value is corrupted
-						if(!updateMagSampleRate()) {
-							//Set flag that will be used to determine the status label text
+						accelGyroSampleRateCombobox
+								.setSelectedIndex(lookupAccelGyroSampleRateIndex(accelGyroSampleRate));
+						// Executes if the magnetometer value is corrupted
+						if (!updateMagSampleRate()) {
+							// Set flag that will be used to determine the status label text
 							corruptConfigFlag = true;
 						}
 						accelSensitivityCombobox.setSelectedIndex(lookupAccelSensitivityIndex(accelSensitivity));
@@ -1198,43 +1194,37 @@ public class AdvancedMode extends JFrame {
 						magSampleRateTextField.setText(Integer.toString(magSampleRate));
 						batteryTimeoutTextField.setText(Integer.toString(battTimeoutLength));
 
-
-						if(corruptConfigFlag) {
+						if (corruptConfigFlag) {
 							initDataFields();
 							generalStatusLabel.setText("Module Configurations Corrupted, Default Values Displayed");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
-						}
-						else {
+						} else {
 							generalStatusLabel.setText("Current Module Configurations Received and Displayed");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(51, 204, 51));
 						}
-					}
-					else {
+					} else {
 						generalStatusLabel.setText("Error Communicating With Module, Try Again");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 
-				}
-				catch (IOException e) {
+				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-				//Re-enable the write config button when the routine has completed
+				// Re-enable the write config button when the routine has completed
 				getCurrentConfigurationsButton.setEnabled(true);
 				writeConfigsButton.setEnabled(true);
 				getModuleIDButton.setEnabled(true);
@@ -1242,25 +1232,29 @@ public class AdvancedMode extends JFrame {
 			}
 		};
 
-		//Assign new operation to a thread so that it can be run in the background
+		// Assign new operation to a thread so that it can be run in the background
 		getParamThread = new Thread(getConfigsOperation);
-		//Start the new thread
+		// Start the new thread
 		getParamThread.start();
 
 	}
+
 	/**
-	 * Handles the button press of the write configuration button. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
-	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume. See the method calls within the runnable for more info
-	 * on what this handler actually does.
+	 * Handles the button press of the write configuration button. This is an action
+	 * event which must handled before the rest of the program resumes. To prevent
+	 * the dashboard from stalling, a thread is created to run the desired operation
+	 * in the background then the handler is promptly exited so the program can
+	 * resume. See the method calls within the runnable for more info on what this
+	 * handler actually does.
 	 */
 	private void writeButtonHandler() {
 
 		updateTickThresh();
 		if (updateMagSampleRate()) {
-			//Define no operation that can be run in a thread
+			// Define no operation that can be run in a thread
 			Runnable sendParamOperation = new Runnable() {
 				public void run() {
-					//Disable write config button while the sendParameters() method is running
+					// Disable write config button while the sendParameters() method is running
 					writeConfigsButton.setEnabled(false);
 					getCurrentConfigurationsButton.setEnabled(false);
 					getModuleIDButton.setEnabled(false);
@@ -1268,55 +1262,55 @@ public class AdvancedMode extends JFrame {
 					try {
 						ArrayList<Integer> testParams = new ArrayList<Integer>();
 
-						//Set local flags for checkbox states
+						// Set local flags for checkbox states
 						if (timedTestCheckbox.isSelected()) {
 							timedTestFlag = 1;
-						}
-						else {
+						} else {
 							timedTestFlag = 0;
 						}
 
 						if (triggerOnReleaseCheckbox.isSelected()) {
 							triggerOnReleaseFlag = 1;
-						}
-						else {
+						} else {
 							triggerOnReleaseFlag = 0;
 						}
 
-
-						//0 Num Tests (Will not be saved by firmware, always send 0), this is to maintain consistent ArrayList indexing across the program
+						// 0 Num Tests (Will not be saved by firmware, always send 0), this is to
+						// maintain consistent ArrayList indexing across the program
 						testParams.add(0);
-						//1 Timer0 Tick Threshold
-						testParams.add(getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())));
-						//2 Delay after start (Will not be overridden in firmware unless accessed by calibration panel)
+						// 1 Timer0 Tick Threshold
+						testParams.add(getTickThreshold(
+								Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())));
+						// 2 Delay after start (Will not be overridden in firmware unless accessed by
+						// calibration panel)
 						testParams.add(0);
-						//3 Battery timeout flag
+						// 3 Battery timeout flag
 						testParams.add(Integer.parseInt(batteryTimeoutTextField.getText()));
-						//4 Timed test flag
+						// 4 Timed test flag
 						testParams.add(timedTestFlag);
-						//5 Trigger on release flag
+						// 5 Trigger on release flag
 						testParams.add(triggerOnReleaseFlag);
-						//6 Test Length
+						// 6 Test Length
 						if (timedTestFlag == 1) {
-							if (Integer.parseInt(testLengthTextField.getText()) <= 0 || Integer.parseInt(testLengthTextField.getText()) >= 65536){
+							if (Integer.parseInt(testLengthTextField.getText()) <= 0
+									|| Integer.parseInt(testLengthTextField.getText()) >= 65536) {
 								testLengthTextField.setText("30");
 							}
 							testParams.add(Integer.parseInt(testLengthTextField.getText()));
-						}
-						else {
+						} else {
 							testParams.add(0);
 						}
-						//7 Accel Gyro Sample Rate
+						// 7 Accel Gyro Sample Rate
 						testParams.add(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()));
-						//8 Mag Sample Rate
+						// 8 Mag Sample Rate
 						testParams.add(Integer.parseInt(magSampleRateTextField.getText()));
-						//9 Accel Sensitivity
+						// 9 Accel Sensitivity
 						testParams.add(Integer.parseInt(accelSensitivityCombobox.getSelectedItem().toString()));
-						//10 Gyro Sensitivity
+						// 10 Gyro Sensitivity
 						testParams.add(Integer.parseInt(gyroSensitivityCombobox.getSelectedItem().toString()));
-						//11 Accel Filter
+						// 11 Accel Filter
 						testParams.add(Integer.parseInt(accelFilterCombobox.getSelectedItem().toString()));
-						//12 Gyro Filter
+						// 12 Gyro Filter
 						testParams.add(Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString()));
 
 						Integer[] testParamsArr = new Integer[testParams.size()];
@@ -1325,35 +1319,30 @@ public class AdvancedMode extends JFrame {
 							generalStatusLabel.setText("Module Not Responding");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
-						}
-						else {
+						} else {
 							generalStatusLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(51, 204, 51));
 						}
-					}
-					catch (NumberFormatException e) {
+					} catch (NumberFormatException e) {
 						generalStatusLabel.setText("Please Fill out Every Field");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
-					}
-					catch (IOException e) {
+					} catch (IOException e) {
 						generalStatusLabel.setText("Error Communicating With Serial Dongle");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
-					}
-					catch (PortInUseException e) {
+					} catch (PortInUseException e) {
 						generalStatusLabel.setText("Serial Port Already In Use");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
-					}
-					catch (UnsupportedCommOperationException e) {
+					} catch (UnsupportedCommOperationException e) {
 						generalStatusLabel.setText("Check Dongle Compatability");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
 
-					//Re-enable the write config button when the routine has completed
+					// Re-enable the write config button when the routine has completed
 					writeConfigsButton.setEnabled(true);
 					getCurrentConfigurationsButton.setEnabled(true);
 					getModuleIDButton.setEnabled(true);
@@ -1361,25 +1350,28 @@ public class AdvancedMode extends JFrame {
 				}
 			};
 
-			//Assign new operation to a thread so that it can be run in the background
+			// Assign new operation to a thread so that it can be run in the background
 			paramThread = new Thread(sendParamOperation);
-			//Start the new thread
+			// Start the new thread
 			paramThread.start();
 		}
 
 	}
 
-
 	/**
-	 * Handles the button press of read data from module button. This includes reading the test parameters, updating the read gui, and reading/converting the data to .csv. This is an action event which must handled before the rest of the program resumes. To prevent the dashboard from stalling,
-	 * a thread is created to run the desired operation in the background then the handler is promptly exited so the program can resume. See the method calls within the runnable for more info
-	 * on what this handler actually does.
+	 * Handles the button press of read data from module button. This includes
+	 * reading the test parameters, updating the read gui, and reading/converting
+	 * the data to .csv. This is an action event which must handled before the rest
+	 * of the program resumes. To prevent the dashboard from stalling, a thread is
+	 * created to run the desired operation in the background then the handler is
+	 * promptly exited so the program can resume. See the method calls within the
+	 * runnable for more info on what this handler actually does.
 	 */
 	public void readButtonHandler() {
-		//Define operation that can be run in separate thread
+		// Define operation that can be run in separate thread
 		Runnable readOperation = new Runnable() {
 			public void run() {
-				//Disable read button while read is in progress
+				// Disable read button while read is in progress
 				readDataButton.setEnabled(false);
 				getModuleIDButton.setEnabled(false);
 				disableTabChanges();
@@ -1390,38 +1382,34 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					// clear DAG tests
-					genericTests.clear();
-
-					//Read test parameters from module and store it in testParameters
+					// Read test parameters from module and store it in testParameters
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 					int[][] mpuMinMax = serialHandler.getMPUMinMax();
-					
-					//Executes if the reading of the test parameters was successful
+
+					// Executes if the reading of the test parameters was successful
 					if (testParameters != null) {
 
 						expectedTestNum = testParameters.get(0);
 						delayAfterStart = testParameters.get(2);
 
-						//Assign local variables to their newly received values from the module
+						// Assign local variables to their newly received values from the module
 						timedTestFlag = testParameters.get(4);
-						//Trigger on release is 8
+						// Trigger on release is 8
 						testLength = testParameters.get(6);
 						accelGyroSampleRate = testParameters.get(7);
 						magSampleRate = testParameters.get(8);
 						accelSensitivity = testParameters.get(9);
 						gyroSensitivity = testParameters.get(10);
 						accelFilter = testParameters.get(11);
-						gyroFilter = testParameters.get(12);				
+						gyroFilter = testParameters.get(12);
 
 						System.out.println(delayAfterStart);
 
-						if(delayAfterStart > 2000) {
+						if (delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
 							testParameters.set(2, delayAfterStart);
 						}
-
 
 						boolean timedTest = true;
 						if (timedTestFlag == 0) {
@@ -1432,106 +1420,78 @@ public class AdvancedMode extends JFrame {
 							bytesPerSample = 12.6;
 						}
 
+						// Populate dashboard with the parameters sent by the module
+						testLengthTextFieldRead.setText(Integer.toString(testLength)); // Test Length
+						numTestsTextFieldRead.setText(Integer.toString(expectedTestNum)); // Number of tests
+						accelGyroSampleRateTextFieldRead.setText(Integer.toString(accelGyroSampleRate));// Accel Gyro
 
+						magSampleRateTextFieldRead.setText(Integer.toString(magSampleRate)); // Mag Sample Rate
+						accelSensitivityTextFieldRead.setText(Integer.toString(accelSensitivity)); // Accel Sensitivity
+						gyroSensitivityTextFieldRead.setText(Integer.toString(gyroSensitivity)); // Gyro Sensitivity
+						accelFilterTextFieldRead.setText(Integer.toString(accelFilter)); // Accel Filter
+						gyroFilterTextFieldRead.setText(Integer.toString(gyroFilter)); // Gyro Filter
 
-						//Populate dashboard with the parameters sent by the module
-						testLengthTextFieldRead.setText(Integer.toString(testLength));            		//Test Length
-						numTestsTextFieldRead.setText(Integer.toString(expectedTestNum));				//Number of tests
-						accelGyroSampleRateTextFieldRead.setText(Integer.toString(accelGyroSampleRate));//Accel Gyro Sample Rate
-						magSampleRateTextFieldRead.setText(Integer.toString(magSampleRate));           	//Mag Sample Rate
-						accelSensitivityTextFieldRead.setText(Integer.toString(accelSensitivity));      //Accel Sensitivity
-						gyroSensitivityTextFieldRead.setText(Integer.toString(gyroSensitivity));        //Gyro Sensitivity
-						accelFilterTextFieldRead.setText(Integer.toString(accelFilter));           		//Accel Filter
-						gyroFilterTextFieldRead.setText(Integer.toString(gyroFilter));             		//Gyro Filter 
-						nameOfFile = fileNameTextField.getText();
-
-						//Executes if there are tests on the module
-						if(expectedTestNum > 0) {
-
-							//Get date for file name
-							Date date = new Date();
-
-							//Assign file name
-							nameOfFile = "";
-							nameOfFile += prefixTextField.getText();
-							nameOfFile += (" " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N " + date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100) + ".csv");
-							fileNameTextField.setText(nameOfFile);
+						// Executes if there are tests on the module
+						if (expectedTestNum > 0) {
 
 							HashMap<Integer, ArrayList<Integer>> testData;
 
-							System.out.println("Right before readTestData");
+							// Store the test data from the dashboard passing in enough info that the
+							// progress bar will be accurately updated
+							testData = serialHandler.readTestDataSwing(expectedTestNum, progressBar,
+									generalStatusLabel);
 
-							//Store the test data from the dashboard passing in enough info that the progress bar will be accurately updated
-							testData = serialHandler.readTestDataSwing(expectedTestNum, progressBar, generalStatusLabel);
-
-							System.out.println("Test Data Read?");
 							System.out.println(testData);
 
 							generalStatusLabel.setText("All Data Received from Module");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(51, 204, 51));
 
-							//Executes if the data was received properly (null = fail)
-							if(testData != null) {
-								dataOrgoList = new ArrayList<DataOrganizer>(testData.size()-1);
+							// Executes if the data was received properly (null = fail)
+							if (testData != null) {
+
 								for (int testIndex = 0; testIndex < testData.size(); testIndex++) {
 
-									int [] finalData = new int[testData.get(testIndex).size()];
+									int[] finalData = new int[testData.get(testIndex).size()];
 
-									for(int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
-										if (testData.get(testIndex).get(byteIndex) != -1){
+									for (int byteIndex = 0; byteIndex < testData.get(testIndex).size(); byteIndex++) {
+										if (testData.get(testIndex).get(byteIndex) != -1) {
 											finalData[byteIndex] = testData.get(testIndex).get(byteIndex);
-										}
-										else {
+										} else {
 											finalData[byteIndex] = -1;
 											break;
 										}
 									}
-									String tempNameOfFile = "(#" + (testIndex+1) + ")" + nameOfFile; 
 
-									DataOrganizer dataOrgo = new DataOrganizer(testParameters, tempNameOfFile);
-									dataOrgo.setMPUMinMax(mpuMinMax);
-									dataOrgoList.add(dataOrgo);
-									Runnable organizerOperation = new Runnable() {
-										public void run() {
-											dataOrgo.createDataSmpsRawData(finalData);
-											dataOrgo.getSignedData();
-										}
-									};
 
-									GenericTest g = new GenericTest(testParameters, finalData, mpuMinMax);
-									g.setName(tempNameOfFile);
-									genericTests.add(g);
+									GenericTest test = new GenericTest(testParameters, finalData, mpuMinMax);
 
-									// run DataOrganizer code asynchronously
-									organizerThread = new Thread(organizerOperation);
-									organizerThread.start();	
-									
+									// create timestamp for CSV/CSVP
+									SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
+									String timestamp = sdf.format(new Timestamp(new Date().getTime()));
+
+									String testType = test.getClass().getSimpleName();
+									String testName = testType + " #" + (testIndex + 1) + " " + timestamp;
+
+									test.setName(testName);
+									genericTests.add(test);
+                  
 								}
-								
-								if (Boolean.parseBoolean(Settings.get("AutoSave"))) {
-									for(DataOrganizer dO: dataOrgoList) {
-										dO.createCSVP();
-										dO.createCSV(false, false);
-									}
-								}
-								
-								addTestsToRecordationPane(dataOrgoList);
-							}
-							else {
+
+								addTestsToRecordationPane();
+
+							} else {
 								generalStatusLabel.setText("Error Reading From Module, Try Again");
 								progressBar.setValue(100);
 								progressBar.setForeground(new Color(255, 0, 0));
 							}
-						}
-						else {
+						} else {
 							fileNameTextField.setText("");
 							generalStatusLabel.setText("No Tests Found on Module");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
 						}
-					}
-					else {
+					} else {
 						generalStatusLabel.setText("Error Reading From Module, Try Again");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -1543,54 +1503,57 @@ public class AdvancedMode extends JFrame {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (PortInUseException e) {
+				} catch (PortInUseException e) {
 					generalStatusLabel.setText("Serial Port Already In Use");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				}
-				catch (UnsupportedCommOperationException e) {
+				} catch (UnsupportedCommOperationException e) {
 					generalStatusLabel.setText("Check Dongle Compatability");
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
 				}
 
-				//Re-enable read button upon read completion
+				// Re-enable read button upon read completion
 				readDataButton.setEnabled(true);
 				getModuleIDButton.setEnabled(true);
 				enableTabChanges();
 			}
 		};
 
-		//Set thread to execute previously defined operation
+		// Set thread to execute previously defined operation
 		readThread = new Thread(readOperation);
-		//Start thread
+		// Start thread
 		readThread.start();
 
 	}
 
 	/**
-	 * Initializes the data fields of the Configurations tab of the dashboard. These are hardcoded for now so they will reset every time you leave this tab and come back
+	 * Initializes the data fields of the Configurations tab of the dashboard. These
+	 * are hardcoded for now so they will reset every time you leave this tab and
+	 * come back
 	 */
 	public void initDataFields() {
-		//Checkboxes
+		// Checkboxes
 		timedTestCheckbox.setSelected(false);
 
-		//Comboboxes
-		accelGyroSampleRateCombobox.setModel(new DefaultComboBoxModel(new String [] {"60", "120", "240", "480", "500", "960"}));
-		accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String [] {"2", "4", "8", "16"}));
-		gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String[] {"250", "500", "1000", "2000"}));
-		accelFilterCombobox.setModel(new DefaultComboBoxModel(new String [] {"5", "10", "20", "41", "92", "184", "460", "1130 (OFF)"}));
-		gyroFilterCombobox.setModel(new DefaultComboBoxModel(new String[] {"10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)"}));
+		// Comboboxes
+		accelGyroSampleRateCombobox
+				.setModel(new DefaultComboBoxModel(new String[] { "60", "120", "240", "480", "500", "960" }));
+		accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String[] { "2", "4", "8", "16" }));
+		gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String[] { "250", "500", "1000", "2000" }));
+		accelFilterCombobox.setModel(
+				new DefaultComboBoxModel(new String[] { "5", "10", "20", "41", "92", "184", "460", "1130 (OFF)" }));
+		gyroFilterCombobox.setModel(
+				new DefaultComboBoxModel(new String[] { "10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)" }));
 
-		//Set Default Selection for Comboboxes
-		accelGyroSampleRateCombobox.setSelectedIndex(5);//960-96	
-		accelSensitivityCombobox.setSelectedIndex(2);	//8g
-		gyroSensitivityCombobox.setSelectedIndex(2);	//1000dps
-		accelFilterCombobox.setSelectedIndex(4);		//92Hz
-		gyroFilterCombobox.setSelectedIndex(3);			//92Hz
+		// Set Default Selection for Comboboxes
+		accelGyroSampleRateCombobox.setSelectedIndex(5);// 960-96
+		accelSensitivityCombobox.setSelectedIndex(2); // 8g
+		gyroSensitivityCombobox.setSelectedIndex(2); // 1000dps
+		accelFilterCombobox.setSelectedIndex(4); // 92Hz
+		gyroFilterCombobox.setSelectedIndex(3); // 92Hz
 
-		//Text Fields
+		// Text Fields
 		updateMagSampleRate();
 		testLengthTextField.setText("30");
 		batteryTimeoutTextField.setText("300");
@@ -1604,36 +1567,29 @@ public class AdvancedMode extends JFrame {
 	 */
 	public void updateDataFields() {
 		if (frameInitialized && mainTabbedPanel.getSelectedIndex() == 1) {
-			//Timed Test Checkbox (Allows user to swap between timed and untimed test)
+			// Timed Test Checkbox (Allows user to swap between timed and untimed test)
 			if (timedTestCheckbox.isSelected()) {
 				testLengthTextField.setEditable(true);
 				testLengthTextField.setEnabled(true);
-			}
-			else {
+			} else {
 				testLengthTextField.setEditable(false);
 				testLengthTextField.setEnabled(false);
 			}
 
 			/*
-			//Delay After Start Checkbox (Allows Editing of Timer0 Tick Threshold)
-			if (delayAfterStartCheckbox.isSelected()) {
-				delayAfterStartTextField.setEditable(true);
-				delayAfterStartTextField.setEnabled(true);
-			}
-			else {
-				delayAfterStartTextField.setEditable(false);
-				delayAfterStartTextField.setEnabled(false);
-			}
-
-			//Manual Calibration Checkbox (Allows Editing of Timer0 Tick Threshold)
-			if (manualCalibrationCheckbox.isSelected()) {
-				timer0TickThreshTextField.setEditable(true);
-				timer0TickThreshTextField.setEnabled(true);
-			}
-			else {
-				timer0TickThreshTextField.setEditable(false);
-				timer0TickThreshTextField.setEnabled(false);
-			}
+			 * //Delay After Start Checkbox (Allows Editing of Timer0 Tick Threshold) if
+			 * (delayAfterStartCheckbox.isSelected()) {
+			 * delayAfterStartTextField.setEditable(true);
+			 * delayAfterStartTextField.setEnabled(true); } else {
+			 * delayAfterStartTextField.setEditable(false);
+			 * delayAfterStartTextField.setEnabled(false); }
+			 * 
+			 * //Manual Calibration Checkbox (Allows Editing of Timer0 Tick Threshold) if
+			 * (manualCalibrationCheckbox.isSelected()) {
+			 * timer0TickThreshTextField.setEditable(true);
+			 * timer0TickThreshTextField.setEnabled(true); } else {
+			 * timer0TickThreshTextField.setEditable(false);
+			 * timer0TickThreshTextField.setEnabled(false); }
 			 */
 		}
 	}
@@ -1653,38 +1609,38 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 
-
 	/**
-	 * Updates the magnetometer text field based on the accel gyro sample rate text field 
+	 * Updates the magnetometer text field based on the accel gyro sample rate text
+	 * field
+	 * 
 	 * @return
 	 */
 	public boolean updateMagSampleRate() {
 		if (!accelGyroSampleRateCombobox.getSelectedItem().toString().isEmpty()) {
 			switch (Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString())) {
-			case(60):			
-				magSampleRateTextField.setText("60");
-			break;
-			case(120):
-				magSampleRateTextField.setText("120");
-			break;
-			case (240):
-				magSampleRateTextField.setText("24");
-			break;
-			case (480):
-				magSampleRateTextField.setText("48");
-			break;
-			case (500):
-				magSampleRateTextField.setText("50");
-			break;
-			case (960):
-				magSampleRateTextField.setText("96");
-			break;
-			default:	
-				corruptConfigFlag = true;
-				return false;
+				case (60):
+					magSampleRateTextField.setText("60");
+					break;
+				case (120):
+					magSampleRateTextField.setText("120");
+					break;
+				case (240):
+					magSampleRateTextField.setText("24");
+					break;
+				case (480):
+					magSampleRateTextField.setText("48");
+					break;
+				case (500):
+					magSampleRateTextField.setText("50");
+					break;
+				case (960):
+					magSampleRateTextField.setText("96");
+					break;
+				default:
+					corruptConfigFlag = true;
+					return false;
 			}
-		}
-		else {
+		} else {
 			generalStatusLabel.setText("Please Enter a Valid Accel/Gyro Sample Rate");
 			progressBar.setValue(100);
 			progressBar.setForeground(new Color(255, 0, 0));
@@ -1696,258 +1652,255 @@ public class AdvancedMode extends JFrame {
 	}
 
 	/**
-	 * Update the text field for the tick threshold based on the accel/gyro sample rate
+	 * Update the text field for the tick threshold based on the accel/gyro sample
+	 * rate
+	 * 
 	 * @return
 	 */
 	public boolean updateTickThresh() {
 		if (!accelGyroSampleRateCombobox.getSelectedItem().toString().isEmpty()) {
-			int tickThresh = getTickThreshold(Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()));
+			int tickThresh = getTickThreshold(
+					Integer.parseInt(accelGyroSampleRateCombobox.getSelectedItem().toString()));
 			timer0TickThreshTextField.setText(Integer.toString(tickThresh));
 		}
 		return true;
 	}
 
 	/**
-	 * Handles the button press of browse button. This is an action event which must handled before the rest of the program resumes. This method allows the user to navigate
-	 * the file explorer and select a save location for the incoming data.
+	 * Handles the button press of browse button. This is an action event which must
+	 * handled before the rest of the program resumes. This method allows the user
+	 * to navigate the file explorer and select a save location for the incoming
+	 * data.
 	 */
 	public void videoBrowseButtonHandler() {
 		JFileChooser chooser;
-		chooser = new JFileChooser(); 
+		chooser = new JFileChooser();
 		chooser.setCurrentDirectory(new java.io.File("."));
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		chooser.setAcceptAllFileFilterUsed(false);
 		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 			videoFilePathTextField.setText(chooser.getSelectedFile().toString());
-		}
-		else {
+		} else {
 			videoFilePathTextField.setText(null);
 		}
 	}
 
 	/**
 	 * Setter that allows external classes to set the progress bar's value
-	 * @param progress integer value between 0-100 that corresponds to the desired percentage to be displayed
+	 * 
+	 * @param progress integer value between 0-100 that corresponds to the desired
+	 *                 percentage to be displayed
 	 */
-	public void updateProgress(int progress) {  
+	public void updateProgress(int progress) {
 		progressBar.setValue(progress);
 	}
 
 	/**
 	 * Setter that allows external classes to set the writeStatusLabel's text
+	 * 
 	 * @param label the text that the writeStatusLabel will display
 	 */
 	public void setWriteStatusLabel(String label) {
-		generalStatusLabel.setText(label);        //Tell the user a new .CSV has been created.
+		generalStatusLabel.setText(label); // Tell the user a new .CSV has been created.
 	}
 
 	public int lookupAccelGyroSampleRateIndex(int aGSampleRate) {
 		switch (aGSampleRate) {
-		case(60):		
-			return 0;
-		case(120):
-			return 1;
-		case(240):
-			return 2;
-		case(480):
-			return 3;
-		case(500):
-			return 4;
-		case(960):
-			return 5;
-		default:
-			corruptConfigFlag = true;
-			return accelGyroSampleRateCombobox.getSelectedIndex();
+			case (60):
+				return 0;
+			case (120):
+				return 1;
+			case (240):
+				return 2;
+			case (480):
+				return 3;
+			case (500):
+				return 4;
+			case (960):
+				return 5;
+			default:
+				corruptConfigFlag = true;
+				return accelGyroSampleRateCombobox.getSelectedIndex();
 		}
 	}
 
 	/**
 	 * Looks up the selection index for the accel sensitivity combobox
+	 * 
 	 * @param accelSensitivity
 	 * @return
 	 */
-	public int lookupAccelSensitivityIndex(int accelSensitivity){
+	public int lookupAccelSensitivityIndex(int accelSensitivity) {
 		switch (accelSensitivity) {
-		case(2):		
-			return 0;
-		case(4):
-			return 1;
-		case(8):
-			return 2;
-		case(16):
-			return 3;
-		default:
-			corruptConfigFlag = true;
-			return accelSensitivityCombobox.getSelectedIndex();
+			case (2):
+				return 0;
+			case (4):
+				return 1;
+			case (8):
+				return 2;
+			case (16):
+				return 3;
+			default:
+				corruptConfigFlag = true;
+				return accelSensitivityCombobox.getSelectedIndex();
 		}
 	}
 
 	/**
 	 * Looks up the selection index for the gyro sensitivity combobox
+	 * 
 	 * @return
 	 */
-	public int lookupGyroSensitivityIndex(int gyroSensitivity){
+	public int lookupGyroSensitivityIndex(int gyroSensitivity) {
 		switch (gyroSensitivity) {
-		case(250):		
-			return 0;
-		case(500):
-			return 1;
-		case(1000):
-			return 2;
-		case(2000):
-			return 3;
-		default:
-			corruptConfigFlag = true;
-			return gyroSensitivityCombobox.getSelectedIndex();
+			case (250):
+				return 0;
+			case (500):
+				return 1;
+			case (1000):
+				return 2;
+			case (2000):
+				return 3;
+			default:
+				corruptConfigFlag = true;
+				return gyroSensitivityCombobox.getSelectedIndex();
 		}
 	}
 
 	/**
 	 * Looks up the selection index for the accel filter combobox
+	 * 
 	 * @return
 	 */
-	public int lookupAccelFilterIndex(int accelFilter){
+	public int lookupAccelFilterIndex(int accelFilter) {
 		switch (accelFilter) {
-		case(5):		
-			return 0;
-		case(10):
-			return 1;
-		case(20):
-			return 2;
-		case(41):
-			return 3;
-		case(92):		
-			return 4;
-		case(184):
-			return 5;
-		case(460):
-			return 6;
-		case(1130):
-			return 7;
-		default:
-			corruptConfigFlag = true;
-			return accelFilterCombobox.getSelectedIndex();
+			case (5):
+				return 0;
+			case (10):
+				return 1;
+			case (20):
+				return 2;
+			case (41):
+				return 3;
+			case (92):
+				return 4;
+			case (184):
+				return 5;
+			case (460):
+				return 6;
+			case (1130):
+				return 7;
+			default:
+				corruptConfigFlag = true;
+				return accelFilterCombobox.getSelectedIndex();
 		}
 	}
 
 	/**
 	 * Looks up the selection index for the gyro sensitivity combobox
+	 * 
 	 * @return
 	 */
-	public int lookupGyroFilterIndex(int gyroFilter){
+	public int lookupGyroFilterIndex(int gyroFilter) {
 		switch (gyroFilter) {
-		case(10):
-			return 0;
-		case(20):
-			return 1;
-		case(41):
-			return 2;
-		case(92):		
-			return 3;
-		case(184):
-			return 4;
-		case(250):
-			return 5;
-		case(3600):
-			return 6;
-		case(8600):
-			return 7;
-		default:
-			corruptConfigFlag = true;
-			return gyroFilterCombobox.getSelectedIndex();
+			case (10):
+				return 0;
+			case (20):
+				return 1;
+			case (41):
+				return 2;
+			case (92):
+				return 3;
+			case (184):
+				return 4;
+			case (250):
+				return 5;
+			case (3600):
+				return 6;
+			case (8600):
+				return 7;
+			default:
+				corruptConfigFlag = true;
+				return gyroFilterCombobox.getSelectedIndex();
 		}
 	}
 
-
 	/**
-	 * Get the desired tick threshold for the desired sample rate. This effectively sets the sample rate of the module
+	 * Get the desired tick threshold for the desired sample rate. This effectively
+	 * sets the sample rate of the module
+	 * 
 	 * @param accelGyroSampleRate
 	 * @return
 	 */
 	public int getTickThreshold(int accelGyroSampleRate) {
 		switch (accelGyroSampleRate) {
-		case(60):		
-			return 33173;
-		case(120):
-			return 33021;
-		case (240):
-			return 16343;
-		case (480):
-			return 8021;
-		case (500):
-			return 7679;
-		case (960):
-			return 3813;
-		default:	//960-96
-			return 3813;
+			case (60):
+				return 33173;
+			case (120):
+				return 33021;
+			case (240):
+				return 16343;
+			case (480):
+				return 8021;
+			case (500):
+				return 7679;
+			case (960):
+				return 3813;
+			default: // 960-96
+				return 3813;
 		}
 	}
 
 	/**
-	 * Gets a 3 letter abbreviation for the passed in month for the automatic test title generation
-	 * @param month an integer 0-11 that corresponds to the month with 0 = January and 11 = December
+	 * Gets a 3 letter abbreviation for the passed in month for the automatic test
+	 * title generation
+	 * 
+	 * @param month an integer 0-11 that corresponds to the month with 0 = January
+	 *              and 11 = December
 	 * @return The 3 letter abbreviation for the month
 	 */
-	public String getMonth(int month) { 
+	public String getMonth(int month) {
 		switch (month) {
-		case (0):
-			return "JAN";
-		case (1):
-			return "FEB";
-		case (2):
-			return "MAR";
-		case (3):
-			return "APR";
-		case (4):
-			return "MAY";
-		case (5):
-			return "JUN";
-		case (6):
-			return "JUL";
-		case (7):
-			return "AUG";
-		case (8):
-			return "SEP";
-		case (9):
-			return "OCT";
-		case (10):
-			return "NOV";
-		case (11):
-			return "DEC";
+			case (0):
+				return "JAN";
+			case (1):
+				return "FEB";
+			case (2):
+				return "MAR";
+			case (3):
+				return "APR";
+			case (4):
+				return "MAY";
+			case (5):
+				return "JUN";
+			case (6):
+				return "JUL";
+			case (7):
+				return "AUG";
+			case (8):
+				return "SEP";
+			case (9):
+				return "OCT";
+			case (10):
+				return "NOV";
+			case (11):
+				return "DEC";
 		}
 		return "NOP";
 	}
 
-	public void launchSINCGraph(List<DataOrganizer> dataOrgo, ActionEvent e) {
-		final int viewableTests = dataOrgo.size();
-		Platform.setImplicitExit(false);
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				for(int i = 0; i < viewableTests; i++) {
-					if(graphTestBtn.get(i) == e.getSource()) {
-
-						lineGraph = startGraphing();
-						lineGraph.graphDataOrgoObject(dataOrgo.get(i));
-
-					}
-				}
-			}
-		});
-	}
-	
 	public GraphNoSINCController launchDAG() {
 
-		System.out.println("Loading Data Analysis Graph...");
+		System.out.println("Loading BioForce Graph...");
 
 		Stage primaryStage = new Stage();
 		FXMLLoader loader = new FXMLLoader((getClass().getResource("fxml/GraphNoSINC.fxml")));
 		Parent root;
-		
+
 		try {
-			
+
 			root = loader.load();
-			primaryStage.setTitle("BioForce Data Analysis Graph");
+			primaryStage.setTitle("BioForce Graph");
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
 			primaryStage.setMinWidth(600);
@@ -1956,65 +1909,17 @@ public class AdvancedMode extends JFrame {
 			primaryStage.setResizable(true);
 			primaryStage.getIcons().add(FXIcon);
 			primaryStage.show();
-			
+
 		} catch (IOException e) {
-			System.out.println("Error loading Data Analysis Graph.");
+			System.out.println("Error loading BioForce Graph.");
 			e.printStackTrace();
 		}
-		
+
 		return loader.getController();
 
 	}
-	
-	public VLCJMediaPlayerController startVLCJMediaPlayer() {
-		VLCJMediaPlayerController vlcjController = new VLCJMediaPlayerController();
-		vlcjController.frame.setVisible(true);
-		return vlcjController;
-	}
 
-	
-	public MediaPlayerController startMediaPlayer() {
-		Stage primaryStage = new Stage();
-		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/MediaPlayerStructure.fxml"));
-		try {
-			root = loader.load();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	    primaryStage.setTitle("Video Player");
-		if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
-		primaryStage.getIcons().add(FXIcon);
-	    primaryStage.show();
-	    primaryStage.setResizable(false);
-	    return loader.getController();
-	}
 
-	public GraphController startGraphing() {
-		Stage primaryStage = new Stage();
-		Parent root = null;
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/UpdatedGraphStructureEducator.fxml"));
-		try {
-			root = loader.load();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if(root!=null) primaryStage.setScene(new Scene(root, 1430, 800));
-		
-		primaryStage.setTitle("SINC Technology Graph");
-		primaryStage.getIcons().add(FXIcon);
-		primaryStage.show();
-		primaryStage.setResizable(false);
-		
-		return loader.getController();
-	}
-	
-	
-	
 	public HelpMenuController startHelpMenu() {
 		Stage primaryStage = new Stage();
 		Parent root = null;
@@ -2025,19 +1930,21 @@ public class AdvancedMode extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	    primaryStage.setTitle("Help Menu");
-		if(root!=null) primaryStage.setScene(new Scene(root, 535, 600));
-		primaryStage.getIcons().add(FXIcon);
-	    primaryStage.show();
-	    primaryStage.setResizable(false);
-	    return loader.getController();
 
+
+		primaryStage.setTitle("Help Menu");
+		if (root != null)
+			primaryStage.setScene(new Scene(root, 535, 600));
+		primaryStage.getIcons().add(icon);
+
+		primaryStage.show();
+		primaryStage.setResizable(false);
+		return loader.getController();
 	}
-	
+
 	public void setSerialNumberHandler() {
 		try {
-			if(serialHandler.setSerialNumber(Integer.parseInt(serialNumberTextField.getText()))) {
+			if (serialHandler.setSerialNumber(Integer.parseInt(serialNumberTextField.getText()))) {
 				generalStatusLabel.setText("Successfully set Serial Number");
 			}
 		} catch (NumberFormatException e) {
@@ -2050,157 +1957,195 @@ public class AdvancedMode extends JFrame {
 			generalStatusLabel.setText("Unknown Error.");
 		}
 	}
-	
+
 	public void setModelNumberHandler() {
-			try {
-				if(serialHandler.setModelNumber(modelNumberTextField.getText())) {
-					generalStatusLabel.setText("Successfully set Model Number");
-				}
-			} catch (NumberFormatException e) {
-				generalStatusLabel.setText("Invalid serial number");
-			} catch (IOException e) {
-				generalStatusLabel.setText("Unknown Error.");
-			} catch (PortInUseException e) {
-				generalStatusLabel.setText("Reconnect to module, connection dropped.");
-			} catch (UnsupportedCommOperationException e) {
-				generalStatusLabel.setText("Unknown Error.");
-			} catch (URICommunicationsExceptions e) {
-				generalStatusLabel.setText(e.getMessage());
+		try {
+			if (serialHandler.setModelNumber(modelNumberTextField.getText())) {
+				generalStatusLabel.setText("Successfully set Model Number");
 			}
-	}
-	
-	public void addTestsToRecordationPane(List<DataOrganizer> dataOrgo) {
-		if(dataOrgo != null) {
-            testRecordationPanel.removeAll();
-			final int viewableTests = dataOrgo.size();
-			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
-			saveTestBtn = new ArrayList<JButton>(viewableTests);
-			graphTestBtn = new ArrayList<JButton>(viewableTests);
-			DAGTestBtn = new ArrayList<JButton>(viewableTests);
-			mediaPlayerBtn = new ArrayList<JButton>(viewableTests);
-			testNameTextField = new ArrayList<JTextField>(viewableTests);
-
-			for(int i = 0; i < viewableTests; i++) {
-				testNumPaneArray.add(new JPanel());
-				testNumPaneArray.get(i).setBounds(0, i*48, 625, 47);
-				testNumPaneArray.get(i).setLayout(null);
-				testNumPaneArray.get(i).setBorder(new LineBorder(new Color(0, 0, 0)));
-
-				testNameTextField.add(new JTextField());
-				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
-				testNameTextField.get(i).setBounds(10, 11, 335, 29);
-				testNameTextField.get(i).setColumns(10);
-				testNameTextField.get(i).setText(dataOrgo.get(i).getName());
-
-
-				testNumPaneArray.get(i).add(testNameTextField.get(i));
-
-				saveTestBtn.add(new JButton("Save"));
-				saveTestBtn.get(i).setBounds(355, 13, 60, 23);
-				saveTestBtn.get(i).addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("test");
-						for(int i = 0; i < viewableTests; i++) {
-							if(saveTestBtn.get(i) == e.getSource()) {
-								dataOrgo.get(i).setName(testNameTextField.get(i).getText()); // This changes the name of the test (within the dataOrgoObject) to match the test name text field. Therefore, the save button will save a csv of the test data with the new name to the designated save location.
-								if(dataOrgo.get(i).createCSVP() != 0) {
-									generalStatusLabel.setText("Could not save file parameters. You will not be able to regraph this test in our application.");
-								}
-								if(dataOrgo.get(i).createCSV(checkBoxLabelCSV.isSelected(), checkBoxSignedData.isSelected()) != 0)
-									generalStatusLabel.setText("Could not save your file. Do you have a file with that name already?");
-								generalStatusLabel.setText("File created successfully");
-									
-							}
-						}
-					}
-				});
-
-				testNumPaneArray.get(i).add(saveTestBtn.get(i));
-
-				graphTestBtn.add(new JButton("SINC"));
-				graphTestBtn.get(i).setBounds(420, 13, 60, 23);
-				graphTestBtn.get(i).addActionListener(new ActionListener() {
-
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("Separate graph button");
-						launchSINCGraph(dataOrgo, e);
-					}
-				});
-
-				testNumPaneArray.get(i).add(graphTestBtn.get(i));
-
-				int index = i;
-				DAGTestBtn.add(new JButton("Data Analysis Graph"));
-				DAGTestBtn.get(i).setBounds(485, 13, 130, 23);
-				DAGTestBtn.get(i).addActionListener(new ActionListener() {
-
-					public void actionPerformed(ActionEvent e) {
-
-						Platform.runLater(() -> {
-
-							GraphNoSINCController controller = launchDAG();
-
-							GenericTest g = genericTests.get(index);
-							g.setName(testNameTextField.get(index).getText());
-
-							controller.setGenericTest(g);
-
-						});
-
-					}
-
-				});
-
-				testNumPaneArray.get(i).add(DAGTestBtn.get(i));
-
-				mediaPlayerBtn.add(new JButton("Media Player"));
-				mediaPlayerBtn.get(i).setBounds(505, 11, 115, 23);
-				mediaPlayerBtn.get(i).setVisible(false);
-				mediaPlayerBtn.get(i).addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						launchSINCGraph(dataOrgo, e);
-					}
-				});
-				
-				testNumPaneArray.get(i).add(mediaPlayerBtn.get(i));
-			}
-
-			for(int i = 0; i < testNumPaneArray.size();i++) {
-				testRecordationPanel.add(testNumPaneArray.get(i));
-			}
+		} catch (NumberFormatException e) {
+			generalStatusLabel.setText("Invalid serial number");
+		} catch (IOException e) {
+			generalStatusLabel.setText("Unknown Error.");
+		} catch (PortInUseException e) {
+			generalStatusLabel.setText("Reconnect to module, connection dropped.");
+		} catch (UnsupportedCommOperationException e) {
+			generalStatusLabel.setText("Unknown Error.");
+		} catch (URICommunicationsExceptions e) {
+			generalStatusLabel.setText(e.getMessage());
 		}
 	}
 
-	public void shareFrameGraphAndMedia(GraphController graph, VLCJMediaPlayerController MPC) {
-		Runnable updatePosInGraph = new Runnable() {
-			public void run() {
-				try {
-					int currentFrame = -1;
-					while(true) {
-						if(MPC != null) 
-							if(MPC.hasVideoSelected()) {
-								while(currentFrame != MPC.getCurrentFrame()) {
-									Thread.sleep(75);
-									if(graph != null)
-										graph.updateCirclePos(MPC.getCurrentFrame(), MPC.getFPS());
-									currentFrame = MPC.getCurrentFrame();
-								}
-							}
-						Thread.sleep(100);
-					} 
-				}catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	public void addTestsToRecordationPane() {
+		if (genericTests != null) {
+			noneSelected = true;
+			testRecordationPanel.removeAll();
+			final int viewableTests = genericTests.size();
+			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
+			testCheckBoxes = new ArrayList<JCheckBox>(viewableTests);
+			testNameTextField = new ArrayList<JTextField>(viewableTests);
+
+			for (int i = 0; i < viewableTests; i++) {
+
+				testNumPaneArray.add(new JPanel());
+				testNumPaneArray.get(i).setBounds(0, i * (50 - 1), 625, 50);
+				testNumPaneArray.get(i).setLayout(null);
+				testNumPaneArray.get(i).setBorder(new LineBorder(new Color(0, 0, 0)));
+
+				testCheckBoxes.add(new JCheckBox());
+				testCheckBoxes.get(i).setBounds(10, 15, 20, 20);
+				testCheckBoxes.get(i).addActionListener(e -> {
+
+					int numSelected = 0;
+
+					for (JCheckBox c : testCheckBoxes) {
+						if (c.isSelected())
+							numSelected++;
+					}
+
+					if (numSelected > 0) {
+
+						noneSelected = false;
+
+						clearSelectedBtn.setText("Clear Selected Tests");
+						saveSelectedBtn.setText("Save Selected Tests");
+						graphSelectedBtn.setText("Graph Selected Tests");
+
+					} else {
+
+						noneSelected = true;
+
+						clearSelectedBtn.setText("Clear All Tests");
+						saveSelectedBtn.setText("Save All Tests");
+						graphSelectedBtn.setText("Graph All Tests");
+					}
+
+				});
+
+				testNameTextField.add(new JTextField());
+				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
+				testNameTextField.get(i).setBounds(40, 10, 577, 30);
+				testNameTextField.get(i).setColumns(10);
+				testNameTextField.get(i).addFocusListener(new FocusListener() {
+
+					@Override
+					public void focusLost(FocusEvent e) {
+						for (int i = 0; i < genericTests.size(); i++) {
+							System.out.println("Focus lost");
+							genericTests.get(i).setName(testNameTextField.get(i).getText());
+						}
+					}
+
+					@Override
+					public void focusGained(FocusEvent e) {}
+
+				});
+
+				Border line = BorderFactory.createLineBorder(Color.GRAY);
+				Border empty = new EmptyBorder(0, 5, 0, 0);
+				CompoundBorder border = new CompoundBorder(line, empty);
+				testNameTextField.get(i).setBorder(border);
+
+				testNameTextField.get(i).setText(genericTests.get(i).getName());
+
+				testNumPaneArray.get(i).add(testNameTextField.get(i));
+				testNumPaneArray.get(i).add(testCheckBoxes.get(i));
+
 			}
-		};
-		
-		Thread updatePosInGraphThread = new Thread(updatePosInGraph);
-		updatePosInGraphThread.start();
+
+			for (int i = 0; i < testNumPaneArray.size(); i++) {
+				testRecordationPanel.add(testNumPaneArray.get(i));
+			}
+
+			clearSelectedBtn = new JButton("Clear All Tests");
+			clearSelectedBtn.setBounds(160, viewableTests * (50-1) + 10, 150, 30);
+			clearSelectedBtn.addActionListener(e -> {	
+
+				int choice = JOptionPane.showConfirmDialog(
+					this,
+					"Are you sure you want to remove the selected tests? \nNote: the tests will only be wiped from the Dashboard, NOT from your module.",
+					"Confirm Clear Tests",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE
+				);
+
+				if (choice == JOptionPane.NO_OPTION) return;
+
+				for (int i = testCheckBoxes.size() - 1; i >= 0; i--) {
+					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
+						genericTests.remove(i);
+					}
+				}
+
+				addTestsToRecordationPane();
+			});
+
+			saveSelectedBtn = new JButton("Save All Tests");
+			saveSelectedBtn.setBounds(315, viewableTests * (50-1) + 10, 150, 30);
+			saveSelectedBtn.addActionListener(e -> {	
+
+				for (int i = testCheckBoxes.size() - 1; i >= 0; i--) {
+
+					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
+
+						GenericTest test = genericTests.get(i);
+						String nameOfTest = testNameTextField.get(i).getText();
+
+						// update GenericTest name
+						test.setName(nameOfTest);
+
+						// create CSV
+						try {
+							CSVHandler.writeCSV(test, nameOfTest + ".csv");
+						} catch (FileNotFoundException e1) {
+							generalStatusLabel.setText("Error saving CSV file.");
+						}
+
+						// create CSVP
+						try {
+							CSVHandler.writeCSVP(test.getTestParams(), nameOfTest + ".csvp", test.getMPUOffsets());
+						} catch (FileNotFoundException e2) {
+							generalStatusLabel.setText("Error saving CSVP file.");
+						}
+
+						// display success message
+						generalStatusLabel.setText("File created successfully");
+					}
+				}
+			});
+
+			graphSelectedBtn = new JButton("Graph All Tests");
+			graphSelectedBtn.setBounds(470, viewableTests * (50-1) + 10, 150, 30);
+			graphSelectedBtn.addActionListener(e -> {
+
+				ArrayList<GenericTest> selectedTests = new ArrayList<GenericTest>();
+
+				for (int i = 0; i < testCheckBoxes.size(); i++) {
+					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
+						selectedTests.add(genericTests.get(i));
+					}
+				}
+
+				Platform.runLater(() -> {
+					GraphNoSINCController g = launchDAG();
+					g.setGenericTests(selectedTests);
+				});
+
+			});
+
+			if (genericTests.size() > 0) {
+				testRecordationPanel.add(clearSelectedBtn);
+				testRecordationPanel.add(saveSelectedBtn);
+				testRecordationPanel.add(graphSelectedBtn);
+			} else {
+				JLabel label = new JLabel("Data from \"Read Tests\" will show up here.");
+				label.setBounds(200, 20, 300, 300);
+				testRecordationPanel.add(label);
+			}
+
+			testRecordationPanel.repaint();
+		}
 	}
-	
-	
-	
 	
 	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
 		DataOrganizer dataOrgo = new DataOrganizer();
@@ -2251,7 +2196,6 @@ public class AdvancedMode extends JFrame {
 	public void createComponents() {
 
 		genericTests = new ArrayList<GenericTest>();
-		dataOrgoList = new ArrayList<DataOrganizer>();
 
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -2713,6 +2657,10 @@ public class AdvancedMode extends JFrame {
 						testRecordationPanel.setToolTipText("");
 						mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, "Here you will find a list of tests you have just read from a module. From here you can quickly launch graphs and use SINC Technology.");
 						testRecordationPanel.setLayout(null);
+
+						JLabel storedTestsMsg = new JLabel("Data from \"Read Tests\" will show up here.");
+						storedTestsMsg.setBounds(200, 20, 300, 300);
+						testRecordationPanel.add(storedTestsMsg);
 				
 				mpuCalibrationPanel = new JPanel();
 				mainTabbedPanel.addTab("IMU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
@@ -2947,7 +2895,7 @@ public class AdvancedMode extends JFrame {
 						});
 						calibrationPanel.add(configForCalButton);
 						
-								importCalDataButton = new JButton("Import Calibration Data and Calculate Offset");
+								importCalDataButton = new JButton("Calculate SINC Technology Offsets");
 								importCalDataButton.setToolTipText("This button will analyze the video you recorded and calculate the  Timer0 and Delay After Start text fields.");
 								importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 								importCalDataButton.addActionListener(new ActionListener() {
@@ -2965,10 +2913,10 @@ public class AdvancedMode extends JFrame {
 												videoFilePathTextField.setMaximumSize(new Dimension(500, 2147483647));
 												videoFilePathTextField.setMinimumSize(new Dimension(500, 100));
 												videoFilePathTextField.setColumns(10);
-												videoFilePathTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+												videoFilePathTextField.setBorder(new TitledBorder(null, "Video File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 												videoBrowsePanel.add(videoFilePathTextField);
 												
-														videoBrowseButton = new JButton("Browse");
+														videoBrowseButton = new JButton("Browse for Video");
 														videoBrowseButton.addActionListener(new ActionListener() {
 															public void actionPerformed(ActionEvent arg0) {
 																videoBrowseButtonHandler();
@@ -2980,8 +2928,8 @@ public class AdvancedMode extends JFrame {
 														videoBrowsePanel.add(videoBrowseButton);
 														calibrationPanel.add(importCalDataButton);
 														
-																applyOffsetButton = new JButton("Apply Offset to Module");
-																applyOffsetButton.setToolTipText("This will write the calculate offsets above to your module.");
+																applyOffsetButton = new JButton("Apply Offsets to Module");
+																applyOffsetButton.setToolTipText("This will write the calculated offsets above to your module.");
 																applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 																applyOffsetButton.addActionListener(new ActionListener() {
 																	public void actionPerformed(ActionEvent arg0) {
@@ -3016,28 +2964,7 @@ public class AdvancedMode extends JFrame {
 		mainTabbedPanel.addTab("Launch Graph", null, launcherPane, "Choose a graphing application to view previously saved tests.");
 		launcherPane.setLayout(null);
 
-		SINCGraphBtn = new JButton("Launch SINC Graph");
-		SINCGraphBtn.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				Platform.setImplicitExit(false);
-				Platform.runLater(() -> {
-
-					GraphController g = startGraphing();
-
-					// if the correct number of data sets exist, graph them
-					if (dataOrgoList.size() >= 1) g.graphDataOrgoObject(dataOrgoList.get(0));
-					if (dataOrgoList.size() >= 2) g.graphDataOrgoObject(dataOrgoList.get(1));
-
-				});
-
-			}
-		});
-		SINCGraphBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		SINCGraphBtn.setBounds(0, 0, 625, 182);
-		launcherPane.add(SINCGraphBtn);
-
-		DAGBtn = new JButton("Launch Data Analysis Graph");
+		DAGBtn = new JButton("Launch BioForce Graph");
 		DAGBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Platform.runLater(() -> {
@@ -3047,7 +2974,7 @@ public class AdvancedMode extends JFrame {
 			}
 		});
 		DAGBtn.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		DAGBtn.setBounds(0, 182, 625, 182);
+		DAGBtn.setBounds(0, 91, 625, 182);
 		launcherPane.add(DAGBtn);
 				
 				adminPanelContent = new JPanel();

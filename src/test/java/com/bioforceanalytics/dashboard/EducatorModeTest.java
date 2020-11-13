@@ -56,15 +56,7 @@ public class EducatorModeTest extends GUITest {
     public void should_launch_data_analysis_graph() {
         Platform.runLater(() -> {
             emfx.startGraphingNoSINC();
-            FxAssert.verifyThat(window("BioForce Data Analysis Graph"), WindowMatchers.isShowing());
-        });
-    }
-
-    @Test
-    public void should_launch_sinc_graph() {
-        Platform.runLater(() -> {
-            emfx.startGraphing();
-            FxAssert.verifyThat(window("BioForce SINC Technology Graph"), WindowMatchers.isShowing());
+            FxAssert.verifyThat(window("BioForce Graph"), WindowMatchers.isShowing());
         });
     }
 

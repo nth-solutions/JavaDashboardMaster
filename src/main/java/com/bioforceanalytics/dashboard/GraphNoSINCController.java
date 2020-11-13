@@ -14,6 +14,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.util.Throwables;
 import org.controlsfx.dialog.ProgressDialog;
 
 import javafx.application.Platform;
@@ -39,18 +40,22 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.MediaView;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
- * Controller class for the Data Analysis Graph. Handles all user interaction with the user interface,
+ * Controller class for the BioForce Graph. Handles all user interaction with the user interface,
  * as well as processing data sets for JavaFX use, retrieving calculations from
  * {@link com.bioforceanalytics.dashboard.GenericTest GenericTests}, calculating zooming/panning/scaling of the graph,
  * displaying data point labels, tracking currently graphed data sets, and more.
@@ -115,10 +120,17 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Button lineUpBtn;
 
+	@FXML private MediaView mediaView;
+	@FXML private Pane mediaViewPane;
+	@FXML private Rectangle scrubber;
+	
+	@FXML private HBox sincControls;
+	@FXML private Slider playbackSlider;
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		logger.info("Initializing Data Analysis graph...");
+		logger.info("Initializing BioForce Graph...");
 
 		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 
@@ -127,44 +139,86 @@ public class GraphNoSINCController implements Initializable {
 		genericTests = new ArrayList<GenericTest>();
 
 		lineChart = multiAxis.getBaseChart();
+		lineChart.initSINC(mediaView, scrubber);
 
 		// pass reference to controller to graph
 		multiAxis.setController(this);
-
-		// initialize graph mode variables
+		
 		Platform.runLater(() -> {
+
+			// initialize graph mode variables
 			setGraphMode(GraphMode.NONE);
-		});
 
-		Platform.runLater(() -> {
+			// update smoothing in real-time
 			blockSizeSlider.valueProperty().addListener(e -> {
 				applyMovingAvg();
 			});
+
+			// update playback speed in real-time
+			playbackSlider.valueProperty().addListener((obs, newValue, oldValue) -> {
+				lineChart.setPlaybackSpeed(newValue.doubleValue());
+			});
+
+			Scene s = multiAxis.getScene();
+
+			// FULL WINDOW MOUSE LISTENERS
+			s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+				// reset graph mode on right click
+				if (e.getButton() == MouseButton.SECONDARY) setGraphMode(GraphMode.NONE);
+			});
+
+			// FULL WINDOW KEY LISTENERS
+			s.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+
+				// if key was pressed somewhere other than in a text field
+				if (!(e.getTarget() instanceof TextField)) {
+
+					switch (e.getCode()) {
+
+						case ESCAPE:
+							setGraphMode(GraphMode.NONE);
+							break;
+	
+						case SPACE:
+							lineChart.togglePlayback();
+							break;
+	
+						case COMMA:
+							lineChart.lastFrame();
+							break;
+	
+						case PERIOD:
+							lineChart.nextFrame();
+							break;
+
+						case LEFT:
+							lineChart.jumpBack();
+							break;
+
+						case RIGHT:
+							lineChart.jumpForward();
+							break;
+	
+						default:
+							break;
+	
+					}
+
+					// prevent key from triggering further events
+					e.consume();
+
+				}
+
+			});
+
 		});
 
 		multiAxis.redrawGraph();
 
-		// ADD ALL FULL WINDOW LISTENERS HERE
-		Platform.runLater(() -> {
-
-			Scene s = multiAxis.getScene();
-
-			// reset graph mode on right click
-			s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-				if (e.getButton() == MouseButton.SECONDARY) setGraphMode(GraphMode.NONE);
-			});
-
-			// reset graph mode on escape
-			s.setOnKeyPressed(e -> {
-				if (e.getCode() == KeyCode.ESCAPE) setGraphMode(GraphMode.NONE);
-			});
-
-		});
-
 	}
 
 	/**
-	 * Populates the data analysis graph with a single GenericTest.
+	 * Populates the BioForce Graph with a single GenericTest.
 	 * @param g the GenericTest representing a single trial
 	 */
 	public void setGenericTest(GenericTest g) {
@@ -173,7 +227,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph with multiple GenericTests. This
+	 * Populates the BioForce Graph with multiple GenericTests. This
 	 * constructor should be used when multiple modules/trials are used in a test.
 	 * 
 	 * @param g array of GenericTests (each one represents one trial)
@@ -184,7 +238,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
+	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -198,7 +252,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
+	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -268,8 +322,9 @@ public class GraphNoSINCController implements Initializable {
 			return;
 		}
 
-		// disable "line up trials" if only one GT exists 
-		if (genericTests.size() == 1) {
+		// disable "line up trials" if only one GT exists;
+		// if this is a SINC trial, don't disable "line up trials"
+		if (genericTests.size() == 1 || lineChart.hasSINC()) {
 			lineUpBtn.setDisable(true);
 		}
 		else {
@@ -599,7 +654,7 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	public void handleReset() {
 
-		// reset all time offsets
+		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
 			
 			// get GenericTest from data set
@@ -614,6 +669,7 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		multiAxis.resetViewport();
+		lineChart.resetVideo();
 
 	}
 
@@ -766,6 +822,128 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	@FXML
+	private void importVideo(ActionEvent event) {
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select a Video");
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
+
+		// filters file selection to videos only
+		//
+		// TODO add support for .mov by adding method to BlackFrameAnalysis converting to .mp4;
+		// this will use "Files.createTempDirectory()" and use ffmpeg (Jaffree) to create an .mp4.
+		FileChooser.ExtensionFilter filterVideos = new FileChooser.ExtensionFilter("Select a Video File", "*.mp4", "*.mov");
+		fileChooser.getExtensionFilters().add(filterVideos);
+
+		File videoFile = fileChooser.showOpenDialog(null);
+
+		// if user doesn't choose a file or closes window, don't continue
+		if (videoFile == null) return;
+
+		// if the selected video file does not use H.264 codec or is not an .mp4, prompt the user for conversion
+		if (!MediaConverter.getCodec(videoFile.getAbsolutePath()).equals("h264") ||
+			!MediaConverter.getFileExt(videoFile.getAbsolutePath()).equals("mp4")) {
+
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+
+			// TODO add a file chooser so that users can change save location
+			alert.setHeaderText("Import SINC Video");
+			alert.setContentText(
+				"The video you have chosen needs to be converted to an .mp4 for use with SINC Technology.\n\n" +
+				"Would you like the BioForce Graph to automatically save this new video file to \"" +
+				MediaConverter.convertFileExt(videoFile.getAbsolutePath()) + "\"?"
+			);
+
+			Optional<ButtonType> result = alert.showAndWait();
+
+			// if "yes", convert file to MP4 and replace old video file variable
+			if (result.get() == ButtonType.OK) {
+
+				// store file path to pre-converted video
+				String originalVideo = videoFile.getAbsolutePath();
+
+				// update video file object to use new converted file path
+				videoFile = new File(MediaConverter.convertFileExt(videoFile.getAbsolutePath()));
+
+				try {
+					Task<Void> conversionTask = new Task<Void>() {
+					
+						@Override
+						protected Void call() {
+
+							// update progress bar when media conversion has progress update
+							MediaConverter.progressProperty().addListener((obs, oldVal, newVal) -> {
+								updateProgress(newVal.doubleValue(), 1);
+							});
+
+							// perform media conversion via FFmpeg
+							MediaConverter.convertToMP4(originalVideo);
+							return null;
+						}
+
+					};
+
+					ProgressDialog converting = new ProgressDialog(conversionTask);
+
+					converting.setHeaderText("Please wait...");
+					converting.setContentText("Converting your video. This might take a while.");
+
+					// begin media conversion & show progress dialog
+					new Thread(conversionTask).start();
+					converting.showAndWait();
+
+				}
+				// if ffmpeg encounters an error, gracefully handle it
+				catch (RuntimeException e) {
+
+					Alert error = new Alert(AlertType.ERROR);
+					String errorMessage = Throwables.getRootCause(e).getMessage();
+
+					error.setHeaderText("Error converting video");
+					error.setContentText("There was an problem converting your video: \n\n" + errorMessage);
+					error.showAndWait();
+
+					logger.info("Error converting video: " + errorMessage);
+					return;
+
+				}
+			}
+		}
+
+		sincControls.setVisible(true);
+		lineUpBtn.setDisable(false);
+
+		// start SINC playback
+		shiftSINC();
+		lineChart.playVideo(videoFile);
+
+	}
+
+	@FXML
+	public void exitSINC() {
+		
+		// hide SINC control bar
+		sincControls.setVisible(false);
+
+		// if there are less than two tests, disable "Line up"
+		if (genericTests.size() < 2) {
+			lineUpBtn.setDisable(true);
+		}
+
+		// stop SINC features in line chart
+		lineChart.exitSINC();
+
+		multiAxis.redrawGraph();
+	}
+
+	// SINC PLAYBACK CONTROL HANDLERS
+	@FXML void togglePlayback() { lineChart.togglePlayback(); }
+	@FXML void lastFrame() 		{ lineChart.lastFrame(); }
+	@FXML void nextFrame() 		{ lineChart.nextFrame(); }
+	@FXML void jumpBack() 		{ lineChart.jumpBack(); }
+	@FXML void jumpForward() 	{ lineChart.jumpForward(); }
+
+	@FXML
 	private void importCSV(ActionEvent event) {
 
 		FileChooser fileChooser = new FileChooser();
@@ -837,7 +1015,7 @@ public class GraphNoSINCController implements Initializable {
 		primaryStage.initModality(Modality.APPLICATION_MODAL);
 		primaryStage.initOwner(lineChart.getScene().getWindow());
 
-        primaryStage.setTitle("Data Analysis Graph - Color Menu");
+        primaryStage.setTitle("BioForce Graph - Color Menu");
 		primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
@@ -1038,6 +1216,45 @@ public class GraphNoSINCController implements Initializable {
 
 			// update legend colors
 			multiAxis.styleLegend();
+		}
+
+	}
+
+	/**
+	 * Shifts all GenericTests by their SINC calibration offset.
+	 * This uses index 2 of test parameters, <code>delayAfterStart</code>.
+	 */
+	private void shiftSINC() {
+
+		// loop through each GT and shift its time axis
+		for (GenericTest g : genericTests) {
+			
+			// converting milliseconds to seconds
+			double delayAfterStart = ((double) g.getTestParam(2)) / 1000;
+
+			// reset any shift in the x-axis
+			g.resetTimeOffset();
+
+			// if delayAfterStart is negative, the camera starts earlier than the module;
+			// we compensate by shifting the graph by -delayAfterStart (to the right)
+			if (delayAfterStart < 0) {
+				g.addTimeOffset(-delayAfterStart);
+			}
+			// if delayAfterStart is positive, the camera starts later than the module;
+			// compensation is done in firmware, but we must also apply manual SINC correction
+			// (see BFALineChart.SINC_TIME_ERROR for more information)
+			else if (delayAfterStart > 0) {
+				g.addTimeOffset(lineChart.SINC_TIME_ERROR);
+			}
+
+			// TODO intentionally not accounting for delayAfterStart == 0;
+			// more testing has to be done to see how to correct this case
+		}
+
+		// update each currently drawn axis
+		for (GraphData g : dataSets) {
+			updateAxis(g.axis, g.GTIndex);
+			logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 		}
 
 	}
