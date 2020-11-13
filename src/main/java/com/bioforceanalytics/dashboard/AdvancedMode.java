@@ -235,6 +235,7 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JPanel testRecordationPanel;
 	private ArrayList<JPanel> testNumPaneArray;
+	private ArrayList<JCheckBox> testCheckBoxes;
 	private ArrayList<JTextField> testNameTextField;
 
 	private JButton helpBtn;
@@ -1370,9 +1371,6 @@ public class AdvancedMode extends JFrame {
 					progressBar.setValue(0);
 					progressBar.setForeground(new Color(51, 204, 51));
 
-					// clear DAG tests
-					genericTests.clear();
-
 					// Read test parameters from module and store it in testParameters
 					testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
 					int[][] mpuMinMax = serialHandler.getMPUMinMax();
@@ -1969,26 +1967,30 @@ public class AdvancedMode extends JFrame {
 			testRecordationPanel.removeAll();
 			final int viewableTests = genericTests.size();
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
+			testCheckBoxes = new ArrayList<JCheckBox>(viewableTests);
 			saveTestBtn = new ArrayList<JButton>(viewableTests);
 			DAGTestBtn = new ArrayList<JButton>(viewableTests);
 			testNameTextField = new ArrayList<JTextField>(viewableTests);
 
 			for (int i = 0; i < viewableTests; i++) {
 				testNumPaneArray.add(new JPanel());
-				testNumPaneArray.get(i).setBounds(0, i * 48, 625, 47);
+				testNumPaneArray.get(i).setBounds(0, i * (30-1), 625, 30);
 				testNumPaneArray.get(i).setLayout(null);
 				testNumPaneArray.get(i).setBorder(new LineBorder(new Color(0, 0, 0)));
 
+				testCheckBoxes.add(new JCheckBox());
+				testCheckBoxes.get(i).setBounds(10, 5, 20, 20);
+
 				testNameTextField.add(new JTextField());
 				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
-				testNameTextField.get(i).setBounds(10, 11, 335, 29);
+				testNameTextField.get(i).setBounds(40, 5, 335, 20);
 				testNameTextField.get(i).setColumns(10);
 				testNameTextField.get(i).setText(genericTests.get(i).getName());
 
 				testNumPaneArray.get(i).add(testNameTextField.get(i));
 
 				saveTestBtn.add(new JButton("Save"));
-				saveTestBtn.get(i).setBounds(355, 13, 60, 23);
+				saveTestBtn.get(i).setBounds(380, 5, 60, 20);
 				saveTestBtn.get(i).addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						System.out.println("test");
@@ -2024,7 +2026,7 @@ public class AdvancedMode extends JFrame {
 
 				int index = i;
 				DAGTestBtn.add(new JButton("BioForce Graph"));
-				DAGTestBtn.get(i).setBounds(485, 13, 130, 23);
+				DAGTestBtn.get(i).setBounds(485, 5, 130, 20);
 				DAGTestBtn.get(i).addActionListener(new ActionListener() {
 
 					public void actionPerformed(ActionEvent e) {
@@ -2037,6 +2039,7 @@ public class AdvancedMode extends JFrame {
 
 				});
 
+				testNumPaneArray.get(i).add(testCheckBoxes.get(i));
 				testNumPaneArray.get(i).add(saveTestBtn.get(i));
 				testNumPaneArray.get(i).add(DAGTestBtn.get(i));
 
