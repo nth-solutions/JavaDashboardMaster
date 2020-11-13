@@ -2638,6 +2638,10 @@ public class AdvancedMode extends JFrame {
 						testRecordationPanel.setToolTipText("");
 						mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, "Here you will find a list of tests you have just read from a module. From here you can quickly launch graphs and use SINC Technology.");
 						testRecordationPanel.setLayout(null);
+
+						JLabel storedTestsMsg = new JLabel("Data from \"Read Tests\" will show up here.");
+						storedTestsMsg.setBounds(200, 20, 300, 300);
+						testRecordationPanel.add(storedTestsMsg);
 				
 				mpuCalibrationPanel = new JPanel();
 				mainTabbedPanel.addTab("IMU Calibration", null, mpuCalibrationPanel, "Read and set IMU calibration offsets");
