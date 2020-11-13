@@ -32,12 +32,9 @@ public class HelpMenuController implements Initializable{
 	Label titleBSPageLabel = new Label();
 	@FXML
 	Tab DSPageTab = new Tab();
-	@FXML
-	Label debugInfo;
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		debugInfo.setText("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
 		setKeys();
 	}
 	

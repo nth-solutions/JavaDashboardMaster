@@ -44,7 +44,7 @@ public class EducatorModeTest extends GUITest {
         }
 
         emfx = loader.getController();
-        stage.setTitle("BioForce Education Mode");
+        stage.setTitle("Education Mode");
         Scene scene = new Scene(root, 700, 500);
         stage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("css/EducatorModeCSS.css").toExternalForm());

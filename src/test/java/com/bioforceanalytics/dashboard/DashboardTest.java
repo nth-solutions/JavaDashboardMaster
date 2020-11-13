@@ -30,7 +30,7 @@ public class DashboardTest extends GUITest {
     @Test
     public void should_launch_educator_mode() {
         clickOn("#EducatorButton");
-        FxAssert.verifyThat(window("BioForce Education Mode"), WindowMatchers.isShowing());
+        FxAssert.verifyThat(window("Education Mode"), WindowMatchers.isShowing());
     }
 
     @Test

@@ -113,25 +113,29 @@ public class EducatorModeControllerFX implements Initializable {
 
     // TEST PARAMETER FXML COMPONENTS
     @FXML
-    TextField massOfCart1TextField;
+    TextField massOfLeftModuleTextField;
     @FXML
-    TextField massOfCart2TextField;
+    TextField massOfLeftGliderTextField;
+    @FXML
+    TextField massOfRightModuleTextField;
+    @FXML
+    TextField massOfRightGliderTextField;
     @FXML
     TextField totalDropDistanceTextField;
     @FXML
-    TextField massOfModuleAndHolderCOETextField;
+    TextField massOfModuleAndHolderTextField;
     @FXML
     TextField momentOfInertiaCOETextField;
     @FXML
-    TextField angleFromTopTextField;
+    TextField radiusOfTorqueArmCOETextField;
     @FXML
     TextField lengthOfPendulumTextField;
     @FXML
     TextField distanceFromPivotTextField;
     @FXML
-    TextField massOfModuleAndHolderTextField;
+    TextField massOfModuleTextField;
     @FXML
-    TextField massOfPendulumTextField;
+    TextField massOfHolderTextField;
     @FXML
     TextField springConstantTextField;
     @FXML
@@ -141,27 +145,36 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField massOfSpringTextField;
     @FXML
+    TextField bottomAngle;
+    @FXML
+    TextField topAngle;
+    @FXML
     Label applyConfigurationsToFirstModuleLabel;
 
     //Extra Module Parameters - CoM
-    double massOfCart1;
-    double massOfCart2;
+    double massOfRightModule;
+    double massOfRightGlider;
+    double massOfLeftModule;
+    double massOfLeftGlider;
+    double massOfRightModuleAndRightGlider;
+    double massOfLeftModuleAndLeftGlider;
     // Extra Module Parameters - CoE
     double totalDropDistance;
-    double massOfModuleAndHolderCOE;
+    double massOfModuleAndHolder;
     double momentOfInertiaCOE;
+    double radiusOfTorqueArmCOE;
     // Extra Module Parameters - Pendulum
     double lengthOfPendulum;
     double distanceFromPivot;
-    double massOfModuleAndHolder;
-    double massOfPendulum;
+    double massOfModule;
+    double massOfHolder;
     // Extra Module Parameters - Spring
     double springConstant;
     double totalHangingMass;
     double amplitudeSpring;
     double massOfSpring;
-
     // Extra Module Parameters - Inclined Plane
+    double angleFromBottom;
     double angleFromTop;
 
     private ConservationMomentumTest comTest;
@@ -203,7 +216,7 @@ public class EducatorModeControllerFX implements Initializable {
 
         genericTests = new ArrayList<GenericTest>();
 
-        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
+        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.                                                                                   //See Method Comment
         fillTestTypeHashMap();                                                                                         //See Method Comment
 
@@ -256,7 +269,42 @@ public class EducatorModeControllerFX implements Initializable {
         }else if (t.equals(eraseConfirmationTab)) {
             helpmenu.selectUnpairRemotesHelpTab();
         } else if (t.equals(experimentTab)) {
-            helpmenu.selectExperimentHelpTab(experimentTabIndex);
+
+            if (oneModuleTest) {
+
+                switch (experimentTabIndex) {
+
+                    case 0:
+                        helpmenu.selectExperimentHelpTabOne();
+                        break;
+
+                    case 1:
+                        helpmenu.selectExperimentHelpTabTwo();
+                        break;
+
+                    case 2:
+                        helpmenu.selectExperimentHelpTabThree();
+                        break;
+                    
+                    case 3:
+                        helpmenu.selectExperimentHelpTabFour();
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+            } else {
+
+                if (experimentTabIndex == 0) {
+                    helpmenu.selectExperimentHelpTabOne();
+                } else {
+                    helpmenu.selectBlankTab();
+                }
+
+            }
+
         }
 
     }
@@ -275,26 +323,6 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("Education Mode Help Menu");
-        primaryStage.getIcons().add(icon);
-        primaryStage.show();
-        primaryStage.setResizable(false);
-
-        return loader.getController();
-    }
-
-    @FXML
-    public SINCCalibrationHelpMenuController startSINCHelpMenu() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/SINCCalibrationHelpMenu.fxml"));
-        try{
-            root = loader.load();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
-
-        primaryStage.setTitle("SINC Calibration Help Menu");
         primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
@@ -427,11 +455,11 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void displayTestParameterTab(ActionEvent event) {
-        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex(); //Gets the index of the test type selected by user within the combobox
-        testParametersTabPane.getSelectionModel().select(selectedIndex + 1); //Since the number of tabs matches the length of the combobox selection model, the user's
+        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex() + 1; //Gets the index of the test type selected by user within the combobox
+        testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
         //selected index is used to select the matching tab pane index to display
 
-        if(selectedIndex == 0 || selectedIndex == 1 || selectedIndex == 6 ){ //this means a test involving two modules is selected.
+        if(selectedIndex == 1 || selectedIndex == 2 || selectedIndex == 8 ){ //this means a test involving two modules is selected.
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations to Module 1");
             oneModuleTest = false;
         }else{
@@ -556,50 +584,60 @@ public class EducatorModeControllerFX implements Initializable {
         experimentType = comboBoxIndex;
 
         switch (comboBoxIndex) {
-            case 0:
-                massOfCart1 = Double.parseDouble(massOfCart1TextField.getText());
-                massOfCart2 = Double.parseDouble(massOfCart2TextField.getText());
-                
-                comTest = new ConservationMomentumTest(massOfCart1, massOfCart2);
+            case 1:
+                massOfRightModule = Double.parseDouble(massOfRightModuleTextField.getText());
+                massOfRightGlider = Double.parseDouble(massOfRightGliderTextField.getText());
+                massOfLeftModule = Double.parseDouble(massOfLeftModuleTextField.getText());
+                massOfLeftGlider = Double.parseDouble(massOfLeftGliderTextField.getText());
+
+                massOfLeftModuleAndLeftGlider = massOfLeftGlider + massOfLeftModule;
+                massOfRightModuleAndRightGlider = massOfRightGlider + massOfRightModule;
+                comTest = new ConservationMomentumTest(massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
                 testType = "Conservation of Momentum (Elastic Collision)";
                 break;
 
-            case 1:
+            case 2:
                 totalDropDistance = Double.parseDouble(totalDropDistanceTextField.getText());
-                massOfModuleAndHolderCOE = Double.parseDouble(massOfModuleAndHolderCOETextField.getText());
+                massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
                 momentOfInertiaCOE = Double.parseDouble(momentOfInertiaCOETextField.getText());
-                engTest = new ConservationEnergyTest(massOfModuleAndHolderCOE, momentOfInertiaCOE, totalDropDistance);
+                radiusOfTorqueArmCOE = Double.parseDouble(radiusOfTorqueArmCOETextField.getText());
+                engTest = new ConservationEnergyTest(massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
                 testType = "Conservation of Energy";
                 break;
 
-            case 2:
-                angleFromTop = Double.parseDouble(angleFromTopTextField.getText());   
-                testType = "Inclined Plane";
+            case 3:
+                angleFromTop = Double.parseDouble(topAngle.getText());   
+                testType = "Inclined Plane - Released From Top";
                 break;
 
-            case 3:
+            case 4:
+                angleFromBottom = Double.parseDouble(bottomAngle.getText());
+                testType = "Inclined Plane - Released From Bottom";
+                break;
+                
+            case 5:
                 lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
                 distanceFromPivot = Double.parseDouble(distanceFromPivotTextField.getText());
-                massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
-                massOfPendulum = Double.parseDouble(massOfPendulumTextField.getText());
+                massOfModule = Double.parseDouble(massOfModuleTextField.getText());
+                massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
                 
                 testType = "Physical Pendulum";
                 break;
 
-            case 4:
+            case 6:
                 springConstant = Double.parseDouble(springConstantTextField.getText());
                 totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
                 amplitudeSpring = Double.parseDouble(amplitudeSpringTextField.getText());
                 massOfSpring = Double.parseDouble(massOfSpringTextField.getText());
 
-                testType = "Spring Test";
+                testType = "Spring Test - Simple Harmonics";
                 break;
 
-            case 5:
+            case 7:
                 testType = "Generic Template - One Module";
                 break;
 
-            case 6:
+            case 8:
                 testType = "Generic Template - Two Modules";
                 break;
 
@@ -1482,8 +1520,8 @@ public class EducatorModeControllerFX implements Initializable {
 			primaryStage.setTitle("BioForce Graph");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
-	        primaryStage.setMinWidth(900);
-	        primaryStage.setMinHeight(600);
+	        primaryStage.setMinWidth(450);
+	        primaryStage.setMinHeight(300);
 	        primaryStage.setScene(scene);
             primaryStage.setResizable(true);
             primaryStage.getIcons().add(icon);
@@ -1706,25 +1744,27 @@ public class EducatorModeControllerFX implements Initializable {
 
         // NOTE: index 2 (delayAfterStart) will NOT be overwritten through test parameters.
 
-        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
+        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
 
         Integer[] testParamsB = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Conservation of Energy", testParamsB);
 
-        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
+        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Inclined Plane", testParamsC);
+        testTypeHashMap.put("Inclined Plane - Released From Top", testParamsC);
+        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParamsC);
 
         Integer[] testParamsD = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Physical Pendulum", testParamsD);
 
-        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
-        testTypeHashMap.put("Spring Test", testParamsE);
+        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        testTypeHashMap.put("Spring Test - Simple Harmonics", testParamsE);
 
-        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
+        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Generic Template - One Module", testParamsF);
 
-        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
+        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
         testTypeHashMap.put("Generic Template - Two Modules", testParamsG);
 
         // TODO the following test is not being used, but kept in case we decide to bring this lab back

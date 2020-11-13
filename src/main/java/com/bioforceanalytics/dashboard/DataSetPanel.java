@@ -180,15 +180,9 @@ public class DataSetPanel extends TitledPane {
 
 		Optional<String> result = dialog.showAndWait();
 
-		// if user entered a response
-		if (result.isPresent()) {
+		// set the new text of this TitledPane
+		if (result.isPresent()) setTitle(result.get());
 
-			// set header of TitledPane
-			setTitle(result.get());
-
-			// update test name
-			controller.renameGT(result.get(), GTIndex);
-
-		}
+		controller.renameGT(result.get(), GTIndex);
 	}
 }

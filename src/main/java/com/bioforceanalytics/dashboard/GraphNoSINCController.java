@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -517,60 +516,6 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Updates all currently drawn axes on the graph.
-	 * Displays a loading message displaying progress.
-	 */
-	public void updateGraph() {
-
-		// run updating process in separate thread
-		Task<Void> loadingTask = new Task<Void>() {
-
-            @Override
-            protected Void call() throws Exception {
-
-				// loop through each currently graphed data set
-				for (int i = 0; i < dataSets.size(); i++) {
-
-					// needed for Platform.runLater
-					final int index = i;
-					
-					// update progress + message for dialog box
-					updateProgress(index + 1, dataSets.size());
-					updateMessage("Reloading " + dataSets.get(index).toString() + "...");
-
-					// workaround used to sync progress + message w/ updateAxis()
-					// TODO this is bad practice, maybe we can refactor updateAxis() to use a Tasks?
-					final CountDownLatch waitForThread = new CountDownLatch(1);
-
-					Platform.runLater(() -> {
-
-						// redraw the given axis
-						updateAxis(dataSets.get(index).axis, dataSets.get(index).GTIndex);
-						waitForThread.countDown();
-
-					});
-
-					// wait until updateAxis() is complete
-					waitForThread.await();
-
-				}
-
-				return null;
-			}
-
-		};
-
-		ProgressDialog loading = new ProgressDialog(loadingTask);
-		loading.setHeaderText("Please wait...");
-		loading.setContentText("Reloading data sets...");
-
-		// start reloading in the background
-		new Thread(loadingTask).start();
-		loading.showAndWait();
-
-	}
-
-	/**
 	 * Removes all currently drawn axes from the graph.
 	 * Does NOT clear the list of data sets or GenericTests.
 	 */
@@ -656,16 +601,8 @@ public class GraphNoSINCController implements Initializable {
 
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			
-			// get GenericTest from data set
-			GenericTest test = genericTests.get(g.GTIndex);
-
-			// if time offset is not 0, reset it and redraw
-			if (test.getTimeOffset() != 0) {
-				test.resetTimeOffset();
-				updateAxis(g.axis, g.GTIndex);
-			}
-
+			genericTests.get(g.GTIndex).resetTimeOffset();
+			updateAxis(g.axis, g.GTIndex);
 		}
 
 		multiAxis.resetViewport();
@@ -738,8 +675,8 @@ public class GraphNoSINCController implements Initializable {
 			// update all currently drawn acceleration axes
 			for (GraphData g : dataSets) {
 				
-				// if axis class is kinematic data (Accel/Vel/Disp) or momentum
-				if (g.axis.getValue() / 4 <= 2 || g.axis.getValue() / 4 <= 7) {
+				// if axis class is kinematic data (Accel/Vel/Disp)
+				if (g.axis.getValue() / 4 <= 2) {
 					updateAxis(g.axis, g.GTIndex);
 				}
 			}
@@ -802,13 +739,13 @@ public class GraphNoSINCController implements Initializable {
 	public void clearDataSets(ActionEvent event) {
 
 		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setHeaderText("Remove All Tests");
-		alert.setContentText("Are you sure you want to remove all currently loaded tests?");
+		alert.setHeaderText("Clear Data Sets");
+		alert.setContentText("Are you sure you want to clear all data sets?");
 		Optional<ButtonType> result = alert.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
 
-			logger.info("Removing all tests...");
+			logger.info("Clearing all data sets...");
 
 			// clear GTs, un-graph data sets, then clear the data sets list
 			genericTests.clear();
@@ -1063,7 +1000,17 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
-		updateGraph();
+		Alert a = new Alert(AlertType.NONE, "Reloading data sets...");
+		a.setResult(ButtonType.OK);
+		a.show();
+
+		// TODO potentially add ControlsFX to make async loading popup
+		// this would allow us to have a progress bar in a pop up like this for each axis
+		for (GraphData d : dataSets) {
+			updateAxis(d.axis, d.GTIndex);
+		}
+
+		a.close();
 
 	}
 
@@ -1405,7 +1352,7 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 					// ensures that x1 is always less than x2
-					double[] areaBounds = {selectedPoint[0], x};
+					double[] areaBounds = new double[] {selectedPoint[0], x};
 					Arrays.sort(areaBounds);
 
 					// calculate the definite integral with the given limits

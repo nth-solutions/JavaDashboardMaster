@@ -51,7 +51,7 @@
 				<Menu mnemonicParsing="false" text="Data">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#openColorMenu" text="Customize Colors" />
-						<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Remove All Tests" />
+						<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear Data Sets" />
 					</items>
 				</Menu>
 			</menus>
@@ -152,7 +152,7 @@
 						</HBox>
 					</children>
 				</AnchorPane>
-				<AnchorPane SplitPane.resizableWithParent="false" maxWidth="450" minWidth="375" prefWidth="400">
+				<AnchorPane SplitPane.resizableWithParent="false" maxWidth="400.0" minWidth="100.0" prefWidth="200.0">
 					<children>
 						<ScrollPane fitToHeight="true" fitToWidth="true" minViewportHeight="150.0" minViewportWidth="150.0" prefViewportHeight="400.0" prefViewportWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 							<content>

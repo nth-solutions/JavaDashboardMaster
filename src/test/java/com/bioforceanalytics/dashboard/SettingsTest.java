@@ -31,7 +31,7 @@ public class SettingsTest {
     public void test1_check_if_config_file_regenerates() {
 
         File settingsDir = Paths.get(System.getProperty("user.home"), ".BioForce Dashboard").toFile();
-        File configFile = new File(settingsDir, "DataOrganizer.properties");
+        File configFile = new File(settingsDir, "DataOrganizer.prop");
 
         try {
 
@@ -44,9 +44,6 @@ public class SettingsTest {
             // verify all config files are gone
             assertTrue(!settingsDir.exists());
             assertTrue(!configFile.exists());
-
-            // recreate settings folder
-            FileUtils.forceMkdir(settingsDir);
 
             logger.info("Restoring default config...");
             assertTrue(Settings.restoreDefaultConfig());
