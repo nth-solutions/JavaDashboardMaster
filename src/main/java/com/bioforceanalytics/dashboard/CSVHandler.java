@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * General-purpose class used for reading and writing data to CSV files.
- * Mainly used by the BioForce Graph for reading saved test data.
+ * Mainly used by the Data Analysis Graph for reading saved test data.
  */
 public class CSVHandler {
 	
@@ -27,37 +27,7 @@ public class CSVHandler {
 	 * @param nameOfTest the name used in the created CSV file
 	 * @param MPUMinMax the array of offsets applied to all acceleration calculations
 	 */
-	public static void writeCSVP(ArrayList<Integer> testParameters, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
-	
-		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
-		// kept at length of 9 to match # of DOFs (Gyro & Mag)
-		int[] mpuOffsets = new int[9];
-
-		// TODO MPUMinMax is sometimes randomly be read as "null" from SerialComm
-		// this ensures that a NullPointerException isn't thrown later in GT
-		if (MPUMinMax == null) {
-			logger.warn("MPUMinMax offsets null, filling with 0s...");
-			MPUMinMax = new int[][] {{0, 0}, {0, 0}, {0, 0}};
-		}
-
-		// populate MPU offsets by taking the avg of min and max
-		// Currently used for acceleration calculations only
-		for (int axi = 0; axi < MPUMinMax.length; axi++) {
-			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
-		}
-
-		writeCSVP(testParameters, nameOfTest, mpuOffsets);
-
-	}
-
-	/**
-	 * Writes test parameters to a CSVP file.
-	 * @param testParameters the list of test parameters
-	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
-	 * @param nameOfTest the name used in the created CSV file
-	 * @param mpuOffsets the array of offsets applied to all acceleration calculations
-	 */
-	public static void writeCSVP(ArrayList<Integer> testParameters, String nameOfTest, int[] mpuOffsets) throws FileNotFoundException {
+	public void writeCSVP(ArrayList<Integer> testParameters, String nameOfTest, int[][] MPUMinMax) throws FileNotFoundException {
 
 		// retrieve the directory to write CSV/CSVP files to
 		String testDirPath = Settings.get("CSVSaveLocation");
@@ -69,14 +39,16 @@ public class CSVHandler {
 		for(int i = 0; i < testParameters.size(); i++) { 
 			dataFile.println(testParameters.get(i).toString());
 		}
+
+		if (MPUMinMax == null) {
+			logger.warn("MPU offsets null when writing CSVP, filling with 0s...");
+			MPUMinMax = new int[][] {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}};
+		}
 		
 		for (int i = 0; i < 9; i++) {
-			// write mpuOffsets values to file
-			//
-			// (this works because MPUMinMax is averaged to get mpuOffsets)
-			// TODO this is kind of a hack, fix this at some point
-			dataFile.println(mpuOffsets[i]);
-			dataFile.println(mpuOffsets[i]);
+			// write MPUMinMax values to file
+			dataFile.println(MPUMinMax[i][0]);
+			dataFile.println(MPUMinMax[i][1]);
 		}
 		
 		dataFile.close();
@@ -89,7 +61,7 @@ public class CSVHandler {
 	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
 	 * @param nameOfTest the name used in the created CSV file
 	 */
-	public static void writeCSV(GenericTest g, String nameOfTest) throws FileNotFoundException { 														
+	public void writeCSV(GenericTest g, String nameOfTest) throws FileNotFoundException { 														
 	
 		StringBuilder builder = new StringBuilder();
 			
@@ -130,7 +102,7 @@ public class CSVHandler {
 	 * @param CSVPFilePath the location of the CSVP file
 	 * @return ArrayList of test parameters read from CSVP
 	 */
-	public static ArrayList<Integer> readCSVP(String CSVPFilePath) throws IOException, NumberFormatException {
+	public ArrayList<Integer> readCSVP(String CSVPFilePath) throws IOException, NumberFormatException {
 
 		logger.info("Importing test parameters from '" + CSVPFilePath + "'...");
 
@@ -172,7 +144,7 @@ public class CSVHandler {
 	 *         axis of time.
 	 * @throws IOException
 	 */
-	public static List<List<Double>> readCSV(String CSVFilePath) throws IOException, NumberFormatException {
+	public List<List<Double>> readCSV(String CSVFilePath) throws IOException, NumberFormatException {
 
 		logger.info("Importing test data from '" + CSVFilePath + "'...");
 		
@@ -208,4 +180,54 @@ public class CSVHandler {
 
 	}
 	
+	/**
+	 * <b>FOR TESTING PURPOSES ONLY - NOT FOR USE WITH GRAPHING APPLICATION</b> This
+	 * method writes all 28 axes of a GenericTest to a CSV - this is not the CSV
+	 * format that the graph accepts This method was only written to evaluate the
+	 * GenericTest data in Excel.
+	 * 
+	 * @deprecated not for use in Data Analysis Graph
+	 * @param g          GenericTest object to read test data from
+	 * @param nameOfTest the name used in the created CSV file
+	 * @throws FileNotFoundException
+	 */
+	@Deprecated
+	public void writeGenericTestAxestoCSV(GenericTest g, String nameOfTest) throws FileNotFoundException {
+		
+		StringBuilder builder = new StringBuilder();
+			
+		//iterates through data points in the series (i is the line index)
+		for (int i = 0; i < g.getAxis(AxisType.AccelX).getSamples().size(); i++) {
+
+			//iterates through axes (j is the column index)
+			for (int j = 0; j < AxisType.values().length; j++) {
+				//controls for shorter mag series
+				if (!(j > 23 && i > g.getAxis(AxisType.valueOf(j)).getSamples().size()-1)) {
+					builder.append(g.getAxis(AxisType.valueOf(j)).getSamples().get(i));
+					builder.append(",");
+				}
+			}
+			builder.append("\n");
+		}
+			
+		String testDirPath = Settings.get("CSVSaveLocation");
+		File testDir = new File(testDirPath);
+
+		// if directory doesn't exist, create it
+		if (!testDir.exists()) testDir.mkdirs();
+
+		PrintWriter writer = new PrintWriter(new File(testDir + "/" + nameOfTest));
+
+		// write the string data to the file
+		writer.write(builder.toString());
+
+		// close the PrintWriter
+		writer.close(); 
+
+	}
+	
 }
+
+
+
+

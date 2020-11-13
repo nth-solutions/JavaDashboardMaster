@@ -105,23 +105,37 @@
             </Tab>
             <Tab fx:id="experimentHelpTabThree" text="experimentHelpTabThree">
                <content>
-                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Launch Graph">
+                        <Label alignment="CENTER" layoutX="-3.0" layoutY="43.0" prefHeight="17.0" prefWidth="1000.0" text="Select Output Data Format (SINC or Data Analysis Graph)">
                            <font>
                               <Font name="System Bold" size="24.0" />
                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="2.0" layoutY="109.0" prefHeight="60.0" prefWidth="1001.0" text="Simply select the &quot;Launch Graph&quot; button to view your data." wrapText="true">
+                        <Label layoutX="50.0" layoutY="120.0" prefHeight="36.0" prefWidth="951.0" text="1. Select your option then click &quot;Read Test From Module&quot;">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets left="50.0" />
-                           </padding>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="190.0" prefHeight="30.0" prefWidth="901.0" text="- The Data Analysis Graph is used for general-purpose experiments and lab templates." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="187.0" prefHeight="36.0" prefWidth="851.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="221.0" prefHeight="30.0" prefWidth="901.0" text="- The SINC Technology Graph is used for video motion trials. " wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="156.0" prefHeight="30.0" prefWidth="901.0" text="- Your selected graphing application will automatically launch when complete." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
                         </Label>
                      </children>
                   </AnchorPane>
@@ -426,12 +440,6 @@
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets left="50.0" />
-                           </padding>
                         </Label>
                      </children>
                   </AnchorPane>
@@ -666,6 +674,54 @@
                   </AnchorPane>
                </content>
             </Tab>
+            <Tab fx:id="SINCTechnologyHelpTab" text="SINCTechnologyHelpTab">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label alignment="CENTER" layoutY="1.0" prefHeight="101.0" prefWidth="1001.0" text="Display Experiment Data/Video">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="103.0" prefHeight="27.0" prefWidth="959.0" text="1. Click the &quot;Launch SINC Technology&quot; Button">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="130.0" prefHeight="27.0" prefWidth="909.0" text="- The graph automatically launches with data plotted for Accelerometer X Axis">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="157.0" prefHeight="27.0" prefWidth="959.0" text="2. Under File select &quot;Import Video&quot;">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="184.0" prefHeight="27.0" prefWidth="909.0" text="- Navigate to the folder where experiment video was saved and click &quot;Open&quot;">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="211.0" prefHeight="27.0" prefWidth="909.0" text="- The video will load and automatically start playback">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="238.0" prefHeight="60.0" prefWidth="959.0" text="3. The Dashboard and SINC Technology graph will now work independently of each other. You may now work with the SINC graph or navigate back to the Dashboard and select another function to work with. " wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="400.0" prefHeight="120.0" prefWidth="959.0" text="Note: When using SINC Technology, first complete the &quot;Erase&quot; and &quot;Pair/Unpair Remotes&quot; steps for the module(s) you are using, then go to the SINC Module Calibration tab to calibrate and synchronize your module(s)/remote/camera. Once the calibration/synchronization steps are completed, disconnect the module. You are now ready to begin running trials by moving to the Experiment tab. " wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
             <Tab fx:id="SINCCalibrationHelpTab" text="SINCCalibrationHelpTab">
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
@@ -810,6 +866,11 @@
                      </children>
                   </AnchorPane>
                </content>
+            </Tab>
+            <Tab fx:id="blankTab" text="Blank Tab">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+              </content>
             </Tab>
         </tabs>
       </TabPane>

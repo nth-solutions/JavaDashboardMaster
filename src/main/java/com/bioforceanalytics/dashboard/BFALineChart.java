@@ -1,43 +1,29 @@
 package com.bioforceanalytics.dashboard;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.controlsfx.glyphfont.FontAwesome;
-import org.controlsfx.glyphfont.Glyph;
-
-import javafx.animation.AnimationTimer;
 import javafx.beans.NamedArg;
 import javafx.collections.ObservableList;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
-import javafx.util.Duration;
 
 /**
- * Custom LineChart created to shade in area under a curve and to play overlayed video for SINC Technology.
- * This is also the "base chart" used by {@link com.bioforceanalytics.dashboard.MultiAxisLineChart MultiAxisLineChart}.
+ * Custom LineChart created solely to shade in sections of area under a curve.
+ * Should not be manually instantiated, instead reference this component in FXML;
+ * the fields for NumberAxes will be populated from the FXMLLoader that reads the file.
  */
 public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
-    // reference to the MultiAxisLineChart that controls this chart
-    private MultiAxisLineChart parentChart;
-
-    // JavaFX component containing area label
+    /**
+     * JavaFX component containing area label.
+     */
     private Pane areaPane;
 
     // fields used for shading in area
@@ -47,54 +33,10 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     private int SIG_FIGS;
     private double area;
 
-    // used to play SINC videos
-    private MediaPlayer mediaPlayer;
-    private AnimationTimer timer;
-
-    // the amount of time to jump forward/backward with arrow keys
-    public final int JUMP_AMOUNT = 1;
-
-    // the frame rate of the video
-    private final int FPS = 30;
-
-    // the amount of time between frames (1/FPS)
-    private final double DELTA_TIME = ((double) 1) / ((double) FPS);
-
-    // the number of frames to offset all SINC calculations
-    private final int SINC_FRAME_ERROR = 12;
-
-    /**
-     * The amount of time to offset all SINC calculations.
-     * <hr>
-     * For some reason, SINC calibration is off by 12 frames when <code>delayAfterStart > 0</code>;
-     * this is likely caused by a firmware or remote issue, but since this is a consistent problem,
-     * this value will be applied on top of <code>delayAfterStart</code>
-     * from the calibration process when graphing SINC trials in the DAG.
-     */
-    public final double SINC_TIME_ERROR = ((double) SINC_FRAME_ERROR) / ((double) FPS);
-
-    // JavaFX SINC components
-    private MediaView mediaView;
-    private Rectangle scrubber;
-
-    // indicates whether line chart is playing a SINC video
-    private boolean hasSINC;
-
-    private static final Logger logger = LogManager.getLogger();
-
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
     }
     
-    /**
-     * Passes a reference to MultiAxisLineChart to BFALineChart.
-     * Needed to retrieve <code>zoomviewScalarX</code> for dragging the scrubber.
-     * @param parentChart the MultiAxisLineChart to link this chart to
-     */
-    public void setParentChart(MultiAxisLineChart parentChart) {
-        this.parentChart = parentChart;
-    }
-
     /**
      * Clears the area label and shading of the graph.
      */
@@ -142,7 +84,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Shades area under a section of a curve by drawing trapezoids between adjacent points and the x-axis.
-     * Takes XYChart-based objects as arguments for ease of use in the BioForce Graph.
+     * Takes XYChart-based objects as arguments for ease of use in the Data Analysis Graph.
      * @param p1 the left bound of the area
      * @param p2 the right bound of the area
      * @param data the data set that should be shaded in
@@ -162,8 +104,6 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Re-renders the polygon used for shading area under a curve.
-     * Currently not being called multiple times, only once.
-     * TODO at some point we may look into real-time shading with this method.
      */
     public void redrawArea() {
 
@@ -248,237 +188,93 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     }
 
-    /**
-     * Passes references to SINC components from GraphNoSINCController to this class.
-     * @param mediaView the JavaFX component that displays video 
-     * @param scrubber the JavaFX component that displays the video scrubber
-     */
-    public void initSINC(MediaView mediaView, Rectangle scrubber) {
-        
-        this.mediaView = mediaView;
-        this.scrubber = scrubber;
+    /*
+    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, ObservableList<XYChart.Data<Number,Number>> data, double area, final int SIG_FIGS) {
 
-        // enable scrubber dragging
-        this.scrubber.setOnMouseDragged(event -> {
+        int start = -1;
+        int end = -1;
 
-            // get mouse coordinates in the scope of the entire window
-            Point2D mouseSceneCoords = new Point2D(event.getSceneX(), event.getSceneY());
+        // get index of x1 and x2 in samples
+        for (int i = 0; i < data.size(); i++) {
 
-            // get x-coordinate of the mouse in the scope of the graph
-            double displayX = getXAxis().sceneToLocal(mouseSceneCoords).getX();
-
-            // convert display x-coordinate to graph's x-coordinate (aka time-value)
-            Number time = ((BFANumberAxis) getXAxis()).getValueForDisplay(displayX);
-
-            // jump to the given time in the video
-            mediaPlayer.seek(Duration.seconds(time.doubleValue()));
-
-            logger.info("Dragged scrubber to {}s", mediaPlayer.getCurrentTime().toSeconds());
-
-        });
-
-    }
-    
-    /**
-     * Indicates whether or not the graph is currently displaying a SINC trial.
-     * @return whether or not the graph is currently displaying a SINC trial
-     */
-    public boolean hasSINC() {
-        return hasSINC;
-    }
-
-    /**
-     * Disables all SINC features.
-     */
-    public void exitSINC() {
-
-        // indicate that SINC is disabled
-        hasSINC = false;
-
-        // remove media player + media from memory
-        mediaPlayer.dispose();
-
-        // stop scrubber animation
-        timer.stop();
-
-        // hide media player pane + scrubber
-        mediaView.setVisible(false);
-        scrubber.setVisible(false);
-
-    }
-
-    /**
-     * Plays a SINC video overlayed on this chart.
-     * @param videoFile the File object for this video
-     */
-    public void playVideo(File videoFile) {
-        
-        // stop any previous videos/timers
-        if (mediaPlayer != null) mediaPlayer.dispose();
-        if (timer != null) timer.stop();
-
-        // load and play video
-		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
-        mediaView.setMediaPlayer(mediaPlayer);
-        mediaView.setVisible(true);
-        mediaPlayer.play();
-
-        // get "toggle playback" button and reset icon to "PAUSE"
-        Button b = (Button) this.getScene().lookup("#togglePlayback");
-        b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PAUSE));
-
-        // initialize scrubber
-		scrubber.setVisible(true);
-		scrubber.setX(0);
-
-        // start scrubber animation
-        timer = new ScrubberAnimation((BFALineChart<Number,Number>) this, mediaPlayer);
-        timer.start();
-
-        // indicate that SINC is enabled
-        hasSINC = true;
-        
-    }
-
-    /**
-     * Plays/pauses the current video.
-     */
-    public void togglePlayback() {
-
-        // cancel if no video is playing
-        if (mediaPlayer == null) return;
-
-        // get "toggle playback" button
-        Button b = (Button) this.getScene().lookup("#togglePlayback");
-
-        if (mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED) {
-            logger.info("Started video from {}s", mediaPlayer.getCurrentTime().toSeconds());
-            mediaPlayer.play();
-
-            b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PAUSE));
-        }
-        else if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
-            logger.info("Paused video at {}s", mediaPlayer.getCurrentTime().toSeconds());
-            mediaPlayer.pause();
-
-            b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PLAY));
-        }
-    }
-
-    /**
-     * Sets the playback speed of the video.
-     * @param speed the new speed of the video
-     */
-    public void setPlaybackSpeed(double speed) {
-        
-        // cancel if no video is playing
-        if (mediaPlayer == null) return;
-
-        mediaPlayer.setRate(speed);
-
-    }
-
-    /**
-     * Jumps back in the video by a specified time amount.
-     */
-    public void jumpBack() {
-        double seconds = relativeSeek(-JUMP_AMOUNT);
-        logger.info("Jumped back to {}s", seconds);
-    }
-
-    /**
-     * Jumps forward in the video by a specified time amount.
-     */
-    public void jumpForward() {
-        double seconds = relativeSeek(JUMP_AMOUNT);
-        logger.info("Jumped forward to {}s", seconds);
-    }
-
-    /**
-     * Jumps one frame back in the video.
-     */
-    public void lastFrame() {
-        double seconds = relativeSeek(-DELTA_TIME);
-        logger.info("Jumped back one frame to {}s", seconds);
-    }
-
-    /**
-     * Jumps one frame forward in the video.
-     */
-    public void nextFrame() {
-        double seconds = relativeSeek(DELTA_TIME);
-        logger.info("Jumped forward one frame to {}s", seconds);
-    }
-
-    /**
-     * Resets scrubber to 0 seconds.
-     */
-    public void resetVideo() {
-
-        // if video is playing, reset video time to 0 seconds
-        if (mediaPlayer != null) mediaPlayer.seek(Duration.seconds(0));
-
-    }
-
-    /**
-     * Internal method to move the scrubber relative to the current time.
-     * @param delta the amount of time (in seconds) to move the scrubber
-     * @return the current time (in seconds) of the scrubber 
-     */
-    private double relativeSeek(double delta) {
-
-        // cancel if no video is playing
-        if (mediaPlayer == null) return -1;
-
-        double seconds = mediaPlayer.getCurrentTime().toSeconds();
-        Duration time = Duration.seconds(seconds + delta);
-        mediaPlayer.seek(time);
-
-        return time.toSeconds();
-
-    }
-
-    /**
-     * Controls the scrubber's position on the graph.
-     */
-    class ScrubberAnimation extends AnimationTimer {
-
-        private BFALineChart<Number, Number> lineChart;
-        private MediaPlayer mediaPlayer;
-
-        /**
-         * Constructs a scrubber animation.
-         * @param lineChart the LineChart that this scrubber is overlaid on
-         * @param mediaPlayer the media player dictating this scrubber's position
-         */
-        public ScrubberAnimation(BFALineChart<Number, Number> lineChart, MediaPlayer mediaPlayer) {
-            this.lineChart = lineChart;
-            this.mediaPlayer = mediaPlayer;
-        }
-
-        @Override
-        // runs every frame
-        public void handle(long now) {
-
-            BFANumberAxis xAxis = (BFANumberAxis) lineChart.getXAxis();
-            double currentTime = mediaPlayer.getCurrentTime().toSeconds();
-
-            // if the current time's position is not visible in the viewport
-            if (!xAxis.isValueOnAxis(currentTime)) {
-
-                // clamps the current time value to the closest bound visible on the x-axis
-                //
-                // (if the time is to the right of the upper bound, clamp to the upper bound;
-                // if not, then it must be less than the lower bound, so clamp to that)
-                currentTime = currentTime >= xAxis.getUpperBound() ? xAxis.getUpperBound() : xAxis.getLowerBound();
-
+            if (data.get(i).getXValue().equals(p1.getXValue()) && data.get(i).getYValue().equals(p1.getYValue())) {
+                start = i;
             }
 
-            // set scrubber's position to the time's position on the x-axis
-            scrubber.setX(lineChart.getXAxis().getDisplayPosition(currentTime));
+            if (data.get(i).getXValue().equals(p2.getXValue()) && data.get(i).getYValue().equals(p2.getYValue())) {
+                end = i;
+            }
+
+        }  
+
+        // remove area shading and label
+        clearArea();
+
+        // create area label
+        double roundedArea = new BigDecimal(area).round(new MathContext(SIG_FIGS)).doubleValue();
+        areaPane.getChildren().addAll(createAreaLabel(roundedArea));
+
+        // allows mouse events to pass through polygon
+        // makes selecting data points easier
+        areaPane.setPickOnBounds(false);
+
+        // set (x,y) position of the area label to halfway between the x-bounds of the area
+        areaPane.setLayoutX(data.get((start + end) / 2).getNode().getLayoutX() - 50);
+        areaPane.setLayoutY(data.get((start + end) / 2).getNode().getLayoutY() - 100);
+
+        // add area label to LineChart
+        getPlotChildren().add(areaPane);
+
+        // cast axes to NumberAxes so that certain methods can be called on them
+        BFANumberAxis xAxis = (BFANumberAxis) getXAxis();
+        BFANumberAxis yAxis = (BFANumberAxis) getYAxis();
+
+        // pixel position of y=0 on LineChart component
+        double y0 = yAxis.getDisplayPosition(0);
+
+        Polygon poly = new Polygon();
+        // loop through all points in [p1, p2]
+        for (int i = start; i <= end; i++) {      
+
+            // pixel positions of x=data[i] and x=data[i+1] on LineChart component
+            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
+
+            // pixel positions of y=data[i] and y=data[i+1] on LineChart component
+            double y1 = yAxis.getDisplayPosition(data.get(i).getYValue());
+
+            // add points to polygon
+            poly.getPoints().addAll(new Double[] {
+                x1, y1,
+            });
 
         }
-        
+        for(int i = end; i >= start; i--){
+            double x1 = xAxis.getDisplayPosition(data.get(i).getXValue());
+            poly.getPoints().addAll(new Double[] {
+                x1, y0,
+            });
+        }
+
+        // TODO change this to shade the same color as the graph?
+        // not important at all, just a cosmetic feature that would be nice
+        poly.setFill(Color.RED);
+
+        // add polygon to LineChart
+        getPlotChildren().add(poly);
+        // ensure that the area label is on top of the shaded area
+        areaPane.toFront();
+
+        // display full floating-point number on click
+        areaPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            
+            @Override
+            public void handle(MouseEvent event) {
+                areaPane.getChildren().addAll(createAreaLabel(area));
+            }
+
+        });
+    
     }
+    */
 
 }
