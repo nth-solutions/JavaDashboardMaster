@@ -2876,7 +2876,7 @@ public class AdvancedMode extends JFrame {
 						});
 						calibrationPanel.add(configForCalButton);
 						
-								importCalDataButton = new JButton("Import Calibration Data and Calculate Offset");
+								importCalDataButton = new JButton("Calculate SINC Technology Offsets");
 								importCalDataButton.setToolTipText("This button will analyze the video you recorded and calculate the  Timer0 and Delay After Start text fields.");
 								importCalDataButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 								importCalDataButton.addActionListener(new ActionListener() {
@@ -2894,10 +2894,10 @@ public class AdvancedMode extends JFrame {
 												videoFilePathTextField.setMaximumSize(new Dimension(500, 2147483647));
 												videoFilePathTextField.setMinimumSize(new Dimension(500, 100));
 												videoFilePathTextField.setColumns(10);
-												videoFilePathTextField.setBorder(new TitledBorder(null, "File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+												videoFilePathTextField.setBorder(new TitledBorder(null, "Video File Name", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 												videoBrowsePanel.add(videoFilePathTextField);
 												
-														videoBrowseButton = new JButton("Browse");
+														videoBrowseButton = new JButton("Browse for Video");
 														videoBrowseButton.addActionListener(new ActionListener() {
 															public void actionPerformed(ActionEvent arg0) {
 																videoBrowseButtonHandler();
@@ -2909,8 +2909,8 @@ public class AdvancedMode extends JFrame {
 														videoBrowsePanel.add(videoBrowseButton);
 														calibrationPanel.add(importCalDataButton);
 														
-																applyOffsetButton = new JButton("Apply Offset to Module");
-																applyOffsetButton.setToolTipText("This will write the calculate offsets above to your module.");
+																applyOffsetButton = new JButton("Apply Offsets to Module");
+																applyOffsetButton.setToolTipText("This will write the calculated offsets above to your module.");
 																applyOffsetButton.setFont(new Font("Tahoma", Font.PLAIN, 16));
 																applyOffsetButton.addActionListener(new ActionListener() {
 																	public void actionPerformed(ActionEvent arg0) {
