@@ -37,6 +37,9 @@ public class DashboardSelector extends Application {
         primaryStage.getIcons().add(new Image(getClass().getResource("images/bfa.png").toExternalForm()));
         primaryStage.show();
         primaryStage.setResizable(false);
+
+        logger.info("Version: " + Settings.getVersion());
+        logger.info("Build date: " + Settings.getBuildDate());
     }
 
     public static void main(String[] args) {
