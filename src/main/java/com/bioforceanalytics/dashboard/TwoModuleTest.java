@@ -1,8 +1,7 @@
 package com.bioforceanalytics.dashboard;
 
 /**
- * This is the parent of Conservation of Energy and Conservation of Momentum
- * tests.
+ * This is the parent of Conservation of Energy and Conservation of Momentum tests.
  */
 public abstract class TwoModuleTest {
     
@@ -31,17 +30,16 @@ public abstract class TwoModuleTest {
      */
     public int addModule(GenericTest test) {
 
-        // if the 1st module slot is empty, fill it in
 		if (moduleOne == null) {
 			moduleOne = test;
-            return 1;
-            
-        }
-        // the 2nd module slot is empty, so fill it in
-        else {
+			return 1;
+		} else if (moduleTwo == null) {
 			moduleTwo = test;
 			return 2;
-        }
+		} else {
+			System.out.println("Two Module error");
+			return -1;
+		}
 
 	}
 

@@ -12,7 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 
 /**
- * Custom JavaFX component for the BioForce Graph's accordion view,
+ * Custom JavaFX component for the Data Analysis Graph's accordion view,
  * provides a place for the user to view the details of the specific experiment type.
  */
 public class ExperimentPanel extends TitledPane {

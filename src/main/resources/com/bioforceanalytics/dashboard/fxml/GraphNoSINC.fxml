@@ -26,17 +26,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.media.MediaPlayer?>
-<?import javafx.scene.media.MediaView?>
-<?import javafx.geometry.Rectangle2D?>
-<?import javafx.scene.shape.Rectangle?>
 
 <?import com.bioforceanalytics.dashboard.MultiAxisLineChart?>
 <?import com.bioforceanalytics.dashboard.DataSetPanel?>
 
-<?import org.controlsfx.glyphfont.Glyph?>
-
-<AnchorPane fx:id="root" minHeight="400.0" minWidth="400.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
+<AnchorPane fx:id="root" minHeight="400.0" minWidth="600.0" prefHeight="799.0" prefWidth="1440.0" stylesheets="@../css/GraphNoSINC.css"
 	xmlns="http://javafx.com/javafx/11.0.1"
 	xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.GraphNoSINCController">
 	<children>
@@ -45,7 +39,6 @@
 				<Menu mnemonicParsing="false" text="File">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
-						<MenuItem mnemonicParsing="false" onAction="#importVideo" text="Import Video" />
 					</items>
 				</Menu>
 				<Menu mnemonicParsing="false" text="Data">
@@ -70,79 +63,8 @@
 							</children>
 						</HBox>
 
-						<HBox fx:id="sincControls" visible="false" alignment="CENTER" spacing="30.0" prefHeight="50.0" prefWidth="904.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
-							<children>
-								<HBox spacing="5" alignment="CENTER">
-									<children>
-										<Label text="Video Speed"/>
-										<Slider fx:id="playbackSlider" prefWidth="250.0" value="1" min="0" max="4" showTickMarks="true" majorTickUnit="1" minorTickCount="4" showTickLabels="true" snapToTicks="true" blockIncrement="0.25" />
-									</children>
-								</HBox>
-								<HBox fx:id="playbackControls" alignment="CENTER">
-									<children>
-										<Button onAction="#jumpBack" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-											<graphic>
-												<Glyph fontFamily="FontAwesome" icon="BACKWARD"/>
-											</graphic>
-											<tooltip>
-												<Tooltip text="Jumps back in the video by the specified amount (default 1 second)."/>
-											</tooltip>
-										</Button>
-										<Button onAction="#lastFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-											<graphic>
-												<Glyph fontFamily="FontAwesome" icon="STEP_BACKWARD"/>
-											</graphic>
-											<tooltip>
-												<Tooltip text="Goes back to the previous frame in the video."/>
-											</tooltip>
-										</Button>
-										<Button onAction="#togglePlayback" fx:id="togglePlayback" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-											<graphic>
-												<Glyph fontFamily="FontAwesome" icon="PAUSE"/>
-											</graphic>
-											<tooltip>
-												<Tooltip text="Plays/pauses the video."/>
-											</tooltip>
-										</Button>
-										<Button onAction="#nextFrame" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-											<graphic>
-												<Glyph fontFamily="FontAwesome" icon="STEP_FORWARD"/>
-											</graphic>
-											<tooltip>
-												<Tooltip text="Goes to the next frame in the video."/>
-											</tooltip>
-										</Button>
-										<Button onAction="#jumpForward" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-											<graphic>
-												<Glyph fontFamily="FontAwesome" icon="FORWARD"/>
-											</graphic>
-											<tooltip>
-												<Tooltip text="Jumps forward in the video by the specified amount (default 1 second)."/>
-											</tooltip>
-										</Button>
-									</children>
-								</HBox>
-								<HBox spacing="5" alignment="CENTER">
-                  					<children>
-                    					<Label text="Video Opacity"/>
-										<Slider fx:id="opacitySlider" prefWidth="250.0" value="0.3" min="0" max="1" />
-                  					</children>
-                				</HBox>
-								<Button onAction="#exitSINC" maxWidth="30.0" maxHeight="30.0" prefWidth="30.0" prefHeight="30.0">
-									<graphic>
-										<Glyph fontFamily="FontAwesome" icon="CLOSE"/>
-									</graphic>
-									<tooltip>
-										<Tooltip text="Exit SINC trial and hides the control bar."/>
-									</tooltip>
-								</Button>
-							</children>
-						</HBox>
-
-						<MultiAxisLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="90.0" />
-						<MediaView fx:id="mediaView" layoutX="100.0" layoutY="105.0" fitHeight="${multiAxis.height-103}" opacity="${opacitySlider.value}" fitWidth="${multiAxis.width-90}" preserveRatio="false" mouseTransparent="true" />
-						<Rectangle fx:id="scrubber" layoutX="100.0" layoutY="105.0" fill="DODGERBLUE" width="5.0" height="${multiAxis.height-103}" stroke="BLACK" strokeType="INSIDE" visible="false" />
-						<HBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+						<MultiAxisLineChart fx:id="multiAxis" layoutX="50.0" layoutY="67.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="75.0" />
+						<HBox alignment="CENTER" layoutX="50.0" layoutY="477.0" prefHeight="70.0" prefWidth="170.0" spacing="10.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
 								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
 							</children>
@@ -251,7 +173,7 @@
 													<children>
 														<Button fx:id="lineUpBtn" mnemonicParsing="false" onAction="#toggleLineUpMode" text="Line up trials">
 															<tooltip>
-																<Tooltip text="Use this to synchronize data sets in two-module tests or to manually correct a SINC trial. Click on two data points, and the first point will be shifted to match the x-position of the second." />
+																<Tooltip text="Use this to synchronize data sets in two-module tests. Click on two data points, and the first point will be shifted to match the x-position of the second." />
 															</tooltip>
 															<HBox.margin>
 																<Insets right="2.5" />

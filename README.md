@@ -118,7 +118,7 @@ Once data is read from the module via [`SerialComm`](#data-formats) converting b
 
 ### Axis Data Series
 
-The BioForce Graph further processes [`dataSamples`](#data-samples) into individual `AxisDataSeries` objects. Each `AxisDataSeries` represents a single axis's data (eg. Acceleration X or Angular Velocity Y). The key difference from [`dataSamples`](#data-samples) is that `AxisDataSeries` supports "virtual" axes -- generating integrated/differentiated data sets, such as velocity or angular acceleration, from native sensor data sets. In addition, `AxisDataSeries` encapsulates all methods related to data conversion, calculation, and manipulations in a single class. This improves readability and changes without affecting other portions of the codebase.
+The Data Analysis Graph further processes [`dataSamples`](#data-samples) into individual `AxisDataSeries` objects. Each `AxisDataSeries` represents a single axis's data (eg. Acceleration X or Angular Velocity Y). The key difference from [`dataSamples`](#data-samples) is that `AxisDataSeries` supports "virtual" axes -- generating integrated/differentiated data sets, such as velocity or angular acceleration, from native sensor data sets. In addition, `AxisDataSeries` encapsulates all methods related to data conversion, calculation, and manipulations in a single class. This improves readability and changes without affecting other portions of the codebase.
 
 `GenericTest`, which represents all test data associated with a single module, contains the list of axes in its field `AxisDataSeries[] axes`, the format of which is described below:
 
