@@ -29,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
@@ -2052,6 +2053,16 @@ public class AdvancedMode extends JFrame {
 			clearSelectedBtn = new JButton("Clear All Tests");
 			clearSelectedBtn.setBounds(160, viewableTests * (50-1) + 10, 150, 30);
 			clearSelectedBtn.addActionListener(e -> {	
+
+				int choice = JOptionPane.showConfirmDialog(
+					this,
+					"Are you sure you want to remove the selected tests? \nNote: the tests will only be wiped from the Dashboard, NOT from your module.",
+					"Confirm Clear Tests",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE
+				);
+
+				if (choice == JOptionPane.NO_OPTION) return;
 
 				for (int i = testCheckBoxes.size() - 1; i >= 0; i--) {
 					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
