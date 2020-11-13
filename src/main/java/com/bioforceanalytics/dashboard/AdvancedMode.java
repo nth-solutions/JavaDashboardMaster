@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -34,6 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -170,8 +174,6 @@ public class AdvancedMode extends JFrame {
 	private JButton configForCalButton;
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
-	private ArrayList<JButton> saveTestBtn;
-	private ArrayList<JButton> DAGTestBtn;
 
 	// Progress Bars
 	private JProgressBar progressBar;
@@ -237,6 +239,10 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<JPanel> testNumPaneArray;
 	private ArrayList<JCheckBox> testCheckBoxes;
 	private ArrayList<JTextField> testNameTextField;
+	private JButton clearSelectedBtn;
+	private JButton saveSelectedBtn;
+	private JButton graphSelectedBtn;
+	private boolean noneSelected = true;
 
 	private JButton helpBtn;
 	private JTextField fileNameTextField;
@@ -307,9 +313,9 @@ public class AdvancedMode extends JFrame {
 	public static void main(String[] args) {
 
 		// redirect stdout and stderr to Log4J: this adds more detailed info,
-        // and most importantly, saves all console output to a .log file
-        System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
-        System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
+		// and most importantly, saves all console output to a .log file
+		System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
+		System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
 
 		// Set the look and feel to whatever the system default is.
 		try {
@@ -1453,7 +1459,7 @@ public class AdvancedMode extends JFrame {
 									}
 
 									GenericTest test = new GenericTest(testParameters, finalData, mpuMinMax);
-									
+
 									// create timestamp for CSV/CSVP
 									SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
 									String timestamp = sdf.format(new Timestamp(new Date().getTime()));
@@ -1964,90 +1970,162 @@ public class AdvancedMode extends JFrame {
 
 	public void addTestsToRecordationPane() {
 		if (genericTests != null) {
+			noneSelected = true;
 			testRecordationPanel.removeAll();
 			final int viewableTests = genericTests.size();
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
 			testCheckBoxes = new ArrayList<JCheckBox>(viewableTests);
-			saveTestBtn = new ArrayList<JButton>(viewableTests);
-			DAGTestBtn = new ArrayList<JButton>(viewableTests);
 			testNameTextField = new ArrayList<JTextField>(viewableTests);
 
 			for (int i = 0; i < viewableTests; i++) {
+
 				testNumPaneArray.add(new JPanel());
-				testNumPaneArray.get(i).setBounds(0, i * (30-1), 625, 30);
+				testNumPaneArray.get(i).setBounds(0, i * (50 - 1), 625, 50);
 				testNumPaneArray.get(i).setLayout(null);
 				testNumPaneArray.get(i).setBorder(new LineBorder(new Color(0, 0, 0)));
 
 				testCheckBoxes.add(new JCheckBox());
-				testCheckBoxes.get(i).setBounds(10, 5, 20, 20);
+				testCheckBoxes.get(i).setBounds(10, 15, 20, 20);
+				testCheckBoxes.get(i).addActionListener(e -> {
+
+					int numSelected = 0;
+
+					for (JCheckBox c : testCheckBoxes) {
+						if (c.isSelected())
+							numSelected++;
+					}
+
+					if (numSelected > 0) {
+
+						noneSelected = false;
+
+						clearSelectedBtn.setText("Clear Selected Tests");
+						saveSelectedBtn.setText("Save Selected Tests");
+						graphSelectedBtn.setText("Graph Selected Tests");
+
+					} else {
+
+						noneSelected = true;
+
+						clearSelectedBtn.setText("Clear All Tests");
+						saveSelectedBtn.setText("Save All Tests");
+						graphSelectedBtn.setText("Graph All Tests");
+					}
+
+				});
 
 				testNameTextField.add(new JTextField());
 				testNameTextField.get(i).setFont(new Font("Tahoma", Font.PLAIN, 12));
-				testNameTextField.get(i).setBounds(40, 5, 335, 20);
+				testNameTextField.get(i).setBounds(40, 10, 577, 30);
 				testNameTextField.get(i).setColumns(10);
+				testNameTextField.get(i).addFocusListener(new FocusListener() {
+
+					@Override
+					public void focusLost(FocusEvent e) {
+						for (int i = 0; i < genericTests.size(); i++) {
+							System.out.println("Focus lost");
+							genericTests.get(i).setName(testNameTextField.get(i).getText());
+						}
+					}
+
+					@Override
+					public void focusGained(FocusEvent e) {}
+
+				});
+
+				Border line = BorderFactory.createLineBorder(Color.GRAY);
+				Border empty = new EmptyBorder(0, 5, 0, 0);
+				CompoundBorder border = new CompoundBorder(line, empty);
+				testNameTextField.get(i).setBorder(border);
+
 				testNameTextField.get(i).setText(genericTests.get(i).getName());
 
 				testNumPaneArray.get(i).add(testNameTextField.get(i));
-
-				saveTestBtn.add(new JButton("Save"));
-				saveTestBtn.get(i).setBounds(380, 5, 60, 20);
-				saveTestBtn.get(i).addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						System.out.println("test");
-						for (int i = 0; i < viewableTests; i++) {
-							if (saveTestBtn.get(i) == e.getSource()) {
-
-								GenericTest test = genericTests.get(i);
-								String nameOfTest = testNameTextField.get(i).getText();
-
-								// update GenericTest name
-								test.setName(nameOfTest);
-
-								// create CSV
-								try {
-									CSVHandler.writeCSV(test, nameOfTest + ".csv");
-								} catch (FileNotFoundException e1) {
-									generalStatusLabel.setText("Error saving CSV file.");
-								}
-
-								// create CSVP
-								try {
-									CSVHandler.writeCSVP(test.getTestParams(), nameOfTest + ".csvp", test.getMPUOffsets());
-								} catch (FileNotFoundException e1) {
-									generalStatusLabel.setText("Error saving CSVP file.");
-								}
-
-								// display success message
-								generalStatusLabel.setText("File created successfully");
-							}
-						}
-					}
-				});
-
-				int index = i;
-				DAGTestBtn.add(new JButton("BioForce Graph"));
-				DAGTestBtn.get(i).setBounds(485, 5, 130, 20);
-				DAGTestBtn.get(i).addActionListener(new ActionListener() {
-
-					public void actionPerformed(ActionEvent e) {
-						Platform.runLater(() -> {
-							GraphNoSINCController g = launchDAG();
-							g.setGenericTest(genericTests.get(index));
-						});
-
-					}
-
-				});
-
 				testNumPaneArray.get(i).add(testCheckBoxes.get(i));
-				testNumPaneArray.get(i).add(saveTestBtn.get(i));
-				testNumPaneArray.get(i).add(DAGTestBtn.get(i));
 
 			}
 
-			for(int i = 0; i < testNumPaneArray.size();i++) {
+			for (int i = 0; i < testNumPaneArray.size(); i++) {
 				testRecordationPanel.add(testNumPaneArray.get(i));
 			}
+
+			clearSelectedBtn = new JButton("Clear All Tests");
+			clearSelectedBtn.setBounds(160, viewableTests * (50-1) + 10, 150, 30);
+			clearSelectedBtn.addActionListener(e -> {	
+
+				for (int i = testCheckBoxes.size() - 1; i >= 0; i--) {
+					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
+						genericTests.remove(i);
+					}
+				}
+
+				addTestsToRecordationPane();
+			});
+
+			saveSelectedBtn = new JButton("Save All Tests");
+			saveSelectedBtn.setBounds(315, viewableTests * (50-1) + 10, 150, 30);
+			saveSelectedBtn.addActionListener(e -> {	
+
+				for (int i = testCheckBoxes.size() - 1; i >= 0; i--) {
+
+					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
+
+						GenericTest test = genericTests.get(i);
+						String nameOfTest = testNameTextField.get(i).getText();
+
+						// update GenericTest name
+						test.setName(nameOfTest);
+
+						// create CSV
+						try {
+							CSVHandler.writeCSV(test, nameOfTest + ".csv");
+						} catch (FileNotFoundException e1) {
+							generalStatusLabel.setText("Error saving CSV file.");
+						}
+
+						// create CSVP
+						try {
+							CSVHandler.writeCSVP(test.getTestParams(), nameOfTest + ".csvp", test.getMPUOffsets());
+						} catch (FileNotFoundException e2) {
+							generalStatusLabel.setText("Error saving CSVP file.");
+						}
+
+						// display success message
+						generalStatusLabel.setText("File created successfully");
+					}
+				}
+			});
+
+			graphSelectedBtn = new JButton("Graph All Tests");
+			graphSelectedBtn.setBounds(470, viewableTests * (50-1) + 10, 150, 30);
+			graphSelectedBtn.addActionListener(e -> {
+
+				ArrayList<GenericTest> selectedTests = new ArrayList<GenericTest>();
+
+				for (int i = 0; i < testCheckBoxes.size(); i++) {
+					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
+						selectedTests.add(genericTests.get(i));
+					}
+				}
+
+				Platform.runLater(() -> {
+					GraphNoSINCController g = launchDAG();
+					g.setGenericTests(selectedTests);
+				});
+
+			});
+
+			if (genericTests.size() > 0) {
+				testRecordationPanel.add(clearSelectedBtn);
+				testRecordationPanel.add(saveSelectedBtn);
+				testRecordationPanel.add(graphSelectedBtn);
+			} else {
+				JLabel label = new JLabel("Data from \"Read Tests\" will show up here.");
+				label.setBounds(200, 20, 300, 300);
+				testRecordationPanel.add(label);
+			}
+
+			testRecordationPanel.repaint();
 		}
 	}
 	
