@@ -5,12 +5,10 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -43,7 +41,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#selectMotionVisualizationTab" prefHeight="117.5" prefWidth="200.0" text="View Previous Trials" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#launchDAG" prefHeight="117.5" prefWidth="200.0" text="Launch Graph" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -275,96 +273,47 @@
                                                   <content>
                                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                          <children>
-                                                            <VBox prefHeight="377.0" prefWidth="500.0" spacing="40.0">
+                                                            <VBox prefHeight="377.0" prefWidth="500.0" spacing="10.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Step 2: The Experiment" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="49.0" prefWidth="500.0" text="Step 2: The Experiment" textAlignment="CENTER" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="35.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="524.0" text="Disconnect the Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="500.0" text="Disconnect the module, run your experiment, and reconnect." textAlignment="CENTER" textFill="#1f78d1">
                                                                      <font>
-                                                                        <Font name="System Bold" size="24.0" />
+                                                                        <Font name="System Bold" size="16.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="506.0" text="Run Your Experiment" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="78.0" prefWidth="500.0" text="Make sure to wait 3 seconds before beginning your trial in order to allow your module to normalize." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
                                                                      <font>
-                                                                        <Font name="System Bold" size="24.0" />
+                                                                        <Font name="System Bold Italic" size="16.0" />
                                                                      </font>
+                                                                     <padding>
+                                                                        <Insets left="30.0" right="30.0" />
+                                                                     </padding>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="569.0" text="Reconnect the Module" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="24.0" />
-                                                                     </font>
-                                                                  </Label>
+                                                                  <Separator prefWidth="400.0" />
+                                                                  <Pane prefHeight="187.0" prefWidth="500.0">
+                                                                     <children>
+                                                                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="51.0" layoutY="14.0" prefHeight="28.0" prefWidth="400.0" text="Step 2A: Read all tests from your EduForce Module." textAlignment="CENTER" textFill="#1f78d1">
+                                                                           <font>
+                                                                              <Font name="System Bold" size="16.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                        <Button fx:id="readTestButton1" layoutX="25.0" layoutY="63.0" mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="52.0" prefWidth="450.0" text="Read Tests" />
+                                                                        <Label alignment="CENTER" layoutX="34.0" layoutY="129.0" prefHeight="11.0" prefWidth="433.0" text="The BioForce Graph will automatically launch when complete." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
+                                                                           <font>
+                                                                              <Font name="System Bold" size="13.0" />
+                                                                           </font>
+                                                                        </Label>
+                                                                     </children>
+                                                                  </Pane>
                                                                </children>
                                                             </VBox>
                                                          </children>
                                                       </AnchorPane>
                                                   </content>
-                                                </Tab>
-                                                <Tab fx:id="outputSettingsTab" text="Output Settings">
-                                                   <content>
-                                                      <AnchorPane>
-                                                         <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="15.0">
-                                                               <children>
-                                                                  <Pane prefHeight="159.0" prefWidth="450.0" style="-fx-background-color: #DCDCDC;">
-                                                                     <effect>
-                                                                        <InnerShadow height="5.0" radius="2.0" width="5.0" />
-                                                                     </effect>
-                                                                     <children>
-                                                                        <VBox alignment="CENTER" prefHeight="145.0" prefWidth="450.0" spacing="15.0">
-                                                                           <children>
-                                                                              <Label alignment="CENTER" prefHeight="49.0" prefWidth="400.0" text="Step 3: Select your output type" textFill="#1f78d1">
-                                                                                 <font>
-                                                                                    <Font name="System Bold" size="16.0" />
-                                                                                 </font>
-                                                                              </Label>
-                                                                              <fx:define>
-                                                                                 <ToggleGroup fx:id="outputType" />
-                                                                              </fx:define>
-                                                                              <RadioButton fx:id="sincTechnologyRadioButton" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="27.0" prefWidth="228.0" text="SINC Technology Graph" textAlignment="CENTER">
-                                                                                 <font>
-                                                                                    <Font size="18.0" />
-                                                                                 </font>
-                                                                                 <toggleGroup>
-                                                                                    <ToggleGroup fx:id="outputType" />
-                                                                                 </toggleGroup>
-                                                                              </RadioButton>
-                                                                              <RadioButton fx:id="DAGRadioButton" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="27.0" prefWidth="226.0" selected="true" text="Data Analysis Graph" textAlignment="CENTER" toggleGroup="$outputType">
-                                                                                 <font>
-                                                                                    <Font size="18.0" />
-                                                                                 </font>
-                                                                              </RadioButton>
-                                                                           </children>
-                                                                        </VBox>
-                                                                     </children>
-                                                                  </Pane>
-                                                                  <Separator prefWidth="450.0" />
-                                                                  <Label alignment="CENTER" prefHeight="28.0" prefWidth="400.0" text="Step 3A: Read all tests from your EduForce Module" textFill="#1f78d1">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="16.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                                  <VBox alignment="TOP_CENTER" prefHeight="53.0" prefWidth="450.0" spacing="20.0">
-                                                                     <children>
-                                                                        <Button fx:id="readTestButton" mnemonicParsing="false" onAction="#readTestsFromModule" prefHeight="52.0" prefWidth="450.0" text="Read Tests" />
-                                                                     </children>
-                                                                  </VBox>
-                                                                  <Label alignment="CENTER" prefHeight="11.0" prefWidth="433.0" text="Your graphing application will automatically launch when complete." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
-                                                                     <font>
-                                                                        <Font name="System Bold" size="13.0" />
-                                                                     </font>
-                                                                  </Label>
-                                                               </children>
-                                                               <padding>
-                                                                  <Insets left="25.0" right="25.0" />
-                                                               </padding>
-                                                            </VBox>
-                                                         </children>
-                                                      </AnchorPane>
-                                                   </content>
                                                 </Tab>
                                                 <Tab fx:id="motionVisualizationLoaderTab" text="Motion Visualization">
                                                    <content>
@@ -377,7 +326,7 @@
                                                                         <Font name="System Bold" size="15.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchChosenGraph" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
+                                                                  <Button mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -394,7 +343,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5: Erase the data from the module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 3: Erase the data from the module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -404,12 +353,12 @@
                                                                         <Font size="36.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 5A: Disconnect the Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 3A: Disconnect the Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 5B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="20.0" prefWidth="450.0" text="Step 3B: Clean up your workspace or click next to begin a new trial" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -553,21 +502,16 @@
                                                    <content>
                                                       <AnchorPane>
                                                          <children>
-                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                            <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="400.0" text="Step 6: Choose your desired graph application" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefHeight="22.0" prefWidth="482.0" text="Click below to view your trials in the BioForce Graph." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
                                                                      <font>
-                                                                        <Font name="System Bold" size="17.0" />
+                                                                        <Font name="System Bold" size="15.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="launchSINCTwoModule" mnemonicParsing="false" onAction="#launchGraphTwoModule" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
+                                                                  <Button mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
-                                                                        <Font size="24.0" />
-                                                                     </font>
-                                                                  </Button>
-                                                                  <Button fx:id="launchDAGTwoModule" mnemonicParsing="false" onAction="#launchGraphTwoModule" prefHeight="100.0" prefWidth="450.0" text="Launch Data Analysis Graph">
-                                                                     <font>
-                                                                        <Font size="24.0" />
+                                                                        <Font size="36.0" />
                                                                      </font>
                                                                   </Button>
                                                                </children>
@@ -582,7 +526,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7: Erase the data from Module 2" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6: Erase the data from Module 2" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -592,17 +536,17 @@
                                                                         <Font size="21.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7A: Disconnect the Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6A: Disconnect the Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7B: Reconnect the First Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6B: Reconnect the First Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7C: Establish Connection to the First Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6C: Establish Connection to the First Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -612,7 +556,7 @@
                                                                         <Font size="21.0" />
                                                                      </font>
                                                                   </Button>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 7D: Erase the Second Module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 6D: Erase the Second Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -956,51 +900,6 @@
                               </AnchorPane>
                            </content>
                         </Tab>
-                      <Tab fx:id="motionVisualizationTab" text="Motion Visualization">
-                        <content>
-                          <AnchorPane>
-                                 <children>
-                                    <VBox fx:id="motionVisualizationVBox" alignment="CENTER" prefHeight="500.0" prefWidth="500.0" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                       <children>
-                                          <VBox prefHeight="103.0" prefWidth="500.0" />
-                                          <Button fx:id="launchSINCGraphSolo" mnemonicParsing="false" onAction="#launchSINCGraph" prefHeight="100.0" prefWidth="450.0" text="Launch SINC Graph">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Button>
-                                          <Button fx:id="launchDAGSolo" mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Data Analysis Graph">
-                                             <font>
-                                                <Font size="24.0" />
-                                             </font>
-                                          </Button>
-                                          <VBox prefHeight="213.0" prefWidth="500.0">
-                                             <children>
-                                                <HBox prefHeight="32.0" prefWidth="500.0">
-                                                   <children>
-                                                      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="513.0" text="Click above to use SINC Technology, OR" textAlignment="CENTER" textFill="#1f78d1">
-                                                         <font>
-                                                            <Font name="System Bold" size="18.0" />
-                                                         </font>
-                                                      </Label>
-                                                   </children>
-                                                </HBox>
-                                                <HBox prefHeight="100.0" prefWidth="200.0">
-                                                   <children>
-                                                      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="28.0" prefWidth="520.0" text="to use the Data Analysis Graph to view prior trials." textAlignment="CENTER" textFill="#1f78d1">
-                                                         <font>
-                                                            <Font name="System Bold" size="18.0" />
-                                                         </font>
-                                                      </Label>
-                                                   </children>
-                                                </HBox>
-                                             </children>
-                                          </VBox>
-                                       </children>
-                                    </VBox>
-                                 </children>
-                              </AnchorPane>
-                        </content>
-                      </Tab>
                         <Tab fx:id="sincCalibrationTab" text="SINC Module Calibration">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">

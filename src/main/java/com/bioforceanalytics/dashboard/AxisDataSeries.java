@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Used by the Data Analysis Graph to store the data associated with a single axis (eg. Acceleration X).
+ * Used by the BioForce Graph to store the data associated with a single axis (eg. Acceleration X).
  * Also handles converting data samples into physical quantities, applying moving averages, and filtering (in the future).
  */
 public class AxisDataSeries {
@@ -343,7 +343,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Recalculates normalized data and smoothing.
-	 * Used by the Data Analysis Graph for user control of the baseline average.
+	 * Used by the BioForce Graph for user control of the baseline average.
 	 */
 	public void applyNormalizedData(Double startTime, Double endTime) {
 
@@ -437,7 +437,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Vertically shifts the graph up or down.
-	 * Used by the Data Analysis Graph to normalize a single data set.
+	 * Used by the BioForce Graph to normalize a single data set.
 	 * @param the amount to shift the graph up/down
 	 */
 	public void vertShift(double amount) {
@@ -586,7 +586,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Returns the time axis of this AxisDataSeries.
-	 * Used by the Data Analysis Graph for plotting an axis.
+	 * Used by the BioForce Graph for plotting an axis.
 	 */
 	public ArrayList<Double> getTime() {
 		return new ArrayList<Double>(Arrays.asList(time));
@@ -594,7 +594,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Returns the data samples of this AxisDataSeries.
-	 * Used by the Data Analysis Graph for plotting an axis.
+	 * Used by the BioForce Graph for plotting an axis.
 	 */
 	public ArrayList<Double> getSamples() {
 		return new ArrayList<Double>(Arrays.asList(smoothedData));
