@@ -275,6 +275,8 @@ public class AdvancedMode extends JFrame {
 	// icon for DAG + SINC Graph
 	private Image FXIcon;
 
+	private static final Logger logger = LogManager.getLogger();
+
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the
 	 * components on it, and the data within the necessary text fields
@@ -320,7 +322,7 @@ public class AdvancedMode extends JFrame {
 
 		// Set the look and feel to whatever the system default is.
 		logger.info("Version: " + Settings.getVersion());
-    logger.info("Build date: " + Settings.getBuildDate());
+    	logger.info("Build date: " + Settings.getBuildDate());
 
 		//Set the look and feel to whatever the system default is.
 		try {
@@ -1935,7 +1937,7 @@ public class AdvancedMode extends JFrame {
 		primaryStage.setTitle("Help Menu");
 		if (root != null)
 			primaryStage.setScene(new Scene(root, 535, 600));
-		primaryStage.getIcons().add(icon);
+		primaryStage.getIcons().add(FXIcon);
 
 		primaryStage.show();
 		primaryStage.setResizable(false);

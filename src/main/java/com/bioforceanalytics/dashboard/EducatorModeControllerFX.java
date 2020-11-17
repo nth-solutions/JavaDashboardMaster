@@ -282,26 +282,6 @@ public class EducatorModeControllerFX implements Initializable {
         return loader.getController();
     }
 
-    @FXML
-    public SINCCalibrationHelpMenuController startSINCHelpMenu() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/SINCCalibrationHelpMenu.fxml"));
-        try{
-            root = loader.load();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
-
-        primaryStage.setTitle("SINC Calibration Help Menu");
-        primaryStage.getIcons().add(icon);
-        primaryStage.show();
-        primaryStage.setResizable(false);
-
-        return loader.getController();
-    }
-
     /**
      * ActionEvent that shows the motionVisualizationTab, the tab responsible for the graph-video player interaction
      *
@@ -431,10 +411,10 @@ public class EducatorModeControllerFX implements Initializable {
         testParametersTabPane.getSelectionModel().select(selectedIndex + 1); //Since the number of tabs matches the length of the combobox selection model, the user's
         //selected index is used to select the matching tab pane index to display
 
-        if(selectedIndex == 0 || selectedIndex == 1 || selectedIndex == 6 ){ //this means a test involving two modules is selected.
+        if (selectedIndex == 0 || selectedIndex == 1 || selectedIndex == 6) { //this means a test involving two modules is selected.
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations to Module 1");
             oneModuleTest = false;
-        }else{
+        } else {
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations");
             oneModuleTest = true;
         }
@@ -1107,31 +1087,28 @@ public class EducatorModeControllerFX implements Initializable {
                         
                         switch (experimentType) {
 
-                            case 1: // Conservation of Momentum
-                                double totalMass = massOfLeftGlider + massOfLeftModule;
+                            case 0: // Conservation of Momentum
+                                double totalMass = massOfCart1 + massOfCart2;
                                 test = new ConservationMomentumModule(testParameters, finalData, MPUMinMax, totalMass, comTest);
                                 moduleNumber = comTest.addModule(test);
                                 break;
-                            case 2: // Conservation of Energy
+                            case 1: // Conservation of Energy
                                 test = new ConservationEnergyModule(testParameters, finalData, MPUMinMax, engTest);
                                 moduleNumber = engTest.addModule(test);
                                 break;
-                            case 3: // Inclined Plane - Top
-                                test = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax, angleFromTop);
+                            case 2: // Inclined Plane
+                                test = new InclinedPlaneTest(testParameters, finalData, MPUMinMax, angleFromTop);
                                 break;
-                            case 4: // Inclined Plane - Bottom
-                                test = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax, angleFromBottom);
+                            case 3: // Physical Pendulum
+                                test = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModuleAndHolder, massOfPendulum);
                                 break;
-                            case 5: // Physical Pendulum
-                                test = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
-                                break;
-                            case 6: // Spring Test
+                            case 4: // Spring Test
                                 test = new SpringTest(testParameters, finalData, MPUMinMax, springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
                                 break;
-                            case 7: // Generic Template - One Module
+                            case 5: // Generic Template - One Module
                                 test = new GenericTest(testParameters, finalData, MPUMinMax);
                                 break;
-                            case 8: // Generic Template - Two Module
+                            case 6: // Generic Template - Two Module
                                 test = new GenericTest(testParameters, finalData, MPUMinMax);
                                 break;
                             default:
