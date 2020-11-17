@@ -23,6 +23,7 @@ import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -49,6 +50,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.io.IoBuilder;
+import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -270,10 +272,8 @@ public class AdvancedMode extends JFrame {
 	private JTextField stdDevMaxTextField;
 	private JButton btnNewButton;
 
-	private String OSType;
-
-	// icon
-	private Image icon;
+	// icon for DAG + SINC Graph
+	private Image FXIcon;
 
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the
@@ -319,6 +319,10 @@ public class AdvancedMode extends JFrame {
 		System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
 
 		// Set the look and feel to whatever the system default is.
+		logger.info("Version: " + Settings.getVersion());
+    logger.info("Build date: " + Settings.getBuildDate());
+
+		//Set the look and feel to whatever the system default is.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -1459,6 +1463,7 @@ public class AdvancedMode extends JFrame {
 										}
 									}
 
+
 									GenericTest test = new GenericTest(testParameters, finalData, mpuMinMax);
 
 									// create timestamp for CSV/CSVP
@@ -1470,7 +1475,7 @@ public class AdvancedMode extends JFrame {
 
 									test.setName(testName);
 									genericTests.add(test);
-
+                  
 								}
 
 								addTestsToRecordationPane();
@@ -1902,7 +1907,7 @@ public class AdvancedMode extends JFrame {
 			primaryStage.setMinHeight(400);
 			primaryStage.setScene(scene);
 			primaryStage.setResizable(true);
-			primaryStage.getIcons().add(icon);
+			primaryStage.getIcons().add(FXIcon);
 			primaryStage.show();
 
 		} catch (IOException e) {
@@ -1913,6 +1918,7 @@ public class AdvancedMode extends JFrame {
 		return loader.getController();
 
 	}
+
 
 	public HelpMenuController startHelpMenu() {
 		Stage primaryStage = new Stage();
@@ -1925,14 +1931,15 @@ public class AdvancedMode extends JFrame {
 			e.printStackTrace();
 		}
 
+
 		primaryStage.setTitle("Help Menu");
 		if (root != null)
 			primaryStage.setScene(new Scene(root, 535, 600));
 		primaryStage.getIcons().add(icon);
+
 		primaryStage.show();
 		primaryStage.setResizable(false);
 		return loader.getController();
-
 	}
 
 	public void setSerialNumberHandler() {
@@ -2194,7 +2201,8 @@ public class AdvancedMode extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 638, 659);
 
-		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
+		FXIcon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
+		setIconImage(new ImageIcon(getClass().getResource("images/bfa.png")).getImage());
 
 		contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(0, 10, 10, 10));
@@ -2953,7 +2961,7 @@ public class AdvancedMode extends JFrame {
 																						calibrationPanel.add(applyOffsetButton);
 		
 		launcherPane = new JPanel();
-		mainTabbedPanel.addTab("Java Graph", null, launcherPane, "Java Graph launcher");
+		mainTabbedPanel.addTab("Launch Graph", null, launcherPane, "Choose a graphing application to view previously saved tests.");
 		launcherPane.setLayout(null);
 
 		DAGBtn = new JButton("Launch BioForce Graph");

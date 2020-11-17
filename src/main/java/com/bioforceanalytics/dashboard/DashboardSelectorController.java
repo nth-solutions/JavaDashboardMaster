@@ -89,7 +89,7 @@ public class DashboardSelectorController implements Initializable {
 
         Scene scene = new Scene(root, 690,500);
 
-        primaryStage.setTitle("Education Mode");
+        primaryStage.setTitle("BioForce Education Mode");
         primaryStage.setScene(scene);
         primaryStage.getIcons().add(icon);
         primaryStage.show();

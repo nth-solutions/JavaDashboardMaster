@@ -5,13 +5,438 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.EducationModeHelpMenuController">
+<AnchorPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.EducationModeHelpMenuController">
    <children>
-      <TabPane fx:id="EducationHelpMenuTabPane" prefHeight="800.0" prefWidth="1000.0" stylesheets="@../css/EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
+      <TabPane fx:id="educationHelpMenuTabPane" prefHeight="550.0" prefWidth="1000.0" stylesheets="@../css/EducatorModeCSS.css" tabClosingPolicy="UNAVAILABLE">
         <tabs>
+            <Tab fx:id="experimentHelpTab" text="experimentHelpTab">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label alignment="CENTER" layoutY="54.0" prefHeight="36.0" prefWidth="1001.0" text="Selecting Experiment Template">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="50.0" layoutY="104.0" prefHeight="75.0" prefWidth="898.0" text="Note: All module parameters are preset in the Education Mode of the Dashboard. If you require additional control, please use Advanced Mode." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="50.0" layoutY="209.0" prefHeight="30.0" prefWidth="898.0" text="1. Click &quot;Select a Test&quot; and choose which experiment you wish to run." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="100.0" layoutY="240.0" prefHeight="31.0" prefWidth="849.0" text="- If you plan to run a generalized experiment use with the one or two module template" wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="51.0" layoutY="271.0" prefHeight="30.0" prefWidth="898.0" text="2. Enter any physical text parameters indicated in the fields." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="100.0" layoutY="302.0" prefHeight="30.0" prefWidth="849.0" text="- If no additional information is required, no fields will appear (as in Inclined Plane Experiments)" wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="51.0" layoutY="333.0" prefHeight="60.0" prefWidth="898.0" text="3. Click &quot;Apply Configurations&quot;. The message &quot;Module Configuration Successful, Parameters Have Been Updated&quot; will appear in green. " wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label contentDisplay="CENTER" layoutX="50.0" layoutY="393.0" prefHeight="30.0" prefWidth="898.0" text="4. Click &quot;Next&quot;." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabTwo" text="experimentHelpTabTwo">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="486.0" layoutY="120.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="412.0" layoutY="45.0" text="Run Experiment">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="2.0" layoutY="165.0" prefHeight="27.0" prefWidth="1001.0" text="At this stage, simply disconnect the module from the computer.">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets left="100.0" />
+                           </opaqueInsets>
+                        </Label>
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="2.0" layoutY="224.0" prefHeight="27.0" prefWidth="1001.0" text="Now run your experiment.">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets left="100.0" />
+                           </opaqueInsets>
+                        </Label>
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="-1.0" layoutY="280.0" prefHeight="27.0" prefWidth="1001.0" text="Afterwards, reconnect the module to the computer and view your data.">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets left="100.0" />
+                           </opaqueInsets>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabThree" text="experimentHelpTabThree">
+               <content>
+                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Launch Graph">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label alignment="CENTER" layoutX="2.0" layoutY="109.0" prefHeight="60.0" prefWidth="1001.0" text="Simply select the &quot;Launch Graph&quot; button to view your data." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabFour" text="experimentHelpTabFour">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label alignment="CENTER" layoutY="44.0" prefHeight="30.0" prefWidth="1001.0" text="Launching SINC Technology">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="109.0" prefHeight="31.0" prefWidth="951.0" text="1. Click the &quot;Launch SINC Technology&quot; Button">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="140.0" prefHeight="31.0" prefWidth="901.0" text="- The graph automatically launches with the data plotted for the Accelerometer X Axis">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="171.0" prefHeight="30.0" prefWidth="951.0" text="2. Under File select &quot;Import Video&quot;">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="202.0" prefHeight="30.0" prefWidth="901.0" text="- Navigate to the folder where experiment video was saved and click &quot;Open&quot;">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="150.0" layoutY="233.0" prefHeight="31.0" prefWidth="851.0" text="- The video will load and automatically start playback of the video">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="264.0" prefHeight="90.0" prefWidth="921.0" text="3. The Dashboard and SINC Technology graph will now work independently of each other. You may work with or close the SINC graph. You may also go back to the Dashboard and click &quot;Next&quot; to take you to Experiment/Step 5 Erase" wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="eraseModuleHelpTab1" text="experimentHelpTabFive">
+               <content>
+                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Erase Data from Module">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="69.0" prefHeight="30.0" prefWidth="1001.0" text="Steps (Single Module):" AnchorPane.leftAnchor="8.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Click &quot;Erase&quot; (message will read &quot;Erasing Module&quot;)">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="129.0" prefHeight="29.0" prefWidth="992.0" text="- This step can take up to 1 or 2 minutes (depending on data amount in module)">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="150.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="158.0" prefHeight="29.0" prefWidth="1001.0" text="2. Once complete, the &quot;Erase Successful&quot; message will appear">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="218.0" prefHeight="60.0" prefWidth="1001.0" text="Once the module has been erased you can click &quot;Next&quot; to move back to Experiment Step 1 or select any of the five function tabs on the left." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabSix" text="experimentHelpTabSix">
+               <content>
+                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Set Up Second Module">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="69.0" prefHeight="30.0" prefWidth="1001.0" text="Steps :" AnchorPane.leftAnchor="8.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Remove the first module from the USB and connect the second in its place">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="129.0" prefHeight="29.0" prefWidth="992.0" text="- Now click the &quot;Connect&quot; button ">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="150.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="158.0" prefHeight="29.0" prefWidth="1001.0" text="2. Once complete, the &quot;Connection Successful&quot; message will appear">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="218.0" prefHeight="60.0" prefWidth="789.0" text="Now apply the same configurations set for module 1 to module 2 by clicking the &quot;Apply Configurations&quot; button" wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabSeven" text="experimentHelpTabSeven">
+               <content>
+                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Experiment">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="69.0" prefHeight="30.0" prefWidth="1001.0" text="Steps:" AnchorPane.leftAnchor="8.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Disconnect the Second Module from the USB (Both modules can now be used for experimentation).">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="129.0" prefHeight="29.0" prefWidth="992.0" text="- Run your experiment with both modules.">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="150.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabEight" text="experimentHelpTabEight">
+               <content>
+                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Reconnect and Read Data">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="69.0" prefHeight="30.0" prefWidth="1001.0" text="Steps:" AnchorPane.leftAnchor="8.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Reconnect Module 1 to the USB and click the &quot;Connect to Module 1&quot; button">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="129.0" prefHeight="29.0" prefWidth="992.0" text="- Now click the &quot;Read Data from Module 1&quot; button">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="150.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="158.0" prefHeight="29.0" prefWidth="1001.0" text="2. Once reading occurs successfully, disconnect Module 1 and connect Module 2 in its place">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabNine" text="experimentHelpTabNine">
+               <content>
+                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Read Data from Module 2">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="8.0" layoutY="69.0" prefHeight="30.0" prefWidth="1001.0" text="Steps:" AnchorPane.leftAnchor="8.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Once connection to Module 2 is established, click &quot;Read Data&quot; to acquire module 2 data">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets left="100.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="experimentHelpTabTen" text="experimentHelpTabTen">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label alignment="CENTER" layoutX="-3.0" layoutY="43.0" prefHeight="17.0" prefWidth="1000.0" text="Select Output Data Format (SINC or Data Analysis Graph)">
+                           <font>
+                              <Font name="System Bold" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="50.0" layoutY="120.0" prefHeight="36.0" prefWidth="951.0" text="1. Select your option then click &quot;Read Test From Module&quot;">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="190.0" prefHeight="30.0" prefWidth="901.0" text="- The Data Analysis Graph is used for general-purpose experiments and lab templates." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="187.0" prefHeight="36.0" prefWidth="851.0">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="221.0" prefHeight="30.0" prefWidth="901.0" text="- The SINC Technology Graph is used for video motion trials. " wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label layoutX="100.0" layoutY="156.0" prefHeight="30.0" prefWidth="901.0" text="- Your selected graphing application will automatically launch when complete." wrapText="true">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                           <opaqueInsets>
+                              <Insets />
+                           </opaqueInsets>
+                           <padding>
+                              <Insets left="50.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
           <Tab fx:id="eraseModuleHelpTab" text="eraseModuleHelpTab">
                <content>
                   <AnchorPane prefHeight="754.0" prefWidth="967.0">
@@ -29,7 +454,7 @@
                               <Insets left="50.0" />
                            </padding>
                         </Label>
-                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Click &quot;Yes, Erase Module&quot; (message will read &quot;Erasing Data...&quot;)">
+                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Click &quot;Yes, Erase Module&quot; (message will read &quot;Bulk Erasing...&quot;)">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font>
@@ -45,7 +470,7 @@
                               <Insets left="150.0" />
                            </padding>
                         </Label>
-                        <Label layoutX="4.0" layoutY="158.0" prefHeight="29.0" prefWidth="1001.0" text="2. Once complete, the &quot;Erase Successful&quot; message will appear">
+                        <Label layoutX="4.0" layoutY="158.0" prefHeight="29.0" prefWidth="1001.0" text="2. Once complete, the &quot;Bulk Erase Complete&quot; message will appear">
                            <font>
                               <Font name="System Bold" size="18.0" />
                            </font>
@@ -241,176 +666,6 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab fx:id="experimentHelpTab" text="experimentHelpTab">
-               <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-                        <Label alignment="CENTER" layoutY="54.0" prefHeight="36.0" prefWidth="1001.0" text="Selecting Experiment Template">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="50.0" layoutY="104.0" prefHeight="75.0" prefWidth="898.0" text="Note: All module parameters are preset in the Education Mode of the Dashboard. If you require additional control, please use Advanced Mode." wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="50.0" layoutY="209.0" prefHeight="30.0" prefWidth="898.0" text="1. Click &quot;Select a Test&quot; and choose which experiment you wish to run." wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="100.0" layoutY="240.0" prefHeight="31.0" prefWidth="849.0" text="- If you plan to run a generalized experiment use with the one or two module template" wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="51.0" layoutY="271.0" prefHeight="30.0" prefWidth="898.0" text="2. Enter any physical text parameters indicated in the fields." wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="100.0" layoutY="302.0" prefHeight="30.0" prefWidth="849.0" text="- If no additional information is required, no fields will appear (as in Inclined Plane Experiments)" wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="51.0" layoutY="333.0" prefHeight="60.0" prefWidth="898.0" text="3. Click &quot;Apply Configurations&quot;. The message &quot;Module Configuration Successful, Parameters Have Been Updated&quot; will appear in green. " wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label contentDisplay="CENTER" layoutX="50.0" layoutY="393.0" prefHeight="30.0" prefWidth="898.0" text="4. Click &quot;Next&quot;." wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-            <Tab fx:id="experimentHelpTabTwo" text="experimentHelpTabTwo">
-               <content>
-                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-                        <Label layoutX="486.0" layoutY="120.0">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                        </Label>
-                        <Label layoutX="412.0" layoutY="45.0" text="Run Experiment">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="2.0" layoutY="165.0" prefHeight="27.0" prefWidth="1001.0" text="At this stage, simply disconnect the module from the computer.">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets left="100.0" />
-                           </opaqueInsets>
-                        </Label>
-                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="2.0" layoutY="224.0" prefHeight="27.0" prefWidth="1001.0" text="Now run your experiment.">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets left="100.0" />
-                           </opaqueInsets>
-                        </Label>
-                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="-1.0" layoutY="280.0" prefHeight="27.0" prefWidth="1001.0" text="Afterwards, reconnect the module to the computer and view your data.">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets left="100.0" />
-                           </opaqueInsets>
-                        </Label>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-            <Tab fx:id="experimentHelpTabThree" text="experimentHelpTabThree">
-               <content>
-                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
-                     <children>
-                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Launch Graph">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <Label alignment="CENTER" layoutX="2.0" layoutY="109.0" prefHeight="60.0" prefWidth="1001.0" text="Simply select the &quot;Launch Graph&quot; button to view your data." wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets left="50.0" />
-                           </padding>
-                        </Label>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
-            <Tab fx:id="eraseModuleHelpTabTwo" text="experimentHelpTabFour">
-               <content>
-                  <AnchorPane prefHeight="754.0" prefWidth="967.0">
-                     <children>
-                        <Label alignment="CENTER" layoutX="4.0" layoutY="33.0" prefHeight="36.0" prefWidth="1001.0" text="Erase Data from Module">
-                           <font>
-                              <Font name="System Bold" size="24.0" />
-                           </font>
-                        </Label>
-                        <Label layoutX="8.0" layoutY="69.0" prefHeight="30.0" prefWidth="1001.0" text="Steps (Single Module):" AnchorPane.leftAnchor="8.0">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <padding>
-                              <Insets left="50.0" />
-                           </padding>
-                        </Label>
-                        <Label layoutX="4.0" layoutY="100.0" prefHeight="29.0" prefWidth="1001.0" text="1. Click &quot;Erase&quot; (message will read &quot;Erasing Module&quot;)">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <padding>
-                              <Insets left="100.0" />
-                           </padding>
-                        </Label>
-                        <Label layoutX="8.0" layoutY="129.0" prefHeight="29.0" prefWidth="992.0" text="- This step can take up to 1 or 2 minutes (depending on data amount in module)">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <padding>
-                              <Insets left="150.0" />
-                           </padding>
-                        </Label>
-                        <Label layoutX="4.0" layoutY="158.0" prefHeight="29.0" prefWidth="1001.0" text="2. Once complete, the &quot;Erase Successful&quot; message will appear">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <padding>
-                              <Insets left="100.0" />
-                           </padding>
-                        </Label>
-                        <Label layoutX="4.0" layoutY="218.0" prefHeight="60.0" prefWidth="1001.0" text="Once the module has been erased you can click &quot;Next&quot; to move back to Experiment Step 1 or select any of the five function tabs on the left." wrapText="true">
-                           <font>
-                              <Font name="System Bold" size="18.0" />
-                           </font>
-                           <opaqueInsets>
-                              <Insets />
-                           </opaqueInsets>
-                           <padding>
-                              <Insets left="50.0" />
-                           </padding>
-                        </Label>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </Tab>
             <Tab fx:id="SINCCalibrationHelpTab" text="SINCCalibrationHelpTab">
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
@@ -558,5 +813,14 @@
             </Tab>
         </tabs>
       </TabPane>
+      <HBox alignment="CENTER" layoutY="550.0" prefHeight="50.0" prefWidth="1000.0">
+         <children>
+            <Label fx:id="debugInfo" text="Version: [insert version here] | Build Date: [insert build date here]">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>

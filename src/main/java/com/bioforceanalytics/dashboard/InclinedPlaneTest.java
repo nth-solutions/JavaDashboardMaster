@@ -2,22 +2,23 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ArrayList;
 
-public class InclinedPlaneBottomTest extends GenericTest {
+public class InclinedPlaneTest extends GenericTest {
 
 	double angle;
 
-	public InclinedPlaneBottomTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double angleFromBottom) {
+	public InclinedPlaneTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax, double angleFromTop) {
 		super(testParameters, finalData, MPUMinMax);
-		setGraphTitle("Inclined Plane from Bottom");
+		setGraphTitle("Inclined Plane from Top");
 		setDefaultAxes(AxisType.AccelX);
-		angle = angleFromBottom;
+		angle = angleFromTop;
 	}
 
 	public void setupExperimentPanel(ExperimentPanel panel) {
-		panel.setExperimentName("Inclined Plane from Bottom");
+		panel.setExperimentName("Inclined Plane from Top");
 		panel.addParamName("Angle of Inclination");
 		panel.addParamValue(angle + "°");
 		panel.applyParams();
 		panel.setFormulaResult("Acceleration: " + 9.8 * Math.sin((angle/180) * Math.PI) + " m/s²");
 	}
+
 }
