@@ -1043,6 +1043,8 @@ public class EducatorModeControllerFX implements Initializable {
                         return null;
                     }
 
+                    logger.info("Read test parameters from module.");
+
                     int expectedTestNum = testParameters.get(0);
 
                     // check if there are tests on the module

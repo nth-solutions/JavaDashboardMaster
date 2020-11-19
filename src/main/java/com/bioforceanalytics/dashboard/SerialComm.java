@@ -1598,6 +1598,8 @@ public class SerialComm {
 	 */
 	private void setText(String text, Object label, PlatformType platformType) {
 
+		logger.info(text);
+
 		if (platformType == PlatformType.SWING) {
 			((JLabel) label).setText(text); 
 		}
