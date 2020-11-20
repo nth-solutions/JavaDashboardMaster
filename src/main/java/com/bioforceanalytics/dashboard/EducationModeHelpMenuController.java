@@ -39,9 +39,6 @@ public class EducationModeHelpMenuController implements Initializable {
     Tab experimentHelpTabFour;
 
     @FXML
-    Tab experimentHelpTabFive;
-
-    @FXML
     Tab blankTab;
 
     @FXML
@@ -54,7 +51,6 @@ public class EducationModeHelpMenuController implements Initializable {
         educationHelpMenuTabPane.getSelectionModel().select(unpairRemotesHelpTab);
     }
     public void selectExperimentHelpTab(int index){
-        System.out.println(educationHelpMenuTabPane.getSelectionModel().getSelectedIndex());
         educationHelpMenuTabPane.getSelectionModel().select(index);
     }
     public void selectSINCTechnologyHelpTab(){

@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Used by the Data Analysis Graph to store the data associated with a single trial
+ * Used by the BioForce Graph to store the data associated with a single trial
  * (in the form of multiple {@link com.bioforceanalytics.dashboard.AxisDataSeries AxisDataSeries}).
  * This is also the parent class of all educator mode "lab templates".
  */
@@ -21,7 +21,7 @@ public class GenericTest {
 	private AxisType[] defaultAxes;
 
 	private ArrayList<Integer> testParameters;
-	private int[] accelOffsets;
+	private int[] MPUOffsets;
 	private int sampleRate;
 	private int timeOffset;
 
@@ -34,6 +34,9 @@ public class GenericTest {
 	 * @param MPUMinMax array of constant MPU offsets specific to the module
 	 */
 	public GenericTest(ArrayList<Integer> testParameters, int[] finalData, int[][] MPUMinMax) {
+
+		int sampleRate = testParameters.get(7);
+		int magSampleRate = testParameters.get(8);
 
 		this.testParameters = testParameters;
 		
@@ -54,7 +57,7 @@ public class GenericTest {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
 		}
 
-		this.accelOffsets = mpuOffsets;
+		MPUOffsets = mpuOffsets;
 		dataSamples = new ArrayList<List<Double>>();
 		
 		// populate dataSamples's inner lists
@@ -116,7 +119,7 @@ public class GenericTest {
 			mpuOffsets[i] = (testParameters.get(i+13)+testParameters.get(i+14))/2;
 		}
 
-		this.accelOffsets = mpuOffsets;
+		MPUOffsets = mpuOffsets;
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
@@ -126,7 +129,7 @@ public class GenericTest {
 	 * This logic is shared by both constructors.
 	 */
 	public void createAxisDataSeries() {
-		createAxisDataSeries(dataSamples, testParameters, accelOffsets);
+		createAxisDataSeries(dataSamples, testParameters, MPUOffsets);
 	}
 
 	/**
@@ -142,7 +145,11 @@ public class GenericTest {
 		setGraphTitle("Generic Test");
 		setDefaultAxes(AxisType.AccelX);
 
-		this.sampleRate = testParameters.get(7);
+		// convert unsigned delayAfterStart to signed
+		short delayAfterStart = testParameters.get(2).shortValue();
+		testParameters.set(2, (int) delayAfterStart);
+
+		sampleRate = testParameters.get(7);
 
 		int magSampleRate = testParameters.get(8);
 		int accelSensitivity = testParameters.get(9);
@@ -279,9 +286,35 @@ public class GenericTest {
 	}
 
 	/**
+	 * Retrieves a test parameter.
+	 * @param index the index to retrieve
+	 * @return the given test parameter
+	 */
+	public int getTestParam(int index) {
+		return testParameters.get(index);
+	}
+
+	/**
+	 * Retrieves all test parameters.
+	 * @return the list of test parameters
+	 */
+	public ArrayList<Integer> getTestParams() {
+		return testParameters;
+	}
+
+	/**
+	 * Retrieves the list of acceleration MPU offsets.
+	 * @return the list of acceleration MPU offsets
+	 */
+	public int[] getMPUOffsets() {
+		return MPUOffsets;
+	}
+
+	/**
 	 * Shifts the time axis of all AxisDataSeries for module synchronization.
 	 * Used to shift all data sets in a GenericTest left/right.
-	 * @param offset the number of samples by which the time axis should be offset
+	 * @param offset the number of samples by which the time axis should be offset;
+	 * a positive value will shift the graph to the right.
 	 */
 	public void addTimeOffset(double offset) {
 		timeOffset += (int) (offset * sampleRate);

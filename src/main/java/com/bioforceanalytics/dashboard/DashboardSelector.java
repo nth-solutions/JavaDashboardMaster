@@ -1,7 +1,9 @@
 package com.bioforceanalytics.dashboard;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.io.IoBuilder;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +22,11 @@ public class DashboardSelector extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+
+        // redirect stdout and stderr to Log4J: this adds more detailed info,
+        // and most importantly, saves all console output to a .log file
+        System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
+        System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
 
         logger.info("Launching Dashboard Selector...");
 

@@ -3,6 +3,10 @@ package com.bioforceanalytics.dashboard;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.io.IoBuilder;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,7 +14,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Testing class used to launch the Data Analysis Graph.
+ * Testing class used to launch the BioForce Graph.
  * @deprecated not up to date and potentially broken,
  * launch through the Dashboard instead.
  */
@@ -40,7 +44,12 @@ public class GraphNoSINCMain extends Application {
 
     }
 
-    public static void main(String[] args) {    	
+    public static void main(String[] args) {
+
+        // redirect stdout and stderr to Log4J: this adds more detailed info,
+        // and most importantly, saves all console output to a .log file
+        System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
+        System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
     	
     	// CODE FOR SAMPLE DATA -- NOT NECCESARY, BUT testDataSamples AND testDataTime MUST BE FILLED WITH SOMETHING TO USE THIS MAIN METHOD
     	int size = 96000;

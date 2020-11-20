@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "EduForce Dashboard"
-!define PRODUCT_VERSION "1.1.2"
+!define PRODUCT_VERSION "2.0.0"
 !define PRODUCT_PUBLISHER "BioForce Analytics, LLC"
 !define PRODUCT_WEB_SITE "http://bioforceanalytics.com/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\dashboard.exe"
@@ -97,7 +97,7 @@ SectionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Includes both Education and Advanced Mode, as well as the SINC Technology Graph and Data Analysis Graph."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Includes both Education and Advanced Mode, as well as the BioForce Graph."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Bundled version of JRE 8 to ensure compatibility with all systems."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Bundled version of FFmpeg. REQUIRED FOR SINC TECHNOLOGY."
 

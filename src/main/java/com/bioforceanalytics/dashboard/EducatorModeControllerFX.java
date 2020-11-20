@@ -96,10 +96,6 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     Button exitTestModeButton;
     @FXML
-    RadioButton sincTechnologyRadioButton;
-    @FXML
-    RadioButton DAGRadioButton;
-    @FXML
     ProgressBar progressBar;
 
     @FXML
@@ -117,29 +113,25 @@ public class EducatorModeControllerFX implements Initializable {
 
     // TEST PARAMETER FXML COMPONENTS
     @FXML
-    TextField massOfLeftModuleTextField;
+    TextField massOfCart1TextField;
     @FXML
-    TextField massOfLeftGliderTextField;
-    @FXML
-    TextField massOfRightModuleTextField;
-    @FXML
-    TextField massOfRightGliderTextField;
+    TextField massOfCart2TextField;
     @FXML
     TextField totalDropDistanceTextField;
     @FXML
-    TextField massOfModuleAndHolderTextField;
+    TextField massOfModuleAndHolderCOETextField;
     @FXML
     TextField momentOfInertiaCOETextField;
     @FXML
-    TextField radiusOfTorqueArmCOETextField;
+    TextField angleFromTopTextField;
     @FXML
     TextField lengthOfPendulumTextField;
     @FXML
     TextField distanceFromPivotTextField;
     @FXML
-    TextField massOfModuleTextField;
+    TextField massOfModuleAndHolderTextField;
     @FXML
-    TextField massOfHolderTextField;
+    TextField massOfPendulumTextField;
     @FXML
     TextField springConstantTextField;
     @FXML
@@ -149,36 +141,27 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     TextField massOfSpringTextField;
     @FXML
-    TextField bottomAngle;
-    @FXML
-    TextField topAngle;
-    @FXML
     Label applyConfigurationsToFirstModuleLabel;
 
     //Extra Module Parameters - CoM
-    double massOfRightModule;
-    double massOfRightGlider;
-    double massOfLeftModule;
-    double massOfLeftGlider;
-    double massOfRightModuleAndRightGlider;
-    double massOfLeftModuleAndLeftGlider;
+    double massOfCart1;
+    double massOfCart2;
     // Extra Module Parameters - CoE
     double totalDropDistance;
-    double massOfModuleAndHolder;
+    double massOfModuleAndHolderCOE;
     double momentOfInertiaCOE;
-    double radiusOfTorqueArmCOE;
     // Extra Module Parameters - Pendulum
     double lengthOfPendulum;
     double distanceFromPivot;
-    double massOfModule;
-    double massOfHolder;
+    double massOfModuleAndHolder;
+    double massOfPendulum;
     // Extra Module Parameters - Spring
     double springConstant;
     double totalHangingMass;
     double amplitudeSpring;
     double massOfSpring;
+
     // Extra Module Parameters - Inclined Plane
-    double angleFromBottom;
     double angleFromTop;
 
     private ConservationMomentumTest comTest;
@@ -189,7 +172,6 @@ public class EducatorModeControllerFX implements Initializable {
     // holds test data from modules for DAG and SINC respectively
     // each object represents a trial on a module
     private ArrayList<GenericTest> genericTests;
-    private ArrayList<DataOrganizer> dataOrgoList;
 
     // Colors
     private final Color LIGHT_GREEN = Color.rgb(51, 204, 51);
@@ -201,15 +183,15 @@ public class EducatorModeControllerFX implements Initializable {
     public static String testType;
 
     // indicates the number of pages in the Experiment tab
-    private final int NUM_OF_STEPS = 4;
+    private final int NUM_OF_STEPS = 3;
 
     // actually indicates the last page for two-module tests;
-    // since indices 0-4 are one-module, 5-10 are two-module
-    private final int NUM_OF_STEPS_TWO_MODULE = 10;
+    // since indices 0-3 are one-module, 4-9 are two-module
+    private final int NUM_OF_STEPS_TWO_MODULE = 9;
 
     private Boolean oneModuleTest;
 
-    // BFA icon used for the Dashboard, SINC Graph, and DAG
+    // BFA icon used for the Dashboard and Graph
     private Image icon;
 
     private static final Logger logger = LogManager.getLogger();
@@ -220,9 +202,8 @@ public class EducatorModeControllerFX implements Initializable {
         icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 
         genericTests = new ArrayList<GenericTest>();
-        dataOrgoList = new ArrayList<DataOrganizer>();
 
-        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane - Released From Top", "Inclined Plane - Projected From Bottom", "Physical Pendulum", "Spring Test - Simple Harmonics","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
+        testTypeComboBox.getItems().addAll("Conservation of Momentum (Elastic Collision)", "Conservation of Energy", "Inclined Plane", "Physical Pendulum", "Spring Test","Generic Template - One Module","Generic Template - Two Modules"); //Create combobox of test names so users can select Test type that he / she wants to perform.
         backButton.setVisible(false);                                                                                   //Test selection is the first pane after the program is opened; it would not make sense to have a back button on the first pane.                                                                                   //See Method Comment
         fillTestTypeHashMap();                                                                                         //See Method Comment
 
@@ -270,8 +251,6 @@ public class EducatorModeControllerFX implements Initializable {
             helpmenu.selectEraseModuleHelpTabOne();
         } else if (t.equals(unpairRemotesTab)) {
             helpmenu.selectUnpairRemotesHelpTab();
-        }else if (t.equals(motionVisualizationTab)) {
-            helpmenu.selectSINCTechnologyHelpTab();
         } else if (t.equals(sincCalibrationTab)) {
             helpmenu.selectSINCModuleCalibrationTab();
         }else if (t.equals(eraseConfirmationTab)) {
@@ -280,14 +259,6 @@ public class EducatorModeControllerFX implements Initializable {
             helpmenu.selectExperimentHelpTab(experimentTabIndex);
         }
 
-    }
-
-    @FXML
-    SINCCalibrationHelpMenuController SINCCalibrationHelpMenu;
-
-    @FXML
-    public void launchSINCCalibrationHelpMenu(){
-        SINCCalibrationHelpMenu = startSINCHelpMenu();
     }
 
     @FXML
@@ -304,26 +275,6 @@ public class EducatorModeControllerFX implements Initializable {
         if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
 
         primaryStage.setTitle("Education Mode Help Menu");
-        primaryStage.getIcons().add(icon);
-        primaryStage.show();
-        primaryStage.setResizable(false);
-
-        return loader.getController();
-    }
-
-    @FXML
-    public SINCCalibrationHelpMenuController startSINCHelpMenu() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/SINCCalibrationHelpMenu.fxml"));
-        try{
-            root = loader.load();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-        if(root!=null) primaryStage.setScene(new Scene(root, 1000, 600));
-
-        primaryStage.setTitle("SINC Calibration Help Menu");
         primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
@@ -405,7 +356,7 @@ public class EducatorModeControllerFX implements Initializable {
         }
         // if this is a two-module test and the user clicks next on step 1, skip to the two-module steps at index 5
         else if (!oneModuleTest && experimentTabIndex == 0) {
-            experimentTabIndex = 5;
+            experimentTabIndex = NUM_OF_STEPS + 1;
             backButton.setVisible(true);
         }
         // otherwise, move to the next step
@@ -456,14 +407,14 @@ public class EducatorModeControllerFX implements Initializable {
      */
     @FXML
     private void displayTestParameterTab(ActionEvent event) {
-        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex() + 1; //Gets the index of the test type selected by user within the combobox
-        testParametersTabPane.getSelectionModel().select(selectedIndex); //Since the number of tabs matches the length of the combobox selection model, the user's
+        selectedIndex = testTypeComboBox.getSelectionModel().getSelectedIndex(); //Gets the index of the test type selected by user within the combobox
+        testParametersTabPane.getSelectionModel().select(selectedIndex + 1); //Since the number of tabs matches the length of the combobox selection model, the user's
         //selected index is used to select the matching tab pane index to display
 
-        if(selectedIndex == 1 || selectedIndex == 2 || selectedIndex == 8 ){ //this means a test involving two modules is selected.
+        if (selectedIndex == 0 || selectedIndex == 1 || selectedIndex == 6) { //this means a test involving two modules is selected.
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations to Module 1");
             oneModuleTest = false;
-        }else{
+        } else {
             applyConfigurationsToFirstModuleLabel.setText("Apply your configurations");
             oneModuleTest = true;
         }
@@ -585,60 +536,50 @@ public class EducatorModeControllerFX implements Initializable {
         experimentType = comboBoxIndex;
 
         switch (comboBoxIndex) {
-            case 1:
-                massOfRightModule = Double.parseDouble(massOfRightModuleTextField.getText());
-                massOfRightGlider = Double.parseDouble(massOfRightGliderTextField.getText());
-                massOfLeftModule = Double.parseDouble(massOfLeftModuleTextField.getText());
-                massOfLeftGlider = Double.parseDouble(massOfLeftGliderTextField.getText());
-
-                massOfLeftModuleAndLeftGlider = massOfLeftGlider + massOfLeftModule;
-                massOfRightModuleAndRightGlider = massOfRightGlider + massOfRightModule;
-                comTest = new ConservationMomentumTest(massOfRightModule, massOfLeftModule, massOfRightGlider, massOfLeftGlider);
+            case 0:
+                massOfCart1 = Double.parseDouble(massOfCart1TextField.getText());
+                massOfCart2 = Double.parseDouble(massOfCart2TextField.getText());
+                
+                comTest = new ConservationMomentumTest(massOfCart1, massOfCart2);
                 testType = "Conservation of Momentum (Elastic Collision)";
                 break;
 
-            case 2:
+            case 1:
                 totalDropDistance = Double.parseDouble(totalDropDistanceTextField.getText());
-                massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
+                massOfModuleAndHolderCOE = Double.parseDouble(massOfModuleAndHolderCOETextField.getText());
                 momentOfInertiaCOE = Double.parseDouble(momentOfInertiaCOETextField.getText());
-                radiusOfTorqueArmCOE = Double.parseDouble(radiusOfTorqueArmCOETextField.getText());
-                engTest = new ConservationEnergyTest(massOfModuleAndHolder, momentOfInertiaCOE, radiusOfTorqueArmCOE, totalDropDistance);
+                engTest = new ConservationEnergyTest(massOfModuleAndHolderCOE, momentOfInertiaCOE, totalDropDistance);
                 testType = "Conservation of Energy";
                 break;
 
-            case 3:
-                angleFromTop = Double.parseDouble(topAngle.getText());   
-                testType = "Inclined Plane - Released From Top";
+            case 2:
+                angleFromTop = Double.parseDouble(angleFromTopTextField.getText());   
+                testType = "Inclined Plane";
                 break;
 
-            case 4:
-                angleFromBottom = Double.parseDouble(bottomAngle.getText());
-                testType = "Inclined Plane - Released From Bottom";
-                break;
-                
-            case 5:
+            case 3:
                 lengthOfPendulum = Double.parseDouble(lengthOfPendulumTextField.getText());
                 distanceFromPivot = Double.parseDouble(distanceFromPivotTextField.getText());
-                massOfModule = Double.parseDouble(massOfModuleTextField.getText());
-                massOfHolder = Double.parseDouble(massOfHolderTextField.getText());
+                massOfModuleAndHolder = Double.parseDouble(massOfModuleAndHolderTextField.getText());
+                massOfPendulum = Double.parseDouble(massOfPendulumTextField.getText());
                 
                 testType = "Physical Pendulum";
                 break;
 
-            case 6:
+            case 4:
                 springConstant = Double.parseDouble(springConstantTextField.getText());
                 totalHangingMass = Double.parseDouble(totalHangingMassTextField.getText());
                 amplitudeSpring = Double.parseDouble(amplitudeSpringTextField.getText());
                 massOfSpring = Double.parseDouble(massOfSpringTextField.getText());
 
-                testType = "Spring Test - Simple Harmonics";
+                testType = "Spring Test";
                 break;
 
-            case 7:
+            case 5:
                 testType = "Generic Template - One Module";
                 break;
 
-            case 8:
+            case 6:
                 testType = "Generic Template - Two Modules";
                 break;
 
@@ -1070,15 +1011,6 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     /**
-     * This method gets the selected toggle and its assigned userData from the outputTypeToggleGroup ToggleGroup and returns it as
-     * a string.
-     * @return String that details what output type has been selected from the outputTypeToggleGroup ToggleGroup
-     */
-    private RadioButton getOutputType() {
-        return (RadioButton) outputType.getSelectedToggle();
-    }
-
-    /**
      * This method reads all of the data captured by the module during a testing period; then, depending on the output
      * type selected (from a defined ToggleGroup of output options), the data is then handled accordingly.
      * @param event
@@ -1101,7 +1033,6 @@ public class EducatorModeControllerFX implements Initializable {
                     // clear all previously read tests for one-module tests
                     if (oneModuleTest) {
                         genericTests.clear();
-                        dataOrgoList.clear();
                     }
 
                     displayProgress("Reading tests from module...", 0, Status.WORKING);
@@ -1111,6 +1042,8 @@ public class EducatorModeControllerFX implements Initializable {
                         displayProgress("Error reading test parameters from module", 1, Status.ERROR);
                         return null;
                     }
+
+                    logger.info("Read test parameters from module.");
 
                     int expectedTestNum = testParameters.get(0);
 
@@ -1127,8 +1060,6 @@ public class EducatorModeControllerFX implements Initializable {
                         displayProgress("Error reading tests from module", 1, Status.ERROR);
                         return null;
                     }
-
-                    CSVHandler writer = new CSVHandler();
 
                     // loop through all tests read from the module
                     for (int i = 0; i < testData.size(); i++) {
@@ -1153,111 +1084,84 @@ public class EducatorModeControllerFX implements Initializable {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
                         String timestamp = sdf.format(new Timestamp(new Date().getTime()));
 
-                        // SINC Technology Graph logic
-                        if (getOutputType().equals(sincTechnologyRadioButton)) {
+                        GenericTest test;
+                        int moduleNumber = -1;
+                        
+                        switch (experimentType) {
 
-                            String testName = "SINC #" + (i+1) + " " + timestamp;
+                            case 0: // Conservation of Momentum
+                                double totalMass = massOfCart1 + massOfCart2;
+                                test = new ConservationMomentumModule(testParameters, finalData, MPUMinMax, totalMass, comTest);
+                                moduleNumber = comTest.addModule(test);
+                                break;
+                            case 1: // Conservation of Energy
+                                test = new ConservationEnergyModule(testParameters, finalData, MPUMinMax, engTest);
+                                moduleNumber = engTest.addModule(test);
+                                break;
+                            case 2: // Inclined Plane
+                                test = new InclinedPlaneTest(testParameters, finalData, MPUMinMax, angleFromTop);
+                                break;
+                            case 3: // Physical Pendulum
+                                test = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModuleAndHolder, massOfPendulum);
+                                break;
+                            case 4: // Spring Test
+                                test = new SpringTest(testParameters, finalData, MPUMinMax, springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
+                                break;
+                            case 5: // Generic Template - One Module
+                                test = new GenericTest(testParameters, finalData, MPUMinMax);
+                                break;
+                            case 6: // Generic Template - Two Module
+                                test = new GenericTest(testParameters, finalData, MPUMinMax);
+                                break;
+                            default:
+                                test = new GenericTest(testParameters, finalData, MPUMinMax);
+                                break;
+                        }
 
-                            // Stores test data for the SINC Graph
-                            DataOrganizer d = new DataOrganizer(testParameters, testName + ".csv");
-                            d.setMPUMinMax(serialHandler.getMPUMinMax());
-                            dataOrgoList.add(d);
+                        // for one module tests, use the order in which tests were read;
+                        // if this is a two module test, use the module's number (1/2)
+                        int testNum = oneModuleTest ? (i+1) : moduleNumber;
 
-                            // Organize data into .CSV, finalData is passed to method. Method returns a list of lists of doubles.
-                            d.createDataSmpsRawData(finalData);
-                            d.getSignedData();
+                        String testType = test.getClass().getSimpleName();
+                        String testName = testType + " #" + testNum + " " + timestamp;
 
-                            d.createCSVP();
-                            d.createCSV(false, false);
+                        test.setName(testName);
 
-                            d.readAndSetTestParameters(System.getProperty("user.home") + "/Documents/" + testName + ".csvp");
+                        logger.info("Created " + testName);
 
-                        // Data Analysis Graph logic
-                        } else {
+                        // conservation of momentum
+                        if (experimentType == 1) {
 
-                            GenericTest test;
-                            int moduleNumber = -1;
-                            
-                            switch (experimentType) {
+                            // wait until both tests are read to add to list of GTs
+                            if (comTest.isFilled()) {
 
-                                case 1: // Conservation of Momentum
-                                    double totalMass = massOfLeftGlider + massOfLeftModule;
-                                    test = new ConservationMomentumModule(testParameters, finalData, MPUMinMax, totalMass, comTest);
-                                    moduleNumber = comTest.addModule(test);
-                                    break;
-                                case 2: // Conservation of Energy
-                                    test = new ConservationEnergyModule(testParameters, finalData, MPUMinMax, engTest);
-                                    moduleNumber = engTest.addModule(test);
-                                    break;
-                                case 3: // Inclined Plane - Top
-                                    test = new InclinedPlaneTopTest(testParameters, finalData, MPUMinMax, angleFromTop);
-                                    break;
-                                case 4: // Inclined Plane - Bottom
-                                    test = new InclinedPlaneBottomTest(testParameters, finalData, MPUMinMax, angleFromBottom);
-                                    break;
-                                case 5: // Physical Pendulum
-                                    test = new PhysicalPendulumTest(testParameters, finalData, MPUMinMax, lengthOfPendulum, distanceFromPivot, massOfModule, massOfHolder);
-                                    break;
-                                case 6: // Spring Test
-                                    test = new SpringTest(testParameters, finalData, MPUMinMax, springConstant, totalHangingMass, amplitudeSpring, massOfSpring);
-                                    break;
-                                case 7: // Generic Template - One Module
-                                    test = new GenericTest(testParameters, finalData, MPUMinMax);
-                                    break;
-                                case 8: // Generic Template - Two Module
-                                    test = new GenericTest(testParameters, finalData, MPUMinMax);
-                                    break;
-                                default:
-                                    test = new GenericTest(testParameters, finalData, MPUMinMax);
-                                    break;
+                                genericTests.add(comTest.getModuleOne());
+                                genericTests.add(comTest.getModuleTwo());
+
                             }
 
-                            // for one module tests, use the order in which tests were read;
-                            // if this is a two module test, use the module's number (1/2)
-                            int testNum = oneModuleTest ? (i+1) : moduleNumber;
+                        // conservation of energy
+                        } else if (experimentType == 2) {
 
-                            String testType = test.getClass().getSimpleName();
-                            String testName = testType + " #" + testNum + " " + timestamp;
-
-                            test.setName(testName);
-
-                            logger.info("Created " + testName);
-
-                            // conservation of momentum
-                            if (experimentType == 1) {
-
-                                // wait until both tests are read to add to list of GTs
-                                if (comTest.isFilled()) {
-
-                                    genericTests.add(comTest.getModuleOne());
-                                    genericTests.add(comTest.getModuleTwo());
-
-                                }
-
-                            // conservation of energy
-                            } else if (experimentType == 2) {
-
-                                // wait until both tests are read to add to list of GTs
-                                if (engTest.isFilled()) {
-                                    genericTests.add(engTest.getModuleOne());
-                                    genericTests.add(engTest.getModuleTwo());
-                                }
-
-                            // all other tests
-                            } else genericTests.add(test);
-
-                            // write GenericTest to CSV
-                            try {
-                                writer.writeCSV(test, testName + ".csv");
-                                writer.writeCSVP(testParameters, testName + ".csvp", MPUMinMax);
-                            }
-                            catch (Exception e) {
-                                Alert alert = new Alert(AlertType.ERROR);
-                                alert.setHeaderText("Error saving test data");
-                                alert.setContentText("There was a problem saving \"" + testName + "\".");
-                                alert.showAndWait();
+                            // wait until both tests are read to add to list of GTs
+                            if (engTest.isFilled()) {
+                                genericTests.add(engTest.getModuleOne());
+                                genericTests.add(engTest.getModuleTwo());
                             }
 
+                        // all other tests
+                        } else genericTests.add(test);
+
+                        // write GenericTest to CSV
+                        try {
+                            CSVHandler.writeCSV(test, testName + ".csv");
+                            CSVHandler.writeCSVP(testParameters, testName + ".csvp", MPUMinMax);
+                        }
+                        catch (Exception e) {
+                            Alert alert = new Alert(AlertType.ERROR);
+                            alert.setHeaderText("Error saving test data");
+                            alert.setContentText("There was a problem saving \"" + testName + "\".");
+                            alert.showAndWait();
                         }
 
                         // update test data progress
@@ -1268,32 +1172,13 @@ public class EducatorModeControllerFX implements Initializable {
 
                     // automatically launch the appropriate graph for one-module tests
                     if (oneModuleTest) {
-                        
-                        if (getOutputType().equals(sincTechnologyRadioButton)) {
 
-                            logger.info("Launching SINC Graph...");
+                        logger.info("Launching BioForce Graph...");
 
-                            Platform.runLater(() -> {
-
-                                lineGraph = startGraphing();
-
-                                // SINC Graph only supports 2 data sets, so hard-coding is okay
-                                if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
-                                if (dataOrgoList.size() >= 2) lineGraph.graphDataOrgoObject(dataOrgoList.get(1));
-
-                            });
-
-                        }
-                        else {
-
-                            logger.info("Launching Data Analysis Graph...");
-
-                            Platform.runLater(() -> {
-                                GraphNoSINCController graph = startGraphingNoSINC();
-                                graph.setGenericTests(genericTests);
-                            });
-
-                        }
+                        Platform.runLater(() -> {
+                            GraphNoSINCController graph = startGraphingNoSINC();
+                            graph.setGenericTests(genericTests);
+                        });
                         
                         // move to the "Launch Graph" page
                         Platform.runLater(() -> nextTab());
@@ -1508,17 +1393,6 @@ public class EducatorModeControllerFX implements Initializable {
 
     }
 
-    /*End Experiment Tab Methods*/
-
-    /*Begin Motion Visualization Tab Methods*/
-
-    private GraphController lineGraph;
-
-    @FXML
-    private void launchSINCGraph(ActionEvent event) {
-        lineGraph = startGraphing();
-    }
-
     @FXML
     private void launchDAG(ActionEvent event) {
         
@@ -1572,76 +1446,8 @@ public class EducatorModeControllerFX implements Initializable {
         
     }
 
-    @FXML
-    private void launchChosenGraph(ActionEvent event) {
-
-        // launch SINC Graph
-        if (getOutputType().equals(sincTechnologyRadioButton)) {
-
-            lineGraph = startGraphing();
-
-            if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
-            if (dataOrgoList.size() >= 2) lineGraph.graphDataOrgoObject(dataOrgoList.get(1));
-
-        }
-        // open Data Analysis Graph
-        else {
-
-            GraphNoSINCController graph = startGraphingNoSINC();
-            graph.setGenericTests(genericTests);
-
-        }
-
-    }
-    
     /**
-     * <p><b>NOTE: THIS METHOD CAN ONLY BE CALLED THROUGH FXML.</b></p>
-     * Launches the selected graph application by checking the button's fx:id.
-     * @param event the event created by clicking the button
-     */
-    @FXML
-    private void launchGraphTwoModule(ActionEvent event) {
-
-        Button b = (Button) event.getSource();
-        
-        if (b.getId().equals("launchSINCTwoModule")) {
-
-            lineGraph = startGraphing();
-
-            // SINC Graph only supports 2 data sets, so hard-coding is okay
-            if (dataOrgoList.size() >= 1) lineGraph.graphDataOrgoObject(dataOrgoList.get(0));
-            if (dataOrgoList.size() >= 2) lineGraph.graphDataOrgoObject(dataOrgoList.get(1));
-
-        }
-        else if (b.getId().equals("launchDAGTwoModule")) {
-
-            GraphNoSINCController graph = startGraphingNoSINC();
-            graph.setGenericTests(genericTests);
-
-        }
-
-    }
-
-    public MediaPlayerController startMediaPlayer() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/MediaPlayerStructure.fxml"));
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        primaryStage.setTitle("Video Player");
-        primaryStage.getIcons().add(icon);
-        if(root!=null) primaryStage.setScene(new Scene(root, 1280, 720));
-        primaryStage.show();
-        primaryStage.setResizable(false);
-        return loader.getController();
-    }
-
-    /**
-     * Loads and launches the Data Analysis Graph.
+     * Loads and launches the BioForce Graph.
      */
     public GraphNoSINCController startGraphingNoSINC() {
 
@@ -1652,7 +1458,7 @@ public class EducatorModeControllerFX implements Initializable {
 		try {
 			
 			root = loader.load();
-			primaryStage.setTitle("BioForce Data Analysis Graph");
+			primaryStage.setTitle("BioForce Graph");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("css/GraphNoSINC.css").toExternalForm());
 	        primaryStage.setMinWidth(900);
@@ -1663,30 +1469,10 @@ public class EducatorModeControllerFX implements Initializable {
 	        primaryStage.show();
 	        
 		} catch (IOException e) {
-			logger.error("Error loading Data Analysis Graph.");
+			logger.error("Error loading BioForce Graph.");
 			e.printStackTrace();
 		}
         
-        return loader.getController();
-    }
-    
-    public GraphController startGraphing() {
-        Stage primaryStage = new Stage();
-        Parent root = null;
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/UpdatedGraphStructureEducator.fxml"));
-        try {
-            root = loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(root!=null) primaryStage.setScene(new Scene(root, 1320, 730));
-
-        primaryStage.setTitle("BioForce SINC Technology Graph");
-        primaryStage.getIcons().add(icon);
-        primaryStage.show();
-        primaryStage.setResizable(false);
-
         return loader.getController();
     }
 
@@ -1811,14 +1597,7 @@ public class EducatorModeControllerFX implements Initializable {
                 // analyze video to obtain timer0 tick offset and "delay after start" test parameters
                 BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
                 timerCalibrationOffset = bfo.getTMR0Offset();
-                trueDelayAfterStart = bfo.getDelayAfterStart();
-
-                // if delay after start is negative, set to 0
-                if (trueDelayAfterStart >= 0) {
-                    delayAfterStart = trueDelayAfterStart;
-                } else {
-                    delayAfterStart = 0;
-                }
+                delayAfterStart = bfo.getDelayAfterStart();
 
                 logger.info("Timer0 calibration offset: " + timerCalibrationOffset);
                 logger.info("Delay after start: " + delayAfterStart);
@@ -1900,32 +1679,31 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     /***
-     *  Fills the testTypeHashMap with the module settings associated with each test type
-     *  After one test type is filled the testTypeHashMap is cleared and then next test type is inputted
+     *  Fills the testTypeHashMap with the module settings associated with each test type.
      */
     public void fillTestTypeHashMap() {
 
-        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        // NOTE: index 2 (delayAfterStart) will NOT be overwritten through test parameters.
+
+        Integer[] testParamsA = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Conservation of Momentum (Elastic Collision)", testParamsA);
 
         Integer[] testParamsB = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Conservation of Energy", testParamsB);
 
-        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsC = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Inclined Plane", testParamsC);
-        testTypeHashMap.put("Inclined Plane - Released From Top", testParamsC);
-        testTypeHashMap.put("Inclined Plane - Projected From Bottom", testParamsC);
 
         Integer[] testParamsD = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Physical Pendulum", testParamsD);
 
-        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
-        testTypeHashMap.put("Spring Test - Simple Harmonics", testParamsE);
+        Integer[] testParamsE = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
+        testTypeHashMap.put("Spring Test", testParamsE);
 
-        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsF = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Generic Template - One Module", testParamsF);
 
-        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 1000, 92, 92 };
+        Integer[] testParamsG = { 0, getTickThreshold(960), 0, 300, 0, 1, 30, 960, 96, 16, 2000, 92, 92 };
         testTypeHashMap.put("Generic Template - Two Modules", testParamsG);
 
         // TODO the following test is not being used, but kept in case we decide to bring this lab back

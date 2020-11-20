@@ -17,22 +17,23 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.chart.LineChart;
 import javafx.scene.layout.StackPane;
 
 public class MultiAxisLineChart extends StackPane {
 
     private final BFALineChart<Number, Number> baseChart;
-    private final ObservableList<BFALineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
+    private final ObservableList<LineChart<Number, Number>> backgroundCharts = FXCollections.observableArrayList();
 
     /**
      * Tracks the axis classes and their respective line charts holding the y-axes.
      */
-    private final Map<Integer, BFALineChart<Number, Number>> axisTypeMap = new HashMap<>();
+    private final Map<Integer, LineChart<Number, Number>> axisTypeMap = new HashMap<>();
 
     /**
      * Tracks the currently drawn data sets and their respective line charts.
      */
-    public final Map<GraphData, BFALineChart<Number, Number>> axisChartMap = new HashMap<>();
+    public final Map<GraphData, LineChart<Number, Number>> axisChartMap = new HashMap<>();
     
     // keeps track of currently graphed data sets (GTIndex/AxisType/data)
     private ArrayList<GraphData> dataSets;
@@ -49,11 +50,16 @@ public class MultiAxisLineChart extends StackPane {
 	// TODO make this an advanced user setting
 	private int resolution;
 
-	// zooming + scrolling fields
+	// mouse coordinates
 	private double mouseX;
-	private double mouseY;
+    private double mouseY;
+    
+    // scalars to convert pixel space into graph space
 	private double zoomviewScalarX;
-	private double zoomviewScalarY;
+    private double zoomviewScalarY;
+    
+    // indicates the amount to scroll based on the relative position
+    // of the mouse to the center of the viewport
 	private double leftScrollPercentage;
 	private double topScrollPercentage;
 
@@ -209,7 +215,7 @@ public class MultiAxisLineChart extends StackPane {
         return (baseChart.getData().size() == 0);
     }
 
-    private void styleBaseChart(BFALineChart<Number, Number> baseChart) {
+    private void styleBaseChart(LineChart<Number, Number> baseChart) {
         baseChart.setAnimated(false);
         baseChart.setCreateSymbols(false);
         baseChart.setLegendVisible(true);
@@ -221,7 +227,7 @@ public class MultiAxisLineChart extends StackPane {
 
     }
 
-    private void setFixedAxisWidth(BFALineChart<Number, Number> chart) {
+    private void setFixedAxisWidth(LineChart<Number, Number> chart) {
         chart.getYAxis().setPrefWidth(yAxisWidth);
         chart.getYAxis().setMaxWidth(yAxisWidth);
     }
@@ -251,7 +257,7 @@ public class MultiAxisLineChart extends StackPane {
         }
 
         // loop through each background chart
-        for (BFALineChart<Number, Number> lineChart : backgroundCharts) {
+        for (LineChart<Number, Number> lineChart : backgroundCharts) {
 
             // resize each background chart and add it to the multi axis chart if necessary
             if (!getChildren().contains(lineChart)) {
@@ -266,7 +272,7 @@ public class MultiAxisLineChart extends StackPane {
 
         for (Node child : getChildren()) {
             if (child != baseChart) {
-                if (!backgroundCharts.contains((BFALineChart) child)) {
+                if (!backgroundCharts.contains((LineChart) child)) {
                     emptyChildren.add(child);
                 }
             }
@@ -278,7 +284,7 @@ public class MultiAxisLineChart extends StackPane {
 
     }
 
-    private void resizeBaseChart(BFALineChart<Number, Number> lineChart) {
+    private void resizeBaseChart(LineChart<Number, Number> lineChart) {
 
         // calculate the width of the current line chart: if there is already a background chart,
         // subtract the number of background charts from the current width; otherwise, subtract nothing
@@ -292,7 +298,7 @@ public class MultiAxisLineChart extends StackPane {
 
     }
 
-    private void resizeBackgroundChart(BFALineChart<Number, Number> lineChart) {
+    private void resizeBackgroundChart(LineChart<Number, Number> lineChart) {
 
         // calculate the width of the current line chart by
         // subtracting the number of background charts from the current width
@@ -340,7 +346,7 @@ public class MultiAxisLineChart extends StackPane {
 
         BFANumberAxis yAxisAdd = new BFANumberAxis();
         BFANumberAxis xAxisAdd = new BFANumberAxis();
-        BFALineChart<Number, Number> lineChart;
+        LineChart<Number, Number> lineChart;
 
         int axisTypeInt = d.axis.getValue() / 4;
 
@@ -378,7 +384,7 @@ public class MultiAxisLineChart extends StackPane {
                     .bind(((BFANumberAxis) baseChart.getYAxis()).upperBoundProperty().multiply(axisScale));
 
             // create chart
-            lineChart = new BFALineChart<Number, Number>(xAxisAdd, yAxisAdd);
+            lineChart = new LineChart<Number, Number>(xAxisAdd, yAxisAdd);
             lineChart.setMouseTransparent(true);
             
             axisTypeMap.put(axisTypeInt,lineChart);
@@ -524,7 +530,7 @@ public class MultiAxisLineChart extends StackPane {
 
     }
 
-    private void styleBackgroundChart(BFALineChart<Number, Number> lineChart) {
+    private void styleBackgroundChart(LineChart<Number, Number> lineChart) {
 
         Node contentBackground = lineChart.lookup(".chart-content").lookup(".chart-plot-background");
         contentBackground.setStyle("-fx-background-color: transparent;");

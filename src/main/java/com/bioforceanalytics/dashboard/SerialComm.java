@@ -1271,7 +1271,7 @@ public class SerialComm {
 			//Assign start time for timeout calculation
 			long startTime = System.currentTimeMillis();
 			//Iterates through each parameter in the array until completion or timeout
-			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 1500) {
+			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 3000) {
 
 				//Only executes if this iteration has not yet received the preamble. This loop is structured such that for each parameter it will 
 				//start by only looking for the preamble. Once it finds the preamble it will only look for 2 bytes of data. Once it receives the data and
@@ -1415,7 +1415,7 @@ public class SerialComm {
 				setText("Transferring Test #" + (test + 1) + "...", statusLabel, platformType);
 
 				//Wait for start condition (preamble)
-				if (!waitForPreamble(1, 8, 1500)) {
+				if (!waitForPreamble(1, 8, 3000)) {
 					setText("Lost communication with module. Please reconnect to the port.", statusLabel, platformType);
 					return null;
 				}
@@ -1446,7 +1446,7 @@ public class SerialComm {
 						//Executes if the preamble has not yet been received for this block read sequence
 						if (!preambleFlag) {
 							//Wait for a preamble, exits method if the preamble times out
-							if (!waitForPreamble(1, 4, 1500)) {
+							if (!waitForPreamble(1, 4, 3000)) {
 								setText("Lost communication with module. Please reconnect to the port.", statusLabel, platformType);
 								return null;
 							}
@@ -1597,6 +1597,8 @@ public class SerialComm {
 	 * @param platformType the {@link PlatformType} to use (Swing or FX)
 	 */
 	private void setText(String text, Object label, PlatformType platformType) {
+
+		logger.info(text);
 
 		if (platformType == PlatformType.SWING) {
 			((JLabel) label).setText(text); 

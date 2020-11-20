@@ -25,7 +25,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 /**
- * Custom JavaFX component for the Data Analysis Graph's panel of checkboxes toggling graphing of data sets.
+ * Custom JavaFX component for the BioForce Graph's panel of checkboxes toggling graphing of data sets.
  * Created so that data set panels can be dynamically created depending on the number of modules in a test.
  */
 public class DataSetPanel extends TitledPane {
@@ -180,9 +180,15 @@ public class DataSetPanel extends TitledPane {
 
 		Optional<String> result = dialog.showAndWait();
 
-		// set the new text of this TitledPane
-		if (result.isPresent()) setTitle(result.get());
+		// if user entered a response
+		if (result.isPresent()) {
 
-		controller.renameGT(result.get(), GTIndex);
+			// set header of TitledPane
+			setTitle(result.get());
+
+			// update test name
+			controller.renameGT(result.get(), GTIndex);
+
+		}
 	}
 }
