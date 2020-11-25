@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +44,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -209,6 +211,42 @@ public class GraphNoSINCController implements Initializable {
 
 				}
 
+			});
+
+			// allow users to drag and drop files
+			multiAxis.getScene().setOnDragOver(e -> {
+
+				// get all files dragged into graph window
+				List<File> csvs = e.getDragboard().getFiles();
+
+				// remove all non-CSV files from the list
+				csvs.removeIf(x -> !x.getName().endsWith("csv"));
+
+				// if the drag occurs from outside 
+				if (e.getGestureSource() == null && csvs.size() > 0) {
+					e.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+				}
+
+				// prevent from triggering further events
+				e.consume();
+			
+			});
+
+			// when user drops file(s) onto window
+			multiAxis.getScene().setOnDragDropped(e -> {
+
+				// get all files dragged into graph window
+				List<File> csvs = e.getDragboard().getFiles();
+
+				// remove all non-CSV files from the list
+				csvs.removeIf(x -> !x.getName().endsWith("csv"));
+
+				// convert File -> String
+				List<String> csvPaths = csvs.stream().map(x -> x.getAbsolutePath()).collect(Collectors.toList());
+
+				// load tests into graph
+				setGenericTestsFromCSV(new ArrayList<String>(csvPaths));
+			
 			});
 
 		});
