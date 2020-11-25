@@ -6,7 +6,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.UIManager;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.fxml.FXML;
@@ -28,7 +27,7 @@ public class DashboardSelectorController implements Initializable {
 
     private Image icon;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
@@ -30,7 +29,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -194,7 +192,7 @@ public class EducatorModeControllerFX implements Initializable {
     // BFA icon used for the Dashboard and Graph
     private Image icon;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

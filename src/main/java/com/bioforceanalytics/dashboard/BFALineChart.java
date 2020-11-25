@@ -4,7 +4,6 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
@@ -80,7 +79,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     // indicates whether line chart is playing a SINC video
     private boolean hasSINC;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);

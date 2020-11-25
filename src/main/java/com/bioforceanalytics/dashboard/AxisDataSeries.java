@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -56,7 +55,7 @@ public class AxisDataSeries {
 	// acceleration due to gravity, modify this to add more sigfigs if needed
 	private final double GRAVITY = 9.80665;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	/**
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.

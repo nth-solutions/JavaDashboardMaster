@@ -2,7 +2,6 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
@@ -30,7 +29,7 @@ import javafx.scene.layout.Priority;
  */
 public class DataSetPanel extends TitledPane {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	/**
 	 * The index of the GenericTest this DataSetPanel represents.

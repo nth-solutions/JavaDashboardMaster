@@ -7,7 +7,6 @@ import java.util.Map;
 import com.sun.javafx.charts.Legend;
 import com.sun.javafx.charts.Legend.LegendItem;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.beans.Observable;
@@ -88,7 +87,7 @@ public class MultiAxisLineChart extends StackPane {
 
     private GraphNoSINCController controller;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     public MultiAxisLineChart() {
         

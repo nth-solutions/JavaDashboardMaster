@@ -3,7 +3,6 @@ package com.bioforceanalytics.dashboard;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -25,7 +24,7 @@ public class GenericTest {
 	private int sampleRate;
 	private int timeOffset;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	/**
 	 * Creates a GenericTest using inputs read directly from the module via SerialComm.

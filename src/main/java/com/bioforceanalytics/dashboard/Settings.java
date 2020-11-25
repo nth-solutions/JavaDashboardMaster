@@ -13,7 +13,6 @@ import javax.swing.filechooser.FileSystemView;
 
 import com.bioforceanalytics.dashboard.OSManager.OS;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -25,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 public class Settings {
 
 	private static Properties prop = new Properties();
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	private static String version;
 	private static String buildDate;

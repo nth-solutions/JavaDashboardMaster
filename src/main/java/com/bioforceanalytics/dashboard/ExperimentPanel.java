@@ -2,7 +2,6 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.fxml.FXML;
@@ -17,7 +16,7 @@ import javafx.scene.control.TitledPane;
  */
 public class ExperimentPanel extends TitledPane {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	@FXML
 	private Label experimentName;

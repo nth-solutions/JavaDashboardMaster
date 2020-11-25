@@ -12,7 +12,6 @@ import javax.swing.JProgressBar;
 
 import com.bioforceanalytics.dashboard.OSManager.OS;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
@@ -55,7 +54,7 @@ public class SerialComm {
 	private boolean dataStreamsInitialized = false;
 	private boolean remoteTestActive = false;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	/**
 	 * Builds a list the names of all the serial ports to place in the combo box

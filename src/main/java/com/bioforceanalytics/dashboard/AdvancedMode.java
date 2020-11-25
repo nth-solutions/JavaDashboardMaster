@@ -47,9 +47,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.io.IoBuilder;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
@@ -275,7 +272,7 @@ public class AdvancedMode extends JFrame {
 	// icon for DAG + SINC Graph
 	private Image FXIcon;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	/**
 	 * Dashboard constructor that initializes the name of the window, all the
@@ -314,11 +311,6 @@ public class AdvancedMode extends JFrame {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-		// redirect stdout and stderr to Log4J: this adds more detailed info,
-		// and most importantly, saves all console output to a .log file
-		System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
-		System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
 
 		// Set the look and feel to whatever the system default is.
 		logger.info("Version: " + Settings.getVersion());

@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="info">
-  <Properties>
-    <!--
-      Log file location order of priority:
-      1. macOS: "~/Library/Logs/EduForce Dashboard"
-      2. Windows: "%APPDATA%\EduForce Dashboard\logs"
-
-      (If #1 does not evaluate, Dashboard must be running on Windows; therefore #2 runs instead)
-
-      ${}       = an expression evaluated by log4j;
-      env:NAME  = a system environment variable called "NAME"
-      :-        = the alternate fallback value if the first does not work
-
-      Additional "$" have been placed to circumvent backslash escape character bug in log4j;
-      by doing so, the expression is evaluated later and the backslash is not escaped.
-      (eg. if %APPDATA% returns "C:\Users\shrey", log4j was returning "C:Usersshrey", extra $'s fixes that)
-      
-      More information here: https://stackoverflow.com/a/35721092/1908523
-    -->
-    <Property name="LOG_PATH">${${env:user.home}/Library/Logs/EduForce Dashboard:-$$${env:APPDATA}/EduForce Dashboard/logs}</Property>
-  </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout>
@@ -33,8 +13,8 @@
     </Console>
     <RollingFile
         name="FileLog"
-        fileName="${LOG_PATH}/dashboard-latest.log"
-        filePattern="${LOG_PATH}/dashboard.%i.log.gz"
+        fileName="${sys:LOG_PATH}/dashboard-latest.log"
+        filePattern="${sys:LOG_PATH}/dashboard.%i.log.gz"
         ignoreExceptions="false">
       <PatternLayout>
           <LevelPatternSelector>

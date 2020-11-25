@@ -13,7 +13,6 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.Throwables;
 import org.controlsfx.dialog.ProgressDialog;
@@ -93,7 +92,7 @@ public class GraphNoSINCController implements Initializable {
 	// BFA icon
 	private Image icon;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	@FXML
 	private BFALineChart<Number, Number> lineChart;
