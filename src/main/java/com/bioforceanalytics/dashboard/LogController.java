@@ -22,17 +22,13 @@ public class LogController {
     public static Logger start() {
 
         // set log file location based on operating system
-        if (OSManager.getOS() == OS.WINDOWS) {
-            System.setProperty("LOG_PATH", System.getenv("APPDATA") + "/EduForce Dashboard/logs");
-        }
-        else if (OSManager.getOS() == OS.MAC) {
-            System.setProperty("LOG_PATH", System.getenv("HOME") + "/Library/Logs/EduForce Dashboard");
-        }
+        System.setProperty("LOG_PATH", getLogPath());
 
         // redirect stdout and stderr to Log4J: this adds more detailed info & captures ALL console output in logs
         System.setErr(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.ERROR).buildPrintStream());
         System.setOut(IoBuilder.forLogger(LogManager.getRootLogger()).setLevel(Level.INFO).buildPrintStream());
 
+        // return Logger instance
         return LogManager.getRootLogger();
 
     }
@@ -44,7 +40,7 @@ public class LogController {
      * <p>On macOS, this should be <code>~/Library/Logs/EduForce Dashboard</code>.</p>
      * @return the log file location for the current operating system
      */
-    public String getLogPath() {
+    public static String getLogPath() {
 
         if (OSManager.getOS() == OS.WINDOWS) {
             return System.getenv("APPDATA") + "/EduForce Dashboard/logs";
@@ -53,7 +49,7 @@ public class LogController {
             return System.getenv("HOME") + "/Library/Logs/EduForce Dashboard";
         }
         else {
-            return "logs";
+            return "./logs";
         }
 
     }

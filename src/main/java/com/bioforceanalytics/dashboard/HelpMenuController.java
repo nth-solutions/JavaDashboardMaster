@@ -1,11 +1,17 @@
 package com.bioforceanalytics.dashboard;
 
+import java.awt.Desktop;
+
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.Pane;
@@ -40,6 +46,18 @@ public class HelpMenuController implements Initializable{
 		debugInfo.setText("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
 		setKeys();
 	}
+
+	@FXML
+    public void openLogsFolder() {
+        try {
+            Desktop d = Desktop.getDesktop();
+            d.open(new File(LogController.getLogPath()));
+        } catch (IOException e) {
+            Alert a = new Alert(AlertType.ERROR); 
+            a.setContentText("Error opening logs folder.");
+            a.showAndWait();
+        }
+    }
 	
 	/* Set hashmap keys. Hashmap is used for code readability, the AdvancedMode passes an index (via setTabIndex()) representing the tab that the user is
 	 * on when they press the help button. This will tell us what pane to display 
