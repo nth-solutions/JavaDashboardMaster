@@ -47,6 +47,12 @@
 						<MenuItem mnemonicParsing="false" onAction="#clearDataSets" text="Clear Data Sets" />
 					</items>
 				</Menu>
+				<Menu mnemonicParsing="false" text="Math">
+					<items>
+						<MenuItem mnemonicParsing="false" onAction="#openCustomAxisMenu" text="Custom Axes" />
+						
+					</items>
+				</Menu>
 			</menus>
 		</MenuBar>
 		<SplitPane dividerPositions="0.5" layoutY="25.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="25.0">

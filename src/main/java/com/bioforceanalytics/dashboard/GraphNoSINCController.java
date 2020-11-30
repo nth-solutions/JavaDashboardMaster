@@ -171,13 +171,15 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Button lineUpBtn;
 
+	public ArrayList<CustomEquation> customEquations = new ArrayList<CustomEquation>();;
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
 		logger.info("Initializing Data Analysis graph...");
 
 		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
-
+		
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
@@ -974,7 +976,36 @@ public class GraphNoSINCController implements Initializable {
 		setGenericTestsFromCSV(paths);
 
 	}
-
+	@FXML
+	private void openCustomAxisMenu(ActionEvent event) {
+			Stage primaryStage = new Stage();
+			Parent root = null;
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/CustomAxisMenu.fxml"));
+			
+			try {
+				
+				root = loader.load();
+	
+				// set parent of the equaotion menu to allow communication b/t classes
+				((CustomAxisMenu) loader.getController()).setParent(this);
+	
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+	
+			if (root != null) primaryStage.setScene(new Scene(root));
+	
+			// ensure that color menu stays on top and blocks everything else
+			primaryStage.setAlwaysOnTop(true);
+			primaryStage.initModality(Modality.APPLICATION_MODAL);
+			primaryStage.initOwner(lineChart.getScene().getWindow());
+	
+			primaryStage.setTitle("Data Analysis Graph - Custom Axis Menu");
+			primaryStage.getIcons().add(icon);
+			primaryStage.show();
+			primaryStage.setResizable(false);
+	}
 	@FXML
 	private void openColorMenu(ActionEvent event) {
 
