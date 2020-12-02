@@ -792,7 +792,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="pairNewRemoteButton111" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="45.0" prefWidth="400.0" text="Establish Connection">
+                                                                  <Button fx:id="pairNewRemoteButton111" mnemonicParsing="false" onAction="#connectRemoteTab" prefHeight="45.0" prefWidth="400.0" text="Establish Connection">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>
@@ -863,7 +863,7 @@
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button fx:id="testRemotesButton111" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="50.0" prefWidth="400.0" text="Establish Connection">
+                                                                  <Button fx:id="testRemotesButton111" mnemonicParsing="false" onAction="#connectRemoteTab" prefHeight="50.0" prefWidth="400.0" text="Establish Connection">
                                                                      <font>
                                                                         <Font size="14.0" />
                                                                      </font>

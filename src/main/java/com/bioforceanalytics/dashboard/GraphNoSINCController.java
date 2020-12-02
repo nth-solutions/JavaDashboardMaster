@@ -301,8 +301,6 @@ public class GraphNoSINCController implements Initializable {
 		loading.setResult(ButtonType.OK);
 		loading.show();
 
-		CSVHandler reader = new CSVHandler();
-
 		// read test data and create GenericTests
 		for (String s : paths) {
 
@@ -314,7 +312,7 @@ public class GraphNoSINCController implements Initializable {
 				String fileName = new File(s).getName();
 				String testName = fileName.substring(0, fileName.length()-4);
 
-				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
+				GenericTest g = new GenericTest(CSVHandler.readCSV(s), CSVHandler.readCSVP(s + "p"));
 				g.setName(testName);
 				genericTests.add(g);
 			}
