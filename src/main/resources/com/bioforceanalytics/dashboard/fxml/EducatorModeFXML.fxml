@@ -285,9 +285,9 @@
                                                                         <Font name="System Bold" size="16.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="78.0" prefWidth="500.0" text="Make sure to wait 3 seconds before beginning your trial in order to allow your module to normalize." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
+                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="78.0" prefWidth="496.0" text="To run an experiment: start a test on your module, wait 3 seconds (this allows the data to “normalize”), then continue." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
                                                                      <font>
-                                                                        <Font name="System Bold Italic" size="16.0" />
+                                                                        <Font name="System Bold Italic" size="15.0" />
                                                                      </font>
                                                                      <padding>
                                                                         <Insets left="30.0" right="30.0" />
