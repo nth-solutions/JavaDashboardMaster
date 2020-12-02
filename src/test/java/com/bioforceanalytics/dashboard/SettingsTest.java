@@ -54,6 +54,8 @@ public class SettingsTest {
             assertTrue(settingsDir.exists());
             assertTrue(configFile.exists());
 
+            logger.info("Settings directory test complete.");
+
         } catch (IOException e) {
             e.printStackTrace();
             fail("Error deleting settings directory");
@@ -85,6 +87,7 @@ public class SettingsTest {
 
             // clean up test by copying CSVs back
             FileUtils.copyDirectory(tempFolder.getRoot(), saveDir);
+            logger.info("CSV save directory test complete.");
 
         } catch (IOException e) {
             fail("Error copying/creating CSV save directory");
