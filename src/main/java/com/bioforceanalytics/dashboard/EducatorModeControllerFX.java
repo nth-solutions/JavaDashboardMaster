@@ -171,9 +171,6 @@ public class EducatorModeControllerFX implements Initializable {
     // each object represents a trial on a module
     private ArrayList<GenericTest> genericTests;
 
-    // Colors
-    private final Color LIGHT_GREEN = Color.rgb(51, 204, 51);
-
     // Dashboard Background Functionality
     private int experimentTabIndex = 0;
     private int selectedIndex = 0;
@@ -296,45 +293,45 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    private void selectEraseConfirmationTab(ActionEvent event){
+    private void selectEraseConfirmationTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(eraseConfirmationTab);
     }
 
     @FXML
-    private void selectUnpairRemotesTab(ActionEvent event){
+    private void selectUnpairRemotesTab(ActionEvent event) {
         primaryTabPane.getSelectionModel().select(unpairRemotesTab);
         remotePairingTabPane.getSelectionModel().select(0);
     }
 
     @FXML
-    private void selectPairSingleModuleTab(ActionEvent event){
+    private void selectPairSingleModuleTab(ActionEvent event) {
         remotePairingTabPane.getSelectionModel().select(1);
+        exitTestModeButton.setDisable(true);
     }
 
     @FXML
-    private void selectPairTwoModulesTab(ActionEvent event){
+    private void selectPairTwoModulesTab(ActionEvent event) {
         remotePairingTabPane.getSelectionModel().select(2);
     }
 
     @FXML
-    private void selectPairTwoModulesTabPageTwo(ActionEvent event){
+    private void selectPairTwoModulesTabPageTwo(ActionEvent event) {
         remotePairingTabPane.getSelectionModel().select(3);
     }
 
     @FXML
-    private void selectPairTwoModulesTabPageThree(ActionEvent event){
+    private void selectPairTwoModulesTabPageThree(ActionEvent event) {
         remotePairingTabPane.getSelectionModel().select(4);
     }
 
 
     @FXML
-    private void goBackToIntialTabPairingRemotes(ActionEvent event){
+    private void goBackToIntialTabPairingRemotes(ActionEvent event) {
         remotePairingTabPane.getSelectionModel().select(0);
     }
 
     /**
      * Moves the experiment tab to the next page.
-     * Indices 0-4 are the one-module steps, 5-10 
      */
     @FXML
     private void nextTab() {
@@ -476,7 +473,6 @@ public class EducatorModeControllerFX implements Initializable {
 
         // print out test name + parameters for debugging
         logger.info("Test name: " + testName);
-
         logger.info("Test parameters: " + Arrays.toString(testParams));
 
         Task<Void> sendTestParamsTask = new Task<Void>() {
@@ -588,112 +584,42 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     /**
-     * ActionEvent that configures the module using functionality from the SerialComm Class for pairing with an RF remote
-     * control
-     *
-     * ***********IMPORTANT******This method and following methods use Tasks as UI Elements and backend elements must be modified concurrently. UI elements are bound to properties in the task. UpdateMessage and
-     * UpdateProgess therefore update bound UI elements.
-     *
-     * @param event
+     * Pairs a new remote to a module.
      */
     @FXML
     private void pairNewRemote(ActionEvent event) {
 
         Task<Void> pairNewRemoteTask = new Task<Void>() {
-            protected Void call() throws Exception {
-                int maxProgress = 100;
-                updateMessage("Module Listening for New Remote, Hold 'A' or 'B' Button to Pair");
-                updateProgress(0, maxProgress);
 
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
+            protected Void call() throws Exception {
+
+                displayProgress(unpairRemotesTabLabel, "Module listening for new Remote, hold any button to pair...", 0, Status.WORKING);
 
                 try {
-                    if (serialHandler.pairNewRemote()) {                                                                // Attempts to pair remote and a boolean is returned that indicates if it was successful.
-                        updateMessage("New Remote Successfully Paired");
-                        updateProgress(100, maxProgress);
 
-                        Platform.runLater(() -> {                                                                       //Without the binding of elements to properties. Platform.runLater() allows UI elements to be modified in the task.
-                            unpairRemotesTabLabel.setTextFill(LIGHT_GREEN);
-                            progressBar.setStyle("-fx-accent: #1f78d1;");
-                        });
-
+                    if (serialHandler.pairNewRemote()) {      
+                        displayProgress(unpairRemotesTabLabel, "New Remote successfully paired", 1, Status.SUCCESS);
                     } else {
-                        updateMessage("Pair Unsuccessful, Receiver Timed Out");
-                        updateProgress(100, maxProgress);
-
-                        Platform.runLater(() -> {
-                            unpairRemotesTabLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                        });
+                        displayProgress(unpairRemotesTabLabel, "Pair unsuccessful, receiver timed out", 1, Status.FAIL);
                     }
 
                 } catch (IOException e) {
-                    updateMessage("Error Communicating With Serial Dongle");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-                    updateMessage("Serial Port Already In Use");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- USB port already in use", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
-                    updateMessage("Check Dongle Compatability");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- check USB dongle compatibility", 1, Status.ERROR);
                 }
+
                 return null;
             }
         };
-
-        /**
-         * Here the UI elements are bound to properties so they can be modified in the Task
-         *
-         * After the task is completed, the UI elements are unbound.
-         */
-
-        pairNewRemoteButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
-        unpairAllRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
-        testRemotesButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
-        nextButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
-        backButton.disableProperty().bind(pairNewRemoteTask.runningProperty());
-        unpairRemotesTabLabel.textProperty().bind(pairNewRemoteTask.messageProperty());
-        progressBar.progressProperty().bind(pairNewRemoteTask.progressProperty());
-
-        pairNewRemoteTask.setOnSucceeded(e -> {
-            pairNewRemoteButton.disableProperty().unbind();
-            unpairAllRemotesButton.disableProperty().unbind();
-            testRemotesButton.disableProperty().unbind();
-            nextButton.disableProperty().unbind();
-            backButton.disableProperty().unbind();
-            unpairRemotesTabLabel.textProperty().unbind();
-            progressBar.progressProperty().unbind();
-        });
 
         new Thread(pairNewRemoteTask).start();
     }
 
     /**
-     * ActionEvent that unpairs all known RF remote controls from the module using functionality from the SerialComm
-     * class
-     *
-     * @param event
+     * Unpairs all remotes from the connected module.
      */
     @FXML
     private void unpairRemotes(ActionEvent event) {
@@ -702,310 +628,77 @@ public class EducatorModeControllerFX implements Initializable {
 
             @Override
             protected Void call() throws Exception {
-                int maxProgress = 100;
 
-                updateMessage("Unpairing All Remotes...");
-                updateProgress(0, maxProgress);
-
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
+                displayProgress(unpairRemotesTabLabel, "Unpairing all Remotes...", 0, Status.WORKING);
 
                 try {
-                    serialHandler.unpairAllRemotes();                                                                   // Attempts to unpair all remotes
+                    serialHandler.unpairAllRemotes();
                 } catch (IOException e) {
-
-                    updateMessage("Error Communicating With Serial Dongle");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error unpairing Remotes -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-
-                    updateMessage("Serial Port Already In Use");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error unpairing Remotes -- USB port already in use", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
-
-                    updateMessage("Check Dongle Compatability");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error unpairing Remotes -- check USB dongle compatibility", 1, Status.ERROR);
                 }
 
-                updateMessage("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-                updateProgress(0, maxProgress);
-
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
-
-//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-//                progressBar.setProgress(0);
+                displayProgress(unpairRemotesTabLabel, "All Remotes unpaired from Module", 1, Status.SUCCESS);
 
                 return null;
             }
         };
 
-        pairNewRemoteButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        unpairAllRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        testRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        nextButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        backButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        unpairRemotesTabLabel.textProperty().bind(unpairRemotesTask.messageProperty());
-        progressBar.progressProperty().bind(unpairRemotesTask.progressProperty());
-
-        unpairRemotesTask.setOnSucceeded(e -> {
-            pairNewRemoteButton.disableProperty().unbind();
-            unpairAllRemotesButton.disableProperty().unbind();
-            testRemotesButton.disableProperty().unbind();
-            nextButton.disableProperty().unbind();
-            backButton.disableProperty().unbind();
-            unpairRemotesTabLabel.textProperty().unbind();
-            unpairRemotesTabLabel.textFillProperty().unbind();
-            progressBar.progressProperty().unbind();
-        });
-
         new Thread(unpairRemotesTask).start();
 
     }
-
-    @FXML
-    private void unpairRemotesMainMenu(ActionEvent event) {
-
-        Task<Void> unpairRemotesTask = new Task<Void>() {
-
-            @Override
-            protected Void call() throws Exception {
-                int maxProgress = 100;
-
-                updateMessage("Unpairing All Remotes...");
-                updateProgress(0, maxProgress);
-
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
-
-                try {
-                    serialHandler.unpairAllRemotes();                                                                   // Attempts to unpair all remotes
-                } catch (IOException e) {
-
-                    updateMessage("Error Communicating With Serial Dongle");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
-                } catch (PortInUseException e) {
-
-                    updateMessage("Serial Port Already In Use");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
-                } catch (UnsupportedCommOperationException e) {
-
-                    updateMessage("Check Dongle Compatability");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
-                }
-
-                updateMessage("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-                updateProgress(0, maxProgress);
-
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
-
-//                generalStatusExperimentLabel.setTextFill(Color.BLACK);
-//                generalStatusExperimentLabel.setText("All Remotes Unpaired, There are 0 Remotes Paired to this Module");
-//                progressBar.setProgress(0);
-
-                return null;
-            }
-        };
-
-        pairNewRemoteButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        unpairAllRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        testRemotesButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        nextButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        backButton.disableProperty().bind(unpairRemotesTask.runningProperty());
-        unpairRemotesTabLabel.textProperty().bind(unpairRemotesTask.messageProperty());
-        progressBar.progressProperty().bind(unpairRemotesTask.progressProperty());
-
-        unpairRemotesTask.setOnSucceeded(e -> {
-            pairNewRemoteButton.disableProperty().unbind();
-            unpairAllRemotesButton.disableProperty().unbind();
-            testRemotesButton.disableProperty().unbind();
-            nextButton.disableProperty().unbind();
-            backButton.disableProperty().unbind();
-            unpairRemotesTabLabel.textProperty().unbind();
-            unpairRemotesTabLabel.textFillProperty().unbind();
-            progressBar.progressProperty().unbind();
-        });
-
-        new Thread(unpairRemotesTask).start();
-
-    }
-
 
     /**
-     * ActionEvent that puts the module into a testing mode using functionality from the SerialComm Class, wherein the
-     * module records no data, but only detects when and which button the user is pressing on their remote
-     *
-     * @param event
+     * Places the module into "test mode", allowing the user to verify that their remote is paired.
      */
     @FXML
     private void testPairedRemote(ActionEvent event) {
 
         Task<Void> testPairedRemoteTask = new Task<Void>() {
+
             @Override
             protected Void call() throws Exception {
-                int maxProgress = 100;
 
                 Platform.runLater(() -> {
-                    exitTestModeButton.setDisable(false);   //Enables the exitTestModeButton when the user starts the testPairedRemoteTask
+                    exitTestModeButton.setDisable(false);
                 });
 
-                updateMessage("Press a Button on a Remote to Test if it is Paired");
-                updateProgress(0, maxProgress);
-
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(Color.BLACK);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
+                displayProgress(unpairRemotesTabLabel, "Press any button to test your Remote...", 0, Status.WORKING);
 
                 try {
-                    unpairRemotesTabLabel.textProperty().unbind(); //Unbinds the Label from the testPairedRemoteTask so that the new task created in testRemotesFX can take control over it
 
                     if (!serialHandler.testRemotesFX(unpairRemotesTabLabel)) {
-
-                        unpairRemotesTabLabel.textProperty().bind(messageProperty()); //Rebinds the Label to the testPairedRemotesTask
-
-                        updateMessage("Error Communicating with Module");
-                        updateProgress(100, maxProgress);
-
-                        Platform.runLater(() -> {
-                            unpairRemotesTabLabel.setTextFill(Color.RED);
-                            progressBar.setStyle("-fx-accent: red;");
-                        });
-
+                        displayProgress(unpairRemotesTabLabel, "Error communicating with Module, try again", 1, Status.FAIL);
                     }
+
                 } catch (IOException e) {
-
-                    updateMessage("Error Communicating With Serial Dongle");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-
-                    updateMessage("Serial Port Already In Use");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
-
+                    displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- USB port already in use", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
-
-                    updateMessage("Check Dongle Compatability");
-                    updateProgress(100, maxProgress);
-
-                    Platform.runLater(() -> {
-                        unpairRemotesTabLabel.setTextFill(Color.RED);
-                        progressBar.setStyle("-fx-accent: red;");
-                    });
+                    displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- check USB dongle compatibility", 1, Status.ERROR);
                 }
 
-                updateMessage("Test Mode Successfully Exited");
-                updateProgress(100, maxProgress);
-
-                Platform.runLater(() -> {
-                    unpairRemotesTabLabel.setTextFill(LIGHT_GREEN);
-                    progressBar.setStyle("-fx-accent: #1f78d1;");
-                });
+                displayProgress(unpairRemotesTabLabel, "Exited test mode successfully", 1, Status.SUCCESS);
 
                 return null;
             }
         };
-
-        pairNewRemoteButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        unpairAllRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        testRemotesButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        //.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        //backButton.disableProperty().bind(testPairedRemoteTask.runningProperty());
-        unpairRemotesTabLabel.textProperty().bind(testPairedRemoteTask.messageProperty());
-        //progressBar.progressProperty().bind(testPairedRemoteTask.progressProperty());
-
-
-        testPairedRemoteTask.setOnSucceeded(e -> {
-            pairNewRemoteButton.disableProperty().unbind();
-            unpairAllRemotesButton.disableProperty().unbind();
-            testRemotesButton.disableProperty().unbind();
-            //nextButton.disableProperty().unbind();
-            //backButton.disableProperty().unbind();
-            unpairRemotesTabLabel.textProperty().unbind();
-            //progressBar.progressProperty().unbind();
-
-            Platform.runLater(() -> {
-                exitTestModeButton.setDisable(true);    //Disables the exitTestModeButton after the user has completed the testPairedRemoteTask
-                progressBar.setProgress(0);
-            });
-        });
 
         new Thread(testPairedRemoteTask).start();
 
     }
 
     /**
-     * ActionEvent that sets flag that will cause the testRemoteThread to exit the test remote mode, executed when
-     * exit remote test mode button is pressed. Since this is an action event, it must complete before GUI changes
-     * will be visible
-     *
-     * @param event
+     * Exits "test mode" for the given module via SerialComm.
+     * This will cause testPairedRemote()'s Task to continue and gracefully exit.
      */
     @FXML
     private void exitRemoteTestingMode(ActionEvent event) {
-        try{
         serialHandler.exitRemoteTest();
-        unpairRemotesTabLabel.setTextFill(Color.GREEN);
-        unpairRemotesTabLabel.setText("Remote Testing Successfully Exited");
-        }catch(Exception e){
-            unpairRemotesTabLabel.setTextFill(Color.RED);
-            unpairRemotesTabLabel.setText("Unable to Exit Remote Testing");
-        }
     }
 
     /**
