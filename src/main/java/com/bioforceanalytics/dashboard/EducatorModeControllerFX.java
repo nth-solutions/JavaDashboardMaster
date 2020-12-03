@@ -489,13 +489,13 @@ public class EducatorModeControllerFX implements Initializable {
                     if (serialHandler.sendTestParams(testParams)) {
                         displayProgress("Test parameters saved successfully", 1, Status.SUCCESS);
                     } else {
-                        displayProgress("Error saving test parameters to module, try again", 1, Status.ERROR);
+                        displayProgress("Error saving test parameters to Module, try again", 1, Status.ERROR);
                     }
 
                 } catch (NumberFormatException e) {
                     displayProgress("Check that parameters are filled out correctly", 1, Status.FAIL);
                 } catch (IOException e) {
-                    displayProgress("Connection to module lost, try again", 1, Status.ERROR);
+                    displayProgress("Connection to Module lost, try again", 1, Status.ERROR);
                 } catch (PortInUseException e) {
                     displayProgress("Port in use by another application", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
@@ -726,21 +726,21 @@ public class EducatorModeControllerFX implements Initializable {
                         genericTests.clear();
                     }
 
-                    displayProgress("Reading tests from module...", 0, Status.WORKING);
+                    displayProgress("Reading tests from Module...", 0, Status.WORKING);
 
                     // ensure test parameters have been read correctly
                     if (testParameters == null) {
-                        displayProgress("Error reading test parameters from module", 1, Status.ERROR);
+                        displayProgress("Error reading test parameters from Module", 1, Status.ERROR);
                         return null;
                     }
 
-                    logger.info("Read test parameters from module.");
+                    logger.info("Read test parameters from Module.");
 
                     int expectedTestNum = testParameters.get(0);
 
                     // check if there are tests on the module
                     if (expectedTestNum == 0) {
-                        displayProgress("No tests found on module", 1, Status.FAIL);
+                        displayProgress("No tests found on Module", 1, Status.FAIL);
                         return null;
                     }
 
@@ -748,7 +748,7 @@ public class EducatorModeControllerFX implements Initializable {
                     HashMap<Integer, ArrayList<Integer>> testData = serialHandler.readTestDataFX(expectedTestNum, progressBar, generalStatusExperimentLabel);
 
                     if (testData == null) {
-                        displayProgress("Error reading tests from module", 1, Status.ERROR);
+                        displayProgress("Error reading tests from Module", 1, Status.ERROR);
                         return null;
                     }
 
@@ -859,7 +859,7 @@ public class EducatorModeControllerFX implements Initializable {
                         displayProgress("Read test " + (i+1) + "/" + testData.size(), ((double) (i+1)) / ((double) testData.size()), Status.WORKING);
                     }
 
-                    displayProgress("All tests read from module", 1, Status.SUCCESS);
+                    displayProgress("All tests read from Module", 1, Status.SUCCESS);
 
                     // automatically launch the appropriate graph for one-module tests
                     if (oneModuleTest) {
@@ -1048,7 +1048,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call() {
 
-                String message = e == EraseMode.SECTOR ? "Erasing data..." : "Resetting module...";
+                String message = e == EraseMode.SECTOR ? "Erasing data..." : "Resetting Module...";
                 String method = e == EraseMode.SECTOR ? "Erase" : "Reset";
                 String error = e == EraseMode.SECTOR ? "erasing" : "resetting";
 
@@ -1064,15 +1064,15 @@ public class EducatorModeControllerFX implements Initializable {
                     }
 
                 } catch (IOException e) {
-                    displayProgress(label, "Error " + error + " module -- USB connection lost", 1, Status.ERROR);
+                    displayProgress(label, "Error " + error + " Module -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
-                    displayProgress(label, "Error " + error + " module -- port in use by another application", 1, Status.ERROR);
+                    displayProgress(label, "Error " + error + " Module -- port in use by another application", 1, Status.ERROR);
                 }
                 catch (UnsupportedCommOperationException e) {
-                    displayProgress(label, "Error " + error + " module -- check USB dongle compatibility", 1, Status.ERROR);
+                    displayProgress(label, "Error " + error + " Module -- check USB dongle compatibility", 1, Status.ERROR);
                 }
                 catch (Exception e) {
-                    displayProgress(label, "Error " + error + " module, try again", 1, Status.ERROR);
+                    displayProgress(label, "Error " + error + " Module, try again", 1, Status.ERROR);
                 }
 
                 return null;
@@ -1190,7 +1190,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Configuring module for SINC Calibration...", 0, Status.WORKING);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Configuring Module for SINC Calibration...", 0, Status.WORKING);
 
                 // reset timer0 and "delay after start" test parameters
                 if(!serialHandler.applyCalibrationOffsets(0, 0)) {
@@ -1200,9 +1200,9 @@ public class EducatorModeControllerFX implements Initializable {
 
                 // configure module in SINC calibration module
                 if (serialHandler.configForCalibration()) {
-                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully configured module for calibration", 1, Status.SUCCESS);
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully configured Module for calibration", 1, Status.SUCCESS);
                 } else {
-                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module for calibration, try again", 1, Status.ERROR);
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring Module for calibration, try again", 1, Status.ERROR);
                 }
 
                 return null;
@@ -1216,16 +1216,16 @@ public class EducatorModeControllerFX implements Initializable {
             logger.error("Configuration failed: " + ex);
 
             if (ex instanceof PortInUseException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module -- port in use by another application", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring Module -- port in use by another application", 1, Status.ERROR);
             }
             else if (ex instanceof UnsupportedCommOperationException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module -- check USB dongle compatibility", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring Module -- check USB dongle compatibility", 1, Status.ERROR);
             }
             else if (ex instanceof IOException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to module, try again", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to Module, try again", 1, Status.ERROR);
             }
             else {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring module, try again", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error configuring Module, try again", 1, Status.ERROR);
                 ex.printStackTrace();
             }
 
@@ -1283,7 +1283,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Calibrating module...", 1, Status.WORKING);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Calibrating Module...", 1, Status.WORKING);
 
                 // analyze video to obtain timer0 tick offset and "delay after start" test parameters
                 BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
@@ -1295,7 +1295,7 @@ public class EducatorModeControllerFX implements Initializable {
 
                 // apply timer0 and delay after start to module
                 if (serialHandler.applyCalibrationOffsets(timerCalibrationOffset, delayAfterStart)) {
-                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully calibrated module (camera and module synced)", 1, Status.SUCCESS);
+                    displayProgress(sincCalibrationTabGeneralStatusLabel, "Successfully calibrated Module (camera and Module synced)", 1, Status.SUCCESS);
                 } else {
                     displayProgress(sincCalibrationTabGeneralStatusLabel, "Error applying calibration offsets, try again", 1, Status.ERROR);
                 }
@@ -1312,16 +1312,16 @@ public class EducatorModeControllerFX implements Initializable {
             logger.error("Calibration failed: " + ex);
 
             if (ex instanceof PortInUseException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- port in use by another application", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating Module -- port in use by another application", 1, Status.ERROR);
             }
             else if (ex instanceof UnsupportedCommOperationException) {
                 displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module -- check USB dongle compatibility", 1, Status.ERROR);
             }
             else if (ex instanceof IOException) {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to module, try again", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Lost connection to Module, try again", 1, Status.ERROR);
             }
             else {
-                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating module, try again", 1, Status.ERROR);
+                displayProgress(sincCalibrationTabGeneralStatusLabel, "Error calibrating Module, try again", 1, Status.ERROR);
                 ex.printStackTrace();
             }
 
@@ -1413,7 +1413,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             protected Void call() throws IOException, PortInUseException, UnsupportedCommOperationException {
 
-                displayProgress(label, "Connecting to module...", 0, Status.WORKING);
+                displayProgress(label, "Connecting to Module...", 0, Status.WORKING);
 
                 // disable test parameters box
                 Platform.runLater(() -> {
@@ -1449,7 +1449,7 @@ public class EducatorModeControllerFX implements Initializable {
                     // make sure that Dashboard's firmware version matches the module's
                     if (firmwareID == CURRENT_FIRMWARE_ID) {
 
-                        displayProgress(label, "Successfully connected to module", 0.5, Status.SUCCESS);
+                        displayProgress(label, "Successfully connected to Module", 0.5, Status.SUCCESS);
                         logger.debug("Opened port " + selectedCommID);
 
                         // re-enable the test parameters selection box
@@ -1459,13 +1459,13 @@ public class EducatorModeControllerFX implements Initializable {
 
                     }
                     else {
-                        String firmwareMsg = "Incompatible firmware version, update module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")";
+                        String firmwareMsg = "Incompatible firmware version, update Module to " + CURRENT_FIRMWARE_ID + " (currently " + firmwareID + ")";
                         displayProgress(label, firmwareMsg, 1, Status.FAIL);
                     }
 
                 }
 
-                displayProgress(label, "Make sure module is connected to the computer", 1, Status.FAIL);
+                displayProgress(label, "Make sure Module is connected to the computer", 1, Status.FAIL);
                 
                 return null;
             }
@@ -1479,19 +1479,19 @@ public class EducatorModeControllerFX implements Initializable {
             logger.error("Connection failed: " + ex);
 
             if (ex instanceof PortInUseException) {
-                displayProgress(label, "Error connecting to module -- port in use by another application", 1, Status.ERROR);
+                displayProgress(label, "Error connecting to Module -- port in use by another application", 1, Status.ERROR);
             }
             else if (ex instanceof UnsupportedCommOperationException) {
-                displayProgress(label, "Error connecting to module -- check USB dongle compatibility", 1, Status.ERROR);
+                displayProgress(label, "Error connecting to Module -- check USB dongle compatibility", 1, Status.ERROR);
             }
             else if (ex instanceof IOException) {
-                displayProgress(label, "Lost connection to module, try again", 1, Status.ERROR);
+                displayProgress(label, "Lost connection to Module, try again", 1, Status.ERROR);
             }
             else if (ex instanceof NullPointerException) {
-                displayProgress(label, "Make sure module is connected to the computer", 1, Status.FAIL);
+                displayProgress(label, "Make sure Module is connected to the computer", 1, Status.FAIL);
             }
             else {
-                displayProgress(label, "Error connecting to module, try again", 1, Status.ERROR);
+                displayProgress(label, "Error connecting to Module, try again", 1, Status.ERROR);
             }
 
         });
