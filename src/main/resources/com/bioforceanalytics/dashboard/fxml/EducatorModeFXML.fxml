@@ -95,12 +95,12 @@
                                                                      </font>
                                                                   </Label>
                                                                   <Button fx:id="connectToModuleBtn" mnemonicParsing="false" onAction="#connectExperimentTab" prefHeight="36.0" prefWidth="400.0" text="Connect to Module" />
-                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Ensure module(s) are erased" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Ensure Module(s) are erased" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Ensure remote(s) are paired to module(s)" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="500.0" text="Ensure Remote(s) are paired to Module(s)" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="14.0" />
                                                                      </font>
@@ -205,7 +205,7 @@
                                                                                                 <TextField fx:id="springConstantTextField" prefWidth="175.0" promptText="Spring Constant (N/m)" />
                                                                                                 <TextField fx:id="totalHangingMassTextField" prefWidth="175.0" promptText="Total Hanging Mass (kg)">
                                                                                                    <tooltip>
-                                                                                                      <Tooltip text="This includes the mass of the module, holder, and any additional weights." />
+                                                                                                      <Tooltip text="This includes the mass of the Module, holder, and any additional weights." />
                                                                                                    </tooltip>
                                                                                                 </TextField>
                                                                                              </children>
@@ -280,12 +280,12 @@
                                                                         <Font name="System Bold" size="35.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="500.0" text="Disconnect the module, run your experiment, and reconnect." textAlignment="CENTER" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="500.0" text="Disconnect the Module, run your experiment, and reconnect." textAlignment="CENTER" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="16.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="78.0" prefWidth="496.0" text="To run an experiment: start a test on your module, wait 3 seconds (this allows the data to “normalize”), then continue." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
+                                                                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="78.0" prefWidth="496.0" text="To run an experiment: start a test on your Module, wait 3 seconds (this allows the data to “normalize”), then continue." textAlignment="CENTER" textFill="#1f78d1" wrapText="true">
                                                                      <font>
                                                                         <Font name="System Bold Italic" size="15.0" />
                                                                      </font>
@@ -343,7 +343,7 @@
                                                          <children>
                                                             <VBox alignment="CENTER" prefHeight="367.0" prefWidth="500.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                                <children>
-                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 3: Erase the data from the module" textFill="#1f78d1">
+                                                                  <Label alignment="CENTER" prefWidth="450.0" text="Step 3: Erase the data from the Module" textFill="#1f78d1">
                                                                      <font>
                                                                         <Font name="System Bold" size="18.0" />
                                                                      </font>
@@ -917,7 +917,7 @@
                                           </HBox>
                                           <VBox alignment="CENTER" prefHeight="78.0" prefWidth="500.0">
                                              <children>
-                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="26.0" prefWidth="454.0" text="1. Click the button below to set your module to calibration mode." textAlignment="CENTER" textFill="#1f78d1">
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="26.0" prefWidth="454.0" text="1. Click the button below to set your Module to calibration mode." textAlignment="CENTER" textFill="#1f78d1">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
@@ -927,7 +927,7 @@
                                           </VBox>
                                           <VBox alignment="CENTER" prefHeight="67.0" prefWidth="500.0">
                                              <children>
-                                                <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="470.0" text="2. Disconnect the module, then follow the instructions below." textAlignment="CENTER" textFill="#1f78d1">
+                                                <Label alignment="CENTER" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="470.0" text="2. Disconnect the Module, then follow the instructions below." textAlignment="CENTER" textFill="#1f78d1">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
@@ -952,7 +952,7 @@
                                           </VBox>
                                           <VBox alignment="CENTER" prefHeight="68.0" prefWidth="500.0">
                                              <children>
-                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="24.0" prefWidth="469.0" text="4. Click the button below to calibrate your module." textFill="#1f78d1">
+                                                <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="24.0" prefWidth="469.0" text="4. Click the button below to calibrate your Module." textFill="#1f78d1">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
@@ -962,7 +962,7 @@
                                           </VBox>
                                           <VBox alignment="CENTER" prefHeight="75.0" prefWidth="500.0">
                                              <children>
-                                                <Label alignment="CENTER" prefHeight="20.0" prefWidth="472.0" text="5. If using a second module, swap to it, click below, then repeat step 4." textAlignment="CENTER" textFill="#1f78d1">
+                                                <Label alignment="CENTER" prefHeight="20.0" prefWidth="472.0" text="5. If using a second Module, swap to it, click below, then repeat step 4." textAlignment="CENTER" textFill="#1f78d1">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
@@ -970,7 +970,7 @@
                                                 <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#connectSINCTab" prefHeight="30.0" prefWidth="336.0" text="Establish Connection to Second Module" textAlignment="CENTER" />
                                              </children>
                                           </VBox>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="474.0" text="6. Erase module(s). You are now ready to run your experiment!" textAlignment="CENTER" textFill="#1f78d1">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="59.0" prefWidth="474.0" text="6. Erase Module(s). You are now ready to run your experiment!" textAlignment="CENTER" textFill="#1f78d1">
                                              <font>
                                                 <Font name="System Bold" size="14.0" />
                                              </font>
@@ -1015,13 +1015,13 @@
                                                 <Font size="24.0" />
                                              </font>
                                           </Button>
-                                          <Label prefHeight="50.0" prefWidth="490.0" text="Erasing may take up to one minute, and all test data stored on the module will be permanently deleted. If you do not wish to erase, click on a different tab." wrapText="true">
+                                          <Label prefHeight="50.0" prefWidth="490.0" text="Erasing may take up to one minute, and all test data stored on the Module will be permanently deleted. If you do not wish to erase, click on a different tab." wrapText="true">
                                              <font>
                                                 <Font name="System Bold" size="13.0" />
                                              </font>
                                           </Label>
                                           <Separator prefHeight="30.0" prefWidth="490.0" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="If swapping modules, make sure to connect before erasing:" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="If swapping Modules, make sure to connect before erasing:" textAlignment="CENTER">
                                              <font>
                                                 <Font name="System Bold" size="16.0" />
                                              </font>
@@ -1032,7 +1032,7 @@
                                              </font>
                                           </Button>
                                           <Separator prefHeight="30.0" prefWidth="490.0" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="Having problems with your module? Try resetting your module:" textAlignment="CENTER">
+                                          <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="27.0" prefWidth="592.0" text="Having problems with your Module? Try resetting:" textAlignment="CENTER">
                                              <font>
                                                 <Font name="System Bold" size="15.0" />
                                              </font>
