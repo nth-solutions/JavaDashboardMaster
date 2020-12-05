@@ -25,7 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.JSONArray; 
+import org.json.simple.JSONArray;
+
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
@@ -111,11 +113,11 @@ public class CustomAxisMenu implements Initializable{
         );
         //
        
-        reloadTable();
+        
     }
     /**
-     * Allows communication between the color menu and the DAG's controller.
-     * @param controller the DAG controller to pair this color menu to
+     * Allows communication between the equation menu and the DAG's controller.
+     * @param controller the DAG controller to pair this equation menu to
      */
     public void setParent(GraphNoSINCController controller) {
         this.controller = controller;
@@ -131,7 +133,7 @@ public class CustomAxisMenu implements Initializable{
                 tableView.getItems().add(cell);
                 controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
             }
-            logger.info(controller.customEquations);
+            //logger.info(controller.customEquations);
         }
         
     }

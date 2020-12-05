@@ -20,15 +20,15 @@ public class CustomEquation {
         this.name = name;
     }
     public String getUnits(){
-        return name;
+        return units;
     }
-    public void setUnits(String name){
-        this.name = name;
+    public void setUnits(String units){
+        this.units = units;
     }public String getEquation(){
-        return name;
+        return equation;
     }
-    public void setEquation(String name){
-        this.name = name;
+    public void setEquation(String equation){
+        this.equation = equation;
     }
    
 }
