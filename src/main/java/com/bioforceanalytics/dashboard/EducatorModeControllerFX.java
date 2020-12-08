@@ -632,7 +632,10 @@ public class EducatorModeControllerFX implements Initializable {
                 displayProgress(unpairRemotesTabLabel, "Unpairing all Remotes...", 0, Status.WORKING);
 
                 try {
+
                     serialHandler.unpairAllRemotes();
+                    displayProgress(unpairRemotesTabLabel, "All Remotes unpaired from Module", 1, Status.SUCCESS);
+
                 } catch (IOException e) {
                     displayProgress(unpairRemotesTabLabel, "Error unpairing Remotes -- USB connection lost", 1, Status.ERROR);
                 } catch (PortInUseException e) {
@@ -640,8 +643,6 @@ public class EducatorModeControllerFX implements Initializable {
                 } catch (UnsupportedCommOperationException e) {
                     displayProgress(unpairRemotesTabLabel, "Error unpairing Remotes -- check USB dongle compatibility", 1, Status.ERROR);
                 }
-
-                displayProgress(unpairRemotesTabLabel, "All Remotes unpaired from Module", 1, Status.SUCCESS);
 
                 return null;
             }
@@ -670,7 +671,10 @@ public class EducatorModeControllerFX implements Initializable {
 
                 try {
 
-                    if (!serialHandler.testRemotesFX(unpairRemotesTabLabel)) {
+                    if (serialHandler.testRemotesFX(unpairRemotesTabLabel)) {
+                        displayProgress(unpairRemotesTabLabel, "Exited test mode successfully", 1, Status.SUCCESS);
+                    }
+                    else {
                         displayProgress(unpairRemotesTabLabel, "Error communicating with Module, try again", 1, Status.FAIL);
                     }
 
@@ -681,8 +685,6 @@ public class EducatorModeControllerFX implements Initializable {
                 } catch (UnsupportedCommOperationException e) {
                     displayProgress(unpairRemotesTabLabel, "Error pairing Remote -- check USB dongle compatibility", 1, Status.ERROR);
                 }
-
-                displayProgress(unpairRemotesTabLabel, "Exited test mode successfully", 1, Status.SUCCESS);
 
                 return null;
             }
