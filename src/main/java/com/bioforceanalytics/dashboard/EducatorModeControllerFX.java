@@ -805,7 +805,7 @@ public class EducatorModeControllerFX implements Initializable {
                                 break;
                             case 6: // Generic Template - Two Module
                                 test = new GenericTest(testParameters, finalData, MPUMinMax);
-                                break;
+                                moduleNumber = (i+1);
                             default:
                                 test = new GenericTest(testParameters, finalData, MPUMinMax);
                                 break;
