@@ -1,1 +1,14 @@
-{"Equations":[{"name":"New Custom Axis","equation":"Test Axis","units":"KG"}]}
+{
+    "Equations":[
+        {
+            "name": "Momentum",
+            "equation": "mass * VelX",
+            "units": "kg-m/s"
+        },
+        {
+            "name": "Kinetic Energy",
+            "equation": "0.5 * mass * VelX ^ 2",
+            "units": "J"
+        }
+    ]
+}
