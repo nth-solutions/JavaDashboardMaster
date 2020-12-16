@@ -50,7 +50,7 @@
 				<Menu mnemonicParsing="false" text="Math">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#openCustomAxisMenu" text="Custom Axes" />
-						
+						<MenuItem mnemonicParsing="false" onAction="#openVariableMenu" text="Variables" />
 					</items>
 				</Menu>
 			</menus>

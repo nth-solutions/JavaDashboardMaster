@@ -79,22 +79,26 @@ public class CustomAxisMenu implements Initializable{
             new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
                 @Override
                 public void handle(CellEditEvent<CustomAxisCell, String> t) {
+                    
                     ((CustomAxisCell) t.getTableView().getItems().get(
                         t.getTablePosition().getRow())
                         ).setName(t.getNewValue());
+                    
                 }
             }
         );
-       
+      
         equationCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("equation"));
         equationCol.setCellFactory(TextFieldTableCell.forTableColumn());
         equationCol.setOnEditCommit(
             new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
                 @Override
                 public void handle(CellEditEvent<CustomAxisCell, String> t) {
+                    
                     ((CustomAxisCell) t.getTableView().getItems().get(
                         t.getTablePosition().getRow())
                         ).setEquation(t.getNewValue());
+                    
                 }
             }
         );
@@ -105,9 +109,11 @@ public class CustomAxisMenu implements Initializable{
             new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
                 @Override
                 public void handle(CellEditEvent<CustomAxisCell, String> t) {
+                    
                     ((CustomAxisCell) t.getTableView().getItems().get(
                         t.getTablePosition().getRow())
                         ).setUnits(t.getNewValue());
+                   
                 }
             }
         );
@@ -124,7 +130,19 @@ public class CustomAxisMenu implements Initializable{
         //we reload the table here because it relies on the controller to send equations to the GraphNoSINCController
         reloadTable();
     }
+    private void updateEquations(){
+        if(controller != null){
 
+            controller.customEquations.clear();
+            for(CustomAxisCell cell : tableView.getItems()){
+                if(cell.getName() != null && cell.getEquation() != null && cell.getUnits() != null){
+                    tableView.getItems().add(cell);
+                    controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
+                }
+            }
+            controller.loadEquations();
+        }
+    }
     private void reloadTable(){
         if(controller != null){
             tableView.getItems().clear();
@@ -134,6 +152,7 @@ public class CustomAxisMenu implements Initializable{
                 controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
             }
             //logger.info(controller.customEquations);
+            controller.loadEquations();
         }
         
     }
@@ -182,15 +201,18 @@ public class CustomAxisMenu implements Initializable{
         writer.flush();
         writer.close();
         }
+        
         catch (Exception e){
             logger.error("Could not save axes.");
             e.printStackTrace();
         }
+        reloadTable();
     }
 
     @FXML
     private void addNewAxis(){
         tableView.getItems().add(new CustomAxisCell("New Custom Axis","",""));
+        
     }
 
     @FXML 
@@ -222,7 +244,7 @@ public class CustomAxisMenu implements Initializable{
             this.equation = new SimpleStringProperty(equation);
             this.units = new SimpleStringProperty(units);
         }
- 
+        
         public String getName() {
             return name.get();
         }

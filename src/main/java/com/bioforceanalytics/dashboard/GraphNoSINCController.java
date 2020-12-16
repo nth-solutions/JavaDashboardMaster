@@ -173,6 +173,8 @@ public class GraphNoSINCController implements Initializable {
 
 	public ArrayList<CustomEquation> customEquations = new ArrayList<CustomEquation>();
 
+	public static ArrayList<Variable> variables = new ArrayList<Variable>();
+
 	public EquationPanel equationPanel;
 
 	private CustomTest customAxisTest;
@@ -532,17 +534,18 @@ public class GraphNoSINCController implements Initializable {
 			resetZoomviewH = 10;
 
 			handleReset();
-			graphEquations();
+			//loadEquations();
 		});
 
 	}
-	private void graphEquation(CustomEquation equation){
 
-	}
-	private void graphEquations(){
-
+	public void loadEquations(){
+		
+		customAxisTest.customAxes.clear();
+		equationPanel.reset();
+		int i = 0;
 		for(CustomEquation equation : customEquations){
-			
+			i++;
 			try{
 				//CustomTest test = new CustomTest();
 				//logger.info(tokenizeString(equation.getEquation()));
@@ -561,7 +564,9 @@ public class GraphNoSINCController implements Initializable {
 			catch (Exception e){
 				logger.warn("Error processing equation " + equation.name);
 			}
+
 		}
+		logger.info("Loaded " + i + " Equations");
 	}
 	/**
 	 * Handles zooming/panning of the graph.
@@ -778,7 +783,7 @@ public class GraphNoSINCController implements Initializable {
 		
 		redrawGraph();
 		equationPanel.reset();
-		graphEquations();
+		loadEquations();
 	}
 
 	public void applyMovingAvg() {
@@ -977,6 +982,36 @@ public class GraphNoSINCController implements Initializable {
 
 		setGenericTestsFromCSV(paths);
 
+	}
+	@FXML
+	private void openVariableMenu(ActionEvent event) {
+			Stage primaryStage = new Stage();
+			Parent root = null;
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/VariableMenu.fxml"));
+			
+			try {
+				
+				root = loader.load();
+	
+				// set parent of the equaotion menu to allow communication b/t classes
+				((VariableMenu) loader.getController()).setParent(this);
+	
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+	
+			if (root != null) primaryStage.setScene(new Scene(root));
+	
+			// ensure that color menu stays on top and blocks everything else
+			primaryStage.setAlwaysOnTop(true);
+			primaryStage.initModality(Modality.APPLICATION_MODAL);
+			primaryStage.initOwner(lineChart.getScene().getWindow());
+	
+			primaryStage.setTitle("Data Analysis Graph - Variable Menu");
+			primaryStage.getIcons().add(icon);
+			primaryStage.show();
+			primaryStage.setResizable(false);
 	}
 	@FXML
 	private void openCustomAxisMenu(ActionEvent event) {
@@ -1315,7 +1350,7 @@ public class GraphNoSINCController implements Initializable {
 				currentToken += letter;
 				generatingToken = true;
 			}
-			if(i == code.length() - 1){
+			if(i == code.length() - 1 && currentToken != ""){
 				tokens.add(new Token(currentToken));
 			}
 		}
