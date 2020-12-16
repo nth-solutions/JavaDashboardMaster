@@ -101,6 +101,11 @@ public class Token {
                         constant = Double.parseDouble(stringVal);
                     } catch(Exception e){
                         type=TokenType.VARIABLE;
+                        for(Variable v : GraphNoSINCController.variables){
+                            if(stringVal.equals(v.getName())){
+                                constant = v.getValue();
+                            }
+                        }
                     }
                 }
         }
