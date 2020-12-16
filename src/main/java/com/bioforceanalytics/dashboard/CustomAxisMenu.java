@@ -183,6 +183,11 @@ public class CustomAxisMenu implements Initializable{
     }
     @FXML
     private void saveAxes(){
+        controller.customEquations.clear();
+        for(CustomAxisCell cell : tableView.getItems()){
+            controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
+        }
+        controller.loadEquations();
         try {
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray(); 
@@ -206,7 +211,7 @@ public class CustomAxisMenu implements Initializable{
             logger.error("Could not save axes.");
             e.printStackTrace();
         }
-        reloadTable();
+       // reloadTable();
     }
 
     @FXML
