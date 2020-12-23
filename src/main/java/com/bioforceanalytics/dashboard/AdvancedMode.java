@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -2143,6 +2144,8 @@ public class AdvancedMode extends JFrame {
 	
 	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException {
 
+		logger.info("Calculating MPU offsets...");
+
 		ArrayList<Integer> calibrationParams = CSVHandler.readCSVP(calibrationCSV + "p");
 
 		int sampleRate = calibrationParams.get(7);
@@ -2745,6 +2748,7 @@ public class AdvancedMode extends JFrame {
 							int[][] offsets = serialHandler.getMPUMinMax();
 							
 							generalStatusLabel.setText("MPU offsets received.");
+							logger.info("MPU offsets received.");
 							
 							xAxisAccelTextField.setText(offsets[0][0] + "," + offsets[0][1]);
 							yAxisAccelTextField.setText(offsets[1][0] + "," + offsets[1][1]);
@@ -2757,7 +2761,11 @@ public class AdvancedMode extends JFrame {
 							xAxisMagTextField.setText(offsets[6][0] + "," + offsets[6][1]);
 							yAxisMagTextField.setText(offsets[7][0] + "," + offsets[7][1]);
 							zAxisMagTextField.setText(offsets[8][0] + "," + offsets[8][1]);
-							
+
+							// display all acceleration offsets
+							for (int i = 0; i < 3; i++) {
+								logger.info(AxisType.valueOf(i) + " offsets: " + Arrays.toString(offsets[i]));
+							}
 							
 						} catch (IOException e) {
 							// TODO Auto-generated catch block

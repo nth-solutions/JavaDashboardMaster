@@ -1,6 +1,7 @@
 package com.bioforceanalytics.dashboard;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,6 +105,15 @@ public class IMUCalibration {
 
                 }
 
+                // save information about standard deviations
+                DecimalFormat df = new DecimalFormat("#.##");
+
+                double startTime = (double) start / sampleRate;
+                double endTime = (double) end / sampleRate;
+
+                String interval = "[" + df.format(startTime) + ", " + df.format(endTime) + "]";
+                logger.trace("SD for " + interval + " of " + AxisType.valueOf(i-1) + ": " + (int) SD);
+
             }
 
             // set min and max offset in final array
@@ -114,7 +124,7 @@ public class IMUCalibration {
 
         // display all acceleration offsets
         for (int i = 0; i < 3; i++) {
-            logger.debug(AxisType.valueOf(i) + " offsets: " + Arrays.toString(offsets[i]));
+            logger.info(AxisType.valueOf(i) + " offsets: " + Arrays.toString(offsets[i]));
         }
 
         // return final array of offsets
