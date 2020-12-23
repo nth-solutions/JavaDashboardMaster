@@ -2141,42 +2141,26 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 	
-	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException{
-		DataOrganizer dataOrgo = new DataOrganizer();
-		switch(dataOrgo.createDataSamplesFromCSV(calibrationCSV)) {
-		case -1:
-			generalStatusLabel.setText("File not found");
-		case -2:
-			generalStatusLabel.setText("Your CSVP file was corrupted. ");
-		case -3:
-			generalStatusLabel.setText("Could not read the file. Please close the file if it is open elsewhere.");
-		}
-		dataOrgo.getSignedData();
-		int[] offsets = dataOrgo.getCalibrationOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold);
+	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException {
+
+		ArrayList<Integer> calibrationParams = CSVHandler.readCSVP(calibrationCSV + "p");
+
+		int sampleRate = calibrationParams.get(7);
+		int sensitivity = calibrationParams.get(9);
+
+		int[][] offsets = IMUCalibration.getOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold, 1000, sensitivity, sampleRate);
 		
-		xAxisAccelTextField.setText(Integer.toString(offsets[0]));
-		yAxisAccelTextField.setText(Integer.toString(offsets[1]));
-		zAxisAccelTextField.setText(Integer.toString(offsets[2]));
-		xAxisGyroTextField.setText(Integer.toString(offsets[3]));
-		yAxisGyroTextField.setText(Integer.toString(offsets[4]));
-		zAxisGyroTextField.setText(Integer.toString(offsets[5]));
-		xAxisMagTextField.setText(Integer.toString(offsets[6]));
-		yAxisMagTextField.setText(Integer.toString(offsets[7]));
-		zAxisMagTextField.setText(Integer.toString(offsets[8]));
+		xAxisAccelTextField.setText(offsets[0][0] + "," + offsets[0][1]);
+		yAxisAccelTextField.setText(offsets[1][0] + "," + offsets[1][1]);
+		zAxisAccelTextField.setText(offsets[2][0] + "," + offsets[2][1]);
+		xAxisGyroTextField.setText(offsets[3][0] + "," + offsets[3][1]);
+		yAxisGyroTextField.setText(offsets[4][0] + "," + offsets[4][1]);
+		zAxisGyroTextField.setText(offsets[5][0] + "," + offsets[5][1]);
+		xAxisMagTextField.setText(offsets[6][0] + "," + offsets[6][1]);
+		yAxisMagTextField.setText(offsets[7][0] + "," + offsets[7][1]);
+		zAxisMagTextField.setText(offsets[8][0] + "," + offsets[8][1]);
 
-		System.out.println(offsets[0]);
-		System.out.println(offsets[1]);
-		System.out.println(offsets[2]);
-		System.out.println(offsets[3]);
-		System.out.println(offsets[4]);
-		System.out.println(offsets[5]);
-		System.out.println(offsets[6]);
-		System.out.println(offsets[7]);
-		System.out.println(offsets[8]);
-
-		System.out.println("Reached the end of writing calibration offsets to text fields.");
-
-		serialHandler.setMPUMinMax(dataOrgo.MPUMinMax);
+		serialHandler.setMPUMinMax(offsets);
 	}
 	
 	public int getAdvancedModeCurrentTab() {
@@ -2757,24 +2741,22 @@ public class AdvancedMode extends JFrame {
 				readOffsetsBtn.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						try {
-							DataOrganizer dataOrgo = new DataOrganizer();
-							int[][] mpuMinMax = serialHandler.getMPUMinMax();
-							dataOrgo.setMPUMinMax(mpuMinMax);
-							int[] offsets = dataOrgo.getMPUOffsets();
+							
+							int[][] offsets = serialHandler.getMPUMinMax();
 							
 							generalStatusLabel.setText("MPU offsets received.");
 							
-							xAxisAccelTextField.setText(Integer.toString(offsets[0]));
-							yAxisAccelTextField.setText(Integer.toString(offsets[1]));
-							zAxisAccelTextField.setText(Integer.toString(offsets[2]));
-							
-							xAxisGyroTextField.setText(Integer.toString(offsets[3]));
-							yAxisGyroTextField.setText(Integer.toString(offsets[4]));
-							zAxisGyroTextField.setText(Integer.toString(offsets[5]));
-							
-							xAxisMagTextField.setText(Integer.toString(offsets[6]));
-							yAxisMagTextField.setText(Integer.toString(offsets[7]));
-							zAxisMagTextField.setText(Integer.toString(offsets[8]));
+							xAxisAccelTextField.setText(offsets[0][0] + "," + offsets[0][1]);
+							yAxisAccelTextField.setText(offsets[1][0] + "," + offsets[1][1]);
+							zAxisAccelTextField.setText(offsets[2][0] + "," + offsets[2][1]);
+
+							xAxisGyroTextField.setText(offsets[3][0] + "," + offsets[3][1]);
+							yAxisGyroTextField.setText(offsets[4][0] + "," + offsets[4][1]);
+							zAxisGyroTextField.setText(offsets[5][0] + "," + offsets[5][1]);
+
+							xAxisMagTextField.setText(offsets[6][0] + "," + offsets[6][1]);
+							yAxisMagTextField.setText(offsets[7][0] + "," + offsets[7][1]);
+							zAxisMagTextField.setText(offsets[8][0] + "," + offsets[8][1]);
 							
 							
 						} catch (IOException e) {

@@ -689,7 +689,7 @@ public class SerialComm {
 		int tempRx; 
 
 		long echoStart = System.currentTimeMillis();
-		for(int axi = 1; axi < offsets.length; axi++) {
+		for(int axi = 0; axi < 8; axi++) {
 			for(int i = 0; i < offsets[axi].length && System.currentTimeMillis() - echoStart < 500; i++) {
 				outputStream.write(new String("1234").getBytes());
 				if(offsets[axi][i] < 0) offsets[axi][i] += 65535;
@@ -700,7 +700,7 @@ public class SerialComm {
 					outputStream.write(new String("CA").getBytes());
 				}
 				else {
-					System.out.println(tempRx +": does not match " + offsets[axi][i]);
+					System.out.println(tempRx +": does not match " + offsets[axi][i] + " (axis " + axi + ", index " + i + ")");
 				}
 				try {
 					Thread.sleep(10);
