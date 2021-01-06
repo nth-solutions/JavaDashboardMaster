@@ -216,7 +216,8 @@
 														<Insets bottom="10.0" />
 													</padding>
 												</Label>
-												<HBox alignment="CENTER">
+												<CheckBox fx:id="accelNormCheckBox" text="Apply Acceleration Normalization" selected="true" />
+												<HBox alignment="CENTER" fx:id="accelNormForm">
 													<children>
 														<Label layoutX="97.0" layoutY="559.0" prefHeight="17.0" prefWidth="125.0" text="Acceleration Baseline:">
 															<tooltip>
@@ -242,7 +243,7 @@
 														</TextField>
 													</children>
 												</HBox>
-												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#applyBaseline" prefHeight="25.0" prefWidth="120.0" text="Apply">
+												<Button layoutX="121.0" layoutY="589.0" fx:id="accelNormBtn" mnemonicParsing="false" onAction="#applyBaseline" prefHeight="25.0" prefWidth="120.0" text="Apply">
 													<VBox.margin>
 														<Insets />
 													</VBox.margin>

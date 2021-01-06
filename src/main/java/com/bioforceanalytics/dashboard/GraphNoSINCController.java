@@ -35,6 +35,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
@@ -113,6 +114,15 @@ public class GraphNoSINCController implements Initializable {
 	private Text generalStatusLabel;
 
 	@FXML
+	private HBox accelNormForm;
+
+	@FXML
+	private CheckBox accelNormCheckBox;
+
+	@FXML
+	private Button accelNormBtn;
+
+	@FXML
 	private TextField baselineStartField;
 
 	@FXML
@@ -156,8 +166,26 @@ public class GraphNoSINCController implements Initializable {
 			});
 
 			// update playback speed in real-time
-			playbackSlider.valueProperty().addListener((obs, newValue, oldValue) -> {
+			playbackSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
 				lineChart.setPlaybackSpeed(newValue.doubleValue());
+			});
+
+			// change accel normalization status + graph when enabled/disabled
+			accelNormCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
+				
+				// if normalization was disabled
+				if (!newValue) {
+					resetNorm();
+				}
+				// if normalization was enabled
+				else {
+					applyBaseline();
+				}
+
+				// enable/disable Accel Normalization section
+				accelNormBtn.setDisable(!newValue);
+				accelNormForm.setDisable(!newValue);
+				
 			});
 
 			Scene s = multiAxis.getScene();
@@ -762,7 +790,7 @@ public class GraphNoSINCController implements Initializable {
 
 					// apply data normalization
 					AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
-					a.applyNormalizedData(start, end);
+					a.normalizeAccel(start, end);
 				}
 
 				// recalculate Vel/Disp data sets
@@ -789,6 +817,36 @@ public class GraphNoSINCController implements Initializable {
 			alert.setContentText("Please make sure your baseline intervals are correct.");
 			alert.showAndWait();
 
+		}
+
+	}
+
+	public void resetNorm() {
+
+		// loop through each GenericTest
+		for (GenericTest g : genericTests) {
+
+			// loop through each acceleration data set
+			for (int i = 0; i <= AxisType.AccelMag.getValue(); i++) {
+
+				// reset normalization offset for axis
+				AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
+				a.resetSmoothing();
+
+			}
+
+			// recalculate Vel/Disp data sets
+			g.recalcKinematics();
+
+		}
+
+		// update all currently drawn acceleration axes
+		for (GraphData g : dataSets) {
+			
+			// if axis class is kinematic data (Accel/Vel/Disp) or momentum
+			if (g.axis.getValue() / 4 <= 2 || g.axis.getValue() / 4 <= 7) {
+				updateAxis(g.axis, g.GTIndex);
+			}
 		}
 
 	}
