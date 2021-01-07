@@ -430,7 +430,8 @@ public class AxisDataSeries {
 		for (int i = 1; i < originalData.length; i++) {
 
 			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
-			result[i] = result[i-1] + (originalData[i] + originalData[i-1])/2 * (time[i] - time[i-1]);
+			// "vertOffset" accounts for if the graph was normalized -- think "c" in ∫[f(x) + c]dx
+			result[i] = result[i-1] + ((originalData[i] + originalData[i-1])/2 + vertOffset) * (time[i] - time[i-1]);
 
 		}
 
