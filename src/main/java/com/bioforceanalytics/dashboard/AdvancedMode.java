@@ -2151,7 +2151,7 @@ public class AdvancedMode extends JFrame {
 		int sampleRate = calibrationParams.get(7);
 		int sensitivity = calibrationParams.get(9);
 
-		int[][] offsets = IMUCalibration.getOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold, 1000, sensitivity, sampleRate);
+		int[][] offsets = IMUCalibration.getOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold, 500, sensitivity, sampleRate);
 		
 		xAxisAccelTextField.setText(offsets[0][0] + "," + offsets[0][1]);
 		yAxisAccelTextField.setText(offsets[1][0] + "," + offsets[1][1]);

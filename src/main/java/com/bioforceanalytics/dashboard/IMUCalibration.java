@@ -93,8 +93,16 @@ public class IMUCalibration {
                 // calculate standard deviation
                 SD = Math.sqrt(SD / blockSize);
 
+                // get logging information for block interval
+                DecimalFormat df = new DecimalFormat("#.##");
+
+                double startTime = (double) start / sampleRate;
+                double endTime = (double) end / sampleRate;
+
+                String interval = "[" + df.format(startTime) + ", " + df.format(endTime) + "]";
+
                 // check that mean and SD are within acceptable bounds before saving mean
-                if ((Math.abs(mean) <= (32768/sensitivity) + dataThreshold) && SD <= maxSD) {
+                if ((Math.abs(mean) >= (32768/sensitivity) - dataThreshold) && (Math.abs(mean) <= (32768/sensitivity) + dataThreshold) && SD <= maxSD) {
 
                     // figure out which list (min offsets vs max offsets) to add mean to
                     List<List<Double>> list = mean < 0 ? minMeans : maxMeans;
@@ -103,15 +111,10 @@ public class IMUCalibration {
                     // (i-1) is needed because i starts at 1 instead of 0
                     list.get(i-1).add(mean);
 
+                    logger.trace("Using block " + interval + " | Mean: " + mean);
+
                 }
 
-                // save information about standard deviations
-                DecimalFormat df = new DecimalFormat("#.##");
-
-                double startTime = (double) start / sampleRate;
-                double endTime = (double) end / sampleRate;
-
-                String interval = "[" + df.format(startTime) + ", " + df.format(endTime) + "]";
                 logger.trace("SD for " + interval + " of " + AxisType.valueOf(i-1) + ": " + (int) SD);
 
             }
