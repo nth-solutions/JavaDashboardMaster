@@ -2848,7 +2848,7 @@ public class AdvancedMode extends JFrame {
 				
 				stdDevMaxTextField = new JTextField();
 				stdDevMaxTextField.setToolTipText("Highest standard deviation to consider a rolling block average  for offset calculation.");
-				stdDevMaxTextField.setText("15");
+				stdDevMaxTextField.setText("25");
 				stdDevMaxTextField.setColumns(10);
 				stdDevMaxTextField.setBounds(550, 12, 39, 20);
 				mpuCalibrationPanel.add(stdDevMaxTextField);
