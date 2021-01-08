@@ -267,6 +267,7 @@ public class AdvancedMode extends JFrame {
 	private JTextField zAxisMagTextField;
 	private JTextField calibrationCSVTextField;
 	private JTextField readBlockLengthTextField;
+	private JTextField dataThresholdTextField;
 	private JTextField stdDevMaxTextField;
 	private JButton btnNewButton;
 
@@ -2142,7 +2143,7 @@ public class AdvancedMode extends JFrame {
 		}
 	}
 	
-	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold) throws IOException, PortInUseException, UnsupportedCommOperationException {
+	public void applyCalibrationOffsetsHandler(String calibrationCSV, int readBlockLength, int stdDevMaxThreshhold, int dataThreshold) throws IOException, PortInUseException, UnsupportedCommOperationException {
 
 		logger.info("Calculating MPU offsets...");
 
@@ -2151,7 +2152,7 @@ public class AdvancedMode extends JFrame {
 		int sampleRate = calibrationParams.get(7);
 		int sensitivity = calibrationParams.get(9);
 
-		int[][] offsets = IMUCalibration.getOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold, 500, sensitivity, sampleRate);
+		int[][] offsets = IMUCalibration.getOffsets(calibrationCSV, readBlockLength, stdDevMaxThreshhold, dataThreshold, sensitivity, sampleRate);
 		
 		xAxisAccelTextField.setText(offsets[0][0] + "," + offsets[0][1]);
 		yAxisAccelTextField.setText(offsets[1][0] + "," + offsets[1][1]);
@@ -2798,7 +2799,7 @@ public class AdvancedMode extends JFrame {
 				calibrationBtn.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						try {
-							applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()));
+							applyCalibrationOffsetsHandler(calibrationCSVTextField.getText(), Integer.parseInt(readBlockLengthTextField.getText()), Integer.parseInt(stdDevMaxTextField.getText()), Integer.parseInt(dataThresholdTextField.getText()));
 						} catch (NumberFormatException e1) {
 							generalStatusLabel.setText("Please use valid numbers for read block and standard deviation");
 						} catch (IOException e1) {
@@ -2820,24 +2821,36 @@ public class AdvancedMode extends JFrame {
 				readBlockLengthTextField.setToolTipText("Length of samples to average.");
 				readBlockLengthTextField.setText("500");
 				readBlockLengthTextField.setColumns(10);
-				readBlockLengthTextField.setBounds(133, 12, 39, 20);
+				readBlockLengthTextField.setBounds(80, 12, 39, 20);
 				mpuCalibrationPanel.add(readBlockLengthTextField);
+
+				dataThresholdTextField = new JTextField();
+				dataThresholdTextField.setToolTipText("Max acceptable range from +/-1G.");
+				dataThresholdTextField.setText("500");
+				dataThresholdTextField.setColumns(10);
+				dataThresholdTextField.setBounds(300, 12, 39, 20);
+				mpuCalibrationPanel.add(dataThresholdTextField);
 				
-				JLabel lblRollingBlockLength = new JLabel("Rolling Block Length:");
-				lblRollingBlockLength.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				lblRollingBlockLength.setBounds(10, 14, 114, 14);
-				mpuCalibrationPanel.add(lblRollingBlockLength);
+				JLabel imuBlockSize = new JLabel("Block Size:");
+				imuBlockSize.setFont(new Font("Tahoma", Font.PLAIN, 12));
+				imuBlockSize.setBounds(10, 14, 114, 14);
+				mpuCalibrationPanel.add(imuBlockSize);
+
+				JLabel imuDataThreshold = new JLabel("Data Threshold:");
+				imuDataThreshold.setFont(new Font("Tahoma", Font.PLAIN, 12));
+				imuDataThreshold.setBounds(200, 14, 114, 14);
+				mpuCalibrationPanel.add(imuDataThreshold);
 				
-				JLabel lblStandardDeviationMax = new JLabel("Standard Deviation Max: ");
-				lblStandardDeviationMax.setFont(new Font("Tahoma", Font.PLAIN, 12));
-				lblStandardDeviationMax.setBounds(364, 14, 136, 14);
-				mpuCalibrationPanel.add(lblStandardDeviationMax);
+				JLabel imuMaxSD = new JLabel("Max Standard Deviation: ");
+				imuMaxSD.setFont(new Font("Tahoma", Font.PLAIN, 12));
+				imuMaxSD.setBounds(410, 14, 136, 14);
+				mpuCalibrationPanel.add(imuMaxSD);
 				
 				stdDevMaxTextField = new JTextField();
 				stdDevMaxTextField.setToolTipText("Highest standard deviation to consider a rolling block average  for offset calculation.");
 				stdDevMaxTextField.setText("15");
 				stdDevMaxTextField.setColumns(10);
-				stdDevMaxTextField.setBounds(510, 12, 39, 20);
+				stdDevMaxTextField.setBounds(550, 12, 39, 20);
 				mpuCalibrationPanel.add(stdDevMaxTextField);
 				
 				JSeparator separator_3 = new JSeparator();
