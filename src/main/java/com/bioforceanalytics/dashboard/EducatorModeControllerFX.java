@@ -722,6 +722,7 @@ public class EducatorModeControllerFX implements Initializable {
                 try {
 
                     ArrayList<Integer> testParameters = serialHandler.readTestParams(NUM_TEST_PARAMETERS);
+                    int[][] MPUMinMax = serialHandler.getMPUMinMax();
 
                     // clear all previously read tests for one-module tests
                     if (oneModuleTest) {
@@ -770,8 +771,6 @@ public class EducatorModeControllerFX implements Initializable {
                                 break;
                             }
                         }
-                        
-                        int[][] MPUMinMax = serialHandler.getMPUMinMax();
 
                         // create timestamp for CSV/CSVP
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
