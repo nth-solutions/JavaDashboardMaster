@@ -1399,8 +1399,6 @@ public class AdvancedMode extends JFrame {
 						accelFilter = testParameters.get(11);
 						gyroFilter = testParameters.get(12);
 
-						System.out.println(delayAfterStart);
-
 						if (delayAfterStart > 2000) {
 							delayAfterStart = ~delayAfterStart & 65535;
 							delayAfterStart *= -1;
@@ -1436,8 +1434,6 @@ public class AdvancedMode extends JFrame {
 							// progress bar will be accurately updated
 							testData = serialHandler.readTestDataSwing(expectedTestNum, progressBar,
 									generalStatusLabel);
-
-							System.out.println(testData);
 
 							generalStatusLabel.setText("All Data Received from Module");
 							progressBar.setValue(100);
@@ -2027,7 +2023,6 @@ public class AdvancedMode extends JFrame {
 					@Override
 					public void focusLost(FocusEvent e) {
 						for (int i = 0; i < genericTests.size(); i++) {
-							System.out.println("Focus lost");
 							genericTests.get(i).setName(testNameTextField.get(i).getText());
 						}
 					}
@@ -3079,7 +3074,6 @@ public class AdvancedMode extends JFrame {
 					@Override
 					public void run() {
 						int tabIndex = getAdvancedModeCurrentTab();
-						System.out.println(tabIndex);
 						HelpMenuController HMC  = startHelpMenu();
 						HMC.setTabIndex(tabIndex);
 						HMC.populateLabels();
