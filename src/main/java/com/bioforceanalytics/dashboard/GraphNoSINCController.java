@@ -1165,7 +1165,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Use this to change between viewing the graph and finding slope/area modes.
 	 * @param g the {@link GraphMode} to change to.
 	 */
-	private void setGraphMode(GraphMode g) {
+	public void setGraphMode(GraphMode g) {
 
 		mode = g;
 
@@ -1183,6 +1183,7 @@ public class GraphNoSINCController implements Initializable {
 			case SLOPE:
 			case AREA:
 			case LINEUP:
+			case LINEUP_SINC:
 			case NORM:
 				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
 				break;
@@ -1521,10 +1522,25 @@ public class GraphNoSINCController implements Initializable {
 					setGraphMode(GraphMode.NONE);
 
 				}
-				else if (mode == GraphMode.LINEUP && !firstClick) {
+				else if ((mode == GraphMode.LINEUP && !firstClick) || mode == GraphMode.LINEUP_SINC) {
 
-					// shift the graph by this point's x-value minus the selected point's x-value
-					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(roundedX - selectedPoint[0]);
+					double finalX;
+					double initialX;
+
+					// final = scrubber, initial = this point
+					if (mode == GraphMode.LINEUP_SINC) {
+						
+						finalX = lineChart.getCurrentTime();
+						initialX = x;
+					}
+					// final = this point, initial = previous point
+					else {
+						finalX = x;
+						initialX = selectedPoint[0];
+					}
+
+					// shift the graph by the difference between the final and initial x-values
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX);
 					
 					for (GraphData g : dataSets) {
 						updateAxis(g.axis, g.GTIndex);
@@ -1576,13 +1592,15 @@ public class GraphNoSINCController implements Initializable {
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
 	 * <p><code>GraphMode.AREA</code> is when the user is selecting the section for an area calculation,</p>
-	 * <p><code>GraphMode.LINEUP</code> is when the user is selecting the points to line up in two different data sets.</p>
+	 * <p><code>GraphMode.LINEUP</code> is when the user is selecting the points to line up in two different data sets,</p>
+	 * <p><code>GraphMode.LINEUP_SINC</code> is a special case of <code>GraphMode.LINEUP</code> where the second point is used instead of the first.</p>
 	 */
 	public enum GraphMode {
 		NONE,
 		SLOPE,
 		AREA,
 		LINEUP,
+		LINEUP_SINC,
 		NORM
 	}
 

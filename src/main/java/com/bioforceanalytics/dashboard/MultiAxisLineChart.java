@@ -102,6 +102,7 @@ public class MultiAxisLineChart extends StackPane {
         baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
         baseChart.getXAxis().setLabel("Time (s)");
         baseChart.getYAxis().setLabel("Y Axis");
+        baseChart.setParentChart(this);
 
         styleBaseChart(baseChart);
         setFixedAxisWidth(baseChart);
@@ -700,6 +701,13 @@ public class MultiAxisLineChart extends StackPane {
      */
     public void setResolution(int resolution) {
         this.resolution = resolution;
+    }
+
+    /**
+     * Returns a reference to the BioForce Graph controller.
+     */
+    public GraphNoSINCController getController() {
+        return controller;
     }
 
 }

@@ -17,7 +17,10 @@ import javafx.scene.chart.Axis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -25,6 +28,7 @@ import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Window;
 import javafx.util.Duration;
 
 /**
@@ -86,8 +90,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     }
     
     /**
-     * Passes a reference to MultiAxisLineChart to BFALineChart.
-     * Needed to retrieve <code>zoomviewScalarX</code> for dragging the scrubber.
+     * Passes a reference of MultiAxisLineChart to BFALineChart.
      * @param parentChart the MultiAxisLineChart to link this chart to
      */
     public void setParentChart(MultiAxisLineChart parentChart) {
@@ -276,6 +279,36 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
         });
 
+        // enable scrubber context menu
+        this.scrubber.setOnMouseClicked(e -> {
+
+            // ensure this is a right click
+            if (e.getButton() == MouseButton.SECONDARY) {
+
+                MenuItem lineUpTrial = new MenuItem("Line Up Trial");
+                lineUpTrial.setOnAction(e2 -> parentChart.getController().setGraphMode(GraphNoSINCController.GraphMode.LINEUP_SINC));
+
+                MenuItem jumpToStart = new MenuItem("Jump to Start");
+                jumpToStart.setOnAction(e2 -> mediaPlayer.seek(mediaPlayer.getStartTime()));
+
+                MenuItem jumpToEnd = new MenuItem("Jump to End");
+                jumpToEnd.setOnAction(e2 -> mediaPlayer.seek(mediaPlayer.getStopTime()));
+
+                MenuItem[] menuItems = {
+                    lineUpTrial,
+                    jumpToStart,
+                    jumpToEnd,
+                };
+
+                // display context menu at the mouse's current position
+                Window owner = ((Node) e.getTarget()).getScene().getWindow();
+                ContextMenu contextMenu = new ContextMenu(menuItems);
+                contextMenu.show(owner, e.getScreenX(), e.getScreenY());
+
+            }
+
+        });
+
     }
     
     /**
@@ -417,6 +450,13 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // if video is playing, reset video time to 0 seconds
         if (mediaPlayer != null) mediaPlayer.seek(Duration.seconds(0));
 
+    }
+
+    /**
+     * Returns the current time of the scrubber in the video.
+     */
+    public double getCurrentTime() {
+        return mediaPlayer.getCurrentTime().toSeconds();
     }
 
     /**
