@@ -1529,7 +1529,6 @@ public class GraphNoSINCController implements Initializable {
 
 					// final = scrubber, initial = this point
 					if (mode == GraphMode.LINEUP_SINC) {
-						
 						finalX = lineChart.getCurrentTime();
 						initialX = x;
 					}

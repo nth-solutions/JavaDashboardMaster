@@ -34,6 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
@@ -237,6 +238,7 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<GenericTest> genericTests;
 	private ArrayList<Integer> testParameters = new ArrayList<Integer>();
 	private JPanel testRecordationPanel;
+	private JScrollPane testRecordationPane;
 	private ArrayList<JPanel> testNumPaneArray;
 	private ArrayList<JCheckBox> testCheckBoxes;
 	private ArrayList<JTextField> testNameTextField;
@@ -1972,10 +1974,13 @@ public class AdvancedMode extends JFrame {
 		if (genericTests != null) {
 			noneSelected = true;
 			testRecordationPanel.removeAll();
+
 			final int viewableTests = genericTests.size();
 			testNumPaneArray = new ArrayList<JPanel>(viewableTests);
 			testCheckBoxes = new ArrayList<JCheckBox>(viewableTests);
 			testNameTextField = new ArrayList<JTextField>(viewableTests);
+
+			testRecordationPanel.setPreferredSize(new Dimension(500,viewableTests*50+40));
 
 			for (int i = 0; i < viewableTests; i++) {
 
@@ -2631,8 +2636,8 @@ public class AdvancedMode extends JFrame {
 																																														paramPanel.add(gyroFilterTextFieldRead);
 				
 						testRecordationPanel = new JPanel();
-						testRecordationPanel.setToolTipText("");
-						mainTabbedPanel.addTab("Stored Tests", null, testRecordationPanel, "Here you will find a list of tests you have just read from a module. From here you can quickly launch graphs and use SINC Technology.");
+						testRecordationPane = new JScrollPane(testRecordationPanel);
+						mainTabbedPanel.addTab("Stored Tests", null, testRecordationPane, "Here you will find a list of tests you have just read from a module. From here you can quickly launch graphs and use SINC Technology.");
 						testRecordationPanel.setLayout(null);
 
 						JLabel storedTestsMsg = new JLabel("Data from \"Read Tests\" will show up here.");
