@@ -164,6 +164,7 @@ public class EducatorModeControllerFX implements Initializable {
 
     private ConservationMomentumTest comTest;
     private ConservationEnergyTest engTest;
+    private TwoModuleTest twoModuleTest;
     
     private int experimentType;
     
@@ -184,7 +185,7 @@ public class EducatorModeControllerFX implements Initializable {
     // since indices 0-3 are one-module, 4-9 are two-module
     private final int NUM_OF_STEPS_TWO_MODULE = 9;
 
-    private Boolean oneModuleTest;
+    private boolean oneModuleTest;
 
     // BFA icon used for the Dashboard and Graph
     private Image icon;
@@ -376,7 +377,8 @@ public class EducatorModeControllerFX implements Initializable {
         // reset progress bar and status label
         displayProgress("", 0, Status.NEUTRAL);
 
-        // for one-module, if on any step other
+        // for one-module, if not on first page, go back and show back button
+        // for two-module, if not on the last page, go back and show back button
         if ((experimentTabIndex != 0 && oneModuleTest) || (experimentTabIndex != NUM_OF_STEPS && !oneModuleTest)) {
             experimentTabIndex -= 1;
             backButton.setVisible(true);
@@ -574,6 +576,7 @@ public class EducatorModeControllerFX implements Initializable {
                 break;
 
             case 6:
+                twoModuleTest = new TwoModuleTest();
                 testType = "Generic Template - Two Modules";
                 break;
 
@@ -804,7 +807,8 @@ public class EducatorModeControllerFX implements Initializable {
                                 break;
                             case 6: // Generic Template - Two Module
                                 test = new GenericTest(testParameters, finalData, MPUMinMax);
-                                moduleNumber = (i+1);
+                                moduleNumber = twoModuleTest.addModule(test);
+                                break;
                             default:
                                 test = new GenericTest(testParameters, finalData, MPUMinMax);
                                 break;
@@ -821,28 +825,43 @@ public class EducatorModeControllerFX implements Initializable {
 
                         logger.info("Created " + testName);
 
-                        // conservation of momentum
-                        if (experimentType == 1) {
+                        TwoModuleTest currentTwoModuleTest = null;
 
-                            // wait until both tests are read to add to list of GTs
-                            if (comTest.isFilled()) {
+                        // Conservation of Momentum (CoE)
+                        // wait until both tests are read to add to list of GTs
+                        if (experimentType == 0) {
+                            currentTwoModuleTest = comTest;
+                        }
+                        // Conservation of Energy (CoE)
+                        // wait until both tests are read to add to list of GTs
+                        else if (experimentType == 1) {
+                            currentTwoModuleTest = engTest; 
+                        }
+                        // Generic Test - Two Modules
+                        // wait until both tests are read to add to list of GTs
+                        else if (experimentType == 6) {
+                            currentTwoModuleTest = twoModuleTest;
+                        }
+                        // all other single-module tests
+                        else genericTests.add(test);
 
-                                genericTests.add(comTest.getModuleOne());
-                                genericTests.add(comTest.getModuleTwo());
+                        // if both tests for two-module test have been read
+                        if (!oneModuleTest && currentTwoModuleTest != null && currentTwoModuleTest.isFilled()) {
 
-                            }
+                            genericTests.add(currentTwoModuleTest.getModuleOne());
+                            genericTests.add(currentTwoModuleTest.getModuleTwo());
 
-                        // conservation of energy
-                        } else if (experimentType == 2) {
+                            logger.info("Launching BioForce Graph...");
 
-                            // wait until both tests are read to add to list of GTs
-                            if (engTest.isFilled()) {
-                                genericTests.add(engTest.getModuleOne());
-                                genericTests.add(engTest.getModuleTwo());
-                            }
+                            Platform.runLater(() -> {
+                                GraphNoSINCController graph = startGraphingNoSINC();
+                                graph.setGenericTests(genericTests);
+                            });
+                            
+                            // move to the "Launch Graph" page
+                            Platform.runLater(() -> nextTab());
 
-                        // all other tests
-                        } else genericTests.add(test);
+                        }
 
                         // write GenericTest to CSV
                         try {
@@ -1086,10 +1105,16 @@ public class EducatorModeControllerFX implements Initializable {
     }
 
     @FXML
-    private void launchDAG(ActionEvent event) {
+    private void launchGraph(ActionEvent event) {
         
-        GraphNoSINCController g = startGraphingNoSINC(); 
+        GraphNoSINCController graph = startGraphingNoSINC(); 
         
+        // if relaunching graph, just load existing tests
+        if (genericTests.size() > 0) {
+            graph.setGenericTests(genericTests);
+            return;
+        }
+
         File directory = new File(Settings.get("CSVSaveLocation"));
 
         // fetches all CSV files from given folder
@@ -1131,7 +1156,7 @@ public class EducatorModeControllerFX implements Initializable {
         String pathToFile = chosenFile.toString();
         
         long start = System.nanoTime(); 
-        g.setGenericTestFromCSV(pathToFile);
+        graph.setGenericTestFromCSV(pathToFile);
         long elapsedTime = System.nanoTime() - start;
         
         logger.info("Loaded CSV in " + elapsedTime/1e9d + " seconds");

@@ -41,7 +41,7 @@
                               <Font size="18.0" />
                            </font>
                         </Button>
-                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#launchDAG" prefHeight="117.5" prefWidth="200.0" text="Launch Graph" textFill="#ff6928">
+                        <Button alignment="CENTER" cancelButton="true" layoutX="10.0" layoutY="110.0" mnemonicParsing="false" onAction="#launchGraph" prefHeight="117.5" prefWidth="200.0" text="Launch Graph" textFill="#ff6928">
                            <font>
                               <Font size="18.0" />
                            </font>
@@ -326,7 +326,7 @@
                                                                         <Font name="System Bold" size="15.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
+                                                                  <Button mnemonicParsing="false" onAction="#launchGraph" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>
@@ -509,7 +509,7 @@
                                                                         <Font name="System Bold" size="15.0" />
                                                                      </font>
                                                                   </Label>
-                                                                  <Button mnemonicParsing="false" onAction="#launchDAG" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
+                                                                  <Button mnemonicParsing="false" onAction="#launchGraph" prefHeight="100.0" prefWidth="450.0" text="Launch Graph">
                                                                      <font>
                                                                         <Font size="36.0" />
                                                                      </font>

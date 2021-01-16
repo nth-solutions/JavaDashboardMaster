@@ -3,7 +3,7 @@ package com.bioforceanalytics.dashboard;
 /**
  * This is the parent of Conservation of Energy and Conservation of Momentum tests.
  */
-public abstract class TwoModuleTest {
+public class TwoModuleTest {
 
 	private GenericTest moduleOne;
 	private GenericTest moduleTwo;
@@ -35,7 +35,7 @@ public abstract class TwoModuleTest {
 			moduleOne = test;
 			return 1;
 		}
-		// the 2nd module slot is empty, so fill it in
+		// the 2nd module slot must be empty, so fill it in
 		else {
 			moduleTwo = test;
 			return 2;
