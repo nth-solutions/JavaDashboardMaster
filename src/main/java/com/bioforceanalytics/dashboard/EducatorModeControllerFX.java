@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.FutureTask;
 
 import org.apache.logging.log4j.Logger;
 
@@ -26,6 +28,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -761,6 +764,50 @@ public class EducatorModeControllerFX implements Initializable {
                     // loop through all tests read from the module
                     for (int i = 0; i < testData.size(); i++) {
 
+                        // two-module tests should only have one trial per module;
+                        // if more than one trial is detected, the user must choose one
+                        if (!oneModuleTest && expectedTestNum > 1) {
+                            
+                            logger.warn("Multiple trials detected on one module of a two-module test.");
+
+                            ArrayList<String> trials = new ArrayList<String>();
+
+                            // fill trials dropdown with the number of trials
+                            for (int t = 0; t < testData.size(); t++) {
+                                trials.add("Trial " + (t+1));
+                            }
+
+                            // set up UI task for showing choose trial dialog
+                            final FutureTask<String> chooseTrialTask = new FutureTask<String>(() -> {
+
+                                // choose the most recent trial (last in the list) by default
+                                ChoiceDialog<String> dialog = new ChoiceDialog<>(trials.get(testData.size()-1), trials);
+                                dialog.setTitle("Multiple Trials Detected");
+                                dialog.setHeaderText("Multiple Trials Detected");
+                                dialog.setContentText("Choose which trial to keep:");
+
+                                // display the dropdown dialog
+                                Optional<String> result = dialog.showAndWait();
+                                return result.isPresent() ? result.get() : null; 
+
+                            });
+
+                            // run choose trial task in JavaFX thread
+                            Platform.runLater(chooseTrialTask);
+                            
+                            // jump to the trial the user selected
+                            if (chooseTrialTask.get() != null) {
+                                i = trials.indexOf(chooseTrialTask.get());
+                            }
+                            // if user hit cancel, use the last trial by default
+                            else {
+                                i = testData.size() - 1;
+                            }
+
+                        }
+
+                        
+
                         int[] finalData = new int[testData.get(i).size()];
 
                         // loop through all samples in the data set
@@ -877,6 +924,10 @@ public class EducatorModeControllerFX implements Initializable {
 
                         // update test data progress
                         displayProgress("Read test " + (i+1) + "/" + testData.size(), ((double) (i+1)) / ((double) testData.size()), Status.WORKING);
+
+                        // if two-module test, do not repeat and load more trials
+                        if (!oneModuleTest) break;
+
                     }
 
                     displayProgress("All tests read from Module", 1, Status.SUCCESS);
@@ -902,6 +953,9 @@ public class EducatorModeControllerFX implements Initializable {
                     displayProgress("Error reading tests -- USB port already in use", 1, Status.ERROR);
                 } catch (UnsupportedCommOperationException e) {
                     displayProgress("Error reading tests -- check USB dongle compatibility", 1, Status.ERROR);
+                } catch (Exception e) {
+                    displayProgress("Error reading tests -- unexpected problem, check logs", 1, Status.ERROR);
+                    e.printStackTrace();
                 }
 
                 return null;

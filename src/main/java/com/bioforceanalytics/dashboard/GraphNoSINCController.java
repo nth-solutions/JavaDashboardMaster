@@ -602,7 +602,7 @@ public class GraphNoSINCController implements Initializable {
 					updateMessage("Reloading " + dataSets.get(index).toString() + "...");
 
 					// workaround used to sync progress + message w/ updateAxis()
-					// TODO this is bad practice, maybe we can refactor updateAxis() to use a Tasks?
+					// TODO this is bad practice, maybe we can refactor updateAxis() to use a Task?
 					final CountDownLatch waitForThread = new CountDownLatch(1);
 
 					Platform.runLater(() -> {
