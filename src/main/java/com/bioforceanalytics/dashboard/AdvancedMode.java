@@ -1541,11 +1541,11 @@ public class AdvancedMode extends JFrame {
 				new DefaultComboBoxModel(new String[] { "10", "20", "41", "92", "184", "250", "3600", "8800 (OFF)" }));
 
 		// Set Default Selection for Comboboxes
-		accelGyroSampleRateCombobox.setSelectedIndex(5);// 960-96
-		accelSensitivityCombobox.setSelectedIndex(2); // 8g
-		gyroSensitivityCombobox.setSelectedIndex(2); // 1000dps
-		accelFilterCombobox.setSelectedIndex(4); // 92Hz
-		gyroFilterCombobox.setSelectedIndex(3); // 92Hz
+		accelGyroSampleRateCombobox.setSelectedIndex(5);	// 960Hz (96Hz magnetometer)
+		accelSensitivityCombobox.setSelectedIndex(3); 		// 16G
+		gyroSensitivityCombobox.setSelectedIndex(3); 		// 2000dps
+		accelFilterCombobox.setSelectedIndex(4); 			// 92Hz
+		gyroFilterCombobox.setSelectedIndex(3); 			// 92Hz
 
 		// Text Fields
 		updateMagSampleRate();
