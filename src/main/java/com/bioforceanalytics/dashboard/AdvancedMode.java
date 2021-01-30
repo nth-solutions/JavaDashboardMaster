@@ -471,18 +471,24 @@ public class AdvancedMode extends JFrame {
 	 */
 	private void portSelectedHandler() {
 		try {
-			// Executes if the user selected a valid COMM port
+			// Executes if the user selected a valid COM port
 			if (commPortCombobox.getSelectedItem() != null) {
 
 				// Get the string identifier (name) of the port the user selected
 				String selectedCommID = commPortCombobox.getSelectedItem().toString();
 
+				// close any currently open ports
+				serialHandler.closeSerialPort();
+
+				logger.info("Connecting to module on port {}...", selectedCommID);
+
 				// Open the serial port with the selected name, initialize input and output
 				// streams, set necessary flags so the whole program know that everything is
 				// initialized
 				if (serialHandler.openSerialPort(selectedCommID)) {
-					System.out.println(
-							"Advanced Mode serialHandler able to open " + selectedCommID + "when selection it");
+					
+					logger.info("Successfully connected to module");
+
 					enableTabChanges();
 
 					// Notify the user that the port as opened successfully and is ready for a new
@@ -931,58 +937,50 @@ public class AdvancedMode extends JFrame {
 	 * handler actually does.
 	 */
 	public void getModuleInfoButtonHandler() {
-		// Specify new operation that can be run in a separate thread
-		Runnable getIDInfoOperation = new Runnable() {
-			public void run() {
-				// Disable button until routine is complete
-				getModuleIDButton.setEnabled(false);
 
-				try {
-					ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+		// Disable button until routine is complete
+		getModuleIDButton.setEnabled(false);
 
-					if (moduleIDInfo != null) {
-						moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
-						hardwareIDLabel.setText("Module Hardware ID: " + (char) (moduleIDInfo.get(1) / 256)
-								+ (char) (moduleIDInfo.get(1) % 256));
-						firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
-						if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
-							generalStatusLabel.setText("Incompatable Firmware Version: " + moduleIDInfo.get(2)
-									+ ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
-							progressBar.setValue(100);
-							progressBar.setForeground(new Color(255, 0, 0));
-						} else {
-							generalStatusLabel.setText("Module Information Successfully Received");
-							progressBar.setValue(100);
-							progressBar.setForeground(new Color(51, 204, 51));
-						}
-					} else {
-						generalStatusLabel.setText("Module not Responding, Check Connections");
-						progressBar.setValue(100);
-						progressBar.setForeground(new Color(255, 0, 0));
-					}
-				} catch (IOException e) {
-					generalStatusLabel.setText("Error Communicating With Serial Dongle");
+		try {
+			ArrayList<Integer> moduleIDInfo = serialHandler.getModuleInfo(NUM_ID_INFO_PARAMETERS);
+
+			if (moduleIDInfo != null) {
+				moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
+				hardwareIDLabel.setText("Module Hardware ID: " + (char) (moduleIDInfo.get(1) / 256)
+						+ (char) (moduleIDInfo.get(1) % 256));
+				firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
+				if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
+					generalStatusLabel.setText("Incompatible Firmware Version: " + moduleIDInfo.get(2)
+							+ ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
 					progressBar.setValue(100);
 					progressBar.setForeground(new Color(255, 0, 0));
-				} catch (PortInUseException e) {
-					generalStatusLabel.setText("Serial Port Already In Use");
+				} else {
+					generalStatusLabel.setText("Module Information Successfully Received");
 					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
-				} catch (UnsupportedCommOperationException e) {
-					generalStatusLabel.setText("Check Dongle Compatability");
-					progressBar.setValue(100);
-					progressBar.setForeground(new Color(255, 0, 0));
+					progressBar.setForeground(new Color(51, 204, 51));
 				}
-
-				// Re-enable button since previous method call was complete
-				getModuleIDButton.setEnabled(true);
+			} else {
+				generalStatusLabel.setText("Module not Responding, Check Connections");
+				progressBar.setValue(100);
+				progressBar.setForeground(new Color(255, 0, 0));
 			}
-		};
+		} catch (IOException e) {
+			generalStatusLabel.setText("Error Communicating With Serial Dongle");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255, 0, 0));
+		} catch (PortInUseException e) {
+			generalStatusLabel.setText("Serial Port Already In Use");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255, 0, 0));
+		} catch (UnsupportedCommOperationException e) {
+			generalStatusLabel.setText("Check Dongle Compatability");
+			progressBar.setValue(100);
+			progressBar.setForeground(new Color(255, 0, 0));
+		}
 
-		// Assign new thread to run the previously defined operation
-		infoThread = new Thread(getIDInfoOperation);
-		// Start separate thread
-		infoThread.start();
+		// Re-enable button since previous method call was complete
+		getModuleIDButton.setEnabled(true);
+
 	}
 
 	public void configForCalHandler() {
@@ -1203,7 +1201,7 @@ public class AdvancedMode extends JFrame {
 							progressBar.setForeground(new Color(51, 204, 51));
 						}
 					} else {
-						generalStatusLabel.setText("Error Communicating With Module, Try Again");
+						generalStatusLabel.setText("Error Reading Test Parameters, Try Again");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
 					}
@@ -2217,19 +2215,7 @@ public class AdvancedMode extends JFrame {
 		commPortCombobox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				portSelectedHandler();
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				getModuleInfoButtonHandler();
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 				getConfigsHandler();
 				enableTabChanges();
 			}

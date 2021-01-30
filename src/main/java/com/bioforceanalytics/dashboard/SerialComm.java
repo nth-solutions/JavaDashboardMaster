@@ -760,7 +760,7 @@ public class SerialComm {
 		//Executes while the mode has not been successfully selected. This loop can be exited by any internal timeouts, or attempt limits as well
 		while(!modeSelected) {
 			
-			//Start condition followed by 'modeDelimeter' to tell firmware to enter a specific mode
+			//Start condition followed by 'modeDelimiter' to tell firmware to enter a specific mode
 			outputStream.write(new String("1111" + modeDelimiter).getBytes());
 
 			//Initialize temp to value that is impossible to be read from the input stream so for debug
