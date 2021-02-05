@@ -1471,12 +1471,14 @@ public class AdvancedMode extends JFrame {
 
 									GenericTest test = new GenericTest(testParameters, finalData, mpuMinMax);
 
-									// create timestamp for CSV/CSVP
-									SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd - HH.mm");
-									String timestamp = sdf.format(new Timestamp(new Date().getTime()));
+									Date date = new Date();
 
-									String testType = test.getClass().getSimpleName();
-									String testName = testType + " #" + (testIndex + 1) + " " + timestamp;
+									//Assign file name
+									String testName = "";
+									testName += prefixTextField.getText();
+									testName += date.getDate() + getMonth(date.getMonth()) + (date.getYear() - 100);
+									testName += " " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N";
+									testName += suffixTextField.getText();
 
 									test.setName(testName);
 									genericTests.add(test);
