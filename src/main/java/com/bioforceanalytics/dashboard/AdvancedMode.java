@@ -1038,6 +1038,19 @@ public class AdvancedMode extends JFrame {
 				disableTabChanges();
 				try {
 
+					if (!new File(videoFilePathTextField.getText()).exists()) {
+						
+						generalStatusLabel.setText("Video file path is invalid");
+
+						configForCalButton.setEnabled(true);
+						importCalDataButton.setEnabled(true);
+						applyOffsetButton.setEnabled(true);
+						getModuleIDButton.setEnabled(true);
+						enableTabChanges();
+
+						return;
+					}
+
 					BlackFrameAnalysis bfo = new BlackFrameAnalysis(videoFilePathTextField.getText());
 
 					delayAfterTextField.setText(Integer.toString(bfo.getDelayAfterStart()));
