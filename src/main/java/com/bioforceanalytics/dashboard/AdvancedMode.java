@@ -397,7 +397,7 @@ public class AdvancedMode extends JFrame {
 											hardwareIDLabel
 													.setText("Module Hardware ID: " + (char) (moduleIDInfo.get(1) / 256)
 															+ (char) (moduleIDInfo.get(1) % 256));
-											firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
+											firmwareIDLabel.setText("Module Firmware Version: " + moduleIDInfo.get(2));
 											if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
 												generalStatusLabel.setText("Incompatable Firmware Version: "
 														+ moduleIDInfo.get(2) + ", Program Module with Version "
@@ -948,7 +948,7 @@ public class AdvancedMode extends JFrame {
 				moduleSerialNumberLabel.setText("Module Serial Number: " + moduleIDInfo.get(0));
 				hardwareIDLabel.setText("Module Hardware ID: " + (char) (moduleIDInfo.get(1) / 256)
 						+ (char) (moduleIDInfo.get(1) % 256));
-				firmwareIDLabel.setText("Module Firmware ID: " + moduleIDInfo.get(2));
+				firmwareIDLabel.setText("Module Firmware Version: " + moduleIDInfo.get(2));
 				if (moduleIDInfo.get(2) != CURRENT_FIRMWARE_ID) {
 					generalStatusLabel.setText("Incompatible Firmware Version: " + moduleIDInfo.get(2)
 							+ ", Program Module with Version " + CURRENT_FIRMWARE_STRING);
@@ -2278,7 +2278,7 @@ public class AdvancedMode extends JFrame {
 		hardwareIDLabel.setBorder(null);
 		moduleInfoPanel.add(hardwareIDLabel);
 
-		firmwareIDLabel = new JLabel("Module Firmware ID:");
+		firmwareIDLabel = new JLabel("Module Firmware Version:");
 		firmwareIDLabel.setBorder(null);
 		moduleInfoPanel.add(firmwareIDLabel);
 
