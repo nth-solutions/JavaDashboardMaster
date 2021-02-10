@@ -1106,6 +1106,8 @@ public class AdvancedMode extends JFrame {
 					getModuleIDButton.setEnabled(true);
 					enableTabChanges();
 
+					getConfigsHandler();
+
 				} catch (IOException e) {
 					generalStatusLabel.setText("Error Communicating With Serial Dongle");
 					progressBar.setValue(100);
