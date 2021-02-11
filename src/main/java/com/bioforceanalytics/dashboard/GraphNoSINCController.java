@@ -152,7 +152,7 @@ public class GraphNoSINCController implements Initializable {
 		lineChart = multiAxis.getBaseChart();
 		lineChart.initSINC(mediaView, scrubber);
 
-		// pass reference to controller to graph
+		// pass reference of controller to graph
 		multiAxis.setController(this);
 		
 		Platform.runLater(() -> {
@@ -432,7 +432,7 @@ public class GraphNoSINCController implements Initializable {
 
 		// create array to hold bounds for each axis class (excluding momentum)
 		// outer array represents each axis class, inner represents min/max
-		Double[][] axisClassRange = new Double[AxisType.values().length / 4 - 1][2];
+		Double[][] axisClassRanges = new Double[AxisType.values().length / 4 - 1][2];
 
 		// set up variables to track min/max bounds for axis class
 		Double min = Double.MAX_VALUE;
@@ -453,8 +453,8 @@ public class GraphNoSINCController implements Initializable {
 				int axisClassIndex = i % 4 == 0 ? (i-1)/4 : i/4;
 
 				// save min/max for the given axis class
-				axisClassRange[axisClassIndex][0] = min;
-				axisClassRange[axisClassIndex][1] = max;
+				axisClassRanges[axisClassIndex][0] = min;
+				axisClassRanges[axisClassIndex][1] = max;
 
 				// reset min/max for the current axis class
 				min = Double.MAX_VALUE;
@@ -467,6 +467,9 @@ public class GraphNoSINCController implements Initializable {
 			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
 
 		}
+
+		// re-calculate axis scalars using min/max bounds
+		multiAxis.setAxisScalars(axisClassRanges);
 
 		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
@@ -1644,7 +1647,8 @@ public class GraphNoSINCController implements Initializable {
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
 	 * <p><code>GraphMode.AREA</code> is when the user is selecting the section for an area calculation,</p>
 	 * <p><code>GraphMode.LINEUP</code> is when the user is selecting the points to line up in two different data sets,</p>
-	 * <p><code>GraphMode.LINEUP_SINC</code> is a special case of <code>GraphMode.LINEUP</code> where the second point is used instead of the first.</p>
+	 * <p><code>GraphMode.LINEUP_SINC</code> is a special case of <code>GraphMode.LINEUP</code> where the second point is used instead of the first,</p>
+	 * <p>and <code>GraphMode.NORM</code> is when the user is selecting a point on a data set to normalize.</p>
 	 */
 	public enum GraphMode {
 		NONE,

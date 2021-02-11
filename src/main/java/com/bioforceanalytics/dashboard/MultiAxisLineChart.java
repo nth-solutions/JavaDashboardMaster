@@ -85,6 +85,9 @@ public class MultiAxisLineChart extends StackPane {
 	private double scrollCenterX;
 	private double scrollCenterY;
 
+    // holds the values scaling each axis class on the graph
+    private double[] axisScalars;
+
     private GraphNoSINCController controller;
 
     private static final Logger logger = LogController.start();
@@ -93,6 +96,9 @@ public class MultiAxisLineChart extends StackPane {
         
         setPickOnBounds(false);
         dataSets = new ArrayList<GraphData>();
+
+        // initialize axis scalars temporarily
+        axisScalars = new double[] { 10, 10, 10, 500, 100, 100, 100, 10 };
 
         xAxis = new BFANumberAxis();
         yAxis = new BFANumberAxis();
@@ -666,22 +672,44 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
+     * Calculates axis scalars from the min/max values of axis classes.
+     * @param axisClassRanges array holding min/max values for each axis class
+     */
+    public void setAxisScalars(Double[][] axisClassRanges) {
+        
+        for (int i = 0; i < axisClassRanges.length; i++) {
+            
+            // TODO remove min/max from "axisClassRanges";
+            // just input the bound with the highest magnitude,
+            // since we just want our graph bounds to be symmetrical
+
+            // get the bound with the larger magnitude
+            double bound = Math.max(axisClassRanges[i][0], axisClassRanges[i][1]);
+
+            // convert bound to axis scalar
+            // (since scalar value of 1 yields bounds of [-5,5])
+            axisScalars[i] = bound / 5;
+
+            String axisClassName = AxisType.valueOf(i*4).toString();
+            
+            logger.debug("Bounds for {}: [{},{}] | Scalar: {}",
+                axisClassName.substring(0, axisClassName.length()-1),
+                axisClassRanges[i][0],
+                axisClassRanges[i][1],
+                axisScalars[i]
+            );
+
+        }
+
+    }
+
+    /**
      * Returns the amount that the data set's graph should be scaled by.
-     * This is used for angular and magnetometer data sets.
      * @param axis the AxisType representing the data set
      * @return the amount that the data set's graph should be scaled by
      */
     public double getAxisScalar(AxisType axis) {
-
-        // if AxisType is Accel, Vel, Disp, or Momentum
-        if (axis.getValue() / 4 < 3 || axis.getValue() == 7) return 10;
-        //if AxisType is AngAccel
-        if (axis.getValue() / 4 == 3) return 500;
-        //if AxisType is Momentum
-        if (axis.getValue() / 4 == 7) return 0.1;
-        // all other data sets
-        else return 100;
-
+        return axisScalars[axis.getValue()/4];
     }
 
     /**
