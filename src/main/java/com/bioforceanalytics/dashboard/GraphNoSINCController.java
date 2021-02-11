@@ -699,7 +699,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Renames GenericTest
+	 * Renames a given test.
 	 * @param name name of GenericTest
 	 * @param GTIndex the index of the GenericTest
 	 */
@@ -736,6 +736,10 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	/**
+	 * Recalculates moving averages for all currently drawn data sets.
+	 * Uses the block size from the smoothing slider in the Graph. 
+	 */
 	public void applyMovingAvg() {
 
 		// round slider to nearest integer
@@ -756,6 +760,10 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	
+	/**
+	 * Resets moving averages for all currently graphed data sets to its default setting.
+	 */
 	@FXML
 	public void resetMovingAvg() {
 
@@ -767,6 +775,9 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	/**
+	 * Applies a normalization acceleration baseline based on the bounds selected.
+	 */
 	@FXML
 	public void applyBaseline() {
 
@@ -821,6 +832,9 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	/**
+	 * Resets + disables acceleration normalization. 
+	 */
 	public void resetNorm() {
 
 		// loop through each GenericTest
