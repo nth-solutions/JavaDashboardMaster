@@ -49,6 +49,11 @@ public class AxisDataSeries {
 	 */
 	public final int sampleRate;
 
+	/**
+	 * The minimum and maxiumum values in the data set, in that order respectively.
+	 */
+	public Double[] dataRange;
+
 	// acceleration due to gravity, modify this to add more sigfigs if needed
 	private final double GRAVITY = 9.80665;
 
@@ -122,7 +127,7 @@ public class AxisDataSeries {
 		else {
 			// don't normalize if not a raw magnetometer series;
 			// simply copy over original data for use in integrate()
-			this.smoothedData = applyMovingAvg(originalData, rollBlkSize);
+			smoothData(rollBlkSize);
 		}
 
 		// print AxisDataSeries debug info
@@ -263,8 +268,11 @@ public class AxisDataSeries {
 		Double[] d3 = new Double[length];
 		d3 = a3.getSamples().toArray(d3);
 
-
 		Double[] result = new Double[d1.length];
+
+		// initialize vars for tracking data range
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
 
 		// calculate magnitude data set
 		for (int i = 0; i < d1.length; i++) {
@@ -272,11 +280,16 @@ public class AxisDataSeries {
 			// r = sqrt(d1^2 + d2^2 + d3^2)
 			result[i] = Math.sqrt(Math.pow(d1[i], 2) + Math.pow(d2[i], 2) + Math.pow(d3[i], 2));
 
+			// update min/max bounds for data range
+			min = result[i] < min ? result[i] : min;
+			max = result[i] > max ? result[i] : max;
+
 		}
 
 		this.originalData = result;
+		this.dataRange = new Double[] { min, max };
 
-		// copy originalData to normalizedData and smoothedData
+		// copy originalData to smoothedData
 		this.smoothedData = new Double[originalData.length];
 		copyArray(this.originalData, this.smoothedData);
 
@@ -322,7 +335,14 @@ public class AxisDataSeries {
 	 * Applies a middle-based simple moving average to a data series.
 	 * @param array the data series for the moving average to be applied to
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
+	 * 
+	 * @deprecated do not invoke directly, use {@link #smoothData} instead.
+	 * This method will likely be merged with {@link #smoothData} in the future.
+	 * 
+	 * The reason is that certain key calculations, like data range and vertical offsets,
+	 * are only applied in {@link #smoothData}, and therefore using the newer method would ensure consistency.
 	 */
+	@Deprecated
 	private Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
 		// work on a copy of the data for safety
@@ -349,7 +369,7 @@ public class AxisDataSeries {
 
 		/*
 		===============================================================================
-		Zero out the start and end portions of the test. Currently disabled since it
+		Zeroes out the start and end portions of the test. Currently disabled since it
 		makes the data more inaccurate than if the unsmoothed "ends" remain.
 		TODO consider removing these "ends" from the test so that users don't see them.
 		
@@ -368,7 +388,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Applies a midpoint-based simple moving average to this AxisDataSeries.
-	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smoothe the data set.
+	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smooth the data set.
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
 	 */
 	public void smoothData(int sampleBlockSize) {
@@ -378,10 +398,23 @@ public class AxisDataSeries {
 		this.rollBlkSize = sampleBlockSize;
 		smoothedData = applyMovingAvg(originalData, this.rollBlkSize);
 
+		// initialize vars for tracking data range
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
+
 		// apply vertical offset to smoothed data
 		for (int i = 0; i < smoothedData.length; i++) {
+
 			smoothedData[i] += vertOffset;
+
+			// update min/max bounds for data range
+			min = smoothedData[i] < min ? smoothedData[i] : min;
+			max = smoothedData[i] > max ? smoothedData[i] : max;
+
 		}
+
+		// set the min/max data range for the data set
+		this.dataRange = new Double[] { min, max };
 
 	}
 
@@ -394,10 +427,6 @@ public class AxisDataSeries {
 		smoothData(this.rollBlkSize);
 
 	}
-
-	// TODO make "createNormalizedData" use vertOffset as well?
-	// this would allow us to eliminate the normalizedData array,
-	// simplifying the codebase and being more consistent
 
 	/**
 	 * Vertically shifts the graph up or down.

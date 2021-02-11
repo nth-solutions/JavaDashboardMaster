@@ -66,7 +66,7 @@ public enum AxisType {
 	/**
 	 * Returns the AxisType associated with this integer.
 	 * @param i the integer representing the desired AxisType
-	 * @return Returns the AxisType associated with this integer
+	 * @return the AxisType associated with this integer
 	 */
 	public static AxisType valueOf(int i) {
 		return (AxisType) map.get(i);

@@ -430,6 +430,44 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
+		// create array to hold bounds for each axis class (excluding momentum)
+		// outer array represents each axis class, inner represents min/max
+		Double[][] axisClassRange = new Double[AxisType.values().length / 4 - 1][2];
+
+		// set up variables to track min/max bounds for axis class
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
+
+		// loop through each axis in the primary test (excluding momentum)
+		for (int i = 0; i < AxisType.values().length - 4; i++) {
+
+			// get current AxisDataSeries by index
+			AxisDataSeries axis = primaryTest.getAxis(AxisType.valueOf(i));
+
+			// if finished calculating min/max for an axis class
+			// (either starting a new axis class OR last AxisType)
+			if (i % 4 == 0 || i == AxisType.values().length - 4 - 1) {
+
+				// if starting a new axis class, get index of last class;
+				// otherwise, we must be on the last AxisType, so get the current class index
+				int axisClassIndex = i % 4 == 0 ? (i-1)/4 : i/4;
+
+				// save min/max for the given axis class
+				axisClassRange[axisClassIndex][0] = min;
+				axisClassRange[axisClassIndex][1] = max;
+
+				// reset min/max for the current axis class
+				min = Double.MAX_VALUE;
+				max = Double.MIN_VALUE;
+
+			}
+
+			// update min/max bounds for axis class
+			min = axis.dataRange[0] < min ? axis.dataRange[0] : min;
+			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
+
+		}
+
 		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
 
