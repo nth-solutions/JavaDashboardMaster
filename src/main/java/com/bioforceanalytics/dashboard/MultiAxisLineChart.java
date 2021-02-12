@@ -672,6 +672,29 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
+     * <p>Rounds up the bound to the nearest multiple of the power of 10 multiple.
+     * Can be thought of as converting the number to scientific notation, then rounding up the coefficient.</p>
+     * eg. 17 -> 20; 17 = 1.7*10^1, round up 1.7 to 2, 2*10^1 = 20.
+     * 
+     * @param val the bound to round up
+     */
+    private double roundBound(double val) {
+
+        // get the order of magnitude (largest power of 10 in the bound)
+        // eg. 17 = 1.7*10^1, therefore order = 1
+        int order = (int) Math.log10(val);
+
+        // get the magnitude of the power of 10
+        // eg. 17 = 1.7*10^1, floor 1.7 to 1, therefore mag = 1
+        int mag = (int) (val / (Math.pow(10, order)));
+        
+        // calculate the rounded bound
+        // eg. mag = 1, mag+1 = 2, order = 1, 2*10^1 = 20
+        return (mag+1) * Math.pow(10, order);
+
+    }
+
+    /**
      * Calculates axis scalars from the min/max values of axis classes.
      * @param axisClassRanges array holding min/max values for each axis class
      */
@@ -688,10 +711,10 @@ public class MultiAxisLineChart extends StackPane {
 
             // convert bound to axis scalar
             // (since scalar value of 1 yields bounds of [-5,5])
-            axisScalars[i] = bound / 5;
+            axisScalars[i] = roundBound(bound) / 5;
 
             String axisClassName = AxisType.valueOf(i*4).toString();
-            
+
             logger.debug("Bounds for {}: [{},{}] | Scalar: {}",
                 axisClassName.substring(0, axisClassName.length()-1),
                 axisClassRanges[i][0],
