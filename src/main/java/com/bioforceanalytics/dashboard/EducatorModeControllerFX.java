@@ -1161,7 +1161,7 @@ public class EducatorModeControllerFX implements Initializable {
     @FXML
     private void launchGraph(ActionEvent event) {
         
-        GraphNoSINCController graph = startGraphingNoSINC(); 
+        GraphNoSINCController graph = startGraphingNoSINC();
         
         // if relaunching graph, just load existing tests
         if (genericTests.size() > 0) {
@@ -1176,7 +1176,7 @@ public class EducatorModeControllerFX implements Initializable {
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".csv");
-            }           
+            }
         });
 
         long lastModifiedTime = Long.MIN_VALUE;
