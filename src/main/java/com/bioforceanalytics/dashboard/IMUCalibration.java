@@ -71,7 +71,7 @@ public class IMUCalibration {
                     int sample = (int) data.get(i).get(k).doubleValue();
 
                     // convert all unsigned negative values
-                    if (sample > 32768) {
+                    if (sample > 32767) {
                         data.get(i).set(k, (double) (sample - 65535));
                     }
 

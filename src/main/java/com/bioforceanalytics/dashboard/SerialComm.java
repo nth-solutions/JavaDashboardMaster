@@ -728,9 +728,9 @@ public class SerialComm {
 		
 		for(int axi = 0; axi < 8; axi++) {
 			mpuMinMax[axi][0] = inputStream.read()*256 + inputStream.read();
-			if(mpuMinMax[axi][0] > 32768) mpuMinMax[axi][0] -= 65535;
+			if(mpuMinMax[axi][0] > 32767) mpuMinMax[axi][0] -= 65535;
 			mpuMinMax[axi][1] = inputStream.read()*256 + inputStream.read();
-			if(mpuMinMax[axi][1] > 32768) mpuMinMax[axi][1] -= 65535;
+			if(mpuMinMax[axi][1] > 32767) mpuMinMax[axi][1] -= 65535;
 		}
 		return mpuMinMax;
 	}

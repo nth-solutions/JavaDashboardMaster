@@ -118,7 +118,7 @@ public class CSVHandler {
 				double sample = g.getDataSamples().get(j).get(i);
 
 				// convert unsigned -> signed if "Signed Data" was enabled
-				sample = signData && sample > 32768 ? sample-65535 : sample;
+				sample = signData && sample > 32767 ? sample-65535 : sample;
 
 				builder.append(sample);
 				builder.append(",");
@@ -131,7 +131,7 @@ public class CSVHandler {
 					double sample = g.getDataSamples().get(j).get(i/10);
 				
 					// convert unsigned -> signed if "Signed Data" was enabled
-					sample = signData && sample > 32768 ? sample-65535 : sample;
+					sample = signData && sample > 32767 ? sample-65535 : sample;
 
 					builder.append(sample);
 					builder.append(",");

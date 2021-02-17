@@ -106,7 +106,7 @@ public class AxisDataSeries {
 			for (int i = 0; i < this.originalData.length; i++) {
 
 				// convert raw data to signed data
-				if (this.originalData[i] > 32768) {
+				if (this.originalData[i] > 32767) {
 					this.originalData[i] -= 65535;
 				}
 
@@ -169,7 +169,7 @@ public class AxisDataSeries {
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
-			if (this.originalData[i] > 32768) {
+			if (this.originalData[i] > 32767) {
 				this.originalData[i] -= 65535;
 			}
 
@@ -219,7 +219,7 @@ public class AxisDataSeries {
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
-			if (this.originalData[i] > 32768) {
+			if (this.originalData[i] > 32767) {
 				this.originalData[i] -= 65535;
 			}
 
