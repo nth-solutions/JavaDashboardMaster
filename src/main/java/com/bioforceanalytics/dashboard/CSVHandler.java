@@ -32,8 +32,7 @@ public class CSVHandler {
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
 
-		// TODO MPUMinMax is sometimes randomly be read as "null" from SerialComm
-		// this ensures that a NullPointerException isn't thrown later in GT
+		// ensures that a NullPointerException isn't thrown later in GT
 		if (MPUMinMax == null) {
 			logger.warn("MPUMinMax offsets null, filling with 0s...");
 			MPUMinMax = new int[][] {{0, 0}, {0, 0}, {0, 0}};
@@ -83,28 +82,58 @@ public class CSVHandler {
 	}
 	
 	/**
-	 * CSV Writing method modified from dataOrganizer.
-	 * @param g GenericTest object to read test data from
-	 * @param settings the {@link com.bioforceanalytics.dashboard.Settings Settings} object used to store parameters such as save location path
-	 * @param nameOfTest the name used in the created CSV file
+	 * Writes test data from a specified GenericTest to a CSV.
+	 * Wrapper method that disables "Sign Data" and "Label Data" options.
+	 * @param g the GenericTest to read test data from
+	 * @param testName the name used in the created CSV file
+	 * @throws FileNotFoundException
 	 */
-	public static void writeCSV(GenericTest g, String nameOfTest) throws FileNotFoundException { 														
+	public static void writeCSV(GenericTest g, String testName) throws FileNotFoundException {
+		writeCSV(g, testName, false, false);
+	}
+
+	/**
+	 * Writes test data from a specified GenericTest to a CSV.
+	 * @param g the GenericTest to read test data from
+	 * @param testName the name used in the created CSV file
+	 * @param signData indicates whether to sign test data
+	 * @param labelData indicates whether to include a row header with axis labels
+	 * @throws FileNotFoundException 
+	 */
+	public static void writeCSV(GenericTest g, String testName, boolean signData, boolean labelData) throws FileNotFoundException { 														
 	
 		StringBuilder builder = new StringBuilder();
-			
+		
+		// add row header with 9DOF axis labels
+		if (labelData) {
+			builder.append("AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ\n");
+		}
+
 		// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
 		for (int i = 0; i < g.getDataSamples().get(1).size()-1; i++) {
 
 			// populate accel and gyro data points 
 			for (int j = 1; j < 7; j++) {
-				builder.append(g.getDataSamples().get(j).get(i));
+
+				double sample = g.getDataSamples().get(j).get(i);
+
+				// convert unsigned -> signed if "Signed Data" was enabled
+				sample = signData && sample > 32768 ? sample-65535 : sample;
+
+				builder.append(sample);
 				builder.append(",");
 			}
 
 			// populate mag data points
 			if ((i%10==0) && ((i/10) < g.getDataSamples().get(7).size())) {
 				for(int j = 7; j < 10; j ++) {
-					builder.append(g.getDataSamples().get(j).get(i/10));
+
+					double sample = g.getDataSamples().get(j).get(i/10);
+				
+					// convert unsigned -> signed if "Signed Data" was enabled
+					sample = signData && sample > 32768 ? sample-65535 : sample;
+
+					builder.append(sample);
 					builder.append(",");
 				}
 			}
@@ -113,7 +142,7 @@ public class CSVHandler {
 		}
 
 		String testDir = Settings.get("CSVSaveLocation");
-		PrintWriter writer = new PrintWriter(new File(testDir + "/" + nameOfTest));
+		PrintWriter writer = new PrintWriter(new File(testDir + "/" + testName));
 
 		// write the string data to the file
 		writer.write(builder.toString());

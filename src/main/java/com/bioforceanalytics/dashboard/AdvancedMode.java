@@ -207,8 +207,6 @@ public class AdvancedMode extends JFrame {
 	// Operation Threads
 	private Thread readThread;
 	private Thread paramThread;
-	private Thread infoThread;
-	private Thread organizerThread;
 	private Thread bulkEraseThread;
 	private Thread sectorEraseThread;
 	private Thread pairNewRemoteThread;
@@ -221,7 +219,6 @@ public class AdvancedMode extends JFrame {
 	// Flags
 	private boolean frameInitialized = false;
 	private boolean corruptConfigFlag = false;
-	private boolean hideWindow = false;
 
 	public static AdvancedMode guiInstance; // The single instance of the dashboard that can be referenced anywhere in
 											// the class. Defined to follow the Singleton Method:
@@ -242,6 +239,8 @@ public class AdvancedMode extends JFrame {
 	private ArrayList<JPanel> testNumPaneArray;
 	private ArrayList<JCheckBox> testCheckBoxes;
 	private ArrayList<JTextField> testNameTextField;
+	private ArrayList<Boolean> signDataFlags;
+	private ArrayList<Boolean> labelDataFlags;
 	private JButton clearSelectedBtn;
 	private JButton saveSelectedBtn;
 	private JButton graphSelectedBtn;
@@ -1470,23 +1469,35 @@ public class AdvancedMode extends JFrame {
 										}
 									}
 
-
 									GenericTest test = new GenericTest(testParameters, finalData, mpuMinMax);
 
 									// create timestamp for CSV/CSVP
 									SimpleDateFormat sdf = new SimpleDateFormat("[yyyy.MM.dd - HH.mm] ");
 									String timestamp = sdf.format(new Timestamp(new Date().getTime()));
 
-									//Assign file name
 									String testName = "";
-									testName += prefixTextField.getText();
-									testName += "(#" + (testIndex+1) + ") ";
-									testName += timestamp;
-									testName += " " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N";
-									testName += suffixTextField.getText();
 
+									// use "Read Tests" file name if filled out
+									if (!fileNameTextField.getText().isEmpty()) {
+										testName += prefixTextField.getText();
+										testName += fileNameTextField.getText();
+										testName += suffixTextField.getText();
+									}
+									// otherwise, use default parameter naming scheme
+									else
+									{
+										testName += prefixTextField.getText();
+										testName += "(#" + (testIndex+1) + ") ";
+										testName += timestamp;
+										testName += " " + accelGyroSampleRate + "-" + magSampleRate + " " + accelSensitivity + "G-" + accelFilter + " " + gyroSensitivity + "dps-" + gyroFilter + " MAG-N";
+										testName += suffixTextField.getText();
+									}
+									
 									test.setName(testName);
 									genericTests.add(test);
+
+									signDataFlags.add(checkBoxSignedData.isSelected());
+									labelDataFlags.add(checkBoxLabelCSV.isSelected());
                   
 								}
 
@@ -2050,6 +2061,8 @@ public class AdvancedMode extends JFrame {
 				for (int i = testCheckBoxes.size() - 1; i >= 0; i--) {
 					if (testCheckBoxes.get(i).isSelected() || noneSelected) {
 						genericTests.remove(i);
+						signDataFlags.remove(i);
+						labelDataFlags.remove(i);
 					}
 				}
 
@@ -2072,7 +2085,8 @@ public class AdvancedMode extends JFrame {
 
 						// create CSV
 						try {
-							CSVHandler.writeCSV(test, nameOfTest + ".csv");
+							logger.info("Name: {} | Sign data: {} | Label data: {}", nameOfTest, signDataFlags.get(i), labelDataFlags.get(i));
+							CSVHandler.writeCSV(test, nameOfTest + ".csv", signDataFlags.get(i), labelDataFlags.get(i));
 						} catch (FileNotFoundException e1) {
 							generalStatusLabel.setText("Error saving CSV file.");
 						}
@@ -2158,6 +2172,9 @@ public class AdvancedMode extends JFrame {
 	public void createComponents() {
 
 		genericTests = new ArrayList<GenericTest>();
+
+		signDataFlags = new ArrayList<Boolean>();
+		labelDataFlags = new ArrayList<Boolean>();
 
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
