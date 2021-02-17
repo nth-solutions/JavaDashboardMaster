@@ -2085,7 +2085,6 @@ public class AdvancedMode extends JFrame {
 
 						// create CSV
 						try {
-							logger.info("Name: {} | Sign data: {} | Label data: {}", nameOfTest, signDataFlags.get(i), labelDataFlags.get(i));
 							CSVHandler.writeCSV(test, nameOfTest + ".csv", signDataFlags.get(i), labelDataFlags.get(i));
 						} catch (FileNotFoundException e1) {
 							generalStatusLabel.setText("Error saving CSV file.");
