@@ -19,6 +19,8 @@ public class CSVHandler {
 	
 	private static final Logger logger = LogController.start();
 
+	private static final String axisHeader = "AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ";
+
 	/**
 	 * Writes test parameters to a CSVP file.
 	 * @param testParameters the list of test parameters
@@ -32,14 +34,14 @@ public class CSVHandler {
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
 		int[] mpuOffsets = new int[9];
 
-		// ensures that a NullPointerException isn't thrown later in GT
+		// ensure that a NullPointerException isn't thrown later in GT
 		if (MPUMinMax == null) {
 			logger.warn("MPUMinMax offsets null, filling with 0s...");
 			MPUMinMax = new int[][] {{0, 0}, {0, 0}, {0, 0}};
 		}
 
 		// populate MPU offsets by taking the avg of min and max
-		// Currently used for acceleration calculations only
+		// (currently used for acceleration calculations only)
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
 		}
@@ -68,11 +70,16 @@ public class CSVHandler {
 			dataFile.println(testParameters.get(i).toString());
 		}
 		
+		// loop through each min/max pair of MPU offsets;
+		// (Accel/Gyro/Mag with X/Y/Z each)
 		for (int i = 0; i < 9; i++) {
-			// write mpuOffsets values to file
+
+			// TODO ideally, MPU offsets should not be repeated,
+			// and should instead be 1) min value, 2) max value.
+			// This only works because both values are averaged later.
+			// Consider updating this method to take MPUMinMax instead.
 			//
-			// (this works because MPUMinMax is averaged to get mpuOffsets)
-			// TODO this is kind of a hack, fix this at some point
+			// write mpuOffsets values to file
 			dataFile.println(mpuOffsets[i]);
 			dataFile.println(mpuOffsets[i]);
 		}
@@ -102,14 +109,19 @@ public class CSVHandler {
 	 */
 	public static void writeCSV(GenericTest g, String testName, boolean signData, boolean labelData) throws FileNotFoundException { 														
 	
+		// TODO writing to the file line-by-line might be more efficient;
+		// consider refactoring to use PrintWriter directly for better performance
 		StringBuilder builder = new StringBuilder();
 		
-		// add row header with 9DOF axis labels
+		// if enabled, add row header with 9DOF axis labels
 		if (labelData) {
-			builder.append("AccelX,AccelY,AccelZ,GyroX,GyroY,GyroZ,MagX,MagY,MagZ\n");
+			builder.append(axisHeader + "\n");
 		}
 
-		// this currently omits the last time instance of all three sensors due to potential out of bounds and alignment issues
+		// currently omits the last time sample to prevent out-of-bounds errors;
+		//
+		// TODO consider verifying that no exceptions occur, 
+		// then change condition to: i < g.getDataSamples().get(1).size()
 		for (int i = 0; i < g.getDataSamples().get(1).size()-1; i++) {
 
 			// populate accel and gyro data points 
@@ -162,25 +174,26 @@ public class CSVHandler {
 
 		logger.info("Importing test parameters from '" + CSVPFilePath + "'...");
 
-		// Reader for reading from the file
-		BufferedReader CSVPFile = null; 
-
+		BufferedReader br = null; 
 		String lineText = "";
 
-		// Instantiate the testParameters object. 
 		ArrayList<Integer> testParameters = new ArrayList<Integer>(); 
 		
-		// Open the file for reading
-		CSVPFile = new BufferedReader(new FileReader(CSVPFilePath)); 
+		// open the CSVP file
+		br = new BufferedReader(new FileReader(CSVPFilePath)); 
 
-		//There are 19 test parameters counting MPU Min/Max values
-		for (int i = 0; i < 19; i++) { 
-			lineText = CSVPFile.readLine();
-			// Parse as an int and add to test params
-			testParameters.add(testParameters.size(), Integer.parseInt(lineText)); 
+		// there are 13 test parameters + 6 IMU offsets (X/Y/Z with Min+Max each)
+		for (int i = 0; i < 19; i++) {
+
+			lineText = br.readLine();
+
+			// parse each parameter and add to test params
+			testParameters.add(testParameters.size(), Integer.parseInt(lineText));
+
 		}
 
-		CSVPFile.close();
+		// close the CSVP file
+		br.close();
 		
 		return testParameters;
 
@@ -212,24 +225,40 @@ public class CSVHandler {
 			dataSamples.add(axis);
 		}
 
+		// open the CSV file
 		BufferedReader br = new BufferedReader(new FileReader(CSVFilePath));
-
 		String line = "";
 
+		// read the CSV line-by-line
 		while ((line = br.readLine()) != null) {
 			
-			// splits each line into an array of samples for each axis
+			// ignore the axis header if included
+			if (line.equals(axisHeader)) {
+				continue;
+			}
+
+			// split each line into an array of samples
 			String[] lineArr = line.split(",");
 
 			for (int i = 0; i < lineArr.length; i++) {
 			
-				// parse characters from CSV to doubles
-				dataSamples.get(i+1).add(Double.parseDouble(lineArr[i]));
+				double sample = Double.parseDouble(lineArr[i]);
+
+				// TODO this is kind of redundant; in AxisDataSeries,
+				// we convert from unsigned->signed, but here,
+				// we're converting signed->unsigned for compatibilility.
+				// Consider adding a more efficient solution in the future.
+				//
+				// ensure all signed samples are converted to unsigned
+				sample = sample < 0 ? sample+65535 : sample;
+
+				// add sample to its corresponding axis
+				dataSamples.get(i+1).add(sample);
 
 			}
 		}
 
-		// close file reader
+		// close the CSV file
 		br.close();
 		
 		return dataSamples;
