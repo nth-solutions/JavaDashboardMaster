@@ -317,9 +317,9 @@ public class AdvancedMode extends JFrame {
 
 		// Set the look and feel to whatever the system default is.
 		logger.info("Version: " + Settings.getVersion());
-    	logger.info("Build date: " + Settings.getBuildDate());
+		logger.info("Build date: " + Settings.getBuildDate());
 
-		//Set the look and feel to whatever the system default is.
+		// Set the look and feel to whatever the system default is.
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -485,7 +485,7 @@ public class AdvancedMode extends JFrame {
 				// streams, set necessary flags so the whole program know that everything is
 				// initialized
 				if (serialHandler.openSerialPort(selectedCommID)) {
-					
+
 					logger.info("Successfully connected to module");
 
 					enableTabChanges();
@@ -1038,7 +1038,7 @@ public class AdvancedMode extends JFrame {
 				try {
 
 					if (!new File(videoFilePathTextField.getText()).exists()) {
-						
+
 						generalStatusLabel.setText("Video file path is invalid");
 
 						configForCalButton.setEnabled(true);
@@ -1088,8 +1088,7 @@ public class AdvancedMode extends JFrame {
 
 				try {
 					if (!serialHandler.applyCalibrationOffsets(Integer.parseInt(tmr0OffsetTextField.getText()),
-							Integer.parseInt(delayAfterTextField.getText()))) { // Constant 0 because we dont do Timer0
-																				// Calibration... yet
+							Integer.parseInt(delayAfterTextField.getText()))) {
 						generalStatusLabel.setText("Error Communicating With Module");
 						progressBar.setValue(100);
 						progressBar.setForeground(new Color(255, 0, 0));
@@ -1324,16 +1323,31 @@ public class AdvancedMode extends JFrame {
 						testParams.add(Integer.parseInt(gyroFilterCombobox.getSelectedItem().toString()));
 
 						Integer[] testParamsArr = new Integer[testParams.size()];
+						testParams.toArray(testParamsArr);
 
-						if (!serialHandler.sendTestParams((Integer[]) testParams.toArray(testParamsArr))) {
+						if (serialHandler.sendTestParams(testParamsArr)) {
+
+							try {
+								Thread.sleep(300);
+							} catch (InterruptedException e) {}
+
+							// reset TMR0 to base value by sending 0 to the module
+							if (serialHandler.applyCalibrationOffsets(0, Integer.parseInt(delayAfterTextField.getText()))) {
+								generalStatusLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
+								progressBar.setValue(100);
+								progressBar.setForeground(new Color(51, 204, 51));
+							} else {
+								generalStatusLabel.setText("Module Not Responding");
+								progressBar.setValue(100);
+								progressBar.setForeground(new Color(255, 0, 0));
+							}
+							
+						} else {
 							generalStatusLabel.setText("Module Not Responding");
 							progressBar.setValue(100);
 							progressBar.setForeground(new Color(255, 0, 0));
-						} else {
-							generalStatusLabel.setText("Module Configuration Successful, Parameters Have Been Updated");
-							progressBar.setValue(100);
-							progressBar.setForeground(new Color(51, 204, 51));
 						}
+
 					} catch (NumberFormatException e) {
 						generalStatusLabel.setText("Please Fill out Every Field");
 						progressBar.setValue(100);
