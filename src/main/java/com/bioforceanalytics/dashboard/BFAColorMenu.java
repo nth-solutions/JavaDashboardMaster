@@ -141,7 +141,7 @@ public class BFAColorMenu implements Initializable {
             customAxisColors.remove(0);
         }else{
             Random rand = new Random();
-            colorMap.put(axis,Color.rgb(rand.nextInt(), rand.nextInt(), rand.nextInt()));
+            colorMap.put(axis,Color.rgb((int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255));
         }
         
     }
