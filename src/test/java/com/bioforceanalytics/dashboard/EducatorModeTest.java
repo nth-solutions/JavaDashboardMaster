@@ -44,7 +44,7 @@ public class EducatorModeTest extends GUITest {
         }
 
         emfx = loader.getController();
-        stage.setTitle("Education Mode");
+        stage.setTitle("BioForce Education Mode");
         Scene scene = new Scene(root, 700, 500);
         stage.setScene(scene);
         scene.getStylesheets().add(getClass().getResource("css/EducatorModeCSS.css").toExternalForm());
@@ -56,15 +56,7 @@ public class EducatorModeTest extends GUITest {
     public void should_launch_data_analysis_graph() {
         Platform.runLater(() -> {
             emfx.startGraphingNoSINC();
-            FxAssert.verifyThat(window("BioForce Data Analysis Graph"), WindowMatchers.isShowing());
-        });
-    }
-
-    @Test
-    public void should_launch_sinc_graph() {
-        Platform.runLater(() -> {
-            emfx.startGraphing();
-            FxAssert.verifyThat(window("BioForce SINC Technology Graph"), WindowMatchers.isShowing());
+            FxAssert.verifyThat(window("BioForce Graph"), WindowMatchers.isShowing());
         });
     }
 

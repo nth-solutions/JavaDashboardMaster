@@ -1,11 +1,17 @@
 package com.bioforceanalytics.dashboard;
 
+import java.awt.Desktop;
+
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.Pane;
@@ -32,11 +38,26 @@ public class HelpMenuController implements Initializable{
 	Label titleBSPageLabel = new Label();
 	@FXML
 	Tab DSPageTab = new Tab();
+	@FXML
+	Label debugInfo;
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		debugInfo.setText("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
 		setKeys();
 	}
+
+	@FXML
+    public void openLogsFolder() {
+        try {
+            Desktop d = Desktop.getDesktop();
+            d.open(new File(LogController.getLogPath()));
+        } catch (IOException e) {
+            Alert a = new Alert(AlertType.ERROR); 
+            a.setContentText("Error opening logs folder.");
+            a.showAndWait();
+        }
+    }
 	
 	/* Set hashmap keys. Hashmap is used for code readability, the AdvancedMode passes an index (via setTabIndex()) representing the tab that the user is
 	 * on when they press the help button. This will tell us what pane to display 
@@ -94,7 +115,7 @@ public class HelpMenuController implements Initializable{
 				break;
 			case 3:
 				BullitizedStepsLabel.setText("1. Read the tests from the module with the \"Read Data from Module\" button. \n2. Optionally you may change the name of the file with the \"File name\" text field, otherwise the\n\t name will be generated from the parameters of the module and dated\n3. You can change the output directory from its default (your Documents folder), in the settings");
-				DetailedStepsLabel.setText("1. Read the tests from the module with the \"Read Data from Module\" button. \n\t1. Use the \"Signed Data\" CheckBox to sign the data (raw data is 0 to 65535, signed is \n\t\t -32768 to 32768)\n\t2. Use the \"Label Data in CSV\" checkbox to add a time axis to simplify graphing. This is useful \n\t\t for ELAN, or Excel. \n2. You may suffix and prefix the name of the file with the \"File Name Prefix\" and \"File Name Suffix\" \n\t\trespectively. The suffix will be entered BEFORE the file extension.\n3. Use the browse button to change the output directory of the CSV's. When setting the output \n\tdirectory in this way, it will only change during this session of the dashboard. If you would like \n\tto permanently change it, do so in the settings.\n4. In depth definitions of the parameters shown below can be found in the \"Configurations\" \n\ttab help menu, but from this tab they are only viewable.");
+				DetailedStepsLabel.setText("1. Read the tests from the module with the \"Read Data from Module\" button. \n\t1. Use the \"Signed Data\" CheckBox to sign the data (raw data is 0 to 65535, signed is \n\t\t -32767 to 32767)\n\t2. Use the \"Label Data in CSV\" checkbox to add a time axis to simplify graphing. This is useful \n\t\t for ELAN, or Excel. \n2. You may suffix and prefix the name of the file with the \"File Name Prefix\" and \"File Name Suffix\" \n\t\trespectively. The suffix will be entered BEFORE the file extension.\n3. Use the browse button to change the output directory of the CSV's. When setting the output \n\tdirectory in this way, it will only change during this session of the dashboard. If you would like \n\tto permanently change it, do so in the settings.\n4. In depth definitions of the parameters shown below can be found in the \"Configurations\" \n\ttab help menu, but from this tab they are only viewable.");
 				break;
 			case 4:
 				BullitizedStepsLabel.setText("1. This menu is populated after reading tests from the module.\n2. Go to the \"Read mode\" Tab and Click \"Read Data from Module\" to populate the list.\n3. The maximum number of displayable tests is 8.");

@@ -43,7 +43,7 @@ public class BFAColorMenu implements Initializable {
     // Node representing the entire table
     @FXML private TableView<Axis> tableView;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     static {
         BFAColorMenu.loadColorsFromJSON();
@@ -85,8 +85,6 @@ public class BFAColorMenu implements Initializable {
     private class ColorPickerCell extends TableCell<Axis, ColorPicker> {
 
         final ColorPicker picker = new ColorPicker();
-
-        ColorPickerCell() {}
 
         @Override
         // this method handles rendering color pickers

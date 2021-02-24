@@ -12,7 +12,6 @@ import javax.swing.JProgressBar;
 
 import com.bioforceanalytics.dashboard.OSManager.OS;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
@@ -55,7 +54,7 @@ public class SerialComm {
 	private boolean dataStreamsInitialized = false;
 	private boolean remoteTestActive = false;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	/**
 	 * Builds a list the names of all the serial ports to place in the combo box
@@ -690,7 +689,7 @@ public class SerialComm {
 		int tempRx; 
 
 		long echoStart = System.currentTimeMillis();
-		for(int axi = 1; axi < offsets.length; axi++) {
+		for(int axi = 0; axi < 8; axi++) {
 			for(int i = 0; i < offsets[axi].length && System.currentTimeMillis() - echoStart < 500; i++) {
 				outputStream.write(new String("1234").getBytes());
 				if(offsets[axi][i] < 0) offsets[axi][i] += 65535;
@@ -701,7 +700,7 @@ public class SerialComm {
 					outputStream.write(new String("CA").getBytes());
 				}
 				else {
-					System.out.println(tempRx +": does not match " + offsets[axi][i]);
+					System.out.println(tempRx +": does not match " + offsets[axi][i] + " (axis " + axi + ", index " + i + ")");
 				}
 				try {
 					Thread.sleep(10);
@@ -729,9 +728,9 @@ public class SerialComm {
 		
 		for(int axi = 0; axi < 8; axi++) {
 			mpuMinMax[axi][0] = inputStream.read()*256 + inputStream.read();
-			if(mpuMinMax[axi][0] > 32768) mpuMinMax[axi][0] -= 65535;
+			if(mpuMinMax[axi][0] > 32767) mpuMinMax[axi][0] -= 65535;
 			mpuMinMax[axi][1] = inputStream.read()*256 + inputStream.read();
-			if(mpuMinMax[axi][1] > 32768) mpuMinMax[axi][1] -= 65535;
+			if(mpuMinMax[axi][1] > 32767) mpuMinMax[axi][1] -= 65535;
 		}
 		return mpuMinMax;
 	}
@@ -761,7 +760,7 @@ public class SerialComm {
 		//Executes while the mode has not been successfully selected. This loop can be exited by any internal timeouts, or attempt limits as well
 		while(!modeSelected) {
 			
-			//Start condition followed by 'modeDelimeter' to tell firmware to enter a specific mode
+			//Start condition followed by 'modeDelimiter' to tell firmware to enter a specific mode
 			outputStream.write(new String("1111" + modeDelimiter).getBytes());
 
 			//Initialize temp to value that is impossible to be read from the input stream so for debug
@@ -892,7 +891,6 @@ public class SerialComm {
 		//Wait for confirmation that a remote was detected or the process timed out
 		waitForPostamble(4, 1, 15000);
 
-		System.out.println("Line after waitForPostamble");
 		//Get acknowledge handshake to determine if it was successful or a timeout
 		int ackValue = -1;
 		while (ackValue == -1) {
@@ -1271,7 +1269,7 @@ public class SerialComm {
 			//Assign start time for timeout calculation
 			long startTime = System.currentTimeMillis();
 			//Iterates through each parameter in the array until completion or timeout
-			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 1500) {
+			while (paramCounter < numTestParams && (System.currentTimeMillis() - startTime) < 3000) {
 
 				//Only executes if this iteration has not yet received the preamble. This loop is structured such that for each parameter it will 
 				//start by only looking for the preamble. Once it finds the preamble it will only look for 2 bytes of data. Once it receives the data and
@@ -1415,7 +1413,7 @@ public class SerialComm {
 				setText("Transferring Test #" + (test + 1) + "...", statusLabel, platformType);
 
 				//Wait for start condition (preamble)
-				if (!waitForPreamble(1, 8, 1500)) {
+				if (!waitForPreamble(1, 8, 3000)) {
 					setText("Lost communication with module. Please reconnect to the port.", statusLabel, platformType);
 					return null;
 				}
@@ -1446,7 +1444,7 @@ public class SerialComm {
 						//Executes if the preamble has not yet been received for this block read sequence
 						if (!preambleFlag) {
 							//Wait for a preamble, exits method if the preamble times out
-							if (!waitForPreamble(1, 4, 1500)) {
+							if (!waitForPreamble(1, 4, 3000)) {
 								setText("Lost communication with module. Please reconnect to the port.", statusLabel, platformType);
 								return null;
 							}
@@ -1597,6 +1595,8 @@ public class SerialComm {
 	 * @param platformType the {@link PlatformType} to use (Swing or FX)
 	 */
 	private void setText(String text, Object label, PlatformType platformType) {
+
+		logger.info(text);
 
 		if (platformType == PlatformType.SWING) {
 			((JLabel) label).setText(text); 

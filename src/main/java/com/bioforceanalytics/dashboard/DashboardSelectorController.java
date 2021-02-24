@@ -6,7 +6,6 @@ import java.util.ResourceBundle;
 
 import javax.swing.UIManager;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.fxml.FXML;
@@ -28,7 +27,7 @@ public class DashboardSelectorController implements Initializable {
 
     private Image icon;
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -89,7 +88,7 @@ public class DashboardSelectorController implements Initializable {
 
         Scene scene = new Scene(root, 690,500);
 
-        primaryStage.setTitle("Education Mode");
+        primaryStage.setTitle("BioForce Education Mode");
         primaryStage.setScene(scene);
         primaryStage.getIcons().add(icon);
         primaryStage.show();

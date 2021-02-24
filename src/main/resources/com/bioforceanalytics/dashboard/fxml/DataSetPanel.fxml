@@ -6,11 +6,12 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<fx:root type="TitledPane" xmlns:fx="http://javafx.com/fxml" fx:id="title" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="334.0" prefWidth="398.0" text="Data Set [n]">
+<fx:root type="TitledPane" xmlns:fx="http://javafx.com/fxml" fx:id="title" animated="false" minHeight="200.0" minWidth="200.0" prefHeight="334.0" prefWidth="398.0" text="Data Set [n]" stylesheets="@../css/DataSetPanel.css">
     <font>
         <Font size="10.0" />
     </font>

@@ -10,13 +10,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.util.Throwables;
+import org.controlsfx.dialog.ProgressDialog;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -37,18 +41,23 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.MediaView;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
- * Controller class for the Data Analysis Graph. Handles all user interaction with the user interface,
+ * Controller class for the BioForce Graph. Handles all user interaction with the user interface,
  * as well as processing data sets for JavaFX use, retrieving calculations from
  * {@link com.bioforceanalytics.dashboard.GenericTest GenericTests}, calculating zooming/panning/scaling of the graph,
  * displaying data point labels, tracking currently graphed data sets, and more.
@@ -66,55 +75,6 @@ public class GraphNoSINCController implements Initializable {
 
 	// holds all the data set panels instantiated
 	private ArrayList<DataSetPanel> panels;
-
-	// the interval at which samples are drawn to the screen
-	// if value is 20 (default), every 20th sample will be rendered
-	// TODO make this an advanced user setting
-	/**
-	 * Internally used to calculate the graphing resolution.
-	 * @deprecated DO NOT ACCESS THIS FIELD DIRECTLY, USE {@link #getResolution(AxisType)}
-	 */
-	@Deprecated
-	private int resolution;
-
-	// zooming + scrolling fields
-	private double mouseX;
-	private double mouseY;
-	private double zoomviewScalarX;
-	private double zoomviewScalarY;
-	private double leftScrollPercentage;
-	private double topScrollPercentage;
-
-	/**
-	 * The x-coordinate of the point denoting the center of the viewport.
-	 */
-	private double zoomviewX;
-
-	/**
-	 * The y-coordinate of the point denoting the center of the viewport.
-	 */
-	private double zoomviewY;
-
-	/**
-	 * The current width of the viewport.
-	 */
-	private double zoomviewW;
-
-	/**
-	 * The current height of the viewport.
-	 */
-	private double zoomviewH;
-
-	private double resetZoomviewX;
-	private double resetZoomviewY;
-	private double resetZoomviewH;
-	private double resetZoomviewW;
-
-	private double lastMouseX;
-	private double lastMouseY;
-
-	private double scrollCenterX;
-	private double scrollCenterY;
 
 	// internal enum identifying the state of data analysis
 	private GraphMode mode = GraphMode.NONE;
@@ -136,16 +96,10 @@ public class GraphNoSINCController implements Initializable {
 	// BFA icon
 	private Image icon;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	@FXML
 	private BFALineChart<Number, Number> lineChart;
-
-	@FXML
-	private BFANumberAxis xAxis;
-
-	@FXML
-	private BFANumberAxis yAxis;
 
 	@FXML
 	private Slider blockSizeSlider;
@@ -154,13 +108,22 @@ public class GraphNoSINCController implements Initializable {
 	private Label blockSizeLabel;
 
 	@FXML
-	private MultipleAxesLineChart multiAxis;
+	private MultiAxisLineChart multiAxis;
 
 	@FXML
 	private AnchorPane anchorPane;
 
 	@FXML
 	private Text generalStatusLabel;
+
+	@FXML
+	private HBox accelNormForm;
+
+	@FXML
+	private CheckBox accelNormCheckBox;
+
+	@FXML
+	private Button accelNormBtn;
 
 	@FXML
 	private TextField baselineStartField;
@@ -178,151 +141,158 @@ public class GraphNoSINCController implements Initializable {
 	public EquationPanel equationPanel;
 
 	private CustomTest customAxisTest;
+	@FXML private MediaView mediaView;
+	@FXML private Pane mediaViewPane;
+	@FXML private Rectangle scrubber;
+	
+	@FXML private HBox sincControls;
+	@FXML private Slider playbackSlider;
 
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
-		logger.info("Initializing Data Analysis graph...");
+		logger.info("Initializing BioForce Graph...");
 
 		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 		
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
-		customTests = new ArrayList<CustomTest>();
-	
-		// initialize graph mode variables
-		Platform.runLater(() -> {
-			setGraphMode(GraphMode.NONE);
-		});
-
-		// zoom/viewport settings
-		resolution = 20;
-		zoomviewScalarX = 1;
-		zoomviewScalarY = 1;
-		resetZoomviewX = 0;
-		resetZoomviewY = 0;
-		resetZoomviewW = 10;
-		resetZoomviewH = 5;
-		zoomviewX = 5;
-		zoomviewY = 0;
-		zoomviewW = 10;
-		zoomviewH = 5;
-
-		// initialize graph and axes
 		lineChart = multiAxis.getBaseChart();
-		lineChart.setAnimated(false);
-		xAxis = (BFANumberAxis) lineChart.getXAxis();
-		yAxis = (BFANumberAxis) lineChart.getYAxis();
+		lineChart.initSINC(mediaView, scrubber);
 
-		// hides symbols indicating data points on graph
-		lineChart.setCreateSymbols(false);
-
+		// pass reference of controller to graph
+		multiAxis.setController(this);
+		
 		Platform.runLater(() -> {
+
+			// initialize graph mode variables
+			setGraphMode(GraphMode.NONE);
+
+			// update smoothing in real-time
 			blockSizeSlider.valueProperty().addListener(e -> {
 				applyMovingAvg();
 			});
-		});
 
-		redrawGraph();
+			// update playback speed in real-time
+			playbackSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
+				lineChart.setPlaybackSpeed(newValue.doubleValue());
+			});
 
-		// listener that runs every tick the mouse scrolls, calculates zooming
-		multiAxis.setOnScroll(event -> {
+			// change accel normalization status + graph when enabled/disabled
+			accelNormCheckBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
+				
+				// if normalization was disabled
+				if (!newValue) {
+					resetNorm();
+				}
+				// if normalization was enabled
+				else {
+					applyBaseline();
+				}
 
-			// saves the mouse location of the scroll event to x and y variables
-			scrollCenterX = event.getX();
-			scrollCenterY = event.getY();
-
-			/**
-			 * calculates the percentage of scroll either on the left or top of the screen
-			 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is
-			 * 0.5, if it is three quarters to the right, it is 0.75
-			 */
-			leftScrollPercentage = (scrollCenterX - 48) / (lineChart.getWidth() - 63);
-			topScrollPercentage = (scrollCenterY - 17) / (lineChart.getHeight() - 88);
-
-			// vertically scale the graph
-			if (!event.isAltDown()) {
-				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-				zoomviewW = Math.max(lineChart.getWidth() * .00005, zoomviewW); 
-				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
-			}
-
-			// horizontally scale the graph
-			if (!event.isControlDown()) {
-				// decreases the zoomview width and height by an amount relative to the scroll
-				// and the current size of the zoomview (slows down zooming at high levels of
-				// zoom)
-				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
-
-				zoomviewH = Math.max(lineChart.getHeight() * .00005, zoomviewH); 
-				// moves the center of the zoomview to accomodate for the zoom, accounts for the
-				// position of the mouse to try an keep it in the same spot
-				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
-			}
-
-			redrawGraph();
-
-		});
-
-		// listener that runs every tick the mouse is dragged, calculates panning
-		multiAxis.setOnMouseDragged(event -> {
-
-			if (mode == GraphMode.NONE) {
-
-				// get the mouse x and y position relative to the line chart
-				mouseX = event.getX();
-				mouseY = event.getY();
-
-				// calculate a scalar to convert pixel space into graph space (mouse data in
-				// pixels, zoomview in whatever units the graph is in)
-				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())
-						/ (lineChart.getWidth() - yAxis.getWidth());
-				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())
-						/ (lineChart.getHeight() - xAxis.getHeight());
-
-				// adds the change in mouse position this tick to the zoom view, converted into graph space
-				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
-				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
-
-				redrawGraph();
-
-				// sets last tick's mouse data as this tick's
-				lastMouseX = mouseX;
-				lastMouseY = mouseY;
-
-			}
-
-		});
-
-		// listener that runs when the mouse is clicked, only runs once per click, helps
-		// to differentiate between drags
-		multiAxis.setOnMousePressed(event -> {
-			lastMouseX = event.getX();
-			lastMouseY = event.getY();
-		});
-
-		// ADD ALL FULL WINDOW LISTENERS HERE
-		Platform.runLater(() -> {
+				// enable/disable Accel Normalization section
+				accelNormBtn.setDisable(!newValue);
+				accelNormForm.setDisable(!newValue);
+				
+			});
 
 			Scene s = multiAxis.getScene();
 
-			// reset graph mode on right click
+			// FULL WINDOW MOUSE LISTENERS
 			s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+				// reset graph mode on right click
 				if (e.getButton() == MouseButton.SECONDARY) setGraphMode(GraphMode.NONE);
 			});
 
-			// reset graph mode on escape
-			s.setOnKeyPressed(e -> {
-				if (e.getCode() == KeyCode.ESCAPE) setGraphMode(GraphMode.NONE);
+			// FULL WINDOW KEY LISTENERS
+			s.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+
+				// if key was pressed somewhere other than in a text field
+				if (!(e.getTarget() instanceof TextField)) {
+
+					switch (e.getCode()) {
+
+						case ESCAPE:
+							setGraphMode(GraphMode.NONE);
+							break;
+	
+						case SPACE:
+							lineChart.togglePlayback();
+							break;
+	
+						case COMMA:
+							lineChart.lastFrame();
+							break;
+	
+						case PERIOD:
+							lineChart.nextFrame();
+							break;
+
+						case LEFT:
+							lineChart.jumpBack();
+							break;
+
+						case RIGHT:
+							lineChart.jumpForward();
+							break;
+	
+						default:
+							break;
+	
+					}
+
+					// prevent key from triggering further events
+					e.consume();
+
+				}
+
+			});
+
+			// allow users to drag and drop files
+			multiAxis.getScene().setOnDragOver(e -> {
+
+				// get all files dragged into graph window
+				List<File> csvs = e.getDragboard().getFiles();
+
+				// remove all non-CSV files from the list
+				csvs.removeIf(x -> !x.getName().endsWith("csv"));
+
+				// if the drag occurs from outside 
+				if (e.getGestureSource() == null && csvs.size() > 0) {
+					e.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+				}
+
+				// prevent from triggering further events
+				e.consume();
+			
+			});
+
+			// when user drops file(s) onto window
+			multiAxis.getScene().setOnDragDropped(e -> {
+
+				// get all files dragged into graph window
+				List<File> csvs = e.getDragboard().getFiles();
+
+				// remove all non-CSV files from the list
+				csvs.removeIf(x -> !x.getName().endsWith("csv"));
+
+				// convert File -> String
+				List<String> csvPaths = csvs.stream().map(x -> x.getAbsolutePath()).collect(Collectors.toList());
+
+				// load tests into graph
+				setGenericTestsFromCSV(new ArrayList<String>(csvPaths));
+			
 			});
 
 		});
+
+		multiAxis.redrawGraph();
 
 	}
 
 	/**
-	 * Populates the data analysis graph with a single GenericTest.
+	 * Populates the BioForce Graph with a single GenericTest.
 	 * @param g the GenericTest representing a single trial
 	 */
 	public void setGenericTest(GenericTest g) {
@@ -336,7 +306,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the data analysis graph with multiple GenericTests. This
+	 * Populates the BioForce Graph with multiple GenericTests. This
 	 * constructor should be used when multiple modules/trials are used in a test.
 	 * 
 	 * @param g array of GenericTests (each one represents one trial)
@@ -355,7 +325,7 @@ public class GraphNoSINCController implements Initializable {
 		}
 	}
 	/**
-	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
+	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -369,7 +339,7 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Populates the Data Analysis Graph by creating a GenericTest from a CSV and
+	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
 	 * 
 	 * @param CSVPath  the location of the CSV file containing test data
@@ -381,15 +351,19 @@ public class GraphNoSINCController implements Initializable {
 		loading.setResult(ButtonType.OK);
 		loading.show();
 
-		CSVHandler reader = new CSVHandler();
-
 		// read test data and create GenericTests
 		for (String s : paths) {
 
 			// try/catch placed inside loop to allow subsequent files to load,
 			// even if loading one of them causes an error
 			try {
-				GenericTest g = new GenericTest(reader.readCSV(s), reader.readCSVP(s + "p"));
+
+				// get test name from the file name minus the extension
+				String fileName = new File(s).getName();
+				String testName = fileName.substring(0, fileName.length()-4);
+
+				GenericTest g = new GenericTest(CSVHandler.readCSV(s), CSVHandler.readCSVP(s + "p"));
+				g.setName(testName);
 				genericTests.add(g);
 				
 			}
@@ -418,6 +392,7 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Internal method that generates data set panels from loaded GenericTests.
 	 */
+	// TODO break this up into add/remove panel methods
 	private void initializePanels() {
 		logger.info("running initialize panels");
 		// get reference to root element
@@ -436,8 +411,9 @@ public class GraphNoSINCController implements Initializable {
 			return;
 		}
 
-		// disable "line up trials" if only one GT exists 
-		if (genericTests.size() == 1) {
+		// disable "line up trials" if only one GT exists;
+		// if this is a SINC trial, don't disable "line up trials"
+		if (genericTests.size() == 1 || lineChart.hasSINC()) {
 			lineUpBtn.setDisable(true);
 		}
 		else {
@@ -494,27 +470,55 @@ public class GraphNoSINCController implements Initializable {
 		// create data set panels
 		for (int i = 0; i < genericTests.size(); i++) {
 
-			DataSetPanel d = new DataSetPanel(i);
-
-			d.setText("Data Set " + (i + 1));
-
-			// convey checkbox ticking on/off from child class to this class
-			d.currentAxis.addListener((obs, oldVal, newVal) -> {
-
-				// TODO part of the hack w/ change listeners
-				if (newVal.intValue() == -1) return;
-
-				// graph the given data set
-				graphAxis(AxisType.valueOf(newVal.intValue()), d.getGTIndex());
-
-			});
+			DataSetPanel d = new DataSetPanel(genericTests.get(i).getName(), i);
+			d.setController(this);
 
 			panels.add(d);
 			a.getPanes().add(d);
-			
+
+		}
+
+		// create array to hold bounds for each axis class (excluding momentum)
+		// outer array represents each axis class, inner represents min/max
+		Double[][] axisClassRanges = new Double[AxisType.values().length / 4 - 1][2];
+
+		// set up variables to track min/max bounds for axis class
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
+
+		// loop through each axis in the primary test (excluding momentum)
+		for (int i = 0; i < AxisType.values().length - 4; i++) {
+
+			// get current AxisDataSeries by index
+			AxisDataSeries axis = primaryTest.getAxis(AxisType.valueOf(i));
+
+			// if finished calculating min/max for an axis class
+			// (either starting a new axis class OR last AxisType)
+			if (i % 4 == 0 || i == AxisType.values().length - 4 - 1) {
+
+				// if starting a new axis class, get index of last class;
+				// otherwise, we must be on the last AxisType, so get the current class index
+				int axisClassIndex = i % 4 == 0 ? (i-1)/4 : i/4;
+
+				// save min/max for the given axis class
+				axisClassRanges[axisClassIndex][0] = min;
+				axisClassRanges[axisClassIndex][1] = max;
+
+				// reset min/max for the current axis class
+				min = Double.MAX_VALUE;
+				max = Double.MIN_VALUE;
+
+			}
+
+			// update min/max bounds for axis class
+			min = axis.dataRange[0] < min ? axis.dataRange[0] : min;
+			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
 
 			
 		}
+
+		// re-calculate axis scalars using min/max bounds
+		multiAxis.setAxisScalars(axisClassRanges);
 
 		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
@@ -528,13 +532,8 @@ public class GraphNoSINCController implements Initializable {
 			double testLength = primaryTest.getAxis(primaryTest.getDefaultAxes()[0]).testLength;
 
 			// set width of viewport to fit the start and end of the test
-			resetZoomviewX = testLength / 2;
-			resetZoomviewY = 0;
-			resetZoomviewW = testLength;
-			resetZoomviewH = 10;
+			multiAxis.resetViewport(testLength / 2, 0d, testLength, 10d);
 
-			handleReset();
-			//loadEquations();
 		});
 
 	}
@@ -569,35 +568,6 @@ public class GraphNoSINCController implements Initializable {
 		logger.info("Loaded " + i + " Equations");
 	}
 	/**
-	 * Handles zooming/panning of the graph.
-	 */
-	private void redrawGraph() {
-		
-		multiAxis.setXBounds(zoomviewX - zoomviewW / 2, zoomviewX + zoomviewW / 2);
-		multiAxis.setYBounds(zoomviewY - zoomviewH / 2, zoomviewY + zoomviewH / 2);
-
-		yAxis.setLowerBound(zoomviewY - zoomviewH / 2);
-		yAxis.setUpperBound(zoomviewY + zoomviewH / 2);
-
-		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
-		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2));
-
-		// update tick spacing based on zoom level
-		for (GraphData d : multiAxis.axisChartMap.keySet()) {
-			double axisScalar = d.axis.getAxisScalar();
-			
-			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getYAxis())).setTickUnit(
-					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * axisScalar);
-			((BFANumberAxis) (multiAxis.axisChartMap.get(d).getXAxis()))
-					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
-		}
-
-		lineChart.clearArea();
-		clearSlope();
-
-	}
-
-	/**
 	 * Draws/removes an axis from the graph.
 	 * @param axis the AxisType to be drawn/removed
 	 * @param GTIndex the GenericTest to read data from
@@ -629,7 +599,7 @@ public class GraphNoSINCController implements Initializable {
 			timeOffset = test.getAxis(axis).getTimeOffset();
 
 			// create (Time, Data) -> (X,Y) pairs
-			for (int i = 0; i < data.size(); i += getResolution(axis)) {
+			for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
 
 				XYChart.Data<Number, Number> dataEl;
 				dataEl = new XYChart.Data<Number,Number>(time.get(i)
@@ -717,8 +687,8 @@ public class GraphNoSINCController implements Initializable {
 			List<Double> data = test.getAxis(axis).getSamples();
 			double timeOffset = test.getAxis(axis).getTimeOffset();
 
-			// create (Time, Data) -> (X,Y) pairs
-			for (int i = 0; i < data.size(); i += getResolution(axis)) {
+		// create (Time, Data) -> (X,Y) pairs
+		for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
 
 				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset, data.get(i) / multiAxis.getAxisScalar(axis));
 
@@ -744,6 +714,60 @@ public class GraphNoSINCController implements Initializable {
 
 	
 	/**
+	 * Updates all currently drawn axes on the graph.
+	 * Displays a loading message displaying progress.
+	 */
+	public void updateGraph() {
+
+		// run updating process in separate thread
+		Task<Void> loadingTask = new Task<Void>() {
+
+            @Override
+            protected Void call() throws Exception {
+
+				// loop through each currently graphed data set
+				for (int i = 0; i < dataSets.size(); i++) {
+
+					// needed for Platform.runLater
+					final int index = i;
+					
+					// update progress + message for dialog box
+					updateProgress(index + 1, dataSets.size());
+					updateMessage("Reloading " + dataSets.get(index).toString() + "...");
+
+					// workaround used to sync progress + message w/ updateAxis()
+					// TODO this is bad practice, maybe we can refactor updateAxis() to use a Task?
+					final CountDownLatch waitForThread = new CountDownLatch(1);
+
+					Platform.runLater(() -> {
+
+						// redraw the given axis
+						updateAxis(dataSets.get(index).axis, dataSets.get(index).GTIndex);
+						waitForThread.countDown();
+
+					});
+
+					// wait until updateAxis() is complete
+					waitForThread.await();
+
+				}
+
+				return null;
+			}
+
+		};
+
+		ProgressDialog loading = new ProgressDialog(loadingTask);
+		loading.setHeaderText("Please wait...");
+		loading.setContentText("Reloading data sets...");
+
+		// start reloading in the background
+		new Thread(loadingTask).start();
+		loading.showAndWait();
+
+	}
+
+	/**
 	 * Removes all currently drawn axes from the graph.
 	 * Does NOT clear the list of data sets or GenericTests.
 	 */
@@ -759,6 +783,65 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
+	 * Removes all currently drawn axes from a specific GenericTest.
+	 * Does NOT clear the list of data sets.
+	 */
+	public void clearGraph(int GTIndex) {
+
+		// looping backwards to avoid ConcurrentModificationException
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+
+			// only remove if on the right GenericTest
+			if (dataSets.get(i).GTIndex == GTIndex) {
+				// toggling a graph that's already drawn removes it	
+				graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
+			}
+		}
+
+	}
+
+	/**
+	 * Removes a GenericTest and its data set panel from the DAG.
+	 * @param GTIndex the index of the GenericTest
+	 */
+	public void removeGT(int GTIndex) {
+
+		// remove all currently graphed axes
+		clearGraph(GTIndex);
+		
+		// loop through all data sets
+		for (int i = dataSets.size() - 1; i >= 0; i--) {
+
+			int currentGTIndex = dataSets.get(i).GTIndex;
+			
+			// every index above the removed index needs to be shifted down;
+			// e.g. removing index 4 in [0,9] means indices [5,9] become [4,8]
+			if (currentGTIndex > GTIndex) {
+
+				// update GTIndex with correct value
+				dataSets.get(i).GTIndex--;
+
+			}
+		}
+
+		// remove the GenericTest
+		genericTests.remove(GTIndex);
+
+		// redraw data set panels
+		initializePanels();
+
+	}
+
+	/**
+	 * Renames a given test.
+	 * @param name name of GenericTest
+	 * @param GTIndex the index of the GenericTest
+	 */
+	public void renameGT(String name, int GTIndex) {
+		genericTests.get(GTIndex).setName(name);
+	}
+
+	/**
 	 * Updates the colors of currently graphed lines based on BFAColorMenu.
 	 */
 	public void updateGraphColors() {
@@ -768,24 +851,30 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	public void handleReset() {
 
-		zoomviewX = resetZoomviewX;
-		zoomviewY = resetZoomviewY;
-		zoomviewW = resetZoomviewW;
-		zoomviewH = resetZoomviewH;
-		GenericTest test;
 		// update all currently drawn data sets
-		for (GraphData d : dataSets) {
-			test = d.axis.isCustomAxis() ? customTests.get(d.GTIndex) : genericTests.get(d.GTIndex);
-			test.resetDataOffset();
-			updateAxis(d.axis, d.GTIndex);
+		for (GraphData g : dataSets) {
 			
+			// get GenericTest from data set
+			GenericTest test = genericTests.get(g.GTIndex);
+
+			// if time offset is not 0, reset it and redraw
+			if (test.getTimeOffset() != 0) {
+				test.resetTimeOffset();
+				updateAxis(g.axis, g.GTIndex);
+			}
+
 		}
-		
-		redrawGraph();
+
+		multiAxis.resetViewport();
 		equationPanel.reset();
-		loadEquations();
+		lineChart.resetVideo();
+
 	}
 
+	/**
+	 * Recalculates moving averages for all currently drawn data sets.
+	 * Uses the block size from the smoothing slider in the Graph. 
+	 */
 	public void applyMovingAvg() {
 		
 		// round slider to nearest integer
@@ -806,6 +895,10 @@ public class GraphNoSINCController implements Initializable {
 		
 	}
 
+	
+	/**
+	 * Resets moving averages for all currently graphed data sets to its default setting.
+	 */
 	@FXML
 	public void resetMovingAvg() {
 
@@ -817,6 +910,9 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	/**
+	 * Applies a normalization acceleration baseline based on the bounds selected.
+	 */
 	@FXML
 	public void applyBaseline() {
 
@@ -840,7 +936,7 @@ public class GraphNoSINCController implements Initializable {
 
 					// apply data normalization
 					AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
-					a.applyNormalizedData(start, end);
+					a.normalizeAccel(start, end);
 				}
 
 				// recalculate Vel/Disp data sets
@@ -867,6 +963,39 @@ public class GraphNoSINCController implements Initializable {
 			alert.setContentText("Please make sure your baseline intervals are correct.");
 			alert.showAndWait();
 
+		}
+
+	}
+
+	/**
+	 * Resets + disables acceleration normalization. 
+	 */
+	public void resetNorm() {
+
+		// loop through each GenericTest
+		for (GenericTest g : genericTests) {
+
+			// loop through each acceleration data set
+			for (int i = 0; i <= AxisType.AccelMag.getValue(); i++) {
+
+				// reset normalization offset for axis
+				AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
+				a.resetSmoothing();
+
+			}
+
+			// recalculate Vel/Disp data sets
+			g.recalcKinematics();
+
+		}
+
+		// update all currently drawn acceleration axes
+		for (GraphData g : dataSets) {
+			
+			// if axis class is kinematic data (Accel/Vel/Disp) or momentum
+			if (g.axis.getValue() / 4 <= 2 || g.axis.getValue() / 4 <= 7) {
+				updateAxis(g.axis, g.GTIndex);
+			}
 		}
 
 	}
@@ -915,13 +1044,13 @@ public class GraphNoSINCController implements Initializable {
 	public void clearDataSets(ActionEvent event) {
 
 		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setHeaderText("Clear Data Sets");
-		alert.setContentText("Are you sure you want to clear all data sets?");
+		alert.setHeaderText("Remove All Tests");
+		alert.setContentText("Are you sure you want to remove all currently loaded tests?");
 		Optional<ButtonType> result = alert.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
 
-			logger.info("Clearing all data sets...");
+			logger.info("Removing all tests...");
 
 			// clear GTs, un-graph data sets, then clear the data sets list
 			genericTests.clear();
@@ -935,15 +1064,133 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	@FXML
-	private void importCSV(ActionEvent event) {
+	private void importVideo(ActionEvent event) {
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select a Video");
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
 
-		// used to load CSV test data directory
-		Settings settings = new Settings();
-		settings.loadConfigFile();
+		// filters file selection to videos only
+		//
+		// TODO add support for .mov by adding method to BlackFrameAnalysis converting to .mp4;
+		// this will use "Files.createTempDirectory()" and use ffmpeg (Jaffree) to create an .mp4.
+		FileChooser.ExtensionFilter filterVideos = new FileChooser.ExtensionFilter("Select a Video File", "*.mp4", "*.mov");
+		fileChooser.getExtensionFilters().add(filterVideos);
+
+		File videoFile = fileChooser.showOpenDialog(null);
+
+		// if user doesn't choose a file or closes window, don't continue
+		if (videoFile == null) return;
+
+		// if the selected video file does not use H.264 codec or is not an .mp4, prompt the user for conversion
+		if (!MediaConverter.getCodec(videoFile.getAbsolutePath()).equals("h264") ||
+			!MediaConverter.getFileExt(videoFile.getAbsolutePath()).equals("mp4")) {
+
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+
+			// TODO add a file chooser so that users can change save location
+			alert.setHeaderText("Import SINC Video");
+			alert.setContentText(
+				"The video you have chosen needs to be converted to an .mp4 for use with SINC Technology.\n\n" +
+				"Would you like the BioForce Graph to automatically save this new video file to \"" +
+				MediaConverter.convertFileExt(videoFile.getAbsolutePath()) + "\"?"
+			);
+
+			Optional<ButtonType> result = alert.showAndWait();
+
+			// if "yes", convert file to MP4 and replace old video file variable
+			if (result.get() == ButtonType.OK) {
+
+				// store file path to pre-converted video
+				String originalVideo = videoFile.getAbsolutePath();
+
+				// update video file object to use new converted file path
+				videoFile = new File(MediaConverter.convertFileExt(videoFile.getAbsolutePath()));
+
+				try {
+					Task<Void> conversionTask = new Task<Void>() {
+					
+						@Override
+						protected Void call() {
+
+							// update progress bar when media conversion has progress update
+							MediaConverter.progressProperty().addListener((obs, oldVal, newVal) -> {
+								updateProgress(newVal.doubleValue(), 1);
+							});
+
+							// perform media conversion via FFmpeg
+							MediaConverter.convertToMP4(originalVideo);
+							return null;
+						}
+
+					};
+
+					ProgressDialog converting = new ProgressDialog(conversionTask);
+
+					converting.setHeaderText("Please wait...");
+					converting.setContentText("Converting your video. This might take a while.");
+
+					// begin media conversion & show progress dialog
+					new Thread(conversionTask).start();
+					converting.showAndWait();
+
+				}
+				// if ffmpeg encounters an error, gracefully handle it
+				catch (RuntimeException e) {
+
+					Alert error = new Alert(AlertType.ERROR);
+					String errorMessage = Throwables.getRootCause(e).getMessage();
+
+					error.setHeaderText("Error converting video");
+					error.setContentText("There was an problem converting your video: \n\n" + errorMessage);
+					error.showAndWait();
+
+					logger.info("Error converting video: " + errorMessage);
+					return;
+
+				}
+			}
+		}
+
+		sincControls.setVisible(true);
+		lineUpBtn.setDisable(false);
+
+		// start SINC playback
+		shiftSINC();
+		lineChart.playVideo(videoFile);
+
+	}
+
+	@FXML
+	public void exitSINC() {
+		
+		// hide SINC control bar
+		sincControls.setVisible(false);
+
+		// if there are less than two tests, disable "Line up"
+		if (genericTests.size() < 2) {
+			lineUpBtn.setDisable(true);
+		}
+
+		// stop SINC features in line chart
+		lineChart.exitSINC();
+
+		multiAxis.redrawGraph();
+	}
+
+	// SINC PLAYBACK CONTROL HANDLERS
+	@FXML void togglePlayback() { lineChart.togglePlayback(); }
+	@FXML void lastFrame() 		{ lineChart.lastFrame(); }
+	@FXML void nextFrame() 		{ lineChart.nextFrame(); }
+	@FXML void jumpBack() 		{ lineChart.jumpBack(); }
+	@FXML void jumpForward() 	{ lineChart.jumpForward(); }
+
+	@FXML
+	private void importCSV(ActionEvent event) {
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a CSV");
-		fileChooser.setInitialDirectory(new File(settings.getKeyVal("CSVSaveLocation")));
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
 
 		// filters file selection to CSVs only
 		FileChooser.ExtensionFilter filterCSVs = new FileChooser.ExtensionFilter("Select a File (*.csv)", "*.csv");
@@ -1069,7 +1316,7 @@ public class GraphNoSINCController implements Initializable {
 		primaryStage.initModality(Modality.APPLICATION_MODAL);
 		primaryStage.initOwner(lineChart.getScene().getWindow());
 
-        primaryStage.setTitle("Data Analysis Graph - Color Menu");
+        primaryStage.setTitle("BioForce Graph - Color Menu");
 		primaryStage.getIcons().add(icon);
         primaryStage.show();
         primaryStage.setResizable(false);
@@ -1079,7 +1326,7 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private void changeResolution(ActionEvent event) {
 
-		TextInputDialog dialog = new TextInputDialog(Integer.toString(resolution));
+		TextInputDialog dialog = new TextInputDialog(Integer.toString(multiAxis.getResolution(AxisType.AccelX)));
 
 		dialog.setTitle("Change Resolution");
 		dialog.setHeaderText("Change Resolution");
@@ -1092,9 +1339,8 @@ public class GraphNoSINCController implements Initializable {
 
 		try {
 
-			resolution = Integer.parseInt(result.get());
-
-			if (resolution <= 0) throw new IllegalArgumentException();
+			multiAxis.setResolution(Integer.parseInt(result.get()));
+			if (multiAxis.getResolution(AxisType.AccelX) <= 0) throw new IllegalArgumentException();
 
 		}
 		catch (NumberFormatException e) {
@@ -1118,17 +1364,7 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
-		Alert a = new Alert(AlertType.NONE, "Reloading data sets...");
-		a.setResult(ButtonType.OK);
-		a.show();
-
-		// TODO potentially add ControlsFX to make async loading popup
-		// this would allow us to have a progress bar in a pop up like this for each axis
-		for (GraphData d : dataSets) {
-			updateAxis(d.axis, d.GTIndex);
-		}
-
-		a.close();
+		updateGraph();
 
 	}
 
@@ -1137,7 +1373,7 @@ public class GraphNoSINCController implements Initializable {
 	 * Use this to change between viewing the graph and finding slope/area modes.
 	 * @param g the {@link GraphMode} to change to.
 	 */
-	private void setGraphMode(GraphMode g) {
+	public void setGraphMode(GraphMode g) {
 
 		mode = g;
 
@@ -1155,6 +1391,7 @@ public class GraphNoSINCController implements Initializable {
 			case SLOPE:
 			case AREA:
 			case LINEUP:
+			case LINEUP_SINC:
 			case NORM:
 				lineChart.getScene().setCursor(Cursor.CROSSHAIR);
 				break;
@@ -1170,17 +1407,22 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
+	 * Gets the enum representing the state of data analysis.
+	 * @return the enum representing the state of data analysis
+	 */
+	public GraphMode getGraphMode() {
+		return mode;
+	}
+
+	/**
 	 * Graphs a line tangent to the given point.
 	 */
 	public void graphSlope(double x, double y, Axis axis, int GTIndex) {
 		GenericTest test = getTest(axis,GTIndex);
 		clearSlope();
-		double m;
 		double axisScalar;
 		// get slope value "m"
-		m = test.getAxis(axis).getSlope(x,getResolution(axis));
-	
-		
+		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, multiAxis.getResolution(axis));
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1269,13 +1511,52 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Clears the slope line at/between points (if currently drawn).
 	 */
-	private void clearSlope() {
+	public void clearSlope() {
 
 		if (slopeLine != null) {
 			lineChart.getData().remove(slopeLine);
 
 			// update legend colors
 			multiAxis.styleLegend();
+		}
+
+	}
+
+	/**
+	 * Shifts all GenericTests by their SINC calibration offset.
+	 * This uses index 2 of test parameters, <code>delayAfterStart</code>.
+	 */
+	private void shiftSINC() {
+
+		// loop through each GT and shift its time axis
+		for (GenericTest g : genericTests) {
+			
+			// converting milliseconds to seconds
+			double delayAfterStart = ((double) g.getTestParam(2)) / 1000;
+
+			// reset any shift in the x-axis
+			g.resetTimeOffset();
+
+			// if delayAfterStart is negative, the camera starts earlier than the module;
+			// we compensate by shifting the graph by -delayAfterStart (to the right)
+			if (delayAfterStart < 0) {
+				g.addTimeOffset(-delayAfterStart);
+			}
+			// if delayAfterStart is positive, the camera starts later than the module;
+			// compensation is done in firmware, but we must also apply manual SINC correction
+			// (see BFALineChart.SINC_TIME_ERROR for more information)
+			else if (delayAfterStart > 0) {
+				g.addTimeOffset(lineChart.SINC_TIME_ERROR);
+			}
+
+			// TODO intentionally not accounting for delayAfterStart == 0;
+			// more testing has to be done to see how to correct this case
+		}
+
+		// update each currently drawn axis
+		for (GraphData g : dataSets) {
+			updateAxis(g.axis, g.GTIndex);
+			logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 		}
 
 	}
@@ -1566,7 +1847,7 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 					// ensures that x1 is always less than x2
-					double[] areaBounds = new double[] {selectedPoint[0], x};
+					double[] areaBounds = {selectedPoint[0], x};
 					Arrays.sort(areaBounds);
 
 					// calculate the definite integral with the given limits
@@ -1589,16 +1870,28 @@ public class GraphNoSINCController implements Initializable {
 					setGraphMode(GraphMode.NONE);
 
 				}
-				else if (mode == GraphMode.LINEUP && !firstClick) {
-					GenericTest selectedTest = selectedGraphData.axis.isCustomAxis() ? customTests.get(selectedGraphData.GTIndex) : genericTests.get(selectedGraphData.GTIndex);
-					// shift the graph by this point's x-value minus the selected point's x-value
+				else if ((mode == GraphMode.LINEUP && !firstClick) || mode == GraphMode.LINEUP_SINC) {
 
-					selectedTest.addDataOffset(roundedX - selectedPoint[0]);
+					double finalX;
+					double initialX;
+
+					// final = scrubber, initial = this point
+					if (mode == GraphMode.LINEUP_SINC) {
+						finalX = lineChart.getCurrentTime();
+						initialX = x;
+					}
+					// final = this point, initial = previous point
+					else {
+						finalX = x;
+						initialX = selectedPoint[0];
+					}
+
+					// shift the graph by the difference between the final and initial x-values
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX);
 					
-					
-					for(GraphData g : dataSets){
+					for (GraphData g : dataSets) {
 						updateAxis(g.axis, g.GTIndex);
-						logger.info(selectedTest.getDataOffset());
+						logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex+1, genericTests.get(g.GTIndex).getTimeOffset());
 					}
 
 					setGraphMode(GraphMode.NONE);
@@ -1642,32 +1935,20 @@ public class GraphNoSINCController implements Initializable {
 	}
 
 	/**
-	 * Calculates the graphing resolution used when plotting data to the screen.
-	 * This should be used instead of directly accessing the "resolution" field.
-	 * @param axis the AxisType to get the resolution for
-	 * @return the graphing resolution of the given axis
-	 */
-	private int getResolution(Axis axis) {
-		// if this is a magnetometer data set, divide resolution by 10 to match 960 sps data sets
-		if(axis.isCustomAxis()){
-			return resolution;
-		}else{
-			return (axis.getValue() / 4 == 6) ? resolution/10 : resolution;
-		}
-	}
-
-	/**
-	 * Internal enum used to designate the state of data analysis;
+	 * Enum used to designate the state of data analysis;
 	 * <p><code>GraphMode.NONE</code> is when the user is zooming/panning,</p>
 	 * <p><code>GraphMode.SLOPE</code> is when the user is selecting a single point for a slope calculation,</p>
 	 * <p><code>GraphMode.AREA</code> is when the user is selecting the section for an area calculation,</p>
-	 * <p><code>GraphMode.LINEUP</code> is when the user is selecting the points to line up in two different data sets.</p>
+	 * <p><code>GraphMode.LINEUP</code> is when the user is selecting the points to line up in two different data sets,</p>
+	 * <p><code>GraphMode.LINEUP_SINC</code> is a special case of <code>GraphMode.LINEUP</code> where the second point is used instead of the first,</p>
+	 * <p>and <code>GraphMode.NORM</code> is when the user is selecting a point on a data set to normalize.</p>
 	 */
-	private enum GraphMode {
+	public enum GraphMode {
 		NONE,
 		SLOPE,
 		AREA,
 		LINEUP,
+		LINEUP_SINC,
 		NORM
 	}
 

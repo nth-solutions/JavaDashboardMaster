@@ -2,7 +2,6 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.fxml.FXML;
@@ -15,12 +14,12 @@ import javafx.scene.control.CheckBox;
 import javafx.event.ActionEvent;
 import javafx.beans.property.SimpleIntegerProperty;
 /**
- * Custom JavaFX component for the Data Analysis Graph's accordion view,
+ * Custom JavaFX component for the BioForce Graph's accordion view,
  * provides a place for the user to view the details of the specific experiment type.
  */
 public class ExperimentPanel extends TitledPane {
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	@FXML
 	private Label experimentName;

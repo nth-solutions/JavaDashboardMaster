@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.bioforceanalytics.dashboard</groupId>
   <artifactId>dashboard</artifactId>
-  <version>REV-43</version>
+  <version>2.2.0</version>
   <packaging>jar</packaging>
 
   <name>EduForce Dashboard</name>
@@ -19,18 +19,18 @@
   </properties>
 
   <repositories>
-      <repository>
-          <id>AsposeJavaAPI</id>
-          <name>Aspose Java API</name>
-          <url>http://repository.aspose.com/repo/</url>
-      </repository>
+    <repository>
+      <id>AsposeJavaAPI</id>
+      <name>Aspose Java API</name>
+      <url>http://repository.aspose.com/repo/</url>
+    </repository>
   </repositories>
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13-beta-3</version>
+      <version>4.13.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -51,12 +51,19 @@
       <version>2.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.7</version>
+    </dependency>
+
+    <!-- It turns out TestFX Monocle doesn't work with JDK 8u261, so if encountering errors, use an earlier version instead. -->
     <!-- https://mvnrepository.com/artifact/org.testfx/openjfx-monocle -->
     <dependency>
-        <groupId>org.testfx</groupId>
-        <artifactId>openjfx-monocle</artifactId>
-        <version>1.8.0_20</version>
-        <scope>test</scope>
+      <groupId>org.testfx</groupId>
+      <artifactId>openjfx-monocle</artifactId>
+      <version>8u76-b04</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/com.github.purejavacomm/purejavacomm -->
@@ -65,230 +72,311 @@
       <artifactId>purejavacomm</artifactId>
       <version>1.0.2.RELEASE</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.aspose/aspose-cells -->
-    <dependency>
-        <groupId>com.aspose</groupId>
-        <artifactId>aspose-cells</artifactId>
-        <version>18.11</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/uk.co.caprica/vlcj -->
-    <dependency>
-        <groupId>uk.co.caprica</groupId>
-        <artifactId>vlcj</artifactId>
-        <version>3.10.1</version>
-    </dependency>
     <!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
     <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx</artifactId>
-        <version>11</version>
-        <type>pom</type>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx</artifactId>
+      <version>11</version>
+      <type>pom</type>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
     <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>2.13.3</version>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>2.13.3</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>2.13.3</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-iostreams -->
+    <dependency>
         <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.13.3</version>
+        <artifactId>log4j-iostreams</artifactId>
+        <version>2.14.0</version>
     </dependency>
 
     <dependency>
-        <groupId>com.github.kokorin.jaffree</groupId>
-        <artifactId>jaffree</artifactId>
-        <version>0.9.6</version>
+      <groupId>com.github.kokorin.jaffree</groupId>
+      <artifactId>jaffree</artifactId>
+      <version>0.9.6</version>
     </dependency>
     <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.25</version>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.25</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j-impl</artifactId>
-        <version>2.13.3</version>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>2.13.3</version>
     </dependency>
-    
+
     <!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
     <dependency>
-        <groupId>com.googlecode.json-simple</groupId>
-        <artifactId>json-simple</artifactId>
-        <version>1.1.1</version>
+      <groupId>com.googlecode.json-simple</groupId>
+      <artifactId>json-simple</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.11</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/sh.tak.appbundler/appbundle-maven-plugin -->
+    <!-- https://mvnrepository.com/artifact/org.controlsfx/controlsfx -->
     <dependency>
-        <groupId>sh.tak.appbundler</groupId>
-        <artifactId>appbundle-maven-plugin</artifactId>
-        <version>1.2.0</version>
+        <groupId>org.controlsfx</groupId>
+        <artifactId>controlsfx</artifactId>
+        <version>8.40.17</version>
     </dependency>
   </dependencies>
+
   <build>
-      <plugins>
-        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.1.0</version>
+      </plugin>
 
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-        </plugin>
+      <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+          <nonFilteredFileExtensions>
+            <nonFilteredFileExtension>icns</nonFilteredFileExtension>
+          </nonFilteredFileExtensions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+      </plugin>
 
-        <!-- code testing -->
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.22.1</version>
-          <configuration>
-            <systemProperties>
-              <property>
-                <name>projectVersion</name>
-                <value>${project.version}</value>
-              </property>
-            </systemProperties>
-          </configuration>
-        </plugin>
+      <!-- code testing -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.1</version>
+        <configuration>
+          <systemProperties>
+            <property>
+              <name>projectVersion</name>
+              <value>${project.version}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
 
-        <!-- builds runnable JAR -->
-        <plugin> 
-            <groupId>org.apache.maven.plugins</groupId>    
-            <artifactId>maven-shade-plugin</artifactId>
-            <version>3.2.4</version>
-            <executions>
-                <execution> 
-                    <phase>package</phase> 
-                    <goals> 
-                        <goal>shade</goal> 
-                    </goals> 
-                    <configuration> 
-                        <transformers> 
-                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> 
-                                <mainClass>
-                                    com.bioforceanalytics.dashboard.DashboardSelector
-                                </mainClass> 
-                            </transformer> 
-                        </transformers> 
-                        <createDependencyReducedPom>
-                            false
-                        </createDependencyReducedPom>
-                        <filters>
-                          <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                              <exclude>META-INF/*.MF</exclude>
-                              <exclude>META-INF/*.SF</exclude>
-                              <exclude>META-INF/*.DSA</exclude>
-                              <exclude>META-INF/*.RSA</exclude>
-                            </excludes>
-                          </filter>
-                        </filters>
-                    </configuration> 
-                </execution> 
-            </executions> 
-        </plugin>
-
-        <!-- Builds .exe -->
-        <plugin>
-          <groupId>com.akathist.maven.plugins.launch4j</groupId>
-          <artifactId>launch4j-maven-plugin</artifactId>
-          <version>1.7.25</version>
-          <executions>
-            <execution>
-              <id>default</id>
-              <phase>package</phase>
-              <goals>
-                <goal>launch4j</goal>
-              </goals>
-              <configuration>
-                <headerType>gui</headerType>
-                <jar>target/${project.artifactId}-${project.version}.jar</jar>
-                <outfile>target/${project.artifactId}-${project.version}.exe</outfile>
-                <errTitle>The EduForce Dashboard requires Java 8.</errTitle>
-                <downloadUrl>https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</downloadUrl>
-                <icon>src/main/resources/com/bioforceanalytics/dashboard/images/bfa.ico</icon>
-                <jre>
-                  <path>jre</path>
-                  <bundledJre64Bit>false</bundledJre64Bit>
-                  <bundledJreAsFallback>false</bundledJreAsFallback>
-                  <minVersion>1.8.0</minVersion>
-                  <maxVersion>1.8.0_261</maxVersion>
-                  <jdkPreference>jdkOnly</jdkPreference>
-                  <runtimeBits>64/32</runtimeBits>
-                </jre>
-              </configuration>
-            </execution>
-
-            <!-- TODO NOT FOR PRODUCTION -->
-            <!-- Builds .exe w/ console logging-->
-            <execution>
-              <id>debug</id>
-              <phase>package</phase>
-              <goals>
-                <goal>launch4j</goal>
-              </goals>
-              <configuration>
-                <headerType>console</headerType>
-                <jar>target/${project.artifactId}-${project.version}.jar</jar>
-                <outfile>target/${project.artifactId}-${project.version}-debug.exe</outfile>
-                <errTitle>The EduForce Dashboard requires Java 8.</errTitle>
-                <downloadUrl>https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</downloadUrl>
-                <icon>src/main/resources/com/bioforceanalytics/dashboard/images/bfa.ico</icon>
-                <jre>
-                  <path>jre</path>
-                  <bundledJre64Bit>false</bundledJre64Bit>
-                  <bundledJreAsFallback>false</bundledJreAsFallback>
-                  <minVersion>1.8.0</minVersion>
-                  <maxVersion>1.8.0_261</maxVersion>
-                  <jdkPreference>jdkOnly</jdkPreference>
-                  <runtimeBits>64/32</runtimeBits>
-                </jre>
-              </configuration>
-            </execution>
-          </executions>
-        </plugin>
-
-        <!-- Builds .app/.dmg for Macs -->
-        <plugin>
-          <groupId>sh.tak.appbundler</groupId>
-          <artifactId>appbundle-maven-plugin</artifactId>
-          <version>1.2.0</version>
-          <configuration>
-            <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
-            <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
-            <generateDiskImageFile>true</generateDiskImageFile>
-          </configuration>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>bundle</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
-        </plugin>
-        <plugin>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-maven-plugin</artifactId>
-            <version>0.0.4</version>
+      <!-- builds runnable JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
             <configuration>
-                <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
+                </transformer>
+              </transformers>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.MF</exclude>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
-        </plugin>
-      </plugins>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.4</version>
+        <configuration>
+          <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>Windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Builds .exe -->
+          <plugin>
+            <groupId>com.akathist.maven.plugins.launch4j</groupId>
+            <artifactId>launch4j-maven-plugin</artifactId>
+            <version>1.7.25</version>
+            <executions>
+              <execution>
+                <id>default</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>launch4j</goal>
+                </goals>
+                <configuration>
+                  <headerType>gui</headerType>
+                  <jar>target/${project.artifactId}-${project.version}.jar</jar>
+                  <outfile>target/${project.artifactId}-${project.version}.exe</outfile>
+                  <errTitle>The EduForce Dashboard requires Java 8.</errTitle>
+                  <downloadUrl>https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</downloadUrl>
+                  <icon>src/main/resources/com/bioforceanalytics/dashboard/images/bfa.ico</icon>
+                  <jre>
+                    <path>jre</path>
+                    <bundledJre64Bit>false</bundledJre64Bit>
+                    <bundledJreAsFallback>false</bundledJreAsFallback>
+                    <minVersion>1.8.0</minVersion>
+                    <maxVersion>1.8.0_210</maxVersion>
+                    <jdkPreference>jdkOnly</jdkPreference>
+                    <runtimeBits>64/32</runtimeBits>
+                  </jre>
+                </configuration>
+              </execution>
+
+              <!-- TODO NOT FOR PRODUCTION -->
+              <!-- Builds .exe w/ console logging-->
+              <execution>
+                <id>debug</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>launch4j</goal>
+                </goals>
+                <configuration>
+                  <headerType>console</headerType>
+                  <jar>target/${project.artifactId}-${project.version}.jar</jar>
+                  <outfile>target/${project.artifactId}-${project.version}-debug.exe</outfile>
+                  <errTitle>There was an error loading the bundled Java runtime. Please try reinstalling the Dashboard.</errTitle>
+                  <icon>src/main/resources/com/bioforceanalytics/dashboard/images/bfa.ico</icon>
+                  <jre>
+                    <path>jre</path>
+                    <bundledJre64Bit>false</bundledJre64Bit>
+                    <bundledJreAsFallback>false</bundledJreAsFallback>
+                    <minVersion>1.8.0</minVersion>
+                    <maxVersion>1.8.0_261</maxVersion>
+                    <jdkPreference>jdkOnly</jdkPreference>
+                    <runtimeBits>64/32</runtimeBits>
+                  </jre>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>Mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Copy ffmpeg binaries -->
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+              <execution>
+                <id>copy-ffmpeg</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <outputDirectory>${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${basedir}/ffmpeg/mac</directory>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Set ffmpeg file permissions -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>3.0.0</version>
+            <executions>
+              <execution>
+                <id>process-classes</id>
+                <phase>package</phase>
+                <configuration>
+                  <target>
+                    <chmod file="${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac/ffmpeg" perm="755" />
+                  </target>
+                  <target>
+                    <chmod file="${basedir}/target/${project.artifactId}-${project.version}/${project.name}.app/ffmpeg/mac/ffprobe" perm="755" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Builds .app/.dmg for Macs -->
+          <plugin>
+            <groupId>sh.tak.appbundler</groupId>
+            <artifactId>appbundle-maven-plugin</artifactId>
+            <version>1.2.0</version>
+            <configuration>
+              <mainClass>com.bioforceanalytics.dashboard.DashboardSelector</mainClass>
+              <iconFile>com/bioforceanalytics/dashboard/images/bfa.icns</iconFile>
+
+              <!--
+                IMPORTANT: the below path is configured for GitHub Actions,
+                and WILL NOT WORK on MacOS unless $JAVA_HOME/jre is copied to jre_bundle/Contents/Home.
+                This is a limitation of "appbundle-maven-plugin", and is the reason for this workaround.
+              -->
+              <jrePath>jre_bundle</jrePath>
+              <generateDiskImageFile>true</generateDiskImageFile>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>bundle</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

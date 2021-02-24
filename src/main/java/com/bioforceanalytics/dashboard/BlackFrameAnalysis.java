@@ -14,7 +14,6 @@ import com.github.kokorin.jaffree.ffmpeg.NullOutput;
 import com.github.kokorin.jaffree.ffmpeg.OutputListener;
 import com.github.kokorin.jaffree.ffmpeg.UrlInput;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -41,7 +40,7 @@ public class BlackFrameAnalysis {
 	private int preLitBFNum = 0;
 	private int postLitBFNum = 0;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	public BlackFrameAnalysis(String videoFilePath) throws IOException {
 

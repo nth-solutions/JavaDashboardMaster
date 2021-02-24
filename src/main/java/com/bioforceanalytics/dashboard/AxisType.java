@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Enum used to identify an {@link com.bioforceanalytics.dashboard.AxisDataSeries AxisDataSeries}.
- * <p>Used by the Data Analysis Graph for retrieving the index of an axis in {@link com.bioforceanalytics.dashboard.GenericTest GenericTest},
+ * <p>Used by the BioForce Graph for retrieving the index of an axis in {@link com.bioforceanalytics.dashboard.GenericTest GenericTest},
  * as well as keeping track of which data sets are currently displayed in {@link com.bioforceanalytics.dashboard.GraphNoSINCController GraphNoSINCController}.</p>
  */
 public enum AxisType implements Axis {
@@ -63,7 +63,7 @@ public enum AxisType implements Axis {
 	/**
 	 * Returns the AxisType associated with this integer.
 	 * @param i the integer representing the desired AxisType
-	 * @return Returns the AxisType associated with this integer
+	 * @return the AxisType associated with this integer
 	 */
 	public static AxisType valueOf(int i) {
 		return (AxisType) map.get(i);

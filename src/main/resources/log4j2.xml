@@ -13,8 +13,8 @@
     </Console>
     <RollingFile
         name="FileLog"
-        fileName="logs/dashboard-latest.log"
-        filePattern="logs/dashboard.%i.log.gz"
+        fileName="${sys:LOG_PATH}/dashboard-latest.log"
+        filePattern="${sys:LOG_PATH}/dashboard.%i.log.gz"
         ignoreExceptions="false">
       <PatternLayout>
           <LevelPatternSelector>

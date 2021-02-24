@@ -4,8 +4,8 @@ import javafx.scene.chart.XYChart;
 
 /**
  * Data type used to store information about currently graphed data sets.
- * Used by the Data Analysis Graph in {@link com.bioforceanalytics.dashboard.GraphNoSINCController GraphNoSINCController}
- * and {@link com.bioforceanalytics.dashboard.MultipleAxesLineChart MultipleAxesLineChart}.
+ * Used by the BioForce Graph in {@link com.bioforceanalytics.dashboard.GraphNoSINCController GraphNoSINCController}
+ * and {@link com.bioforceanalytics.dashboard.MultiAxisLineChart MultiAxisLineChart}.
  */
 public class GraphData {
 
@@ -25,6 +25,11 @@ public class GraphData {
     public GraphData(int GTIndex, Axis axis){
         this.axis = axis;
         this.GTIndex = GTIndex;
+    }
+
+    @Override
+    public String toString() {
+        return "Test #" + (GTIndex + 1) + ", " + axis; 
     }
 
 }

@@ -1,6 +1,5 @@
 package com.bioforceanalytics.dashboard;
 
-import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Application;
@@ -16,7 +15,7 @@ import javafx.stage.Stage;
  */
 public class DashboardSelector extends Application {
 
-    private static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogController.start();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -30,6 +29,9 @@ public class DashboardSelector extends Application {
         primaryStage.getIcons().add(new Image(getClass().getResource("images/bfa.png").toExternalForm()));
         primaryStage.show();
         primaryStage.setResizable(false);
+
+        logger.info("Version: " + Settings.getVersion());
+        logger.info("Build date: " + Settings.getBuildDate());
     }
 
     public static void main(String[] args) {

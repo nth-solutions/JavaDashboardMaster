@@ -4,7 +4,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "EduForce Dashboard"
-!define PRODUCT_VERSION "REV-43"
+!define PRODUCT_VERSION "2.2.0"
 !define PRODUCT_PUBLISHER "BioForce Analytics, LLC"
 !define PRODUCT_WEB_SITE "http://bioforceanalytics.com/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\dashboard.exe"
@@ -43,7 +43,7 @@
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "..\target\${PRODUCT_NAME} ${PRODUCT_VERSION} Installer.exe"
-InstallDir "$DESKTOP\EduForce Dashboard"
+InstallDir "$PROGRAMFILES\EduForce Dashboard"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
@@ -69,12 +69,14 @@ Section "FFmpeg" SEC03
   File /r "..\ffmpeg\win64"
 SectionEnd
 
-# TODO NOT FOR PRODUCTION
-Section "Debug Version" SEC04
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  File "/oname=debug.exe" "..\target\dashboard-${PRODUCT_VERSION}-debug.exe"
-SectionEnd
+;===================
+; NOT FOR PRODUCTION
+;===================
+; Section "Debug Version" SEC04
+;   SetOutPath "$INSTDIR"
+;   SetOverwrite ifnewer
+;   File "/oname=debug.exe" "..\target\dashboard-${PRODUCT_VERSION}-debug.exe"
+; SectionEnd
 
 Section -AdditionalIcons
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
@@ -95,12 +97,15 @@ SectionEnd
 
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "The EduForce Dashboard includes both Educator and Advanced Mode, as well as the SINC Technology Graph and Data Analysis Graph."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Bundled version of JRE 8 to ensure compatibility."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "Includes both Education and Advanced Mode, as well as the BioForce Graph."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Bundled version of JRE 8 to ensure compatibility with all systems."
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Bundled version of FFmpeg. REQUIRED FOR SINC TECHNOLOGY."
 
-  # TODO NOT FOR PRODUCTION
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "[NOT FOR PRODUCTION] A version of the Dashboard with console-logging output displayed."
+  ;===================
+  ; NOT FOR PRODUCTION
+  ;===================
+  ;!insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "[NOT FOR PRODUCTION] A version of the Dashboard with console-logging output displayed."
+
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 

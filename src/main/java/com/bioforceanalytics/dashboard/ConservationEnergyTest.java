@@ -4,14 +4,12 @@ public class ConservationEnergyTest extends TwoModuleTest {
 
 	private double mass;
 	private double momentOfInertia;
-	private double radiusOfArm;
 	private double distanceDropped;
 
-	public ConservationEnergyTest(double mass, double momentOfInertia, double radiusOfArm, double distanceDropped) {
+	public ConservationEnergyTest(double mass, double momentOfInertia, double distanceDropped) {
 
 		this.mass = mass;
 		this.momentOfInertia = momentOfInertia;
-		this.radiusOfArm = radiusOfArm;
 		this.distanceDropped = distanceDropped;
 
 	}
@@ -43,9 +41,6 @@ public class ConservationEnergyTest extends TwoModuleTest {
 
 		panel.addParamName("Moment of Inertia");
 		panel.addParamValue(momentOfInertia + " kg-m²");
-
-		panel.addParamName("Radius of Torque Arm");
-		panel.addParamValue(radiusOfArm + " m");
 
 		panel.addParamName("Distance Dropped");
 		panel.addParamValue(distanceDropped + " m");

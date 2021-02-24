@@ -7,10 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
+
 import org.apache.logging.log4j.Logger;
 
 /**
- * Used by the Data Analysis Graph to store the data associated with a single axis (eg. Acceleration X).
+ * Used by the BioForce Graph to store the data associated with a single axis (eg. Acceleration X).
  * Also handles converting data samples into physical quantities, applying moving averages, and filtering (in the future).
  */
 public class AxisDataSeries {
@@ -25,9 +26,6 @@ public class AxisDataSeries {
 
 	// data samples after rolling average is applied to original data
 	private Double[] smoothedData;
-
-	// array of data samples with normalization offset applied
-	private Double[] normalizedData;
 
 	/*
 	The default rolling block size used to smooth data.
@@ -57,10 +55,15 @@ public class AxisDataSeries {
 	 */
 	public final int sampleRate;
 
+	/**
+	 * The minimum and maxiumum values in the data set, in that order respectively.
+	 */
+	public Double[] dataRange;
+
 	// acceleration due to gravity, modify this to add more sigfigs if needed
 	private final double GRAVITY = 9.80665;
 
-	private static final Logger logger = LogManager.getLogger();
+	private static final Logger logger = LogController.start();
 
 	public static HashMap<String, AxisDataSeries> nameADSMap = new HashMap<String,AxisDataSeries>();
 
@@ -121,7 +124,7 @@ public class AxisDataSeries {
 			for (int i = 0; i < this.originalData.length; i++) {
 
 				// convert raw data to signed data
-				if (this.originalData[i] > 32768) {
+				if (this.originalData[i] > 32767) {
 					this.originalData[i] -= 65535;
 				}
 
@@ -137,19 +140,12 @@ public class AxisDataSeries {
 		if (axis.getValue() / 4 == 6) {
 
 			// create normalized data series using first two seconds of module data
-			createNormalizedData(0.0, 2.0);
-
-			// creates smoothedData by applying rolling average to normalized data
-			this.smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
-
+			normalizeAccel(0.0, 2.0);
 		}
 		else {
 			// don't normalize if not a raw magnetometer series;
 			// simply copy over original data for use in integrate()
-			this.normalizedData = new Double[originalData.length];
-			copyArray(this.originalData, this.normalizedData);
-
-			this.smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
+			smoothData(rollBlkSize);
 		}
 
 		// print AxisDataSeries debug info
@@ -163,7 +159,6 @@ public class AxisDataSeries {
 
 		addADS(axisName.getName(),this);
 		this.originalData = axisData.getData();
-		this.normalizedData = axisData.getData();
 		this.smoothedData = axisData.getData();
 		this.axis = AxisType.AccelX;
 		
@@ -222,7 +217,7 @@ public class AxisDataSeries {
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
-			if (this.originalData[i] > 32768) {
+			if (this.originalData[i] > 32767) {
 				this.originalData[i] -= 65535;
 			}
 
@@ -236,10 +231,7 @@ public class AxisDataSeries {
 		}
 
 		// create normalized data series using first second of module data
-		createNormalizedData(0.0, 2.0);
-
-		// creates smoothedData by applying rolling average to normalized data
-		smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
+		normalizeAccel(0.0, 2.0);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -275,7 +267,7 @@ public class AxisDataSeries {
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
-			if (this.originalData[i] > 32768) {
+			if (this.originalData[i] > 32767) {
 				this.originalData[i] -= 65535;
 			}
 
@@ -285,10 +277,7 @@ public class AxisDataSeries {
 		}
 
 		//create normalized data series using first second of module data
-		createNormalizedData(0.0, 2.0);
-
-		//creates smoothedData by applying rolling average to normalized data
-		smoothedData = applyMovingAvg(normalizedData, rollBlkSize);
+		normalizeAccel(0.0, 2.0);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -327,8 +316,11 @@ public class AxisDataSeries {
 		Double[] d3 = new Double[length];
 		d3 = a3.getSamples().toArray(d3);
 
-
 		Double[] result = new Double[d1.length];
+
+		// initialize vars for tracking data range
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
 
 		// calculate magnitude data set
 		for (int i = 0; i < d1.length; i++) {
@@ -336,15 +328,18 @@ public class AxisDataSeries {
 			// r = sqrt(d1^2 + d2^2 + d3^2)
 			result[i] = Math.sqrt(Math.pow(d1[i], 2) + Math.pow(d2[i], 2) + Math.pow(d3[i], 2));
 
+			// update min/max bounds for data range
+			min = result[i] < min ? result[i] : min;
+			max = result[i] > max ? result[i] : max;
+
 		}
 
 		this.originalData = result;
+		this.dataRange = new Double[] { min, max };
 
-		// copy originalData to normalizedData and smoothedData
-		this.normalizedData = new Double[originalData.length];
+		// copy originalData to smoothedData
 		this.smoothedData = new Double[originalData.length];
-		copyArray(this.originalData, this.normalizedData);
-		copyArray(this.normalizedData, this.smoothedData);
+		copyArray(this.originalData, this.smoothedData);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -352,11 +347,11 @@ public class AxisDataSeries {
 	}
 
 	/**
-	 * Creates normalized data set with a "baseline" interval set to 0.
+	 * Calculates normalized data offset with a "baseline" interval set to 0.
 	 * @param startTime the x-value of the first data point
 	 * @param endTime the x-value of the second data point
 	 */
-	private void createNormalizedData(Double startTime, Double endTime) {
+	public void normalizeAccel(Double startTime, Double endTime) {
 
 		// Convert times to sample #s
 		int startIndex = (int) Math.round(startTime*sampleRate);
@@ -378,34 +373,24 @@ public class AxisDataSeries {
 
 		normOffset /= (double) (endIndex-startIndex);
 
-		// reset normalized data to original data
-		this.normalizedData = new Double[originalData.length];
-		copyArray(this.originalData, this.normalizedData);
+		// apply normalization offset
+		vertOffset = -normOffset;
+		smoothData(this.rollBlkSize);
 
-		// subtract offset from each data point to create normalized data
-		for (int i = 0; i < originalData.length; i++) {
-			normalizedData[i] = originalData[i] - normOffset;
-		}
-	}
-
-	/**
-	 * Recalculates normalized data and smoothing.
-	 * Used by the Data Analysis Graph for user control of the baseline average.
-	 */
-	public void applyNormalizedData(Double startTime, Double endTime) {
-
-		createNormalizedData(startTime, endTime);
-
-		// if smoothing is enabled, apply a moving average; otherwise, copy normalized data
-		this.smoothedData = applyMovingAvg(this.normalizedData, this.rollBlkSize);
-	
 	}
 
 	/**
 	 * Applies a middle-based simple moving average to a data series.
 	 * @param array the data series for the moving average to be applied to
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
+	 * 
+	 * @deprecated do not invoke directly, use {@link #smoothData} instead.
+	 * This method will likely be merged with {@link #smoothData} in the future.
+	 * 
+	 * The reason is that certain key calculations, like data range and vertical offsets,
+	 * are only applied in {@link #smoothData}, and therefore using the newer method would ensure consistency.
 	 */
+	@Deprecated
 	private Double[] applyMovingAvg(Double[] array, int sampleBlockSize) {
 
 		// work on a copy of the data for safety
@@ -432,7 +417,7 @@ public class AxisDataSeries {
 
 		/*
 		===============================================================================
-		Zero out the start and end portions of the test. Currently disabled since it
+		Zeroes out the start and end portions of the test. Currently disabled since it
 		makes the data more inaccurate than if the unsmoothed "ends" remain.
 		TODO consider removing these "ends" from the test so that users don't see them.
 		
@@ -451,7 +436,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Applies a midpoint-based simple moving average to this AxisDataSeries.
-	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smoothe the data set.
+	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smooth the data set.
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
 	 */
 	public void smoothData(int sampleBlockSize) {
@@ -459,12 +444,25 @@ public class AxisDataSeries {
 		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
 
 		this.rollBlkSize = sampleBlockSize;
-		smoothedData = applyMovingAvg(normalizedData, this.rollBlkSize);
+		smoothedData = applyMovingAvg(originalData, this.rollBlkSize);
+
+		// initialize vars for tracking data range
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
 
 		// apply vertical offset to smoothed data
 		for (int i = 0; i < smoothedData.length; i++) {
+
 			smoothedData[i] += vertOffset;
+
+			// update min/max bounds for data range
+			min = smoothedData[i] < min ? smoothedData[i] : min;
+			max = smoothedData[i] > max ? smoothedData[i] : max;
+
 		}
+
+		// set the min/max data range for the data set
+		this.dataRange = new Double[] { min, max };
 
 	}
 
@@ -478,13 +476,9 @@ public class AxisDataSeries {
 
 	}
 
-	// TODO make "createNormalizedData" use vertOffset as well?
-	// this would allow us to eliminate the normalizedData array,
-	// simplifying the codebase and being more consistent
-
 	/**
 	 * Vertically shifts the graph up or down.
-	 * Used by the Data Analysis Graph to normalize a single data set.
+	 * Used by the BioForce Graph to normalize a single data set.
 	 * @param the amount to shift the graph up/down
 	 */
 	public void vertShift(double amount) {
@@ -504,16 +498,17 @@ public class AxisDataSeries {
 	public List<Double> integrate() {
 
 		// create empty array with the same length as data
-		Double[] result = new Double[normalizedData.length];
+		Double[] result = new Double[originalData.length];
 
 		// temporarily set initial value to 0; necessary for loop below
 		result[0] = 0.0;
 
 		// start loop at 1 in order to look at previous value
-		for (int i = 1; i < normalizedData.length; i++) {
+		for (int i = 1; i < originalData.length; i++) {
 
 			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
-			result[i] = result[i-1] + (normalizedData[i] + normalizedData[i-1])/2 * (time[i] - time[i-1]);
+			// "vertOffset" accounts for if the graph was normalized -- think "c" in ∫[f(x) + c]dx
+			result[i] = result[i-1] + ((originalData[i] + originalData[i-1])/2 + vertOffset) * (time[i] - time[i-1]);
 
 		}
 
@@ -548,18 +543,18 @@ public class AxisDataSeries {
 	public List<Double> differentiate() {
 
 		// create empty array with the same length as data
-		Double[] result = new Double[normalizedData.length];
+		Double[] result = new Double[originalData.length];
 
 		// start loop at 1 in order to look at previous value
-		for(int i = 1; i < normalizedData.length - 1; i++) {
-			result[i] = (normalizedData[i+1]-normalizedData[i-1])/(time[i+1]-time[i-1]);
+		for(int i = 1; i < originalData.length - 1; i++) {
+			result[i] = (originalData[i+1]-originalData[i-1])/(time[i+1]-time[i-1]);
 		}
 
 		// first data point matches second
 		result[0] = result[1];
 
 		// last data point matches second to last
-		result[normalizedData.length-1] = result[normalizedData.length-2];
+		result[originalData.length-1] = result[originalData.length-2];
 
 		return Arrays.asList(result);
 	}
@@ -633,7 +628,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Returns the time axis of this AxisDataSeries.
-	 * Used by the Data Analysis Graph for plotting an axis.
+	 * Used by the BioForce Graph for plotting an axis.
 	 */
 	public ArrayList<Double> getTime() {
 		return new ArrayList<Double>(Arrays.asList(time));
@@ -641,7 +636,7 @@ public class AxisDataSeries {
 
 	/**
 	 * Returns the data samples of this AxisDataSeries.
-	 * Used by the Data Analysis Graph for plotting an axis.
+	 * Used by the BioForce Graph for plotting an axis.
 	 */
 	public ArrayList<Double> getSamples() {
 		return new ArrayList<Double>(Arrays.asList(smoothedData));
