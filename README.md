@@ -150,3 +150,20 @@ The BioForce Graph further processes [`dataSamples`](#data-samples) into individ
 25. Magnetometer Y
 26. Magnetometer Z
 27. Magnetometer Magnitude
+
+### Signing Data
+
+As mentioned previously, data samples are originally recorded as 16-bit unsigned integers (meaning a number between 0 and 65535). However, since all physical quantities have magnitude, the Dashboard must "sign" the data, converting the all-positive integer range (0-65535) to both positive and negative integers.
+
+To do this, the top half of the range (32768-65535) is mapped to negative numbers, while the bottom half (0-32767) maps to positive numbers. In doing so, the number of possible values in the range would remain the same (a total of 65536 values), but it would simply be shifted to encompass a "signed" range (-32767,32767).
+
+*You may notice that the number of values in the range above, (-32767,32767), is only 6553**5**, instead of 65536. This is because the signed number 0 is actually mapped to **two** unsigned numbers, 0 and 65535. This is intentional as you'll see later.*
+
+Specifically, the "signing" algorithm to convert unsigned samples to signed samples boils down to the following:
+
+```text
+if sample > 32767, subtract 65535;
+else, leave sample unchanged
+```
+
+This obeys [two's complement representation](https://en.wikipedia.org/wiki/Two%27s_complement), resulting in both the minimum and maximum unsigned values (0 and 65535) being mapped to the signed value 0.
