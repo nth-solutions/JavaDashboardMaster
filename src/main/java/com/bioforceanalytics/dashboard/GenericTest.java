@@ -122,7 +122,7 @@ public class GenericTest {
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
-
+	GenericTest(){};
 	/**
 	 * Populates the AxisDataSeries list by looping through dataSamples.
 	 * This logic is shared by both constructors.

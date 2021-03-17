@@ -87,7 +87,6 @@ public enum AxisType implements Axis {
             case 4: return "Angular Velocity";
             case 5: return "Angular Displacement";
             case 6: return "Magnetic Field";
-            case 7: return "Momentum";
             default: return "Unnamed Axis";
         }
 	}
@@ -136,7 +135,6 @@ public enum AxisType implements Axis {
             case 4: return "°/s";
             case 5: return "°";
             case 6: return "µT";
-            case 7: return "kg-m/s";
             default: return "";
         }
 	}

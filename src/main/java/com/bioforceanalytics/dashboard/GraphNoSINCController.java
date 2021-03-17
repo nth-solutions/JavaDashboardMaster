@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+import java.util.jar.Attributes.Name;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -540,6 +541,18 @@ public class GraphNoSINCController implements Initializable {
 
 	public void loadEquations(){
 		
+		ArrayList<GraphData> customAxes = new ArrayList<GraphData>();
+
+		for(GraphData d : dataSets){
+			if(d.axis.isCustomAxis()){
+				customAxes.add(d);
+				logger.info("Ungraphing custom axis " + d.axis.getName());
+			}
+		}
+		
+		for(GraphData d : customAxes){
+			graphAxis(d.axis, -1);
+		}
 		customAxisTest.customAxes.clear();
 		equationPanel.reset();
 		int i = 0;
@@ -574,7 +587,9 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void graphAxis(Axis axis, int GTIndex) {
 		GenericTest test = getTest(axis, GTIndex);
-		
+		if(Axis.getAxis(axis.getName()) == null){
+			Axis.addAxis(axis.getName(), axis);
+		}
 		// if axis is not already graphed:
 		if (findGraphData(GTIndex, axis) == null) {
 
@@ -634,7 +649,7 @@ public class GraphNoSINCController implements Initializable {
 
 			// tick the checkbox
 			if(axis.isCustomAxis()){
-				customTests.get(GTIndex).getCheckBox(axis).setSelected(true);
+				customAxisTest.getCheckBox(axis).setSelected(true);
 			}else{
 				panels.get(GTIndex).setCheckBox(true, (AxisType)axis);
 			}
@@ -652,7 +667,7 @@ public class GraphNoSINCController implements Initializable {
 
 			// untick the checkbox
 			if(axis.isCustomAxis()){
-				customTests.get(GTIndex).getCheckBox(axis).setSelected(false);
+				customAxisTest.getCheckBox(axis).setSelected(false);
 			}else{
 				panels.get(GTIndex).setCheckBox(false, (AxisType)axis);
 			}
@@ -850,23 +865,23 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	public void handleReset() {
-
+		
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			
-			// get GenericTest from data set
-			GenericTest test = genericTests.get(g.GTIndex);
+			if(!g.axis.isCustomAxis()){
+				// get GenericTest from data set
+				GenericTest test = genericTests.get(g.GTIndex);
 
-			// if time offset is not 0, reset it and redraw
-			if (test.getTimeOffset() != 0) {
-				test.resetTimeOffset();
-				updateAxis(g.axis, g.GTIndex);
+				// if time offset is not 0, reset it and redraw
+				if (test.getTimeOffset() != 0) {
+					test.resetTimeOffset();
+					updateAxis(g.axis, g.GTIndex);
+				}
 			}
 
 		}
 
 		multiAxis.resetViewport();
-		equationPanel.reset();
 		lineChart.resetVideo();
 
 	}
@@ -1575,11 +1590,11 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 	private GenericTest getTest(GraphData d){
-		return d.axis.isCustomAxis() ? customTests.get(d.GTIndex) : genericTests.get(d.GTIndex);
+		return d.axis.isCustomAxis() ? customAxisTest : genericTests.get(d.GTIndex);
 	}
 	private GenericTest getTest(Axis axis, int GTIndex){
 		if(GTIndex == -1) return customAxisTest;
-		return axis.isCustomAxis() ? customTests.get(GTIndex) : genericTests.get(GTIndex);
+		return axis.isCustomAxis() ? customAxisTest : genericTests.get(GTIndex);
 	}
 	/**
 	 * Creates the label for the slope of a tangent/secant line.

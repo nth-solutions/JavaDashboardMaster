@@ -38,34 +38,45 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import java.util.Map; 
-public class CustomAxisMenu implements Initializable{
+import javafx.util.Callback;
+
+import java.util.Map;
+
+public class CustomAxisMenu implements Initializable {
 
     // left column labelled "Axis Name" with axis type names
-    @FXML private TableColumn<CustomAxisCell,String> axisNameCol;
+    @FXML
+    private TableColumn<CustomAxisCell, String> axisNameCol;
 
     // middle column labelled "Axis Equation" with equation field
-    @FXML private TableColumn<CustomAxisCell,String> equationCol;
+    @FXML
+    private TableColumn<CustomAxisCell, String> equationCol;
 
     // right column labelled "Axis Units" with units field
-    @FXML private TableColumn<CustomAxisCell,String> unitsCol;
+    @FXML
+    private TableColumn<CustomAxisCell, String> unitsCol;
     // Node representing the entire table
-    @FXML private TableView<CustomAxisCell> tableView;
+    @FXML
+    private TableView<CustomAxisCell> tableView;
 
     private static final Logger logger = LogManager.getLogger();
 
     private GraphNoSINCController controller;
 
+    /**
+     * This method runs when the CustomAxisMenu is created
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // TODO Auto-generated method stub
         // don't allow the user to click and select rows
-        //tableView.setSelectionModel(null);
+        // tableView.setSelectionModel(null);
         tableView.setEditable(true);
         // center both table columns
         axisNameCol.setStyle("-fx-alignment: CENTER");
@@ -75,19 +86,16 @@ public class CustomAxisMenu implements Initializable{
         // set the left column to the name of each AxisType
         axisNameCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("name"));
         axisNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        axisNameCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
-                @Override
-                public void handle(CellEditEvent<CustomAxisCell, String> t) {
-                    
-                    ((CustomAxisCell) t.getTableView().getItems().get(
-                        t.getTablePosition().getRow())
-                        ).setName(t.getNewValue());
-                    
-                }
+        axisNameCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
+            @Override
+            public void handle(CellEditEvent<CustomAxisCell, String> t) {
+
+                ((CustomAxisCell) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+                        .setName(t.getNewValue());
+
             }
-        );
-      
+        });
+        //sets the middle column to be the equation of the custom axis
         equationCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("equation"));
         equationCol.setCellFactory(TextFieldTableCell.forTableColumn());
         equationCol.setOnEditCommit(
@@ -102,7 +110,7 @@ public class CustomAxisMenu implements Initializable{
                 }
             }
         );
-
+        //sets the last column to be the units of the custom axis
         unitsCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("units"));
         unitsCol.setCellFactory(TextFieldTableCell.forTableColumn());
         unitsCol.setOnEditCommit(
@@ -130,115 +138,92 @@ public class CustomAxisMenu implements Initializable{
         //we reload the table here because it relies on the controller to send equations to the GraphNoSINCController
         reloadTable();
     }
-    private void updateEquations(){
-        if(controller != null){
 
-            controller.customEquations.clear();
-            for(CustomAxisCell cell : tableView.getItems()){
-                if(cell.getName() != null && cell.getEquation() != null && cell.getUnits() != null){
-                    tableView.getItems().add(cell);
-                    controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
-                }
-            }
-            controller.loadEquations();
-        }
-    }
+    /**
+     * acts as a reset function for the custom axis menu, allows the table to be reset according to the current equations
+     */
     private void reloadTable(){
         if(controller != null){
+            //clears the table
             tableView.getItems().clear();
-            controller.customEquations.clear();
+            
             for(CustomAxisCell cell : loadDefaultEquations()){
+                //re-adds each cell
                 tableView.getItems().add(cell);
-                controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
             }
-            //logger.info(controller.customEquations);
-            controller.loadEquations();
+
         }
         
     }
-     private static ArrayList<CustomAxisCell> loadDefaultEquations() {
+    /**
+     * this method accesses a .json file (savedEquations.json) that contains the equations of all of the default axes
+     * @return returns a list of CustomAxisCells that contain the default axes
+     */
+     private ArrayList<CustomAxisCell> loadDefaultEquations() {
+         //first checks if equations have already been loaded, and if so just gets the equations from the controller
         ArrayList<CustomAxisCell> cells = new ArrayList<CustomAxisCell>();
-        try {
-
-            // load "defaultGraphColors.json" as an object
-            InputStream stream = CustomAxisMenu.class.getResourceAsStream("savedEquations.json");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            JSONObject obj = (JSONObject) new JSONParser().parse(reader);
-            JSONArray arr = (JSONArray) obj.get("Equations");
-
-            Iterator itr = arr.iterator(); 
-            while (itr.hasNext())  
-            { 
-                JSONObject e = (JSONObject)itr.next();
-                cells.add(new CustomAxisCell((String)e.get("name"),(String)e.get("equation"),(String)e.get("units")));
+        if(controller.customEquations.size() != 0){
+            for(CustomEquation e : controller.customEquations){
+                cells.add(new CustomAxisCell(e.getName(), e.getEquation(), e.getUnits()));
             }
-            
-        } catch (Exception e) {
+        }
+        else{
+            try {
 
-            logger.error("Could not load default equations.");
-            e.printStackTrace();
+                // load "saveEquations.json" as an object
+                InputStream stream = CustomAxisMenu.class.getResourceAsStream("savedEquations.json");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                JSONObject obj = (JSONObject) new JSONParser().parse(reader);
+                JSONArray arr = (JSONArray) obj.get("Equations");
 
+                Iterator itr = arr.iterator(); 
+                while (itr.hasNext())  
+                { 
+                    JSONObject e = (JSONObject)itr.next();
+                    //adds a new equation cell from each unit in the .json file
+                    cells.add(new CustomAxisCell((String)e.get("name"),(String)e.get("equation"),(String)e.get("units")));
+                }
+                
+            } catch (Exception e) {
+
+                logger.error("Could not load default equations.");
+                e.printStackTrace();
+
+            }
         }
         return cells;
     }
+    /**
+     * this serves as a way to submit the changes and axes written in this instance of the menu to the graphing window
+     */
     @FXML
-    private void saveAxes(){
+    private void loadAxes(){
         controller.customEquations.clear();
         for(CustomAxisCell cell : tableView.getItems()){
             controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
         }
         controller.loadEquations();
-        try {
-        JSONObject jo = new JSONObject();
-        JSONArray ja = new JSONArray(); 
-        File output = new File(this.getClass().getResource("savedEquations.json").getPath());
-        PrintWriter writer = new PrintWriter(output);
-        for(CustomAxisCell cell : tableView.getItems()){
-            Map m = new LinkedHashMap(3); 
-            m.put("name", cell.getName()); 
-            m.put("equation", cell.getEquation()); 
-            m.put("units",cell.getUnits());
-            ja.add(m);
-        }
-        jo.put("Equations",ja);
-        writer.write(jo.toJSONString());
-        
-        writer.flush();
-        writer.close();
-        }
-        
-        catch (Exception e){
-            logger.error("Could not save axes.");
-            e.printStackTrace();
-        }
-       // reloadTable();
     }
-
+    /**
+     * Allows the UI to create a new empty axis cell
+     */
     @FXML
     private void addNewAxis(){
-        tableView.getItems().add(new CustomAxisCell("New Custom Axis","",""));
+        tableView.getItems().add(new CustomAxisCell("Axis Name Here","Equation Here","Units Here"));
         
     }
-
+    /**
+     * Resets the table to the default state
+     */
     @FXML 
     private void resetAxes(){
-        try{
-            File input = new File(this.getClass().getResource("defaultEquations.json").getPath());
-            File output = new File(this.getClass().getResource("savedEquations.json").getPath());
-            PrintWriter writer = new PrintWriter(output);
-            
-            InputStream stream = CustomAxisMenu.class.getResourceAsStream("defaultEquations.json");
-            FileChannel src = new FileInputStream(input).getChannel();
-            FileChannel dest = new FileOutputStream(output).getChannel();
-            dest.transferFrom(src, 0, src.size());
-           reloadTable();
-        }
-        catch(Exception e){
-            logger.error("Could not revert axes.");
-            e.printStackTrace();
-        }
+        controller.customEquations.clear();
+        reloadTable();
+           
     }
-
+    /**
+     * A helper class that controls the table cells. See the color panel for a more in-depth explanation
+     */
     public static class CustomAxisCell{
         private final SimpleStringProperty name;
         private final SimpleStringProperty equation;

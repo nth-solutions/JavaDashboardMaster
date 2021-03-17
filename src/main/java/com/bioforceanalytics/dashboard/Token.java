@@ -2,9 +2,15 @@ package com.bioforceanalytics.dashboard;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * An Enum that controls the different type of tokens that can be created
+ */
 enum TokenType{
     OPERATOR,AXIS,VARIABLE, CONST;
 }
+/**
+ * An Enum that controls the different operators and operations that can be done on tokens
+ */
 enum Operation{
     
     ADD,SUBTRACT,MULTIPLY,DIVIDE,EXP,OPEN_PAREN,CLOSE_PAREN;
