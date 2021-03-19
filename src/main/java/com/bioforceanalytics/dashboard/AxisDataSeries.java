@@ -118,17 +118,7 @@ public class AxisDataSeries {
 			}
 		}
 
-		// if axis class is magnetometer (24-27), normalize data
-		if (axis.getValue() / 4 == 6) {
-
-			// create normalized data series using first two seconds of module data
-			normalizeAccel(0.0, 2.0);
-		}
-		else {
-			// don't normalize if not a raw magnetometer series;
-			// simply copy over original data for use in integrate()
-			smoothData(rollBlkSize);
-		}
+		smoothData(rollBlkSize);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -228,8 +218,7 @@ public class AxisDataSeries {
 
 		}
 
-		//create normalized data series using first second of module data
-		normalizeAccel(0.0, 2.0);
+		smoothData(this.rollBlkSize);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
