@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+import java.util.jar.Attributes.Name;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -71,6 +72,9 @@ public class GraphNoSINCController implements Initializable {
 
 	// GenericTest represents a single module and associated test data
 	private ArrayList<GenericTest> genericTests;
+
+	//CustomTest represents an abstract GenericTest that is not associated with a module axis
+	private ArrayList<CustomTest> customTests;
 
 	// tracks the axes currently graphed on the line chart
 	private ArrayList<GraphData> dataSets;
@@ -136,6 +140,13 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Button lineUpBtn;
 
+	public ArrayList<CustomEquation> customEquations = new ArrayList<CustomEquation>();
+
+	public static ArrayList<Variable> variables = new ArrayList<Variable>();
+
+	public EquationPanel equationPanel;
+
+	private CustomTest customAxisTest;
 	@FXML private MediaView mediaView;
 	@FXML private Pane mediaViewPane;
 	@FXML private Rectangle scrubber;
@@ -149,11 +160,10 @@ public class GraphNoSINCController implements Initializable {
 		logger.info("Initializing BioForce Graph...");
 
 		icon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
-
+		
 		dataSets = new ArrayList<GraphData>();
 		panels = new ArrayList<DataSetPanel>();
 		genericTests = new ArrayList<GenericTest>();
-
 		lineChart = multiAxis.getBaseChart();
 		lineChart.initSINC(mediaView, scrubber);
 
@@ -293,6 +303,11 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void setGenericTest(GenericTest g) {
 		genericTests.add(g);
+		for(AxisType axis : AxisType.values()){
+			String name = axis.getName() + (genericTests.size() <= 1 ? "" : genericTests.size());
+			AxisData.nameAxisDataMap.put(name,new AxisData((Double[])g.getAxis(axis).getSamples().toArray(),name));
+			
+		}
 		initializePanels();
 	}
 
@@ -304,9 +319,17 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void setGenericTests(ArrayList<GenericTest> g) {
 		genericTests = g;
+		updateIntermediateAxes();
 		initializePanels();
 	}
-
+	private void updateIntermediateAxes(){
+		for(GenericTest test : genericTests){
+			for(AxisType axis : AxisType.values()){
+				String name = axis.getExactName() + (genericTests.size() <= 1 ? "" : genericTests.size());
+				AxisData.nameAxisDataMap.put(name + (genericTests.size() <= 1 ? "" : genericTests.size()),new AxisData(test.getAxis(axis).getSamples(),name));
+			}
+		}
+	}
 	/**
 	 * Populates the BioForce Graph by creating a GenericTest from a CSV and
 	 * CSVP file.
@@ -348,6 +371,7 @@ public class GraphNoSINCController implements Initializable {
 				GenericTest g = new GenericTest(CSVHandler.readCSV(s), CSVHandler.readCSVP(s + "p"));
 				g.setName(testName);
 				genericTests.add(g);
+				
 			}
 			catch (IOException e) {
 				logger.error("IOException while loading test data");
@@ -365,7 +389,7 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 		}
-
+		updateIntermediateAxes();
 		initializePanels();
 		loading.close();
 
@@ -376,14 +400,17 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	// TODO break this up into add/remove panel methods
 	private void initializePanels() {
-
+		logger.info("running initialize panels");
 		// get reference to root element
 		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
-
+		customAxisTest = new CustomTest();
 		// remove existing panels
 		panels.clear();
 		a.getPanes().clear();
 
+		equationPanel = new EquationPanel(this);
+			
+		a.getPanes().add(equationPanel);
 		// stop if no GTs are loaded
 		if (genericTests.size() == 0) {
 			logger.warn("Attempted to initialize panels with 0 GenericTests loaded");
@@ -409,14 +436,36 @@ public class GraphNoSINCController implements Initializable {
 		if (!primaryTest.getClass().equals(GenericTest.class)) {
 
 			ExperimentPanel experimentPanel = new ExperimentPanel();
-
+			
 			// set up experiment panels
 			if (primaryTest instanceof ConservationMomentumModule) {
+
 				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+
+				CustomTest momentumGT = new CustomTest();
+				AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController().getMomentumAxes();
+				experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
+
+					// TODO part of the hack w/ change listeners
+					if (newVal.intValue() == -1) return;
+	
+					// graph the given data set
+					graphAxis(CustomAxisType.getCustomAxisByIndex(newVal.intValue()), customTests.size() - 1);
+	
+				});
+				for(int i = 0; i < momentumAxes.length; i++){
+					momentumGT.addAxisDataSeries(momentumAxes[i], new CustomAxisType("Momentum " + ((i % 4 == 3) ? "Mag" : (char)(88+(i%4))),"kg-m/s",1), new CheckBox());
+					customTests.add(momentumGT);
+				}
+
 			} else if (primaryTest instanceof ConservationEnergyModule) {
+
 				((ConservationEnergyModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
+
 			} else {
+
 				primaryTest.setupExperimentPanel(experimentPanel);
+
 			}
 
 			// add panel to window
@@ -471,6 +520,7 @@ public class GraphNoSINCController implements Initializable {
 			min = axis.dataRange[0] < min ? axis.dataRange[0] : min;
 			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
 
+			
 		}
 
 		// re-calculate axis scalars using min/max bounds
@@ -479,16 +529,11 @@ public class GraphNoSINCController implements Initializable {
 		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
 
-			clearGraph();
+			//clearGraph();
 
 			// TODO the first test isn't always the desired one, so we might want to change this
 			//
 			// graph all default axes for each GenericTest
-			for (GenericTest g : genericTests) {
-				for (AxisType axis : g.getDefaultAxes()) {
-					graphAxis(axis, genericTests.indexOf(g));
-				}
-			}
 
 			double testLength = primaryTest.getAxis(primaryTest.getDefaultAxes()[0]).testLength;
 
@@ -499,13 +544,57 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	public void loadEquations(){
+		
+		ArrayList<GraphData> customAxes = new ArrayList<GraphData>();
+
+		for(GraphData d : dataSets){
+			if(d.axis.isCustomAxis()){
+				customAxes.add(d);
+				logger.info("Ungraphing custom axis " + d.axis.getName());
+			}
+		}
+		
+		for(GraphData d : customAxes){
+			graphAxis(d.axis, -1);
+		}
+		customAxisTest.customAxes.clear();
+		equationPanel.reset();
+		int i = 0;
+		for(CustomEquation equation : customEquations){
+			i++;
+			try{
+				//CustomTest test = new CustomTest();
+				//logger.info(tokenizeString(equation.getEquation()));
+				Token result = processTokens(tokenizeString(equation.getEquation()));
+				CustomAxisType customAxis = new CustomAxisType(equation.getName(), equation.getUnits(), 10);
+				equationPanel.addEquation(equation,customAxis);
+				if(result.type == TokenType.AXIS){
+					AxisDataSeries resultSeries = new AxisDataSeries(result.axis, customAxis);
+					customAxisTest.addAxisDataSeries(resultSeries, customAxis,(CheckBox)equationPanel.equationCheckboxMap.get(equation));
+				}else{
+					throw new Exception("Equation " + equation.getName() + " is invalid");
+				}
+				
+				//graphAxis(customAxis,-1);
+			}
+			catch (Exception e){
+				logger.warn("Error processing equation " + equation.name);
+			}
+
+		}
+		logger.info("Loaded " + i + " Equations");
+	}
 	/**
 	 * Draws/removes an axis from the graph.
 	 * @param axis the AxisType to be drawn/removed
 	 * @param GTIndex the GenericTest to read data from
 	 */
-	public void graphAxis(AxisType axis, int GTIndex) {
-
+	public void graphAxis(Axis axis, int GTIndex) {
+		GenericTest test = getTest(axis, GTIndex);
+		if(Axis.getAxis(axis.getName()) == null){
+			Axis.addAxis(axis.getName(), axis);
+		}
 		// if axis is not already graphed:
 		if (findGraphData(GTIndex, axis) == null) {
 
@@ -523,18 +612,22 @@ public class GraphNoSINCController implements Initializable {
 
 			List<Double> time;
 			List<Double> data;
-
+			double timeOffset;
 			// get time/samples data sets
-			time = genericTests.get(GTIndex).getAxis(axis).getTime();
-			data = genericTests.get(GTIndex).getAxis(axis).getSamples();
+			time = test.getAxis(axis).getTime();
+			data = test.getAxis(axis).getSamples();
+			timeOffset = test.getAxis(axis).getTimeOffset();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
 
-				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+				XYChart.Data<Number, Number> dataEl;
+				dataEl = new XYChart.Data<Number,Number>(time.get(i)
+				 + timeOffset,
+				  data.get(i) / multiAxis.getAxisScalar(axis));
 			
 				// add tooltip with (x,y) when hovering over data point
-				dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
+				dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, GTIndex));
 
 				seriesData.add(dataEl);
 
@@ -560,7 +653,11 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 			// tick the checkbox
-			panels.get(GTIndex).setCheckBox(true, axis);
+			if(axis.isCustomAxis()){
+				customAxisTest.getCheckBox(axis).setSelected(true);
+			}else{
+				panels.get(GTIndex).setCheckBox(true, (AxisType)axis);
+			}
 
 		// if axis is already graphed:
 		} else {
@@ -574,10 +671,20 @@ public class GraphNoSINCController implements Initializable {
 			dataSets.remove(findGraphData(GTIndex, axis));
 
 			// untick the checkbox
-			panels.get(GTIndex).setCheckBox(false, axis);
+			if(axis.isCustomAxis()){
+				customAxisTest.getCheckBox(axis).setSelected(false);
+			}else{
+				panels.get(GTIndex).setCheckBox(false, (AxisType)axis);
+			}
 
 		}
 
+	}
+
+	public void updateAxis(Axis axis, int GTIndex){
+		logger.info("Updating " + axis + " for GT #" + (GTIndex+1));
+		
+		updateAxis(findGraphData(GTIndex,axis));
 	}
 
 	/**
@@ -585,46 +692,47 @@ public class GraphNoSINCController implements Initializable {
 	 * @param axis the AxisType to be drawn/removed
 	 * @param GTIndex the GenericTest to read data from
 	 */
-	public void updateAxis(AxisType axis, int GTIndex) {
+	public void updateAxis(GraphData d) {
+		GenericTest test = getTest(d);
+		
+			// retrieve XYChart.Series and ObservableList from HashMap
+			XYChart.Series<Number, Number> series = d.data;
+			ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
 
-		logger.info("Updating " + axis + " for GT #" + (GTIndex+1));
-
-		// retrieve XYChart.Series and ObservableList from HashMap
-		XYChart.Series<Number, Number> series = findGraphData(GTIndex, axis).data;
-		ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
-
-		// clear samples in ObservableList
-		seriesData.clear();
-
-		// get time/samples data sets
-		List<Double> time = genericTests.get(GTIndex).getAxis(axis).getTime();
-		List<Double> data = genericTests.get(GTIndex).getAxis(axis).getSamples();
+			// clear samples in ObservableList
+			seriesData.clear();
+			Axis axis = d.axis;
+			// get time/samples data sets
+			List<Double> time = test.getAxis(axis).getTime();
+			List<Double> data = test.getAxis(axis).getSamples();
+			double timeOffset = test.getAxis(axis).getTimeOffset();
 
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
 
-			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i), data.get(i) / multiAxis.getAxisScalar(axis));
+				XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset, data.get(i) / multiAxis.getAxisScalar(axis));
 
-			// add tooltip with (x,y) when hovering over data point
-			dataEl.setNode(new DataPointLabel(time.get(i), data.get(i), axis, GTIndex));
+				// add tooltip with (x,y) when hovering over data point
+				dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, d.GTIndex));
 
-			seriesData.add(dataEl);
+				seriesData.add(dataEl);
 
-		}
+			}
 
-		// add ObservableList to XYChart.Series
-		series.setData(seriesData);
+			// add ObservableList to XYChart.Series
+			series.setData(seriesData);
 
-		// hide all data point symbols
-		for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
-			n.setStyle("-fx-background-color: transparent;");
-		}
+			// hide all data point symbols
+			for (Node n : lineChart.lookupAll(".chart-line-symbol")) {
+				n.setStyle("-fx-background-color: transparent;");
+			}
 
-		// update legend colors
-		multiAxis.styleLegend();
+			// update legend colors
+			multiAxis.styleLegend();
 
 	}
 
+	
 	/**
 	 * Updates all currently drawn axes on the graph.
 	 * Displays a loading message displaying progress.
@@ -762,17 +870,18 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	public void handleReset() {
-
+		
 		// update all currently drawn data sets
 		for (GraphData g : dataSets) {
-			
-			// get GenericTest from data set
-			GenericTest test = genericTests.get(g.GTIndex);
+			if(!g.axis.isCustomAxis()){
+				// get GenericTest from data set
+				GenericTest test = genericTests.get(g.GTIndex);
 
-			// if time offset is not 0, reset it and redraw
-			if (test.getTimeOffset() != 0) {
-				test.resetTimeOffset();
-				updateAxis(g.axis, g.GTIndex);
+				// if time offset is not 0, reset it and redraw
+				if (test.getTimeOffset() != 0) {
+					test.resetTimeOffset();
+					updateAxis(g.axis, g.GTIndex);
+				}
 			}
 
 		}
@@ -787,23 +896,23 @@ public class GraphNoSINCController implements Initializable {
 	 * Uses the block size from the smoothing slider in the Graph. 
 	 */
 	public void applyMovingAvg() {
-
+		
 		// round slider to nearest integer
 		int blockSize = (int) blockSizeSlider.getValue();
-
+		GenericTest test;
 		// update smoothing label
 		blockSizeLabel.setText("" + blockSize);
 
 		// apply moving avgs to all currently drawn axes
 		for (GraphData d : dataSets) {
-
+			test = getTest(d);
 			// if this is a magnetometer data set, divide block size by 10
-			int axisBlockSize = d.axis.getValue() / 4 == 6 ? blockSize / 10 : blockSize;
-
-			genericTests.get(d.GTIndex).getAxis(d.axis).smoothData(axisBlockSize);
+			int axisBlockSize = d.axis.getUnits() == "µT" ? blockSize / 10 : blockSize;
+			test.getAxis(d.axis).smoothData(axisBlockSize);
 			updateAxis(d.axis, d.GTIndex);
+			
 		}
-
+		
 	}
 
 	
@@ -858,8 +967,8 @@ public class GraphNoSINCController implements Initializable {
 			// update all currently drawn acceleration axes
 			for (GraphData g : dataSets) {
 				
-				// if axis class is kinematic data (Accel/Vel/Disp) or momentum
-				if (g.axis.getValue() / 4 <= 2 || g.axis.getValue() / 4 <= 7) {
+				// if axis class is kinematic data (Accel/Vel/Disp)
+				if (g.axis.getUnits() =="m/s" || g.axis.getUnits() == "m" || g.axis.getUnits() == "m/s²") {
 					updateAxis(g.axis, g.GTIndex);
 				}
 			}
@@ -867,7 +976,7 @@ public class GraphNoSINCController implements Initializable {
 		} catch (Exception e) {
 
 			logger.warn("Invalid baseline average inputs");
-			e.printStackTrace();
+			//e.printStackTrace();
 
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setHeaderText("Invalid inputs");
@@ -1141,7 +1250,66 @@ public class GraphNoSINCController implements Initializable {
 		setGenericTestsFromCSV(paths);
 
 	}
-
+	@FXML
+	private void openVariableMenu(ActionEvent event) {
+			Stage primaryStage = new Stage();
+			Parent root = null;
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/VariableMenu.fxml"));
+			
+			try {
+				
+				root = loader.load();
+	
+				// set parent of the equaotion menu to allow communication b/t classes
+				((VariableMenu) loader.getController()).setParent(this);
+	
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+	
+			if (root != null) primaryStage.setScene(new Scene(root));
+	
+			// ensure that color menu stays on top and blocks everything else
+			primaryStage.setAlwaysOnTop(true);
+			primaryStage.initModality(Modality.APPLICATION_MODAL);
+			primaryStage.initOwner(lineChart.getScene().getWindow());
+	
+			primaryStage.setTitle("Data Analysis Graph - Variable Menu");
+			primaryStage.getIcons().add(icon);
+			primaryStage.show();
+			primaryStage.setResizable(false);
+	}
+	@FXML
+	private void openCustomAxisMenu(ActionEvent event) {
+			Stage primaryStage = new Stage();
+			Parent root = null;
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/CustomAxisMenu.fxml"));
+			
+			try {
+				
+				root = loader.load();
+	
+				// set parent of the equaotion menu to allow communication b/t classes
+				((CustomAxisMenu) loader.getController()).setParent(this);
+	
+			} catch (IOException e) {
+				e.printStackTrace();
+				return;
+			}
+	
+			if (root != null) primaryStage.setScene(new Scene(root));
+	
+			// ensure that color menu stays on top and blocks everything else
+			primaryStage.setAlwaysOnTop(true);
+			primaryStage.initModality(Modality.APPLICATION_MODAL);
+			primaryStage.initOwner(lineChart.getScene().getWindow());
+	
+			primaryStage.setTitle("Data Analysis Graph - Custom Axis Menu");
+			primaryStage.getIcons().add(icon);
+			primaryStage.show();
+			primaryStage.setResizable(false);
+	}
 	@FXML
 	private void openColorMenu(ActionEvent event) {
 
@@ -1306,10 +1474,10 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Graphs a line tangent to the given point.
 	 */
-	public void graphSlope(double x, double y, AxisType axis, int GTIndex) {
-
+	public void graphSlope(double x, double y, Axis axis, int GTIndex) {
+		GenericTest test = getTest(axis,GTIndex);
 		clearSlope();
-
+		double axisScalar;
 		// get slope value "m"
 		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, multiAxis.getResolution(axis));
 
@@ -1319,7 +1487,7 @@ public class GraphNoSINCController implements Initializable {
 		// Formula used is point-slope form of a line:
 		// y - y0 = m(x - x0) -> y = m(x - x0) + y0
 
-		double axisScalar = multiAxis.getAxisScalar(axis);
+		axisScalar = axis.getAxisScalar();
 
 		// plot the point (x0,y0) shared by the graph and tangent line
 		seriesData.add(new XYChart.Data<Number,Number>(x, y / axisScalar));
@@ -1350,8 +1518,8 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Graphs a secant line between the given points.
 	 */
-	public void graphSlope(double x1, double y1, double x2, double y2, AxisType axis, int GTIndex) {
-
+	public void graphSlope(double x1, double y1, double x2, double y2, Axis axis, int GTIndex) {
+		GenericTest test = getTest(axis,GTIndex);
 		// if user chose the same point twice, graph a tangent line
 		if (x1 == x2 && y1 == y2) {
 			graphSlope(x1, y1, axis, GTIndex);
@@ -1361,7 +1529,7 @@ public class GraphNoSINCController implements Initializable {
 		clearSlope();
 
 		// get slope value "m"
-		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x1, x2);
+		double m = test.getAxis(axis).getSlope(x1, x2);
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1455,16 +1623,21 @@ public class GraphNoSINCController implements Initializable {
 	 * @param GTIndex the GenericTest associated with the GraphData
 	 * @param axis the AxisType associated with the GraphData
 	 */
-	private GraphData findGraphData(int GTIndex, AxisType axis) {
-
+	private GraphData findGraphData(int GTIndex, Axis axis) {
 		for (GraphData g : dataSets) {
+			
 			if (g.GTIndex == GTIndex && g.axis == axis) return g;
 		}
-
 		return null;
 
 	}
-
+	private GenericTest getTest(GraphData d){
+		return d.axis.isCustomAxis() ? customAxisTest : genericTests.get(d.GTIndex);
+	}
+	private GenericTest getTest(Axis axis, int GTIndex){
+		if(GTIndex == -1) return customAxisTest;
+		return axis.isCustomAxis() ? customAxisTest : genericTests.get(GTIndex);
+	}
 	/**
 	 * Creates the label for the slope of a tangent/secant line.
 	 * @param m the value for the slope
@@ -1496,18 +1669,153 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	public ArrayList<Token> tokenizeString(String code){
+		ArrayList<Token> tokens = new ArrayList<Token>();
+		String currentToken = "";
+		String letter = "";
+		boolean generatingToken = false;
+		for(int i = 0; i < code.length(); i++){
+			letter = code.substring(i,i+1);
+			if(letter.equals("+") || letter.equals("-")  || letter.equals("*")  || letter.equals("/")  || letter.equals("^")  || letter.equals("(")  || letter.equals(")")){
+				if(generatingToken){
+					tokens.add(new Token(currentToken));
+					currentToken = "";
+					generatingToken = false;
+				}
+				tokens.add(new Token(letter));
+				
+			}else if(!letter.equals(" ")){
+				currentToken += letter;
+				generatingToken = true;
+			}
+			if(i == code.length() - 1 && currentToken != ""){
+				tokens.add(new Token(currentToken));
+			}
+		}
+		return tokens;
+	}
+	public static void replaceCollection (List<Token> tokens, Token token, int startPos, int endPos){
+		tokens.add(endPos + 1, token);
+		for(int j = endPos; j >= startPos; j--){
+			tokens.remove(j);
+		}
+	}
+
+	public static Token processTokens(List<Token> tokens) throws Exception{
+		Token result;
+		int currentOperationLevel = 0;
+		while(tokens.size()>1){
+			int openIndex = -1;
+			int parenthesesCounter = 0;
+			int closeIndex = -1;
+			if(currentOperationLevel == 0){
+				for(int i = 0; i < tokens.size(); i++){
+					if(tokens.get(i).operation == Operation.OPEN_PAREN){
+						if(parenthesesCounter == 0)openIndex = i;
+						parenthesesCounter++;	
+					}
+					if(tokens.get(i).operation == Operation.CLOSE_PAREN) parenthesesCounter--;
+					if(openIndex != -1 && parenthesesCounter == 0){
+						replaceCollection(tokens,processTokens(tokens.subList(openIndex + 1, i)),openIndex,openIndex+2);
+					}
+				}
+				if(openIndex == -1){
+					currentOperationLevel++;
+				}
+			}else{
+				for(int i = 0; i < tokens.size() - 2; i++){
+					try{
+						if(tokens.get(i+1).type == TokenType.OPERATOR){
+							if(tokens.get(i+1).isInOrder(currentOperationLevel)){
+								replaceCollection(tokens,tokens.get(i+1).operate(tokens.get(i),tokens.get(i+2)),i,i+2);
+								i--;
+							}	
+						}
+					}catch(Exception e){
+						throw e;
+					}	
+				}
+				currentOperationLevel++;
+			}
+		}
+		return tokens.get(0);
+
+	}
+	public static void main(String[] args){
+		logger.info("running debug");
+		ArrayList<Token> tokens = new ArrayList<Token>();
+		tokens.add(new Token(new AxisData(new Double[]{new Double(10),new Double(10),new Double(10)},"firstAxis")));
+		tokens.add(new Token("+"));
+		tokens.add(new Token(new AxisData(new Double[]{new Double(3),new Double(4),new Double(3)},"secondAxis")));
+		tokens.add(new Token("*"));
+		tokens.add(new Token(new AxisData(new Double[]{new Double(1),new Double(2),new Double(3)},"mainAxis")));
+		tokens.add(new Token("^"));
+		tokens.add(new Token("("));
+		tokens.add(new Token("1"));
+		tokens.add(new Token("+"));
+		tokens.add(new Token("2"));
+		tokens.add(new Token(")"));
+		logger.info(tokens);
+		try{
+			Token result = processTokens(tokens);
+			if(result.type == TokenType.AXIS){
+				AxisDataSeries resultSeries = new AxisDataSeries(result.axis, new CustomAxisType("CustomAxis","Units",10));
+				logger.info(resultSeries);
+				logger.info(AxisData.nameAxisDataMap.keySet());
+			}
+			logger.info(result);
+		}catch(Exception e){
+			logger.info(e.getMessage());
+		}
+	}
+	public AxisDataSeries createCustomAxis(String[] inputs){
+		Axis axisOne = null;
+		Axis axisTwo = null;
+		String operation = null;
+		for(int i = 0; i < inputs.length; i++){
+			String input = inputs[i];
+			if(Axis.getAxis(input) != null){
+				if(axisOne == null){
+					axisOne = Axis.getAxis(input);
+				}else{
+					axisTwo = Axis.getAxis(input);
+				}
+			}else if (input == "+" || input == "*" || input == "-" || input == "/"){
+				operation = input;
+			}
+		}
+		switch(operation){
+			case "+":
+				//return axisOne.add(axisTwo);
+				break;
+			case "-":
+				//return axisOne.subtract(axisTwo);
+				break;
+			case "*":
+				//return axisOne.multiply(axisTwo);
+				break;
+			case "/":
+				//return axisOne.divide(axisTwo);
+				break;
+			default:
+				break;
+		}
+		return null;
+	}
+
+
 	/**
 	 * JavaFX component added to data points on graph.
 	 */
 	class DataPointLabel extends StackPane {
 
-		DataPointLabel(double x, double y, AxisType axis, int GTIndex) {
-
+		DataPointLabel(double x, double y, Axis axis, int GTIndex) {
+			//GraphData graphData = gd;
 			// round to the given number of sig figs
 			final double roundedX = new BigDecimal(x).round(new MathContext(SIG_FIGS)).doubleValue();
 			final double roundedY = new BigDecimal(y).round(new MathContext(SIG_FIGS)).doubleValue();
 			setPrefSize(15, 15);
-
+			GenericTest test = getTest(axis,GTIndex);
 			// allows mouse events to pass through label
 			// makes selecting nearby data points easier
 			setPickOnBounds(false);
@@ -1546,7 +1854,7 @@ public class GraphNoSINCController implements Initializable {
 
 					logger.info("Selected point (" + x + "," + y + ")");
 					selectedPoint = new Double[] {x,y};
-					selectedGraphData = new GraphData(GTIndex, axis, null);
+					selectedGraphData = new GraphData(GTIndex, axis);
 
 					firstClick = true;
 					
@@ -1600,7 +1908,7 @@ public class GraphNoSINCController implements Initializable {
 					Arrays.sort(areaBounds);
 
 					// calculate the definite integral with the given limits
-					double area = genericTests.get(GTIndex).getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+					double area = test.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
 
 					double axisScalar = multiAxis.getAxisScalar(axis);
 
@@ -1648,7 +1956,7 @@ public class GraphNoSINCController implements Initializable {
 				}
 				else if (mode == GraphMode.NORM) {
 
-					AxisDataSeries a = genericTests.get(GTIndex).getAxis(axis);
+					AxisDataSeries a = test.getAxis(axis);
 					a.vertShift(-y);
 					updateAxis(axis, GTIndex);
 

@@ -16,7 +16,7 @@ public class ConservationMomentumModule extends GenericTest {
         this.createAxisDataSeries();
 
         this.setGraphTitle("Conservation of Momentum");
-        this.setDefaultAxes(AxisType.MomentumX);
+        
         
 	}
 

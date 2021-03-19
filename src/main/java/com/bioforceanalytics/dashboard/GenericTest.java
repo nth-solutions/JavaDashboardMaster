@@ -122,7 +122,7 @@ public class GenericTest {
 		createAxisDataSeries(dataSamples, testParameters, mpuOffsets);
 
 	}
-
+	GenericTest(){};
 	/**
 	 * Populates the AxisDataSeries list by looping through dataSamples.
 	 * This logic is shared by both constructors.
@@ -174,12 +174,8 @@ public class GenericTest {
 		}
 		
 		// initialize axis data series array
-		if (this instanceof ConservationMomentumModule) {
-			axes = new AxisDataSeries[AxisType.values().length];
-			logger.info("Creating momentum data sets...");
-		} else {
-			axes = new AxisDataSeries[AxisType.values().length - 4];
-		}
+		axes = new AxisDataSeries[AxisType.values().length];
+		
 
 		// loops so that X=0, Y=1, Z=2
 		for (int i = 0; i < 3; i++) {
@@ -205,25 +201,13 @@ public class GenericTest {
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
-			// momentum (if this is a CoE test)
-			if (this instanceof ConservationMomentumModule) {
-
-				double mass = ((ConservationMomentumModule) this).getMomentumScalar();
-				logger.info("Mass: " + mass);
-
-				axes[i+28] = new AxisDataSeries(timeAxis, axes[i].integrate(mass), AxisType.valueOf(i+28), false, sampleRate);
-			
-			}
 		}
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
 
-			if (this instanceof ConservationMomentumModule || i < 28) {
-				// "axes[magnitude] = new AxisDataSeries(axes[X], axes[Y], axes[Z], AxisType.valueOf(magnitude))"
 				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
-			}
-			
+				
 		}
 
 	}
@@ -272,7 +256,7 @@ public class GenericTest {
 	 * @param axis the {@link com.bioforceanalytics.dashboard.AxisType AxisType} to retrieve
 	 * @return the AxisDataSeries selected
 	 */
-	public AxisDataSeries getAxis(AxisType axis) {
+	public AxisDataSeries getAxis(Axis axis) {
 		return axes[axis.getValue()];
 	}
 
@@ -283,7 +267,13 @@ public class GenericTest {
 	public List<List<Double>> getDataSamples() {
 		return dataSamples;
 	}
-
+	/**
+	 * returns sample rate
+	 * @return integer value of sample rate
+	 */
+	public int getSampleRate(){
+		return sampleRate;
+	}
 	/**
 	 * Retrieves a test parameter.
 	 * @param index the index to retrieve

@@ -27,7 +27,7 @@ public class MultiAxisLineChart extends StackPane {
     /**
      * Tracks the axis classes and their respective line charts holding the y-axes.
      */
-    private final Map<Integer, LineChart<Number, Number>> axisTypeMap = new HashMap<>();
+    private final Map<String, LineChart<Number, Number>> axisTypeMap = new HashMap<>();
 
     /**
      * Tracks the currently drawn data sets and their respective line charts.
@@ -354,8 +354,6 @@ public class MultiAxisLineChart extends StackPane {
         BFANumberAxis xAxisAdd = new BFANumberAxis();
         LineChart<Number, Number> lineChart;
 
-        int axisTypeInt = d.axis.getValue() / 4;
-
         // set the label of the new y-axis
         yAxisAdd.setLabel(getAxisLabel(d.axis));
 
@@ -393,7 +391,7 @@ public class MultiAxisLineChart extends StackPane {
             lineChart = new LineChart<Number, Number>(xAxisAdd, yAxisAdd);
             lineChart.setMouseTransparent(true);
             
-            axisTypeMap.put(axisTypeInt,lineChart);
+            axisTypeMap.put(d.axis.getUnits(),lineChart);
             backgroundCharts.add(lineChart);
             styleBackgroundChart(lineChart);
             setFixedAxisWidth(lineChart);
@@ -401,7 +399,7 @@ public class MultiAxisLineChart extends StackPane {
             lineChart.getXAxis().setLabel("#" + d.axis.getValue());
             
         } else {
-            lineChart = axisTypeMap.get(axisTypeInt);
+            lineChart = axisTypeMap.get(d.axis.getUnits());
         }
 
         axisChartMap.put(d, lineChart);
@@ -423,7 +421,7 @@ public class MultiAxisLineChart extends StackPane {
      * @param axis the AxisType identifying the data set
      * @param GTIndex the GenericTest to read data from
      */
-    public void removeAxis(AxisType axis, int GTIndex) {
+    public void removeAxis(Axis axis, int GTIndex) {
 
         // clear area shading
         baseChart.clearArea();
@@ -442,10 +440,10 @@ public class MultiAxisLineChart extends StackPane {
         // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
             
-            logger.info("Removing " + axis.name() + "'s axis class: " + getAxisLabel(axis));
+            logger.info("Removing " + axis.getName() + "'s axis class: " + getAxisLabel(axis));
 
-            backgroundCharts.remove(axisTypeMap.get(axis.getValue()/4));
-            axisTypeMap.remove(axis.getValue()/4);
+            backgroundCharts.remove(axisTypeMap.get(axis.getUnits()));
+            axisTypeMap.remove(axis.getUnits());
         }
 
         // set legend symbol colors
@@ -518,10 +516,13 @@ public class MultiAxisLineChart extends StackPane {
      * @param axis the AxisType representing the data set
      * @return the label for a given axis class
      */
-    private String getAxisLabel(AxisType axis) {
+    private String getAxisLabel(Axis axis) {
 
         // an axis class is the sensor type of the data set
         // since AxisType is formatted "X,Y,Z,Magnitude", dividing by 4 works here
+       
+            return axis.getNameAndUnits();
+        /*
         switch (axis.getValue() / 4) {
             case 0: return "Acceleration (m/s²)";
             case 1: return "Velocity (m/s)";
@@ -533,6 +534,7 @@ public class MultiAxisLineChart extends StackPane {
             case 7: return "Momentum (kg-m/s)";
             default: return "Y-Axis";
         }
+        */
 
     }
 
@@ -579,7 +581,7 @@ public class MultiAxisLineChart extends StackPane {
             if (n instanceof Legend) {
 
                 // tracks the AxisTypes of legend items to check for duplicates
-                ArrayList<AxisType> legendAxes = new ArrayList<AxisType>();
+                ArrayList<Axis> legendAxes = new ArrayList<Axis>();
 
                 ObservableList<LegendItem> legendItems = ((Legend) n).getItems();
 
@@ -598,9 +600,14 @@ public class MultiAxisLineChart extends StackPane {
                         style = "black";
                     }
                     else {
-
+                        Axis a;
                         // get AxisType of this legend item
-                        AxisType a = AxisType.valueOf(legendItem.getText());
+                        try{
+                            a = AxisType.valueOf(legendItem.getText());
+                            
+                        }catch(Exception e){
+                            a = Axis.getAxis(legendItem.getText());
+                        }
 
                         // if this legend item is not a duplicate AxisType
                         if (!legendAxes.contains(a)) {
@@ -643,7 +650,7 @@ public class MultiAxisLineChart extends StackPane {
 	 * @param GTIndex the GenericTest associated with the GraphData
 	 * @param axis the AxisType associated with the GraphData
 	 */
-    private GraphData findGraphData(int GTIndex, AxisType axis) {
+    private GraphData findGraphData(int GTIndex, Axis axis) {
         
         for (GraphData d : dataSets) {
             if (d.GTIndex == GTIndex && d.axis == axis) return d;
@@ -659,12 +666,11 @@ public class MultiAxisLineChart extends StackPane {
 	 * @param GTIndex the GenericTest associated with the GraphData
 	 * @param axis the AxisType associated with the GraphData
 	 */
-    private boolean isAxisClassGraphed(AxisType axis) {
+    private boolean isAxisClassGraphed(Axis axis) {
 
-        int axisClass = axis.getValue() / 4;
 
         for (GraphData d : dataSets) {
-            if (d.axis.getValue() / 4 == axisClass) return true;
+            if (d.axis.getUnits() == axis.getUnits()) return true;
         }
 
         return false;
@@ -731,7 +737,7 @@ public class MultiAxisLineChart extends StackPane {
      * @param axis the AxisType representing the data set
      * @return the amount that the data set's graph should be scaled by
      */
-    public double getAxisScalar(AxisType axis) {
+    public double getAxisScalar(Axis axis) {
         return axisScalars[axis.getValue()/4];
     }
 
@@ -741,8 +747,7 @@ public class MultiAxisLineChart extends StackPane {
 	 * @param axis the AxisType to get the resolution for
 	 * @return the graphing resolution of the given axis
 	 */
-	public int getResolution(AxisType axis) {
-
+	public int getResolution(Axis axis) {
 		// if this is a magnetometer data set, divide resolution by 10 to match 960 sps data sets
 		if (axis.getValue() / 4 == 6) {
 
@@ -770,3 +775,4 @@ public class MultiAxisLineChart extends StackPane {
     }
 
 }
+

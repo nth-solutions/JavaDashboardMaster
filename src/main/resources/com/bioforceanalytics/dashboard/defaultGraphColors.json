@@ -34,9 +34,16 @@
     "MagnetZ": "#4b4b4b",
     "MagnetMag": "#b8b8b8",
 
-    "MomentumX": "#ffb7b7",
-    "MomentumY": "#ffdbb9",
-    "MomentumZ": "#bfffc8",
-    "MomentumMag": "#cdceff"
+    "CustomColor0": "#ffb7b7",
+    "CustomColor1": "#ffdbb9",
+    "CustomColor2": "#bfffc8",
+    "CustomColor3": "#07b0ff",
+    "CustomColor4": "#bd6dff",
+    "CustomColor5": "#cea73c",
+    "CustomColor6": "#7c3659",
+    "CustomColor7": "#204706",
+    "CustomColor8": "#88af7c",
+    "CustomColor9": "#cf4c35"
+    
 
 }

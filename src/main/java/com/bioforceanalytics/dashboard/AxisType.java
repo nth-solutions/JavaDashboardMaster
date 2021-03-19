@@ -8,7 +8,7 @@ import java.util.Map;
  * <p>Used by the BioForce Graph for retrieving the index of an axis in {@link com.bioforceanalytics.dashboard.GenericTest GenericTest},
  * as well as keeping track of which data sets are currently displayed in {@link com.bioforceanalytics.dashboard.GraphNoSINCController GraphNoSINCController}.</p>
  */
-public enum AxisType {
+public enum AxisType implements Axis {
 	
 	AccelX(0),
 	AccelY(1),
@@ -43,12 +43,9 @@ public enum AxisType {
 	MagnetX(24),
 	MagnetY(25),
 	MagnetZ(26),
-	MagnetMag(27),
+	MagnetMag(27);
 
-	MomentumX(28),
-	MomentumY(29),
-	MomentumZ(30),
-	MomentumMag(31);
+
 	
 	private int value;
 	private static Map<Integer, AxisType> map = new HashMap<Integer, AxisType>();
@@ -77,6 +74,93 @@ public enum AxisType {
 	 * @return the integer associated with this AxisType
 	 */
 	public int getValue() {
+		return value;
+	}
+
+	@Override
+	public String getName() {
+		switch (getValue() / 4) {
+            case 0: return "Acceleration";
+            case 1: return "Velocity";
+            case 2: return "Displacement";
+            case 3: return "Angular Acceleration";
+            case 4: return "Angular Velocity";
+            case 5: return "Angular Displacement";
+            case 6: return "Magnetic Field";
+            default: return "Unnamed Axis";
+        }
+	}
+	public String getExactName(){
+		switch(getValue()){
+			case 0: return "AccelX";
+			case 1: return "AccelY";
+			case 2: return "AccelZ";
+			case 3: return "AccelMag";
+            case 4: return "VelX";
+			case 5: return "VelY";
+			case 6: return "VelZ";
+			case 7: return "VelMag";
+			case 8: return "DispX";
+			case 9: return "DispY";
+			case 10: return "DispZ";
+			case 11: return "DispMag";
+			case 12: return "AngAccelX";
+			case 13: return "AngAccelY";
+			case 14: return "AngAccelZ";
+			case 15: return "AngAccMag";
+			case 16: return "AngVelX";
+			case 17: return "AngVelY";
+			case 18: return "AngVelZ";
+			case 19: return "AngVelMag";
+			case 20: return "AngDispX";
+			case 21: return "AngDispY";
+			case 22: return "AngDispZ";
+			case 23: return "AngDispMag";
+			case 24: return "MagnetX";
+			case 25: return "MagnetY";
+			case 26: return "MagnetZ";
+			case 27: return "MagnetMag";
+			default:
+				return "";
+		}
+	}
+
+	@Override
+	public String getUnits() {
+		switch (getValue() / 4) {
+            case 0: return "m/s²";
+            case 1: return "m/s";
+            case 2: return "m";
+            case 3: return "°/s²";
+            case 4: return "°/s";
+            case 5: return "°";
+            case 6: return "µT";
+            default: return "";
+        }
+	}
+
+	@Override
+	public boolean isCustomAxis() {
+		return false;
+	}
+	@Override
+	public String getNameAndUnits(){
+		return getName() + " ("+ getUnits()+")";
+	}
+	@Override
+	public double getAxisScalar() {
+		 // if AxisType is Accel, Vel, Disp, or Momentum
+		 if (getValue() / 4 < 3 || getValue() == 7) return 10;
+		 //if AxisType is AngAccel
+		 if (getValue() / 4 == 3) return 500;
+		 //if AxisType is Momentum
+		 if (getValue() / 4 == 7) return 1;
+		 // all other data sets
+		 else return 100;
+	}
+
+	@Override
+	public int getIndex() {
 		return value;
 	}
 

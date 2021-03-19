@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.VariableMenu">
+   <children>
+      <Button layoutX="25.0" layoutY="862.5" mnemonicParsing="false" onAction="#saveChanges" prefHeight="25.0" prefWidth="150.0" text="Save Variables" />
+      <Button layoutX="225.0" layoutY="862.5" mnemonicParsing="false" onAction="#addVariable" prefHeight="25.0" prefWidth="150.0" text="Add New Variable" />
+      <Button layoutX="425.0" layoutY="862.5" mnemonicParsing="false" onAction="#resetVariables" prefHeight="25.0" prefWidth="150.0" text="Reset Variables" />
+      <TableView fx:id="tableView" prefHeight="850.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <columns>
+          <TableColumn fx:id="variableNameCol" prefWidth="300.0" text="Variable Name" />
+          <TableColumn fx:id="valueCol" prefWidth="300.0" text="Value" />
+        </columns>
+      </TableView>
+   </children>
+</AnchorPane>

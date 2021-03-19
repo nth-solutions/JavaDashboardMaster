@@ -6,7 +6,10 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.ArrayList;
 
+import java.util.Random;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -24,19 +27,21 @@ import javafx.stage.Stage;
 public class BFAColorMenu implements Initializable {
 
     // keeps track of AxisTypes and their matching colors.
-    private static HashMap<AxisType, Color> colorMap = new HashMap<AxisType, Color>();
+    private static HashMap<Axis, Color> colorMap = new HashMap<Axis, Color>();
 
     // reference to parent GraphNoSINCController
     private GraphNoSINCController controller;
 
+    private static ArrayList<Color> customAxisColors = new ArrayList<Color>();
+
     // left column labelled "Axis Type" with axis type names
-    @FXML private TableColumn<AxisType, String> axisTypeCol;
+    @FXML private TableColumn<Axis, String> axisTypeCol;
 
     // right column labelled "Color" with color pickers
-    @FXML private TableColumn<AxisType, ColorPicker> colorCol;
+    @FXML private TableColumn<Axis, ColorPicker> colorCol;
 
     // Node representing the entire table
-    @FXML private TableView<AxisType> tableView;
+    @FXML private TableView<Axis> tableView;
 
     private static final Logger logger = LogController.start();
 
@@ -66,13 +71,18 @@ public class BFAColorMenu implements Initializable {
         for (AxisType a : AxisType.values()) {
             tableView.getItems().add(a);
         }
+        for(int i = 0; i < 10; i++){
+            if(CustomAxisType.getCustomAxisByIndex(i) != null){
+                tableView.getItems().add(CustomAxisType.getCustomAxisByIndex(i));
+            }
+        }
 
     }
 
     /**
      * Custom table cell that contains a color picker.
      */
-    private class ColorPickerCell extends TableCell<AxisType, ColorPicker> {
+    private class ColorPickerCell extends TableCell<Axis, ColorPicker> {
 
         final ColorPicker picker = new ColorPicker();
 
@@ -88,22 +98,33 @@ public class BFAColorMenu implements Initializable {
 
                 // get index and AxisType of this color picker
                 int rowIndex = getTableRow().getIndex();
-                AxisType a = AxisType.valueOf(rowIndex);
+                
+                    final Axis a;
+                    Axis temp = null;
+                    for(Axis axis : colorMap.keySet()){
+                        if (axis != null){
+                            if((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)||(axis.getIndex() == rowIndex)){
+                                temp = axis;
+                            }
+                        }
+                    }
+                    a=temp;
 
-                // set color picker's value based on color map
-                picker.setValue(colorMap.get(a));
+                    // set color picker's value based on color map
+                   
+                    picker.setValue(colorMap.get(a));
 
-                // when color picker changes
-                picker.setOnAction(e -> {
+                    // when color picker changes
+                    picker.setOnAction(e -> {
 
-                    // update color map with the newly selected color
-                    colorMap.replace(a, picker.getValue());
+                        // update color map with the newly selected color
+                        colorMap.replace(a, picker.getValue());
 
-                    logger.info("Updated " + a + "'s color to " + picker.getValue());
-                });
-
-                // render color picker
-                setGraphic(picker);
+                        logger.info("Updated " + a + "'s color to " + picker.getValue());
+                    });
+                    
+                    // render color picker
+                    setGraphic(picker);
             }
             // if empty, don't render anything
             else setGraphic(null);
@@ -112,12 +133,26 @@ public class BFAColorMenu implements Initializable {
 
     }
 
+    private static void addCustomAxisColor(CustomAxisType axis){
+        if(customAxisColors.size() > 0){
+            colorMap.put(axis,customAxisColors.get(0));
+            customAxisColors.remove(0);
+        }else{
+            Random rand = new Random();
+            colorMap.put(axis,Color.rgb((int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255));
+        }
+        
+    }
+
     /**
      * Returns the color associated with an AxisType.
      * @param axis the enum representing the data set
      * @return the color associated with an AxisType
      */
-    public static Color getColor(AxisType axis) {
+    public static Color getColor(Axis axis) {
+        if(colorMap.get(axis) == null){
+            addCustomAxisColor((CustomAxisType)axis);
+        }
         return colorMap.get(axis);
     }
 
@@ -127,9 +162,10 @@ public class BFAColorMenu implements Initializable {
      * @param axis the enum representing the data set
      * @return the color associated with an AxisType
      */
-    public static String getHexString(AxisType axis) {
+    public static String getHexString(Axis axis) {
+        Color c;
 
-        Color c = getColor(axis);
+        c = getColor(axis);
         
         return String.format("#%02X%02X%02X",
             (int) (c.getRed()*255),
@@ -168,7 +204,13 @@ public class BFAColorMenu implements Initializable {
                 // add color to map
                 colorMap.put(a, c);
             }
+            for(int i = 0; i < 10; i++){
+                String colorString = (String) obj.get("CustomColor"+i);
 
+                Color c = Color.web(colorString);
+
+                customAxisColors.add(c);
+            }
             logger.info("Loaded 'defaultGraphColors.json' into color map.");
             
         } catch (Exception e) {
@@ -189,7 +231,7 @@ public class BFAColorMenu implements Initializable {
         
         logger.info("Updating graph colors...");
         controller.updateGraphColors();
-
+        
         // close the color menu
         Stage stage = (Stage) tableView.getScene().getWindow();
         stage.close();

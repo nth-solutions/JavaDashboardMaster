@@ -9,7 +9,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-
+import javafx.beans.property.IntegerProperty;
+import javafx.scene.control.CheckBox;
+import javafx.event.ActionEvent;
+import javafx.beans.property.SimpleIntegerProperty;
 /**
  * Custom JavaFX component for the BioForce Graph's accordion view,
  * provides a place for the user to view the details of the specific experiment type.
@@ -48,6 +51,24 @@ public class ExperimentPanel extends TitledPane {
 	@FXML
 	private Label formulaResult;
 
+	@FXML
+	private CheckBox toggleAxis1;
+
+	@FXML
+	private CheckBox toggleAxis2;
+
+	@FXML
+	private CheckBox toggleAxis3;
+
+	@FXML
+	private CheckBox toggleAxis4;
+
+	
+
+	public IntegerProperty currentAxis;
+
+	
+
 	private Label[] params;
 
 	private TextField[] values;
@@ -84,6 +105,7 @@ public class ExperimentPanel extends TitledPane {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/ExperimentPanel.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
+		this.currentAxis = new SimpleIntegerProperty();
 		paramNames = new ArrayList<String>();
 		paramValues = new ArrayList<String>();
 
@@ -98,5 +120,22 @@ public class ExperimentPanel extends TitledPane {
 		values = new TextField[]{value1,value2,value3,value4};
 
     }
+	@FXML private void chooseGraphAxis(ActionEvent event){
+		CheckBox c = (CheckBox)event.getSource();
+		String axisID = (String) c.getId().replace("toggleAxis", "");
+		Axis a = CustomAxisType.getCustomAxisByIndex(Integer.parseInt(axisID));
+		//logger.info("event on " + a);
+		currentAxis.set(-1);
 
+		// convert AxisType to int
+		currentAxis.set(a.getIndex());
+	}
+	/**
+	 * Sets the state of a checkbox in the experiment panel.
+	 * @param state whether the checkbox should be ticked
+	 */
+	public void setCheckBox(boolean state, Axis axis) {
+		CheckBox c = (CheckBox) lookup("#toggleAxis" + axis.getIndex());
+		c.setSelected(state);
+	}
 }

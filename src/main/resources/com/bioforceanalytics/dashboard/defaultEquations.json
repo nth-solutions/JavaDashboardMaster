@@ -1,0 +1,14 @@
+{
+    "Equations":[
+        {
+            "name": "Momentum",
+            "equation": "mass * VelX",
+            "units": "kg-m/s"
+        },
+        {
+            "name": "Kinetic Energy",
+            "equation": "0.5 * mass * VelX ^ 2",
+            "units": "J"
+        }
+    ]
+}
