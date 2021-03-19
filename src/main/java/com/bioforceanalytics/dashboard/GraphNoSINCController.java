@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
-import java.util.jar.Attributes.Name;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -400,7 +399,8 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	// TODO break this up into add/remove panel methods
 	private void initializePanels() {
-		logger.info("running initialize panels");
+
+		logger.info("Initializing data set panels...");
 		// get reference to root element
 		Accordion a = (Accordion) lineChart.getScene().lookup("#dataSetAccordion");
 		customAxisTest = new CustomTest();
@@ -484,23 +484,23 @@ public class GraphNoSINCController implements Initializable {
 
 		}
 
-		// create array to hold bounds for each axis class (excluding momentum)
+		// create array to hold bounds for each axis class
 		// outer array represents each axis class, inner represents min/max
-		Double[][] axisClassRanges = new Double[AxisType.values().length / 4 - 1][2];
+		Double[][] axisClassRanges = new Double[AxisType.values().length / 4][2];
 
 		// set up variables to track min/max bounds for axis class
 		Double min = Double.MAX_VALUE;
 		Double max = Double.MIN_VALUE;
 
-		// loop through each axis in the primary test (excluding momentum)
-		for (int i = 0; i < AxisType.values().length - 4; i++) {
+		// loop through each axis in the primary test
+		for (int i = 0; i < AxisType.values().length; i++) {
 
 			// get current AxisDataSeries by index
 			AxisDataSeries axis = primaryTest.getAxis(AxisType.valueOf(i));
 
 			// if finished calculating min/max for an axis class
 			// (either starting a new axis class OR last AxisType)
-			if (i % 4 == 0 || i == AxisType.values().length - 4 - 1) {
+			if (i % 4 == 0 || i == AxisType.values().length - 1) {
 
 				// if starting a new axis class, get index of last class;
 				// otherwise, we must be on the last AxisType, so get the current class index
@@ -529,12 +529,15 @@ public class GraphNoSINCController implements Initializable {
 		// graph any default axes (runs after data set panel is loaded)
 		Platform.runLater(() -> {
 
-			//clearGraph();
+			clearGraph();
 
-			// TODO the first test isn't always the desired one, so we might want to change this
-			//
-			// graph all default axes for each GenericTest
+			for (GenericTest g : genericTests) {
+				for (AxisType axis : g.getDefaultAxes()) {
+					graphAxis(axis, genericTests.indexOf(g));
+				}
+			}
 
+			// get test length off any of the default axes, since they should all have the same length
 			double testLength = primaryTest.getAxis(primaryTest.getDefaultAxes()[0]).testLength;
 
 			// set width of viewport to fit the start and end of the test
@@ -1741,68 +1744,6 @@ public class GraphNoSINCController implements Initializable {
 		return tokens.get(0);
 
 	}
-	public static void main(String[] args){
-		logger.info("running debug");
-		ArrayList<Token> tokens = new ArrayList<Token>();
-		tokens.add(new Token(new AxisData(new Double[]{new Double(10),new Double(10),new Double(10)},"firstAxis")));
-		tokens.add(new Token("+"));
-		tokens.add(new Token(new AxisData(new Double[]{new Double(3),new Double(4),new Double(3)},"secondAxis")));
-		tokens.add(new Token("*"));
-		tokens.add(new Token(new AxisData(new Double[]{new Double(1),new Double(2),new Double(3)},"mainAxis")));
-		tokens.add(new Token("^"));
-		tokens.add(new Token("("));
-		tokens.add(new Token("1"));
-		tokens.add(new Token("+"));
-		tokens.add(new Token("2"));
-		tokens.add(new Token(")"));
-		logger.info(tokens);
-		try{
-			Token result = processTokens(tokens);
-			if(result.type == TokenType.AXIS){
-				AxisDataSeries resultSeries = new AxisDataSeries(result.axis, new CustomAxisType("CustomAxis","Units",10));
-				logger.info(resultSeries);
-				logger.info(AxisData.nameAxisDataMap.keySet());
-			}
-			logger.info(result);
-		}catch(Exception e){
-			logger.info(e.getMessage());
-		}
-	}
-	public AxisDataSeries createCustomAxis(String[] inputs){
-		Axis axisOne = null;
-		Axis axisTwo = null;
-		String operation = null;
-		for(int i = 0; i < inputs.length; i++){
-			String input = inputs[i];
-			if(Axis.getAxis(input) != null){
-				if(axisOne == null){
-					axisOne = Axis.getAxis(input);
-				}else{
-					axisTwo = Axis.getAxis(input);
-				}
-			}else if (input == "+" || input == "*" || input == "-" || input == "/"){
-				operation = input;
-			}
-		}
-		switch(operation){
-			case "+":
-				//return axisOne.add(axisTwo);
-				break;
-			case "-":
-				//return axisOne.subtract(axisTwo);
-				break;
-			case "*":
-				//return axisOne.multiply(axisTwo);
-				break;
-			case "/":
-				//return axisOne.divide(axisTwo);
-				break;
-			default:
-				break;
-		}
-		return null;
-	}
-
 
 	/**
 	 * JavaFX component added to data points on graph.

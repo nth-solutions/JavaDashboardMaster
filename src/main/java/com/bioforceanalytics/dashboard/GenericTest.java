@@ -227,7 +227,7 @@ public class GenericTest {
 			// displacement
 			axes[i+8] = new AxisDataSeries(axes[i].getTime(), axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
 
-			// momentum (if this is a CoE test)
+			// momentum (if this is a CoM test)
 			if (this instanceof ConservationMomentumModule) {
 
 				double mass = ((ConservationMomentumModule) this).getMomentumScalar();
