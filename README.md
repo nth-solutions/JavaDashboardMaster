@@ -1,6 +1,21 @@
+<!-- omit in toc -->
 # BioForce Technical Documentation
 
 This document contains explanations of various technical details regarding the process of reading data from a module, organizing and manipulating it, as well as various standards used throughout the project.
+
+<!-- omit in toc -->
+## Table of Contents
+
+- [Development Information](#development-information)
+- [Data Formats](#data-formats)
+  - [Test Data](#test-data)
+  - [Test Parameters](#test-parameters)
+  - [Acceleration Offsets](#acceleration-offsets)
+- [Data Conversion](#data-conversion)
+  - [Data Samples](#data-samples)
+  - [Axis Data Series](#axis-data-series)
+  - [Signing Data](#signing-data)
+  - [Sensitivity and Resolution](#sensitivity-and-resolution)
 
 ## Development Information
 
@@ -88,14 +103,14 @@ In the codebase, these offsets are in the form of an `int[]` of length 9, referr
 [`SerialComm`](#data-formats) returns these offsets in the form of an `int[][]` named `MPUMinMax`, reading data directly from the module instead of from the [`testParameters`](#test-parameters) CSVP file. This is the precursor to `mpuOffsets` and is structured as follows:
 
 - (0) Acceleration X
-    - (0) Minimum Offset
-    - (1) Maximum Offset
+  - (0) Minimum Offset
+  - (1) Maximum Offset
 - (1) Acceleration Y
-    - (0) Minimum Offset
-    - (1) Maximum Offset
+  - (0) Minimum Offset
+  - (1) Maximum Offset
 - (2) Acceleration Z
-    - (0) Minimum Offset
-    - (1) Maximum Offset
+  - (0) Minimum Offset
+  - (1) Maximum Offset
 
 ## Data Conversion
 
@@ -150,3 +165,51 @@ The BioForce Graph further processes [`dataSamples`](#data-samples) into individ
 25. Magnetometer Y
 26. Magnetometer Z
 27. Magnetometer Magnitude
+
+Within an `AxisDataSeries`, raw data is processed in the following steps:
+
+1. [Sign data samples](#signing-data),
+2. [apply sensor sensitivity](#sensitivity-and-resolution),
+3. normalize the data sets,
+4. and smooth the graphs.
+
+### Signing Data
+
+As mentioned previously, data samples are originally recorded as 16-bit unsigned integers (meaning a number between 0 and 65535). However, since all physical quantities have magnitude, the Dashboard must "sign" the data, converting the all-positive integer range (0-65535) to both positive and negative integers.
+
+To do this, the top half of the range (32768-65535) is mapped to negative numbers, while the bottom half (0-32767) maps to positive numbers. In doing so, the number of possible values in the range would remain the same (a total of 65536 values), but it would simply be shifted to encompass a "signed" range (-32767,32767).
+
+*You may notice that the number of values in the range above, (-32767,32767), is only 6553**5**, instead of 65536. This is because the signed number 0 is actually mapped to **two** unsigned numbers, 0 and 65535. This is intentional as you'll see later.*
+
+Specifically, the "signing" algorithm to convert unsigned samples to signed samples boils down to the following:
+
+```text
+if sample > 32767, subtract 65535;
+else, leave sample unchanged
+```
+
+This obeys [two's complement representation](https://en.wikipedia.org/wiki/Two%27s_complement), resulting in both the minimum and maximum unsigned values (0 and 65535) being mapped to the signed value 0.
+
+> Example: the raw sample `42439` becomes the signed sample `-23096`.
+
+### Sensitivity and Resolution
+
+Once data samples are signed, they must be translated into their physical quantities using the sensor's given **sensitivity**. This can be thought of as how "wide" the range of data can be. For example, a sensitivity of 16G would allow the module to measure data samples anywhere from -16Gs of motion to +16Gs of motion, while a sensitivity of 8G would measure data between -8Gs and +8Gs.
+
+However, since raw data samples are fixed to only 65535 unique values, changing a sensor's sensitivity directly affects its **resolution**. This can be thought of as how "precise" its measurements are.
+
+For example, with a sensitivity of 16G, each of the 65535 possible values would be more "spread out" to cover the entire range (to be specific, each sample would measure in increments of `16G / 32768 = 4.88*10^-4 Gs`). However, with a sensitivity of 8G, the 65535 values would be much closer together since the range is smaller. This allows data samples to have finer increments of `8G / 32768 = 2.44*10^-4 Gs`.
+
+*The figure below illustrates the core concept described earlier:*
+
+![Sensitivity/Resolution Graphic](https://i.imgur.com/4Nh93ZX.png)
+
+With all this, we now have all the information needed to convert our raw data. To find where a given signed data sample "falls" on the scale of 65535 possible values (see above), we can divide by the maximum magnitude of the range, 32768. Using the same logic, we then multiply by the sensitivity, which represents the maximum magnitude of the range recorded by the sensor. In other words, these two operations convert any sample from the "raw" range of (-32767,32767) to the "physical" range of (`-sensitivity`,`+sensitivity`).
+
+Therefore, the final equation to convert signed samples to physical quantities is:
+
+```text
+physical quantity = (signed data sample) * (sensitivity) / 32768
+```
+
+> Example: the signed sample `-23096` recorded at `16G` sensitivity is `-23096 * 16 / 32768 = -11.27G`, or `-110.56 m/s^2`.

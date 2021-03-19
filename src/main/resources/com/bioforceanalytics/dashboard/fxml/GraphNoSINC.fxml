@@ -46,6 +46,7 @@
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#importCSV" text="Import CSV(s)" />
 						<MenuItem mnemonicParsing="false" onAction="#importVideo" text="Import Video" />
+						<MenuItem mnemonicParsing="false" onAction="#exportGraphImage" text="Export Graph Image" />
 					</items>
 				</Menu>
 				<Menu mnemonicParsing="false" text="Data">

@@ -1,5 +1,6 @@
 package com.bioforceanalytics.dashboard;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,6 +15,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.jar.Attributes.Name;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.util.Throwables;
 import org.controlsfx.dialog.ProgressDialog;
@@ -22,6 +25,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -42,6 +46,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -1380,6 +1385,43 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		updateGraph();
+
+	}
+
+	/**
+	 * Exports a snapshot of the graph.
+	 */
+	@FXML
+	public void exportGraphImage() {
+
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Save Graph Image");
+		fileChooser.setInitialDirectory(new File(Settings.get("CSVSaveLocation")));
+
+		// filters file types to save only
+		FileChooser.ExtensionFilter filterVideos = new FileChooser.ExtensionFilter("Image", "*.png", "*.jpg");
+		fileChooser.getExtensionFilters().add(filterVideos);
+
+		File imgFile = fileChooser.showSaveDialog(null);
+
+		// if user doesn't choose a save location or closes window, don't continue
+		if (imgFile == null) return;
+
+		// take snapshot of graph
+		WritableImage img = multiAxis.snapshot(null, null);
+
+		try {
+
+			// save image to chosen file
+			ImageIO.write(SwingFXUtils.fromFXImage(img, null), "png", imgFile);
+
+			// open saved image in default application
+			Desktop.getDesktop().open(imgFile);
+
+		} catch (IOException e) {
+			Alert a = new Alert(AlertType.ERROR, "Error saving graph image, please try again.");
+			a.showAndWait();
+		}
 
 	}
 

@@ -749,7 +749,14 @@ public class MultiAxisLineChart extends StackPane {
 	 */
 	public int getResolution(Axis axis) {
 		// if this is a magnetometer data set, divide resolution by 10 to match 960 sps data sets
-		return (axis.getValue() / 4 == 6) ? resolution/10 : resolution;
+		if (axis.getValue() / 4 == 6) {
+
+            // ensure that the resolution is never smaller than 1 
+            return resolution >= 10 ? resolution / 10 : 1;
+        }
+        else {
+            return resolution;
+        }
     }
     
     /**
