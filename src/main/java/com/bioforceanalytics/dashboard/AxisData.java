@@ -46,6 +46,7 @@ public class AxisData {
         }
         this.name = name;
         allAxisData.add(this);
+        
     }
     /**
      * Creates a new AxisData object with the given data and name

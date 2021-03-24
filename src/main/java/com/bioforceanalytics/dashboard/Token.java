@@ -93,7 +93,8 @@ public class Token {
                 operation = Operation.SUBTRACT;
                 break;
             default:
-                if((axis=AxisData.getAxisData(stringVal)) != null){
+            List<AxisData> a = AxisData.allAxisData;
+           if((axis=AxisData.getAxisData(stringVal)) != null){
                     type = TokenType.AXIS;
                     break;
                 }else if (AxisData.nameAxisDataMap.containsKey(stringVal) == true){

@@ -322,10 +322,12 @@ public class GraphNoSINCController implements Initializable {
 		initializePanels();
 	}
 	private void updateIntermediateAxes(){
-		for(GenericTest test : genericTests){
+		AxisData.allAxisData.clear();
+		AxisData.nameAxisDataMap.clear();
+		for(int i = 0; i < genericTests.size(); i++){
 			for(AxisType axis : AxisType.values()){
-				String name = axis.getExactName() + (genericTests.size() <= 1 ? "" : genericTests.size());
-				AxisData.nameAxisDataMap.put(name + (genericTests.size() <= 1 ? "" : genericTests.size()),new AxisData(test.getAxis(axis).getSamples(),name));
+				String name = axis.getExactName() + (i == 0 ? "" : i + 1);
+				AxisData.nameAxisDataMap.put(name,new AxisData(genericTests.get(i).getAxis(axis).getSamples(),name));
 			}
 		}
 	}
