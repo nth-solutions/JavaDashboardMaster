@@ -1677,7 +1677,8 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
-	public ArrayList<Token> tokenizeString(String code){
+	public ArrayList<Token> tokenizeString(String input) throws Exception{
+		String code = input.replaceAll("\\s", "");
 		ArrayList<Token> tokens = new ArrayList<Token>();
 		String currentToken = "";
 		String letter = "";
@@ -1692,7 +1693,7 @@ public class GraphNoSINCController implements Initializable {
 				}
 				tokens.add(new Token(letter));
 				
-			}else if(!letter.equals(" ")){
+			}else{
 				currentToken += letter;
 				generatingToken = true;
 			}
