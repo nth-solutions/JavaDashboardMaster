@@ -151,7 +151,7 @@
 						<Rectangle fx:id="scrubber" layoutX="100.0" layoutY="105.0" fill="DODGERBLUE" width="5.0" height="${multiAxis.height-103}" stroke="BLACK" strokeType="INSIDE" visible="false" />
 						<HBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 							<children>
-								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="70.0" text="Reset" />
+								<Button fx:id="resetButton" mnemonicParsing="false" onAction="#handleReset" prefHeight="40.0" prefWidth="100.0" text="Reset Zoom" />
 							</children>
 							<padding>
 								<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
