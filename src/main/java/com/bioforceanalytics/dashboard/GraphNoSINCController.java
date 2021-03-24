@@ -594,10 +594,7 @@ public class GraphNoSINCController implements Initializable {
 	 * @param GTIndex the GenericTest to read data from
 	 */
 	public void graphAxis(Axis axis, int GTIndex) {
-		GenericTest test = getTest(axis, GTIndex);
-		if(Axis.getAxis(axis.getName()) == null){
-			Axis.addAxis(axis.getName(), axis);
-		}
+
 		// if axis is not already graphed:
 		if (findGraphData(GTIndex, axis) == null) {
 
@@ -615,7 +612,15 @@ public class GraphNoSINCController implements Initializable {
 
 			List<Double> time;
 			List<Double> data;
+
 			double timeOffset;
+			
+			GenericTest test = getTest(axis, GTIndex);
+
+			if (Axis.getAxis(axis.getName()) == null) {
+				Axis.addAxis(axis.getName(), axis);
+			}
+
 			// get time/samples data sets
 			time = test.getAxis(axis).getTime();
 			data = test.getAxis(axis).getSamples();
