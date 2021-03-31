@@ -3,12 +3,14 @@
         {
             "name": "Momentum",
             "equation": "mass * VelX",
-            "units": "kg-m/s"
+            "units": "kg-m/s",
+            "scale":"10"
         },
         {
             "name": "Kinetic Energy",
             "equation": "0.5 * mass * VelX ^ 2",
-            "units": "J"
+            "units": "J",
+            "scale":"10"
         }
     ]
 }

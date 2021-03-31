@@ -28,6 +28,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONArray;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
@@ -61,6 +62,11 @@ public class CustomAxisMenu implements Initializable {
     // right column labelled "Axis Units" with units field
     @FXML
     private TableColumn<CustomAxisCell, String> unitsCol;
+
+    // right column labelled "Axis Scalar" with the axis scale value
+    @FXML
+    private TableColumn<CustomAxisCell, String> scalarCol;
+
     // Node representing the entire table
     @FXML
     private TableView<CustomAxisCell> tableView;
@@ -125,6 +131,20 @@ public class CustomAxisMenu implements Initializable {
                 }
             }
         );
+        scalarCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("scale"));
+        scalarCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        scalarCol.setOnEditCommit(
+            new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
+                @Override
+                public void handle(CellEditEvent<CustomAxisCell, String> t) {
+                    
+                    ((CustomAxisCell) t.getTableView().getItems().get(
+                        t.getTablePosition().getRow())
+                        ).setScale(t.getNewValue());
+                   
+                }
+            }
+        );
         //
        
         
@@ -164,14 +184,14 @@ public class CustomAxisMenu implements Initializable {
         ArrayList<CustomAxisCell> cells = new ArrayList<CustomAxisCell>();
         if(controller.customEquations.size() != 0){
             for(CustomEquation e : controller.customEquations){
-                cells.add(new CustomAxisCell(e.getName(), e.getEquation(), e.getUnits()));
+                cells.add(new CustomAxisCell(e.getName(), e.getEquation(), e.getUnits(),e.getScale()));
             }
         }
         else{
             try {
 
                 // load "saveEquations.json" as an object
-                InputStream stream = CustomAxisMenu.class.getResourceAsStream("savedEquations.json");
+                InputStream stream = CustomAxisMenu.class.getResourceAsStream("defaultEquations.json");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
                 JSONObject obj = (JSONObject) new JSONParser().parse(reader);
                 JSONArray arr = (JSONArray) obj.get("Equations");
@@ -181,7 +201,7 @@ public class CustomAxisMenu implements Initializable {
                 { 
                     JSONObject e = (JSONObject)itr.next();
                     //adds a new equation cell from each unit in the .json file
-                    cells.add(new CustomAxisCell((String)e.get("name"),(String)e.get("equation"),(String)e.get("units")));
+                    cells.add(new CustomAxisCell((String)e.get("name"),(String)e.get("equation"),(String)e.get("units"),(String)e.get("scale")));
                 }
                 
             } catch (Exception e) {
@@ -200,7 +220,7 @@ public class CustomAxisMenu implements Initializable {
     private void loadAxes(){
         controller.customEquations.clear();
         for(CustomAxisCell cell : tableView.getItems()){
-            controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits()));
+            controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits(),cell.getScale()));
         }
         controller.loadEquations();
     }
@@ -209,7 +229,7 @@ public class CustomAxisMenu implements Initializable {
      */
     @FXML
     private void addNewAxis(){
-        tableView.getItems().add(new CustomAxisCell("Axis Name Here","Equation Here","Units Here"));
+        tableView.getItems().add(new CustomAxisCell("Axis Name Here","Equation Here","Units Here","10"));
         
     }
     /**
@@ -228,11 +248,13 @@ public class CustomAxisMenu implements Initializable {
         private final SimpleStringProperty name;
         private final SimpleStringProperty equation;
         private final SimpleStringProperty units;
+        private final SimpleStringProperty scale;
 
-        private CustomAxisCell(String name, String equation, String units) {
+        private CustomAxisCell(String name, String equation, String units, String scale) {
             this.name = new SimpleStringProperty(name);
             this.equation = new SimpleStringProperty(equation);
             this.units = new SimpleStringProperty(units);
+            this.scale = new SimpleStringProperty(scale);
         }
         
         public String getName() {
@@ -256,6 +278,14 @@ public class CustomAxisMenu implements Initializable {
  
         public void setUnits(String units) {
             this.units.set(units);
+        }
+        
+        public String getScale(){
+            return this.scale.get();
+        }
+
+        public void setScale(String scale){
+            this.scale.set(scale);
         }
     }
 }

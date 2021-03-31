@@ -572,7 +572,7 @@ public class GraphNoSINCController implements Initializable {
 				//CustomTest test = new CustomTest();
 				//logger.info(tokenizeString(equation.getEquation()));
 				Token result = processTokens(tokenizeString(equation.getEquation()));
-				CustomAxisType customAxis = new CustomAxisType(equation.getName(), equation.getUnits(), 10);
+				CustomAxisType customAxis = new CustomAxisType(equation.getName(), equation.getUnits(), Double.parseDouble(equation.getScale()));
 				equationPanel.addEquation(equation,customAxis);
 				if(result.type == TokenType.AXIS){
 					AxisDataSeries resultSeries = new AxisDataSeries(result.axis, customAxis);

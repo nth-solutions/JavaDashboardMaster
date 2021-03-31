@@ -9,16 +9,19 @@ public class CustomEquation {
     String name;
     String units;
     String equation;
+    String scale;
     /**
      * Creates a new CustomEquation object
      * @param name the name of the equation
      * @param equation the equation
      * @param units the units of the custom axis
+     * @param scale the scale of the custom axis
      */
-    public CustomEquation(String name, String equation, String units){
+    public CustomEquation(String name, String equation, String units, String scale){
         this.name = name;
         this.units = units;
         this.equation = equation;
+        this.scale = scale;
     }
     
     public String getName(){
@@ -38,5 +41,12 @@ public class CustomEquation {
     public void setEquation(String equation){
         this.equation = equation;
     }
+    public void setScale(String scale){
+        this.scale = scale;
+    }
+    public String getScale(){
+        return this.scale;
+    }
+
    
 }

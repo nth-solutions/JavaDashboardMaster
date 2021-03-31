@@ -738,6 +738,7 @@ public class MultiAxisLineChart extends StackPane {
      * @return the amount that the data set's graph should be scaled by
      */
     public double getAxisScalar(Axis axis) {
+        if(axis.isCustomAxis()) return axis.getAxisScalar();
         return axisScalars[axis.getValue()/4];
     }
 
