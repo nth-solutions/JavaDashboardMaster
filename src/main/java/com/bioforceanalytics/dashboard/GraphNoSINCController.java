@@ -304,7 +304,7 @@ public class GraphNoSINCController implements Initializable {
 		genericTests.add(g);
 		for(AxisType axis : AxisType.values()){
 			String name = axis.getName() + (genericTests.size() <= 1 ? "" : genericTests.size());
-			AxisData.nameAxisDataMap.put(name,new AxisData((Double[])g.getAxis(axis).getSamples().toArray(),name));
+			AxisData.nameAxisDataMap.put(name,new AxisData((Double[])g.getAxis(axis).getSamples().toArray(),g,name));
 			
 		}
 		initializePanels();
@@ -327,7 +327,7 @@ public class GraphNoSINCController implements Initializable {
 		for(int i = 0; i < genericTests.size(); i++){
 			for(AxisType axis : AxisType.values()){
 				String name = axis.getExactName() + (i == 0 ? "" : i + 1);
-				AxisData.nameAxisDataMap.put(name,new AxisData(genericTests.get(i).getAxis(axis).getSamples(),name));
+				AxisData.nameAxisDataMap.put(name,new AxisData(genericTests.get(i).getAxis(axis).getSamples(),genericTests.get(i),name));
 			}
 		}
 	}
