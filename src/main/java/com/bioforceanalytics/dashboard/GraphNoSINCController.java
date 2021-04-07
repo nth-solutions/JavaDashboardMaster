@@ -1497,7 +1497,7 @@ public class GraphNoSINCController implements Initializable {
 		// Formula used is point-slope form of a line:
 		// y - y0 = m(x - x0) -> y = m(x - x0) + y0
 
-		axisScalar = axis.getAxisScalar();
+		axisScalar = multiAxis.getAxisScalar(axis);
 
 		// plot the point (x0,y0) shared by the graph and tangent line
 		seriesData.add(new XYChart.Data<Number,Number>(x, y / axisScalar));
