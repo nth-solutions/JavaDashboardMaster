@@ -118,7 +118,7 @@ public class AxisData {
                 res[i] = a.getIndex(i) + b.getIndex(i-diff);
             }
         }
-        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()),newName);
+        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
     }
     /**
      * Combines this AxisData with a constant through the addition operation
@@ -134,7 +134,7 @@ public class AxisData {
             res[i] = a.getIndex(i) + c;
             
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,a.getOffset(),newName);
     }
       /**
      * Combines this AxisData with another AxisData through the subtraction operation
@@ -144,12 +144,19 @@ public class AxisData {
      */
     public AxisData subtract(AxisData b, String newName){
         AxisData a = this;
-        int length = minLength(a, b);
+        int diff = b.getOffset() - a.getOffset();
+        int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
-            res[i] = a.getIndex(i) - b.getIndex(i);
+        if(diff >= 0){
+            for(int i = 0; i < length; i++){
+                res[i] = a.getIndex(i+diff) - b.getIndex(i);
+            }
+        }else{
+            for(int i = 0; i < length; i++){
+                res[i] = a.getIndex(i) - b.getIndex(i-diff);
+            }
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
     }
     /**
      * Combines this AxisData with a constant through the subtraction operation
@@ -164,7 +171,7 @@ public class AxisData {
         for(int i = 0; i < length; i++){
             res[i] = a.getIndex(i) - c;
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,a.getOffset(),newName);
     }
      /**
      * Combines this AxisData with another AxisData through the multiplication operation
@@ -175,12 +182,18 @@ public class AxisData {
     public AxisData multiply(AxisData b, String newName){
         AxisData a = this;
         int diff = b.getOffset() - a.getOffset();
-        int length = minLength(a, b); 
+        int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
-            res[i] = a.getIndex(i) * b.getIndex(i);
+        if(diff >= 0){
+            for(int i = 0; i < length; i++){
+                res[i] = a.getIndex(i+diff) * b.getIndex(i);
+            }
+        }else{
+            for(int i = 0; i < length; i++){
+                res[i] = a.getIndex(i) * b.getIndex(i-diff);
+            }
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
     }
     /**
      * Combines this AxisData with a constant through the multiplication operation
@@ -195,7 +208,7 @@ public class AxisData {
         for(int i = 0; i < length; i++){
             res[i] = a.getIndex(i) * c;
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,a.getOffset(),newName);
     }
     /**
     * Combines this AxisData with another AxisData through the division operation
@@ -205,12 +218,19 @@ public class AxisData {
      */
     public AxisData divide(AxisData b, String newName){
         AxisData a = this;
-        int length = minLength(a, b);
+        int diff = b.getOffset() - a.getOffset();
+        int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
-            res[i] = a.getIndex(i) / b.getIndex(i);
+        if(diff >= 0){
+            for(int i = 0; i < length; i++){
+                res[i] = a.getIndex(i+diff) / b.getIndex(i);
+            }
+        }else{
+            for(int i = 0; i < length; i++){
+                res[i] = a.getIndex(i) / b.getIndex(i-diff);
+            }
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
     }
     /**
      * Combines this AxisData with a constant through the division operation
@@ -225,7 +245,7 @@ public class AxisData {
         for(int i = 0; i < length; i++){
             res[i] = a.getIndex(i) / c;
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,a.getOffset(),newName);
     }
     /**
      * Combines this AxisData with a constant through the exponentiation operation
@@ -240,10 +260,10 @@ public class AxisData {
         for(int i = 0; i < length; i++){
             res[i] = Math.pow(a.getIndex(i),c);
         }
-        return new AxisData(res,0,newName);
+        return new AxisData(res,a.getOffset(),newName);
     }
 
-    private int getOffset(){
+    public int getOffset(){
         if(reference==null) return offset;
         return (int)(reference.getSampleRate() * reference.getTimeOffset());
     }

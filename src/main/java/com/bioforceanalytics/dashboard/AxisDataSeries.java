@@ -151,7 +151,7 @@ public class AxisDataSeries {
 		this.originalData = axisData.getData();
 		this.smoothedData = axisData.getData();
 		this.axis = AxisType.AccelX;
-		
+		this.timeOffset = ((double)axisData.getOffset())/sampleRate;
 
 		this.testLength = ((double) axisData.getData().length) / sampleRate; 
 		for(int i = 0; i < time.length; i++){
