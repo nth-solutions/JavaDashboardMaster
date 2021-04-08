@@ -1489,7 +1489,7 @@ public class GraphNoSINCController implements Initializable {
 		clearSlope();
 		double axisScalar;
 		// get slope value "m"
-		double m = genericTests.get(GTIndex).getAxis(axis).getSlope(x, multiAxis.getResolution(axis));
+		double m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis));
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
