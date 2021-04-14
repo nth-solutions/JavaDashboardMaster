@@ -311,13 +311,19 @@ public class GenericTest {
 	}
 
 	/**
-	 * Get the number of samples by which the time axis is offset.
-	 * @return the number of samples by which the time axis is offset
+	 * Get the number of seconds by which the time axis is offset.
+	 * @return the number of seconds by which the time axis is offset
 	 */
 	public double getTimeOffset() {
 		return ((double) timeOffset) / sampleRate;
 	}
-
+	/**
+	 * Get the number of samples by which the time axis is offset.
+	 * @returnThe number of samples by which the time axis is offset
+	 */
+	public int getDataOffset() {
+		return timeOffset;
+	}
 	/**
 	 * Resets the amount by which the time axis is offset to 0.
 	 * This resets all data sets in a GenericTest to starting from 0.

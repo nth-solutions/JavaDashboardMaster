@@ -557,11 +557,10 @@ public class AxisDataSeries {
 	 * @param res the resolution of the graph, and the value <code>n</code> used to calculate the secant line.
 	 * @return the slope of the line tangent to the point
 	 */
-	public Double getSlope(Double x, int res) {
+	public Double getSlope(Double x, int res, int offset) {
 
 		// calculate index of x-value
-		int i = (int) Math.round(x*this.sampleRate);
-
+		int i = (int) Math.round(x*this.sampleRate - offset);
 		// slope (m) = ∆y/∆x, where the interval is the resolution of the graphed data set
 		Double slope = (smoothedData[i+res]-smoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
 
@@ -575,11 +574,11 @@ public class AxisDataSeries {
 	 * @param endTime the x-value of the second data point
 	 * @return the slope of the secant line
 	 */
-	public Double getSlope(Double startTime, Double endTime) {
+	public Double getSlope(Double startTime, Double endTime, int offset) {
 
 		// calculate indices of start and end times
-		int a = (int) Math.round(startTime*this.sampleRate);
-		int b = (int) Math.round(endTime*this.sampleRate);
+		int a = (int) Math.round(startTime*this.sampleRate - offset);
+		int b = (int) Math.round(endTime*this.sampleRate - offset);
 
 		// slope (m) = ∆y/∆x
 		Double slope = (smoothedData[b]-smoothedData[a])/(this.time[b]-this.time[a]);
