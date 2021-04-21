@@ -641,6 +641,7 @@ public class MultiAxisLineChart extends StackPane {
         for (GraphData d : dataSets) {
             styleChartLine(d);
         }
+        styleLegend();
 
     }
 
