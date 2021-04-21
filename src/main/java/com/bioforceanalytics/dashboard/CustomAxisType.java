@@ -14,7 +14,7 @@ public class CustomAxisType implements Axis{
 
     private static ArrayList<String> names;
     //a static refernce to all existing custom axes
-    private static ArrayList<CustomAxisType> allCustomAxes;
+    public  static ArrayList<CustomAxisType> allCustomAxes;
     /**
      * A construction for a new custom axis type
      * @param name the name of the custom axis (e.g. momentum)

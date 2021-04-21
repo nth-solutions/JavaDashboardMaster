@@ -134,9 +134,8 @@ public class BFAColorMenu implements Initializable {
     }
 
     private static void addCustomAxisColor(CustomAxisType axis){
-        if(customAxisColors.size() > 0){
-            colorMap.put(axis,customAxisColors.get(0));
-            customAxisColors.remove(0);
+        if(customAxisColors.size() > 0 && CustomAxisType.allCustomAxes.size() <= 10){
+            colorMap.put(axis,customAxisColors.get(CustomAxisType.allCustomAxes.indexOf(axis)));
         }else{
             Random rand = new Random();
             colorMap.put(axis,Color.rgb((int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255));
