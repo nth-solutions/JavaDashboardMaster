@@ -119,6 +119,7 @@ public class CustomAxisMenu implements Initializable {
         //sets the last column to be the units of the custom axis
         unitsCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("units"));
         unitsCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        
         unitsCol.setOnEditCommit(
             new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
                 @Override

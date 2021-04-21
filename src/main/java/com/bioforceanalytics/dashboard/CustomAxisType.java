@@ -51,7 +51,9 @@ public class CustomAxisType implements Axis{
      * @return the custom axis type
      */
     public static CustomAxisType getCustomAxisByIndex(int index){
-        if(index < allCustomAxes.size()) return allCustomAxes.get(index);
+        if(allCustomAxes != null){
+            if(index < allCustomAxes.size()) return allCustomAxes.get(index);
+        }
         return null;
     }
     /**
