@@ -130,8 +130,8 @@ public class AxisDataSeries {
 
 				// if axis class is magnetometer
 				if (axis.getValue() / 4 == 6) {
-					// apply mag sensitivity - is always 4800.  Divide by 8192 here b/c mag values are only 14 bits in the module
-					this.originalData[i] *= (double)4800 /(double) 8192;
+					// apply mag sensitivity - is always 4800
+					this.originalData[i] *= (double) 4800 / (double) 32768;
 				}
 			}
 		}
