@@ -1294,14 +1294,15 @@ public class GraphNoSINCController implements Initializable {
 	private void openCustomAxisMenu(ActionEvent event) {
 			Stage primaryStage = new Stage();
 			Parent root = null;
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/CustomAxisMenu.fxml"));
-			
+			//FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/CustomAxisMenu.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/CombinedCustomMenu.fxml"));
 			try {
+
 				
 				root = loader.load();
-	
+				((CombinedCustomMenu) loader.getController()).setParent(this);
 				// set parent of the equaotion menu to allow communication b/t classes
-				((CustomAxisMenu) loader.getController()).setParent(this);
+				
 	
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -1311,7 +1312,7 @@ public class GraphNoSINCController implements Initializable {
 			if (root != null) primaryStage.setScene(new Scene(root));
 	
 			// ensure that color menu stays on top and blocks everything else
-			primaryStage.setAlwaysOnTop(true);
+			primaryStage.setAlwaysOnTop(false);
 			primaryStage.initModality(Modality.APPLICATION_MODAL);
 			primaryStage.initOwner(lineChart.getScene().getWindow());
 	

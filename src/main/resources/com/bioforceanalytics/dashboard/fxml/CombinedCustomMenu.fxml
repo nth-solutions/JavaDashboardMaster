@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="950.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.CombinedCustomMenu">
+   <children>
+      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <tabs>
+          <Tab fx:id="equationsTab" text="Equations">
+              <fx:include fx:id="equationPage" source="CustomAxisMenu.fxml"/>
+          </Tab>
+          <Tab fx:id="variablesTab" text="Variables">
+              <fx:include fx:id="variablesPage" source="VariableMenu.fxml"/>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

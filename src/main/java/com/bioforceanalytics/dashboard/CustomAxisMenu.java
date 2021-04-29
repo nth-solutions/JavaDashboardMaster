@@ -31,21 +31,30 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
+import javafx.util.converter.DefaultStringConverter;
 
 import java.util.Map;
 
@@ -83,6 +92,8 @@ public class CustomAxisMenu implements Initializable {
         // TODO Auto-generated method stub
         // don't allow the user to click and select rows
         // tableView.setSelectionModel(null);
+        logger.info("init equations w/ controller " + controller);
+        
         tableView.setEditable(true);
         // center both table columns
         axisNameCol.setStyle("-fx-alignment: CENTER");
@@ -134,6 +145,15 @@ public class CustomAxisMenu implements Initializable {
         );
         scalarCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("scale"));
         scalarCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        scalarCol.textProperty().addListener(new ChangeListener<String>(){
+
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                logger.info("changed to" + newValue);
+                
+            }
+            
+        });
         scalarCol.setOnEditCommit(
             new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
                 @Override
@@ -157,6 +177,7 @@ public class CustomAxisMenu implements Initializable {
     public void setParent(GraphNoSINCController controller) {
         this.controller = controller;
         //we reload the table here because it relies on the controller to send equations to the GraphNoSINCController
+        logger.info("setParent");
         reloadTable();
     }
 
@@ -288,6 +309,9 @@ public class CustomAxisMenu implements Initializable {
         public void setScale(String scale){
             this.scale.set(scale);
         }
+        
+        
     }
 }
+    
 
