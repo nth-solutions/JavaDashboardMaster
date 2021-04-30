@@ -500,13 +500,15 @@ public class GraphNoSINCController implements Initializable {
 			// get current AxisDataSeries by index
 			AxisDataSeries axis = primaryTest.getAxis(AxisType.valueOf(i));
 
-			// if finished calculating min/max for an axis class
-			// (either starting a new axis class OR last AxisType)
-			if (i % 4 == 0 || i == AxisType.values().length - 1) {
+			// update min/max bounds for axis class
+			min = axis.dataRange[0] < min ? axis.dataRange[0] : min;
+			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
 
-				// if starting a new axis class, get index of last class;
-				// otherwise, we must be on the last AxisType, so get the current class index
-				int axisClassIndex = i % 4 == 0 ? (i-1)/4 : i/4;
+			//if this is last axis in axis class
+			if ((i+1)%4 == 0) {
+				
+				//get axis class
+				int axisClassIndex = i/4;
 
 				// save min/max for the given axis class
 				axisClassRanges[axisClassIndex][0] = min;
@@ -517,12 +519,6 @@ public class GraphNoSINCController implements Initializable {
 				max = Double.MIN_VALUE;
 
 			}
-
-			// update min/max bounds for axis class
-			min = axis.dataRange[0] < min ? axis.dataRange[0] : min;
-			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
-
-			
 		}
 
 		// re-calculate axis scalars using min/max bounds
@@ -572,13 +568,30 @@ public class GraphNoSINCController implements Initializable {
 				//CustomTest test = new CustomTest();
 				//logger.info(tokenizeString(equation.getEquation()));
 				Token result = processTokens(tokenizeString(equation.getEquation()));
+
+				
+
+
 				CustomAxisType customAxis = new CustomAxisType(equation.getName(), equation.getUnits(), Double.parseDouble(equation.getScale()));
+
 				equationPanel.addEquation(equation,customAxis);
+			
 				if(result.type == TokenType.AXIS){
+
 					AxisDataSeries resultSeries = new AxisDataSeries(result.axis, customAxis);
+
+					
+					//set the bound scale to the max/min of greatest magnitude
+					double bound = Math.max(resultSeries.dataRange[0], resultSeries.dataRange[1]);
+
+					double axisScale = MultiAxisLineChart.roundBound(bound)/5;
+
+					customAxis.setAxisScalar(axisScale);
+					
+
 					customAxisTest.addAxisDataSeries(resultSeries, customAxis,(CheckBox)equationPanel.equationCheckboxMap.get(equation));
 				}else{
-					throw new Exception("Equation " + equation.getName() + " is invalid");
+					throw new Exception("Equation for \"" + equation.getName() + "\" is invalid");
 				}
 				
 				//graphAxis(customAxis,-1);

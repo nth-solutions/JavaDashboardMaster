@@ -45,6 +45,9 @@ public class CustomAxisType implements Axis{
     public double getAxisScalar(){
         return axisScalar;
     }
+    public void setAxisScalar(double val){
+        axisScalar = val;
+    }
    /**
      * Allows you to reference any custom axis by name
      * @param index the index of the custom axis

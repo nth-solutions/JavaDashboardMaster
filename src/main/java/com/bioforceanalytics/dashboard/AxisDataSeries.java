@@ -152,12 +152,15 @@ public class AxisDataSeries {
 		this.smoothedData = axisData.getData();
 		this.axis = AxisType.AccelX;
 		this.timeOffset = ((double)axisData.getOffset())/sampleRate;
-
+		double min = Double.MAX_VALUE;
+		double max = Double.MIN_VALUE;
 		this.testLength = ((double) axisData.getData().length) / sampleRate; 
 		for(int i = 0; i < time.length; i++){
 			time[i] = ((double) i)/sampleRate;
+			if(this.originalData[i] < min) min = this.originalData[i];
+			if(this.originalData[i] > max) max = this.originalData[i];
 		}
-		
+		dataRange = new Double[] {min, max};
 
 	}
 	
@@ -253,7 +256,7 @@ public class AxisDataSeries {
 
 		this.testLength = ((double) data.size()) / sampleRate;
 		this.rollBlkSize = axis.getValue() / 4 == 6 ? DEFAULT_BLOCK_SIZE / 10 : DEFAULT_BLOCK_SIZE;
-
+		
 		for (int i = 0; i < this.originalData.length; i++) {
 
 			// convert raw data to signed data
@@ -263,9 +266,9 @@ public class AxisDataSeries {
 
 			// apply sensitivity for gyro
 			this.originalData[i] *= ((double) gyroSensitivity) / 32768;
-
+			
 		}
-
+		
 		smoothData(this.rollBlkSize);
 
 		// print AxisDataSeries debug info

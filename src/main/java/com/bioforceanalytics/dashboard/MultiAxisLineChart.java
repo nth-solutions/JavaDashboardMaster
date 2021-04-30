@@ -685,7 +685,7 @@ public class MultiAxisLineChart extends StackPane {
      * 
      * @param val the bound to round up
      */
-    private double roundBound(double val) {
+    public static double roundBound(double val) {
 
         // get the order of magnitude (largest power of 10 in the bound)
         // eg. 17 = 1.7*10^1, therefore order = 1
