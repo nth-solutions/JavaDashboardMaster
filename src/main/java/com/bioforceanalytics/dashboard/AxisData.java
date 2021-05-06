@@ -20,252 +20,287 @@ public class AxisData {
     private int offset;
     private Axis axis;
     public static List<AxisData> allAxisData = new ArrayList<AxisData>();
-    public static Map<String,AxisData> nameAxisDataMap = new HashMap<String,AxisData>();
+    public static Map<String, AxisData> nameAxisDataMap = new HashMap<String, AxisData>();
     private GenericTest reference;
+
     /**
      * Finds a specific axis-data object based on it's name
+     * 
      * @param name the name of the axisdata
      * @return the specified axisdata object
      */
-    public static AxisData getAxisData(String name){
-        for(AxisData ad : allAxisData){
-            if(ad.name == name){
+    public static AxisData getAxisData(String name) {
+        for (AxisData ad : allAxisData) {
+            if (ad.name == name) {
                 return ad;
             }
         }
         return null;
     }
+
     /**
      * Creates a new AxisData object with the given data and name
-     * @param data the Double List of raw values that the AxisData object will keep track of
+     * 
+     * @param data the Double List of raw values that the AxisData object will keep
+     *             track of
      * @param name the identifier of this specific AxisData object. Must be unique
      */
-    public AxisData (List<Double> data, GenericTest reference, String name){
+    public AxisData(List<Double> data, GenericTest reference, String name) {
         this.data = new Double[data.size()];
         for (int i = 0; i < data.size(); i++) {
-                this.data[i] = data.get(i); 
+            this.data[i] = data.get(i);
         }
         this.reference = reference;
         this.name = name;
         allAxisData.add(this);
-        
+
     }
+
     /**
      * Creates a new AxisData object with the given data and name
-     * @param data the Double array of raw values that the AxisData object will keep track of
+     * 
+     * @param data the Double array of raw values that the AxisData object will keep
+     *             track of
      * @param name the identifier of this specific AxisData object. Must be unique
      */
-    public AxisData (Double[] data, int offset, String name){
+    public AxisData(Double[] data, int offset, String name) {
         this.data = data;
         this.name = name;
         this.offset = offset;
         allAxisData.add(this);
     }
 
-    public AxisData (Double[] data, GenericTest reference, String name){
+    public AxisData(Double[] data, GenericTest reference, String name) {
         this.data = data;
         this.name = name;
         this.reference = reference;
         allAxisData.add(this);
     }
+
     /**
      * retuns all of the data in a comma'd list
      */
-    public String toString(){
+    public String toString() {
         String result = "";
-        for(Double a : data){
-            result += (a+", ");
+        for (Double a : data) {
+            result += (a + ", ");
         }
         return result;
     }
+
     /**
      * returns the small of the two lengths between two AxisData objects
+     * 
      * @param a instance A of AxisData
      * @param b instance B of AxisData
      * @return smallest length
      */
-    private int minLength(AxisData a, AxisData b){
+    private int minLength(AxisData a, AxisData b) {
         return a.getData().length < b.getData().length ? a.getData().length : b.getData().length;
     }
-    public Double[] getData(){
+
+    public Double[] getData() {
         return data;
     }
+
     /**
      * get the value of the data at index i
+     * 
      * @param i the index
      * @return the value of index i
      */
-    public Double getIndex(int i){
+    public Double getIndex(int i) {
         return data[i];
     }
+
     /**
      * Combines this AxisData with another AxisData through the addition operation
-     * @param b the AxisData to be added
+     * 
+     * @param b       the AxisData to be added
      * @param newName the identifier of the result
      * @return the result of the addition (a new AxisData object)
      */
-    public AxisData add(AxisData b, String newName){
+    public AxisData add(AxisData b, String newName) {
         AxisData a = this;
         int diff = b.getOffset() - a.getOffset();
         int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        if(diff >= 0){
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i+diff) + b.getIndex(i);
+        if (diff >= 0) {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i + diff) + b.getIndex(i);
             }
-        }else{
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i) + b.getIndex(i-diff);
+        } else {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i) + b.getIndex(i - diff);
             }
         }
-        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
+        return new AxisData(res, Math.min(a.getOffset(), b.getOffset()) + Math.abs(diff), newName);
     }
+
     /**
      * Combines this AxisData with a constant through the addition operation
-     * @param c the constant
+     * 
+     * @param c       the constant
      * @param newName the identifier of the result
      * @return the result of the addition (a new AxisData object)
      */
-    public AxisData add(double c, String newName){
+    public AxisData add(double c, String newName) {
         AxisData a = this;
         int length = a.getData().length;
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             res[i] = a.getIndex(i) + c;
-            
+
         }
-        return new AxisData(res,a.getOffset(),newName);
+        return new AxisData(res, a.getOffset(), newName);
     }
-      /**
-     * Combines this AxisData with another AxisData through the subtraction operation
-     * @param b the AxisData to be subtracted
+
+    /**
+     * Combines this AxisData with another AxisData through the subtraction
+     * operation
+     * 
+     * @param b       the AxisData to be subtracted
      * @param newName the identifier of the result
      * @return the result of the addition (a new AxisData object)
      */
-    public AxisData subtract(AxisData b, String newName){
+    public AxisData subtract(AxisData b, String newName) {
         AxisData a = this;
         int diff = b.getOffset() - a.getOffset();
         int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        if(diff >= 0){
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i+diff) - b.getIndex(i);
+        if (diff >= 0) {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i + diff) - b.getIndex(i);
             }
-        }else{
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i) - b.getIndex(i-diff);
+        } else {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i) - b.getIndex(i - diff);
             }
         }
-        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
+        return new AxisData(res, Math.min(a.getOffset(), b.getOffset()) + Math.abs(diff), newName);
     }
+
     /**
      * Combines this AxisData with a constant through the subtraction operation
-     * @param c the constant
+     * 
+     * @param c       the constant
      * @param newName the identifier of the result
      * @return the result of the subtraction (a new AxisData object)
      */
-    public AxisData subtract(double c, String newName){
+    public AxisData subtract(double c, String newName) {
         AxisData a = this;
         int length = a.getData().length;
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             res[i] = a.getIndex(i) - c;
         }
-        return new AxisData(res,a.getOffset(),newName);
+        return new AxisData(res, a.getOffset(), newName);
     }
-     /**
-     * Combines this AxisData with another AxisData through the multiplication operation
-     * @param b the AxisData to be multiplied by
+
+    /**
+     * Combines this AxisData with another AxisData through the multiplication
+     * operation
+     * 
+     * @param b       the AxisData to be multiplied by
      * @param newName the identifier of the result
      * @return the result of the multiplication (a new AxisData object)
      */
-    public AxisData multiply(AxisData b, String newName){
+    public AxisData multiply(AxisData b, String newName) {
         AxisData a = this;
         int diff = b.getOffset() - a.getOffset();
         int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        if(diff >= 0){
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i+diff) * b.getIndex(i);
+        if (diff >= 0) {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i + diff) * b.getIndex(i);
             }
-        }else{
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i) * b.getIndex(i-diff);
+        } else {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i) * b.getIndex(i - diff);
             }
         }
-        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
+        return new AxisData(res, Math.min(a.getOffset(), b.getOffset()) + Math.abs(diff), newName);
     }
+
     /**
      * Combines this AxisData with a constant through the multiplication operation
-     * @param c the constant
+     * 
+     * @param c       the constant
      * @param newName the identifier of the result
      * @return the result of the multiplication (a new AxisData object)
      */
-    public AxisData multiply(double c, String newName){
+    public AxisData multiply(double c, String newName) {
         AxisData a = this;
         int length = a.getData().length;
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             res[i] = a.getIndex(i) * c;
         }
-        return new AxisData(res,a.getOffset(),newName);
+        return new AxisData(res, a.getOffset(), newName);
     }
+
     /**
-    * Combines this AxisData with another AxisData through the division operation
-     * @param b the AxisData to be divided by (this is the QUOTIENT)
+     * Combines this AxisData with another AxisData through the division operation
+     * 
+     * @param b       the AxisData to be divided by (this is the QUOTIENT)
      * @param newName the identifier of the result
      * @return the result of the division (a new AxisData object)
      */
-    public AxisData divide(AxisData b, String newName){
+    public AxisData divide(AxisData b, String newName) {
         AxisData a = this;
         int diff = b.getOffset() - a.getOffset();
         int length = minLength(a, b) - Math.abs(diff);
         Double[] res = new Double[length];
-        if(diff >= 0){
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i+diff) / b.getIndex(i);
+        if (diff >= 0) {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i + diff) / b.getIndex(i);
             }
-        }else{
-            for(int i = 0; i < length; i++){
-                res[i] = a.getIndex(i) / b.getIndex(i-diff);
+        } else {
+            for (int i = 0; i < length; i++) {
+                res[i] = a.getIndex(i) / b.getIndex(i - diff);
             }
         }
-        return new AxisData(res,Math.min(a.getOffset(),b.getOffset()) + Math.abs(diff),newName);
+        return new AxisData(res, Math.min(a.getOffset(), b.getOffset()) + Math.abs(diff), newName);
     }
+
     /**
      * Combines this AxisData with a constant through the division operation
-     * @param c the constant (this is the QUOTIENT)
+     * 
+     * @param c       the constant (this is the QUOTIENT)
      * @param newName the identifier of the result
      * @return the result of the division (a new AxisData object)
      */
-    public AxisData divide(double c, String newName){
+    public AxisData divide(double c, String newName) {
         AxisData a = this;
         int length = a.getData().length;
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
+        for (int i = 0; i < length; i++) {
             res[i] = a.getIndex(i) / c;
         }
-        return new AxisData(res,a.getOffset(),newName);
+        return new AxisData(res, a.getOffset(), newName);
     }
+
     /**
      * Combines this AxisData with a constant through the exponentiation operation
-     * @param c the constant
+     * 
+     * @param c       the constant
      * @param newName the identifier of the result
      * @return the result of the exponentiation (a new AxisData object)
      */
-    public AxisData exp(double c, String newName){
+    public AxisData exp(double c, String newName) {
         AxisData a = this;
         int length = a.getData().length;
         Double[] res = new Double[length];
-        for(int i = 0; i < length; i++){
-            res[i] = Math.pow(a.getIndex(i),c);
+        for (int i = 0; i < length; i++) {
+            res[i] = Math.pow(a.getIndex(i), c);
         }
-        return new AxisData(res,a.getOffset(),newName);
+        return new AxisData(res, a.getOffset(), newName);
     }
 
-    public int getOffset(){
-        if(reference==null) return offset;
-        return (int)(reference.getSampleRate() * reference.getTimeOffset());
+    public int getOffset() {
+        if (reference == null)
+            return offset;
+        return (int) (reference.getSampleRate() * reference.getTimeOffset());
     }
 
 }

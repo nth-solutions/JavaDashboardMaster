@@ -4,12 +4,16 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
+import javax.swing.event.ChangeEvent;
+
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.NamedArg;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -32,10 +36,12 @@ import javafx.stage.Window;
 import javafx.util.Duration;
 
 /**
- * Custom LineChart created to shade in area under a curve and to play overlayed video for SINC Technology.
- * This is also the "base chart" used by {@link com.bioforceanalytics.dashboard.MultiAxisLineChart MultiAxisLineChart}.
+ * Custom LineChart created to shade in area under a curve and to play overlayed
+ * video for SINC Technology. This is also the "base chart" used by
+ * {@link com.bioforceanalytics.dashboard.MultiAxisLineChart
+ * MultiAxisLineChart}.
  */
-public class BFALineChart<X,Y> extends LineChart<X,Y> {
+public class BFALineChart<X, Y> extends LineChart<X, Y> {
 
     // reference to the MultiAxisLineChart that controls this chart
     private MultiAxisLineChart parentChart;
@@ -69,10 +75,11 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     /**
      * The amount of time to offset all SINC calculations.
      * <hr>
-     * For some reason, SINC calibration is off by 12 frames when <code>delayAfterStart > 0</code>;
-     * this is likely caused by a firmware or remote issue, but since this is a consistent problem,
-     * this value will be applied on top of <code>delayAfterStart</code>
-     * from the calibration process when graphing SINC trials in the DAG.
+     * For some reason, SINC calibration is off by 12 frames when
+     * <code>delayAfterStart > 0</code>; this is likely caused by a firmware or
+     * remote issue, but since this is a consistent problem, this value will be
+     * applied on top of <code>delayAfterStart</code> from the calibration process
+     * when graphing SINC trials in the DAG.
      */
     public final double SINC_TIME_ERROR = ((double) SINC_FRAME_ERROR) / ((double) FPS);
 
@@ -87,10 +94,25 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
+        this.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (p1 != null && p2 != null)
+                    redrawArea(newValue.intValue() - oldValue.intValue(), 0);
+            }
+        });
+        this.heightProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                if (p1 != null && p2 != null)
+                    redrawArea(0, newValue.intValue() - oldValue.intValue());
+            }
+        });
     }
-    
+
     /**
      * Passes a reference of MultiAxisLineChart to BFALineChart.
+     * 
      * @param parentChart the MultiAxisLineChart to link this chart to
      */
     public void setParentChart(MultiAxisLineChart parentChart) {
@@ -123,35 +145,40 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Internal method used to generate the JavaFX label displaying area.
+     * 
      * @param a the value of the definite integral
      * @return the JavaFX Label object
      */
     private Label createAreaLabel(double a) {
 
-		Label label = new Label("Area: " + a);
+        Label label = new Label("Area: " + a);
 
-		// add styling to label
-		label.getStyleClass().addAll("hover-label");
+        // add styling to label
+        label.getStyleClass().addAll("hover-label");
 
-		// place the label above the data point
-		label.translateYProperty().bind(label.heightProperty());
+        // place the label above the data point
+        label.translateYProperty().bind(label.heightProperty());
 
         label.setMinSize(Label.USE_PREF_SIZE, Label.USE_PREF_SIZE);
 
-		return label;
+        return label;
 
-	}
+    }
 
     /**
-     * Shades area under a section of a curve by drawing trapezoids between adjacent points and the x-axis.
-     * Takes XYChart-based objects as arguments for ease of use in the BioForce Graph.
-     * @param p1 the left bound of the area
-     * @param p2 the right bound of the area
-     * @param data the data set that should be shaded in
-     * @param area the value of the definite integral from the two bounds
-     * @param SIG_FIGS the number of significant figures used to round the area value
+     * Shades area under a section of a curve by drawing trapezoids between adjacent
+     * points and the x-axis. Takes XYChart-based objects as arguments for ease of
+     * use in the BioForce Graph.
+     * 
+     * @param p1       the left bound of the area
+     * @param p2       the right bound of the area
+     * @param data     the data set that should be shaded in
+     * @param area     the value of the definite integral from the two bounds
+     * @param SIG_FIGS the number of significant figures used to round the area
+     *                 value
      */
-    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, GraphData data, double area, final int SIG_FIGS) {
+    public void graphArea(XYChart.Data<Double, Double> p1, XYChart.Data<Double, Double> p2, GraphData data, double area,
+            final int SIG_FIGS) {
 
         this.p1 = p1;
         this.p2 = p2;
@@ -162,19 +189,23 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     }
 
-    /**
-     * Re-renders the polygon used for shading area under a curve.
-     * Currently not being called multiple times, only once.
-     * TODO at some point we may look into real-time shading with this method.
-     */
     public void redrawArea() {
+        redrawArea(0, 0);
+    }
+
+    /**
+     * Re-renders the polygon used for shading area under a curve. Currently not
+     * being called multiple times, only once. TODO at some point we may look into
+     * real-time shading with this method.
+     */
+    public void redrawArea(int xOffset, int yOffset) {
 
         ObservableList<XYChart.Data<Number, Number>> series = data.data.getData();
 
-        if (p1 == null && p2 == null && data == null) return;
+        if (p1 == null || p2 == null || data == null)
+            return;
         int start = -1;
         int end = -1;
-
         // get index of x1 and x2 in samples
         for (int i = 0; i < series.size(); i++) {
 
@@ -186,7 +217,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
                 end = i;
             }
 
-        }  
+        }
 
         // remove area shading and label
         clearArea();
@@ -199,7 +230,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         // makes selecting data points easier
         areaPane.setPickOnBounds(false);
 
-        // set (x,y) position of the area label to halfway between the x-bounds of the area
+        // set (x,y) position of the area label to halfway between the x-bounds of the
+        // area
         areaPane.setLayoutX(series.get((start + end) / 2).getNode().getLayoutX() - 50);
         areaPane.setLayoutY(series.get((start + end) / 2).getNode().getLayoutY() - 100);
 
@@ -216,7 +248,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         Polygon poly = new Polygon();
 
         // loop through all points in [p1, p2]
-        for (int i = start; i <= end; i++) {      
+        for (int i = start; i <= end; i++) {
 
             // pixel positions of x=series[i] and x=seriesi+1] on LineChart component
             double x1 = xAxis.getDisplayPosition(series.get(i).getXValue());
@@ -251,12 +283,14 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     }
 
     /**
-     * Passes references to SINC components from GraphNoSINCController to this class.
-     * @param mediaView the JavaFX component that displays video 
-     * @param scrubber the JavaFX component that displays the video scrubber
+     * Passes references to SINC components from GraphNoSINCController to this
+     * class.
+     * 
+     * @param mediaView the JavaFX component that displays video
+     * @param scrubber  the JavaFX component that displays the video scrubber
      */
     public void initSINC(MediaView mediaView, Rectangle scrubber) {
-        
+
         this.mediaView = mediaView;
         this.scrubber = scrubber;
 
@@ -286,7 +320,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
             if (e.getButton() == MouseButton.SECONDARY) {
 
                 MenuItem lineUpTrial = new MenuItem("Line Up Trial");
-                lineUpTrial.setOnAction(e2 -> parentChart.getController().setGraphMode(GraphNoSINCController.GraphMode.LINEUP_SINC));
+                lineUpTrial.setOnAction(
+                        e2 -> parentChart.getController().setGraphMode(GraphNoSINCController.GraphMode.LINEUP_SINC));
 
                 MenuItem jumpToStart = new MenuItem("Jump to Start");
                 jumpToStart.setOnAction(e2 -> mediaPlayer.seek(mediaPlayer.getStartTime()));
@@ -294,11 +329,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
                 MenuItem jumpToEnd = new MenuItem("Jump to End");
                 jumpToEnd.setOnAction(e2 -> mediaPlayer.seek(mediaPlayer.getStopTime()));
 
-                MenuItem[] menuItems = {
-                    lineUpTrial,
-                    jumpToStart,
-                    jumpToEnd,
-                };
+                MenuItem[] menuItems = { lineUpTrial, jumpToStart, jumpToEnd, };
 
                 // display context menu at the mouse's current position
                 Window owner = ((Node) e.getTarget()).getScene().getWindow();
@@ -310,9 +341,10 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         });
 
     }
-    
+
     /**
      * Indicates whether or not the graph is currently displaying a SINC trial.
+     * 
      * @return whether or not the graph is currently displaying a SINC trial
      */
     public boolean hasSINC() {
@@ -341,16 +373,19 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Plays a SINC video overlayed on this chart.
+     * 
      * @param videoFile the File object for this video
      */
     public void playVideo(File videoFile) {
-        
+
         // stop any previous videos/timers
-        if (mediaPlayer != null) mediaPlayer.dispose();
-        if (timer != null) timer.stop();
+        if (mediaPlayer != null)
+            mediaPlayer.dispose();
+        if (timer != null)
+            timer.stop();
 
         // load and play video
-		mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
+        mediaPlayer = new MediaPlayer(new Media(videoFile.toURI().toString()));
         mediaView.setMediaPlayer(mediaPlayer);
         mediaView.setVisible(true);
         mediaPlayer.play();
@@ -360,16 +395,16 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
         b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PAUSE));
 
         // initialize scrubber
-		scrubber.setVisible(true);
-		scrubber.setX(0);
+        scrubber.setVisible(true);
+        scrubber.setX(0);
 
         // start scrubber animation
-        timer = new ScrubberAnimation((BFALineChart<Number,Number>) this, mediaPlayer);
+        timer = new ScrubberAnimation((BFALineChart<Number, Number>) this, mediaPlayer);
         timer.start();
 
         // indicate that SINC is enabled
         hasSINC = true;
-        
+
     }
 
     /**
@@ -378,7 +413,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     public void togglePlayback() {
 
         // cancel if no video is playing
-        if (mediaPlayer == null) return;
+        if (mediaPlayer == null)
+            return;
 
         // get "toggle playback" button
         Button b = (Button) this.getScene().lookup("#togglePlayback");
@@ -388,8 +424,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
             mediaPlayer.play();
 
             b.setGraphic(new Glyph("FontAwesome", FontAwesome.Glyph.PAUSE));
-        }
-        else if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+        } else if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
             logger.info("Paused video at {}s", mediaPlayer.getCurrentTime().toSeconds());
             mediaPlayer.pause();
 
@@ -399,12 +434,14 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Sets the playback speed of the video.
+     * 
      * @param speed the new speed of the video
      */
     public void setPlaybackSpeed(double speed) {
-        
+
         // cancel if no video is playing
-        if (mediaPlayer == null) return;
+        if (mediaPlayer == null)
+            return;
 
         mediaPlayer.setRate(speed);
 
@@ -448,7 +485,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
     public void resetVideo() {
 
         // if video is playing, reset video time to 0 seconds
-        if (mediaPlayer != null) mediaPlayer.seek(Duration.seconds(0));
+        if (mediaPlayer != null)
+            mediaPlayer.seek(Duration.seconds(0));
 
     }
 
@@ -461,13 +499,15 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
     /**
      * Internal method to move the scrubber relative to the current time.
+     * 
      * @param delta the amount of time (in seconds) to move the scrubber
-     * @return the current time (in seconds) of the scrubber 
+     * @return the current time (in seconds) of the scrubber
      */
     private double relativeSeek(double delta) {
 
         // cancel if no video is playing
-        if (mediaPlayer == null) return -1;
+        if (mediaPlayer == null)
+            return -1;
 
         double seconds = mediaPlayer.getCurrentTime().toSeconds();
         Duration time = Duration.seconds(seconds + delta);
@@ -487,7 +527,8 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
 
         /**
          * Constructs a scrubber animation.
-         * @param lineChart the LineChart that this scrubber is overlaid on
+         * 
+         * @param lineChart   the LineChart that this scrubber is overlaid on
          * @param mediaPlayer the media player dictating this scrubber's position
          */
         public ScrubberAnimation(BFALineChart<Number, Number> lineChart, MediaPlayer mediaPlayer) {
@@ -517,7 +558,7 @@ public class BFALineChart<X,Y> extends LineChart<X,Y> {
             scrubber.setX(lineChart.getXAxis().getDisplayPosition(currentTime));
 
         }
-        
+
     }
 
 }
