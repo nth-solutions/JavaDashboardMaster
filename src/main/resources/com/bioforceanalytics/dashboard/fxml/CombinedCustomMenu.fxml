@@ -1,21 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="950.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.CombinedCustomMenu">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="950.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bioforceanalytics.dashboard.CombinedCustomMenu">
    <children>
-      <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <tabs>
-          <Tab fx:id="equationsTab" text="Equations">
-              <fx:include fx:id="equationPage" source="CustomAxisMenu.fxml"/>
-          </Tab>
-          <Tab fx:id="variablesTab" text="Variables">
-              <fx:include fx:id="variablesPage" source="VariableMenu.fxml"/>
-          </Tab>
-        </tabs>
-      </TabPane>
+      <HBox prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <TabPane prefHeight="950.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE">
+              <tabs>
+                <Tab fx:id="equationsTab" text="Equations">
+                    <fx:include fx:id="equationPage" source="CustomAxisMenu.fxml" />
+                </Tab>
+                <Tab fx:id="variablesTab" text="Variables">
+                    <fx:include fx:id="variablesPage" source="VariableMenu.fxml" />
+                </Tab>
+              </tabs>
+            </TabPane>
+            <VBox prefHeight="950.0" prefWidth="300.0">
+               <children>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="50.0" prefWidth="301.0" text="Help" textAlignment="RIGHT" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <font>
+                              <Font size="48.0" />
+                           </font>
+                        </Label>
+                        <Label alignment="TOP_LEFT" layoutX="136.0" layoutY="91.0" prefHeight="795.0" prefWidth="250.0" text="Add a new equation by clicking the &#10;&quot;Add New Axis&quot; button on the bottom of the tab&#10;&#10;Click to replace the placeholder text for the Axis Name, Axis Equation, Axis Units, and Axis Scale&#10;&#10;Custom Axis equations are written in the same language as algebraic expressions. The following operators are used:&#10;&#10;Addition, +&#10;Subtraction, -&#10;Multiplication, *&#10;Division, /&#10;Exponentiation, ^&#10;Parantheses, ( )&#10;&#10;The default axes, any declared variables, or any constants may be used in equations.&#10;&#10;List of default axes:&#10;AccelX, AccelY, AccelZ, AccelMag&#10;VelX, VelY, VelZ, VelMag&#10;DispX, DispY, DispZ, DispMag&#10;AngAccX, AngAccY, AngAccZ, AngAccMag&#10;AngVelX, AngVelY, AngVelZ, AngVelMag&#10;AngDispX, AngDispY, AngDispZ, AngDispMag,&#10;MagX, MagY, MagZ, MagMag&#10;&#10;&#10;&#10;&#10;" wrapText="true" AnchorPane.leftAnchor="25.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="50.0">
+                           <font>
+                              <Font size="14.0" />
+                           </font>
+                           <padding>
+                              <Insets top="20.0" />
+                           </padding>
+                        </Label>
+                     </children>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </AnchorPane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
    </children>
 </AnchorPane>

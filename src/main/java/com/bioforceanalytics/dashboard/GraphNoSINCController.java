@@ -708,7 +708,7 @@ public class GraphNoSINCController implements Initializable {
 
 			// untick the checkbox
 			if (axis.isCustomAxis()) {
-				customAxisTest.getCheckBox(axis).setSelected(false);
+				// customAxisTest.getCheckBox(axis).setSelected(false);
 			} else {
 				panels.get(GTIndex).setCheckBox(false, (AxisType) axis);
 			}
@@ -735,7 +735,10 @@ public class GraphNoSINCController implements Initializable {
 		// retrieve XYChart.Series and ObservableList from HashMap
 		XYChart.Series<Number, Number> series = d.data;
 		ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
-
+		if (d.axis.isCustomAxis()) {
+			logger.info("Update Custom Axis");
+			loadEquations();
+		}
 		// clear samples in ObservableList
 		seriesData.clear();
 		Axis axis = d.axis;
@@ -1973,7 +1976,7 @@ public class GraphNoSINCController implements Initializable {
 					for (GraphData g : dataSets) {
 						updateAxis(g.axis, g.GTIndex);
 						logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex + 1,
-								genericTests.get(g.GTIndex).getTimeOffset());
+								(g.GTIndex >= 0 ? genericTests.get(g.GTIndex).getTimeOffset() : "N/A"));
 					}
 
 					setGraphMode(GraphMode.NONE);
