@@ -39,34 +39,35 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 /**
- * Similar to DataSetPanel except that this exclusively holds the checkboxes for CustomAxis
+ * Similar to DataSetPanel except that this exclusively holds the checkboxes for
+ * CustomAxis
  */
-public class EquationPanel extends TitledPane{
+public class EquationPanel extends TitledPane {
     private static final Logger logger = LogManager.getLogger();
-    //connects the equations to their checkboxes
+    // connects the equations to their checkboxes
     public HashMap equationCheckboxMap = new HashMap<CustomEquation, CheckBox>();
-    //connects the checkboxes to the custom axis type that they control
+    // connects the checkboxes to the custom axis type that they control
     public HashMap<CheckBox, CustomAxisType> customAxisTypeMap = new HashMap<CheckBox, CustomAxisType>();
     GraphNoSINCController controller;
 
     @FXML
     GridPane checkboxPane;
-    public EquationPanel(GraphNoSINCController controller){
+
+    public EquationPanel(GraphNoSINCController controller) {
         this.controller = controller;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/EquationPanel.fxml"));
-		loader.setRoot(this);
+        loader.setRoot(this);
         loader.setController(this);
-        
+
         try {
-			loader.load();
-		}
-		catch (Exception e) {
+            loader.load();
+        } catch (Exception e) {
             logger.error("Error loading Equation Panel JavaFX component");
             e.printStackTrace();
         }
         // add equation panel
         HBox titleBox = new HBox();
-        titleBox.setAlignment(Pos.CENTER);	
+        titleBox.setAlignment(Pos.CENTER);
         titleBox.setPadding(new Insets(0, 25, 0, 0));
         titleBox.minWidthProperty().bind(this.widthProperty());
 
@@ -83,43 +84,46 @@ public class EquationPanel extends TitledPane{
 
         Node ref = this;
         Platform.runLater(() -> {
-            //addEquation(new CustomEquation("TestName","TestEquation", "TestUnits"));
-            for(CustomEquation eq : controller.customEquations){
-              //  addEquation(eq);
+            // addEquation(new CustomEquation("TestName","TestEquation", "TestUnits"));
+            for (CustomEquation eq : controller.customEquations) {
+                // addEquation(eq);
             }
         });
-        
+
     }
+
     /**
      * Adds a new equation to the EquationPanel
-     * @param eq the equation to add to the panel
+     * 
+     * @param eq   the equation to add to the panel
      * @param type the CustomAxisType of the equation
      */
-    public void addEquation(CustomEquation eq, CustomAxisType type){
-        CheckBox checkbox = new CheckBox(eq.getName()); 
+    public void addEquation(CustomEquation eq, CustomAxisType type) {
+        CheckBox checkbox = new CheckBox(eq.getName());
         checkbox.setOnAction(new EventHandler<ActionEvent>() {
-        
-			@Override
-			public void handle(ActionEvent event) {
-				controller.graphAxis((CustomAxisType)customAxisTypeMap.get(checkbox),-1);
-				
-			} 
-            
+
+            @Override
+            public void handle(ActionEvent event) {
+                controller.graphAxis((CustomAxisType) customAxisTypeMap.get(checkbox), -1);
+
+            }
+
         });
 
         checkboxPane.add(checkbox, 0, equationCheckboxMap.size());
         equationCheckboxMap.put(eq, checkbox);
         customAxisTypeMap.put(checkbox, type);
     }
+
     /**
      * resets the EquationPanel to no CustomAxes
      */
-    public void reset(){
+    public void reset() {
         CustomAxisType.reset();
         equationCheckboxMap.clear();
         checkboxPane.getChildren().clear();
         customAxisTypeMap.clear();
-        
+
     }
-    
+
 }
