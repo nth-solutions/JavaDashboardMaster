@@ -1481,7 +1481,7 @@ public class SerialComm {
 
 										// update log if number of available bytes increases
 										if (inputStream.available() != bytesAvailable) {
-											logger.trace("Waiting for block data (currently at " + bytesAvailable + " bytes)");
+											//logger.trace("Waiting for block data (currently at " + bytesAvailable + " bytes)");
 											bytesAvailable = inputStream.available();
 										}
 
