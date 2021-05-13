@@ -469,8 +469,9 @@ public class GraphNoSINCController implements Initializable {
 
 				});
 				for (int i = 0; i < momentumAxes.length; i++) {
-					momentumGT.addAxisDataSeries(momentumAxes[i], new CustomAxisType(
-							"Momentum " + ((i % 4 == 3) ? "Mag" : (char) (88 + (i % 4))), "kg-m/s", 1), new CheckBox());
+					// momentumGT.addAxisDataSeries(momentumAxes[i], new CustomAxisType(
+					// "Momentum " + ((i % 4 == 3) ? "Mag" : (char) (88 + (i % 4))), "kg-m/s", 1),
+					// new CheckBox());
 					customTests.add(momentumGT);
 				}
 
@@ -601,7 +602,7 @@ public class GraphNoSINCController implements Initializable {
 					customAxis.setAxisScalar(axisScale);
 
 					customAxisTest.addAxisDataSeries(resultSeries, customAxis,
-							(CheckBox) equationPanel.equationCheckboxMap.get(equation));
+							(CheckBox) equationPanel.equationCheckboxMap.get(equation), equation);
 				} else {
 					throw new Exception("Equation for \"" + equation.getName() + "\" is invalid");
 				}
@@ -735,16 +736,41 @@ public class GraphNoSINCController implements Initializable {
 		// retrieve XYChart.Series and ObservableList from HashMap
 		XYChart.Series<Number, Number> series = d.data;
 		ObservableList<XYChart.Data<Number, Number>> seriesData = series.getData();
+		Axis axis = d.axis;
+		List<Double> data;
+		List<Double> time;
 		if (d.axis.isCustomAxis()) {
 			logger.info("Update Custom Axis");
-			loadEquations();
+
+			try {
+				Token result = processTokens(tokenizeString(customAxisTest.axisEquationMap.get(d.axis).getEquation()));
+				AxisDataSeries resultSeries = new AxisDataSeries(result.axis, d.axis);
+
+				// set the bound scale to the max/min of greatest magnitude
+				double bound = Math.max(resultSeries.dataRange[0], resultSeries.dataRange[1]);
+
+				double axisScale = MultiAxisLineChart.roundBound(bound) / 5;
+
+				((CustomAxisType) (d.axis)).setAxisScalar(axisScale);
+
+				time = resultSeries.getTime();
+				data = resultSeries.getSamples();
+				logger.info("Updated Custom Axis Equation");
+			} catch (Exception exception) {
+				logger.debug(exception.getMessage());
+				time = test.getAxis(axis).getTime();
+				data = test.getAxis(axis).getSamples();
+			}
+
+		} else {
+
+			time = test.getAxis(axis).getTime();
+			data = test.getAxis(axis).getSamples();
 		}
 		// clear samples in ObservableList
 		seriesData.clear();
-		Axis axis = d.axis;
+
 		// get time/samples data sets
-		List<Double> time = test.getAxis(axis).getTime();
-		List<Double> data = test.getAxis(axis).getSamples();
 		double timeOffset = test.getAxis(axis).getTimeOffset();
 
 		// create (Time, Data) -> (X,Y) pairs
@@ -1974,9 +2000,17 @@ public class GraphNoSINCController implements Initializable {
 					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX);
 
 					for (GraphData g : dataSets) {
-						updateAxis(g.axis, g.GTIndex);
-						logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex + 1,
-								(g.GTIndex >= 0 ? genericTests.get(g.GTIndex).getTimeOffset() : "N/A"));
+						if (!g.axis.isCustomAxis()) {
+							updateAxis(g.axis, g.GTIndex);
+							logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex + 1,
+									genericTests.get(g.GTIndex).getTimeOffset());
+						}
+					}
+					for (GraphData g : dataSets) {
+						if (g.axis.isCustomAxis()) {
+							updateAxis(g.axis, g.GTIndex);
+							logger.info("Adjusted Custom Axis {}", g.axis.getName());
+						}
 					}
 
 					setGraphMode(GraphMode.NONE);

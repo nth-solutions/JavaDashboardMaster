@@ -134,7 +134,7 @@ public class AxisData {
                 res[i] = a.getIndex(i) + b.getIndex(i - diff);
             }
         }
-        return new AxisData(res, Math.min(a.getOffset(), b.getOffset()) + Math.abs(diff), newName);
+        return new AxisData(res, Math.max(a.getOffset(), b.getOffset()) + Math.abs(diff), newName);
     }
 
     /**
