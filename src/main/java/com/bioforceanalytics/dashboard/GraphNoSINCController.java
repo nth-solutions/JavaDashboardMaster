@@ -1379,6 +1379,7 @@ public class GraphNoSINCController implements Initializable {
 	private void openCustomAxisMenu(ActionEvent event) {
 		Stage primaryStage = new Stage();
 		Parent root = null;
+
 		// FXMLLoader loader = new
 		// FXMLLoader(getClass().getResource("fxml/CustomAxisMenu.fxml"));
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/CombinedCustomMenu.fxml"));
@@ -1400,7 +1401,7 @@ public class GraphNoSINCController implements Initializable {
 		primaryStage.setAlwaysOnTop(false);
 		primaryStage.initModality(Modality.APPLICATION_MODAL);
 		primaryStage.initOwner(lineChart.getScene().getWindow());
-
+		primaryStage.setWidth(715);
 		primaryStage.setTitle("Data Analysis Graph - Custom Axis Menu");
 		primaryStage.getIcons().add(icon);
 		primaryStage.show();

@@ -2,6 +2,7 @@ package com.bioforceanalytics.dashboard;
 
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -29,6 +30,11 @@ public class CombinedCustomMenu implements Initializable {
     AnchorPane masterPane;
 
     @FXML
+    Button guideToggle;
+
+    boolean showGuide = false;
+
+    @FXML
     HBox hBox;
 
     @FXML
@@ -38,6 +44,9 @@ public class CombinedCustomMenu implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Platform.runLater(() -> {
+            closeHelpMenu();
+        });
     }
 
     public void setParent(GraphNoSINCController controller) {
@@ -51,7 +60,18 @@ public class CombinedCustomMenu implements Initializable {
 
     }
 
-    @FXML
+    public void toggleGuide() {
+        if (showGuide) {
+            showGuide = false;
+            closeHelpMenu();
+            guideToggle.setText("Open Guide ");
+        } else {
+            showGuide = true;
+            openHelpMenu();
+            guideToggle.setText("Close Guide");
+        }
+    }
+
     public void closeHelpMenu() {
         logger.info("Closing help menu");
         hBox.getChildren().remove(helpPane);
@@ -59,6 +79,16 @@ public class CombinedCustomMenu implements Initializable {
         masterPane.setMaxWidth(700);
         masterPane.setMinWidth(700);
         masterPane.getScene().getWindow().setWidth(715);
+
+    }
+
+    public void openHelpMenu() {
+        logger.info("Opening help menu");
+        hBox.getChildren().add(helpPane);
+        masterPane.setPrefWidth(1000);
+        masterPane.setMaxWidth(1000);
+        masterPane.setMinWidth(1000);
+        masterPane.getScene().getWindow().setWidth(1015);
 
     }
 }

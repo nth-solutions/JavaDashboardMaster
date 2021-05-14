@@ -14,21 +14,25 @@
    <children>
       <HBox fx:id="hBox" prefHeight="100.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <TabPane prefHeight="950.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE">
-              <tabs>
-                <Tab fx:id="equationsTab" text="Equations">
-                    <fx:include fx:id="equationPage" source="CustomAxisMenu.fxml" />
-                </Tab>
-                <Tab fx:id="variablesTab" text="Variables">
-                    <fx:include fx:id="variablesPage" source="VariableMenu.fxml" />
-                </Tab>
-              </tabs>
-            </TabPane>
+            <AnchorPane maxWidth="700.0" minWidth="700.0" prefHeight="200.0" prefWidth="700.0">
+               <children>
+                  <TabPane prefHeight="950.0" prefWidth="700.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <tabs>
+                      <Tab fx:id="equationsTab" text="Equations">
+                          <fx:include fx:id="equationPage" source="CustomAxisMenu.fxml" />
+                      </Tab>
+                      <Tab fx:id="variablesTab" text="Variables">
+                          <fx:include fx:id="variablesPage" source="VariableMenu.fxml" />
+                      </Tab>
+                    </tabs>
+                  </TabPane>
+                  <Button fx:id="guideToggle" mnemonicParsing="false" onMouseClicked="#toggleGuide" text="Open Guide" AnchorPane.leftAnchor="550.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="2.5" />
+               </children>
+            </AnchorPane>
             <VBox fx:id="helpPane" maxWidth="300.0" prefHeight="1031.0" prefWidth="300.0">
                <children>
                   <AnchorPane prefHeight="883.0" prefWidth="266.0">
                      <children>
-                        <Button layoutX="124.0" layoutY="837.0" mnemonicParsing="false" text="Close User Guide" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" />
                         <Label fx:id="closeHelp" alignment="TOP_LEFT" layoutX="53.0" layoutY="182.0" onMouseClicked="#closeHelpMenu" prefHeight="795.0" prefWidth="252.0" text="Operators and Symbols are:&#10;Addition,         +    Subtraction, -&#10;Multiplication, *    Division,       /&#10;Exponentiation, ^&#10;Parantheses, ( )&#10;&#10;Equations can use any combination of:  default axes, declared variables (user defined on the variable tab), or constants&#10;&#10;Default axes are:&#10;AccelX, AccelY, AccelZ, AccelMag&#10;VelX, VelY, VelZ, VelMag&#10;DispX, DispY, DispZ, DispMag&#10;AngAccX, AngAccY, AngAccZ, AngAccMag&#10;AngVelX, AngVelY, AngVelZ, AngVelMag&#10;AngDispX, AngDispY, AngDispZ, AngDispMag,&#10;MagX, MagY, MagZ, MagMag&#10;&#10;" wrapText="true" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="200.0">
                            <font>
                               <Font size="14.0" />

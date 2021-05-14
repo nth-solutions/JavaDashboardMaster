@@ -33,7 +33,7 @@ public class MultiAxisLineChart extends StackPane {
      * Tracks the currently drawn data sets and their respective line charts.
      */
     public final Map<GraphData, LineChart<Number, Number>> axisChartMap = new HashMap<>();
-    
+
     // keeps track of currently graphed data sets (GTIndex/AxisType/data)
     private ArrayList<GraphData> dataSets;
 
@@ -45,45 +45,45 @@ public class MultiAxisLineChart extends StackPane {
     private final double xAxisHeight = 30;
 
     // the interval at which samples are drawn to the screen
-	// if value is 20 (default), every 20th sample will be rendered
-	// TODO make this an advanced user setting
-	private int resolution;
+    // if value is 20 (default), every 20th sample will be rendered
+    // TODO make this an advanced user setting
+    private int resolution;
 
-	// mouse coordinates
-	private double mouseX;
+    // mouse coordinates
+    private double mouseX;
     private double mouseY;
-    
+
     // scalars to convert pixel space into graph space
-	private double zoomviewScalarX;
+    private double zoomviewScalarX;
     private double zoomviewScalarY;
-    
+
     // indicates the amount to scroll based on the relative position
     // of the mouse to the center of the viewport
-	private double leftScrollPercentage;
-	private double topScrollPercentage;
+    private double leftScrollPercentage;
+    private double topScrollPercentage;
 
-	// coordinates of the center of the viewport
-	private double zoomviewX;
-	private double zoomviewY;
+    // coordinates of the center of the viewport
+    private double zoomviewX;
+    private double zoomviewY;
 
     // size of the viewport
-	private double zoomviewW;
-	private double zoomviewH;
+    private double zoomviewW;
+    private double zoomviewH;
 
     // coordinates of the center of the resetted viewport
-	private double resetZoomviewX;
+    private double resetZoomviewX;
     private double resetZoomviewY;
-    
+
     // size of the resetted viewport
-	private double resetZoomviewH;
-	private double resetZoomviewW;
+    private double resetZoomviewH;
+    private double resetZoomviewW;
 
     // coordinates of the last location of the mouse
-	private double lastMouseX;
-	private double lastMouseY;
+    private double lastMouseX;
+    private double lastMouseY;
 
-	private double scrollCenterX;
-	private double scrollCenterY;
+    private double scrollCenterX;
+    private double scrollCenterY;
 
     // holds the values scaling each axis class on the graph
     private double[] axisScalars;
@@ -93,7 +93,7 @@ public class MultiAxisLineChart extends StackPane {
     private static final Logger logger = LogController.start();
 
     public MultiAxisLineChart() {
-        
+
         setPickOnBounds(false);
         dataSets = new ArrayList<GraphData>();
 
@@ -104,7 +104,7 @@ public class MultiAxisLineChart extends StackPane {
         yAxis = new BFANumberAxis();
         xAxis.setTickUnit(1);
         yAxis.setTickUnit(1);
-        
+
         baseChart = new BFALineChart<Number, Number>(xAxis, yAxis);
         baseChart.getXAxis().setLabel("Time (s)");
         baseChart.getYAxis().setLabel("Y Axis");
@@ -119,98 +119,100 @@ public class MultiAxisLineChart extends StackPane {
         rebuildChart();
 
         // zoom/viewport settings
-		resolution = 20;
-		zoomviewScalarX = 1;
-		zoomviewScalarY = 1;
-		resetZoomviewX = 0;
-		resetZoomviewY = 0;
-		resetZoomviewW = 10;
-		resetZoomviewH = 5;
-		zoomviewX = 5;
-		zoomviewY = 0;
-		zoomviewW = 10;
-		zoomviewH = 5;
+        resolution = 20;
+        zoomviewScalarX = 1;
+        zoomviewScalarY = 1;
+        resetZoomviewX = 0;
+        resetZoomviewY = 0;
+        resetZoomviewW = 10;
+        resetZoomviewH = 5;
+        zoomviewX = 5;
+        zoomviewY = 0;
+        zoomviewW = 10;
+        zoomviewH = 5;
 
         // listener that runs every tick the mouse scrolls, calculates zooming
-		this.setOnScroll(event -> {
+        this.setOnScroll(event -> {
 
-			// saves the mouse location of the scroll event to x and y variables
-			scrollCenterX = event.getX();
-			scrollCenterY = event.getY();
+            // saves the mouse location of the scroll event to x and y variables
+            scrollCenterX = event.getX();
+            scrollCenterY = event.getY();
 
-			/**
-			 * calculates the percentage of scroll either on the left or top of the screen
-			 * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is
-			 * 0.5, if it is three quarters to the right, it is 0.75
-			 */
-			leftScrollPercentage = (scrollCenterX - 48) / (baseChart.getWidth() - 63);
-			topScrollPercentage = (scrollCenterY - 17) / (baseChart.getHeight() - 88);
+            /**
+             * calculates the percentage of scroll either on the left or top of the screen
+             * e.g. if the mouse is at the middle of the screen, leftScrollPercentage is
+             * 0.5, if it is three quarters to the right, it is 0.75
+             */
+            leftScrollPercentage = (scrollCenterX - 48) / (baseChart.getWidth() - 63);
+            topScrollPercentage = (scrollCenterY - 17) / (baseChart.getHeight() - 88);
 
-			// vertically scale the graph
-			if (!event.isAltDown()) {
-				zoomviewW -= zoomviewW * event.getDeltaY() / 300;
-				zoomviewW = Math.max(baseChart.getWidth() * .00005, zoomviewW); 
-				zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
-			}
+            // vertically scale the graph
+            if (!event.isAltDown()) {
+                zoomviewW -= zoomviewW * event.getDeltaY() / 300;
+                zoomviewW = Math.max(baseChart.getWidth() * .00005, zoomviewW);
+                zoomviewX += zoomviewW * event.getDeltaY() * (leftScrollPercentage - .5) / 300;
+            }
 
-			// horizontally scale the graph
-			if (!event.isControlDown()) {
-				// decreases the zoomview width and height by an amount relative to the scroll
-				// and the current size of the zoomview (slows down zooming at high levels of
-				// zoom)
-				zoomviewH -= zoomviewH * event.getDeltaY() / 300;
+            // horizontally scale the graph
+            if (!event.isControlDown()) {
+                // decreases the zoomview width and height by an amount relative to the scroll
+                // and the current size of the zoomview (slows down zooming at high levels of
+                // zoom)
+                zoomviewH -= zoomviewH * event.getDeltaY() / 300;
 
-				zoomviewH = Math.max(baseChart.getHeight() * .00005, zoomviewH); 
-				// moves the center of the zoomview to accomodate for the zoom, accounts for the
-				// position of the mouse to try an keep it in the same spot
-				zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
-			}
+                zoomviewH = Math.max(baseChart.getHeight() * .00005, zoomviewH);
+                // moves the center of the zoomview to accomodate for the zoom, accounts for the
+                // position of the mouse to try an keep it in the same spot
+                zoomviewY -= zoomviewH * event.getDeltaY() * (topScrollPercentage - .5) / 300;
+            }
 
-			redrawGraph();
+            redrawGraph();
 
-		});
+        });
 
-		// listener that runs every tick the mouse is dragged, calculates panning
-		this.setOnMouseDragged(event -> {
+        // listener that runs every tick the mouse is dragged, calculates panning
+        this.setOnMouseDragged(event -> {
 
-			if (controller.getGraphMode() == GraphNoSINCController.GraphMode.NONE) {
+            if (controller.getGraphMode() == GraphNoSINCController.GraphMode.NONE) {
 
-				// get the mouse x and y position relative to the line chart
-				mouseX = event.getX();
-				mouseY = event.getY();
+                // get the mouse x and y position relative to the line chart
+                mouseX = event.getX();
+                mouseY = event.getY();
 
-				// calculate a scalar to convert pixel space into graph space (mouse data in
-				// pixels, zoomview in whatever units the graph is in)
-				zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())
-						/ (baseChart.getWidth() - yAxis.getWidth());
-				zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())
-						/ (baseChart.getHeight() - xAxis.getHeight());
+                // calculate a scalar to convert pixel space into graph space (mouse data in
+                // pixels, zoomview in whatever units the graph is in)
+                zoomviewScalarX = (xAxis.getUpperBound() - xAxis.getLowerBound())
+                        / (baseChart.getWidth() - yAxis.getWidth());
+                zoomviewScalarY = (yAxis.getUpperBound() - yAxis.getLowerBound())
+                        / (baseChart.getHeight() - xAxis.getHeight());
 
-				// adds the change in mouse position this tick to the zoom view, converted into graph space
-				zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
-				zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
+                // adds the change in mouse position this tick to the zoom view, converted into
+                // graph space
+                zoomviewX -= (mouseX - lastMouseX) * zoomviewScalarX;
+                zoomviewY += (mouseY - lastMouseY) * zoomviewScalarY;
 
-				redrawGraph();
+                redrawGraph();
 
-				// sets last tick's mouse data as this tick's
-				lastMouseX = mouseX;
-				lastMouseY = mouseY;
+                // sets last tick's mouse data as this tick's
+                lastMouseX = mouseX;
+                lastMouseY = mouseY;
 
-			}
+            }
 
-		});
+        });
 
-		// listener that runs when the mouse is clicked, only runs once per click, helps
-		// to differentiate between drags
-		this.setOnMousePressed(event -> {
-			lastMouseX = event.getX();
-			lastMouseY = event.getY();
-		});
+        // listener that runs when the mouse is clicked, only runs once per click, helps
+        // to differentiate between drags
+        this.setOnMousePressed(event -> {
+            lastMouseX = event.getX();
+            lastMouseY = event.getY();
+        });
 
     }
 
     /**
      * Sets a reference to the parent DAG controller class.
+     * 
      * @param controller the GraphNoSINCController parenting this graph
      */
     public void setController(GraphNoSINCController controller) {
@@ -292,10 +294,12 @@ public class MultiAxisLineChart extends StackPane {
 
     private void resizeBaseChart(LineChart<Number, Number> lineChart) {
 
-        // calculate the width of the current line chart: if there is already a background chart,
-        // subtract the number of background charts from the current width; otherwise, subtract nothing
-        DoubleBinding binding = widthProperty()
-            .subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() > 0 ? backgroundCharts.size() - 1 : 0));
+        // calculate the width of the current line chart: if there is already a
+        // background chart,
+        // subtract the number of background charts from the current width; otherwise,
+        // subtract nothing
+        DoubleBinding binding = widthProperty().subtract(
+                (yAxisWidth + yAxisSeparation) * (backgroundCharts.size() > 0 ? backgroundCharts.size() - 1 : 0));
 
         // apply widths to current line chart
         lineChart.prefWidthProperty().bind(binding);
@@ -309,7 +313,7 @@ public class MultiAxisLineChart extends StackPane {
         // calculate the width of the current line chart by
         // subtracting the number of background charts from the current width
         DoubleBinding wBinding = widthProperty()
-            .subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1));
+                .subtract((yAxisWidth + yAxisSeparation) * (backgroundCharts.size() - 1));
 
         DoubleBinding hBinding = heightProperty().subtract(xAxisHeight);
 
@@ -320,29 +324,32 @@ public class MultiAxisLineChart extends StackPane {
         lineChart.prefHeightProperty().bind(hBinding);
         lineChart.minHeightProperty().bind(hBinding);
         lineChart.maxHeightProperty().bind(hBinding);
-        
+
         // if this is the first background chart, place it on the left;
         // otherwise, place it to the right of the current line chart
         if (backgroundCharts.indexOf(lineChart) != 0) {
             lineChart.translateXProperty().bind(baseChart.getYAxis().widthProperty());
-            //lineChart.translateYProperty().bind(baseChart.translateYProperty());
+            // lineChart.translateYProperty().bind(baseChart.translateYProperty());
             lineChart.getYAxis().setSide(Side.RIGHT);
-            lineChart.getYAxis().setTranslateX((yAxisWidth + yAxisSeparation) * (backgroundCharts.indexOf(lineChart) - 1));
-            lineChart.getYAxis().setTranslateY(-xAxisHeight/2);
-            
+            lineChart.getYAxis()
+                    .setTranslateX((yAxisWidth + yAxisSeparation) * (backgroundCharts.indexOf(lineChart) - 1));
+            lineChart.getYAxis().setTranslateY(-xAxisHeight / 2);
+
         } else {
             lineChart.translateXProperty().unbind();
             lineChart.translateXProperty().setValue(0.0);
             lineChart.getYAxis().setSide(Side.LEFT);
-            lineChart.getYAxis().setTranslateY(-xAxisHeight/2);
-            
+            lineChart.getYAxis().setTranslateY(-xAxisHeight / 2);
+
         }
 
     }
 
     /**
      * Adds a data set to the graph. Creates a y-axis class if necessary.
-     * @param d the GraphData object representing the AxisType, GTIndex, and XYChart.Series
+     * 
+     * @param d         the GraphData object representing the AxisType, GTIndex, and
+     *                  XYChart.Series
      * @param lineColor the color of the data set's graph
      */
     public void addSeries(GraphData d) {
@@ -359,9 +366,9 @@ public class MultiAxisLineChart extends StackPane {
 
         // if axis class is not graphed, create it
         if (!isAxisClassGraphed(d.axis)) {
-            
+
             double axisScale = getAxisScalar(d.axis);
-            
+
             // style x-axis
             xAxisAdd.setTickUnit(axisScale);
             xAxisAdd.setAutoRanging(false);
@@ -369,19 +376,19 @@ public class MultiAxisLineChart extends StackPane {
             xAxisAdd.setOpacity(0.0); // somehow the upper setVisible does not work
             xAxisAdd.lowerBoundProperty().bind(((BFANumberAxis) baseChart.getXAxis()).lowerBoundProperty());
             xAxisAdd.upperBoundProperty().bind(((BFANumberAxis) baseChart.getXAxis()).upperBoundProperty());
-            
+
             // xAxis.tickUnitProperty().bind(((BFANumberAxis)
             // baseChart.getXAxis()).tickUnitProperty());
 
             // style y-axis
             yAxisAdd.setTickUnit(axisScale);
             yAxisAdd.setAutoRanging(false);
-            if(backgroundCharts.size() == 0){
+            if (backgroundCharts.size() == 0) {
                 yAxisAdd.setSide(Side.LEFT);
-            }else{
+            } else {
                 yAxisAdd.setSide(Side.RIGHT);
             }
-           
+
             yAxisAdd.lowerBoundProperty()
                     .bind(((BFANumberAxis) baseChart.getYAxis()).lowerBoundProperty().multiply(axisScale));
             yAxisAdd.upperBoundProperty()
@@ -390,14 +397,14 @@ public class MultiAxisLineChart extends StackPane {
             // create chart
             lineChart = new LineChart<Number, Number>(xAxisAdd, yAxisAdd);
             lineChart.setMouseTransparent(true);
-            
-            axisTypeMap.put(d.axis.getUnits(),lineChart);
+
+            axisTypeMap.put(d.axis.getUnits(), lineChart);
             backgroundCharts.add(lineChart);
             styleBackgroundChart(lineChart);
             setFixedAxisWidth(lineChart);
-            
+
             lineChart.getXAxis().setLabel("#" + d.axis.getValue());
-            
+
         } else {
             lineChart = axisTypeMap.get(d.axis.getUnits());
         }
@@ -416,9 +423,9 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
-     * Removes a data set from the graph.
-     * Also removes a y-axis class if necessary.
-     * @param axis the AxisType identifying the data set
+     * Removes a data set from the graph. Also removes a y-axis class if necessary.
+     * 
+     * @param axis    the AxisType identifying the data set
      * @param GTIndex the GenericTest to read data from
      */
     public void removeAxis(Axis axis, int GTIndex) {
@@ -430,7 +437,7 @@ public class MultiAxisLineChart extends StackPane {
 
         // remove GraphData from list
         dataSets.remove(d);
-        
+
         // remove XYChart.Series from its LineChart
         d.data.getData().clear();
         axisChartMap.get(d).getData().remove(d.data);
@@ -439,7 +446,7 @@ public class MultiAxisLineChart extends StackPane {
 
         // remove axis class if necessary
         if (!isAxisClassGraphed(axis)) {
-            
+
             logger.info("Removing " + axis.getName() + "'s axis class: " + getAxisLabel(axis));
 
             backgroundCharts.remove(axisTypeMap.get(axis.getUnits()));
@@ -452,38 +459,39 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
-	 * Handles zooming/panning of the graph.
-	 */
-	public void redrawGraph() {
-		
-		this.setXBounds(zoomviewX - zoomviewW / 2, zoomviewX + zoomviewW / 2);
-		this.setYBounds(zoomviewY - zoomviewH / 2, zoomviewY + zoomviewH / 2);
+     * Handles zooming/panning of the graph.
+     */
+    public void redrawGraph() {
 
-		yAxis.setLowerBound(zoomviewY - zoomviewH / 2);
-		yAxis.setUpperBound(zoomviewY + zoomviewH / 2);
+        this.setXBounds(zoomviewX - zoomviewW / 2, zoomviewX + zoomviewW / 2);
+        this.setYBounds(zoomviewY - zoomviewH / 2, zoomviewY + zoomviewH / 2);
 
-		xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
-		yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2));
+        yAxis.setLowerBound(zoomviewY - zoomviewH / 2);
+        yAxis.setUpperBound(zoomviewY + zoomviewH / 2);
 
-		// update tick spacing based on zoom level
-		for (GraphData d : this.axisChartMap.keySet()) {
-			
-			((BFANumberAxis) (this.axisChartMap.get(d).getYAxis())).setTickUnit(
-					Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * this.getAxisScalar(d.axis));
-			((BFANumberAxis) (this.axisChartMap.get(d).getXAxis()))
-					.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
-		}
+        xAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
+        yAxis.setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2));
 
-		baseChart.clearArea();
-		controller.clearSlope();
+        // update tick spacing based on zoom level
+        for (GraphData d : this.axisChartMap.keySet()) {
+
+            ((BFANumberAxis) (this.axisChartMap.get(d).getYAxis())).setTickUnit(
+                    Math.pow(2, Math.floor(Math.log(zoomviewH) / Math.log(2)) - 2) * this.getAxisScalar(d.axis));
+            ((BFANumberAxis) (this.axisChartMap.get(d).getXAxis()))
+                    .setTickUnit(Math.pow(2, Math.floor(Math.log(zoomviewW) / Math.log(2)) - 3));
+        }
+
+        baseChart.clearArea();
+        controller.clearSlope();
 
     }
 
     /**
      * Resets the viewport of the graph to the specified bounds.
-     * @param x the x-value of the point to center on when resetting
-     * @param y the y-value of the point to center on when resetting
-     * @param width the width of the viewport when resetting
+     * 
+     * @param x      the x-value of the point to center on when resetting
+     * @param y      the y-value of the point to center on when resetting
+     * @param width  the width of the viewport when resetting
      * @param height the height of the viewport when resetting
      */
     public void resetViewport(double x, double y, double width, double height) {
@@ -513,6 +521,7 @@ public class MultiAxisLineChart extends StackPane {
 
     /**
      * Returns the label for a given axis class.
+     * 
      * @param axis the AxisType representing the data set
      * @return the label for a given axis class
      */
@@ -520,21 +529,15 @@ public class MultiAxisLineChart extends StackPane {
 
         // an axis class is the sensor type of the data set
         // since AxisType is formatted "X,Y,Z,Magnitude", dividing by 4 works here
-       
-            return axis.getNameAndUnits();
+
+        return axis.getNameAndUnits();
         /*
-        switch (axis.getValue() / 4) {
-            case 0: return "Acceleration (m/s²)";
-            case 1: return "Velocity (m/s)";
-            case 2: return "Displacement (m)";
-            case 3: return "Angular Acceleration (°/s²)";
-            case 4: return "Angular Velocity (°/s)";
-            case 5: return "Angular Displacement (°)";
-            case 6: return "Magnetic Field (µT)";
-            case 7: return "Momentum (kg-m/s)";
-            default: return "Y-Axis";
-        }
-        */
+         * switch (axis.getValue() / 4) { case 0: return "Acceleration (m/s²)"; case 1:
+         * return "Velocity (m/s)"; case 2: return "Displacement (m)"; case 3: return
+         * "Angular Acceleration (°/s²)"; case 4: return "Angular Velocity (°/s)"; case
+         * 5: return "Angular Displacement (°)"; case 6: return "Magnetic Field (µT)";
+         * case 7: return "Momentum (kg-m/s)"; default: return "Y-Axis"; }
+         */
 
     }
 
@@ -551,7 +554,7 @@ public class MultiAxisLineChart extends StackPane {
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
         lineChart.setPickOnBounds(false);
-    
+
     }
 
     private void styleChartLine(GraphData d) {
@@ -560,7 +563,17 @@ public class MultiAxisLineChart extends StackPane {
         Node line = d.data.getNode().lookup(".chart-series-line");
 
         // set the color of the line and symbols from BFAColorMenu
-        String colorStyle = "-fx-stroke: " + BFAColorMenu.getHexString(d.axis) + ";";
+
+        Axis a;
+        // get AxisType of this legend item
+        try {
+            a = AxisType.valueOf(d.axis.getName());
+
+        } catch (Exception e) {
+            a = Axis.getAxis(d.axis.getName());
+        }
+
+        String colorStyle = "-fx-stroke: " + BFAColorMenu.getHexString(a) + ";";
 
         // if GT number (not index) is even, render a dashed line
         String dashedStyle = d.GTIndex % 2 == 1 ? "-fx-stroke-dash-array: 5 5 5 5;" : "";
@@ -573,7 +586,7 @@ public class MultiAxisLineChart extends StackPane {
      * Updates legend symbols to match line colors.
      */
     public void styleLegend() {
-        
+
         // loop through each child of the line chart
         for (Node n : baseChart.getChildrenUnmodifiable()) {
 
@@ -586,7 +599,8 @@ public class MultiAxisLineChart extends StackPane {
                 ObservableList<LegendItem> legendItems = ((Legend) n).getItems();
 
                 // TODO this code will NOT work if the codebase is updated to JDK 9 or later;
-                // more info: https://stackoverflow.com/questions/57412846/javafx-missing-legend-class
+                // more info:
+                // https://stackoverflow.com/questions/57412846/javafx-missing-legend-class
                 //
                 // loop through each legend item
                 for (int i = 0; i < legendItems.size(); i++) {
@@ -598,14 +612,13 @@ public class MultiAxisLineChart extends StackPane {
                     // if this is a slope line, set the color to black
                     if (legendItem.getText().contains("Slope")) {
                         style = "black";
-                    }
-                    else {
+                    } else {
                         Axis a;
                         // get AxisType of this legend item
-                        try{
+                        try {
                             a = AxisType.valueOf(legendItem.getText());
-                            
-                        }catch(Exception e){
+
+                        } catch (Exception e) {
                             a = Axis.getAxis(legendItem.getText());
                         }
 
@@ -620,22 +633,23 @@ public class MultiAxisLineChart extends StackPane {
 
                         }
                         // if this legend item is a duplicate, remove it
-                        else legendItems.remove(i);
-                        
+                        else
+                            legendItems.remove(i);
+
                     }
 
                     // set legend symbol color
                     legendItem.getSymbol().setStyle("-fx-background-color: " + style + ", white;");
-                    
+
                 }
             }
         }
 
     }
 
-	/**
-	 * Updates the colors of currently graphed lines based on BFAColorMenu.
-	 */
+    /**
+     * Updates the colors of currently graphed lines based on BFAColorMenu.
+     */
     public void updateGraphColors() {
 
         for (GraphData d : dataSets) {
@@ -646,15 +660,17 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
-	 * Finds a GraphData object given its fields.
-     * Returns <code>null</code> if none is found.
-	 * @param GTIndex the GenericTest associated with the GraphData
-	 * @param axis the AxisType associated with the GraphData
-	 */
+     * Finds a GraphData object given its fields. Returns <code>null</code> if none
+     * is found.
+     * 
+     * @param GTIndex the GenericTest associated with the GraphData
+     * @param axis    the AxisType associated with the GraphData
+     */
     private GraphData findGraphData(int GTIndex, Axis axis) {
-        
+
         for (GraphData d : dataSets) {
-            if (d.GTIndex == GTIndex && d.axis == axis) return d;
+            if (d.GTIndex == GTIndex && d.axis == axis)
+                return d;
         }
 
         return null;
@@ -662,16 +678,20 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
-	 * Determines whether an axis class (meaning a sensor type) is graphed.
-     * <p><i>e.g. if given "AccelX", it will check if any "Accel" AxisType is graphed.</i></p>
-	 * @param GTIndex the GenericTest associated with the GraphData
-	 * @param axis the AxisType associated with the GraphData
-	 */
+     * Determines whether an axis class (meaning a sensor type) is graphed.
+     * <p>
+     * <i>e.g. if given "AccelX", it will check if any "Accel" AxisType is
+     * graphed.</i>
+     * </p>
+     * 
+     * @param GTIndex the GenericTest associated with the GraphData
+     * @param axis    the AxisType associated with the GraphData
+     */
     private boolean isAxisClassGraphed(Axis axis) {
 
-
         for (GraphData d : dataSets) {
-            if (d.axis.getUnits() == axis.getUnits()) return true;
+            if (d.axis.getUnits() == axis.getUnits())
+                return true;
         }
 
         return false;
@@ -679,8 +699,11 @@ public class MultiAxisLineChart extends StackPane {
     }
 
     /**
-     * <p>Rounds up the bound to the nearest multiple of the power of 10 multiple.
-     * Can be thought of as converting the number to scientific notation, then rounding up the coefficient.</p>
+     * <p>
+     * Rounds up the bound to the nearest multiple of the power of 10 multiple. Can
+     * be thought of as converting the number to scientific notation, then rounding
+     * up the coefficient.
+     * </p>
      * eg. 17 -> 20; 17 = 1.7*10^1, round up 1.7 to 2, 2*10^1 = 20.
      * 
      * @param val the bound to round up
@@ -694,21 +717,22 @@ public class MultiAxisLineChart extends StackPane {
         // get the magnitude of the power of 10
         // eg. 17 = 1.7*10^1, floor 1.7 to 1, therefore mag = 1
         int mag = (int) (val / (Math.pow(10, order)));
-        
+
         // calculate the rounded bound
         // eg. mag = 1, mag+1 = 2, order = 1, 2*10^1 = 20
-        return (mag+1) * Math.pow(10, order);
+        return (mag + 1) * Math.pow(10, order);
 
     }
 
     /**
      * Calculates axis scalars from the min/max values of axis classes.
+     * 
      * @param axisClassRanges array holding min/max values for each axis class
      */
     public void setAxisScalars(Double[][] axisClassRanges) {
-        
+
         for (int i = 0; i < axisClassRanges.length; i++) {
-            
+
             // TODO remove min/max from "axisClassRanges";
             // just input the bound with the highest magnitude,
             // since we just want our graph bounds to be symmetrical
@@ -720,14 +744,10 @@ public class MultiAxisLineChart extends StackPane {
             // (since scalar value of 1 yields bounds of [-5,5])
             axisScalars[i] = roundBound(bound) / 5;
 
-            String axisClassName = AxisType.valueOf(i*4).toString();
+            String axisClassName = AxisType.valueOf(i * 4).toString();
 
-            logger.debug("Bounds for {}: [{},{}] | Scalar: {}",
-                axisClassName.substring(0, axisClassName.length()-1),
-                axisClassRanges[i][0],
-                axisClassRanges[i][1],
-                axisScalars[i]
-            );
+            logger.debug("Bounds for {}: [{},{}] | Scalar: {}", axisClassName.substring(0, axisClassName.length() - 1),
+                    axisClassRanges[i][0], axisClassRanges[i][1], axisScalars[i]);
 
         }
 
@@ -735,34 +755,38 @@ public class MultiAxisLineChart extends StackPane {
 
     /**
      * Returns the amount that the data set's graph should be scaled by.
+     * 
      * @param axis the AxisType representing the data set
      * @return the amount that the data set's graph should be scaled by
      */
     public double getAxisScalar(Axis axis) {
-        if(axis.isCustomAxis()) return axis.getAxisScalar();
-        return axisScalars[axis.getValue()/4];
+        if (axis.isCustomAxis())
+            return axis.getAxisScalar();
+        return axisScalars[axis.getValue() / 4];
     }
 
     /**
-	 * Calculates the graphing resolution used when plotting data to the screen.
-	 * This should be used instead of directly accessing the "resolution" field.
-	 * @param axis the AxisType to get the resolution for
-	 * @return the graphing resolution of the given axis
-	 */
-	public int getResolution(Axis axis) {
-		// if this is a magnetometer data set, divide resolution by 10 to match 960 sps data sets
-		if (axis.getValue() / 4 == 6) {
+     * Calculates the graphing resolution used when plotting data to the screen.
+     * This should be used instead of directly accessing the "resolution" field.
+     * 
+     * @param axis the AxisType to get the resolution for
+     * @return the graphing resolution of the given axis
+     */
+    public int getResolution(Axis axis) {
+        // if this is a magnetometer data set, divide resolution by 10 to match 960 sps
+        // data sets
+        if (axis.getValue() / 4 == 6) {
 
-            // ensure that the resolution is never smaller than 1 
+            // ensure that the resolution is never smaller than 1
             return resolution >= 10 ? resolution / 10 : 1;
-        }
-        else {
+        } else {
             return resolution;
         }
     }
-    
+
     /**
      * Sets the graphing resolution used when plotting data to the screen.
+     * 
      * @param resolution the graphing resolution to use
      */
     public void setResolution(int resolution) {
@@ -777,4 +801,3 @@ public class MultiAxisLineChart extends StackPane {
     }
 
 }
-
