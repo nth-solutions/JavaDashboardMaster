@@ -35,13 +35,16 @@ public class BFAColorMenu implements Initializable {
     private static ArrayList<Color> customAxisColors = new ArrayList<Color>();
 
     // left column labelled "Axis Type" with axis type names
-    @FXML private TableColumn<Axis, String> axisTypeCol;
+    @FXML
+    private TableColumn<Axis, String> axisTypeCol;
 
     // right column labelled "Color" with color pickers
-    @FXML private TableColumn<Axis, ColorPicker> colorCol;
+    @FXML
+    private TableColumn<Axis, ColorPicker> colorCol;
 
     // Node representing the entire table
-    @FXML private TableView<Axis> tableView;
+    @FXML
+    private TableView<Axis> tableView;
 
     private static final Logger logger = LogController.start();
 
@@ -65,14 +68,14 @@ public class BFAColorMenu implements Initializable {
         // set the right column to the custom color picker cell
         colorCol.setCellFactory(column -> new ColorPickerCell());
 
-        //colorCol.setCellValueFactory(data -> new ColorPicker());
+        // colorCol.setCellValueFactory(data -> new ColorPicker());
 
         // populate table with AxisType entries
         for (AxisType a : AxisType.values()) {
             tableView.getItems().add(a);
         }
-        for(int i = 0; i < 10; i++){
-            if(CustomAxisType.getCustomAxisByIndex(i) != null){
+        for (int i = 0; i < 10; i++) {
+            if (CustomAxisType.getCustomAxisByIndex(i) != null) {
                 tableView.getItems().add(CustomAxisType.getCustomAxisByIndex(i));
             }
         }
@@ -98,66 +101,76 @@ public class BFAColorMenu implements Initializable {
 
                 // get index and AxisType of this color picker
                 int rowIndex = getTableRow().getIndex();
-                
-                    final Axis a;
-                    Axis temp = null;
-                    for(Axis axis : colorMap.keySet()){
-                        if (axis != null){
-                            if((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)||(axis.getIndex() == rowIndex)){
-                                temp = axis;
+
+                final Axis a;
+                Axis temp = null;
+                for (Axis axis : colorMap.keySet()) {
+                    if (axis != null) {
+                        if ((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)
+                                || (!axis.isCustomAxis() && axis.getIndex() == rowIndex)) {
+                            temp = axis;
+                            if (axis.isCustomAxis()) {
+                                logger.info("Custom axis" + axis + ", " + rowIndex + ", " + axis.getIndex());
                             }
                         }
                     }
-                    a=temp;
+                }
+                a = temp;
 
-                    // set color picker's value based on color map
-                   
-                    picker.setValue(colorMap.get(a));
+                // set color picker's value based on color map
 
-                    // when color picker changes
-                    picker.setOnAction(e -> {
+                picker.setValue(colorMap.get(a));
 
-                        // update color map with the newly selected color
-                        colorMap.replace(a, picker.getValue());
+                // when color picker changes
+                picker.setOnAction(e -> {
 
-                        logger.info("Updated " + a + "'s color to " + picker.getValue());
-                    });
-                    
-                    // render color picker
-                    setGraphic(picker);
+                    // update color map with the newly selected color
+                    colorMap.replace(a, picker.getValue());
+
+                    logger.info("Updated " + a + "'s color to " + picker.getValue());
+                });
+
+                // render color picker
+                setGraphic(picker);
             }
             // if empty, don't render anything
-            else setGraphic(null);
-        
+            else
+                setGraphic(null);
+
         }
 
     }
 
-    private static void addCustomAxisColor(CustomAxisType axis){
-        if(customAxisColors.size() > 0 && CustomAxisType.allCustomAxes.size() <= 10){
-            colorMap.put(axis,customAxisColors.get(CustomAxisType.allCustomAxes.indexOf(axis)));
-        }else{
+    private static void addCustomAxisColor(CustomAxisType axis) {
+        if (customAxisColors.size() > 0 && CustomAxisType.allCustomAxes.size() <= 10) { // 10 is max number of default
+
+            colorMap.put(axis, customAxisColors.get(CustomAxisType.allCustomAxes.indexOf(axis)));
+        } else {
             Random rand = new Random();
-            colorMap.put(axis,Color.rgb((int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255, (int)rand.nextDouble() * 255));
+            colorMap.put(axis, Color.rgb((int) rand.nextDouble() * 255, (int) rand.nextDouble() * 255,
+                    (int) rand.nextDouble() * 255));
         }
-        
+
     }
 
     /**
      * Returns the color associated with an AxisType.
+     * 
      * @param axis the enum representing the data set
      * @return the color associated with an AxisType
      */
     public static Color getColor(Axis axis) {
-        if(colorMap.get(axis) == null){
-            addCustomAxisColor((CustomAxisType)axis);
+        if (!colorMap.containsKey(axis)) {
+            addCustomAxisColor((CustomAxisType) axis);
         }
         return colorMap.get(axis);
+
     }
 
     /**
-     * Returns the color associated with an AxisType,
-     * formatted as a hexadecimal color code.
+     * Returns the color associated with an AxisType, formatted as a hexadecimal
+     * color code.
+     * 
      * @param axis the enum representing the data set
      * @return the color associated with an AxisType
      */
@@ -165,16 +178,15 @@ public class BFAColorMenu implements Initializable {
         Color c;
 
         c = getColor(axis);
-        
-        return String.format("#%02X%02X%02X",
-            (int) (c.getRed()*255),
-            (int) (c.getGreen()*255),
-            (int) (c.getBlue()*255));
+
+        return String.format("#%02X%02X%02X", (int) (c.getRed() * 255), (int) (c.getGreen() * 255),
+                (int) (c.getBlue() * 255));
 
     }
 
     /**
      * Allows communication between the color menu and the DAG's controller.
+     * 
      * @param controller the DAG controller to pair this color menu to
      */
     public void setParent(GraphNoSINCController controller) {
@@ -203,15 +215,15 @@ public class BFAColorMenu implements Initializable {
                 // add color to map
                 colorMap.put(a, c);
             }
-            for(int i = 0; i < 10; i++){
-                String colorString = (String) obj.get("CustomColor"+i);
+            for (int i = 0; i < 10; i++) {
+                String colorString = (String) obj.get("CustomColor" + i);
 
                 Color c = Color.web(colorString);
 
                 customAxisColors.add(c);
             }
             logger.info("Loaded 'defaultGraphColors.json' into color map.");
-            
+
         } catch (Exception e) {
 
             logger.error("Could not load default graph color configuration.");
@@ -227,10 +239,10 @@ public class BFAColorMenu implements Initializable {
     @FXML
     // TODO make this save "customGraphColors.json" to disk
     private void updateGraphColors() {
-        
+
         logger.info("Updating graph colors...");
         controller.updateGraphColors();
-        
+
         // close the color menu
         Stage stage = (Stage) tableView.getScene().getWindow();
         stage.close();
@@ -247,7 +259,7 @@ public class BFAColorMenu implements Initializable {
 
         // re-render table with new colors
         tableView.refresh();
-    
+
     }
 
 }

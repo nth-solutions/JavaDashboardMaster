@@ -585,9 +585,9 @@ public class GraphNoSINCController implements Initializable {
 				// logger.info(tokenizeString(equation.getEquation()));
 				Token result = processTokens(tokenizeString(equation.getEquation()));
 
-				CustomAxisType customAxis = new CustomAxisType(equation.getName(), equation.getUnits(),
+				CustomAxisType customAxis = CustomAxisType.newCustomAxis(equation.getName(), equation.getUnits(),
 						Double.parseDouble(equation.getScale()));
-
+				BFAColorMenu.getColor(customAxis);
 				equationPanel.addEquation(equation, customAxis);
 
 				if (result.type == TokenType.AXIS) {
