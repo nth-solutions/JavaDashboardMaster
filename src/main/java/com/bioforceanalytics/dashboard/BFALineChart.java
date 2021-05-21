@@ -3,6 +3,8 @@ package com.bioforceanalytics.dashboard;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.event.ChangeEvent;
 
@@ -11,6 +13,7 @@ import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.beans.NamedArg;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -94,18 +97,21 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
 
     public BFALineChart(@NamedArg("xAxis") Axis<X> xAxis, @NamedArg("yAxis") Axis<Y> yAxis) {
         super(xAxis, yAxis);
+
         this.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if (p1 != null && p2 != null)
-                    redrawArea(newValue.intValue() - oldValue.intValue(), 0);
+                    Platform.runLater(() -> redrawArea());
+
             }
         });
         this.heightProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 if (p1 != null && p2 != null)
-                    redrawArea(0, newValue.intValue() - oldValue.intValue());
+                    Platform.runLater(() -> redrawArea());
+
             }
         });
     }
