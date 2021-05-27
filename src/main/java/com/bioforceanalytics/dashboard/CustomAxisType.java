@@ -46,6 +46,10 @@ public class CustomAxisType implements Axis {
         return name;
     }
 
+    public void setUnits(String units) {
+        this.units = units;
+    }
+
     public static CustomAxisType newCustomAxis(String name, String units, double axisScalar) {
         if (names == null) {
             names = new ArrayList<String>();
@@ -61,6 +65,8 @@ public class CustomAxisType implements Axis {
                 if (!allCustomAxes.contains(a)) {
                     allCustomAxes.add(a);
                 }
+                a.setAxisScalar(axisScalar);
+                a.setUnits(units);
                 return a;
             }
         }

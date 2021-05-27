@@ -1,16 +1,16 @@
 {
-    "Equations":[
+    "Equations": [
         {
             "name": "Momentum",
             "equation": "mass * VelX",
             "units": "kg-m/s",
-            "scale":"10"
+            "scale": "0"
         },
         {
             "name": "Kinetic Energy",
             "equation": "0.5 * mass * VelX ^ 2",
             "units": "J",
-            "scale":"10"
+            "scale": "0"
         }
     ]
 }

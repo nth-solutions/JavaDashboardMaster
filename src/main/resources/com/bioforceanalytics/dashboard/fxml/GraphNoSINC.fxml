@@ -174,7 +174,7 @@
 														<Insets bottom="10.0" top="10.0" />
 													</padding>
 												</Label>
-												<Button mnemonicParsing="false" onAction="#changeResolution" prefHeight="25.0" prefWidth="120.0" text="Change resolution">
+												<Button mnemonicParsing="false" onAction="#changeResolution" prefHeight="25.0" prefWidth="150.0" text="Change resolution">
 													<VBox.margin>
 														<Insets bottom="10.0" />
 													</VBox.margin>
@@ -190,11 +190,11 @@
 															</tooltip>
 														</Label>
 														<Slider fx:id="blockSizeSlider" layoutX="214.0" layoutY="554.0" prefWidth="125.0" value="100" min="0" max="500" />
-														<Label fx:id="blockSizeLabel" prefWidth="25" text="100">
+														<TextField fx:id="blockSizeField" prefWidth = "45" text="100">
 															<tooltip>
 																<Tooltip text="This is the sample block size for the moving average used to smooth the graph."/>
 															</tooltip>
-														</Label>
+														</TextField>
 													</children>
 												</HBox>
 												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#resetMovingAvg" prefHeight="25.0" prefWidth="120.0" text="Reset">

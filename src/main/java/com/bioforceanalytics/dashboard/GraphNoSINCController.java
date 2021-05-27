@@ -104,6 +104,10 @@ public class GraphNoSINCController implements Initializable {
 	// BFA icon
 	private Image icon;
 
+	// determins whether or not the simulataneous listeners should fire for the
+	// block size value
+	private boolean blockSizeIsChanging;
+
 	private static final Logger logger = LogController.start();
 
 	@FXML
@@ -113,7 +117,7 @@ public class GraphNoSINCController implements Initializable {
 	private Slider blockSizeSlider;
 
 	@FXML
-	private Label blockSizeLabel;
+	private TextField blockSizeField;
 
 	@FXML
 	private MultiAxisLineChart multiAxis;
@@ -184,9 +188,17 @@ public class GraphNoSINCController implements Initializable {
 
 			// update smoothing in real-time
 			blockSizeSlider.valueProperty().addListener(e -> {
-				applyMovingAvg();
-			});
+				if (!blockSizeIsChanging) {
+					applyMovingAvg(blockSizeSlider);
+				}
 
+			});
+			// this allows the change to occur either from the slider or the text field
+			blockSizeField.textProperty().addListener(e -> {
+				if (!blockSizeIsChanging && blockSizeField.getText().length() > 0) {
+					applyMovingAvg(blockSizeField);
+				}
+			});
 			// update playback speed in real-time
 			playbackSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
 				lineChart.setPlaybackSpeed(newValue.doubleValue());
@@ -561,7 +573,7 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
-	public void loadEquations() {
+	public void loadEquations() throws Exception {
 
 		ArrayList<GraphData> customAxes = new ArrayList<GraphData>();
 
@@ -594,22 +606,25 @@ public class GraphNoSINCController implements Initializable {
 
 					AxisDataSeries resultSeries = new AxisDataSeries(result.axis, customAxis);
 
-					// set the bound scale to the max/min of greatest magnitude
-					double bound = Math.max(resultSeries.dataRange[0], resultSeries.dataRange[1]);
+					if (customAxis.getAxisScalar() == 0) {
+						// set the bound scale to the max/min of greatest magnitude
+						double bound = Math.max(resultSeries.dataRange[0], resultSeries.dataRange[1]);
 
-					double axisScale = MultiAxisLineChart.roundBound(bound) / 5;
+						double axisScale = MultiAxisLineChart.roundBound(bound) / 5;
 
-					customAxis.setAxisScalar(axisScale);
+						customAxis.setAxisScalar(axisScale);
+					}
 
 					customAxisTest.addAxisDataSeries(resultSeries, customAxis,
 							(CheckBox) equationPanel.equationCheckboxMap.get(equation), equation);
 				} else {
-					throw new Exception("Equation for \"" + equation.getName() + "\" is invalid");
+					throw new Exception(
+							"Equation for \"" + equation.getName() + "\" is invalid. It must include an Axis!");
 				}
 
 				// graphAxis(customAxis,-1);
 			} catch (Exception e) {
-				logger.warn("Error processing equation " + equation.name);
+				throw new Exception(e.getMessage());
 			}
 
 		}
@@ -953,7 +968,6 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 		}
-
 		multiAxis.resetViewport();
 		lineChart.resetVideo();
 
@@ -963,13 +977,23 @@ public class GraphNoSINCController implements Initializable {
 	 * Recalculates moving averages for all currently drawn data sets. Uses the
 	 * block size from the smoothing slider in the Graph.
 	 */
-	public void applyMovingAvg() {
+	public void applyMovingAvg(Object source) {
 
 		// round slider to nearest integer
-		int blockSize = (int) blockSizeSlider.getValue();
+		int blockSize;
+		blockSizeIsChanging = true;
+		if (source == blockSizeSlider) {
+			blockSize = (int) blockSizeSlider.getValue();
+			// update smoothing label
+			blockSizeField.setText("" + blockSize);
+		} else {
+			blockSize = Integer.parseInt(blockSizeField.getText());
+
+			// update smoothing label
+			blockSizeSlider.setValue(blockSize);
+		}
+		blockSizeIsChanging = false;
 		GenericTest test;
-		// update smoothing label
-		blockSizeLabel.setText("" + blockSize);
 
 		// apply moving avgs to all currently drawn axes
 		for (GraphData d : dataSets) {
@@ -994,7 +1018,7 @@ public class GraphNoSINCController implements Initializable {
 		blockSizeSlider.setValue(AxisDataSeries.DEFAULT_BLOCK_SIZE);
 
 		// apply moving average
-		applyMovingAvg();
+		applyMovingAvg(null);
 
 	}
 

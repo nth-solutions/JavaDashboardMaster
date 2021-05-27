@@ -37,6 +37,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
@@ -44,6 +45,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -93,7 +95,7 @@ public class CustomAxisMenu implements Initializable {
         // don't allow the user to click and select rows
         // tableView.setSelectionModel(null);
         logger.info("init equations w/ controller " + controller);
-        
+
         tableView.setEditable(true);
         // center both table columns
         axisNameCol.setStyle("-fx-alignment: CENTER");
@@ -103,6 +105,7 @@ public class CustomAxisMenu implements Initializable {
         // set the left column to the name of each AxisType
         axisNameCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("name"));
         axisNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+
         axisNameCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
             @Override
             public void handle(CellEditEvent<CustomAxisCell, String> t) {
@@ -112,104 +115,101 @@ public class CustomAxisMenu implements Initializable {
 
             }
         });
-        //sets the middle column to be the equation of the custom axis
+        // sets the middle column to be the equation of the custom axis
         equationCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("equation"));
         equationCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        equationCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
-                @Override
-                public void handle(CellEditEvent<CustomAxisCell, String> t) {
-                    
-                    ((CustomAxisCell) t.getTableView().getItems().get(
-                        t.getTablePosition().getRow())
-                        ).setEquation(t.getNewValue());
-                    
-                }
+        equationCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
+            @Override
+            public void handle(CellEditEvent<CustomAxisCell, String> t) {
+
+                ((CustomAxisCell) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+                        .setEquation(t.getNewValue());
+
             }
-        );
-        //sets the last column to be the units of the custom axis
+        });
+        // sets the last column to be the units of the custom axis
         unitsCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("units"));
         unitsCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        
-        unitsCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
-                @Override
-                public void handle(CellEditEvent<CustomAxisCell, String> t) {
-                    
-                    ((CustomAxisCell) t.getTableView().getItems().get(
-                        t.getTablePosition().getRow())
-                        ).setUnits(t.getNewValue());
-                   
-                }
+
+        unitsCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
+            @Override
+            public void handle(CellEditEvent<CustomAxisCell, String> t) {
+
+                ((CustomAxisCell) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+                        .setUnits(t.getNewValue());
+
             }
-        );
+        });
         scalarCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("scale"));
         scalarCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        scalarCol.textProperty().addListener(new ChangeListener<String>(){
+        scalarCol.textProperty().addListener(new ChangeListener<String>() {
 
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 logger.info("changed to" + newValue);
-                
+
             }
-            
+
         });
-        scalarCol.setOnEditCommit(
-            new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
-                @Override
-                public void handle(CellEditEvent<CustomAxisCell, String> t) {
-                    
-                    ((CustomAxisCell) t.getTableView().getItems().get(
-                        t.getTablePosition().getRow())
-                        ).setScale(t.getNewValue());
-                   
-                }
+        scalarCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
+            @Override
+            public void handle(CellEditEvent<CustomAxisCell, String> t) {
+
+                ((CustomAxisCell) t.getTableView().getItems().get(t.getTablePosition().getRow()))
+                        .setScale(t.getNewValue());
+
             }
-        );
+        });
         //
-       
-        
+
     }
+
     /**
      * Allows communication between the equation menu and the DAG's controller.
+     * 
      * @param controller the DAG controller to pair this equation menu to
      */
     public void setParent(GraphNoSINCController controller) {
         this.controller = controller;
-        //we reload the table here because it relies on the controller to send equations to the GraphNoSINCController
+        // we reload the table here because it relies on the controller to send
+        // equations to the GraphNoSINCController
         logger.info("setParent");
         reloadTable();
     }
 
     /**
-     * acts as a reset function for the custom axis menu, allows the table to be reset according to the current equations
+     * acts as a reset function for the custom axis menu, allows the table to be
+     * reset according to the current equations
      */
-    private void reloadTable(){
-        if(controller != null){
-            //clears the table
+    private void reloadTable() {
+        if (controller != null) {
+            // clears the table
             tableView.getItems().clear();
-            
-            for(CustomAxisCell cell : loadDefaultEquations()){
-                //re-adds each cell
+
+            for (CustomAxisCell cell : loadDefaultEquations()) {
+                // re-adds each cell
                 tableView.getItems().add(cell);
             }
 
         }
-        
+
     }
+
     /**
-     * this method accesses a .json file (savedEquations.json) that contains the equations of all of the default axes
+     * this method accesses a .json file (savedEquations.json) that contains the
+     * equations of all of the default axes
+     * 
      * @return returns a list of CustomAxisCells that contain the default axes
      */
-     private ArrayList<CustomAxisCell> loadDefaultEquations() {
-         //first checks if equations have already been loaded, and if so just gets the equations from the controller
+    private ArrayList<CustomAxisCell> loadDefaultEquations() {
+        // first checks if equations have already been loaded, and if so just gets the
+        // equations from the controller
         ArrayList<CustomAxisCell> cells = new ArrayList<CustomAxisCell>();
-        if(controller.customEquations.size() != 0){
-            for(CustomEquation e : controller.customEquations){
-                cells.add(new CustomAxisCell(e.getName(), e.getEquation(), e.getUnits(),e.getScale()));
+        if (controller.customEquations.size() != 0) {
+            for (CustomEquation e : controller.customEquations) {
+                cells.add(new CustomAxisCell(e.getName(), e.getEquation(), e.getUnits(), e.getScale()));
             }
-        }
-        else{
+        } else {
             try {
 
                 // load "saveEquations.json" as an object
@@ -218,14 +218,14 @@ public class CustomAxisMenu implements Initializable {
                 JSONObject obj = (JSONObject) new JSONParser().parse(reader);
                 JSONArray arr = (JSONArray) obj.get("Equations");
 
-                Iterator itr = arr.iterator(); 
-                while (itr.hasNext())  
-                { 
-                    JSONObject e = (JSONObject)itr.next();
-                    //adds a new equation cell from each unit in the .json file
-                    cells.add(new CustomAxisCell((String)e.get("name"),(String)e.get("equation"),(String)e.get("units"),(String)e.get("scale")));
+                Iterator itr = arr.iterator();
+                while (itr.hasNext()) {
+                    JSONObject e = (JSONObject) itr.next();
+                    // adds a new equation cell from each unit in the .json file
+                    cells.add(new CustomAxisCell((String) e.get("name"), (String) e.get("equation"),
+                            (String) e.get("units"), (String) e.get("scale")));
                 }
-                
+
             } catch (Exception e) {
 
                 logger.error("Could not load default equations.");
@@ -235,38 +235,54 @@ public class CustomAxisMenu implements Initializable {
         }
         return cells;
     }
+
     /**
-     * this serves as a way to submit the changes and axes written in this instance of the menu to the graphing window
+     * this serves as a way to submit the changes and axes written in this instance
+     * of the menu to the graphing window
      */
     @FXML
-    private void loadAxes(){
+    private void loadAxes() {
         controller.customEquations.clear();
-        for(CustomAxisCell cell : tableView.getItems()){
-            controller.customEquations.add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits(),cell.getScale()));
+        for (CustomAxisCell cell : tableView.getItems()) {
+            controller.customEquations
+                    .add(new CustomEquation(cell.getName(), cell.getEquation(), cell.getUnits(), cell.getScale()));
         }
-        controller.loadEquations();
+        try {
+            controller.loadEquations();
+        } catch (Exception e) {
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setHeaderText("Error!");
+            alert.setContentText(e.getMessage());
+
+            alert.showAndWait();
+            return;
+        }
     }
+
     /**
      * Allows the UI to create a new empty axis cell
      */
     @FXML
-    private void addNewAxis(){
-        tableView.getItems().add(new CustomAxisCell("Axis Name Here","Equation Here","Units Here","10"));
-        
+    private void addNewAxis() {
+        tableView.getItems().add(new CustomAxisCell("Axis Name Here", "Equation Here", "Units Here", "0"));
+
     }
+
     /**
      * Resets the table to the default state
      */
-    @FXML 
-    private void resetAxes(){
+    @FXML
+    private void resetAxes() {
         controller.customEquations.clear();
         reloadTable();
-           
+
     }
+
     /**
-     * A helper class that controls the table cells. See the color panel for a more in-depth explanation
+     * A helper class that controls the table cells. See the color panel for a more
+     * in-depth explanation
      */
-    public static class CustomAxisCell{
+    public static class CustomAxisCell {
         private final SimpleStringProperty name;
         private final SimpleStringProperty equation;
         private final SimpleStringProperty units;
@@ -278,40 +294,38 @@ public class CustomAxisMenu implements Initializable {
             this.units = new SimpleStringProperty(units);
             this.scale = new SimpleStringProperty(scale);
         }
-        
+
         public String getName() {
             return name.get();
         }
- 
+
         public void setName(String name) {
             this.name.set(name);
         }
- 
+
         public String getEquation() {
             return equation.get();
         }
- 
+
         public void setEquation(String equation) {
             this.equation.set(equation);
         }
+
         public String getUnits() {
             return units.get();
         }
- 
+
         public void setUnits(String units) {
             this.units.set(units);
         }
-        
-        public String getScale(){
+
+        public String getScale() {
             return this.scale.get();
         }
 
-        public void setScale(String scale){
+        public void setScale(String scale) {
             this.scale.set(scale);
         }
-        
-        
+
     }
 }
-    
-
