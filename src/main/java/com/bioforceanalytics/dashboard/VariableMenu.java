@@ -44,6 +44,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+
 import java.util.Map; 
 public class VariableMenu implements Initializable{
 
@@ -66,6 +68,12 @@ public class VariableMenu implements Initializable{
         // don't allow the user to click and select rows
         //tableView.setSelectionModel(null);
         tableView.setEditable(true);
+        Callback<TableColumn<VariableCell, String>, TableCell<VariableCell, String>> cellFactory =
+        new Callback<TableColumn<VariableCell, String>, TableCell<VariableCell, String>>() {
+            public TableCell call(TableColumn p) {
+               return EditCell.createStringEditCell(); 
+            }
+        };
         // center both table columns
         variableNameCol.setStyle("-fx-alignment: CENTER");
         
@@ -74,6 +82,7 @@ public class VariableMenu implements Initializable{
         // set the left column to the name of each AxisType
         variableNameCol.setCellValueFactory(new PropertyValueFactory<VariableCell, String>("name"));
         variableNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        variableNameCol.setCellFactory(cellFactory);
         variableNameCol.setOnEditCommit(
             new EventHandler<CellEditEvent<VariableCell, String>>() {
                 @Override
@@ -89,6 +98,7 @@ public class VariableMenu implements Initializable{
       
         valueCol.setCellValueFactory(new PropertyValueFactory<VariableCell, String>("value"));
         valueCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        valueCol.setCellFactory(cellFactory);
         valueCol.setOnEditCommit(
             new EventHandler<CellEditEvent<VariableCell, String>>() {
                 @Override

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.bioforceanalytics.dashboard.GraphNoSINCController.GraphMode;
 import com.sun.javafx.charts.Legend;
 import com.sun.javafx.charts.Legend.LegendItem;
 
@@ -17,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
 public class MultiAxisLineChart extends StackPane {
@@ -207,6 +209,12 @@ public class MultiAxisLineChart extends StackPane {
             lastMouseX = event.getX();
             lastMouseY = event.getY();
         });
+
+        //clear area when clicked anywhere on scene
+        // this.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+        //     if((controller.getGraphMode() != GraphNoSINCController.GraphMode.SLOPE) && (controller.getGraphMode() != GraphNoSINCController.GraphMode.AREA) && (controller.getGraphMode() != GraphNoSINCController.GraphMode.NORM) && (controller.getGraphMode() != GraphNoSINCController.GraphMode.LINEUP) && (controller.getGraphMode() != GraphNoSINCController.GraphMode.LINEUP_SINC))
+        //         baseChart.clearArea();
+        // }); 
 
     }
 
@@ -483,6 +491,9 @@ public class MultiAxisLineChart extends StackPane {
 
         baseChart.clearArea();
         controller.clearSlope();
+        //make sure area and slope is not shown after lineup/normalization
+        controller.setSlopeFlag(false); 
+        controller.setAreaFlag(false);
 
     }
 

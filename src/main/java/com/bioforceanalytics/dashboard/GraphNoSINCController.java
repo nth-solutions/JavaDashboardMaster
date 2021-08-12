@@ -26,6 +26,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -165,6 +166,30 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Slider playbackSlider;
 
+	private double[] areaBounds; 
+	private double area; 
+	private double axisScalar; 
+	private XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(); 
+	private XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(); 
+
+	private boolean areaFlag; 
+	private boolean slopeFlag; 
+
+	//slope 
+	private double m; 
+
+	private ArrayList<Double> prevY1 = new ArrayList<Double>();
+    private ArrayList<Double> prevY2 = new ArrayList<Double>();
+	private ArrayList<Double> prevY = new ArrayList<Double>();
+
+	public void setAreaFlag(boolean areaFlag) {
+        this.areaFlag = areaFlag;
+    }
+
+	public void setSlopeFlag(boolean slopeFlag) {
+        this.slopeFlag = slopeFlag;
+    }
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
@@ -193,6 +218,7 @@ public class GraphNoSINCController implements Initializable {
 				}
 
 			});
+			
 			// this allows the change to occur either from the slider or the text field
 			blockSizeField.textProperty().addListener(e -> {
 				if (!blockSizeIsChanging && blockSizeField.getText().length() > 0) {
@@ -230,6 +256,13 @@ public class GraphNoSINCController implements Initializable {
 				if (e.getButton() == MouseButton.SECONDARY)
 					setGraphMode(GraphMode.NONE);
 			});
+
+			//clear slope when clicked anywhere on scene
+			// s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			// 	if((mode != GraphNoSINCController.GraphMode.SLOPE) && (mode != GraphNoSINCController.GraphMode.AREA) && (mode != GraphNoSINCController.GraphMode.NORM) && (mode != GraphNoSINCController.GraphMode.LINEUP) && (mode != GraphNoSINCController.GraphMode.LINEUP_SINC)){
+			// 		clearSlope(); 
+			// 	}
+			// }); 
 
 			// FULL WINDOW KEY LISTENERS
 			s.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -1604,8 +1637,18 @@ public class GraphNoSINCController implements Initializable {
 		GenericTest test = getTest(axis, GTIndex);
 		clearSlope();
 		double axisScalar;
+
+		prevY.add(y); 
+
+		if(mode == GraphMode.LINEUP || mode == GraphMode.LINEUP_SINC || mode == GraphMode.NORM){
+			m = m; 
+		} else{
+			// get slope value "m"
+			m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
+		}
+
 		// get slope value "m"
-		double m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
+		// double m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1651,11 +1694,21 @@ public class GraphNoSINCController implements Initializable {
 			graphSlope(x1, y1, axis, GTIndex);
 			return;
 		}
+		
+		prevY1.add(y1); 
+		prevY2.add(y2); 
 
 		clearSlope();
 
+		if(mode == GraphMode.LINEUP || mode == GraphMode.LINEUP_SINC || mode == GraphMode.NORM){
+			m = m; 
+		} else{
+			// get slope value "m"
+			m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
+		}
+
 		// get slope value "m"
-		double m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
+		// double m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1696,13 +1749,35 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void clearSlope() {
 
-		if (slopeLine != null) {
+		if (slopeLine != null) { 
 			lineChart.getData().remove(slopeLine);
 
 			// update legend colors
 			multiAxis.styleLegend();
 		}
 
+	}
+	
+	public void redrawSlope(double xOffset, double yOffset, Axis axis, int GTIndex){
+
+		double newX1;
+		double newX2; 
+		double newY1;
+		double newY2; 
+
+		newX1 = slopeLine.getData().get(0).getXValue().doubleValue() + xOffset;  
+		newX2 = slopeLine.getData().get(2).getXValue().doubleValue() + xOffset;
+
+		if(newX1 == newX2 - 1){
+			newX2 = newX2 - 1; 
+			newY1 = prevY.get(prevY.size()-1) + yOffset;
+			newY2 = newY1; 
+		} else{
+			newY1 = prevY1.get(prevY1.size() - 1) + yOffset; 
+			newY2 = prevY2.get(prevY2.size() - 1) + yOffset;
+		}
+
+		graphSlope(newX1, newY1, newX2, newY2, axis, GTIndex); 
 	}
 
 	/**
@@ -1947,6 +2022,7 @@ public class GraphNoSINCController implements Initializable {
 					if (e.isShiftDown()) {
 						logger.info("Graphing tangent line...");
 						graphSlope(x, y, axis, GTIndex);
+						slopeFlag = true; 
 					} else if (!firstClick) {
 
 						// check for any issues with calculating b/t different data sets
@@ -1963,7 +2039,7 @@ public class GraphNoSINCController implements Initializable {
 
 						logger.info("Graphing secant line...");
 						graphSlope(selectedPoint[0], selectedPoint[1], x, y, axis, GTIndex);
-
+						slopeFlag = true; 
 					}
 
 				} else if (mode == GraphMode.AREA && !firstClick) {
@@ -1983,18 +2059,18 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 					// ensures that x1 is always less than x2
-					double[] areaBounds = { selectedPoint[0], x };
+					areaBounds = new double[] { selectedPoint[0], x }; 
 					Arrays.sort(areaBounds);
 
 					// calculate the definite integral with the given limits
-					double area = test.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
-
-					double axisScalar = multiAxis.getAxisScalar(axis);
+					area = test.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+					axisScalar = multiAxis.getAxisScalar(axis);
 
 					// p1 = (x1, y1), p2 = (x2, y2)
-					XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(selectedPoint[0],
-							selectedPoint[1] / axisScalar);
-					XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y / axisScalar);
+					p1.setXValue(selectedPoint[0]);
+					p1.setYValue(selectedPoint[1] / axisScalar);
+					p2.setXValue(x);
+					p2.setYValue(y / axisScalar);
 
 					// ensure the lower bound is less than the upper bound
 					if (selectedPoint[0] == areaBounds[0]) {
@@ -2002,7 +2078,8 @@ public class GraphNoSINCController implements Initializable {
 					} else {
 						lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis), area, SIG_FIGS);
 					}
-
+					
+					areaFlag = true; 
 					setGraphMode(GraphMode.NONE);
 
 				} else if ((mode == GraphMode.LINEUP && !firstClick) || mode == GraphMode.LINEUP_SINC) {
@@ -2023,6 +2100,8 @@ public class GraphNoSINCController implements Initializable {
 
 					// shift the graph by the difference between the final and initial x-values
 					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX);
+					// System.out.println("CT:" + (customTests.size() -1));
+					// customTests.get(0).addTimeOffset(finalX - initialX);
 
 					for (GraphData g : dataSets) {
 						if (!g.axis.isCustomAxis()) {
@@ -2037,14 +2116,30 @@ public class GraphNoSINCController implements Initializable {
 							logger.info("Adjusted Custom Axis {}", g.axis.getName());
 						}
 					}
-
+					if (areaFlag){
+						lineChart.redrawArea();
+					}
+					if (slopeFlag){
+						double shift = finalX-initialX;
+						redrawSlope(shift, 0, axis, GTIndex);
+					}
 					setGraphMode(GraphMode.NONE);
 
 				} else if (mode == GraphMode.NORM) {
 
 					AxisDataSeries a = test.getAxis(axis);
-					a.vertShift(-y);
-					updateAxis(axis, GTIndex);
+					a.vertShift(-y); 
+					updateAxis(axis, GTIndex); 
+
+
+					if (areaFlag){
+						double areaNorm = test.getAxis(axis).getAreaUnder(lineChart.getAreaBoundX1(), lineChart.getAreaBoundX2()); 
+						lineChart.redrawArea(0, 0, areaNorm);
+					}
+					if (slopeFlag){
+						double shift = -y;
+						redrawSlope(0, shift, axis, GTIndex);
+					}
 
 					setGraphMode(GraphMode.NONE);
 

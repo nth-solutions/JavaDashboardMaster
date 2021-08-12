@@ -37,6 +37,7 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import java.util.ArrayList; 
 
 /**
  * Custom LineChart created to shade in area under a curve and to play overlayed
@@ -58,6 +59,12 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
     private GraphData data;
     private int SIG_FIGS;
     private double area;
+
+    private ArrayList<Integer> startIndex = new ArrayList<Integer>();
+    private ArrayList<Integer> endIndex = new ArrayList<Integer>();
+
+    private double areaBoundX1; 
+    private double areaBoundX2;  
 
     // used to play SINC videos
     private MediaPlayer mediaPlayer;
@@ -114,6 +121,22 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
 
             }
         });
+    }
+
+    public double getAreaBoundX2() {
+        return areaBoundX2;
+    }
+
+    public void setAreaBoundX2(double areaBoundX2) {
+        this.areaBoundX2 = areaBoundX2;
+    }
+
+    public double getAreaBoundX1() {
+        return areaBoundX1;
+    }
+
+    public void setAreaBoundX1(double areaBoundX1) {
+        this.areaBoundX1 = areaBoundX1;
     }
 
     /**
@@ -196,7 +219,7 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
     }
 
     public void redrawArea() {
-        redrawArea(0, 0);
+        redrawArea(0, 0, 0);
     }
 
     /**
@@ -204,7 +227,7 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
      * being called multiple times, only once. TODO at some point we may look into
      * real-time shading with this method.
      */
-    public void redrawArea(int xOffset, int yOffset) {
+    public void redrawArea(double xOffset, double yOffset, double areaNorm) {
 
         ObservableList<XYChart.Data<Number, Number>> series = data.data.getData();
 
@@ -212,21 +235,48 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
             return;
         int start = -1;
         int end = -1;
-        // get index of x1 and x2 in samples
-        for (int i = 0; i < series.size(); i++) {
+        
+        if((parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.LINEUP) || (parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.LINEUP_SINC) || (parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.NORM)){
+            if (startIndex.size() >= 1 && endIndex.size() >= 1){
+                int indexS = startIndex.size() - 1; 
+                int indexE = startIndex.size() - 1; 
 
-            if (series.get(i).getXValue().equals(p1.getXValue()) && series.get(i).getYValue().equals(p1.getYValue())) {
-                start = i;
+                int startIndexVal = startIndex.get(indexS); 
+                int endIndexVal = endIndex.get(indexE); 
+
+                double newX1 = series.get(startIndexVal).getXValue().doubleValue(); 
+                p1.setXValue(newX1);
+                double newX2 = series.get(endIndexVal).getXValue().doubleValue(); 
+                p2.setXValue(newX2);
+
+                double newY1 = series.get(startIndexVal).getYValue().doubleValue(); 
+                p1.setYValue(newY1);
+                double newY2 = series.get(endIndexVal).getYValue().doubleValue(); 
+                p2.setYValue(newY2);
             }
-
-            if (series.get(i).getXValue().equals(p2.getXValue()) && series.get(i).getYValue().equals(p2.getYValue())) {
-                end = i;
-            }
-
         }
+
+        // get index of x1 and x2 in samples
+            for (int i = 0; i < series.size(); i++) {
+
+                if (series.get(i).getXValue().equals(p1.getXValue()) && series.get(i).getYValue().equals(p1.getYValue())) {
+                    start = i;
+                    startIndex.add(i); 
+                    setAreaBoundX1(p1.getXValue()); 
+                }
+                if (series.get(i).getXValue().equals(p2.getXValue()) &&  series.get(i).getYValue().equals(p2.getYValue())) {
+                    end = i;
+                    endIndex.add(i); 
+                    setAreaBoundX2(p2.getXValue());
+                }
+            }
 
         // remove area shading and label
         clearArea();
+
+        if(parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.NORM){
+            area = areaNorm; 
+        }
 
         // create area label
         double roundedArea = new BigDecimal(area).round(new MathContext(SIG_FIGS)).doubleValue();
@@ -238,8 +288,10 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
 
         // set (x,y) position of the area label to halfway between the x-bounds of the
         // area
-        areaPane.setLayoutX(series.get((start + end) / 2).getNode().getLayoutX() - 50);
-        areaPane.setLayoutY(series.get((start + end) / 2).getNode().getLayoutY() - 100);
+
+        //removed positioning due to overlap
+        // areaPane.setLayoutX(series.get((start + end) / 2).getNode().getLayoutX() - 50);
+        // areaPane.setLayoutY(series.get((start + end) / 2).getNode().getLayoutY() - 100);
 
         // add area label to LineChart
         getPlotChildren().add(areaPane);
@@ -279,9 +331,14 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
 
         // add polygon to LineChart
         getPlotChildren().add(poly);
+        // areaPane.getChildren().addAll(createAreaLabel(roundedArea));
 
         // ensure that the area label is on top of the shaded area
-        areaPane.toFront();
+        areaPane.toFront(); 
+
+        // Label label = createAreaLabel(roundedArea); 
+        // getPlotChildren().add(label); 
+        // label.toFront();
 
         // display full floating-point number on click
         areaPane.setOnMouseClicked(event -> areaPane.getChildren().addAll(createAreaLabel(area)));
