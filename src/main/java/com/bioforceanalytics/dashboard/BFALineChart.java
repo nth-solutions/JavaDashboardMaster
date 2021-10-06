@@ -236,6 +236,7 @@ public class BFALineChart<X, Y> extends LineChart<X, Y> {
         int start = -1;
         int end = -1;
         
+        // redraw area with line-up/normalization shift 
         if((parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.LINEUP) || (parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.LINEUP_SINC) || (parentChart.getController().getGraphMode() == GraphNoSINCController.GraphMode.NORM)){
             if (startIndex.size() >= 1 && endIndex.size() >= 1){
                 int indexS = startIndex.size() - 1; 

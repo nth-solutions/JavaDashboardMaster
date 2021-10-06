@@ -16,12 +16,14 @@ interface Axis{
     public String getNameAndUnits();
     public int getIndex();
     public int getValue();
+    public String getExactName(); 
     
     public static HashMap<String,Axis> axisNameMap = new HashMap<String,Axis>();
     public static void addAxis(String name, Axis axis){
         axisNameMap.put(name,axis);
     }
     public static Axis getAxis(String name){
+        System.out.println("ANM: " + axisNameMap);
         return axisNameMap.get(name);
     }
 

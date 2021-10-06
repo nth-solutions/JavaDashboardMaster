@@ -10,6 +10,7 @@ import java.util.Collections;
 public class CustomAxisType implements Axis {
 
     private String name;
+    private String exactName; 
     private String units;
     private double axisScalar;
 
@@ -44,6 +45,10 @@ public class CustomAxisType implements Axis {
 
     public String getName() {
         return name;
+    }
+
+    public String getExactName(){
+        return exactName; 
     }
 
     public void setUnits(String units) {

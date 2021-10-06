@@ -18,6 +18,7 @@ public class AxisData {
     private String name;
     private int sampleRate;
     private int offset;
+    private int vertOffset; 
     private Axis axis;
     public static List<AxisData> allAxisData = new ArrayList<AxisData>();
     public static Map<String, AxisData> nameAxisDataMap = new HashMap<String, AxisData>();
@@ -303,4 +304,9 @@ public class AxisData {
         return (int) (reference.getSampleRate() * reference.getTimeOffset());
     }
 
+    public int getVOffset() {
+        if (reference == null)
+            return vertOffset;
+        return (int) (reference.getSampleRate() * reference.getVOffset());
+    }
 }

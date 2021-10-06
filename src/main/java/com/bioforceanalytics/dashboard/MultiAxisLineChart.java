@@ -581,7 +581,7 @@ public class MultiAxisLineChart extends StackPane {
             a = AxisType.valueOf(d.axis.getName());
 
         } catch (Exception e) {
-            a = Axis.getAxis(d.axis.getName());
+            a = Axis.getAxis(d.axis.getExactName());
         }
 
         String colorStyle = "-fx-stroke: " + BFAColorMenu.getHexString(a) + ";";

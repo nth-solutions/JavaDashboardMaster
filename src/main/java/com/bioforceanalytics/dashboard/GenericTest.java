@@ -23,6 +23,7 @@ public class GenericTest {
 	private int[] MPUOffsets;
 	private int sampleRate;
 	private int timeOffset;
+	public static double vertOffset; 
 
 	private static final Logger logger = LogController.start();
 
@@ -181,7 +182,7 @@ public class GenericTest {
 		for (int i = 0; i < 3; i++) {
 
 			// acceleration (NATIVE ACCELEROMETER MEASUREMENT)
-			axes[i] = new AxisDataSeries(timeAxis, dataSamples.get(i+1), AxisType.valueOf(i), mpuOffsets, accelSensitivity, sampleRate);
+			axes[i] = new AxisDataSeries(timeAxis, dataSamples.get(i+1), AxisType.valueOf(i), mpuOffsets, accelSensitivity, sampleRate, vertOffset);
 
 			// velocity
 			axes[i+4] = new AxisDataSeries(timeAxis, axes[i].integrate(), AxisType.valueOf(i+4), false, sampleRate);
@@ -190,7 +191,7 @@ public class GenericTest {
 			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
 
 			// angular velocity (NATIVE GYROSCOPE MEASUREMENT)
-			axes[i+16] = new AxisDataSeries(timeAxis, dataSamples.get(i+4), AxisType.valueOf(i+16), gyroSensitivity, sampleRate);
+			axes[i+16] = new AxisDataSeries(timeAxis, dataSamples.get(i+4), AxisType.valueOf(i+16), gyroSensitivity, sampleRate, vertOffset);
 
 			// angular acceleration
 			axes[i+12] = new AxisDataSeries(timeAxis, axes[i+16].differentiate(), AxisType.valueOf(i+12), false, sampleRate);	
@@ -199,6 +200,7 @@ public class GenericTest {
 			axes[i+20] = new AxisDataSeries(timeAxis, axes[i+16].integrate(), AxisType.valueOf(i+20), false, sampleRate);
 
 			// magnetometer (NATIVE MEASUREMENT)
+			// change constuctor to add offset? 
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
 
 		}
@@ -305,8 +307,9 @@ public class GenericTest {
 	 * @param offset the number of samples by which the time axis should be offset;
 	 * a positive value will shift the graph to the right.
 	 */
-	public void addTimeOffset(double offset) {
+	public void addTimeOffset(double offset, double offset2) {
 		timeOffset += (int) (offset * sampleRate);
+		vertOffset = offset2;
 		createAxisDataSeries();
 	}
 
@@ -316,6 +319,10 @@ public class GenericTest {
 	 */
 	public double getTimeOffset() {
 		return ((double) timeOffset) / sampleRate;
+	}
+
+	public double getVOffset() {
+		return ((double) vertOffset) / sampleRate;
 	}
 	/**
 	 * Get the number of samples by which the time axis is offset.

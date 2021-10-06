@@ -9,7 +9,8 @@
    <children>
       <TableView fx:id="tableView" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="400.0">
         <columns>
-          <TableColumn fx:id="axisTypeCol" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Axis Type" />
+          <TableColumn fx:id="dataSetCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Data Set" />
+          <TableColumn fx:id="axisTypeCol" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Axis Type" />
           <TableColumn fx:id="colorCol" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" text="Color" />
         </columns>
       </TableView>

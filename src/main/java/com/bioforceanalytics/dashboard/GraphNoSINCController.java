@@ -102,6 +102,8 @@ public class GraphNoSINCController implements Initializable {
 	// TODO make this an advanced user setting
 	private final int SIG_FIGS = 3;
 
+	private double yShift = 0.0; 
+
 	// BFA icon
 	private Image icon;
 
@@ -695,10 +697,16 @@ public class GraphNoSINCController implements Initializable {
 
 			GenericTest test = getTest(axis, GTIndex);
 
-			if (Axis.getAxis(axis.getName()) == null) {
-				Axis.addAxis(axis.getName(), axis);
+			//color change only affects either x/y/z, not all for one axis type 
+			if (Axis.getAxis(axis.getExactName()) == null) {
+				Axis.addAxis(axis.getExactName(), axis);
+			} 
+			//test for custom menu for each data set 
+			else {
+				Axis.addAxis(axis.getExactName() + "2", axis);
 			}
 
+			System.out.println();
 			// get time/samples data sets
 			time = test.getAxis(axis).getTime();
 			data = test.getAxis(axis).getSamples();
@@ -787,6 +795,8 @@ public class GraphNoSINCController implements Initializable {
 		Axis axis = d.axis;
 		List<Double> data;
 		List<Double> time;
+		double timeOffset = 0.0;  
+		double vertOffset = 0.0;
 		if (d.axis.isCustomAxis()) {
 			logger.info("Update Custom Axis");
 
@@ -803,6 +813,20 @@ public class GraphNoSINCController implements Initializable {
 
 				time = resultSeries.getTime();
 				data = resultSeries.getSamples();
+
+				if (mode == GraphMode.LINEUP || mode == GraphMode.LINEUP_SINC){
+					timeOffset = resultSeries.getTimeOffset();
+				} else if (mode == GraphMode.NORM){
+					//axis data series
+					timeOffset = resultSeries.getTimeOffset();
+					resultSeries.setVertOffset(yShift);
+					vertOffset = resultSeries.getVertOffset(); 
+
+				} else {
+					timeOffset = 0.0;
+					vertOffset = 0.0; 
+				}
+
 				logger.info("Updated Custom Axis Equation");
 			} catch (Exception exception) {
 				logger.debug(exception.getMessage());
@@ -814,24 +838,22 @@ public class GraphNoSINCController implements Initializable {
 
 			time = test.getAxis(axis).getTime();
 			data = test.getAxis(axis).getSamples();
+			// get time offset 
+			timeOffset = test.getAxis(axis).getTimeOffset();
 		}
 		// clear samples in ObservableList
 		seriesData.clear();
-
-		// get time/samples data sets
-		double timeOffset = test.getAxis(axis).getTimeOffset();
 
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
 
 			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset,
-					data.get(i) / multiAxis.getAxisScalar(axis));
+					(data.get(i) + vertOffset) / multiAxis.getAxisScalar(axis));
 
 			// add tooltip with (x,y) when hovering over data point
-			dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, d.GTIndex));
+			dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i) + vertOffset, axis, d.GTIndex));
 
 			seriesData.add(dataEl);
-
 		}
 
 		// add ObservableList to XYChart.Series
@@ -1081,7 +1103,8 @@ public class GraphNoSINCController implements Initializable {
 
 					// apply data normalization
 					AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
-					a.normalizeAccel(start, end);
+					//changed
+					a.normalizeAccel(start, end, 0.0);
 				}
 
 				// recalculate Vel/Disp data sets
@@ -1644,11 +1667,9 @@ public class GraphNoSINCController implements Initializable {
 			m = m; 
 		} else{
 			// get slope value "m"
-			m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
+			// m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
+			m = test.getAxis(axis).getTangent(x, multiAxis.getResolution(axis));
 		}
-
-		// get slope value "m"
-		// double m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1704,11 +1725,9 @@ public class GraphNoSINCController implements Initializable {
 			m = m; 
 		} else{
 			// get slope value "m"
-			m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
+			// m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
+			m = test.getAxis(axis).getSlopeShift(x1, x2);
 		}
-
-		// get slope value "m"
-		// double m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1798,14 +1817,16 @@ public class GraphNoSINCController implements Initializable {
 			// if delayAfterStart is negative, the camera starts earlier than the module;
 			// we compensate by shifting the graph by -delayAfterStart (to the right)
 			if (delayAfterStart < 0) {
-				g.addTimeOffset(-delayAfterStart);
+				//quick fix 
+				g.addTimeOffset(-delayAfterStart, 0);
 			}
 			// if delayAfterStart is positive, the camera starts later than the module;
 			// compensation is done in firmware, but we must also apply manual SINC
 			// correction
 			// (see BFALineChart.SINC_TIME_ERROR for more information)
 			else if (delayAfterStart > 0) {
-				g.addTimeOffset(lineChart.SINC_TIME_ERROR);
+				//quick fix
+				g.addTimeOffset(lineChart.SINC_TIME_ERROR, 0);
 			}
 
 			// TODO intentionally not accounting for delayAfterStart == 0;
@@ -2063,7 +2084,8 @@ public class GraphNoSINCController implements Initializable {
 					Arrays.sort(areaBounds);
 
 					// calculate the definite integral with the given limits
-					area = test.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
+					// changed 
+					area = test.getAxis(axis).getAreaUnderShift(areaBounds[0], areaBounds[1]);
 					axisScalar = multiAxis.getAxisScalar(axis);
 
 					// p1 = (x1, y1), p2 = (x2, y2)
@@ -2099,9 +2121,7 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 					// shift the graph by the difference between the final and initial x-values
-					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX);
-					// System.out.println("CT:" + (customTests.size() -1));
-					// customTests.get(0).addTimeOffset(finalX - initialX);
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX, yShift); 
 
 					for (GraphData g : dataSets) {
 						if (!g.axis.isCustomAxis()) {
@@ -2128,12 +2148,27 @@ public class GraphNoSINCController implements Initializable {
 				} else if (mode == GraphMode.NORM) {
 
 					AxisDataSeries a = test.getAxis(axis);
+					//used to set vertOffset
+					yShift += -y; 
 					a.vertShift(-y); 
-					updateAxis(axis, GTIndex); 
+					// updateAxis(axis, GTIndex); 
 
+					for (GraphData g : dataSets) {
+						if (!g.axis.isCustomAxis()) {
+							updateAxis(g.axis, g.GTIndex);
+							logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex + 1,
+									genericTests.get(g.GTIndex).getTimeOffset());
+						}
+					}
+					for (GraphData g : dataSets) {
+						if (g.axis.isCustomAxis()) {
+							updateAxis(g.axis, g.GTIndex);
+							logger.info("Adjusted Custom Axis {}", g.axis.getName());
+						}
+					}
 
 					if (areaFlag){
-						double areaNorm = test.getAxis(axis).getAreaUnder(lineChart.getAreaBoundX1(), lineChart.getAreaBoundX2()); 
+						double areaNorm = test.getAxis(axis).getAreaUnderShift(lineChart.getAreaBoundX1(), lineChart.getAreaBoundX2()); 
 						lineChart.redrawArea(0, 0, areaNorm);
 					}
 					if (slopeFlag){
