@@ -380,6 +380,10 @@ public class GraphNoSINCController implements Initializable {
 		initializePanels();
 	}
 
+	public ArrayList<DataSetPanel> getDataSetPanels(){
+		return panels; 
+	}
+
 	private void updateIntermediateAxes() {
 		AxisData.allAxisData.clear();
 		AxisData.nameAxisDataMap.clear();
@@ -405,7 +409,7 @@ public class GraphNoSINCController implements Initializable {
 		setGenericTestsFromCSV(new ArrayList<String>(Arrays.asList(CSVPath)));
 
 	}
-
+	
 	/**
 	 * Populates the BioForce Graph by creating a GenericTest from a CSV and CSVP
 	 * file.
@@ -606,6 +610,14 @@ public class GraphNoSINCController implements Initializable {
 
 		});
 
+	}
+
+	public ArrayList<GraphData> getDataSets() {
+		return dataSets; 
+	}
+
+	public ArrayList<GenericTest> getGenericTests() {
+		return genericTests; 
 	}
 
 	public void loadEquations() throws Exception {
@@ -865,7 +877,7 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		// update legend colors
-		multiAxis.styleLegend();
+		// multiAxis.styleLegend();
 
 	}
 
@@ -1002,8 +1014,8 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Updates the colors of currently graphed lines based on BFAColorMenu.
 	 */
-	public void updateGraphColors() {
-		multiAxis.updateGraphColors();
+	public void updateGraphColors(GraphData g) {
+		multiAxis.updateGraphColors(g);
 	}
 
 	@FXML
@@ -1699,7 +1711,7 @@ public class GraphNoSINCController implements Initializable {
 		slopeLine.getNode().getStyleClass().add("slope-line");
 
 		// update legend colors
-		multiAxis.styleLegend();
+		// multiAxis.styleLegend();
 
 		setGraphMode(GraphMode.NONE);
 
@@ -1757,7 +1769,7 @@ public class GraphNoSINCController implements Initializable {
 		slopeLine.getNode().getStyleClass().add("slope-line");
 
 		// update legend colors
-		multiAxis.styleLegend();
+		// multiAxis.styleLegend();
 
 		setGraphMode(GraphMode.NONE);
 
@@ -1772,7 +1784,7 @@ public class GraphNoSINCController implements Initializable {
 			lineChart.getData().remove(slopeLine);
 
 			// update legend colors
-			multiAxis.styleLegend();
+			// multiAxis.styleLegend();
 		}
 
 	}

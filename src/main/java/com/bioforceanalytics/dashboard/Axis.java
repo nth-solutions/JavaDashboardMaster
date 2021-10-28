@@ -23,7 +23,6 @@ interface Axis{
         axisNameMap.put(name,axis);
     }
     public static Axis getAxis(String name){
-        System.out.println("ANM: " + axisNameMap);
         return axisNameMap.get(name);
     }
 

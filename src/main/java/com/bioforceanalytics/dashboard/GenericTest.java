@@ -12,12 +12,12 @@ import org.apache.logging.log4j.Logger;
  */
 public class GenericTest {
 	
-	private AxisDataSeries[] axes;
+	public AxisDataSeries[] axes; 
 	private List<List<Double>> dataSamples;
 
 	private String name;
 	private String graphTitle;
-	private AxisType[] defaultAxes;
+	private AxisType[] defaultAxes; 
 
 	private ArrayList<Integer> testParameters;
 	private int[] MPUOffsets;

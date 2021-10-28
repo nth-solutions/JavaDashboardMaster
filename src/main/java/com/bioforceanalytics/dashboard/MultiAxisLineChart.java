@@ -90,6 +90,8 @@ public class MultiAxisLineChart extends StackPane {
     // holds the values scaling each axis class on the graph
     private double[] axisScalars;
 
+    private ArrayList<DataSetPanel> panels = new ArrayList<DataSetPanel>();
+
     private GraphNoSINCController controller;
 
     private static final Logger logger = LogController.start();
@@ -234,7 +236,8 @@ public class MultiAxisLineChart extends StackPane {
     private void styleBaseChart(LineChart<Number, Number> baseChart) {
         baseChart.setAnimated(false);
         baseChart.setCreateSymbols(false);
-        baseChart.setLegendVisible(true);
+        // baseChart.setLegendVisible(true);
+        baseChart.setLegendVisible(false); 
         baseChart.getXAxis().setAutoRanging(false);
         baseChart.getYAxis().setAutoRanging(false);
         baseChart.getXAxis().setAnimated(false);
@@ -426,7 +429,7 @@ public class MultiAxisLineChart extends StackPane {
         styleChartLine(d);
 
         // set legend symbol colors
-        styleLegend();
+        // styleLegend();
 
     }
 
@@ -462,7 +465,7 @@ public class MultiAxisLineChart extends StackPane {
         }
 
         // set legend symbol colors
-        styleLegend();
+        // styleLegend();
 
     }
 
@@ -591,7 +594,44 @@ public class MultiAxisLineChart extends StackPane {
 
         line.setStyle(colorStyle + dashedStyle);
 
+        //set check mark color as the line color 
+        panels = controller.getDataSetPanels(); 
+        int index = d.getGTIndex(); 
+        panels.get(index).changeBoxColor(a, BFAColorMenu.getHexString(a));
+
     }
+
+    // public void styleLine(GenericTest t) {
+
+    //     GraphData d = findGraphData(0, t.axes[0].axis);
+
+    //     // fetch the line object from the graph
+    //     Node line = d.data.getNode().lookup(".chart-series-line");
+
+    //     // set the color of the line and symbols from BFAColorMenu
+
+    //     Axis a;
+    //     // get AxisType of this legend item
+    //     try {
+    //         a = AxisType.valueOf(d.axis.getName());
+
+    //     } catch (Exception e) {
+    //         a = Axis.getAxis(d.axis.getExactName());
+    //     }
+
+    //     String colorStyle = "-fx-stroke: " + BFAColorMenu.getHexString(a) + ";";
+
+    //     // if GT number (not index) is even, render a dashed line
+    //     String dashedStyle = d.GTIndex % 2 == 1 ? "-fx-stroke-dash-array: 5 5 5 5;" : "";
+
+    //     line.setStyle(colorStyle + dashedStyle);
+
+    //     //set check mark color as the line color 
+    //     panels = controller.getDataSetPanels(); 
+    //     int index = d.getGTIndex(); 
+    //     panels.get(index).changeBoxColor(a, BFAColorMenu.getHexString(a));
+
+    // }
 
     /**
      * Updates legend symbols to match line colors.
@@ -661,12 +701,13 @@ public class MultiAxisLineChart extends StackPane {
     /**
      * Updates the colors of currently graphed lines based on BFAColorMenu.
      */
-    public void updateGraphColors() {
+    public void updateGraphColors(GraphData d) {
 
-        for (GraphData d : dataSets) {
-            styleChartLine(d);
-        }
-        styleLegend();
+        // for (GraphData d : dataSets) {
+        //     styleChartLine(d);
+        // }
+        styleChartLine(d);
+        // styleLegend();
 
     }
 
@@ -677,7 +718,7 @@ public class MultiAxisLineChart extends StackPane {
      * @param GTIndex the GenericTest associated with the GraphData
      * @param axis    the AxisType associated with the GraphData
      */
-    private GraphData findGraphData(int GTIndex, Axis axis) {
+    public GraphData findGraphData(int GTIndex, Axis axis) {
 
         for (GraphData d : dataSets) {
             if (d.GTIndex == GTIndex && d.axis == axis)
