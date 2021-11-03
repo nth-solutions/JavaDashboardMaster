@@ -92,9 +92,12 @@ public class MultiAxisLineChart extends StackPane {
 
     private ArrayList<DataSetPanel> panels = new ArrayList<DataSetPanel>();
 
-    private GraphNoSINCController controller;
+    private GraphNoSINCController controller; 
 
     private static final Logger logger = LogController.start();
+
+    private String style; 
+    private GraphData gData; 
 
     public MultiAxisLineChart() {
 
@@ -446,6 +449,9 @@ public class MultiAxisLineChart extends StackPane {
 
         GraphData d = findGraphData(GTIndex, axis);
 
+        gData = d; 
+        style = getColorStyle(d); 
+
         // remove GraphData from list
         dataSets.remove(d);
 
@@ -591,14 +597,25 @@ public class MultiAxisLineChart extends StackPane {
 
         // if GT number (not index) is even, render a dashed line
         String dashedStyle = d.GTIndex % 2 == 1 ? "-fx-stroke-dash-array: 5 5 5 5;" : "";
-
-        line.setStyle(colorStyle + dashedStyle);
-
-        //set check mark color as the line color 
+    
         panels = controller.getDataSetPanels(); 
         int index = d.getGTIndex(); 
-        panels.get(index).changeBoxColor(a, BFAColorMenu.getHexString(a));
 
+        //check to see if an axis was removed/had color - use previous color
+        if((style != null) && (d.GTIndex == gData.GTIndex) && (d.axis == gData.axis)){
+            line.setStyle(style);
+        } else {
+            line.setStyle(colorStyle + dashedStyle);
+            //set check mark color as the line color 
+            panels.get(index).changeBoxColor(a, BFAColorMenu.getHexString(a));
+        }
+
+    }
+
+    public String getColorStyle(GraphData d){
+        Node line = d.data.getNode().lookup(".chart-series-line");
+        String s = line.getStyle(); 
+        return s; 
     }
 
     // public void styleLine(GenericTest t) {
