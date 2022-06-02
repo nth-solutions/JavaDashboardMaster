@@ -42,7 +42,7 @@
       </TabPane>
       <VBox alignment="CENTER" layoutY="550.0" prefHeight="50.0" prefWidth="545.0">
          <children>
-            <Label fx:id="debugInfo" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="346.0" text="Version [insert version here] | Build Date: [insert build date here]" />
+            <!-- <Label fx:id="debugInfo" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="346.0" text="Version [insert version here] | Build Date: [insert build date here]" /> -->
             <Hyperlink onAction="#openLogsFolder" text="Open Logs Folder" />
          </children>
       </VBox>

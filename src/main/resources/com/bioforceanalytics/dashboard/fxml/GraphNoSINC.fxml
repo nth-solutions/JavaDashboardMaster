@@ -189,8 +189,8 @@
 																<Tooltip text="This controls the sample block size for the moving average used to smooth the graph."/>
 															</tooltip>
 														</Label>
-														<Slider fx:id="blockSizeSlider" layoutX="214.0" layoutY="554.0" prefWidth="125.0" value="100" min="0" max="500" />
-														<TextField fx:id="blockSizeField" prefWidth = "45" text="100">
+														<!-- <Slider fx:id="blockSizeSlider" layoutX="214.0" layoutY="554.0" prefWidth="125.0" value="100" min="0" max="500" /> -->
+														<TextField fx:id="blockSizeField" prefWidth = "45" text="100" alignment="CENTER">
 															<tooltip>
 																<Tooltip text="This is the sample block size for the moving average used to smooth the graph."/>
 															</tooltip>

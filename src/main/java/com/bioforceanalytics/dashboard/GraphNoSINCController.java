@@ -21,6 +21,9 @@ import org.apache.logging.log4j.core.util.Throwables;
 import org.controlsfx.dialog.ProgressDialog;
 
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -47,6 +50,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -214,19 +218,32 @@ public class GraphNoSINCController implements Initializable {
 			setGraphMode(GraphMode.NONE);
 
 			// update smoothing in real-time
-			blockSizeSlider.valueProperty().addListener(e -> {
-				if (!blockSizeIsChanging) {
-					applyMovingAvg(blockSizeSlider);
-				}
+			// blockSizeSlider.valueProperty().addListener(e -> {
+			// 	if (!blockSizeIsChanging) {
+			// 		applyMovingAvg(blockSizeSlider);
+			// 	}
 
-			});
+			// });
 			
 			// this allows the change to occur either from the slider or the text field
-			blockSizeField.textProperty().addListener(e -> {
-				if (!blockSizeIsChanging && blockSizeField.getText().length() > 0) {
+			// blockSizeField.textProperty().addListener(e -> {
+			// 	if (!blockSizeIsChanging && blockSizeField.getText().length() > 0) {
+			// 		applyMovingAvg(blockSizeField);
+			// 	}
+			// });
+
+			// blockSizeField.textProperty().addListener(e -> {
+			// 	if (blockSizeField.getText().length() > 0) {
+			// 		applyMovingAvg(blockSizeField);
+			// 	}
+			// });
+
+			blockSizeField.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+				if (e.getCode() == KeyCode.ENTER && blockSizeField.getText().length() > 0) {
 					applyMovingAvg(blockSizeField);
 				}
 			});
+
 			// update playback speed in real-time
 			playbackSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
 				lineChart.setPlaybackSpeed(newValue.doubleValue());
@@ -505,26 +522,58 @@ public class GraphNoSINCController implements Initializable {
 			if (primaryTest instanceof ConservationMomentumModule) {
 
 				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
-
 				CustomTest momentumGT = new CustomTest();
 				AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController()
 						.getMomentumAxes();
-				experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
+				
+				// //issue may be here 
+				// // experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
 
-					// TODO part of the hack w/ change listeners
-					if (newVal.intValue() == -1)
-						return;
+				// // // TODO part of the hack w/ change listeners
+				// // 	if (newVal.intValue() == -1){
+				// // 		return;
+				// // 	}
+				// // 	// graph the given data set
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(newVal.intValue()), customTests.size() - 1);
 
-					// graph the given data set
-					graphAxis(CustomAxisType.getCustomAxisByIndex(newVal.intValue()), customTests.size() - 1);
+				// // });
 
-				});
-				for (int i = 0; i < momentumAxes.length; i++) {
-					// momentumGT.addAxisDataSeries(momentumAxes[i], new CustomAxisType(
-					// "Momentum " + ((i % 4 == 3) ? "Mag" : (char) (88 + (i % 4))), "kg-m/s", 1),
-					// new CheckBox());
-					customTests.add(momentumGT);
+				// // ChangeListener listener = new ChangeListener<T>() 
+			
+				// // @Override
+				// // public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(newValue.intValue()), customTests.size() - 1);
+				// // }
+
+				ChangeListener<? super Number> listener = (observable, oldValue, newValue) -> {
+					graphAxis(CustomAxisType.getCustomAxisByIndex(newValue.intValue()), customTests.size() - 1);
+				}; 
+
+				experimentPanel.currentAxis.addListener(listener);
+
+				// // experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(0), customTests.size() - 1);
+				// // });
+
+				// // IntegerProperty axisL = new SimpleIntegerProperty();
+				// // axisL.set(experimentPanel.currentAxis.get());
+				// // axisL.addListener((obs, ov, nv) -> {
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(nv.intValue()), customTests.size() - 1);
+				// // });
+
+				try{
+					CustomEquation equation =  new CustomEquation("Momentum", "mass * VelX", "kg-m/s", "0");
+					CustomAxisType momentum = new CustomAxisType("Momentum", "kg-m/s", 1.0);
+					CheckBox checkBox = new CheckBox(); 
+						for (int i = 0; i < momentumAxes.length; i++) {
+							momentumGT.addAxisDataSeries(momentumAxes[i], momentum, checkBox, equation); 	
+							customTests.add(momentumGT);
+						}
+				} 
+				catch(NullPointerException e) {
+					System.out.print("NullPointerException Caught");
 				}
+
 
 			} else if (primaryTest instanceof ConservationEnergyModule) {
 
@@ -786,6 +835,17 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	// public void removeTest(int GTIndex, Axis axis){
+	// 	logger.info("Removing " + axis + " for GT #" + (GTIndex + 1));
+
+	// 		// remove axis from line chart
+	// 	multiAxis.removeAxis(axis, GTIndex);
+
+	// 	// remove GraphData from list of axes
+	// 	dataSets.remove(findGraphData(GTIndex, axis));
+
+	// }
+
 	public void updateAxis(Axis axis, int GTIndex) {
 		logger.info("Updating " + axis + " for GT #" + (GTIndex + 1));
 
@@ -958,9 +1018,10 @@ public class GraphNoSINCController implements Initializable {
 
 		// looping backwards to avoid ConcurrentModificationException
 		for (int i = dataSets.size() - 1; i >= 0; i--) {
-
+			// removeTest(GTIndex, dataSets.get(i).axis);
 			// only remove if on the right GenericTest
 			if (dataSets.get(i).GTIndex == GTIndex) {
+				// removeTest(GTIndex, dataSets.get(i).axis);
 				// toggling a graph that's already drawn removes it
 				graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
 			}
@@ -1046,20 +1107,20 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void applyMovingAvg(Object source) {
 
-		// round slider to nearest integer
+		// // round slider to nearest integer
 		int blockSize;
-		blockSizeIsChanging = true;
-		if (source == blockSizeSlider) {
-			blockSize = (int) blockSizeSlider.getValue();
-			// update smoothing label
-			blockSizeField.setText("" + blockSize);
-		} else {
-			blockSize = Integer.parseInt(blockSizeField.getText());
+		// blockSizeIsChanging = true;
+		// if (source == blockSizeSlider) {
+		// 	blockSize = (int) blockSizeSlider.getValue();
+		// 	// update smoothing label
+		// 	blockSizeField.setText("" + blockSize);
+		// } else {
+		blockSize = Integer.parseInt(blockSizeField.getText());
 
-			// update smoothing label
-			blockSizeSlider.setValue(blockSize);
-		}
-		blockSizeIsChanging = false;
+		// 	// update smoothing label
+		// blockSizeSlider.setValue(blockSize);
+		// }
+		// blockSizeIsChanging = false;
 		GenericTest test;
 
 		// apply moving avgs to all currently drawn axes
@@ -1082,7 +1143,8 @@ public class GraphNoSINCController implements Initializable {
 	public void resetMovingAvg() {
 
 		// reset smoothing slider
-		blockSizeSlider.setValue(AxisDataSeries.DEFAULT_BLOCK_SIZE);
+		// blockSizeSlider.setValue(AxisDataSeries.DEFAULT_BLOCK_SIZE);
+		blockSizeField.setText("100");
 
 		// apply moving average
 		applyMovingAvg(null);
