@@ -22,6 +22,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 
 /**
  * Custom JavaFX component for the BioForce Graph's panel of checkboxes toggling graphing of data sets.
@@ -37,6 +38,7 @@ public class DataSetPanel extends TitledPane {
 	 * to signify which GenericTest to read data from and display on the line chart.
 	 */
 	private int GTIndex;
+	public AxisType axisType; 
 
 	private GraphNoSINCController controller;
 
@@ -127,6 +129,7 @@ public class DataSetPanel extends TitledPane {
 		String axisName = (String) c.getId().replace("Toggle", "");
 		AxisType axis = AxisType.valueOf(axisName);
 
+
 		controller.graphAxis(axis, GTIndex);
 
 	}
@@ -138,6 +141,15 @@ public class DataSetPanel extends TitledPane {
 	public void setCheckBox(boolean state, AxisType axis) {
 		CheckBox c = (CheckBox) lookup("#Toggle" + axis);
 		c.setSelected(state);
+	}
+
+	/**
+	 * Sets the color of the check mark in the checkbox. 
+	 * @param color the same color as the line 
+	 */
+	public void changeBoxColor(Axis axis, String color) {
+		CheckBox c = (CheckBox) lookup("#Toggle" + axis); 
+		c.setStyle("-fx-mark-color: " + color + ";"); 
 	}
 
 	/**

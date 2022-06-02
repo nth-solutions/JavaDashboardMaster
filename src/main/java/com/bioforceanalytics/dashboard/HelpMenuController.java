@@ -43,7 +43,7 @@ public class HelpMenuController implements Initializable{
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		debugInfo.setText("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
+		// debugInfo.setText("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
 		setKeys();
 	}
 

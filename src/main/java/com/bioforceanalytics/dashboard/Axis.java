@@ -16,6 +16,7 @@ interface Axis{
     public String getNameAndUnits();
     public int getIndex();
     public int getValue();
+    public String getExactName(); 
     
     public static HashMap<String,Axis> axisNameMap = new HashMap<String,Axis>();
     public static void addAxis(String name, Axis axis){

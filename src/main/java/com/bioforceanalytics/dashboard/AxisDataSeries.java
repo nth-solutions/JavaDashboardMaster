@@ -50,6 +50,10 @@ public class AxisDataSeries {
 	 */
 	public final double testLength;
 
+	// private ArrayList<Double> originalD = new ArrayList<Double>();
+	// private ArrayList<Double> signedD = new ArrayList<Double>();
+	// private ArrayList<Double> sensitivityD = new ArrayList<Double>(); 
+
 	/**
 	 * The sample rate at which the axis's data was measured.
 	 */
@@ -189,7 +193,7 @@ public class AxisDataSeries {
 	 * <p>In equation format: acceleration = sensitivity * (raw data / max value for data [32768])</p>
 	 * @param sampleRate the number of data samples recorded in one second
 	 */
-	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int sampleRate) {
+	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int[] accelOffsets, int accelSensitivity, int sampleRate, double verticalOffset) {
 
 		// casts Lists to Double[]'s
 		// (this is done b/c DataOrganizer uses ArrayLists)
@@ -209,10 +213,14 @@ public class AxisDataSeries {
 
 		for (int i = 0; i < this.originalData.length; i++) {
 
+			// originalD.add(this.originalData[i]);
+
 			// convert raw data to signed data
 			if (this.originalData[i] > 32767) {
 				this.originalData[i] -= 65535;
 			}
+
+			// signedD.add(this.originalData[i]);
 
 			// subtract offsets (which are signed)
 			// accel enum is 0-2 and offsets are 0-2 (X,Y,Z)
@@ -221,11 +229,15 @@ public class AxisDataSeries {
 			// apply sensitivity for accel (including acceleration due to gravity)
 			this.originalData[i] *= ((double) accelSensitivity * GRAVITY) / 32768;
 
+			// sensitivityD.add(this.originalData[i]);
+
 		}
 
 		// create normalized data series using first second of module data
-		normalizeAccel(0.0, 2.0);
-
+		// add vertical offset to data set 
+		normalizeAccel(0.0, 2.0, verticalOffset);
+		// normalizeAccel(0.0, 2.0, 0.0); 
+		
 		// print AxisDataSeries debug info
 		logger.debug(toString());
 
@@ -241,7 +253,7 @@ public class AxisDataSeries {
 	 * In equation format: gyro = sensitivity * (raw data / max value for data [32768])
 	 * @param sampleRate the number of data samples recorded in one second
 	 */
-	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int gyroSensitivity, int sampleRate) {
+	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, int gyroSensitivity, int sampleRate, double vertOffset) {
 
 		// casts Lists to Double[]'s
 		// (this is done b/c DataOrganizer uses ArrayLists)
@@ -269,7 +281,8 @@ public class AxisDataSeries {
 			
 		}
 		
-		smoothData(this.rollBlkSize);
+		// smoothData(this.rollBlkSize);
+		smoothDataOffset(this.rollBlkSize, vertOffset);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -343,7 +356,7 @@ public class AxisDataSeries {
 	 * @param startTime the x-value of the first data point
 	 * @param endTime the x-value of the second data point
 	 */
-	public void normalizeAccel(Double startTime, Double endTime) {
+	public void normalizeAccel(Double startTime, Double endTime, Double vOffset) {
 
 		// Convert times to sample #s
 		int startIndex = (int) Math.round(startTime*sampleRate);
@@ -367,7 +380,8 @@ public class AxisDataSeries {
 
 		// apply normalization offset
 		vertOffset = -normOffset;
-		smoothData(this.rollBlkSize);
+		// smoothData(this.rollBlkSize);
+		smoothDataOffset(this.rollBlkSize, vOffset);
 
 	}
 
@@ -458,6 +472,38 @@ public class AxisDataSeries {
 
 	}
 
+	//smooth data with vertical offset applied 
+	public void smoothDataOffset(int sampleBlockSize, double offset) {
+
+		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
+
+		this.rollBlkSize = sampleBlockSize;
+		
+		smoothedData = applyMovingAvg(originalData, this.rollBlkSize);
+
+		// initialize vars for tracking data range
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
+
+		vertOffset += offset; 
+
+		// apply vertical offset to smoothed data
+		for (int i = 0; i < smoothedData.length; i++) {
+
+			smoothedData[i] += vertOffset;
+
+			// update min/max bounds for data range
+			min = smoothedData[i] < min ? smoothedData[i] : min;
+			max = smoothedData[i] > max ? smoothedData[i] : max;
+
+		}
+
+		// set the min/max data range for the data set
+		this.dataRange = new Double[] { min, max };
+
+	}
+
+
 	/**
 	 * Resets the smoothed data set to the default smoothing value.
 	 */
@@ -500,7 +546,12 @@ public class AxisDataSeries {
 
 			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
 			// "vertOffset" accounts for if the graph was normalized -- think "c" in ∫[f(x) + c]dx
-			result[i] = result[i-1] + ((originalData[i] + originalData[i-1])/2 + vertOffset) * (time[i] - time[i-1]);
+			 result[i] = result[i-1] + ((originalData[i] + originalData[i-1])/2 + vertOffset) * (time[i] - time[i-1]);
+			// if(GenericTest.vertOffset == 0){
+			// result[i] = result[i-1] + ((originalData[i] + originalData[i-1])/2 + vertOffset) * (time[i] - time[i-1]);
+			// } else{
+			// result[i] = result[i-1] + ((originalData[i] + originalData[i-1])/2 + GenericTest.vertOffset) * (time[i] - time[i-1]);
+			// }
 
 		}
 
@@ -571,6 +622,23 @@ public class AxisDataSeries {
 
 	}
 
+	public Double getTangent(Double x, int res) {
+
+		int i = 0; 
+
+		for (int j = 0; j < time.length; j++) {
+			double check = time[j]; 
+			if(x == check){
+				i = j; 
+			}
+		}
+		// slope (m) = ∆y/∆x, where the interval is the resolution of the graphed data set
+		Double slope = (smoothedData[i+res]-smoothedData[i-res])/(this.time[i+res]-this.time[i-res]);
+
+		return slope;
+
+	}
+
 	/**
 	 * Finds slope of the line between two data points.
 	 * @param startTime the x-value of the first data point
@@ -585,6 +653,27 @@ public class AxisDataSeries {
 
 		// slope (m) = ∆y/∆x
 		Double slope = (smoothedData[b]-smoothedData[a])/(this.time[b]-this.time[a]);
+
+		return slope;
+
+	}
+
+	public Double getSlopeShift(Double startTime, Double endTime) {
+
+		int startI = 0; 
+		int endI = 0; 
+
+		for (int i = 0; i < time.length; i++) {
+			double check = time[i]; 
+			if(startTime == check){
+				startI = i; 
+			}
+			if (endTime == check){
+				endI = i; 
+			}	
+		}
+		// slope (m) = ∆y/∆x
+		Double slope = (smoothedData[endI]-smoothedData[startI])/(this.time[endI]-this.time[startI]);
 
 		return slope;
 
@@ -615,6 +704,28 @@ public class AxisDataSeries {
 
 		return area;
 
+	}
+
+	public Double getAreaUnderShift(Double startTime, Double endTime) {
+		Double area = 0.0;
+		int startI = 0; 
+		int endI = 0; 
+
+		for (int i = 0; i < time.length; i++) {
+			double check = time[i]; 
+			if(startTime == check){
+				startI = i; 
+			}
+			if (endTime == check){
+				endI = i; 
+			}	
+		}
+		for (int i = startI + 1; i < endI + 1; i++) {
+			// Area of a trapezoid = (a + b) / 2 * h, where a = y1, b = y2, and h = ∆t
+			area += (smoothedData[i] + smoothedData[i-1])/2 * (time[i] - time[i-1]);
+			
+		}
+		return area; 
 	}
 
 	/**
@@ -654,5 +765,11 @@ public class AxisDataSeries {
 	public double getTimeOffset(){
 		return timeOffset;
 	}
+	public double getVertOffset(){
+		return vertOffset;
+	}
 
+	public void setVertOffset(double offset){
+		vertOffset = offset;
+	}
 }

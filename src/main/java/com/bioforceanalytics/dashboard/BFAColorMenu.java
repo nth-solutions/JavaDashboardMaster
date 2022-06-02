@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.ArrayList;
+import javafx.beans.property.ReadOnlyStringWrapper;
 
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
@@ -15,14 +17,23 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tab;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
 
 public class BFAColorMenu implements Initializable {
 
@@ -31,8 +42,16 @@ public class BFAColorMenu implements Initializable {
 
     // reference to parent GraphNoSINCController
     private GraphNoSINCController controller;
+    private ArrayList<GraphData> sets = new ArrayList<GraphData>();
+    // private ArrayList<GenericTest> sets2 = new ArrayList<GenericTest>();
+    private int GTIndex; 
+    private GraphData g;
+    // private GenericTest gT; 
 
     private static ArrayList<Color> customAxisColors = new ArrayList<Color>();
+
+    @FXML
+    private TabPane colorMenuPane; 
 
     // left column labelled "Axis Type" with axis type names
     @FXML
@@ -46,6 +65,29 @@ public class BFAColorMenu implements Initializable {
     @FXML
     private TableView<Axis> tableView;
 
+    @FXML
+    private TableView<String> tableView2; 
+
+    //first param must be same as the table view 
+    @FXML 
+    private TableColumn<String, String> dataSetCol;
+
+    @FXML
+    private Button updateColor; 
+
+    @FXML 
+    private Button resetColor; 
+
+    @FXML
+    private Tab tabOne; 
+
+    @FXML 
+    private Tab tabTwo; 
+
+    // private MultiAxisLineChart line = new MultiAxisLineChart(); 
+
+    // private ArrayList<DataSetPanel> dPanels = new ArrayList<DataSetPanel>();
+
     private static final Logger logger = LogController.start();
 
     static {
@@ -57,16 +99,23 @@ public class BFAColorMenu implements Initializable {
 
         // don't allow the user to click and select rows
         tableView.setSelectionModel(null);
+        tableView2.getSelectionModel().setCellSelectionEnabled(true);
 
-        // center both table columns
+        updateColor.setVisible(false);
+        resetColor.setVisible(false);
+
+        // center table columns
         axisTypeCol.setStyle("-fx-alignment: CENTER");
         colorCol.setStyle("-fx-alignment: CENTER");
+        dataSetCol.setStyle("-fx-alignment: CENTER");
 
         // set the left column to the name of each AxisType
         axisTypeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().toString()));
 
         // set the right column to the custom color picker cell
         colorCol.setCellFactory(column -> new ColorPickerCell());
+
+        dataSetCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().toString()));
 
         // colorCol.setCellValueFactory(data -> new ColorPicker());
 
@@ -79,6 +128,20 @@ public class BFAColorMenu implements Initializable {
                 tableView.getItems().add(CustomAxisType.getCustomAxisByIndex(i));
             }
         }
+
+        tableView2.setOnMouseClicked((MouseEvent event) -> {
+            if (event.getClickCount() == 1) {
+                if (tableView2.getSelectionModel().getSelectedItem() != null) {
+                    //gets the index of the selected cell
+                    int a = tableView2.getSelectionModel().getSelectedIndex();
+                    g = controller.getDataSets().get(a);
+                    //moves to next table
+                    colorMenuPane.getSelectionModel().select(1); 
+                    updateColor.setVisible(true);
+                    resetColor.setVisible(true);
+
+                }
+        }});
 
     }
 
@@ -191,6 +254,16 @@ public class BFAColorMenu implements Initializable {
      */
     public void setParent(GraphNoSINCController controller) {
         this.controller = controller;
+
+        // populate table two with GraphData entries
+        sets = controller.getDataSets(); 
+        int a = 0; 
+        for (GraphData d : sets) {
+            a = d.getGTIndex() + 1; 
+            tableView2.getItems().add("Test #" + a);
+        }
+
+        
     }
 
     // loads default colors from "defaultGraphColors.json"
@@ -240,8 +313,11 @@ public class BFAColorMenu implements Initializable {
     // TODO make this save "customGraphColors.json" to disk
     private void updateGraphColors() {
 
+        // int rowIndex = getTableRow().getIndex();
+
         logger.info("Updating graph colors...");
-        controller.updateGraphColors();
+        controller.updateGraphColors(g);
+        // line.styleLine(gT); 
 
         // close the color menu
         Stage stage = (Stage) tableView.getScene().getWindow();

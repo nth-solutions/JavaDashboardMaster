@@ -121,6 +121,7 @@ public class AdvancedMode extends JFrame {
 	private JLabel moduleSerialNumberLabel;
 	private JLabel hardwareIDLabel;
 	private JLabel firmwareIDLabel;
+	private JLabel dashboardInfoLabel;
 
 	// CheckBoxes
 	private JCheckBox timedTestCheckbox;
@@ -176,6 +177,7 @@ public class AdvancedMode extends JFrame {
 	private JButton configForCalButton;
 	private JButton importCalDataButton;
 	private JButton applyOffsetButton;
+	// private JButton dashboardInfoButton; 
 
 	// Progress Bars
 	private JProgressBar progressBar;
@@ -284,6 +286,7 @@ public class AdvancedMode extends JFrame {
 	AdvancedMode() {
 		serialHandler = new SerialComm();
 		setTitle("BioForce Advanced Dashboard");// Internal: D
+		// setTitle("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
 		createComponents();
 		initDataFields();
 		updateCommPortComboBox();
@@ -1575,7 +1578,7 @@ public class AdvancedMode extends JFrame {
 
 		// Comboboxes
 		accelGyroSampleRateCombobox
-				.setModel(new DefaultComboBoxModel(new String[] { "60", "120", "240", "480", "500", "960" }));
+				.setModel(new DefaultComboBoxModel(new String[] { "60", "120", "240", "480", "500", "960", "2000" }));
 		accelSensitivityCombobox.setModel(new DefaultComboBoxModel(new String[] { "2", "4", "8", "16" }));
 		gyroSensitivityCombobox.setModel(new DefaultComboBoxModel(new String[] { "250", "500", "1000", "2000" }));
 		accelFilterCombobox.setModel(
@@ -1673,6 +1676,9 @@ public class AdvancedMode extends JFrame {
 				case (960):
 					magSampleRateTextField.setText("96");
 					break;
+				case (2000):
+					magSampleRateTextField.setText("200");
+					break;
 				default:
 					corruptConfigFlag = true;
 					return false;
@@ -1755,6 +1761,8 @@ public class AdvancedMode extends JFrame {
 				return 4;
 			case (960):
 				return 5;
+			case (2000):
+				return 6;
 			default:
 				corruptConfigFlag = true;
 				return accelGyroSampleRateCombobox.getSelectedIndex();
@@ -1883,6 +1891,8 @@ public class AdvancedMode extends JFrame {
 				return 7679;
 			case (960):
 				return 3813;
+			case (2000):
+				return 1981;
 			default: // 960-96
 				return 3813;
 		}
@@ -2191,7 +2201,7 @@ public class AdvancedMode extends JFrame {
 
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 638, 659);
+		setBounds(100, 100, 638, 679); //659
 
 		FXIcon = new Image(getClass().getResource("images/bfa.png").toExternalForm());
 		setIconImage(new ImageIcon(getClass().getResource("images/bfa.png")).getImage());
@@ -2203,12 +2213,17 @@ public class AdvancedMode extends JFrame {
 
 
 		serialPortPanel = new JPanel();
-		serialPortPanel.setPreferredSize(new Dimension(630, 150));
+		serialPortPanel.setPreferredSize(new Dimension(630, 170)); //150
 		contentPanel.add(serialPortPanel);
 		serialPortPanel.setLayout(new GridLayout(0,1, 0, 0));
 
 		JPanel commPortPanel = new JPanel();
 		serialPortPanel.add(commPortPanel);
+
+		dashboardInfoLabel = new JLabel("Version: " + Settings.getVersion() + " | Build Date: " + Settings.getBuildDate());
+		dashboardInfoLabel.setBorder(null);
+		serialPortPanel.add(dashboardInfoLabel);
+		dashboardInfoLabel.setHorizontalAlignment(JLabel.CENTER);
 
 		refreshPortButton = new JButton("Refresh Port List");
 		refreshPortButton.setBorder(null);
@@ -2246,7 +2261,7 @@ public class AdvancedMode extends JFrame {
 
 		getModuleIDPanel = new JPanel();
 		serialPortPanel.add(getModuleIDPanel);
-		getModuleIDPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		getModuleIDPanel.setLayout(new GridLayout(0, 1, 0, 0)); //vgap = 0
 
 		getModuleIDButton = new JButton("Get Module Information");
 		getModuleIDButton.setEnabled(false);
@@ -2382,7 +2397,8 @@ public class AdvancedMode extends JFrame {
 		
 				JPanel configurationPanel = new JPanel();
 				configurationPanel.setToolTipText("");
-				configurationPanel.setPreferredSize(new Dimension(500, 1000));
+				configurationPanel.setPreferredSize(new Dimension(500, 1000)); 
+				// configurationPanel.setPreferredSize(null);
 				configurationPanel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 				mainTabbedPanel.addTab("Configure Test Parameters", null, configurationPanel, "Configure module sample rate, sensitivities, filters, and time intervals.");
 				configurationPanel.setLayout(new GridLayout(0, 2, 0, 0));

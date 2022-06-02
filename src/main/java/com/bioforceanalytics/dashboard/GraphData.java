@@ -32,4 +32,8 @@ public class GraphData {
         return "Test #" + (GTIndex + 1) + ", " + axis; 
     }
 
+    public int getGTIndex(){
+        return GTIndex; 
+    }
+
 }

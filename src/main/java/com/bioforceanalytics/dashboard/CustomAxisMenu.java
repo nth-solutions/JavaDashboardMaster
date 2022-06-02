@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet.Item;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.JSONArray;
@@ -37,6 +38,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ContentDisplay;
@@ -97,6 +99,13 @@ public class CustomAxisMenu implements Initializable {
         logger.info("init equations w/ controller " + controller);
 
         tableView.setEditable(true);
+        Callback<TableColumn<CustomAxisCell, String>, TableCell<CustomAxisCell, String>> cellFactory =
+             new Callback<TableColumn<CustomAxisCell, String>, TableCell<CustomAxisCell, String>>() {
+                 public TableCell call(TableColumn p) {
+                    return EditCell.createStringEditCell(); 
+                 }
+             };
+
         // center both table columns
         axisNameCol.setStyle("-fx-alignment: CENTER");
         equationCol.setStyle("-fx-alignment: CENTER");
@@ -105,19 +114,20 @@ public class CustomAxisMenu implements Initializable {
         // set the left column to the name of each AxisType
         axisNameCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("name"));
         axisNameCol.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        axisNameCol.setCellFactory(cellFactory);
+        
         axisNameCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
             @Override
             public void handle(CellEditEvent<CustomAxisCell, String> t) {
-
                 ((CustomAxisCell) t.getTableView().getItems().get(t.getTablePosition().getRow()))
                         .setName(t.getNewValue());
-
             }
         });
+
         // sets the middle column to be the equation of the custom axis
         equationCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("equation"));
         equationCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        equationCol.setCellFactory(cellFactory);
         equationCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
             @Override
             public void handle(CellEditEvent<CustomAxisCell, String> t) {
@@ -130,7 +140,7 @@ public class CustomAxisMenu implements Initializable {
         // sets the last column to be the units of the custom axis
         unitsCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("units"));
         unitsCol.setCellFactory(TextFieldTableCell.forTableColumn());
-
+        unitsCol.setCellFactory(cellFactory);
         unitsCol.setOnEditCommit(new EventHandler<CellEditEvent<CustomAxisCell, String>>() {
             @Override
             public void handle(CellEditEvent<CustomAxisCell, String> t) {
@@ -142,6 +152,7 @@ public class CustomAxisMenu implements Initializable {
         });
         scalarCol.setCellValueFactory(new PropertyValueFactory<CustomAxisCell, String>("scale"));
         scalarCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        scalarCol.setCellFactory(cellFactory);
         scalarCol.textProperty().addListener(new ChangeListener<String>() {
 
             @Override

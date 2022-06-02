@@ -21,11 +21,15 @@ import org.apache.logging.log4j.core.util.Throwables;
 import org.controlsfx.dialog.ProgressDialog;
 
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -46,6 +50,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -100,6 +105,8 @@ public class GraphNoSINCController implements Initializable {
 	// number of sig figs that labels are rounded to
 	// TODO make this an advanced user setting
 	private final int SIG_FIGS = 3;
+
+	private double yShift = 0.0; 
 
 	// BFA icon
 	private Image icon;
@@ -165,6 +172,30 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private Slider playbackSlider;
 
+	private double[] areaBounds; 
+	private double area; 
+	private double axisScalar; 
+	private XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(); 
+	private XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(); 
+
+	private boolean areaFlag; 
+	private boolean slopeFlag; 
+
+	//slope 
+	private double m; 
+
+	private ArrayList<Double> prevY1 = new ArrayList<Double>();
+    private ArrayList<Double> prevY2 = new ArrayList<Double>();
+	private ArrayList<Double> prevY = new ArrayList<Double>();
+
+	public void setAreaFlag(boolean areaFlag) {
+        this.areaFlag = areaFlag;
+    }
+
+	public void setSlopeFlag(boolean slopeFlag) {
+        this.slopeFlag = slopeFlag;
+    }
+
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 
@@ -187,18 +218,32 @@ public class GraphNoSINCController implements Initializable {
 			setGraphMode(GraphMode.NONE);
 
 			// update smoothing in real-time
-			blockSizeSlider.valueProperty().addListener(e -> {
-				if (!blockSizeIsChanging) {
-					applyMovingAvg(blockSizeSlider);
-				}
+			// blockSizeSlider.valueProperty().addListener(e -> {
+			// 	if (!blockSizeIsChanging) {
+			// 		applyMovingAvg(blockSizeSlider);
+			// 	}
 
-			});
+			// });
+			
 			// this allows the change to occur either from the slider or the text field
-			blockSizeField.textProperty().addListener(e -> {
-				if (!blockSizeIsChanging && blockSizeField.getText().length() > 0) {
+			// blockSizeField.textProperty().addListener(e -> {
+			// 	if (!blockSizeIsChanging && blockSizeField.getText().length() > 0) {
+			// 		applyMovingAvg(blockSizeField);
+			// 	}
+			// });
+
+			// blockSizeField.textProperty().addListener(e -> {
+			// 	if (blockSizeField.getText().length() > 0) {
+			// 		applyMovingAvg(blockSizeField);
+			// 	}
+			// });
+
+			blockSizeField.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+				if (e.getCode() == KeyCode.ENTER && blockSizeField.getText().length() > 0) {
 					applyMovingAvg(blockSizeField);
 				}
 			});
+
 			// update playback speed in real-time
 			playbackSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
 				lineChart.setPlaybackSpeed(newValue.doubleValue());
@@ -230,6 +275,13 @@ public class GraphNoSINCController implements Initializable {
 				if (e.getButton() == MouseButton.SECONDARY)
 					setGraphMode(GraphMode.NONE);
 			});
+
+			//clear slope when clicked anywhere on scene
+			// s.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+			// 	if((mode != GraphNoSINCController.GraphMode.SLOPE) && (mode != GraphNoSINCController.GraphMode.AREA) && (mode != GraphNoSINCController.GraphMode.NORM) && (mode != GraphNoSINCController.GraphMode.LINEUP) && (mode != GraphNoSINCController.GraphMode.LINEUP_SINC)){
+			// 		clearSlope(); 
+			// 	}
+			// }); 
 
 			// FULL WINDOW KEY LISTENERS
 			s.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -345,6 +397,10 @@ public class GraphNoSINCController implements Initializable {
 		initializePanels();
 	}
 
+	public ArrayList<DataSetPanel> getDataSetPanels(){
+		return panels; 
+	}
+
 	private void updateIntermediateAxes() {
 		AxisData.allAxisData.clear();
 		AxisData.nameAxisDataMap.clear();
@@ -370,7 +426,7 @@ public class GraphNoSINCController implements Initializable {
 		setGenericTestsFromCSV(new ArrayList<String>(Arrays.asList(CSVPath)));
 
 	}
-
+	
 	/**
 	 * Populates the BioForce Graph by creating a GenericTest from a CSV and CSVP
 	 * file.
@@ -466,26 +522,58 @@ public class GraphNoSINCController implements Initializable {
 			if (primaryTest instanceof ConservationMomentumModule) {
 
 				((ConservationMomentumModule) primaryTest).getController().setupExperimentPanel(experimentPanel);
-
 				CustomTest momentumGT = new CustomTest();
 				AxisDataSeries[] momentumAxes = ((ConservationMomentumModule) primaryTest).getController()
 						.getMomentumAxes();
-				experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
+				
+				// //issue may be here 
+				// // experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
 
-					// TODO part of the hack w/ change listeners
-					if (newVal.intValue() == -1)
-						return;
+				// // // TODO part of the hack w/ change listeners
+				// // 	if (newVal.intValue() == -1){
+				// // 		return;
+				// // 	}
+				// // 	// graph the given data set
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(newVal.intValue()), customTests.size() - 1);
 
-					// graph the given data set
-					graphAxis(CustomAxisType.getCustomAxisByIndex(newVal.intValue()), customTests.size() - 1);
+				// // });
 
-				});
-				for (int i = 0; i < momentumAxes.length; i++) {
-					// momentumGT.addAxisDataSeries(momentumAxes[i], new CustomAxisType(
-					// "Momentum " + ((i % 4 == 3) ? "Mag" : (char) (88 + (i % 4))), "kg-m/s", 1),
-					// new CheckBox());
-					customTests.add(momentumGT);
+				// // ChangeListener listener = new ChangeListener<T>() 
+			
+				// // @Override
+				// // public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(newValue.intValue()), customTests.size() - 1);
+				// // }
+
+				ChangeListener<? super Number> listener = (observable, oldValue, newValue) -> {
+					graphAxis(CustomAxisType.getCustomAxisByIndex(newValue.intValue()), customTests.size() - 1);
+				}; 
+
+				experimentPanel.currentAxis.addListener(listener);
+
+				// // experimentPanel.currentAxis.addListener((obs, oldVal, newVal) -> {
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(0), customTests.size() - 1);
+				// // });
+
+				// // IntegerProperty axisL = new SimpleIntegerProperty();
+				// // axisL.set(experimentPanel.currentAxis.get());
+				// // axisL.addListener((obs, ov, nv) -> {
+				// // 	graphAxis(CustomAxisType.getCustomAxisByIndex(nv.intValue()), customTests.size() - 1);
+				// // });
+
+				try{
+					CustomEquation equation =  new CustomEquation("Momentum", "mass * VelX", "kg-m/s", "0");
+					CustomAxisType momentum = new CustomAxisType("Momentum", "kg-m/s", 1.0);
+					CheckBox checkBox = new CheckBox(); 
+						for (int i = 0; i < momentumAxes.length; i++) {
+							momentumGT.addAxisDataSeries(momentumAxes[i], momentum, checkBox, equation); 	
+							customTests.add(momentumGT);
+						}
+				} 
+				catch(NullPointerException e) {
+					System.out.print("NullPointerException Caught");
 				}
+
 
 			} else if (primaryTest instanceof ConservationEnergyModule) {
 
@@ -571,6 +659,14 @@ public class GraphNoSINCController implements Initializable {
 
 		});
 
+	}
+
+	public ArrayList<GraphData> getDataSets() {
+		return dataSets; 
+	}
+
+	public ArrayList<GenericTest> getGenericTests() {
+		return genericTests; 
 	}
 
 	public void loadEquations() throws Exception {
@@ -662,10 +758,16 @@ public class GraphNoSINCController implements Initializable {
 
 			GenericTest test = getTest(axis, GTIndex);
 
-			if (Axis.getAxis(axis.getName()) == null) {
-				Axis.addAxis(axis.getName(), axis);
+			//color change only affects either x/y/z, not all for one axis type 
+			if (Axis.getAxis(axis.getExactName()) == null) {
+				Axis.addAxis(axis.getExactName(), axis);
+			} 
+			//test for custom menu for each data set 
+			else {
+				Axis.addAxis(axis.getExactName() + "2", axis);
 			}
 
+			System.out.println();
 			// get time/samples data sets
 			time = test.getAxis(axis).getTime();
 			data = test.getAxis(axis).getSamples();
@@ -733,6 +835,17 @@ public class GraphNoSINCController implements Initializable {
 
 	}
 
+	// public void removeTest(int GTIndex, Axis axis){
+	// 	logger.info("Removing " + axis + " for GT #" + (GTIndex + 1));
+
+	// 		// remove axis from line chart
+	// 	multiAxis.removeAxis(axis, GTIndex);
+
+	// 	// remove GraphData from list of axes
+	// 	dataSets.remove(findGraphData(GTIndex, axis));
+
+	// }
+
 	public void updateAxis(Axis axis, int GTIndex) {
 		logger.info("Updating " + axis + " for GT #" + (GTIndex + 1));
 
@@ -754,6 +867,8 @@ public class GraphNoSINCController implements Initializable {
 		Axis axis = d.axis;
 		List<Double> data;
 		List<Double> time;
+		double timeOffset = 0.0;  
+		double vertOffset = 0.0;
 		if (d.axis.isCustomAxis()) {
 			logger.info("Update Custom Axis");
 
@@ -770,6 +885,20 @@ public class GraphNoSINCController implements Initializable {
 
 				time = resultSeries.getTime();
 				data = resultSeries.getSamples();
+
+				if (mode == GraphMode.LINEUP || mode == GraphMode.LINEUP_SINC){
+					timeOffset = resultSeries.getTimeOffset();
+				} else if (mode == GraphMode.NORM){
+					//axis data series
+					timeOffset = resultSeries.getTimeOffset();
+					resultSeries.setVertOffset(yShift);
+					vertOffset = resultSeries.getVertOffset(); 
+
+				} else {
+					timeOffset = 0.0;
+					vertOffset = 0.0; 
+				}
+
 				logger.info("Updated Custom Axis Equation");
 			} catch (Exception exception) {
 				logger.debug(exception.getMessage());
@@ -781,24 +910,22 @@ public class GraphNoSINCController implements Initializable {
 
 			time = test.getAxis(axis).getTime();
 			data = test.getAxis(axis).getSamples();
+			// get time offset 
+			timeOffset = test.getAxis(axis).getTimeOffset();
 		}
 		// clear samples in ObservableList
 		seriesData.clear();
-
-		// get time/samples data sets
-		double timeOffset = test.getAxis(axis).getTimeOffset();
 
 		// create (Time, Data) -> (X,Y) pairs
 		for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
 
 			XYChart.Data<Number, Number> dataEl = new XYChart.Data<>(time.get(i) + timeOffset,
-					data.get(i) / multiAxis.getAxisScalar(axis));
+					(data.get(i) + vertOffset) / multiAxis.getAxisScalar(axis));
 
 			// add tooltip with (x,y) when hovering over data point
-			dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i), axis, d.GTIndex));
+			dataEl.setNode(new DataPointLabel(time.get(i) + timeOffset, data.get(i) + vertOffset, axis, d.GTIndex));
 
 			seriesData.add(dataEl);
-
 		}
 
 		// add ObservableList to XYChart.Series
@@ -810,7 +937,7 @@ public class GraphNoSINCController implements Initializable {
 		}
 
 		// update legend colors
-		multiAxis.styleLegend();
+		// multiAxis.styleLegend();
 
 	}
 
@@ -891,9 +1018,10 @@ public class GraphNoSINCController implements Initializable {
 
 		// looping backwards to avoid ConcurrentModificationException
 		for (int i = dataSets.size() - 1; i >= 0; i--) {
-
+			// removeTest(GTIndex, dataSets.get(i).axis);
 			// only remove if on the right GenericTest
 			if (dataSets.get(i).GTIndex == GTIndex) {
+				// removeTest(GTIndex, dataSets.get(i).axis);
 				// toggling a graph that's already drawn removes it
 				graphAxis(dataSets.get(i).axis, dataSets.get(i).GTIndex);
 			}
@@ -947,8 +1075,8 @@ public class GraphNoSINCController implements Initializable {
 	/**
 	 * Updates the colors of currently graphed lines based on BFAColorMenu.
 	 */
-	public void updateGraphColors() {
-		multiAxis.updateGraphColors();
+	public void updateGraphColors(GraphData g) {
+		multiAxis.updateGraphColors(g);
 	}
 
 	@FXML
@@ -979,20 +1107,20 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void applyMovingAvg(Object source) {
 
-		// round slider to nearest integer
+		// // round slider to nearest integer
 		int blockSize;
-		blockSizeIsChanging = true;
-		if (source == blockSizeSlider) {
-			blockSize = (int) blockSizeSlider.getValue();
-			// update smoothing label
-			blockSizeField.setText("" + blockSize);
-		} else {
-			blockSize = Integer.parseInt(blockSizeField.getText());
+		// blockSizeIsChanging = true;
+		// if (source == blockSizeSlider) {
+		// 	blockSize = (int) blockSizeSlider.getValue();
+		// 	// update smoothing label
+		// 	blockSizeField.setText("" + blockSize);
+		// } else {
+		blockSize = Integer.parseInt(blockSizeField.getText());
 
-			// update smoothing label
-			blockSizeSlider.setValue(blockSize);
-		}
-		blockSizeIsChanging = false;
+		// 	// update smoothing label
+		// blockSizeSlider.setValue(blockSize);
+		// }
+		// blockSizeIsChanging = false;
 		GenericTest test;
 
 		// apply moving avgs to all currently drawn axes
@@ -1015,7 +1143,8 @@ public class GraphNoSINCController implements Initializable {
 	public void resetMovingAvg() {
 
 		// reset smoothing slider
-		blockSizeSlider.setValue(AxisDataSeries.DEFAULT_BLOCK_SIZE);
+		// blockSizeSlider.setValue(AxisDataSeries.DEFAULT_BLOCK_SIZE);
+		blockSizeField.setText("100");
 
 		// apply moving average
 		applyMovingAvg(null);
@@ -1048,7 +1177,8 @@ public class GraphNoSINCController implements Initializable {
 
 					// apply data normalization
 					AxisDataSeries a = g.getAxis(AxisType.valueOf(i));
-					a.normalizeAccel(start, end);
+					//changed
+					a.normalizeAccel(start, end, 0.0);
 				}
 
 				// recalculate Vel/Disp data sets
@@ -1604,8 +1734,16 @@ public class GraphNoSINCController implements Initializable {
 		GenericTest test = getTest(axis, GTIndex);
 		clearSlope();
 		double axisScalar;
-		// get slope value "m"
-		double m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
+
+		prevY.add(y); 
+
+		if(mode == GraphMode.LINEUP || mode == GraphMode.LINEUP_SINC || mode == GraphMode.NORM){
+			m = m; 
+		} else{
+			// get slope value "m"
+			// m = test.getAxis(axis).getSlope(x, multiAxis.getResolution(axis), test.getDataOffset());
+			m = test.getAxis(axis).getTangent(x, multiAxis.getResolution(axis));
+		}
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1635,7 +1773,7 @@ public class GraphNoSINCController implements Initializable {
 		slopeLine.getNode().getStyleClass().add("slope-line");
 
 		// update legend colors
-		multiAxis.styleLegend();
+		// multiAxis.styleLegend();
 
 		setGraphMode(GraphMode.NONE);
 
@@ -1651,11 +1789,19 @@ public class GraphNoSINCController implements Initializable {
 			graphSlope(x1, y1, axis, GTIndex);
 			return;
 		}
+		
+		prevY1.add(y1); 
+		prevY2.add(y2); 
 
 		clearSlope();
 
-		// get slope value "m"
-		double m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
+		if(mode == GraphMode.LINEUP || mode == GraphMode.LINEUP_SINC || mode == GraphMode.NORM){
+			m = m; 
+		} else{
+			// get slope value "m"
+			// m = test.getAxis(axis).getSlope(x1, x2, test.getDataOffset());
+			m = test.getAxis(axis).getSlopeShift(x1, x2);
+		}
 
 		slopeLine = new XYChart.Series<Number, Number>();
 		ObservableList<XYChart.Data<Number, Number>> seriesData = FXCollections.observableArrayList();
@@ -1685,7 +1831,7 @@ public class GraphNoSINCController implements Initializable {
 		slopeLine.getNode().getStyleClass().add("slope-line");
 
 		// update legend colors
-		multiAxis.styleLegend();
+		// multiAxis.styleLegend();
 
 		setGraphMode(GraphMode.NONE);
 
@@ -1696,13 +1842,35 @@ public class GraphNoSINCController implements Initializable {
 	 */
 	public void clearSlope() {
 
-		if (slopeLine != null) {
+		if (slopeLine != null) { 
 			lineChart.getData().remove(slopeLine);
 
 			// update legend colors
-			multiAxis.styleLegend();
+			// multiAxis.styleLegend();
 		}
 
+	}
+	
+	public void redrawSlope(double xOffset, double yOffset, Axis axis, int GTIndex){
+
+		double newX1;
+		double newX2; 
+		double newY1;
+		double newY2; 
+
+		newX1 = slopeLine.getData().get(0).getXValue().doubleValue() + xOffset;  
+		newX2 = slopeLine.getData().get(2).getXValue().doubleValue() + xOffset;
+
+		if(newX1 == newX2 - 1){
+			newX2 = newX2 - 1; 
+			newY1 = prevY.get(prevY.size()-1) + yOffset;
+			newY2 = newY1; 
+		} else{
+			newY1 = prevY1.get(prevY1.size() - 1) + yOffset; 
+			newY2 = prevY2.get(prevY2.size() - 1) + yOffset;
+		}
+
+		graphSlope(newX1, newY1, newX2, newY2, axis, GTIndex); 
 	}
 
 	/**
@@ -1723,14 +1891,16 @@ public class GraphNoSINCController implements Initializable {
 			// if delayAfterStart is negative, the camera starts earlier than the module;
 			// we compensate by shifting the graph by -delayAfterStart (to the right)
 			if (delayAfterStart < 0) {
-				g.addTimeOffset(-delayAfterStart);
+				//quick fix 
+				g.addTimeOffset(-delayAfterStart, 0);
 			}
 			// if delayAfterStart is positive, the camera starts later than the module;
 			// compensation is done in firmware, but we must also apply manual SINC
 			// correction
 			// (see BFALineChart.SINC_TIME_ERROR for more information)
 			else if (delayAfterStart > 0) {
-				g.addTimeOffset(lineChart.SINC_TIME_ERROR);
+				//quick fix
+				g.addTimeOffset(lineChart.SINC_TIME_ERROR, 0);
 			}
 
 			// TODO intentionally not accounting for delayAfterStart == 0;
@@ -1947,6 +2117,7 @@ public class GraphNoSINCController implements Initializable {
 					if (e.isShiftDown()) {
 						logger.info("Graphing tangent line...");
 						graphSlope(x, y, axis, GTIndex);
+						slopeFlag = true; 
 					} else if (!firstClick) {
 
 						// check for any issues with calculating b/t different data sets
@@ -1963,7 +2134,7 @@ public class GraphNoSINCController implements Initializable {
 
 						logger.info("Graphing secant line...");
 						graphSlope(selectedPoint[0], selectedPoint[1], x, y, axis, GTIndex);
-
+						slopeFlag = true; 
 					}
 
 				} else if (mode == GraphMode.AREA && !firstClick) {
@@ -1983,18 +2154,19 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 					// ensures that x1 is always less than x2
-					double[] areaBounds = { selectedPoint[0], x };
+					areaBounds = new double[] { selectedPoint[0], x }; 
 					Arrays.sort(areaBounds);
 
 					// calculate the definite integral with the given limits
-					double area = test.getAxis(axis).getAreaUnder(areaBounds[0], areaBounds[1]);
-
-					double axisScalar = multiAxis.getAxisScalar(axis);
+					// changed 
+					area = test.getAxis(axis).getAreaUnderShift(areaBounds[0], areaBounds[1]);
+					axisScalar = multiAxis.getAxisScalar(axis);
 
 					// p1 = (x1, y1), p2 = (x2, y2)
-					XYChart.Data<Double, Double> p1 = new XYChart.Data<Double, Double>(selectedPoint[0],
-							selectedPoint[1] / axisScalar);
-					XYChart.Data<Double, Double> p2 = new XYChart.Data<Double, Double>(x, y / axisScalar);
+					p1.setXValue(selectedPoint[0]);
+					p1.setYValue(selectedPoint[1] / axisScalar);
+					p2.setXValue(x);
+					p2.setYValue(y / axisScalar);
 
 					// ensure the lower bound is less than the upper bound
 					if (selectedPoint[0] == areaBounds[0]) {
@@ -2002,7 +2174,8 @@ public class GraphNoSINCController implements Initializable {
 					} else {
 						lineChart.graphArea(p2, p1, findGraphData(GTIndex, axis), area, SIG_FIGS);
 					}
-
+					
+					areaFlag = true; 
 					setGraphMode(GraphMode.NONE);
 
 				} else if ((mode == GraphMode.LINEUP && !firstClick) || mode == GraphMode.LINEUP_SINC) {
@@ -2022,7 +2195,37 @@ public class GraphNoSINCController implements Initializable {
 					}
 
 					// shift the graph by the difference between the final and initial x-values
-					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX);
+					genericTests.get(selectedGraphData.GTIndex).addTimeOffset(finalX - initialX, yShift); 
+
+					for (GraphData g : dataSets) {
+						if (!g.axis.isCustomAxis()) {
+							updateAxis(g.axis, g.GTIndex);
+							logger.info("Shifted GT #{}'s time axis by {}", g.GTIndex + 1,
+									genericTests.get(g.GTIndex).getTimeOffset());
+						}
+					}
+					for (GraphData g : dataSets) {
+						if (g.axis.isCustomAxis()) {
+							updateAxis(g.axis, g.GTIndex);
+							logger.info("Adjusted Custom Axis {}", g.axis.getName());
+						}
+					}
+					if (areaFlag){
+						lineChart.redrawArea();
+					}
+					if (slopeFlag){
+						double shift = finalX-initialX;
+						redrawSlope(shift, 0, axis, GTIndex);
+					}
+					setGraphMode(GraphMode.NONE);
+
+				} else if (mode == GraphMode.NORM) {
+
+					AxisDataSeries a = test.getAxis(axis);
+					//used to set vertOffset
+					yShift += -y; 
+					a.vertShift(-y); 
+					// updateAxis(axis, GTIndex); 
 
 					for (GraphData g : dataSets) {
 						if (!g.axis.isCustomAxis()) {
@@ -2038,13 +2241,14 @@ public class GraphNoSINCController implements Initializable {
 						}
 					}
 
-					setGraphMode(GraphMode.NONE);
-
-				} else if (mode == GraphMode.NORM) {
-
-					AxisDataSeries a = test.getAxis(axis);
-					a.vertShift(-y);
-					updateAxis(axis, GTIndex);
+					if (areaFlag){
+						double areaNorm = test.getAxis(axis).getAreaUnderShift(lineChart.getAreaBoundX1(), lineChart.getAreaBoundX2()); 
+						lineChart.redrawArea(0, 0, areaNorm);
+					}
+					if (slopeFlag){
+						double shift = -y;
+						redrawSlope(0, shift, axis, GTIndex);
+					}
 
 					setGraphMode(GraphMode.NONE);
 
