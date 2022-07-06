@@ -276,12 +276,126 @@ public class AxisDataSeries {
 
 	}
 
-	/**
-	 * Constructor for creating a magnitude data set.
-	 * @param a1 the X component of the data
-	 * @param a2 the Y component of the data
-	 * @param a3 the Z component of the data
-	 */
+	public AxisDataSeries(List<Double> time, List<Double> data, AxisType axis, boolean signData, int sampleRate, int rollBlkSize) {
+
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+		// TODO change "time" and "data" to Double[] when GenericTest is updated to use SerialComm
+		//
+		this.time = new Double[time.size()];
+		this.time = time.toArray(this.time);
+		addADS(axis.getName(),this);
+		// If dealing w/ magnetometer, only save every 10th data sample removing nulls
+		// This is because mag data is sampled at 1/10 the rate of accel/gyro,
+		// but the List "data" is filled w/ null samples assuming 960 samples/sec
+		if (axis.getValue() / 4 == 6) {
+
+			// this is to remove nulls from dataOrganizer series
+			for (int i = data.size() - 1; i >= 0; i--) {
+
+				if (data.get(i) == null) {
+					data.remove(i);
+				}
+
+			}
+
+		}
+
+		this.originalData = new Double[data.size()];
+		this.originalData = data.toArray(this.originalData);
+
+		this.axis = axis;
+		this.sampleRate = sampleRate;
+
+		this.testLength = ((double) data.size()) / sampleRate;
+		this.rollBlkSize = axis.getValue() / 4 == 6 ? rollBlkSize / 10 : rollBlkSize;
+
+		if (signData) {
+
+			for (int i = 0; i < this.originalData.length; i++) {
+
+				// convert raw data to signed data
+				if (this.originalData[i] > 32767) {
+					this.originalData[i] -= 65535;
+				}
+
+				// if axis class is magnetometer
+				if (axis.getValue() / 4 == 6) {
+					// apply mag sensitivity - is always 4800
+					this.originalData[i] *= (double) 4800 / (double) 32768;
+				}
+			}
+		}
+
+		smoothData(rollBlkSize);
+
+		// print AxisDataSeries debug info
+		logger.debug(toString());
+
+	}
+
+	public AxisDataSeries(AxisDataSeries a1, AxisDataSeries a2, AxisDataSeries a3, AxisType axis, int rollBlkSize) {
+
+		// casts Lists to Double[]'s
+		// (this is done b/c DataOrganizer uses ArrayLists)
+
+		this.time = new Double[a1.getTime().size()];
+		this.time = a1.getTime().toArray(this.time);
+		addADS(axis.getName(),this);
+		this.axis = axis;
+		this.sampleRate = a1.sampleRate;
+
+		int length = a1.getSamples().size();
+
+		this.testLength = ((double) length) / sampleRate;
+		this.rollBlkSize = axis.getValue() / 4 == 6 ? rollBlkSize / 10 : rollBlkSize;
+
+		// convert data ArrayLists to arrays
+		Double[] d1 = new Double[length];
+		d1 = a1.getSamples().toArray(d1);
+
+		Double[] d2 = new Double[length];
+		d2 = a2.getSamples().toArray(d2);
+
+		Double[] d3 = new Double[length];
+		d3 = a3.getSamples().toArray(d3);
+
+		Double[] result = new Double[d1.length];
+
+		// initialize vars for tracking data range
+		Double min = Double.MAX_VALUE;
+		Double max = Double.MIN_VALUE;
+
+		// calculate magnitude data set
+		for (int i = 0; i < d1.length; i++) {
+
+			// r = sqrt(d1^2 + d2^2 + d3^2)
+			result[i] = Math.sqrt(Math.pow(d1[i], 2) + Math.pow(d2[i], 2) + Math.pow(d3[i], 2));
+
+			// update min/max bounds for data range
+			min = result[i] < min ? result[i] : min;
+			max = result[i] > max ? result[i] : max;
+
+		}
+
+		this.originalData = result;
+		this.dataRange = new Double[] { min, max };
+
+		// copy originalData to smoothedData
+		this.smoothedData = new Double[originalData.length];
+		copyArray(this.originalData, this.smoothedData);
+
+		// print AxisDataSeries debug info
+		logger.debug(toString());
+
+	}
+
+		/**
+         * Constructor for creating a magnitude data set.
+         * @param a1 the X component of the data
+         * @param a2 the Y component of the data
+         * @param a3 the Z component of the data
+         */
 	public AxisDataSeries(AxisDataSeries a1, AxisDataSeries a2, AxisDataSeries a3, AxisType axis) {
 
 		// casts Lists to Double[]'s

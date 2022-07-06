@@ -11,11 +11,16 @@ import org.apache.logging.log4j.Logger;
  * This is also the parent class of all educator mode "lab templates".
  */
 public class GenericTest {
-	
+
+	private List<Double> timeAxis;
+	private List<Double> magTimeAxis;
+
 	private AxisDataSeries[] axes;
 	private List<List<Double>> dataSamples;
 
 	private String name;
+
+	private int rollBlkSize = 100;
 	private String graphTitle;
 	private AxisType[] defaultAxes;
 
@@ -170,9 +175,12 @@ public class GenericTest {
 
 			// since the magnetometer runs at 96 sps compared to 960,
 			// it must have a separate time axis for its data set(s)
-			magTimeAxis.add(new Double(i) / magSampleRate); 			
+			magTimeAxis.add(new Double(i) / magSampleRate);
 		}
-		
+
+		this.timeAxis = timeAxis;
+		this.magTimeAxis = timeAxis;
+
 		// initialize axis data series array
 		axes = new AxisDataSeries[AxisType.values().length];
 		
@@ -183,20 +191,20 @@ public class GenericTest {
 			// acceleration (NATIVE ACCELEROMETER MEASUREMENT)
 			axes[i] = new AxisDataSeries(timeAxis, dataSamples.get(i+1), AxisType.valueOf(i), mpuOffsets, accelSensitivity, sampleRate);
 
-			// velocity
-			axes[i+4] = new AxisDataSeries(timeAxis, axes[i].integrate(), AxisType.valueOf(i+4), false, sampleRate);
-
-			// displacement
-			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
+//			// velocity
+//			axes[i+4] = new AxisDataSeries(timeAxis, axes[i].integrate(), AxisType.valueOf(i+4), false, sampleRate);
+//
+//			// displacement
+//			axes[i+8] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(i+8), false, sampleRate);
 
 			// angular velocity (NATIVE GYROSCOPE MEASUREMENT)
 			axes[i+16] = new AxisDataSeries(timeAxis, dataSamples.get(i+4), AxisType.valueOf(i+16), gyroSensitivity, sampleRate);
 
-			// angular acceleration
-			axes[i+12] = new AxisDataSeries(timeAxis, axes[i+16].differentiate(), AxisType.valueOf(i+12), false, sampleRate);	
-
-			// angular displacement
-			axes[i+20] = new AxisDataSeries(timeAxis, axes[i+16].integrate(), AxisType.valueOf(i+20), false, sampleRate);
+//			// angular acceleration
+//			axes[i+12] = new AxisDataSeries(timeAxis, axes[i+16].differentiate(), AxisType.valueOf(i+12), false, sampleRate);
+//
+//			// angular displacement
+//			axes[i+20] = new AxisDataSeries(timeAxis, axes[i+16].integrate(), AxisType.valueOf(i+20), false, sampleRate);
 
 			// magnetometer (NATIVE MEASUREMENT)
 			axes[i+24] = new AxisDataSeries(magTimeAxis, dataSamples.get(i+7), AxisType.valueOf(i+24), true, magSampleRate);
@@ -205,11 +213,10 @@ public class GenericTest {
 
 		// Creates magnitude data sets
 		for (int i = 0; i < AxisType.values().length; i+=4) {
-
-				axes[i+3] = new AxisDataSeries(axes[i], axes[i+1], axes[i+2], AxisType.valueOf(i+3));
-				
+			if (axes[i] != null && axes[i+1] != null && axes[i+2] != null) {
+				axes[i + 3] = new AxisDataSeries(axes[i], axes[i + 1], axes[i + 2], AxisType.valueOf(i + 3));
+			}
 		}
-
 	}
 
 	/**
@@ -258,6 +265,44 @@ public class GenericTest {
 	 */
 	public AxisDataSeries getAxis(Axis axis) {
 		return axes[axis.getValue()];
+	}
+
+	public AxisDataSeries getAxisWithProccessing(Axis axis) {
+		if (axes[axis.getValue()] == null) {
+			this.reproccessAxis(axis.getValue());
+		}
+		return axes[axis.getValue()];
+	}
+
+	public void reproccessAxis(int axisId) {
+		logger.info(String.format("reproccessing Axis: %s", axisId));
+		int i = axisId%4;
+
+		if (i == 3 && axisId > 0) {
+			this.reproccessAxis((axisId-3));
+			this.reproccessAxis((axisId-2));
+			this.reproccessAxis((axisId-1));
+			axes[axisId] = new AxisDataSeries(axes[(axisId-3)], axes[(axisId-2)], axes[(axisId-1)], AxisType.valueOf(axisId), this.rollBlkSize);
+		}
+
+		if (axisId >= 4 && axisId <= 6) {
+			axes[axisId] = new AxisDataSeries(timeAxis, axes[i].integrate(), AxisType.valueOf(axisId), false, sampleRate, this.rollBlkSize);
+		}
+
+		if (axisId >= 8 && axisId <= 10) {
+			this.reproccessAxis(i+4);
+			axes[axisId] = new AxisDataSeries(timeAxis, axes[i+4].integrate(), AxisType.valueOf(axisId), false, sampleRate, this.rollBlkSize);
+		}
+
+		if (axisId >= 12 && axisId <= 14) {
+			this.reproccessAxis(i+16);
+			axes[axisId] = new AxisDataSeries(timeAxis, axes[i+16].differentiate(), AxisType.valueOf(axisId), false, sampleRate, this.rollBlkSize);
+		}
+
+		if (axisId >= 20 && axisId <= 22) {
+			this.reproccessAxis(i+16);
+			axes[axisId] = new AxisDataSeries(timeAxis, axes[i+16].integrate(), AxisType.valueOf(axisId), false, sampleRate, this.rollBlkSize);
+		}
 	}
 
 	/**
@@ -390,5 +435,8 @@ public class GenericTest {
 	public String getName() {
 		return this.name;
 	}
-			
+
+	public void setRollBlkSize(int rollBlkSize) {
+		this.rollBlkSize = rollBlkSize;
+	}
 }

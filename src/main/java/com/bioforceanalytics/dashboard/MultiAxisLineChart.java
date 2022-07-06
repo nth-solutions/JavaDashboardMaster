@@ -737,6 +737,8 @@ public class MultiAxisLineChart extends StackPane {
             // just input the bound with the highest magnitude,
             // since we just want our graph bounds to be symmetrical
 
+            if (axisClassRanges[i][0] == null || axisClassRanges[i][1] == null) continue;
+
             // get the bound with the larger magnitude
             double bound = Math.max(axisClassRanges[i][0], axisClassRanges[i][1]);
 

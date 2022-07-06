@@ -351,6 +351,7 @@ public class GraphNoSINCController implements Initializable {
 		for (int i = 0; i < genericTests.size(); i++) {
 			for (AxisType axis : AxisType.values()) {
 				String name = axis.getExactName() + (i == 0 ? "" : i + 1);
+				if(genericTests.get(i).getAxis(axis) == null) continue;
 				AxisData.nameAxisDataMap.put(name,
 						new AxisData(genericTests.get(i).getAxis(axis).getSamples(), genericTests.get(i), name));
 			}
@@ -528,6 +529,7 @@ public class GraphNoSINCController implements Initializable {
 			AxisDataSeries axis = primaryTest.getAxis(AxisType.valueOf(i));
 
 			// update min/max bounds for axis class
+			if(axis == null) continue;
 			min = axis.dataRange[0] < min ? axis.dataRange[0] : min;
 			max = axis.dataRange[1] > max ? axis.dataRange[1] : max;
 
@@ -667,9 +669,9 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 			// get time/samples data sets
-			time = test.getAxis(axis).getTime();
-			data = test.getAxis(axis).getSamples();
-			timeOffset = test.getAxis(axis).getTimeOffset();
+			time = test.getAxisWithProccessing(axis).getTime();
+			data = test.getAxisWithProccessing(axis).getSamples();
+			timeOffset = test.getAxisWithProccessing(axis).getTimeOffset();
 
 			// create (Time, Data) -> (X,Y) pairs
 			for (int i = 0; i < data.size(); i += multiAxis.getResolution(axis)) {
@@ -1000,6 +1002,8 @@ public class GraphNoSINCController implements Initializable {
 			test = getTest(d);
 			// if this is a magnetometer data set, divide block size by 10
 			int axisBlockSize = d.axis.getUnits() == "µT" ? blockSize / 10 : blockSize;
+			test.setRollBlkSize(axisBlockSize);
+			logger.info(d.axis.getValue());
 			test.getAxis(d.axis).smoothData(axisBlockSize);
 			updateAxis(d.axis, d.GTIndex);
 
