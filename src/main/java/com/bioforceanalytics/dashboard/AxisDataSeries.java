@@ -136,7 +136,7 @@ public class AxisDataSeries {
 			}
 		}
 
-		smoothData(rollBlkSize);
+		smoothData(rollBlkSize, 1);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -269,7 +269,7 @@ public class AxisDataSeries {
 			
 		}
 		
-		smoothData(this.rollBlkSize);
+		smoothData(this.rollBlkSize, 1);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -327,7 +327,7 @@ public class AxisDataSeries {
 			}
 		}
 
-		smoothData(rollBlkSize);
+		smoothData(rollBlkSize, 1);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -481,7 +481,7 @@ public class AxisDataSeries {
 
 		// apply normalization offset
 		vertOffset = -normOffset;
-		smoothData(this.rollBlkSize);
+		smoothData(this.rollBlkSize, 1);
 
 	}
 
@@ -545,9 +545,9 @@ public class AxisDataSeries {
 	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smooth the data set.
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
 	 */
-	public void smoothData(int sampleBlockSize) {
+	public void smoothData(int sampleBlockSize, int resolution) {
 
-		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
+		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ", Resolution: " + resolution + ")");
 
 		this.rollBlkSize = sampleBlockSize;
 		smoothedData = applyMovingAvg(originalData, this.rollBlkSize);
@@ -557,7 +557,8 @@ public class AxisDataSeries {
 		Double max = Double.MIN_VALUE;
 
 		// apply vertical offset to smoothed data
-		for (int i = 0; i < smoothedData.length; i++) {
+		logger.info(smoothedData.length);
+		for (int i = 0; i < smoothedData.length; i=i+resolution) {
 
 			smoothedData[i] += vertOffset;
 
@@ -578,7 +579,7 @@ public class AxisDataSeries {
 	public void resetSmoothing() {
 
 		vertOffset = 0;
-		smoothData(this.rollBlkSize);
+		smoothData(this.rollBlkSize, 1);
 
 	}
 
@@ -592,7 +593,7 @@ public class AxisDataSeries {
 		logger.info("Vertically shifting " + axis + " by " + amount);
 
 		vertOffset += amount;
-		smoothData(this.rollBlkSize);
+		smoothData(this.rollBlkSize, 1);
 
 	}
 

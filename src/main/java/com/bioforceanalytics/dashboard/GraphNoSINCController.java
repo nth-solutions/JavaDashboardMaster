@@ -1004,7 +1004,8 @@ public class GraphNoSINCController implements Initializable {
 			int axisBlockSize = d.axis.getUnits() == "µT" ? blockSize / 10 : blockSize;
 			test.setRollBlkSize(axisBlockSize);
 			logger.info(d.axis.getValue());
-			test.getAxis(d.axis).smoothData(axisBlockSize);
+//			multiAxis.getResolution(axis)
+			test.getAxis(d.axis).smoothData(axisBlockSize, multiAxis.getResolution(d.axis));
 			updateAxis(d.axis, d.GTIndex);
 
 		}
