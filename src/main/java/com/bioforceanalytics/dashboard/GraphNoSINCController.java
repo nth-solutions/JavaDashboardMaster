@@ -126,6 +126,14 @@ public class GraphNoSINCController implements Initializable {
 	@FXML
 	private TextField blockSizeField;
 
+	public TextField getBlockSizeField() {
+		return blockSizeField;
+	}
+
+	public void setBlockSizeField(TextField blockSizeField) {
+		this.blockSizeField = blockSizeField;
+	}
+
 	@FXML
 	private MultiAxisLineChart multiAxis;
 
@@ -470,8 +478,10 @@ public class GraphNoSINCController implements Initializable {
 			}
 
 		}
+		// every other axis is remove
 		updateIntermediateAxes();
 		initializePanels();
+		
 		loading.close();
 
 	}
@@ -1128,7 +1138,7 @@ public class GraphNoSINCController implements Initializable {
 			test = getTest(d);
 			// if this is a magnetometer data set, divide block size by 10
 			int axisBlockSize = d.axis.getUnits() == "µT" ? blockSize / 10 : blockSize;
-			test.getAxis(d.axis).smoothData(axisBlockSize);
+			test.getAxis(d.axis).smoothData(axisBlockSize, this);
 			updateAxis(d.axis, d.GTIndex);
 
 		}
@@ -1452,6 +1462,9 @@ public class GraphNoSINCController implements Initializable {
 
 	@FXML
 	private void importCSV(ActionEvent event) {
+
+		//set controller b/w ADS 
+		AxisDataSeries.setParent(this);
 
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select a CSV");

@@ -20,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.chart.LineChart;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.transform.Transform;
 
 public class MultiAxisLineChart extends StackPane {
 
@@ -42,7 +43,7 @@ public class MultiAxisLineChart extends StackPane {
     private BFANumberAxis xAxis;
     private BFANumberAxis yAxis;
 
-    private final double yAxisWidth = 60;
+    private final double yAxisWidth = 60; 
     private final double yAxisSeparation = 20;
     private final double xAxisHeight = 30;
 
@@ -239,13 +240,13 @@ public class MultiAxisLineChart extends StackPane {
     private void styleBaseChart(LineChart<Number, Number> baseChart) {
         baseChart.setAnimated(false);
         baseChart.setCreateSymbols(false);
-        // baseChart.setLegendVisible(true);
         baseChart.setLegendVisible(false); 
         baseChart.getXAxis().setAutoRanging(false);
         baseChart.getYAxis().setAutoRanging(false);
         baseChart.getXAxis().setAnimated(false);
         baseChart.getYAxis().setAnimated(false);
         baseChart.getYAxis().setOpacity(0.0);
+        // baseChart.setTranslateY(-15.0); //change
 
     }
 
@@ -461,7 +462,7 @@ public class MultiAxisLineChart extends StackPane {
         axisChartMap.remove(d);
         baseChart.getData().remove(d.data);
 
-        // remove axis class if necessary
+        // remove axis class if necessary - issue is happening 
         if (!isAxisClassGraphed(axis)) {
 
             logger.info("Removing " + axis.getName() + "'s axis class: " + getAxisLabel(axis));
@@ -604,6 +605,7 @@ public class MultiAxisLineChart extends StackPane {
         //check to see if an axis was removed/had color - use previous color
         if((style != null) && (d.GTIndex == gData.GTIndex) && (d.axis == gData.axis)){
             line.setStyle(style);
+            panels.get(index).changeBoxColor(a, style.substring(12));
         } else {
             line.setStyle(colorStyle + dashedStyle);
             //set check mark color as the line color 

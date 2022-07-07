@@ -39,13 +39,16 @@ public class BFAColorMenu implements Initializable {
 
     // keeps track of AxisTypes and their matching colors.
     private static HashMap<Axis, Color> colorMap = new HashMap<Axis, Color>();
+    private static HashMap<GraphData, ColorPickerCell> colorMaps = new HashMap<GraphData, ColorPickerCell>();
 
     // reference to parent GraphNoSINCController
     private GraphNoSINCController controller;
+
     private ArrayList<GraphData> sets = new ArrayList<GraphData>();
-    // private ArrayList<GenericTest> sets2 = new ArrayList<GenericTest>();
-    private int GTIndex; 
-    private GraphData g;
+    private ArrayList<GenericTest> tests = new ArrayList<GenericTest>();
+
+    // private int GTIndex; 
+    private GraphData currentGraphData;
     // private GenericTest gT; 
 
     private static ArrayList<Color> customAxisColors = new ArrayList<Color>();
@@ -113,7 +116,8 @@ public class BFAColorMenu implements Initializable {
         axisTypeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().toString()));
 
         // set the right column to the custom color picker cell
-        colorCol.setCellFactory(column -> new ColorPickerCell());
+        // colorCol.setCellFactory(column -> new ColorPickerCell());
+        // colorCol.setCellFactory(column -> colorMaps.get(currentGraphData));
 
         dataSetCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().toString()));
 
@@ -134,7 +138,18 @@ public class BFAColorMenu implements Initializable {
                 if (tableView2.getSelectionModel().getSelectedItem() != null) {
                     //gets the index of the selected cell
                     int a = tableView2.getSelectionModel().getSelectedIndex();
-                    g = controller.getDataSets().get(a);
+                    currentGraphData = controller.getDataSets().get(a);
+
+                    //select color map to be used
+                    if (colorMaps.get(currentGraphData) != null){
+                        colorCol.setCellFactory(column -> colorMaps.get(currentGraphData));
+                    } else {
+                        ColorPickerCell pickerCell = new ColorPickerCell();
+                        colorMaps.put(currentGraphData, pickerCell);
+                        colorCol.setCellFactory(column -> colorMaps.get(currentGraphData));
+                        tableView.refresh();
+                    }
+
                     //moves to next table
                     colorMenuPane.getSelectionModel().select(1); 
                     updateColor.setVisible(true);
@@ -167,6 +182,23 @@ public class BFAColorMenu implements Initializable {
 
                 final Axis a;
                 Axis temp = null;
+                // int indexGD;
+                // HashMap<Axis, Color> colorMap = new HashMap<Axis, Color>();
+
+                // for (GraphData g: colorMaps.keySet()){
+                //     HashMap<Axis, Color> colorMap = new HashMap<Axis, Color>();
+                //     for (Axis axis : colorMap.keySet()) {
+                //         if (axis != null) {
+                //             if ((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)
+                //                     || (!axis.isCustomAxis() && axis.getIndex() == rowIndex)) {
+                //                 temp = axis;
+                //                 if (axis.isCustomAxis()) {
+                //                     logger.info("Custom axis" + axis + ", " + rowIndex + ", " + axis.getIndex());
+                //                 }
+                //             }
+                //         }
+                //     }
+                // }
                 for (Axis axis : colorMap.keySet()) {
                     if (axis != null) {
                         if ((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)
@@ -257,13 +289,15 @@ public class BFAColorMenu implements Initializable {
 
         // populate table two with GraphData entries
         sets = controller.getDataSets(); 
-        int a = 0; 
+        tests = controller.getGenericTests(); 
+        String fileName;
+
         for (GraphData d : sets) {
-            a = d.getGTIndex() + 1; 
-            tableView2.getItems().add("Test #" + a);
+            // a = d.getGTIndex() + 1; 
+            fileName = tests.get(d.getGTIndex()).getName(); 
+            tableView2.getItems().add(fileName + ": " + d.axis);
         }
 
-        
     }
 
     // loads default colors from "defaultGraphColors.json"
@@ -277,7 +311,7 @@ public class BFAColorMenu implements Initializable {
             JSONObject obj = (JSONObject) new JSONParser().parse(reader);
 
             // loop through AxisTypes to populate color map
-            for (AxisType a : AxisType.values()) {
+            for (AxisType a : AxisType.values()) { 
 
                 // read color hexcode from JSON
                 String colorString = (String) obj.get(a.toString());
@@ -316,7 +350,7 @@ public class BFAColorMenu implements Initializable {
         // int rowIndex = getTableRow().getIndex();
 
         logger.info("Updating graph colors...");
-        controller.updateGraphColors(g);
+        controller.updateGraphColors(currentGraphData);
         // line.styleLine(gT); 
 
         // close the color menu

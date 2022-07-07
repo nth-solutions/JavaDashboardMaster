@@ -1444,6 +1444,8 @@ public class EducatorModeControllerFX implements Initializable {
                 return 7679;
             case (960):
                 return 3848;
+            case (2000):
+                return 1981;
             default:    //960-96
                 return 3813;
         }

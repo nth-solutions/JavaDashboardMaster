@@ -37,6 +37,8 @@ public class AxisDataSeries {
 
 	double timeOffset;
 
+	private static GraphNoSINCController controller;
+
 	// the amount the smoothed data set should be shifted up/down
 	private double vertOffset = 0;
 
@@ -80,6 +82,9 @@ public class AxisDataSeries {
 		}
 		nameADSMap.put(name,ads);
     }
+	public static void setParent(GraphNoSINCController gcontroller){
+		controller = gcontroller; 
+	}
 
 	/**
 	 * Constructor for data NOT natively recorded by the module OR from the magnetometer.
@@ -140,7 +145,7 @@ public class AxisDataSeries {
 			}
 		}
 
-		smoothData(rollBlkSize);
+		smoothData(rollBlkSize, controller);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -282,7 +287,7 @@ public class AxisDataSeries {
 		}
 		
 		// smoothData(this.rollBlkSize);
-		smoothDataOffset(this.rollBlkSize, vertOffset);
+		smoothDataOffset(this.rollBlkSize, vertOffset, controller);
 
 		// print AxisDataSeries debug info
 		logger.debug(toString());
@@ -381,7 +386,7 @@ public class AxisDataSeries {
 		// apply normalization offset
 		vertOffset = -normOffset;
 		// smoothData(this.rollBlkSize);
-		smoothDataOffset(this.rollBlkSize, vOffset);
+		smoothDataOffset(this.rollBlkSize, vOffset, controller);
 
 	}
 
@@ -445,11 +450,16 @@ public class AxisDataSeries {
 	 * Intended as wrapper method for {@link #applyMovingAvg} so other classes can smooth the data set.
 	 * @param sampleBlockSize the number of samples used to calculate the moving average
 	 */
-	public void smoothData(int sampleBlockSize) {
+	public void smoothData(int sampleBlockSize, GraphNoSINCController controller) {
 
 		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
 
-		this.rollBlkSize = sampleBlockSize;
+		if(Integer.parseInt(controller.getBlockSizeField().getText()) != 100){
+			this.rollBlkSize = Integer.parseInt(controller.getBlockSizeField().getText());
+		}
+		else{
+			this.rollBlkSize = sampleBlockSize; 
+		}
 		smoothedData = applyMovingAvg(originalData, this.rollBlkSize);
 
 		// initialize vars for tracking data range
@@ -473,12 +483,19 @@ public class AxisDataSeries {
 	}
 
 	//smooth data with vertical offset applied 
-	public void smoothDataOffset(int sampleBlockSize, double offset) {
+	public void smoothDataOffset(int sampleBlockSize, double offset, GraphNoSINCController controller) {
 
 		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
 
-		this.rollBlkSize = sampleBlockSize;
+		// this.rollBlkSize = Integer.parseInt(controller.getBlockSizeField().getText()); //sampleBlockSize
 		
+		if(Integer.parseInt(controller.getBlockSizeField().getText()) != 100){
+			this.rollBlkSize = Integer.parseInt(controller.getBlockSizeField().getText());
+		}
+		else{
+			this.rollBlkSize = sampleBlockSize; 
+		}
+
 		smoothedData = applyMovingAvg(originalData, this.rollBlkSize);
 
 		// initialize vars for tracking data range
@@ -510,7 +527,7 @@ public class AxisDataSeries {
 	public void resetSmoothing() {
 
 		vertOffset = 0;
-		smoothData(this.rollBlkSize);
+		smoothData(this.rollBlkSize, controller);
 
 	}
 
@@ -524,7 +541,7 @@ public class AxisDataSeries {
 		logger.info("Vertically shifting " + axis + " by " + amount);
 
 		vertOffset += amount;
-		smoothData(this.rollBlkSize);
+		smoothData(this.rollBlkSize, controller);
 
 	}
 
