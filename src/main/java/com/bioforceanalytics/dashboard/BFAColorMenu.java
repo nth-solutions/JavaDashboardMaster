@@ -29,6 +29,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
@@ -104,8 +105,8 @@ public class BFAColorMenu implements Initializable {
         tableView.setSelectionModel(null);
         tableView2.getSelectionModel().setCellSelectionEnabled(true);
 
-        updateColor.setVisible(false);
-        resetColor.setVisible(false);
+        // updateColor.setVisible(true);
+        // resetColor.setVisible(true);
 
         // center table columns
         axisTypeCol.setStyle("-fx-alignment: CENTER");
@@ -114,14 +115,10 @@ public class BFAColorMenu implements Initializable {
 
         // set the left column to the name of each AxisType
         axisTypeCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().toString()));
-
-        // set the right column to the custom color picker cell
-        // colorCol.setCellFactory(column -> new ColorPickerCell());
-        // colorCol.setCellFactory(column -> colorMaps.get(currentGraphData));
+        
+        colorCol.setCellFactory(column -> new ColorPickerCell());
 
         dataSetCol.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().toString()));
-
-        // colorCol.setCellValueFactory(data -> new ColorPicker());
 
         // populate table with AxisType entries
         for (AxisType a : AxisType.values()) {
@@ -133,22 +130,27 @@ public class BFAColorMenu implements Initializable {
             }
         }
 
+        // TODO create multiple color pickers for each data set
+        // Callback<TableColumn<Axis, ColorPicker>, TableCell<Axis, ColorPicker>> cellFactory =
+        //     new Callback<TableColumn<Axis, ColorPicker>, TableCell<Axis, ColorPicker>>() {
+        //         public TableCell call(TableColumn p) {
+        //             ColorPickerCell cpc; 
+        //             //select color map to be used
+        //             if (colorMaps.get(currentGraphData) == null){
+        //                 colorMaps.put(currentGraphData, new ColorPickerCell());
+        //             } 
+        //             cpc = colorMaps.get(currentGraphData);
+        //             return cpc;
+        //         }
+        //     };
+
+
         tableView2.setOnMouseClicked((MouseEvent event) -> {
             if (event.getClickCount() == 1) {
                 if (tableView2.getSelectionModel().getSelectedItem() != null) {
                     //gets the index of the selected cell
                     int a = tableView2.getSelectionModel().getSelectedIndex();
                     currentGraphData = controller.getDataSets().get(a);
-
-                    //select color map to be used
-                    if (colorMaps.get(currentGraphData) != null){
-                        colorCol.setCellFactory(column -> colorMaps.get(currentGraphData));
-                    } else {
-                        ColorPickerCell pickerCell = new ColorPickerCell();
-                        colorMaps.put(currentGraphData, pickerCell);
-                        colorCol.setCellFactory(column -> colorMaps.get(currentGraphData));
-                        tableView.refresh();
-                    }
 
                     //moves to next table
                     colorMenuPane.getSelectionModel().select(1); 
@@ -182,23 +184,7 @@ public class BFAColorMenu implements Initializable {
 
                 final Axis a;
                 Axis temp = null;
-                // int indexGD;
-                // HashMap<Axis, Color> colorMap = new HashMap<Axis, Color>();
-
-                // for (GraphData g: colorMaps.keySet()){
-                //     HashMap<Axis, Color> colorMap = new HashMap<Axis, Color>();
-                //     for (Axis axis : colorMap.keySet()) {
-                //         if (axis != null) {
-                //             if ((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)
-                //                     || (!axis.isCustomAxis() && axis.getIndex() == rowIndex)) {
-                //                 temp = axis;
-                //                 if (axis.isCustomAxis()) {
-                //                     logger.info("Custom axis" + axis + ", " + rowIndex + ", " + axis.getIndex());
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
+                
                 for (Axis axis : colorMap.keySet()) {
                     if (axis != null) {
                         if ((axis.isCustomAxis() && axis.getIndex() + AxisType.values().length == rowIndex)

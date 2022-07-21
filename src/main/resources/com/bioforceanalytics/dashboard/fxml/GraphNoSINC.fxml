@@ -197,6 +197,8 @@
 														</TextField>
 													</children>
 												</HBox>
+												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#applySmoothing" prefHeight="25.0" prefWidth="120.0" text="Apply">
+												</Button>
 												<Button layoutX="121.0" layoutY="589.0" mnemonicParsing="false" onAction="#resetMovingAvg" prefHeight="25.0" prefWidth="120.0" text="Reset">
 													<VBox.margin>
 														<Insets bottom="10.0" />

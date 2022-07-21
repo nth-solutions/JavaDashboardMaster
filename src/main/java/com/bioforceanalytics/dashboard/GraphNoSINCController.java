@@ -246,11 +246,11 @@ public class GraphNoSINCController implements Initializable {
 			// 	}
 			// });
 
-			blockSizeField.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-				if (e.getCode() == KeyCode.ENTER && blockSizeField.getText().length() > 0) {
-					applyMovingAvg(blockSizeField);
-				}
-			});
+			// blockSizeField.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+			// 	if (e.getCode() == KeyCode.ENTER && blockSizeField.getText().length() > 0) {
+			// 		applyMovingAvg(blockSizeField);
+			// 	}
+			// });
 
 			// update playback speed in real-time
 			playbackSlider.valueProperty().addListener((obs, oldValue, newValue) -> {
@@ -1159,6 +1159,12 @@ public class GraphNoSINCController implements Initializable {
 		// apply moving average
 		applyMovingAvg(null);
 
+	}
+	@FXML
+	public void applySmoothing(){
+		if(blockSizeField.getText().length() > 0){
+			applyMovingAvg(blockSizeField);
+		}
 	}
 
 	/**

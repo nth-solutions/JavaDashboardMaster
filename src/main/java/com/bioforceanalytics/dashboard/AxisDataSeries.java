@@ -454,7 +454,7 @@ public class AxisDataSeries {
 
 		logger.info("Smoothing " + axis + " (block size " + sampleBlockSize + ", vertical offset " + vertOffset + ")");
 
-		if(Integer.parseInt(controller.getBlockSizeField().getText()) != 100){
+		if(controller != null && Integer.parseInt(controller.getBlockSizeField().getText()) != 100){
 			this.rollBlkSize = Integer.parseInt(controller.getBlockSizeField().getText());
 		}
 		else{
@@ -489,7 +489,7 @@ public class AxisDataSeries {
 
 		// this.rollBlkSize = Integer.parseInt(controller.getBlockSizeField().getText()); //sampleBlockSize
 		
-		if(Integer.parseInt(controller.getBlockSizeField().getText()) != 100){
+		if(controller != null && Integer.parseInt(controller.getBlockSizeField().getText()) != 100){
 			this.rollBlkSize = Integer.parseInt(controller.getBlockSizeField().getText());
 		}
 		else{
