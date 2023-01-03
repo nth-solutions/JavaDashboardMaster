@@ -685,7 +685,6 @@ public class SerialComm {
 		if(!selectMode('K')) {
 			return false;
 		}
-		
 		int tempRx; 
 
 		long echoStart = System.currentTimeMillis();

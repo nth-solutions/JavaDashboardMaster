@@ -81,7 +81,6 @@ public class CSVHandler {
 			//
 			// write mpuOffsets values to file
 			dataFile.println(mpuOffsets[i]);
-			dataFile.println(mpuOffsets[i]);
 		}
 		
 		dataFile.close();

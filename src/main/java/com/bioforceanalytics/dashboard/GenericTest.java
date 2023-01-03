@@ -55,10 +55,11 @@ public class GenericTest {
 			MPUMinMax = new int[][] {{0, 0}, {0, 0}, {0, 0}};
 		}
 
-		// populate MPU offsets by taking the avg of min and max
+		// populate MPU offsets by unpacking 2d array to min max array
 		// (currently used for acceleration calculations only)
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
-			mpuOffsets[axi] = (MPUMinMax[axi][0]+MPUMinMax[axi][1])/2;
+			mpuOffsets[2*axi] = MPUMinMax[axi][0];
+			mpuOffsets[(2*axi)+1] = MPUMinMax[axi][1];
 		}
 
 		MPUOffsets = mpuOffsets;
