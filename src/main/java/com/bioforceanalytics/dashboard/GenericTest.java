@@ -1,9 +1,9 @@
 package com.bioforceanalytics.dashboard;
 
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.logging.log4j.Logger;
 
 /**
  * Used by the BioForce Graph to store the data associated with a single trial
@@ -46,7 +46,7 @@ public class GenericTest {
 		
 		// only 3/9 indices are used (Accel X/Y/Z => 0/1/2)
 		// kept at length of 9 to match # of DOFs (Gyro & Mag)
-		int[] mpuOffsets = new int[9];
+		int[] mpuOffsets = new int[18];
 
 		// TODO MPUMinMax is sometimes randomly be read as "null" from SerialComm
 		// this ensures that a NullPointerException isn't thrown later in GT
@@ -56,7 +56,6 @@ public class GenericTest {
 		}
 
 		// populate MPU offsets by unpacking 2d array to min max array
-		// (currently used for acceleration calculations only)
 		for (int axi = 0; axi < MPUMinMax.length; axi++) {
 			mpuOffsets[2*axi] = MPUMinMax[axi][0];
 			mpuOffsets[(2*axi)+1] = MPUMinMax[axi][1];
